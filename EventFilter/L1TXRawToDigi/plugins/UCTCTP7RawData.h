@@ -1,6 +1,11 @@
 #ifndef UCTCTP7RawData_hh
 #define UCTCTP7RawData_hh
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
+using namespace edm;
+
+
 class UCTCTP7RawData {
 public:
 
@@ -9,7 +14,7 @@ public:
   UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
     if(myDataPtr != 0) {
       if(sof() != 0xA110CA7E) {
-	std::cerr << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
+	LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
       }
     }
   }
@@ -30,11 +35,11 @@ public:
     uint32_t index = 0xDEADBEEF;
     if(cType == EBEE || cType == HBHE) {
       if(iPhi > 3) {
-	std::cerr << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
+	LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
 	return 0xDEADBEEF;
       }
       if(cEta < 1 || cEta > 28) {
-	std::cerr << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
+	LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
 	return 0xDEADBEEF;
       }
       // ECAL/HB+HE fragment size is 3 32-bit words
@@ -64,11 +69,11 @@ public:
     }
     else if(cType == HF) {
       if(iPhi > 1) {
-	std::cerr << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi << std::endl;
+	LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi << std::endl;
 	return 0xDEADBEEF;
       }
       if(cEta < 30 || cEta > 41) {
-	std::cerr << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
+	LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
 	return 0xDEADBEEF;
       }
       if(negativeEta) {
@@ -95,7 +100,7 @@ public:
       }
     }
     else {
-      std::cerr << "Unknown CaloType " << cType << std::endl;
+      LogError("UCTCTP7RawData") << "Unknown CaloType " << cType << std::endl;
       return 0xDEADBEEF;
     }
     return index;

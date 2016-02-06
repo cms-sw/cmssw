@@ -27,7 +27,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -56,20 +57,22 @@
 #include "UCTAMCRawData.h"
 #include "UCTCTP7RawData.h"
 
+using namespace edm;
+
 //
 // class declaration
 //
 
-class L1TCaloLayer1RawToDigi : public edm::stream::EDProducer<> {
+class L1TCaloLayer1RawToDigi : public stream::EDProducer<> {
 public:
-  explicit L1TCaloLayer1RawToDigi(const edm::ParameterSet&);
+  explicit L1TCaloLayer1RawToDigi(const ParameterSet&);
   ~L1TCaloLayer1RawToDigi();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginStream(edm::StreamID) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginStream(StreamID) override;
+  virtual void produce(Event&, const EventSetup&) override;
   virtual void endStream() override;
 
   void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<EcalTrigPrimDigiCollection>& ecalTPGs);
@@ -78,14 +81,14 @@ private:
 
   void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hfTPGs);
 
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void beginRun(Run const&, EventSetup const&) override;
+  //virtual void endRun(Run const&, EventSetup const&) override;
+  //virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+  //virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   // ----------member data ---------------------------
 
-  edm::InputTag fedRawDataLabel;
+  InputTag fedRawDataLabel;
   std::vector<int> fedIDs;
 
   uint32_t event;
@@ -106,8 +109,8 @@ private:
 //
 // constructors and destructor
 //
-L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const edm::ParameterSet& iConfig) :
-  fedRawDataLabel(iConfig.getParameter<edm::InputTag>("fedRawDataLabel")),
+L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const ParameterSet& iConfig) :
+  fedRawDataLabel(iConfig.getParameter<InputTag>("fedRawDataLabel")),
   fedIDs(iConfig.getParameter<std::vector<int> >("FEDIDs")),
   event(0),
   verbose(iConfig.getParameter<bool>("verbose"))
@@ -133,12 +136,12 @@ L1TCaloLayer1RawToDigi::~L1TCaloLayer1RawToDigi()
 
 // ------------ method called to produce the data  ------------
 void
-L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
 {
   using namespace edm;
   using namespace std;
   
-  edm::Handle<FEDRawDataCollection> fedRawDataCollection;
+  Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByLabel(fedRawDataLabel, fedRawDataCollection);
 
   std::auto_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
@@ -164,14 +167,14 @@ L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       for(uint32_t i = 0; i < daqData.nAMCs(); i++) {
 	UCTAMCRawData amcData(daqData.amcPayload(i));
 	if(verbose && event < 5) {	
-	  cout << endl;
+	  LogDebug("L1TCaloLayer1") << endl;
 	  amcData.print();
-	  cout << endl;
+	  LogDebug("L1TCaloLayer1") << endl;
 	}
 	uint32_t lPhi = amcData.layer1Phi();
 	UCTCTP7RawData ctp7Data(amcData.payload());
 	if(verbose && event < 5) ctp7Data.print();
-	if(verbose && event < 5) cout << endl;
+	if(verbose && event < 5) LogDebug("L1TCaloLayer1") << endl;
 	makeECalTPGs(lPhi, ctp7Data, ecalTPGs);
 	makeHCalTPGs(lPhi, ctp7Data, hcalTPGs);
 	// Note: HF TPGs are separately put in event to avoid RCT gettting confused
@@ -193,7 +196,7 @@ L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.put(hfTPGs, "hfTPGDigis");
 
   event++;
-  if(verbose && event == 5) cout << "L1TCaloLayer1RawToDigi: Goodbye! Tired of printing junk" << endl;
+  if(verbose && event == 5) LogDebug("L1TCaloLayer1") << "L1TCaloLayer1RawToDigi: Goodbye! Tired of printing junk" << endl;
 
 }
 
@@ -204,7 +207,7 @@ void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
     if(cPhi == 0) cPhi = 72;
     else if(cPhi == -1) cPhi = 71;
     else if(cPhi < -1) {
-      std::cerr << "L1TCaloLayer1RawToDigi: Major error in makeECalTPGs" << std::endl;
+      LogError("L1TCaloLayer1RawToDigi") << "L1TCaloLayer1RawToDigi: Major error in makeECalTPGs" << std::endl;
       return;
     }
     for(int cEta =  -28; cEta <= 28; cEta++) { // Calorimeter Eta indices (HB/HE for now)
@@ -247,7 +250,7 @@ void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
     if(cPhi == 0) cPhi = 72;
     else if(cPhi == -1) cPhi = 71;
     else if(cPhi < -1) {
-      std::cerr << "L1TCaloLayer1RawToDigi: Major error in makeHCalTPGs" << std::endl;
+      LogError("L1TCaloLayer1RawToDigi") << "L1TCaloLayer1RawToDigi: Major error in makeHCalTPGs" << std::endl;
       return;
     }
     for(int cEta =  -28; cEta <= 28; cEta++) { // Calorimeter Eta indices (HB/HE for now)
@@ -326,7 +329,7 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void
-L1TCaloLayer1RawToDigi::beginStream(edm::StreamID)
+L1TCaloLayer1RawToDigi::beginStream(StreamID)
 {
 }
 
@@ -338,7 +341,7 @@ L1TCaloLayer1RawToDigi::endStream() {
 // ------------ method called when starting to processes a run  ------------
 /*
   void
-  L1TCaloLayer1RawToDigi::beginRun(edm::Run const&, edm::EventSetup const&)
+  L1TCaloLayer1RawToDigi::beginRun(Run const&, EventSetup const&)
   {
   }
 */
@@ -346,7 +349,7 @@ L1TCaloLayer1RawToDigi::endStream() {
 // ------------ method called when ending the processing of a run  ------------
 /*
   void
-  L1TCaloLayer1RawToDigi::endRun(edm::Run const&, edm::EventSetup const&)
+  L1TCaloLayer1RawToDigi::endRun(Run const&, EventSetup const&)
   {
   }
 */
@@ -354,7 +357,7 @@ L1TCaloLayer1RawToDigi::endStream() {
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
   void
-  L1TCaloLayer1RawToDigi::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  L1TCaloLayer1RawToDigi::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&)
   {
   }
 */
@@ -362,17 +365,17 @@ L1TCaloLayer1RawToDigi::endStream() {
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
   void
-  L1TCaloLayer1RawToDigi::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  L1TCaloLayer1RawToDigi::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
   {
   }
 */
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TCaloLayer1RawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TCaloLayer1RawToDigi::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
+  ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
