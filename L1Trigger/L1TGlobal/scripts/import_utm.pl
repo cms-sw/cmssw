@@ -138,6 +138,7 @@ while($fullfile = <FILELIST>){
 		$b = $rep[$i];
 		#print "INFO: checking for $a --> $b\n";
 		s/\b$a\b/$b/g;
+		s/\_$a\_/\_$b\_/g;
 	    }
 	    print OUTFILE $_;
 	}

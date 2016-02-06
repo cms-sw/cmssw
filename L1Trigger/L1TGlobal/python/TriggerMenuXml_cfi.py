@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 
 TriggerMenuXml = cms.ESProducer("l1t::TriggerMenuXmlProducer",
 
+    newGrammar = cms.bool(False),
+
     # choose luminosity directory
     TriggerMenuLuminosity = cms.string('startup'),
     
