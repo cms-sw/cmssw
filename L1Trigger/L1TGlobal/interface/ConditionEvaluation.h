@@ -108,7 +108,7 @@ protected:
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
-    template<class Type1, class Type2> const bool checkThreshold(const Type1& threshold,
+    template<class Type1, class Type2> const bool checkThreshold(const Type1& thresholdL, const Type1& thresholdH,
         const Type2& value, bool condGEqValue) const;
 
     /// check if a bit with a given number is set in a mask
@@ -158,21 +158,22 @@ protected:
 // check if a value is greater than a threshold or
 // greater-or-equal depending on the value of the condGEqValue flag
 template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshold(
-    const Type1& threshold, const Type2& value, const bool condGEqValue) const {
+    const Type1& thresholdL, const Type1& thresholdH, const Type2& value, const bool condGEqValue) const {
 
-    //if (value > 0) {
-    //    LogTrace("L1GlobalTrigger") << "  threshold check for condGEqValue = "
-    //        << condGEqValue << "\n    hex: " << std::hex << "threshold = " << threshold
-    //        << " value = " << value << "\n    dec: " << std::dec << "threshold = " << threshold
-    //        << " value = " << value << std::endl;
-    //}
+    if (value > 0) {
+        LogTrace("L1GlobalTrigger") 
+	    << "  checkThreshold check for condGEqValue = "
+            << condGEqValue << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
+            << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL << " - " << thresholdH
+            << " value = " << value << std::endl;
+    }
 
     if (condGEqValue) {
-        if (value >= (Type2) threshold) {
+        if (value >= (Type2) thresholdL && (Type1) value < thresholdH) {
 
             //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
             //    << std::endl;
-
+	    
             return true;
         }
 
@@ -181,7 +182,7 @@ template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshol
     }
     else {
 
-        if (value == (Type2) threshold) {
+        if (value == (Type2) thresholdL ) {
 
             //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
             //    << std::endl;

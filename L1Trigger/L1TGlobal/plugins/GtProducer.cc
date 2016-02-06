@@ -35,6 +35,10 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "TriggerMenuParser.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -46,12 +50,13 @@
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
+/* //These are old but we might be able to reuse when these go into for upgrade
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-
+*/
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -66,6 +71,7 @@
 l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
             m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
+	    m_extInputTag(parSet.getParameter<edm::InputTag> ("extInputTag")),
 
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
@@ -93,6 +99,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
   m_muInputToken = consumes <BXVector<l1t::Muon> > (m_muInputTag);
 
+  m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
 
     if (m_verbosity) {
 
@@ -101,6 +108,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         LogTrace("l1t|Global")
                 << "\nInput tag for muon collection from GMT:         " << m_muInputTag
                 << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
+		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
 
@@ -179,6 +187,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
     //
     m_l1GtStableParCacheID = 0ULL;
+    m_l1GtMenuCacheID = 0ULL;
 
     m_numberPhysTriggers = 0;
     m_numberDaqPartitions = 0;
@@ -483,6 +492,57 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
 
 
+    // get / update the trigger menu from the EventSetup
+    // local cache & check on cacheIdentifier
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
+
+    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+
+        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+        evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
+        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
+        
+	// Instantiate Parser
+        l1t::TriggerMenuParser gtParser = l1t::TriggerMenuParser();   
+
+
+	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
+	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnConditionChip());
+	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderConditionChip());
+	gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
+        
+	//Parse menu into emulator classes
+	gtParser.parseCondFormats(utml1GtMenu); 
+        
+    // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberConditionChips(),
+                        gtParser.vecMuonTemplate(),
+                        gtParser.vecCaloTemplate(),
+                        gtParser.vecEnergySumTemplate(),
+                        gtParser.vecExternalTemplate(),
+                        gtParser.vecCorrelationTemplate(),
+                        gtParser.corMuonTemplate(),
+                        gtParser.corCaloTemplate(),
+                        gtParser.corEnergySumTemplate()) ;
+
+ 
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScaleDbKey(gtParser.gtScaleDbKey());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScales(gtParser.gtScales());
+
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
+
+        (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+    }
+
+
+
+
+
     // get / update the board maps from the EventSetup
     // local cache & check on cacheIdentifier
 
@@ -606,6 +666,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveTau = true;    
     bool receiveJet = true;
     bool receiveEtSums = true;
+    bool receiveExt = true;
 
 /*  *** Boards need redefining *****
     for (CItBoardMaps
@@ -798,6 +859,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
      m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken,
                                      receiveMu, m_nrL1Mu  );
 
+     m_uGtBrd->receiveExternalData(iEvent, m_extInputToken,
+                                     receiveExt  );
+
 
     // loop over BxInEvent
     for (int iBxInEvent = minEmulBxInEvent; iBxInEvent <= maxEmulBxInEvent;
@@ -810,7 +874,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
 //  Run the GTL for this BX
-        m_uGtBrd->runGTL(iEvent, evSetup, 
+        m_uGtBrd->runGTL(iEvent, evSetup, m_l1GtMenu,
             m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
             m_numberPhysTriggers,
             m_nrL1Mu,

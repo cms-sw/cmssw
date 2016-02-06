@@ -15,6 +15,7 @@ njob = 1 #number of jobs
 nevents = 3564 #number of events
 rootout = False #whether to produce root file
 dump = False #dump python
+newXML = False #whether running with the new Grammar
 
 # Argument parsing
 # vvv
@@ -63,6 +64,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
+#process.MessageLogger.categories.append('l1t|Global')
+#process.MessageLogger.debugModules = cms.untracked.vstring('*')
+#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(neventsPerJob)
     )
@@ -73,13 +78,13 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         "/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/962BEF7C-9D7F-E511-A2BB-0025905B85AA.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/C409A519-9E7F-E511-BD4C-0025905B8590.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/E8D41D6A-9F7F-E511-A10A-003048FFD740.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/EE048767-9E7F-E511-B1AA-0025905B8606.root",
-        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/962BEF7C-9D7F-E511-A2BB-0025905B85AA.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/C409A519-9E7F-E511-BD4C-0025905B8590.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/E8D41D6A-9F7F-E511-A10A-003048FFD740.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/EE048767-9E7F-E511-B1AA-0025905B8606.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
         #"root://cmsxrootd.fnal.gov//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
 	),
     skipEvents = cms.untracked.uint32(skip)
@@ -87,7 +92,7 @@ process.source = cms.Source("PoolSource",
 
 process.output =cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-	fileName = cms.untracked.string('testGlobalMCInputProducer_'+repr(job)+'.root')
+	fileName = cms.untracked.string('testGlobalMCInputProducer_'+`job`+'.root')
 	)
 	
 process.options = cms.untracked.PSet()
@@ -144,7 +149,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 		       ),
 		       
                        muParams = cms.untracked.PSet(
-		           muBx    = cms.untracked.vint32(0, -1,  0,  0,  1,  2),
+		           muBx    = cms.untracked.vint32(-2, -1,  0,  0,  1,  2),
 			   muHwPt  = cms.untracked.vint32(5, 20, 30, 61, 40, 50),
 			   muHwPhi = cms.untracked.vint32(11, 21, 31, 61, 41, 51),
 			   muHwEta = cms.untracked.vint32(12, 22, 32, 62, 42, 52),
@@ -163,7 +168,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 		           jetBx    = cms.untracked.vint32(  0,   0,   2,   1,   1,   2),
 			   jetHwPt  = cms.untracked.vint32(100, 200, 130, 170,  85, 145),
 			   jetHwPhi = cms.untracked.vint32(  2,  67,  10,   3,  78,  10),
-			   jetHwEta = cms.untracked.vint32(  1,  19,  11,   0,  17,  11)
+			   jetHwEta = cms.untracked.vint32(  110,  -99,  11,   0,  17,  11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(
@@ -176,20 +181,16 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 ## Load our L1 menu
 process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 
-process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
-process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
-#process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
-#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
+process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
+process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+#process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
-process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
-process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
 ## Run the Stage 2 uGT emulator
-process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cff')
-process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
+process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
+process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
+#process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
@@ -198,15 +199,14 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
-		uGtRecInputTag = cms.InputTag("simGtStage2Digis"),
-		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
-		uGtExtInputTag = cms.InputTag("simGtStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtExtInputTag = cms.InputTag("gtInput"),
 		bxOffset       = cms.int32(skip),
-		minBx          = cms.int32(-2),
-		maxBx          = cms.int32(2),
+		minBx          = cms.int32(0),
+		maxBx          = cms.int32(0),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(False),
+		dumpGTRecord   = cms.bool(True),
                 dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
@@ -217,7 +217,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
+process.l1GtTrigReport.L1GtRecordInputTag = "simGlobalStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
@@ -228,11 +228,15 @@ if useMCtoGT:
 else:
     process.gtInput = process.fakeL1GTinput.clone()
 
+
+
+
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
-    *process.simGtStage2Digis
+    *process.simGlobalStage2Digis
     *process.dumpGTRecord
+#    +process.menuDumper
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
@@ -254,6 +258,6 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 #process.options.numberOfStreams = cms.untracked.uint32( 0 )
 
 if dump:
-    outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
+    outfile = open('dump_runGlobalFakeInputProducer_'+`job`+'.py','w')
     print >> outfile,process.dumpPython()
     outfile.close()

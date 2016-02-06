@@ -26,8 +26,6 @@
 // user include files
 //   base class
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 // forward declarations
 
 // constructors
@@ -183,6 +181,7 @@ void CorrelationTemplate::print(std::ostream& myCout) const
     << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
     myCout << "    minCutValue        = " << std::dec << m_correlationParameter.minCutValue << std::endl;
     myCout << "    maxCutValue        = " << std::dec << m_correlationParameter.maxCutValue << std::endl;
+    myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output
     myCout << std::dec << std::endl;

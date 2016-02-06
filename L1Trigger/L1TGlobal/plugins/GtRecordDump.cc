@@ -204,7 +204,7 @@ namespace l1t {
        bool mask    = (masks.at(i)).second;
        bool veto    = (vetoMasks.at(i)).second;
        
-       if(name != "NULL") cout << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+       if(name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
      }
      bool finOR = m_gtUtil->getFinalOR();
      cout << "                                                                FinalOR = " << finOR <<endl;
@@ -257,6 +257,7 @@ namespace l1t {
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
+		     cout << "   Chrg "<< std::dec << std::setw(1) << mu->hwCharge();
 		     cout << endl;
 		     nObj++;
 		 }
@@ -344,7 +345,19 @@ namespace l1t {
 	    cout << "No EtSum Data in this event " << endl;
 	 }  
 	               
-
+      // Dump the output record
+ 	  cout << " ------ uGtExt ----------" << endl;
+	  if(uGtExt.isValid()) {
+	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
+		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
+        	     extBlk->print(std::cout);
+		} 
+	     } else {
+		 cout << "No Ext Conditions stored for this bx " << i << endl;
+	     }       
+	  } else {
+	    cout << "No uGtExt Data in this event " << endl; 
+	  }         
 
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
@@ -360,19 +373,7 @@ namespace l1t {
 	    cout << "No uGtAlg Data in this event " << endl; 
 	  }         
 
-      // Dump the output record
- 	  cout << " ------ uGtExt ----------" << endl;
-	  if(uGtExt.isValid()) {
-	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
-		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
-        	     extBlk->print(std::cout);
-		} 
-	     } else {
-		 cout << "No Ext Conditions stored for this bx " << i << endl;
-	     }       
-	  } else {
-	    cout << "No uGtExt Data in this event " << endl; 
-	  }         
+
 
 
 
