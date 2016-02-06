@@ -105,6 +105,11 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " E/" << fobs[ifob]->pfjetSize()
        << " F/" << fobs[ifob]->pftauSize()
        << " G/" << fobs[ifob]->pfmetSize()
+       << " I/" << fobs[ifob]->l1tmuonSize()
+       << " J/" << fobs[ifob]->l1tegammaSize()
+       << " K/" << fobs[ifob]->l1tjetSize()
+       << " L/" << fobs[ifob]->l1ttauSize()
+       << " M/" << fobs[ifob]->l1tetsumSize()
        << endl;
      product->addFilterObject(tag,*fobs[ifob]);
    }
