@@ -73,6 +73,7 @@ public:
 				    int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
+  int                       getMaxDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
