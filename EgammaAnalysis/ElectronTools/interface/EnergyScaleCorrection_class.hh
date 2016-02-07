@@ -174,7 +174,6 @@ public:
 private:
 	fileFormat_t smearingType_;
 
-	TRandom3 *rgen_;
 	correction_map_t scales, scales_not_defined;
 	correction_map_t smearings, smearings_not_defined;
 

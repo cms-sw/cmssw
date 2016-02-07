@@ -36,8 +36,6 @@ class ElectronEnergyCalibratorRun2 {
   EpCombinationTool *epCombinationTool_;
   bool isMC_, synchronization_;
   TRandom *rng_;
-  std::vector<double> smearings_;
-  std::vector<double> scales_;
   
   /// Return a number distributed as a unit gaussian, drawn from the private RNG if initPrivateRng was called, 
   /// or from the CMSSW RandomNumberGenerator service

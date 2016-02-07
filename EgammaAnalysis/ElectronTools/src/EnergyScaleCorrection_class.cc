@@ -40,7 +40,6 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     }
   }
   
-  rgen_ = new TRandom3(genSeed); // init random generator with random seed
   return;
 }
 
