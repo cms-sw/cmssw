@@ -55,6 +55,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
 # ECAL calibration with eta hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
+# ECAL ES alignment
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 ###############################################################
 # HCAL Calibration
 ###############################################################
