@@ -117,7 +117,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       // jet energy resolutions
       double sigmapt = resPtObj.getResolution(parameters);
       double sigmaphi = resPhiObj.getResolution(parameters);
-      double sigmaSF = isRealData ? resSFObj.getScaleFactor(parameters) : 1.0;
+      // SF not needed since is already embedded in the sigma in the dataGlobalTag
+      //      double sigmaSF = isRealData ? resSFObj.getScaleFactor(parameters) : 1.0;
 
       // split into high-pt and low-pt sector
       if( jpt > jetThreshold_ ){
@@ -130,7 +131,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          else if(feta<jetEtas_[3]) scale = jetParams_[3];
          else scale = jetParams_[4];
 
-         double dpt = sigmaSF*scale*jpt*sigmapt;
+	 //         double dpt = sigmaSF*scale*jpt*sigmapt;
+         double dpt = scale*jpt*sigmapt;
          double dph = jpt*sigmaphi;
 
          cov_xx += dpt*dpt*c*c + dph*dph*s*s;
