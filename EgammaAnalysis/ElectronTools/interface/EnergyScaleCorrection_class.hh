@@ -26,8 +26,6 @@
 #include <TRandom3.h>
 #include <string>
 
-using namespace std;
-
 //============================== First auxiliary class
 class correctionValue_class
 {
