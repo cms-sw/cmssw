@@ -1202,7 +1202,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         basicJetsForMet = cms.EDProducer("PATJetCleanerForType1MET",
                                          src = jetCollectionUnskimmed,
-                                         jetCorrEtaMax = cms.untracked.double(9.9),
+                                         jetCorrEtaMax = cms.double(9.9),
                                          jetCorrLabel = cms.InputTag("L3Absolute"),
                                          jetCorrLabelRes = cms.InputTag("L2L3Residual"),
                                          offsetCorrLabel = cms.InputTag("L1FastJet"),
