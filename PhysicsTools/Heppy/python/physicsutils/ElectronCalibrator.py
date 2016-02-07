@@ -3,16 +3,12 @@ import os.path
 ROOT.gSystem.Load("libEgammaAnalysisElectronTools")
 
 class Run2ElectronCalibrator:
-    def __init__(self, scales, smearings, gbrForest, isMC, isSync=False):
+    def __init__(self, data, gbrForest, isMC, isSync=False):
         self.epCombinationTool = ROOT.EpCombinationTool()
         self.epCombinationTool.init(os.path.expandvars(gbrForest[0]), gbrForest[1]) 
         self.random = ROOT.TRandom3()
         self.random.SetSeed(0) # make it really random across different jobs
-        vscales = ROOT.std.vector('double')()
-        for s in scales: vscales.push_back(s)
-        vsmearings = ROOT.std.vector('double')()
-        for s in smearings: vsmearings.push_back(s)
-        self.electronEnergyCalibratorRun2 = ROOT.ElectronEnergyCalibratorRun2(self.epCombinationTool, isMC, isSync, vsmearings, vscales)
+        self.electronEnergyCalibratorRun2 = ROOT.ElectronEnergyCalibratorRun2(self.epCombinationTool, isMC, isSync, data)
         self.electronEnergyCalibratorRun2.initPrivateRng(self.random)
  
     def correct(self,electron,run):
