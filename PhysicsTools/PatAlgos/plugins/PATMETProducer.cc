@@ -47,15 +47,15 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   if(calculateMETSignificance_)
     {
       metSigAlgo_ = new metsig::METSignificance(iConfig);
-      rhoToken_ = mayConsume<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
+      rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
       jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
       jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
       jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
-      jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
-      pfCandToken_ = mayConsume<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
+      jetToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
+      pfCandToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
       for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
-	lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
+	lepTokens_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
       }
     }  
 

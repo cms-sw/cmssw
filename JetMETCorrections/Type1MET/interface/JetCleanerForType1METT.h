@@ -89,7 +89,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
        jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
        jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
        
-       jetCorrEtaMax_ = cfg.getUntrackedParameter<double>("jetCorrEtaMax",9.9);
+       jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
        
        type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
@@ -114,7 +114,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
         desc.add<edm::InputTag>("offsetCorrLabel");
         desc.add<edm::InputTag>("jetCorrLabel");
         desc.add<edm::InputTag>("jetCorrLabelRes");
-        desc.addUntracked<double>("jetCorrEtaMax",9.9);
+        desc.add<double>("jetCorrEtaMax",9.9);
         desc.add<double>("type1JetPtThreshold");
         desc.add<bool>("skipEM");
         desc.add<double>("skipEMfractionThreshold");
