@@ -1170,6 +1170,8 @@ class Modifier(object):
     """
     if type(fromObj) != type(toObj):
         raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    if not self.isChosen():
+        return
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
     elif isinstance(fromObj,_Parameterizable):
@@ -2038,5 +2040,10 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual(p.a.type_(),"YourAnalyzer")
             self.assertEqual(hasattr(p,"fred"),False)
             self.assertEqual(p.s.dumpPython(""),"cms.Sequence(process.a+process.b)\n")
-
+            #check toReplaceWith doesn't activate not chosen
+            m1 = Modifier()
+            p = Process("test")
+            p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
+            self.assertEqual(p.a.type_(),"MyAnalyzer")
     unittest.main()
