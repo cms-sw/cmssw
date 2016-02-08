@@ -168,6 +168,12 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             edm::Handle<JetCollection> jets_collection;
             event.getByToken(m_jets_token, jets_collection);
 
+            // Disable the module when running on real data
+            if (m_enabled && event.isRealData()) {
+                m_enabled = false;
+                m_genJetMatcher.reset();
+            }
+
             edm::Handle<double> rho;
             if (m_enabled)
                 event.getByToken(m_rho_token, rho);
