@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_CaloCondition_h
-#define GlobalTrigger_CaloCondition_h
+#ifndef L1Trigger_L1TGlobal_CaloCondition_h
+#define L1Trigger_L1TGlobal_CaloCondition_h
 
 /**
  * \class CaloCondition

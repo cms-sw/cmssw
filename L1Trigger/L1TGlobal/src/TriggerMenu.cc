@@ -398,10 +398,10 @@ void TriggerMenu::setGtTechnicalTriggerMap(const l1t::AlgorithmMap& ttMap) {
 // print the trigger menu (bit number, algorithm name, logical expression)
 void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
-    // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
+    // use another map <int, GtAlgorithm> to get the menu sorted after bit number
     // both algorithm and bit numbers are unique
-    std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
-    typedef std::map<int, const L1GtAlgorithm*>::const_iterator CItBit;
+    std::map<int, const GtAlgorithm*> algoBitToAlgo;
+    typedef std::map<int, const GtAlgorithm*>::const_iterator CItBit;
 
     for (l1t::CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
 
@@ -413,7 +413,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
 /*
     // idem for technical trigger map - only name and bit number are relevant for them
-    std::map<int, const L1GtAlgorithm*> ttBitToTt;
+    std::map<int, const GtAlgorithm*> ttBitToTt;
 
     for (l1t::CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo
             != m_technicalTriggerMap.end(); itAlgo++) {

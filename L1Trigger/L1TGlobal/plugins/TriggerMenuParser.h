@@ -45,7 +45,7 @@
 
 // forward declarations
 class GtCondition;
-class L1GtAlgorithm;
+class GtAlgorithm;
 
 namespace l1t {
 
@@ -285,7 +285,7 @@ private:
     bool insertConditionIntoMap(GtCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
-    bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
+    bool insertAlgorithmIntoMap(const GtAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
     std::string l1tDateTime2string( l1t::DateTime );
