@@ -170,8 +170,8 @@ l1tMonitorStage1Online = cms.Sequence(
                           l1tGmt +
                           l1tGt +
                           rctDigis *
-                          #caloStage1Digis *
-                          #caloStage1LegacyFormatDigis*
+                          caloStage1Digis *
+                          caloStage1LegacyFormatDigis*
                           l1ExtraStage1DqmSeq +
                           #l1tBPTX +
                           #l1tRate +
