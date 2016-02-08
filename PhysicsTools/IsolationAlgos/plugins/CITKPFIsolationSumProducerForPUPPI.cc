@@ -1,6 +1,3 @@
-#ifndef PhysicsTools_IsolationAlgos_CITKIsolationSumProducer_H
-#define PhysicsTools_IsolationAlgos_CITKIsolationSumProducer_H
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -178,5 +175,3 @@ namespace citk {
     }
   }
 }
-
-#endif
