@@ -76,7 +76,10 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #       process = customiseFor12718(process)
         process = customiseFor13062(process)
         from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import customiseFor2016trackingTemplate
-        process = customiseFor2016trackingTemplate(process)
+        from Configuration.StandardSequences.Eras import eras
+        if not eras.fastSim.isChosen():
+            process = customiseFor2016trackingTemplate(process)
+            pass
         pass
 
     return process

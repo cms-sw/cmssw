@@ -124,19 +124,11 @@ def speedup_filtering(process):
 
 def new_selector(process):
 
-    for label in process.sequences_().keys():
-        if label == "HLTTrackReconstructionForPF":
-            print label
-            sequence = getattr(process,label)
-            print sequence
-    print '***********************'
     # new selectors
     # iter0
     if hasattr(process,'HLTTrackReconstructionForPF'):
         if hasattr(process, 'HLTIterativeTrackingIteration0') or hasattr(process,'HLTIterativeTrackingIter02'):
             
-            print "FIND EVERYTHING"
-
             setattr(process,'hltIter0PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
                src = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
                beamspot = cms.InputTag('hltOnlineBeamSpot'),
@@ -193,11 +185,6 @@ def new_selector(process):
                 if hasattr(process,s):
                     seq = getattr(process,s)
                     seq.insert( seq.index( iter0HP ), iter0classifier )
-
-    print '***********************'
-    print 'AFTER iter0'
-    print getattr(process,'HLTTrackReconstructionForPF')
-    print '***********************'
 
 #        PFseq = getattr(process,'HLTTrackReconstructionForPF')
 #
@@ -306,12 +293,6 @@ def new_selector(process):
                 seq.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, iter1detached )
                 seq.insert( seq.index( iter1HP ), iter1merge )
         
-    print '***********************'
-    print 'AFTER iter1'
-    print getattr(process,'HLTTrackReconstructionForPF')
-    print '***********************'
-
-
     #### iter2
     if  hasattr(process,'HLTTrackReconstructionForPF'):
         if hasattr(process, 'HLTIterativeTrackingIteration2') or hasattr(process,'HLTIterativeTrackingIter02'):
@@ -371,12 +352,6 @@ def new_selector(process):
                     seq = getattr(process,s)
                     seq.insert( seq.index( iter2HP ), iter2classifier )
                         
-    print '***********************'
-    print 'AFTER iter2'
-    print getattr(process,'HLTTrackReconstructionForPF')
-    print '***********************'
-
-
     return process
 
 def customiseFor2016trackingTemplate(process):

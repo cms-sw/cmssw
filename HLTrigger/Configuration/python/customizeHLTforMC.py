@@ -31,6 +31,11 @@ def customizeHLTforMC(process,_fastSim=False):
 
   if _fastSim:
 
+    print '***********************'
+    print 'FAST SIM beginning'
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
+
     fastsim = cms.ProcessFragment( process.name_() )
     fastsim.load( "FastSimulation.HighLevelTrigger.HLTSetup_cff" )
 
@@ -268,6 +273,9 @@ def customizeHLTforMC(process,_fastSim=False):
       )
 
     SequencesToRemove = (
+      "HLTIterativeTrackingIteration0",
+      "HLTIterativeTrackingIteration1",
+      "HLTIterativeTrackingIteration2",
       "HLTL1SeededEgammaRegionalRecoTrackerSequence",
       "HLTEcalActivityEgammaRegionalRecoTrackerSequence",
       "HLTPixelMatchElectronActivityTrackingSequence",
@@ -311,10 +319,16 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTHBHENoiseCleanerSequence",
       )
 
+    print "JUST BEFORE 'Removing ESmodules'"
 # Removing ESmodules
     for label in ESModulesToRemove:
       if (hasattr(process,label)):
         delattr(process,label)
+
+    print '***********************'
+    print "AFTER'Removing ESmodules'"
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
 
 # Removing paths
     import fnmatch,re
@@ -332,7 +346,13 @@ def customizeHLTforMC(process,_fastSim=False):
     for path in UniqueList:
       process.schedule.remove(getattr(process,path))
     process.setSchedule_(process.schedule)
+    print 'before pruning'
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
     process.prune()
+    print 'after pruning'
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
 
 # Removing streams and datasets PSets
     if hasattr(process,'streams'):
@@ -341,6 +361,7 @@ def customizeHLTforMC(process,_fastSim=False):
       delattr(process,'datasets')
 
 # Removing sequences, possibly to be taken from fastsim import
+    print 'REMOVING label *************'
     for label in SequencesToRemove:
       if hasattr(process,label):
         if hasattr(fastsim,label):
@@ -360,6 +381,10 @@ def customizeHLTforMC(process,_fastSim=False):
             while more:
               more = path.remove(object)
           delattr(process,label)
+
+    print "after label in sequence"
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
 
 # Removing modules, possibly to be taken from fastsim import
     for label in ModulesToRemove:
@@ -417,6 +442,10 @@ def customizeHLTforMC(process,_fastSim=False):
         setattr(process,label,getattr(fastsim,label))
 
 # Update InputTags
+    print '***********************'
+    print 'FAST SIM between'
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
 
     InputTags = (
       ('hltGtDigis','gtDigis'),
@@ -499,6 +528,12 @@ def customizeHLTforMC(process,_fastSim=False):
       if hasattr(process,label):
         getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('hltPixelPairSeeds')
         getattr(process,label).SeedConfiguration.preFilteredSeeds = cms.bool(False)
+
+    print '***********************'
+    print 'FAST SIM end'
+    print getattr(process,'HLTTrackReconstructionForPF')
+    print '***********************'
+
 
 # Extending fastsim import
     fastsim.extend(process)
