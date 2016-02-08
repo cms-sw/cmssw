@@ -59,6 +59,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
   // jet energy corrections
   calibrate(jets, 0); // pass the jet collection and the hw threshold above which to calibrate
+  calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
   
 }
 
