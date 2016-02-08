@@ -713,6 +713,9 @@ class TrackingSummaryTable:
                 return None
             return func(num)
 
+        n_tps = _formatOrNone(_getN("num_simul_coll"), int)
+        n_m_tps = _formatOrNone(_getN("num_assoc(simToReco)_coll"), int)
+
         n_tracks = _formatOrNone(_getN("num_reco_coll"), int)
         n_true = _formatOrNone(_getN("num_assoc(recoToSim)_coll"), int)
         if n_tracks is not None and n_true is not None:
@@ -724,7 +727,7 @@ class TrackingSummaryTable:
 
         eff = _formatOrNone(_getN("effic_vs_coll"), lambda n: "%.4f" % n)
 
-        ret = [eff, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
+        ret = [eff, n_tps, n_m_tps, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
         if ret.count(None) == len(ret):
             return None
         return ret
@@ -732,6 +735,8 @@ class TrackingSummaryTable:
     def headers(self):
         return [
             "Efficiency",
+            "Number of TrackingParticles (after cuts)",
+            "Number of matched TrackingParticles",
             "Number of tracks",
             "Number of true tracks",
             "Number of fake tracks",
