@@ -117,6 +117,7 @@ StripCPE::fillParams() {
     const Bounds& bounds = stripdet->specificSurface().bounds();
     p.maxLength = std::sqrt( std::pow(bounds.length(),2.f)+std::pow(bounds.width(),2.f) );
     p.thickness = bounds.thickness();
+    p.invThickness = 1.f/p.thickness;
     p.drift = driftDirection(stripdet) * p.thickness;
     p.topology=(StripTopology*)(&stripdet->topology());    
     p.nstrips = p.topology->nstrips(); 

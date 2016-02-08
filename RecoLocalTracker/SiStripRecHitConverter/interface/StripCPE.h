@@ -39,10 +39,10 @@ public:
   std::vector<float> xtalk2;
 
   struct Param {
-    Param() : topology(0) {}
+    Param() : topology(nullptr) {}
     StripTopology const * topology;
     LocalVector drift;
-    float thickness, pitch_rel_err2, maxLength;
+    float thickness, invThickness,pitch_rel_err2, maxLength;
     int nstrips;
     float backplanecorrection;
     SiStripDetId::ModuleGeometry moduleGeom;
