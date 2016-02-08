@@ -119,6 +119,11 @@ _globalTags = {
     "CMSSW_8_0_0_pre4_phase1_13TeV": {"default": "76X_upgrade2017_design_v8_UPG17"},
     "CMSSW_8_0_0_pre4_ecal15fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_15fb_v0_ecal15fbm1"},
     "CMSSW_8_0_0_pre4_ecal30fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_30fb_v0_ecal30fbm1"},
+    "CMSSW_8_0_0_pre5": {"default": "80X_mcRun2_asymptotic_v1", "fullsim_50ns": "80X_mcRun2_startup_v1"},
+    "CMSSW_8_0_0_pre5_phase1": {"default": "80X_upgrade2017_design_v1_UPG17"},
+    "CMSSW_8_0_0_pre6": {"default": "80X_mcRun2_asymptotic_v4"},
+    "CMSSW_8_0_0_pre6_phase1": {"default": "80X_upgrade2017_design_v3_UPG17"},
+    "CMSSW_8_0_0_pre6_MT": {"default": "80X_mcRun2_asymptotic_v4_multiCoreResub"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
