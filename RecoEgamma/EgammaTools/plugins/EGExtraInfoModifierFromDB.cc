@@ -608,9 +608,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
     int iphi = ebseedid.iphi();
     eval[27] = ieta;
     eval[28] = iphi;
-    eval[29] = (ieta-1*abs(ieta)/ieta)%5;
+    int signieta = ieta > 0 ? +1 : -1; /// this is 1*abs(ieta)/ieta in original training
+    eval[29] = (ieta-signieta)%5;
     eval[30] = (iphi-1)%2;
-    eval[31] = (abs(ieta)<=25)*((ieta-1*abs(ieta)/ieta)%25) + (abs(ieta)>25)*((ieta-26*abs(ieta)/ieta)%20);
+    //    eval[31] = (abs(ieta)<=25)*((ieta-signieta)%25) + (abs(ieta)>25)*((ieta-26*signieta)%20); //%25 is unnescessary in this formula
+    eval[31] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
     eval[32] = (iphi-1)%20;
     eval[33] = ieta;  /// duplicated variables but this was trained like that
     eval[34] = iphi;  /// duplicated variables but this was trained like that
