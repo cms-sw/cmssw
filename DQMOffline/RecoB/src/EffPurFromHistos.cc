@@ -158,19 +158,10 @@ EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscrimin
 
 
 EffPurFromHistos::~EffPurFromHistos () {
-  /*  delete EffFlavVsBEff_d   ;
-  delete EffFlavVsBEff_u   ;
-  delete EffFlavVsBEff_s   ;
-  delete EffFlavVsBEff_c   ;
-  delete EffFlavVsBEff_b   ;
-  delete EffFlavVsBEff_g   ;
-  delete EffFlavVsBEff_ni  ;
-  delete EffFlavVsBEff_dus ;
-  delete EffFlavVsBEff_dusg;
   if ( fromDiscriminatorDistr) {
     delete discrNoCutEffic;
     delete discrCutEfficScan;
-    }*/
+    }
 }
 
 
