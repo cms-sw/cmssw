@@ -154,6 +154,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       recHitCandidates.push_back(seedHit);
     }
     bool passedLastSeedHit = false;
+    if(seed.nHits()!=0)
     const FastTrackerRecHit * lastSeedHit = recHitCandidates.back().hit();
 
     for (const auto & _hit : recHitCombination) {
@@ -161,7 +162,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
       if(!passedLastSeedHit)
 	{
-	  if(lastSeedHit->sameId(currentTrackerHit.hit()))      
+	  if(seed.nHits()==0||lastSeedHit->sameId(currentTrackerHit.hit()))     
 	    {
 	      passedLastSeedHit=true;
 	    }
