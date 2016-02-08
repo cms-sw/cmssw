@@ -19,11 +19,8 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-//#include "DataFormats/L1TGlobal/interface/L1TGlobalReadoutSetup.h"
-//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
 
-//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
 // Trigger Objects

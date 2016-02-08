@@ -23,7 +23,6 @@
 
 // user include files
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 
 // forward declarations

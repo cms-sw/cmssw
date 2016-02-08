@@ -28,7 +28,6 @@
 #include <boost/cstdint.hpp>
 
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"

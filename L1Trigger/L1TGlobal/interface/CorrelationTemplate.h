@@ -29,7 +29,6 @@
 //   base class
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
 // forward declarations
 
