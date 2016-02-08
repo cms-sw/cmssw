@@ -65,7 +65,6 @@ if not "ak4PFJetsCHS" in whichJets:
     process.softPFElectronsTagInfos.jets          = newjetID
     process.patJetGenJetMatch.src                 = newjetID
 
-process.btagging = cms.Sequence(process.legacyBTagging + process.pfBTagging)
 process.btagSequence = cms.Sequence(
     process.ak4JetTracksAssociatorAtVertexPF *
     process.btagging
