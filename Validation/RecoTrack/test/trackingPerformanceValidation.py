@@ -23,6 +23,7 @@ startupsamples= [
     Sample('RelValQCD_FlatPt_15_3000', append="HS", midfix="13"),
     Sample('RelValZMM', midfix="13"),
     Sample('RelValWjet_Pt_3000_3500', midfix="13"),
+    Sample('RelValH125GGgluonfusion', midfix="13"),
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
