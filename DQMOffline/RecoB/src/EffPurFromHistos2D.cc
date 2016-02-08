@@ -159,7 +159,12 @@ EffPurFromHistos2D::EffPurFromHistos2D (const FlavourHistograms2D<double, double
   discrCutEfficScan->setEfficiencyFlag();
 }
 
-EffPurFromHistos2D::~EffPurFromHistos2D () {}
+EffPurFromHistos2D::~EffPurFromHistos2D () {
+  if ( fromDiscriminatorDistr) {
+    delete discrNoCutEffic;
+    delete discrCutEfficScan;
+  }
+}
 
 void EffPurFromHistos2D::epsPlot(const std::string & name)
 {

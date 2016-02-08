@@ -540,15 +540,7 @@ void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
 
   RecoBTag::setTDRStyle()->cd();
   gPad->UseCurrentStyle();
-//   if ( !btppTitle ) gStyle->SetOptTitle ( 0 ) ;
-//   //   
-//   //   // here: plot histograms in a canvas
-//   //   theCanvas = new TCanvas ( "C" + theBaseNameTitle , "C" + theBaseNameDescription ,
-//   //                          btppXCanvas , btppYCanvas ) ;
-//   //   theCanvas->SetFillColor ( 0 ) ;
-//   //   theCanvas->cd  ( 1 ) ;
   gPad->SetLogy  ( 0 ) ;
-  //if ( thePlotLog ) gPad->SetLogy ( 1 ) ;
   gPad->SetGridx ( 0 ) ;
   gPad->SetGridy ( 0 ) ;
   gPad->SetTitle ( 0 ) ;
@@ -558,9 +550,7 @@ void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
   int lineWidth = 1 ;
 
   const double markerSize = gPad->GetWh() * gPad->GetHNDC() / 500.;
-  // default (l)
   histo[0] = theHisto_dusg ;
-  //CW histo_1 = theHisto_dus ;
   histo[1] = theHisto_b ;
   histo[2] = theHisto_c ;
   histo[3]= 0 ;
@@ -607,28 +597,6 @@ void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
     markerStyle[3] = 23 ;
   }
 
-  // if changing order (NI stays always last)
-/*
-  // c to plot first   
-  if ( thePlotFirst == "c" ) {
-    histo[0] = theHisto_c ;
-    if ( btppColour  ) col[0] = 6 ;
-    if ( !btppColour ) lineStyle[0] = 3 ;
-    histo[2] = theHisto_dusg ;
-    if ( btppColour  ) col[2] = 4 ;
-    if ( !btppColour ) lineStyle[2] = 2 ;
-  }
-
-  // b to plot first   
-  if ( thePlotFirst == "b" ) {
-    histo[0] = theHisto_b ;
-    if ( btppColour  ) col[0] = 2 ;
-    if ( !btppColour ) lineStyle[0] = 1 ;
-    histo[1] = theHisto_dusg ;
-    if ( btppColour  ) col[1] = 4 ;
-    if ( !btppColour ) lineStyle[1] = 2 ;
-  }
-*/ 
   histo[0] ->getTH2F()->GetXaxis()->SetTitle ( theBaseNameDescription.c_str() ) ;
   histo[0] ->getTH2F()->GetYaxis()->SetTitle ( "Arbitrary Units" ) ;
   histo[0] ->getTH2F()->GetYaxis()->SetTitleOffset(1.25) ;
@@ -643,23 +611,7 @@ void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
     histo[i] ->getTH2F()->SetMarkerColor ( col[i] ) ;
     histo[i] ->getTH2F()->SetMarkerSize ( markerSize ) ;
   }
-/*
-  if ( thePlotNormalized ) {
-    if (histo[0]->getTH2F()->GetEntries() != 0) {histo[0]->getTH2F() ->DrawNormalized() ;} else {    histo[0]->getTH2F() ->SetMaximum(1.0);
-histo[0] ->getTH2F()->Draw() ;}
-    if (histo[1]->getTH2F()->GetEntries() != 0) histo[1] ->getTH2F()->DrawNormalized("Same") ;
-    if (histo[2]->getTH2F()->GetEntries() != 0) histo[2]->getTH2F() ->DrawNormalized("Same") ;
-    if ((histo[3] != 0) && (histo[3]->getTH2F()->GetEntries() != 0))  histo[3] ->getTH2F()->DrawNormalized("Same") ;
-  }
-  else {
-    histo[0]->getTH2F()->SetMaximum(max*1.05);
-    if (theMin!=-1.) histo[0]->getTH2F()->SetMinimum(theMin);
-    histo[0]->getTH2F()->Draw() ;
-    histo[1]->getTH2F()->Draw("Same") ;
-    histo[2]->getTH2F()->Draw("Same") ;
-    if ( histo[3] != 0 ) histo[3]->getTH2F()->Draw("Same") ;
-  }
-*/
+
     histo[0]->getTH2F()->SetMaximum(max*1.05);
     if (theMin!=-1.) histo[0]->getTH2F()->SetMinimum(theMin);
     histo[0]->getTH2F()->Draw() ;
