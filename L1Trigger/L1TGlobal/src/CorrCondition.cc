@@ -34,8 +34,6 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 
 #include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 

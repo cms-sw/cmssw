@@ -22,14 +22,11 @@
 #include <ext/hash_map>
 
 // user include files
-//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
@@ -40,10 +37,6 @@
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
@@ -444,7 +437,7 @@ void l1t::GtBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord,  //GTO
+        std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord,  
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
@@ -787,7 +780,7 @@ void l1t::GtBoard::runGTL(
 
     // loop over algorithm map
     /// DMP Start debugging here
-    // empty vector for object maps - filled during loop GTO
+    // empty vector for object maps - filled during loop
     std::vector<L1TGtObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
@@ -846,7 +839,7 @@ void l1t::GtBoard::runGTL(
 	    }
 	  }
 
-	  // set object map GTO
+	  // set object map 
 	  L1TGtObjectMap objMap;
 	  
 	  objMap.setAlgoName(itAlgo->first);

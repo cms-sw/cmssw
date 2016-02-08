@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
