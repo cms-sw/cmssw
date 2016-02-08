@@ -37,7 +37,8 @@
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
+  //  muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0),doME0_(iConfig.getParameter<bool>("doME0"))
+  muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
    produces<reco::MuonCollection>();
    produces<reco::CaloMuonCollection>();
@@ -742,9 +743,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      reco::MuonTime muonTime;
      reco::MuonTimeExtra dtTime;
      reco::MuonTimeExtra cscTime;
+     reco::MuonTime rpcTime;
      reco::MuonTimeExtra combinedTime;
 
-     theTimingFiller_->fillTiming(muon, dtTime, cscTime, combinedTime, iEvent, iSetup);
+     theTimingFiller_->fillTiming(muon, dtTime, cscTime, rpcTime, combinedTime, iEvent, iSetup);
 
      muonTime.nDof=combinedTime.nDof();
      muonTime.timeAtIpInOut=combinedTime.timeAtIpInOut();
@@ -752,7 +754,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      muonTime.timeAtIpOutIn=combinedTime.timeAtIpOutIn();
      muonTime.timeAtIpOutInErr=combinedTime.timeAtIpOutInErr();
 
-     muon.setTime(	muonTime);
+     muon.setTime(muonTime);
+     muon.setRPCTime(rpcTime);
      dtTimeColl[i] = dtTime;
      cscTimeColl[i] = cscTime;
      combinedTimeColl[i] = combinedTime;
@@ -1370,4 +1373,14 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
       return false;
     }
   return true;
+}
+
+/// ParameterSet descriptions
+void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  //desc.setUnknown();
+  desc.add<bool>("doME0",false);
+  desc.setAllowAnything();
+  //descriptions.add("hltMuons", desc);
+  descriptions.addDefault(desc);
 }
