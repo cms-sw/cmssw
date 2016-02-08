@@ -310,7 +310,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
         h_Ebyp_aftr->Fill(t_ieta, ratio, evWt);
       }
       bool l1c(true);
-      if (applyL1Cut != 0) l1c = ((t_mindR1 >= l1Cut) || (applyL1Cut == 1));
+      if (applyL1Cut != 0) l1c = ((t_mindR1 >= l1Cut) || 
+				  ((applyL1Cut == 1) && (t_DataType == 1)));
       if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) && l1c) {
 	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
 	  unsigned int detid = (*t_DetIds)[idet] & mask;
