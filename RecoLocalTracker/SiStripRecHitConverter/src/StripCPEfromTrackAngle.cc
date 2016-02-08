@@ -55,10 +55,7 @@ StripCPEfromTrackAngle::localParameters( const SiStripCluster& cluster, const Ge
   SiStripDetId ssdid = SiStripDetId( det.geographicalId() );  
  
   LocalVector track = ltp.momentum();
-  track *= 
-    (track.z()<0) ?  std::abs(p.thickness/track.z()) : 
-    (track.z()>0) ? -std::abs(p.thickness/track.z()) :  
-                         p.maxLength/track.mag() ;
+  track *= -p.thickness/track.z();
 
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
@@ -67,7 +64,7 @@ StripCPEfromTrackAngle::localParameters( const SiStripCluster& cluster, const Ge
   switch (m_algo) {
     case Algo::chargeCK :
        {
-       auto dQdx = siStripClusterTools::chargePerCM(ssdid, cluster, ltp);
+       auto dQdx = siStripClusterTools::chargePerCM(cluster, ltp, p.invThickness);
        uerr2 = dQdx > maxChgOneMIP ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
        }
        break;

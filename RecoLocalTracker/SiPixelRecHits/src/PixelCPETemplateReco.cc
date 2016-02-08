@@ -293,15 +293,15 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       //		templQbin_ );
 
 
-      float dchisq;
-      float templProbQ_;
       std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
       SiPixelTemplate2D::pushfile(ID, thePixelTemp2D_);
       SiPixelTemplate2D templ2D_(thePixelTemp2D_);
       	
       theClusterParam.ierr = -123;
       /*
-	SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+      float dchisq;
+      float templProbQ_;
+      SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 					      clust_array_2d, 
 					      ydouble, xdouble,
 					      templ,
