@@ -85,7 +85,7 @@ public:
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
-  int                       maxHFDepth(int zside, int iphi) const {return hcons.maxHFDepth(zside,iphi);}
+  int                       maxHFDepth(int ieta, int iphi) const {return hcons.maxHFDepth(ieta,iphi);}
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
