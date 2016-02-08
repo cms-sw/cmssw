@@ -1,5 +1,5 @@
-#ifndef L1GtConfigProducers_StableParametersTrivialProducer_h
-#define L1GtConfigProducers_StableParametersTrivialProducer_h
+#ifndef L1Trigger_L1TGlobal_StableParametersTrivialProducer_h
+#define L1Trigger_L1TGlobal_StableParametersTrivialProducer_h
 
 /**
  * \class StableParametersTrivialProducer

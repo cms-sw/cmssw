@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_EnergySumCondition_h
-#define GlobalTrigger_EnergySumCondition_h
+#ifndef L1Trigger_L1TGlobal_EnergySumCondition_h
+#define L1Trigger_L1TGlobal_EnergySumCondition_h
 
 /**
  * \class EnergySumCondition

@@ -410,7 +410,7 @@ bool l1t::TriggerMenuParser::insertConditionIntoMap(GtCondition& cond, const int
 }
 
 // insert an algorithm into algorithm map
-bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) {
+bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GtAlgorithm& alg) {
 
     std::string algName = alg.algoName();
     std::string algAlias = alg.algoAlias();
@@ -2532,7 +2532,7 @@ bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm
 			    << std::endl;
 
     // create a new algorithm and insert it into algorithm map
-    L1GtAlgorithm alg(algName, logExpression, bitNumber);
+    GtAlgorithm alg(algName, logExpression, bitNumber);
     alg.setAlgoChipNumber(static_cast<int>(chipNr));
     alg.setAlgoAlias(algAlias);
 

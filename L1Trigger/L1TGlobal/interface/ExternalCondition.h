@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_ExternalCondition_h
-#define GlobalTrigger_ExternalCondition_h
+#ifndef L1Trigger_L1TGlobal_ExternalCondition_h
+#define L1Trigger_L1TGlobal_ExternalCondition_h
 
 /**
  * \class ExternalCondition

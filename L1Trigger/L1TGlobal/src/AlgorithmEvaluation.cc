@@ -32,7 +32,7 @@
 
 
 //
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GtAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
@@ -41,7 +41,7 @@
 
 
 /// constructor from an algorithm from event setup
-l1t::AlgorithmEvaluation::AlgorithmEvaluation(const L1GtAlgorithm& alg) :
+l1t::AlgorithmEvaluation::AlgorithmEvaluation(const GtAlgorithm& alg) :
   m_algoResult(false),
   m_logicalExpression(alg.algoLogicalExpression()),
   m_rpnVector(alg.algoRpnVector()){
@@ -91,7 +91,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
         switch (it->operation) {
 
-            case L1GtLogicParser::OP_OPERAND: {
+            case GtLogicParser::OP_OPERAND: {
 
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
@@ -136,14 +136,14 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-	case  L1GtLogicParser::OP_NOT: {
+	case  GtLogicParser::OP_NOT: {
                 b1 = resultStack.top();
                 resultStack.pop(); // pop the top
                 resultStack.push(!b1); // and push the result
             }
 
                 break;
-            case L1GtLogicParser::OP_OR: {
+            case GtLogicParser::OP_OR: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();
@@ -152,7 +152,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-            case L1GtLogicParser::OP_AND: {
+            case GtLogicParser::OP_AND: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();

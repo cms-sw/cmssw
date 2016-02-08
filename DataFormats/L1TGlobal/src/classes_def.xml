@@ -20,7 +20,7 @@
   <class name="std::vector<GlobalExtBlk>"/>
 
   <class name="L1TGtObjectMap" ClassVersion="10">
-   <version ClassVersion="10" checksum="3766727240"/>
+   <version ClassVersion="10" checksum="2989798521"/>
   </class>
   <class name="edm::Wrapper<L1TGtObjectMap>" splitlevel="0"/>
 
