@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_CorrCondition_h
-#define GlobalTrigger_CorrCondition_h
+#ifndef L1Trigger_L1TGlobal_CorrCondition_h
+#define L1Trigger_L1TGlobal_CorrCondition_h
 
 /**
  * \class CorrCondition

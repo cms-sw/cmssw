@@ -23,11 +23,8 @@
 
 // user include files
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
-
-
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GtAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"

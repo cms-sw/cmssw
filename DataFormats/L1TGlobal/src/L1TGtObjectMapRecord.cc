@@ -20,9 +20,6 @@
 #include <algorithm>
 
 // user include files
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations

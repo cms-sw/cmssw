@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_MuCondition_h
-#define GlobalTrigger_MuCondition_h
+#ifndef L1Trigger_L1TGlobal_MuCondition_h
+#define L1Trigger_L1TGlobal_MuCondition_h
 
 /**
  * \class MuCondition

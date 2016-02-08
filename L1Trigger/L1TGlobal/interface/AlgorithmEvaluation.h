@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_AlgorithmEvaluation_h
-#define GlobalTrigger_AlgorithmEvaluation_h
+#ifndef L1Trigger_L1TGlobal_AlgorithmEvaluation_h
+#define L1Trigger_L1TGlobal_AlgorithmEvaluation_h
 
 // work-around for missing dependency - force checkout...
 
@@ -18,7 +18,7 @@
  */
 
 //   for L1GtLogicParser
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
 
 // system include files
 #include <iostream>
@@ -57,12 +57,12 @@
 // user include files
 
 //   base class
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
 
 //
 
 // forward declarations
-class L1GtAlgorithm;
+class GtAlgorithm;
 
 namespace l1t {
 
@@ -72,15 +72,15 @@ class ConditionEvaluation;
 class AlgorithmEvaluation {
 
 public:
-    typedef L1GtLogicParser::TokenRPN TokenRPN;
+    typedef GtLogicParser::TokenRPN TokenRPN;
     typedef std::vector<TokenRPN> RpnVector;
-    typedef L1GtLogicParser::OperandToken OperandToken;
+    typedef GtLogicParser::OperandToken OperandToken;
 
     /// constructor
     //  AlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    explicit AlgorithmEvaluation(const L1GtAlgorithm&);
+    explicit AlgorithmEvaluation(const GtAlgorithm&);
 
     /// copy constructor
     // AlgorithmEvaluation(AlgorithmEvaluation&);
@@ -115,7 +115,7 @@ public:
         return m_algoCombinationVector;
     }
 
-    inline std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() {
+    inline std::vector<GtLogicParser::OperandToken>& operandTokenVector() {
         return m_operandTokenVector;
     }
 

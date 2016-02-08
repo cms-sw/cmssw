@@ -23,9 +23,8 @@
 
 // user include files
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
 
 // forward declarations
 
@@ -90,14 +89,14 @@ public:
 
     /// get / set the vector of operand tokens
     /// return a constant reference to the vector of operand tokens
-    inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const {
+    inline const std::vector<GtLogicParser::OperandToken>& operandTokenVector() const {
         return m_operandTokenVector;
     }
     
-    void setOperandTokenVector(const std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
+    void setOperandTokenVector(const std::vector<GtLogicParser::OperandToken>& operandTokenVectorValue) {
         m_operandTokenVector = operandTokenVectorValue;
     }
-    void swapOperandTokenVector(std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
+    void swapOperandTokenVector(std::vector<GtLogicParser::OperandToken>& operandTokenVectorValue) {
       m_operandTokenVector.swap(operandTokenVectorValue);
     }
 
@@ -146,7 +145,7 @@ private:
 
     /// vector of operand tokens for an algorithm 
     /// (condition name, condition index, condition result)
-    std::vector<L1GtLogicParser::OperandToken> m_operandTokenVector;
+    std::vector<GtLogicParser::OperandToken> m_operandTokenVector;
     
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;

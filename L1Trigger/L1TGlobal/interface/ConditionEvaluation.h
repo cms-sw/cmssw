@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_ConditionEvaluation_h
-#define GlobalTrigger_ConditionEvaluation_h
+#ifndef L1Trigger_L1TGlobal_ConditionEvaluation_h
+#define L1Trigger_L1TGlobal_ConditionEvaluation_h
 
 /**
  * \class ConditionEvaluation
