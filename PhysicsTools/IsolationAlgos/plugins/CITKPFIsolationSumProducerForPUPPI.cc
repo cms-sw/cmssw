@@ -80,7 +80,7 @@ namespace citk {
 	isodef.getParameter<std::string>("isolationAlgo");
       const float coneSize = isodef.getParameter<double>("coneSize");
       char buf[50];
-      sprintf(buf,"DR%.2f",coneSize);
+      std::sprintf(buf,"DR%.2f",coneSize);
       std::string coneName(buf);
       auto decimal = coneName.find('.');
       if( decimal != std::string::npos ) coneName.erase(decimal,1);
