@@ -270,6 +270,16 @@ eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsFromPV, _tracksValidatio
 ## Select conversion TrackingParticles, and define the corresponding associator
 trackingParticlesConversion = _trackingParticleConversionRefSelector.clone()
 
+## Select electron TPs
+trackingParticlesElectron = _trackingParticleRefSelector.clone(
+    pdgId = [-11, 11],
+    signalOnly = False,
+    tip = 1e5,
+    lip = 1e5,
+    minRapidity = -10,
+    maxRapidity = 10,
+    ptMin = 0,
+)
 
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
@@ -361,6 +371,13 @@ for n in ["Eta", "Phi", "Pt", "VTXR", "VTXZ"]:
     pset.lip = trackValidatorConversion.lipTP.value()
     pset.tip = trackValidatorConversion.tipTP.value()
 
+# For electrons
+trackValidatorGsfTracks = trackValidatorConversion.clone(
+    dirName = "Tracking/TrackGsf/",
+    label = ["electronGsfTracks"],
+    label_tp_effic = "trackingParticlesElectron",
+)
+
 
 # the track selectors
 tracksValidationSelectors = cms.Sequence(
@@ -384,9 +401,13 @@ tracksPreValidation = cms.Sequence(
     tracksValidationSelectorsFromPV +
     tracksValidationTruth +
     cms.ignore(trackingParticlesSignal) +
+    cms.ignore(trackingParticlesElectron) +
     trackingParticlesConversion
 )
-eras.fastSim.toModify(tracksPreValidation, lambda x: x.remove(trackingParticlesConversion))
+eras.fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
+    trackingParticlesElectron,
+    trackingParticlesConversion
+]))
 
 tracksValidation = cms.Sequence(
     tracksPreValidation +
@@ -394,10 +415,10 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPV +
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
-    trackValidatorConversion
+    trackValidatorConversion +
+    trackValidatorGsfTracks
 )
-eras.fastSim.toModify(tracksValidation, lambda x: x.remove(trackValidatorConversion))
-
+eras.fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
@@ -447,7 +468,8 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
-    trackValidatorConversionStandalone
+    trackValidatorConversionStandalone +
+    trackValidatorGsfTracks
 )
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 eras.fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
@@ -507,6 +529,7 @@ trackValidatorsTrackingOnly += (
     trackValidatorBuildingTrackingOnly
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
+trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
 eras.fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
 
 
