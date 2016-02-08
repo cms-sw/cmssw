@@ -70,6 +70,8 @@ private:
 
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
 
+  bool jetId(const reco::PFJet& jet);
+
 public:
   L1Analysis::L1AnalysisRecoJetDataFormat*              jet_data;
   L1Analysis::L1AnalysisRecoMetDataFormat*              met_data;
@@ -94,6 +96,7 @@ private:
   // debug stuff
   bool pfJetsMissing_;
   double jetptThreshold_;
+  double jetetaMax_;
   unsigned int maxCl_;
   unsigned int maxJet_;
   unsigned int maxVtx_;
@@ -120,6 +123,7 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMet")));
 
   jetptThreshold_ = iConfig.getParameter<double>      ("jetptThreshold");
+  jetetaMax_       = iConfig.getParameter<double>      ("jetetaMax");
   maxJet_         = iConfig.getParameter<unsigned int>("maxJet");
 
   jet_data = new L1Analysis::L1AnalysisRecoJetDataFormat();
@@ -284,7 +288,7 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
     jet_data->nJets++;
 
     
-    if (it->pt()>jetptThreshold_){
+    if (it->pt()>jetptThreshold_ && jetId(*it) && fabs(it->eta())<jetetaMax_) {
       mHx += -1.*it->px();
       mHy += -1.*it->py();
       met_data->Ht  += it->pt();
@@ -339,6 +343,33 @@ L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
 
 }
 
+
+bool
+L1JetRecoTreeProducer::jetId(const reco::PFJet& jet) {
+
+  bool tmp = true;
+
+  tmp &= jet.neutralHadronEnergyFraction() < 0.9 ;
+  tmp &= jet.neutralEmEnergyFraction() < 0.9 ;
+  tmp &= (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1 ;
+  tmp &= jet.muonEnergyFraction() < 0.8 ;
+  if (fabs(jet.eta()) < 2.4) {
+    tmp &= jet.chargedHadronEnergyFraction() > 0.0 ;
+    tmp &= jet.chargedMultiplicity() > 0 ;
+    tmp &= jet.chargedEmEnergyFraction() < 0.9 ;
+  }
+  if (fabs(jet.eta()) > 3.0) {
+    tmp &= jet.neutralEmEnergyFraction() < 0.9 ;
+    tmp &= jet.neutralMultiplicity() > 10 ;
+  }
+
+  // our custom selection
+  tmp &= jet.muonMultiplicity() == 0;
+  tmp &= jet.electronMultiplicity() == 0;
+
+  return tmp;
+
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------

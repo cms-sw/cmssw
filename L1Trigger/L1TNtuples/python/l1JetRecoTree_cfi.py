@@ -5,6 +5,7 @@ l1JetRecoTree = cms.EDAnalyzer("L1JetRecoTreeProducer",
   jecToken                = cms.untracked.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"),
   maxJet                  = cms.uint32(20),
   jetptThreshold          = cms.double(10),
+  jetetaMax               = cms.double(3.),
   pfMetToken              = cms.untracked.InputTag("pfMet")
 )
 
