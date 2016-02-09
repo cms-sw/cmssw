@@ -19,3 +19,10 @@ cscMonitor.FEDRawDataCollectionTag = 'rawDataCollector'
 
 # L1 Trigger - remove emulator and adapt labels for private unpacking
 from DQMOffline.L1Trigger.L1TriggerDqmOfflineMC_cff import *
+
+# put back one of the FastSim aliases, because DQM overwrites it
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    from FastSimulation.Configuration.DigiAliases_cff import loadTriggerDigiAliases
+    loadTriggerDigiAliases()
+    from FastSimulation.Configuration.DigiAliases_cff import caloStage1LegacyFormatDigis

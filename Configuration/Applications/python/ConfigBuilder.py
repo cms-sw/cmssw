@@ -1091,7 +1091,6 @@ class ConfigBuilder(object):
 	if self._options.fast:
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
-                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
 		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
@@ -1939,7 +1938,8 @@ class ConfigBuilder(object):
 			self.renameHLTprocessInSequence(sequence)
 
 		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-		if 'HLT' in self.stepMap.keys():
+		# make an exception for fastsim, since it does not (yet) run HLT DQM
+		if 'HLT' in self.stepMap.keys() and not self._options.fast:
 			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
 			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
 		else:
