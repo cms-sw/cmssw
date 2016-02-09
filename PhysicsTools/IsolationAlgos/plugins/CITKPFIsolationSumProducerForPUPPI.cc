@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,21 +22,18 @@
 #include <string>
 #include <unordered_map>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
-
 namespace citk {
-  class PFIsolationSumProducerForPUPPI : public edm::EDProducer {
+  class PFIsolationSumProducerForPUPPI : public edm::global::EDProducer<> {
     
   public:  
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
     
     virtual ~PFIsolationSumProducerForPUPPI() {}
     
-    void beginLuminosityBlock(const edm::LuminosityBlock&,
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
 			      const edm::EventSetup&) override final;
 
-    void produce(edm::Event&, const edm::EventSetup&) override final;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override final;
     
   private:  
     // datamembers
