@@ -81,8 +81,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     }
 
   // ME0
-  //FIXME Fix this bool
-  if ( false ){
+  if ( doME0_ ){
     if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
     auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
     for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
@@ -132,4 +131,14 @@ void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
   edm::ESHandle<GlobalTrackingGeometry> geometryH;
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
   setGeometry(geometryH.product());
+}
+
+
+
+/// ParameterSet descriptions
+void MuonDetIdAssociator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doME0",false);
+  desc.setAllowAnything();
+  descriptions.addDefault(desc);
 }
