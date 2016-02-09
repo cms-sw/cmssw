@@ -199,7 +199,7 @@ process.L1TSeq = cms.Sequence(   process.RawToDigi
 #                                   + process.dumpES
 #                                   + process.l1tSummaryA
 # Comment this next module to silence per event dump of L1T objects:
-                                   + process.l1tSummaryB
+#                                   + process.l1tSummaryB
 #                                   + process.l1tGlobalAnalyzer
                                    + process.l1UpgradeTree
                                    + process.l1EventTree                                 
