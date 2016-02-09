@@ -8,7 +8,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -33,6 +34,8 @@ public:
 
   explicit ClusterTPAssociationProducer(const edm::ParameterSet&);
   ~ClusterTPAssociationProducer();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -59,6 +62,17 @@ ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterS
 }
 
 ClusterTPAssociationProducer::~ClusterTPAssociationProducer() {
+}
+
+void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("simTrackSrc",     edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
+  desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
+  desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
+  desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
+  descriptions.add("tpClusterProducer", desc);
 }
 		
 void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
