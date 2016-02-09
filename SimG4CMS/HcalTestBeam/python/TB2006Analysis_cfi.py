@@ -59,7 +59,7 @@ def testbeam2006(process):
         TimeOffset      = cms.double(0.)
     )
 
-    process.testbeam = cms.EDAnalyzer("HcalTB06Analysis2015",
+    process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
         process.common_beam_parameters,
         ECAL = cms.bool(True),
         TestBeamAnalysis = cms.PSet(

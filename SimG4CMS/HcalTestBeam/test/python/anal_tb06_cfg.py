@@ -11,7 +11,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('tb_pi_30gev.root')
 )
 
-process.MessageLogger.destinations = cms.untracked.vstring("tb_pi_30gev.txt")
+#process.MessageLogger.destinations = cms.untracked.vstring("tb_pi_30gev.txt")
 
 process.common_beam_parameters.MinE = cms.double(30.0)
 process.common_beam_parameters.MaxE = cms.double(30.0)
