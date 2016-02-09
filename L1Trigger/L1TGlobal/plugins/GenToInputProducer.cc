@@ -33,6 +33,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -132,6 +133,11 @@ namespace l1t {
     std::vector<l1t::EtSum> etsumVec_bxm1;
     std::vector<l1t::EtSum> etsumVec_bx0;
     std::vector<l1t::EtSum> etsumVec_bxp1;
+    
+    GlobalExtBlk extCond_bxm2;
+    GlobalExtBlk extCond_bxm1;
+    GlobalExtBlk extCond_bx0;
+    GlobalExtBlk extCond_bxp1;    
 
   };
 
@@ -146,6 +152,7 @@ namespace l1t {
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
+    produces<GlobalExtBlkBxCollection>();
 
     // Setup parameters
     bxFirst_ = iConfig.getParameter<int>("bxFirst");
@@ -202,6 +209,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   std::vector<l1t::Tau> tauVec;
   std::vector<l1t::Jet> jetVec;
   std::vector<l1t::EtSum> etsumVec;
+  GlobalExtBlk extCond_bx;
 
   // Set the range of BX....TO DO...move to Params or determine from param set.
   int bxFirst = bxFirst_;
@@ -233,6 +241,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+  std::auto_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst,bxLast));
 
   std::vector<int> mu_cands_index;
   std::vector<int> eg_cands_index;
@@ -471,8 +480,15 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    etsumVec.push_back(htTotal);
 
  
+// Fill in some external conditions for testing
+   if((iEvent.id().event())%2 == 0 ) {
+     for(int i=0; i<255; i=i+2) extCond_bx.setExternalDecision(i,true); 
+   } else {
+     for(int i=1; i<255; i=i+2) extCond_bx.setExternalDecision(i,true);
+   }
+ 
    // Insert all the bx into the L1 Collections
-   printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
+   //printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
 
    // Fill Muons
    for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
@@ -584,12 +600,25 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
      etsumVec.clear();  
    }  
 
+   // Fill Externals
+   extCond->push_back(-2, extCond_bxm2);
+   extCond->push_back(-1, extCond_bxm1);
+   extCond->push_back(0,  extCond_bx0);
+   extCond->push_back(1,  extCond_bxp1);
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     extCond->push_back(2,  extCond_bx);
+   } else {
+      // this event is part of the empty trailer...clear out data
+      extCond_bx.reset();
+   }     
+   
 
   iEvent.put(egammas);
   iEvent.put(muons);
   iEvent.put(taus);
   iEvent.put(jets);
   iEvent.put(etsums);
+  iEvent.put(extCond);
 
   // Now shift the bx data by one to prepare for next event.
   muonVec_bxm2 = muonVec_bxm1;
@@ -597,25 +626,28 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   tauVec_bxm2 = tauVec_bxm1;
   jetVec_bxm2 = jetVec_bxm1;
   etsumVec_bxm2 = etsumVec_bxm1;
+  extCond_bxm2 = extCond_bxm1;
 
   muonVec_bxm1 = muonVec_bx0;
   egammaVec_bxm1 = egammaVec_bx0;
   tauVec_bxm1 = tauVec_bx0;
   jetVec_bxm1 = jetVec_bx0;
   etsumVec_bxm1 = etsumVec_bx0;
+  extCond_bxm1 = extCond_bx0;
 
   muonVec_bx0 = muonVec_bxp1;
   egammaVec_bx0 = egammaVec_bxp1;
   tauVec_bx0 = tauVec_bxp1;
   jetVec_bx0 = jetVec_bxp1;
   etsumVec_bx0 = etsumVec_bxp1;
+  extCond_bx0 = extCond_bxp1;
 
   muonVec_bxp1 = muonVec;
   egammaVec_bxp1 = egammaVec;
   tauVec_bxp1 = tauVec;
   jetVec_bxp1 = jetVec;
   etsumVec_bxp1 = etsumVec;
-
+  extCond_bxp1 = extCond_bx;
 }
 
 // ------------ method called once each job just before starting event loop ------------

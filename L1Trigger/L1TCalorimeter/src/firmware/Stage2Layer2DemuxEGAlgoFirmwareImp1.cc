@@ -60,6 +60,7 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
     }
 
     int hwEta_GT = (eta>0) ? closestPoint.first : - closestPoint.first;
+    double eta_GT = (eta>0) ? closestPoint.second : - closestPoint.second;
 
     minDistance = 99999.;
     closestPoint = make_pair(0,0.);
@@ -73,6 +74,7 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
     }
 
     int hwPhi_GT = closestPoint.first;
+    double phi_GT = closestPoint.second;
 
     egamma.setHwEta(hwEta_GT);
     egamma.setHwPhi(hwPhi_GT);
@@ -80,6 +82,10 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
     //9 bits threshold
     if(egamma.hwPt()>511)
       egamma.setHwPt(511);
+
+    math::PtEtaPhiMLorentzVector egammaP4(egamma.hwPt()*params_->egLsb(), eta_GT, phi_GT, 0.);
+    egamma.setP4(egammaP4);
+
 
   }
 

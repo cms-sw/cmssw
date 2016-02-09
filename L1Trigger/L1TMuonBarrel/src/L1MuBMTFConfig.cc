@@ -22,7 +22,6 @@
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-///
 //---------------
 // C++ Headers --
 //---------------

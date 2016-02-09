@@ -25,7 +25,8 @@
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
+//#include "L1Trigger/L1TGlobal/interface/L1GtObject.h"
 #include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
 
 // forward declarations

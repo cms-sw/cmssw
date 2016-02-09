@@ -73,6 +73,7 @@ namespace l1t {
          int amc13TrailerSize_;
 
          bool ctp7_mode_;
+         bool mtf7_mode_;
          bool debug_;
    };
 }
@@ -85,14 +86,16 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
-      fwId_(-1),
-      fwOverride_(false),
-      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false))
+      fwId_(config.getParameter<unsigned int>("FWId")),
+      fwOverride_(config.getParameter<bool>("FWOverride")),
+      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7")),
+      mtf7_mode_(config.getUntrackedParameter<bool>("MTF7"))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      fwId_ = config.getParameter<unsigned int>("FWId");
-      fwOverride_ = config.getParameter<bool>("FWOverride");
+      if (ctp7_mode_ and mtf7_mode_) {
+	throw cms::Exception("L1TRawToDigi") << "Can only use one unpacking mode concurrently!";
+      }
 
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
@@ -173,7 +176,7 @@ namespace l1t {
          // FIXME Hard-coded firmware version for first 74x MC campaigns.
          // Will account for differences in the AMC payload, MP7 payload,
          // and unpacker setup.
-         bool legacy_mc = fwOverride_ && ((fwId_ >> 24) == 0xff);
+	 bool legacy_mc = fwOverride_ && ((fwId_ >> 24) == 0xff);
 
          amc13::Packet packet;
          if (!packet.parse(
@@ -189,6 +192,9 @@ namespace l1t {
          }
 
          for (auto& amc: packet.payload()) {
+	   if (amc.size() == 0)
+	     continue;
+
             auto payload64 = amc.data();
             const uint32_t * start = (const uint32_t*) payload64.get();
             // Want to have payload size in 32 bit words, but AMC measures
@@ -199,8 +205,11 @@ namespace l1t {
             if (ctp7_mode_) {
                LogDebug("L1T") << "Using CTP7 mode";
                payload.reset(new CTP7Payload(start, end));
-            } else {
-               LogDebug("L1T") << "Using MP7 mode; legacy MC bit: " << legacy_mc;
+            } else if (mtf7_mode_) {
+               LogDebug("L1T") << "Using MTF7 mode";
+               payload.reset(new MTF7Payload(start, end));
+	    } else {
+               LogDebug("L1T") << "Using MP7 mode";
                payload.reset(new MP7Payload(start, end, legacy_mc));
             }
             unsigned fw = payload->getAlgorithmFWVersion();
@@ -222,10 +231,11 @@ namespace l1t {
                      << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
                      << " (ID " << block->header().getID() << ", size " << block->header().getSize()
                      << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
-                     << ")" << std::dec << std::endl;
+			    << ")" << std::dec << std::endl;
                   for (const auto& word: block->payload()) {
-                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
-                  }
+		    if (debug_)
+		      std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
+		  }
                }
 
                auto unpacker = unpackers.find(block->header().getID());
@@ -254,9 +264,10 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     desc.add<unsigned int>("FWId",-1)->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format - but need to have FWOverride=true");
-     desc.add<bool>("FWOverride", false);
+     desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
+     desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
      desc.addUntracked<bool>("CTP7", false);
+     desc.addUntracked<bool>("MTF7", false);
      desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
      desc.add<std::vector<int>>("FedIds", {});
      desc.add<std::string>("Setup", "");

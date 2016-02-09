@@ -27,20 +27,19 @@
 // user include files
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
+
 
 // forward declarations
 class GtCondition;
 class L1GtAlgorithm;
+class L1TGlobalScales;
 
 // class declaration
 class TriggerMenu
@@ -55,12 +54,7 @@ public:
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
             const std::vector<std::vector<EnergySumTemplate> >&,
-            const std::vector<std::vector<L1GtJetCountsTemplate> >&,
-            const std::vector<std::vector<L1GtCastorTemplate> >&,
-            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&,
-            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&,
-            const std::vector<std::vector<L1GtBptxTemplate> >&,
-            const std::vector<std::vector<L1GtExternalTemplate> >&,
+            const std::vector<std::vector<ExternalTemplate> >&,
             const std::vector<std::vector<CorrelationTemplate> >&,
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
@@ -138,66 +132,15 @@ public:
     void setVecEnergySumTemplate(
             const std::vector<std::vector<EnergySumTemplate> >&);
 
-    //
-    inline const std::vector<std::vector<L1GtJetCountsTemplate> >&
-        vecJetCountsTemplate() const {
 
-        return m_vecJetCountsTemplate;
-    }
-
-    void setVecJetCountsTemplate(
-            const std::vector<std::vector<L1GtJetCountsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtCastorTemplate> >&
-        vecCastorTemplate() const {
-
-        return m_vecCastorTemplate;
-    }
-
-    void setVecCastorTemplate(
-            const std::vector<std::vector<L1GtCastorTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtHfBitCountsTemplate> >&
-        vecHfBitCountsTemplate() const {
-
-        return m_vecHfBitCountsTemplate;
-    }
-
-    void setVecHfBitCountsTemplate(
-            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&
-        vecHfRingEtSumsTemplate() const {
-
-        return m_vecHfRingEtSumsTemplate;
-    }
-
-    void setVecHfRingEtSumsTemplate(
-            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtBptxTemplate> >&
-        vecBptxTemplate() const {
-
-        return m_vecBptxTemplate;
-    }
-
-    void setVecBptxTemplate(
-            const std::vector<std::vector<L1GtBptxTemplate> >&);
-
-    //
-
-    inline const std::vector<std::vector<L1GtExternalTemplate> >&
+    inline const std::vector<std::vector<ExternalTemplate> >&
         vecExternalTemplate() const {
 
         return m_vecExternalTemplate;
     }
 
     void setVecExternalTemplate(
-            const std::vector<std::vector<L1GtExternalTemplate> >&);
+            const std::vector<std::vector<ExternalTemplate> >&);
 
     //
     inline const std::vector<std::vector<CorrelationTemplate> >&
@@ -249,13 +192,22 @@ public:
 
     void setGtAlgorithmAliasMap(const l1t::AlgorithmMap&);
 
+
+   /// get the scales
+    inline const l1t::L1TGlobalScales& gtScales() const {
+        return m_gtScales;
+    }
+    
+    void setGtScales(const l1t::L1TGlobalScales&);
+
+/*
     /// get / set the technical trigger map
     inline const l1t::AlgorithmMap& gtTechnicalTriggerMap() const {
         return m_technicalTriggerMap;
     }
 
-    void setGtTechnicalTriggerMap(const l1t::AlgorithmMap&);
-
+//    void setGtTechnicalTriggerMap(const l1t::AlgorithmMap&);
+*/
     /// print the trigger menu
     /// allow various verbosity levels
     void print(std::ostream&, int&) const;
@@ -287,12 +239,8 @@ private:
     std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
-    std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
-    std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
-    std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
-    std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
-    std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
-    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
+
+    std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
@@ -306,7 +254,10 @@ private:
     l1t::AlgorithmMap m_algorithmAliasMap;
 
     /// map containing the technical triggers
-    l1t::AlgorithmMap m_technicalTriggerMap;
+//    l1t::AlgorithmMap m_technicalTriggerMap;
+
+    // class containing the scales from the L1 Menu XML
+    l1t::L1TGlobalScales m_gtScales;
 
 
 };

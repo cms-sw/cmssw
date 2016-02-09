@@ -57,7 +57,8 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
-      unsigned int etThreshold;
+      unsigned int etLowThreshold;
+      unsigned int etHighThreshold;
       unsigned int etaRange;
       unsigned int phiRange;
 
