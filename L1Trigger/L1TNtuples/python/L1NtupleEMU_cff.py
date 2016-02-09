@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
+from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("none")
@@ -19,4 +20,5 @@ l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
 L1NtupleEMU = cms.Sequence(
   l1CaloTowerEmuTree
   +l1UpgradeEmuTree
+  +l1EventTree
 )
