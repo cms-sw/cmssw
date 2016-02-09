@@ -14,7 +14,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "DataFormats/Common/interface/ValueMap.h"
 
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   :theConfig(conf)
@@ -23,7 +23,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   fVerbose   = conf.getUntrackedParameter<bool>("verbose", false);
   trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
   beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
-
+  f4D = false;
 
   // select and configure the track selection
   std::string trackSelectionAlgorithm=conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("algorithm");
@@ -42,17 +42,26 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
     theTrackClusterizer = new GapClusterizerInZ(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkGapClusParameters"));
   }else if(clusteringAlgorithm=="DA"){
     theTrackClusterizer = new DAClusterizerInZ(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
-  }
+  } 
   // provide the vectorized version of the clusterizer, if supported by the build
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
    else if(clusteringAlgorithm == "DA_vect") {
     theTrackClusterizer = new DAClusterizerInZ_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
   }
 #endif
+  else if( clusteringAlgorithm=="DA2D" ) {
+    theTrackClusterizer = new DAClusterizerInZT(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+    f4D = true;
+  }
 
 
   else{
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);  
+  }
+
+  if( f4D ) {
+    trackTimesLabel     = conf.getParameter<edm::InputTag>("TrackTimesLabel");
+    trackTimeResosLabel = conf.getParameter<edm::InputTag>("TrackTimeResosLabel");    
   }
 
 
@@ -156,10 +165,33 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // select tracks
   std::vector<reco::TransientTrack> seltks = theTrackFilter->select( t_tks );
+  
+  if( f4D ) {
+    edm::Handle<edm::ValueMap<float> > trackTimesH;
+    edm::Handle<edm::ValueMap<float> > trackTimeResosH;
+    
+    iEvent.getByLabel(trackTimesLabel, trackTimesH);
+    iEvent.getByLabel(trackTimeResosLabel, trackTimeResosH);
+    const auto& trackTimes = *trackTimesH;
+    const auto& trackTimeResos = *trackTimeResosH;
 
+    for( auto& seltk : seltks ) {
+      auto temp = seltk.trackBaseRef();
+      double time = trackTimes[temp];
+      double timeReso = trackTimeResos[temp];
+      timeReso = ( timeReso > 1e-6 ? timeReso : 0.170 ); // make the error much larger than the BS time width
+      if( edm::isNotFinite(time) ) {
+        time = 0.0;
+        timeReso = 1.0;
+      }
+      reco::TransientTrack temptt(temp.castTo<reco::TrackRef>(),time,timeReso,
+                                  theB->field(),theB->trackingGeometry());
+      seltk.swap(temptt);
+    }
+  }
 
   // clusterize tracks in Z
-  std::vector< std::vector<reco::TransientTrack> > clusters =  theTrackClusterizer->clusterize(seltks);
+    std::vector< std::vector<reco::TransientTrack> > clusters =  theTrackClusterizer->clusterize(seltks);
   if (fVerbose){std::cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << seltks.size() << " selected tracks" <<std::endl;}
 
 
@@ -174,29 +206,65 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector<TransientVertex> pvs;
     for (std::vector< std::vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
+      
+      double meantime = 0.;
+      double expv_x2 = 0.;
+      double normw = 0.;      
+      for( const auto& tk : *iclus ) {
+        const double time = tk.timeExt();
+        const double inverr = 1.0/tk.dtErrorExt();
+        meantime += time*inverr;
+        expv_x2  += time*time*inverr;
+        normw    += inverr;
+      }
+      meantime = meantime/normw;
+      expv_x2 = expv_x2/normw;
+      const double time_var = expv_x2 - meantime*meantime; 
 
 
       TransientVertex v; 
       if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
-	
+        
 	v = algorithm->fitter->vertex(*iclus, beamSpot);
+        
+        if( f4D ) {
+          if( v.isValid() ) {
+            auto err = v.positionError().matrix4D();
+            err(3,3) = time_var/(double)iclus->size();        
+            v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          }
+        }
 	
       }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
-      
-	v = algorithm->fitter->vertex(*iclus); 
+              
+	v = algorithm->fitter->vertex(*iclus);
+        
+        if( f4D ) {
+          if( v.isValid() ) {
+            auto err = v.positionError().matrix4D();
+            err(3,3) = time_var/(double)iclus->size();          
+            v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          }
+        }
 	
       }// else: no fit ==> v.isValid()=False
 
 
       if (fVerbose){
-	if (v.isValid()) std::cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << std::endl;
+	if (v.isValid()) {
+          std::cout << "x,y,z";
+          if (f4D) std::cout << ",t";
+          std::cout << "=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z();
+          if (f4D) std::cout << " " << v.time();
+          std::cout << std::endl;
+        }
 	else std::cout <<"Invalid fitted vertex\n";
       }
 
-      if (v.isValid() 
-	    && (v.degreesOfFreedom()>=algorithm->minNdof) 
-	  && (!validBS || (*(algorithm->vertexSelector))(v,beamVertexState))
-	  ) pvs.push_back(v);
+      if ( v.isValid() 
+           && (v.degreesOfFreedom()>=algorithm->minNdof) 
+	   && (!validBS || (*(algorithm->vertexSelector))(v,beamVertexState))
+           ) pvs.push_back(v);
     }// end of cluster loop
 
     if(fVerbose){
@@ -257,8 +325,12 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  << " y "  << std::setw(6) << v->position().y() 
 		  << " dy " << std::setw(6) << v->yError()
 		  << " z "  << std::setw(6) << v->position().z() 
-		  << " dz " << std::setw(6) << v->zError()
-		  << std::endl;
+		  << " dz " << std::setw(6) << v->zError();
+        if( f4D ) {
+          std::cout << " t " << std::setw(6) << v->t()
+                    << " dt " << std::setw(6) << v->tError();
+        }
+        std::cout << std::endl;
       }
     }
 

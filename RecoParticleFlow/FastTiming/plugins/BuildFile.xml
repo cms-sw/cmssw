@@ -9,15 +9,19 @@
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/VertexReco"/>
   <use name="DataFormats/Common"/>
+  <use name="DataFormats/EcalRecHit"/>
   
   <use name="SimDataFormats/Track"/>
   <use name="SimDataFormats/Vertex"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
 
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/Records"/>
+
   <use name="SimTracker/Records"/>
   <use name="SimTracker/TrackAssociation"/>
   <use name="SimTracker/TrackerHitAssociation"/>
-  
+
   <flags   EDM_PLUGIN="1"/>
 
 </library>

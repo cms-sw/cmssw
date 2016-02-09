@@ -173,6 +173,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
   bool use_TP_associator_;
   double sigma_z_match_;
   double abs_z_match_;
+  double sigma_t_match_;
+  double abs_t_match_;
   double shared_track_fraction_match_;
   std::string root_folder_;
 

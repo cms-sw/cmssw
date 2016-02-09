@@ -118,7 +118,6 @@ namespace reco {
 
     const BasicTransientTrack* basicTransientTrack() const {return &(data());}
     
-
     double timeExt() const { return data().timeExt(); }
     double dtErrorExt() const { return data().dtErrorExt(); }
 
