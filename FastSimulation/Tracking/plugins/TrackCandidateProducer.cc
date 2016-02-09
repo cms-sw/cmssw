@@ -154,14 +154,14 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       recHitCandidates.push_back(seedHit);
     }
     bool passedLastSeedHit = false;
-    if(seed.nHits()!=0)
-    const FastTrackerRecHit * lastSeedHit = recHitCandidates.back().hit();
 
     for (const auto & _hit : recHitCombination) {
       TrajectorySeedHitCandidate currentTrackerHit=TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
+      if(seed.nHits==0)passedLastSeedHit=true;
 
       if(!passedLastSeedHit)
 	{
+	  const FastTrackerRecHit * lastSeedHit = recHitCandidates.back().hit();
 	  if(seed.nHits()==0||lastSeedHit->sameId(currentTrackerHit.hit()))     
 	    {
 	      passedLastSeedHit=true;
