@@ -22,6 +22,7 @@
 #include <string>
 #include <unordered_map>
 
+//module to compute isolation sum weighted with PUPPI weights
 namespace citk {
   class PFIsolationSumProducerForPUPPI : public edm::global::EDProducer<> {
     
