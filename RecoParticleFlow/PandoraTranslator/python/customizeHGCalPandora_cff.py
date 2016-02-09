@@ -379,24 +379,40 @@ def cust_2023HGCalPandoraMuonFastTime(process):
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)
+        process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
+        process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
+        process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(False), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
             )
+        process.RandomNumberGeneratorService.ecalBarrelClusterFastTimer = cms.PSet(
+            initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
+            )
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+        process.reconstruction_step += process.ecalBarrelClusterFastTimer
+        
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
     if hasattr(process,'mix'):
@@ -417,24 +433,39 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_ecalBarrelClusterFastTimer_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)        
+        process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
+        process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
+        process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(False), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
             )
+        process.RandomNumberGeneratorService.ecalBarrelClusterFastTimer = cms.PSet(
+            initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
+            )
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+        process.reconstruction_step += process.ecalBarrelClusterFastTimer
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
     if hasattr(process,'mix'):

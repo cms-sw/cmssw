@@ -255,9 +255,10 @@ TransientVertex::operator reco::Vertex() const
   if (!isValid()) return Vertex();
 
   Vertex vertex(Vertex::Point(theVertexState.position()),
-// 	RecoVertex::convertError(theVertexState.error()), 
-	theVertexState.error().matrix_new(), 
-	totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
+                // 	RecoVertex::convertError(theVertexState.error()), 
+                theVertexState.error4D().matrix_new4D(),
+                theVertexState.time(),
+                totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
   for (std::vector<TransientTrack>::const_iterator i = theOriginalTracks.begin();
        i != theOriginalTracks.end(); ++i) {
 //     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
