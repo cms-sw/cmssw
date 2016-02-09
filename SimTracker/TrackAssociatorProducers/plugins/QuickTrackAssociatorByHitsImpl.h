@@ -5,7 +5,7 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 // Forward declarations
 class TrackerHitAssociator;
@@ -68,7 +68,7 @@ public:
 
   QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
                                  std::unique_ptr<const TrackerHitAssociator> hitAssoc,
-                                 const ClusterTPAssociationList *clusterToTPMap,
+                                 const ClusterTPAssociation *clusterToTPMap,
                                  bool absoluteNumberOfHits,
                                  double qualitySimToReco,
                                  double puritySimToReco,
@@ -138,7 +138,7 @@ public:
    * Note that the trackingParticles parameter is not actually required since all the information is in clusterToTPMap,
    * but the method signature has to match the other overload because it is called from a templated method.
    */
-  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const ClusterTPAssociationList& clusterToTPMap, T_TPCollection trackingParticles, iter begin, iter end ) const;
+  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const ClusterTPAssociation& clusterToTPMap, T_TPCollection trackingParticles, iter begin, iter end ) const;
   
   
   /** @brief Returns true if the supplied TrackingParticle has the supplied g4 track identifiers. */
@@ -151,7 +151,7 @@ public:
   template<typename iter> int getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   /** @brief Overload for when using cluster to TrackingParticle association list.
    */
-  template<typename iter> int getDoubleCount( const ClusterTPAssociationList& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> int getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   
   /** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
    *
@@ -172,10 +172,10 @@ public:
     return &(*iter);
   }
   
-  /** @brief creates either a ClusterTPAssociationList OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
+  /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *
-   * A decision is made whether to create a ClusterTPAssociationList or a TrackerHitAssociator depending on how this
-   * track associator was configured. If the ClusterTPAssociationList couldn't be fetched from the event then it
+   * A decision is made whether to create a ClusterTPAssociation or a TrackerHitAssociator depending on how this
+   * track associator was configured. If the ClusterTPAssociation couldn't be fetched from the event then it
    * falls back to creating a TrackerHitAssociator.
    *
    * Only one type will be created, never both. The other unique_ptr reference will be null so check for that
@@ -185,11 +185,11 @@ public:
    * the cluster to TrackingParticle couldn't be retrieved from the event then pClusterToTPMap will be null but
    * useClusterTPAssociation_ is no longer changed to false.
    */
-  //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
+  //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociation>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
 
   edm::EDProductGetter const* productGetter_;
   std::unique_ptr<const TrackerHitAssociator> hitAssociator_;
-  const ClusterTPAssociationList *clusterToTPMap_;
+  const ClusterTPAssociation *clusterToTPMap_;
   
   double qualitySimToReco_;
   double puritySimToReco_;

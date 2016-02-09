@@ -25,7 +25,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 class ClusterTPAssociationProducer : public edm::global::EDProducer<>
 {
@@ -58,7 +58,7 @@ ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterS
     stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
     trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc")))
 {
-  produces<ClusterTPAssociationList>();
+  produces<ClusterTPAssociation>();
 }
 
 ClusterTPAssociationProducer::~ClusterTPAssociationProducer() {
@@ -76,7 +76,7 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 		
 void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  auto clusterTPList = std::make_unique<ClusterTPAssociationList>();
+  auto clusterTPList = std::make_unique<ClusterTPAssociation>();
  
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
@@ -144,7 +144,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	  auto ipos = mapping.find(*iset);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
+	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
 	  }
 	}
       }
@@ -179,14 +179,14 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	  auto ipos = mapping.find(*iset);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
+	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
 	  } 
 	}
       } 
     }
   }
 
-  std::sort(clusterTPList->begin(), clusterTPList->end(), clusterTPAssociationListGreater);
+  clusterTPList->sort();
   iEvent.put(std::move(clusterTPList));
 }
 
