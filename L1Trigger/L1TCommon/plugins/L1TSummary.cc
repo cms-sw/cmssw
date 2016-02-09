@@ -230,8 +230,8 @@ L1TSummary::endJob() {
   if (egCheck_)   cout << "eg:    " << egCount_ << "\n";
   if (tauCheck_)  cout << "tau:   " << tauCount_ << "\n";
   if (jetCheck_)  cout << "jet:   " << jetCount_ << "\n";
-  if (sumCheck_)  cout << "sum:   " << egCount_ << "\n";
-  if (muonCheck_) cout << "muon:  " << egCount_ << "\n";
+  if (sumCheck_)  cout << "sum:   " << sumCount_ << "\n";
+  if (muonCheck_) cout << "muon:  " << muonCount_ << "\n";
 }
 
 void
