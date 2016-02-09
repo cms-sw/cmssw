@@ -120,37 +120,46 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
   // book histo per each detector module
   for(auto ModuleID : activeDets)
     {
-      //uint ModuleID = (*DetItr);
+      auto id = DetId(ModuleID);
 
       // TODO: Not yet implemented for Pixel.
       // Book module histogramms?
-      //if (ModOn) {
-	//std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
-	//std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
-	//HitResidual[ModuleID] = ibooker.book1D(hid, hid,
-					       //i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	//HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	//NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
-						      //i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	//NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
-      //}
+      if (ModOn) {
+	switch (id.subdetId()) {
+	  case 1:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 0); break;
+	  case 2:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 0); break;
+	  default:  strip_organizer.setDetectorFolder(ModuleID,tTopo);
+	}
+	{
+	  // this sounds strip specific but also works for pixel
+	  std::string hid = hidmanager.createHistoId("HitResidualsX","det",ModuleID);
+	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsX","det",ModuleID);
+	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
+	  histos.x.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  histos.x.base->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	  histos.x.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  histos.x.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	}{ 
+	  std::string hid = hidmanager.createHistoId("HitResidualsY","det",ModuleID);
+	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsY","det",ModuleID);
+	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
+	  histos.y.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  histos.y.base->setAxisTitle("(y_{pred} - y_{rec})' [cm]");
+	  histos.y.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  histos.y.normed->setAxisTitle("(y_{pred} - y_{rec})'/#sigma");
+	}
+      }
 
       auto subdetandlayer = findSubdetAndLayer(ModuleID, tTopo);
       if(m_SubdetLayerResiduals.find(subdetandlayer) == m_SubdetLayerResiduals.end()) {
 	// add new histograms
 	auto& histos = m_SubdetLayerResiduals[subdetandlayer];
-	auto id = DetId(ModuleID);
 	switch (id.subdetId()) {
 	  // Pixel Barrel, Endcap
-	  case 1:
-	    pixel_organizer.setModuleFolder(ibooker, ModuleID, 2);
-	    break;
-	  case 2:
-	    pixel_organizer.setModuleFolder(ibooker, ModuleID, 6);
-	    break;
+	  case 1:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 2); break;
+	  case 2:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 6); break;
 	  // All strip
-	  default:
-	    strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
+	  default:  strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
 	}
 	
 	auto xy = std::vector<std::pair<HistoPair&, const char*> >
@@ -225,10 +234,13 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   for (auto it : v_hitstruct) {
     uint RawId = it.rawDetId;
 
-    //if (ModOn && HitResidual[RawId]) {
-      //HitResidual[RawId]->Fill(it.resXprime);
-      //NormedHitResiduals[RawId]->Fill(it.resXprime/it.resXprimeErr);
-    //}
+    if (ModOn) {
+      auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
+      mod_histos.x.base->Fill(it.resXprime);
+      mod_histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+      mod_histos.y.base->Fill(it.resYprime);
+      mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+    }
     auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
     auto histos = m_SubdetLayerResiduals[subdetandlayer];
     // fill if its error is not zero
