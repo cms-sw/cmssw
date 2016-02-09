@@ -273,8 +273,41 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	localInTowers->at(itow).setHwEta(ieta);
 	localInTowers->at(itow).setHwPhi(iphi);
 
+	int ietby2 = round( double(ietHcal) / 2. );
+	int ietby4 = round( double(ietHcal) / 4. );
+
+	// if HF, divide energy by two and give half to adjacent tower
+	if ( abs(ieta)>29 && iphi % 2 == 1) {
+	  localInTowers->at(itow).setHwPt(ietby2);
+	  localInTowers->at(itow).setHwEtHad(ietby2);
+	  int itow_next = CaloTools::caloTowerHash(ieta, iphi+1);
+	  localInTowers->at(itow_next).setHwPt(ietby2);
+	  localInTowers->at(itow_next).setHwEtHad(ietby2);
+	}
+
+	if (abs(ieta)>39 && iphi % 4 == 3) {
+	  localInTowers->at(itow).setHwPt(ietby4);
+	  localInTowers->at(itow).setHwEtHad(ietby4);
+	  int itow_next = CaloTools::caloTowerHash(ieta, iphi+1);
+	  localInTowers->at(itow_next).setHwPt(ietby4);
+	  localInTowers->at(itow_next).setHwEtHad(ietby4);
+	  itow_next = CaloTools::caloTowerHash(ieta, iphi-1);
+	  localInTowers->at(itow_next).setHwPt(ietby4);
+	  localInTowers->at(itow_next).setHwEtHad(ietby4);
+	  itow_next = CaloTools::caloTowerHash(ieta, iphi-2);
+	  localInTowers->at(itow_next).setHwPt(ietby4);
+	  localInTowers->at(itow_next).setHwEtHad(ietby4);
+	}
+
       }
     }
+
+    //    for(std::vector<CaloTower>::const_iterator tower = localInTowers->begin();
+    //	tower != localInTowers->end();
+    //	++tower) {
+    //      if (tower->hwEta()>30) std::cout << "HF in : " << tower->hwEta() << "," << tower->hwPhi() << "," << tower->hwPt() << "," << tower->hwEtHad() << std::endl;
+    //    }
+
 
     // do the decompression
     processor_->processEvent(*localInTowers, *localOutTowers);
@@ -282,9 +315,10 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     // copy towers to output collection
     for(std::vector<CaloTower>::const_iterator tower = localOutTowers->begin();
 	tower != localOutTowers->end();
-	++tower)
+	++tower) {
+      //     if (tower->hwEta()>30) std::cout << "HF out : " << tower->hwEta() << "," << tower->hwPhi() << "," << tower->hwPt() << "," << tower->etHad() << std::endl;
       towersColl->push_back(ibx, *tower);
-
+    }
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Tower in)=" << localInTowers->size() << ", N(Tower out)=" << localOutTowers->size() << std::endl;
 
   }
