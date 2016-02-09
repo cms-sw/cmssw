@@ -308,9 +308,9 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
 		triggerOK = true;
 #ifdef DebugLog
-		if (verbosity%10 > 0)
+		if (verbosity_%10 > 0)
 		  std::cout << "This is the trigger we are looking for "
-			    << triggerNames_[iHLT] << " Flag " << hlt << 
+			    << triggerNames_[iHLT] << " Flag " << hlt 
 			    << std::endl;
 #endif
 	      }
@@ -336,7 +336,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
 #ifdef DebugLog
-      if (verbosity%10> 0) 
+      if (verbosity_%10> 0) 
 	std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" 
 		  << pTrack->pt() << "/" << pTrack->eta() << "/" 
 		  << pTrack->phi() << "/" << pTrack->p() << std::endl;
@@ -405,6 +405,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 				    trkDetItr->pointECAL, a_coneR_, 
 				    trkDetItr->directionHCAL,nRecHits, 
 				    ids, *t_HitEnergies);
+	  t_DetIds->reserve(ids.size());
 	  for (unsigned int k = 0; k < ids.size(); ++k) {
 	    t_DetIds->push_back(ids[k].rawId());
 	  }
@@ -413,6 +414,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 				      trkDetItr->pointECAL, a_coneR_+10,
 				      trkDetItr->directionHCAL,nRecHits1,
 				      ids1, *t_HitEnergies1);
+	  t_DetIds1->reserve(ids1.size());
 	  for (unsigned int k = 0; k < ids1.size(); ++k) {
 	    t_DetIds1->push_back(ids1[k].rawId());
 	  }
@@ -421,6 +423,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 				      trkDetItr->pointECAL, a_coneR_+30,
 				      trkDetItr->directionHCAL,nRecHits3,
 				      ids3, *t_HitEnergies3);
+	  t_DetIds3->reserve(ids3.size());
 	  for (unsigned int k = 0; k < ids3.size(); ++k) {
 	    t_DetIds3->push_back(ids3[k].rawId());
 	  }
@@ -429,7 +432,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  t_pt = pTrack->pt();
 	  t_phi = pTrack->phi();
 #ifdef DebugLog
-	  if (verbosity%10 > 0) {
+	  if (verbosity_%10 > 0) {
 	    std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" 
 		      << pTrack->pt() << "/" << pTrack->eta() << "/" 
 		      << pTrack->phi() << "/" << t_p << std::endl;
