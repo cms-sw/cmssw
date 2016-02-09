@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #from RecoMET.METProducers.PFMET_cfi import pfMet
-from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
-from JetMETCorrections.Configuration.DefaultJEC_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 ##from RecoMET.METPUSubtraction.mvaPFMET_leptons_cfi import *
 ## CV: importing mvaPFMET_leptons_cfi breaks produceAndDiscriminateHPSPFTaus sequence
 ##    (hpsPFTauDiscriminationByDecayModeFinding module gets overwritten by None,
@@ -10,11 +9,11 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 ##     by top-level cfg.py file before RecoMET/METPUSubtraction/python/mvaPFMET_cff.py gets loaded)
 ##from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_53x_wp
 
-calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('PFJetCorrectionProducer',
+calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('CorrectedPFJetProducer',
     src = cms.InputTag('ak4PFJets'),
-    correctors = cms.vstring("ak4PFL1FastL2L3") # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
+    correctors = cms.VInputTag("ak4PFL1FastL2L3Corrector") # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
 )
-
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1Fastjet
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator
 from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
 puJetIdForPFMVAMEt = pileupJetIdEvaluator.clone(
@@ -69,15 +68,13 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     srcLeptons = cms.VInputTag(),#"isomuons","isoelectrons","isotaus") # NOTE: you need to set this to collections of electrons, muons and tau-jets
                                  #                                             passing the lepton reconstruction & identification criteria applied in your analysis
     minNumLeptons = cms.int32(0),                     
-    srcRho = cms.InputTag('fixedGridRhoFastjetAll'),
     globalThreshold = cms.double(-1.),#pfMet.globalThreshold,
     minCorrJetPt = cms.double(-1.),
     inputFileNames = cms.PSet(
-        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
-    ),
+        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru_7_4_X_miniAOD_25NS_July2015.root'),
+        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_4_X_miniAOD_25NS_July2015.root') ),
     inputRecords = cms.PSet(
         U     = cms.string("RecoilCor"),
         DPhi  = cms.string("PhiCor"), 
@@ -86,7 +83,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     ),
     loadMVAfromDB = cms.bool(False),                             
 
-    corrector = cms.string("ak4PFL1Fastjet"),
+    corrector = cms.InputTag("ak4PFL1FastjetCorrector"),
     useType1  = cms.bool(True), 
     dZcut     = cms.double(0.1),
        
