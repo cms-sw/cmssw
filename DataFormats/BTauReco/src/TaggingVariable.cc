@@ -56,7 +56,9 @@ const char* const TaggingVariableDescription[] = {
 
   /* [vertexEnergyRatio]                        = */ "ratio of energy at secondary vertex over total energy",
   /* [vertexJetDeltaR]                          = */ "pseudoangular distance between jet axis and secondary vertex direction",
-
+  
+  /* [flightDistance1dVal]                      = */ "linear distance between primary and secondary vertex",
+  /* [flightDistance1dSig]                      = */ "linear distance significance between primary and secondary vertex",
   /* [flightDistance2dVal]                      = */ "transverse distance between primary and secondary vertex",
   /* [flightDistance2dSig]                      = */ "transverse distance significance between primary and secondary vertex",
   /* [flightDistance3dVal]                      = */ "distance between primary and secondary vertex",
@@ -158,6 +160,14 @@ const char* const TaggingVariableTokens[] = {
   /* [vertexEnergyRatio]                        = */ "vertexEnergyRatio",
   /* [vertexJetDeltaR]                          = */ "vertexJetDeltaR",
 
+  /* [flightDistance1dAbsVal]                   = */ "flightDistance1dAbsVal",
+  /* [flightDistance1dAbsSig]                   = */ "flightDistance1dAbsSig",
+  /* [flightDistance2dAbsVal]                   = */ "flightDistance2dAbsVal",
+  /* [flightDistance2dAbsSig]                   = */ "flightDistance2dAbsSig",
+  /* [flightDistance3dAbsVal]                   = */ "flightDistance3dAbsVal",
+  /* [flightDistance3dAbsSig]                   = */ "flightDistance3dAbsSig",
+  /* [flightDistance1dVal]                      = */ "flightDistance1dVal",
+  /* [flightDistance1dSig]                      = */ "flightDistance1dSig", 
   /* [flightDistance2dVal]                      = */ "flightDistance2dVal",
   /* [flightDistance2dSig]                      = */ "flightDistance2dSig",
   /* [flightDistance3dVal]                      = */ "flightDistance3dVal",
