@@ -141,7 +141,11 @@ void HLTConfigData::extract()
      const unsigned int m(size(i));
      for (unsigned int j=0; j!=m; ++j) {
        const string& label(moduleLabels_[i][j]);
-       if (moduleType(label) == "HLTLevel1GTSeed") {
+       //HLTConfigProvider sees ignored modules as "-modname"
+       //if the HLTLevel1GTSeed is ignored in the config, it shouldnt
+       //count to the number of active HLTLevel1GTSeeds so we now check
+       //for the module being ignored
+       if (label.front()!='-' && moduleType(label) == "HLTLevel1GTSeed") {
 	 const ParameterSet& pset(modulePSet(label));
 	 if (pset!=ParameterSet()) {
 	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
@@ -428,9 +432,13 @@ const edm::ParameterSet& HLTConfigData::processPSet() const {
   return *processPSet_;
 }
 
-const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) const {
-  if (processPSet_->exists(module)) {
-    return processPSet_->getParameterSet(module);
+const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) const { 
+  //HLTConfigProvider sees ignored modules as "-modname"
+  //but in the PSet, the module is named "modname"
+  //so if it starts with "-", you need to remove the "-" from the
+  //module name to be able to retreive it from the PSet
+  if (processPSet_->exists(module.front()!='-' ? module : module.substr(1))) {
+    return processPSet_->getParameterSet(module.front()!='-' ? module : module.substr(1));
   } else {
     return *s_dummyPSet();
   }
