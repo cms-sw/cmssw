@@ -134,7 +134,12 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //int neta = (int)mapEtaRanges_.size();
   int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
-  for(auto jet = jets->begin() + nExcl_; jet != jets->end(); ++jet) {
+  unsigned int njetsEx = 0;
+  for(auto jet = jets->begin(); jet != jets->end(); ++jet) {
+    if(njetsEx<nExcl_ && fabs(jet->eta())<2.) {
+      njetsEx++;
+      continue;
+    }
     float pt = jet->pt();
     float area = jet->jetArea();
     float eta = jet->eta();
@@ -147,6 +152,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       rhomVec[nacc] = calcMd(&*jet)/area;
       etaVec[nacc] = eta;
       ++nacc;
+      //Printf("pt: %f eta: %f phi: %f",pt,eta,jet->phi());
     }
   }
 
@@ -163,28 +169,30 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
     //Printf("ieta: %d minEta: %f maxEta: %f",ieta,etaMin,etaMax);
      
-     int    naccCur    = 0 ;
-     double rhoCurSum  = 0.;
-     double rhomCurSum = 0.;
-     for(int i = 0; i<nacc; i++) {
-       if(etaVec[i]>=etaMin && etaVec[i]<etaMax) {
-         rhoVecCur[naccCur] = rhoVec[i];
-         rhomVecCur[naccCur] = rhomVec[i];
-         rhoCurSum += rhoVec[i];
-         rhomCurSum += rhomVec[i];
-         ++naccCur;
-       }//eta selection
-     }//accepted jet loop
-     if(naccCur>0) {
-       double rhoCur = TMath::Median(naccCur, rhoVecCur);
-       double rhomCur = TMath::Median(naccCur, rhomVecCur);
-       // mapToRho_[ieta] = rhoCur;
-       // mapToRhoM_[ieta] = rhomCur;
-       mapToRhoOut->at(ieta) = rhoCur;
-       mapToRhoMOut->at(ieta) = rhomCur;
-       //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,rhoCur,rhomCur);
-       //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,mapToRhoOut->at(ieta),mapToRhoMOut->at(ieta));
-     }
+    int    naccCur    = 0 ;
+    double rhoCurSum  = 0.;
+    double rhomCurSum = 0.;
+    for(int i = 0; i<nacc; i++) {
+      if(etaVec[i]>=etaMin && etaVec[i]<etaMax) {
+        rhoVecCur[naccCur] = rhoVec[i];
+        rhomVecCur[naccCur] = rhomVec[i];
+        rhoCurSum += rhoVec[i];
+        rhomCurSum += rhomVec[i];
+        //if(ieta==3) Printf("rhojet: %f",rhoVec[i]);
+        ++naccCur;
+      }//eta selection
+    }//accepted jet loop
+     //Printf("ieta: %d naccCur: %d",ieta,naccCur);
+    if(naccCur>0) {
+      double rhoCur = TMath::Median(naccCur, rhoVecCur);
+      double rhomCur = TMath::Median(naccCur, rhomVecCur);
+      // mapToRho_[ieta] = rhoCur;
+      // mapToRhoM_[ieta] = rhomCur;
+      mapToRhoOut->at(ieta) = rhoCur;
+      mapToRhoMOut->at(ieta) = rhomCur;
+      //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,rhoCur,rhomCur);
+      // Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,mapToRhoOut->at(ieta),mapToRhoMOut->at(ieta));
+    }
   }//eta ranges
   
   iEvent.put(mapEtaRangesOut,"mapEtaEdges");
