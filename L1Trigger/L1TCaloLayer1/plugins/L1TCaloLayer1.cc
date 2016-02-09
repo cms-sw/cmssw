@@ -100,10 +100,10 @@ private:
 // constructors and destructor
 //
 L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
-  ecalTPSource(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPSource"))),
-  ecalTPSourceLabel(iConfig.getParameter<edm::InputTag>("ecalTPSource").label()),
-  hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalTPSource"))),
-  hcalTPSourceLabel(iConfig.getParameter<edm::InputTag>("hcalTPSource").label()),
+  ecalTPSource(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalToken"))),
+  ecalTPSourceLabel(iConfig.getParameter<edm::InputTag>("ecalToken").label()),
+  hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
+  hcalTPSourceLabel(iConfig.getParameter<edm::InputTag>("hcalToken").label()),
   ecalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   useLSB(iConfig.getParameter<bool>("useLSB")),
