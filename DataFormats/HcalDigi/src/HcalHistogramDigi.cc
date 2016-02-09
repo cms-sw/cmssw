@@ -11,7 +11,7 @@ HcalHistogramDigi::HcalHistogramDigi(const HcalDetId& id) : id_(id) {
     bins_[i]=0;
 }
 
-uint32_t HcalHistogramDigi::get(int capid, int bin) const {
+uint16_t HcalHistogramDigi::get(int capid, int bin) const {
   return bins_[(capid%4)*BINS_PER_HISTOGRAM+(bin%BINS_PER_HISTOGRAM)];
 }
 
@@ -22,7 +22,7 @@ int HcalHistogramDigi::getSum(int bin) const {
     (int)(bins_[BINS_PER_HISTOGRAM*3+(bin%BINS_PER_HISTOGRAM)]);
 }
 
-uint32_t* HcalHistogramDigi::getArray(int capid) {
+uint16_t* HcalHistogramDigi::getArray(int capid) {
   int offset=(capid%4)*BINS_PER_HISTOGRAM;
   return &(bins_[offset]);
 }

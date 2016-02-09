@@ -4,6 +4,7 @@
 
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include <set>
 
@@ -11,7 +12,7 @@ class HcalSourcingUTCAunpacker {
 public:
   HcalSourcingUTCAunpacker(void) { }
 
-  void unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<std::vector<HcalHistogramDigi> > histoDigis) const;
+  void unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<HcalHistogramDigiCollection>  histoDigiCollection) const;
   std::set<HcalElectronicsId> unknownIds_;
 };
 

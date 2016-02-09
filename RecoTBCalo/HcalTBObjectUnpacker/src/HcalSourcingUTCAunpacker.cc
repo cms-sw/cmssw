@@ -14,7 +14,7 @@ struct eventHeader {
 };
 
   
-void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<std::vector<HcalHistogramDigi> > histoDigis) const {
+void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<HcalHistogramDigiCollection> histoDigiCollection) const {
   
   if (raw.size()<32*38) {
     throw cms::Exception("Missing Data") << "Less than 1 histogram in event";
