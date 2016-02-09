@@ -41,17 +41,17 @@ EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscrimin
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
 
-  discrNoCutEffic = new FlavourHistograms<double> (
+  discrNoCutEffic.reset( new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", label, mcPlots_, ibook );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", label, mcPlots_, ibook ));
 
   // conditional discriminator cut for efficiency histos
 
-  discrCutEfficScan = new FlavourHistograms<double> (
+  discrCutEfficScan.reset( new FlavourHistograms<double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", label , mcPlots_, ibook );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", label , mcPlots_, ibook ));
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_){ 
 
@@ -156,16 +156,7 @@ EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscrimin
   discrCutEfficScan->setEfficiencyFlag();
 }
 
-
-EffPurFromHistos::~EffPurFromHistos () {
-  if ( fromDiscriminatorDistr) {
-    delete discrNoCutEffic;
-    delete discrCutEfficScan;
-    }
-}
-
-
-
+EffPurFromHistos::~EffPurFromHistos () {}
 
 void EffPurFromHistos::epsPlot(const std::string & name)
 {

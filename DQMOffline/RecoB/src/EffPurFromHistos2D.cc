@@ -41,18 +41,18 @@ EffPurFromHistos2D::EffPurFromHistos2D (const FlavourHistograms2D<double, double
 {
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
-  discrNoCutEffic = new FlavourHistograms2D<double, double> (
+  discrNoCutEffic.reset( new FlavourHistograms2D<double, double> (
         "totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
         dDiscriminatorFC->nBinsX(), dDiscriminatorFC->lowerBoundX(), dDiscriminatorFC->upperBoundX(), dDiscriminatorFC->nBinsY(), 
         dDiscriminatorFC->lowerBoundY(), dDiscriminatorFC->upperBoundY(), 
-        false, label, mcPlots_, false, ibook);
+        false, label, mcPlots_, false, ibook));
   // conditional discriminator cut for efficiency histos
 
-  discrCutEfficScan = new FlavourHistograms2D<double, double> (
+  discrCutEfficScan.reset( new FlavourHistograms2D<double, double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBinsX(), dDiscriminatorFC->lowerBoundX(), dDiscriminatorFC->upperBoundX(), dDiscriminatorFC->nBinsY(),
         dDiscriminatorFC->lowerBoundY(), dDiscriminatorFC->upperBoundY(),
-        false, label, mcPlots_, false, ibook);
+        false, label, mcPlots_, false, ibook));
   discrCutEfficScan->SetMinimum(1E-4);
 
   if (mcPlots_){
@@ -159,12 +159,7 @@ EffPurFromHistos2D::EffPurFromHistos2D (const FlavourHistograms2D<double, double
   discrCutEfficScan->setEfficiencyFlag();
 }
 
-EffPurFromHistos2D::~EffPurFromHistos2D () {
-  if ( fromDiscriminatorDistr) {
-    delete discrNoCutEffic;
-    delete discrCutEfficScan;
-  }
-}
+EffPurFromHistos2D::~EffPurFromHistos2D () {}
 
 void EffPurFromHistos2D::epsPlot(const std::string & name)
 {
