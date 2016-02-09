@@ -137,7 +137,8 @@ if options.triggerPath=="*":
 if options.geometry == "flat" :
   from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_flat_cff import *
 if options.geometry == "tilted" :
-  from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_tilted_cff import *
+  #from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_tilted_cff import *
+  from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_tilted_oddeven_cff import *
 
 #process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
 #                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
