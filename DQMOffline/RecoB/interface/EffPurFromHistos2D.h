@@ -36,8 +36,8 @@ class EffPurFromHistos2D {
   void plot(TPad * theCanvas = 0) ;
   void plot(const std::string & name, const std::string & ext);
 
-  FlavourHistograms2D<double,double> * discriminatorNoCutEffic() const {return discrNoCutEffic;}
-  FlavourHistograms2D<double,double> * discriminatorCutEfficScan() const {return discrCutEfficScan;}
+  FlavourHistograms2D<double,double> * discriminatorNoCutEffic() const {return discrNoCutEffic.get();}
+  FlavourHistograms2D<double,double> * discriminatorCutEfficScan() const {return discrCutEfficScan.get();}
 
   bool doCTagPlots(bool Ctag) {doCTagPlots_ = Ctag; return doCTagPlots_;};
  
@@ -53,7 +53,7 @@ class EffPurFromHistos2D {
   // the string for the histo name extension
   std::string histoExtension ;
 
-  FlavourHistograms2D<double, double> * discrNoCutEffic, * discrCutEfficScan;
+  std::unique_ptr<FlavourHistograms2D<double, double> > discrNoCutEffic, discrCutEfficScan;
 
   // the input histograms (efficiency versus discriminator cut)
   // IMPORTANT: IT'S ASSUMED THAT ALL HISTOS HAVE THE SAME BINNING!!
