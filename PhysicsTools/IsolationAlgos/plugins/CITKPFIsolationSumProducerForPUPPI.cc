@@ -24,7 +24,7 @@
 
 //module to compute isolation sum weighted with PUPPI weights
 namespace citk {
-  class PFIsolationSumProducerForPUPPI : public edm::global::EDProducer<> {
+  class PFIsolationSumProducerForPUPPI : public edm::stream::EDProducer<> {
     
   public:  
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
