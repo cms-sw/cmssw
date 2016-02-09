@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake/V2 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/Fake/V3 (CMSSW_8_0_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V2')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V3')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -14,10 +14,9 @@ process.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_Physics_v1',
   'HLT_ZeroBias_v1' ) )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    snapshotTime = cms.string( "" ),
     globaltag = cms.string( "GR_H_V39" ),
     RefreshEachRun = cms.untracked.bool( True ),
-    dbFormat = cms.untracked.int32( 0 ),
+    snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 
     ),
     DBParameters = cms.PSet( 
