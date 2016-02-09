@@ -153,7 +153,7 @@ With this subdetector, the flat geometry is compatible using just the central ba
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
 | _not used_ | 24 | 0x1 | 1 | | |
-| Layer | 20 | 0x7 | 3 | tobLayer(id) or layer(id) | increasing r |
+| Layer | 20 | 0x7 | 4 | tobLayer(id) or layer(id) | increasing r |
 | _subdetector part_ | 18| 0x3 | 2 | tobSide(id) | 1=rings- 2=rings+ 3=barrel0|
 | Ladder | 10 | 0xFF | 8 | tobRod(id) | increasing abs(z) (rings) or phi(barrel) |
 | Module | 2 | 0xFF | 8 | tobModule(id) | increasing phi (rings) or z(barrel) |
