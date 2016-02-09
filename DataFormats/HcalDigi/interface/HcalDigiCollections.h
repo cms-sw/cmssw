@@ -39,7 +39,8 @@ class HcalDataFrameContainer : public edm::DataFrameContainer {
 public:
   typedef edm::DataFrameContainer::size_type size_type;
   static const size_type MAXSAMPLES = 10;
-  HcalDataFrameContainer(int nsamples_per_digi=MAXSAMPLES, int isubdet=0) : edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS+Digi::FLAG_WORDS, isubdet) { }
+  HcalDataFrameContainer(int nsamples_per_digi=MAXSAMPLES, int isubdet=0) : 
+    edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS+Digi::FLAG_WORDS, isubdet) { }
   void swap(DataFrameContainer& other) {this->DataFrameContainer::swap(other);}
 
   //helpful accessors

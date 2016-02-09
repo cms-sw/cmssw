@@ -265,9 +265,10 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
       QIE10DataFrame frame(*i);
 	  
       // rof 27.03.09: drop ZS marked and passed digis:
-      if (dropZSmarkedPassed_)
-      if (frame.zsMarkAndPass()) continue;
-      
+      if (dropZSmarkedPassed_){
+        if (frame.zsMarkAndPass()) continue;
+      }
+
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); 
