@@ -124,21 +124,21 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 
       // TODO: Not yet implemented for Pixel.
       // Book module histogramms?
-      if (ModOn) {
-	std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
-	std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
-	HitResidual[ModuleID] = ibooker.book1D(hid, hid,
-					       i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
-						      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
-      }
+      //if (ModOn) {
+	//std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
+	//std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
+	//HitResidual[ModuleID] = ibooker.book1D(hid, hid,
+					       //i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	//HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	//NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
+						      //i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	//NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+      //}
 
       auto subdetandlayer = findSubdetAndLayer(ModuleID, tTopo);
-
-      if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
-	
+      if(m_SubdetLayerResiduals.find(subdetandlayer) == m_SubdetLayerResiduals.end()) {
+	// add new histograms
+	auto& histos = m_SubdetLayerResiduals[subdetandlayer];
 	auto id = DetId(ModuleID);
 	switch (id.subdetId()) {
 	  // Pixel Barrel, Endcap
@@ -153,28 +153,43 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	    strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
 	}
 	
-	// book histogramms on layer level, check for barrel for correct labeling
-	
-	auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
-	std::string histoname = Form("HitResiduals_%s%s__%s__%d",
+	auto xy = std::vector<std::pair<HistoPair&, const char*> >
+      		{ std::make_pair(std::ref(histos.x), "X"),
+	          std::make_pair(std::ref(histos.y), "Y") };
+	for (auto& histopair : xy) {
+	  // book histogramms on layer level, check for barrel/pixel only for correct labeling
+	  auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
+	  auto isPixel = subdetandlayer.first.find("X") != std::string::npos;
+	  // TODO: We use a legacy name to stay compatible with other code. 
+	  // Check if this is necessary.
+	  std::string histoname = Form("HitResiduals_%s__%s__%d%s",
+		subdetandlayer.first.c_str(),
+		isBarrel ? "Layer" : "wheel",
+		std::abs(subdetandlayer.second),
+		histopair.second[0] == 'X' ? "" : "_Y");
+	  std::string histotitle = Form("HitResiduals %s on %s%s full %s %d",
+		histopair.second,
 		subdetandlayer.first.c_str(),
 		isBarrel ? "" : (subdetandlayer.second > 0 ? "+" : "-"),
-		isBarrel ? "Layer" : "wheel",
+		isBarrel ? "Layer" : (isPixel ? "Disk" : "Wheel"),
 		std::abs(subdetandlayer.second));
 	
-	std::string normhistoname = Form("Normalized%s", histoname.c_str());
 
-	//std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
-	
-	m_SubdetLayerResiduals[subdetandlayer] =
-	  ibooker.book1D(histoname.c_str(),histoname.c_str(),
+	  std::string normhistoname = Form("Normalized%s", histoname.c_str());
+	  std::string normhistotitle = Form("Normalized%s", histotitle.c_str());
+
+	  //std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
+	  
+	  histopair.first.base =
+	    ibooker.book1D(histoname.c_str(),histotitle.c_str(),
 			 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	  histopair.first.base->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
 
-	m_SubdetLayerNormedResiduals[subdetandlayer] =
-	  ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
-			 i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	  histopair.first.normed =
+	    ibooker.book1D(normhistoname.c_str(),normhistotitle.c_str(),
+			   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  histopair.first.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	}
       }      
     } // end loop over activeDets
 }
@@ -207,21 +222,23 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
   std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;
   avalidator_.fillHitQuantities(iEvent,v_hitstruct);
-  for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = v_hitstruct.begin(),
-       itEnd = v_hitstruct.end(); it != itEnd; ++it) {
-    uint RawId = it->rawDetId;
+  for (auto it : v_hitstruct) {
+    uint RawId = it.rawDetId;
 
+    //if (ModOn && HitResidual[RawId]) {
+      //HitResidual[RawId]->Fill(it.resXprime);
+      //NormedHitResiduals[RawId]->Fill(it.resXprime/it.resXprimeErr);
+    //}
+    auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
+    auto histos = m_SubdetLayerResiduals[subdetandlayer];
     // fill if its error is not zero
-    if( it->resXprimeErr != 0)  {
-      if (ModOn && HitResidual[RawId]) {
-	HitResidual[RawId]->Fill(it->resXprime);
-	NormedHitResiduals[RawId]->Fill(it->resXprime/it->resXprimeErr);
-      }
-      auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
-      if(m_SubdetLayerResiduals[subdetandlayer]) {
-	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resXprime);
-	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resXprime/it->resXprimeErr);
-      }
+    if(it.resXprimeErr != 0 && histos.x.base) {
+      histos.x.base->Fill(it.resXprime);
+      histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+    }
+    if(it.resYprimeErr != 0 && histos.y.base) {
+      histos.y.base->Fill(it.resYprime);
+      histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
     }
   }
 }
@@ -229,4 +246,4 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
 DEFINE_FWK_MODULE(MonitorTrackResiduals);
-
+ 

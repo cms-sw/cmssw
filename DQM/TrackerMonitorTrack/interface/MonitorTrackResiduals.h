@@ -28,8 +28,6 @@ class DQMStore;
 class GenericTriggerEventFlag;
 namespace edm { class Event; }
 
-typedef std::map<int32_t, MonitorElement *> HistoClass;
-
 class MonitorTrackResiduals : public DQMEDAnalyzer {
  public:
   // constructors and EDAnalyzer Methods
@@ -50,11 +48,21 @@ class MonitorTrackResiduals : public DQMEDAnalyzer {
   edm::ParameterSet Parameters;
 
   std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
-  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
-  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
   
-  HistoClass HitResidual;
-  HistoClass NormedHitResiduals;
+  struct HistoPair {
+    HistoPair() {base = nullptr; normed = nullptr;};
+    MonitorElement* base;
+    MonitorElement* normed;
+  };
+  struct HistoXY {
+    HistoPair x;
+    HistoPair y;
+  };
+  typedef std::map<std::pair<std::string, int32_t>, HistoXY> HistoSet;
+
+  HistoSet m_SubdetLayerResiduals;
+  HistoSet m_ModuleResiduals;
+  
   unsigned long long m_cacheID_;
   bool ModOn;
   GenericTriggerEventFlag* genTriggerEventFlag_;
