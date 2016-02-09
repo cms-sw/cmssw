@@ -444,7 +444,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useSoftDrop_ || useConstituentSubtraction_ || useConstituentSubtractionHi_ ) ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useSoftDrop_ || useConstituentSubtraction_) ) { // || useConstituentSubtractionHi_ ) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   } else {
     fjJets_.clear();
@@ -550,7 +550,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
         //Get rho and rhoM for eta regio
         double rho = rhoRanges->at(ie);
         double rhom = rhomRanges->at(ie);
-        
+        //Printf("ie: %d rho: %f rhom: %f",ie,rho,rhom); 
         //initialize constituent subtraction
         fastjet::contrib::ConstituentSubtractor *subtractor;
         subtractor     = new fastjet::contrib::ConstituentSubtractor(rho,rhom,csAlpha_,-1.);
