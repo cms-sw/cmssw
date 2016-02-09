@@ -78,6 +78,8 @@ private:
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
     std::string measurementTrackerLabel;
 
+    bool skipSeedFinderSelector;
+
 public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
@@ -132,6 +134,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 
     // other parameters
     measurementTrackerLabel = conf.getParameter<std::string>("measurementTracker");
+    skipSeedFinderSelector = conf.getUntrackedParameter<bool>("skipSeedFinderSelector",false);
 
 }
 
@@ -163,10 +166,16 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
     // produce the regions;
     const auto regions = theRegionProducer->regions(e,es);
-
+    // and make sure there is at least one region
+    if(regions.size() == 0)
+    {
+	e.put(std::move(output));
+	return;
+    }
+    
     // pointer to selected region
     TrackingRegion * selectedTrackingRegion = 0;
-    
+       
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
     SeedFinder::Selector selectorFunction = [&es,&regions,&measurementTracker,selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
@@ -207,6 +216,16 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	// no criteria for hit combinations that are not pairs
 	return true;
     };
+
+    if(skipSeedFinderSelector)
+    {
+	selectedTrackingRegion = regions[0].get();
+	selectorFunction = [](const std::vector<const FastTrackerRecHit*>& hits) -> bool
+	{
+	    return true;
+	};
+    }
+
 
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
