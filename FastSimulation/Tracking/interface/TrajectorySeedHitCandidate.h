@@ -50,7 +50,7 @@ public:
         
     }
 
-  /// Constructor from a GSRecHit and the Geometry
+  /// Constructor from a FastTrackerRecHit and topology
   TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, 
 			     const TrackerTopology* tTopo);
   

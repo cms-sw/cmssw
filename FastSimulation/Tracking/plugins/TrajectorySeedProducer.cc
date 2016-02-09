@@ -164,44 +164,49 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // produce the regions;
     const auto regions = theRegionProducer->regions(e,es);
 
+    // pointer to selected region
+    TrackingRegion * selectedTrackingRegion = 0;
+    
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&regions,&measurementTracker](const std::vector<const FastTrackerRecHit*>& hits,TrackingRegion* & region) -> bool
+    SeedFinder::Selector selectorFunction = [&es,&regions,&measurementTracker,selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
+    {
+	// criteria for hit pairs
+	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
+	if (hits.size()==2)
 	{
-            // criteria for hit pairs
-	    // based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
-	    if (hits.size()==2)
-	    {
-		const FastTrackerRecHit * innerHit = hits[0];
-		const FastTrackerRecHit * outerHit = hits[1];
+	    const FastTrackerRecHit * innerHit = hits[0];
+	    const FastTrackerRecHit * outerHit = hits[1];
+	    
+	    const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
+	    const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
+	    
+	    std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
+	    std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
+	    for(auto ir=regions.begin(); ir < regions.end(); ++ir){
 		
-		const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
-		const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
+		const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
 		
-		std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit.hit());
-		std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit.hit());
-		for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-		    
-		    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
-		    
-		    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
-		    
-		    HitDoublets result(*ihm,*ohm); 
-		    
-		    HitPairGeneratorFromLayerPair::doublets(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
-		    
-		    if(result.size()!=0){
-			seedCreator->init(**ir,*es_,0);
-			return true; }
-		    
+		const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
+		
+		HitDoublets result(*ihm,*ohm); 
+		
+		HitPairGeneratorFromLayerPair::doublets(**ir,*innerLayer,*outerLayer,*ihm,*ohm,es,0,result);
+		
+		if(result.size()!=0)
+		{
+		    selectedTrackingRegion = ir->get();
+		    return true; 
 		}
 		
-		return false;
 	    }
 	    
-	    // no criteria for hit combinations that are not pairs
-	    return true;
-	};
+	    return false;
+	}
+	
+	// no criteria for hit combinations that are not pairs
+	return true;
+    };
 
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
@@ -224,8 +229,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	}
 
 	// find the hits on the seeds
-	TrackingRegion * selectedTrackingRegion = 0;
-	std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates,selectedTrackingRegion);
+	std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
 
 	// create a seed from those hits
 	if (seedHitNumbers.size()>1)

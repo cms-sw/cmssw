@@ -11,24 +11,23 @@
 
 class TrackerTopology;
 class FastTrackerRecHit;
-class TrackingRegion;
 
 class SeedFinder
 {
 
 public:
-    typedef std::function<bool(const std::vector<const FastTrackerRecHit *>& hits,TrackingRegion* & trackingRegion)> Selector;
+    typedef std::function<bool(const std::vector<const FastTrackerRecHit *>& hits)> Selector;
 private:
     Selector _selector;
     const SeedingTree<TrackingLayer>& _seedingTree;
     const TrackerTopology * _trackerTopology;
-        
+
 public:
     SeedFinder(const SeedingTree<TrackingLayer>& seedingTree,const TrackerTopology & trackerTopology)
 	: _seedingTree(seedingTree)
 	, _trackerTopology(&trackerTopology)
         {
-            _selector=[](const std::vector<const FastTrackerRecHit*>& hits,TrackingRegion* & trackingRegion) -> bool
+            _selector=[](const std::vector<const FastTrackerRecHit*>& hits) -> bool
 		{
 		    return true;
 		};
@@ -39,7 +38,7 @@ public:
             _selector = selector;
         }
         
-    std::vector<unsigned int> getSeed(const std::vector<const FastTrackerRecHit *>& trackerRecHits,TrackingRegion* & trackingRegion) const
+    std::vector<unsigned int> getSeed(const std::vector<const FastTrackerRecHit *>& trackerRecHits) const
         {
             std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
             //A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
@@ -59,7 +58,7 @@ public:
 		TrajectorySeedHitCandidate seedHitCandidate(trackerRecHit,_trackerTopology);
 		seedHitCandidates.push_back(std::move(seedHitCandidate));
 	    }
-            return iterateHits(0,seedHitCandidates,hitIndicesInTree,true,trackingRegion);
+            return iterateHits(0,seedHitCandidates,hitIndicesInTree,true);
             
             //TODO: create pairs of TrackingLayer -> remove TrajectorySeedHitCandidate class
         }
@@ -68,8 +67,7 @@ public:
     const SeedingNode<TrackingLayer>* insertHit(
 	const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
 	std::vector<int>& hitIndicesInTree,
-	const SeedingNode<TrackingLayer>* node, unsigned int trackerHit,
-	TrackingRegion* & trackingRegion) const
+	const SeedingNode<TrackingLayer>* node, unsigned int trackerHit) const
         {
             if (!node->getParent() || hitIndicesInTree[node->getParent()->getIndex()]>=0)
             {
@@ -91,7 +89,7 @@ public:
                         parentNode = parentNode->getParent();
                     }
                     
-                    if (_selector(seedCandidateHitList,trackingRegion))
+                    if (_selector(seedCandidateHitList))
                     {
                         return nullptr;
                     }
@@ -108,7 +106,7 @@ public:
                 {
                     for (unsigned int ichild = 0; ichild<node->getChildrenSize(); ++ichild)
                     {
-                        const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit,trackingRegion);
+                        const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit);
                         if (seed)
                         {
                             return seed;
@@ -123,8 +121,7 @@ public:
 	unsigned int start,
 	const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
 	std::vector<int> hitIndicesInTree,
-	bool processSkippedHits,
-	TrackingRegion* & trackingRegion) const
+	bool processSkippedHits) const
         {
             for (unsigned int irecHit = start; irecHit<trackerRecHits.size(); ++irecHit)
             {
@@ -149,8 +146,7 @@ public:
                                 inext,
                                 trackerRecHits,
                                 hitIndicesInTree,
-                                false,
-				trackingRegion
+                                false
 				);
                             if (seedHits.size()>0)
                             {
@@ -170,7 +166,7 @@ public:
                 const SeedingNode<TrackingLayer>* seedNode = nullptr;
                 for (unsigned int iroot=0; seedNode==nullptr && iroot<_seedingTree.numberOfRoots(); ++iroot)
                 {
-                    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex,trackingRegion);
+                    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex);
                 }
                 if (seedNode)
                 {

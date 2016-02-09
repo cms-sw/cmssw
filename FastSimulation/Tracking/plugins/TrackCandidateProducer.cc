@@ -20,6 +20,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 // geometry / magnetic field / propagation
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -52,13 +53,14 @@ private:
     edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
     edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
     edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
+    edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
     std::string propagatorLabel;
     
     // other data
     bool rejectOverlaps;
     bool splitHits;
     FastTrackerRecHitSplitter hitSplitter;
-  
+    double maxSeedMatchEstimator;
 };
 
 TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
@@ -73,6 +75,7 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
     }
     seedToken = consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
     recHitCombinationsToken = consumes<FastTrackerRecHitCombinationCollection>(conf.getParameter<edm::InputTag>("recHitCombinations"));
+    simTrackToken = consumes<edm::SimTrackContainer>(conf.getParameter<edm::InputTag>("simTracks"));
     
     // other parameters
     maxSeedMatchEstimator = conf.getUntrackedParameter<double>("maxSeedMatchEstimator",0);
@@ -137,7 +140,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	// for normal seeds, retrieve the corresponding recHitCombination from the seed hits
 	else
 	{
-	    int32_t icomb = fastTrackingHelper::getRecHitCombinationIndex(seed);
+	    int32_t icomb = fastTrackingUtilities::getRecHitCombinationIndex(seed);
 	    recHitCombinationIndices.push_back(icomb);
 	}
 	
