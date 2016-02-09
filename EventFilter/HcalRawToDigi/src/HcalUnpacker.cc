@@ -582,9 +582,10 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
         int nps=(amc13->AMCId(iamc)>>12)&0xF;
 
         HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
-        int nwords=uhtr.getRawLengthBytes()/2;
-        for (int iw=0; iw<nwords; iw++) 
-            printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
+        //debug printouts
+        //int nwords=uhtr.getRawLengthBytes()/2;
+        //for (int iw=0; iw<nwords; iw++) 
+        //    printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
 
         HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
         while (i!=iend) {
