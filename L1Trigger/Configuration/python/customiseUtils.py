@@ -17,6 +17,13 @@ def L1TTurnOffUnpackStage2GtAndGmt(process):
         process.L1TRawToDigi.remove(getattr(process,b))
     return process
 
+# Unpack Stage-2 GT and GMT
+def L1TTurnOffUnpackStage2(process):
+    cutlist=['gtStage2Digis','gmtStage2Digis','caloStage2Digis']
+    for b in cutlist:
+        process.L1TRawToDigi.remove(getattr(process,b))
+    return process
+
 def L1TStage1DigisSummary(process):
     print "L1T INFO:  will dump a summary of unpacked Stage1 content to screen."
     process.load('L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi')
