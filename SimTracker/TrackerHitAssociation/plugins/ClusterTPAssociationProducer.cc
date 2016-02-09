@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -26,7 +26,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
 
-class ClusterTPAssociationProducer : public edm::stream::EDProducer<> 
+class ClusterTPAssociationProducer : public edm::global::EDProducer<>
 {
 public:
   typedef std::vector<OmniClusterRef> OmniClusterCollection;
@@ -35,20 +35,11 @@ public:
   ~ClusterTPAssociationProducer();
 
 private:
-  virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   template <typename T>
   std::vector<std::pair<uint32_t, EncodedEventId> >
   getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks, const DetId& detId, uint32_t channel) const;
-
-  bool _verbose;
-  edm::InputTag _pixelSimLinkSrc;
-  edm::InputTag _stripSimLinkSrc;
-  edm::InputTag _pixelClusterSrc;
-  edm::InputTag _stripClusterSrc;
-  edm::InputTag _trackingParticleSrc;
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinksToken_;
   edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > sistripSimLinksToken_;
@@ -57,28 +48,20 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
 };
 
-ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg) 
-  : _verbose(cfg.getParameter<bool>("verbose")),
-    _pixelSimLinkSrc(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc")),
-    _stripSimLinkSrc(cfg.getParameter<edm::InputTag>("stripSimLinkSrc")),
-    _pixelClusterSrc(cfg.getParameter<edm::InputTag>("pixelClusterSrc")),
-    _stripClusterSrc(cfg.getParameter<edm::InputTag>("stripClusterSrc")),
-    _trackingParticleSrc(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))
+ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg)
+  : sipixelSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"))),
+    sistripSimLinksToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"))),
+    pixelClustersToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
+    stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
+    trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc")))
 {
-
-  sipixelSimLinksToken_ = consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"));
-  sistripSimLinksToken_ = consumes<edm::DetSetVector<StripDigiSimLink> >(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"));
-  pixelClustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"));
-  stripClustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"));
-  trackingParticleToken_ = consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"));
-
   produces<ClusterTPAssociationList>();
 }
 
 ClusterTPAssociationProducer::~ClusterTPAssociationProducer() {
 }
 		
-void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& es) {
+void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
   auto clusterTPList = std::make_unique<ClusterTPAssociationList>();
  
   // Pixel DigiSimLink
