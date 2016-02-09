@@ -1324,13 +1324,13 @@ def l1EventContent(process):
         b=a+'output'
         if hasattr(process,b):
 
-            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClustersFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_*_*')
 
-            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
 
             getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
             getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')

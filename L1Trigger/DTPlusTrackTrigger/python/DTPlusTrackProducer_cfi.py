@@ -6,8 +6,8 @@ from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
 DTPlusTrackProducer = cms.EDProducer(
     "DTPlusTrackProducer",
 
-    TTStubs = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
-    TTTracks = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+    TTStubs = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
+    TTTracks = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
 
     debug = cms.untracked.bool(False), # needed by DTTrig
     digiTag = cms.InputTag('simMuonDTDigis'), # needed by DTTrig

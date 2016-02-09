@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 L1TkEtMiss = cms.EDProducer('L1TkEtMissProducer',
-     L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+     L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
      L1VertexInputTag = cms.InputTag("L1TkPrimaryVertex"),
      ZMAX = cms.double ( 25. ) ,        # in cm
      CHI2MAX = cms.double( 100. ),

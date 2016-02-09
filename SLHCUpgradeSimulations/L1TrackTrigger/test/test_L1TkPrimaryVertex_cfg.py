@@ -54,9 +54,9 @@ process.Out.outputCommands.append('keep *_genParticles_*_*')
 #process.Out.outputCommands.append('keep *_generator_*_*')
 
 # --- to use the genParticles, one needs to keep the collections of associators below:
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-TTClustersFromPixelDigis = cms.EDProducer("TTClusterBuilder_PixelDigi_",
-    rawHits = cms.VInputTag(cms.InputTag("simSiPixelDigis")),
+TTClustersFromPhase2TrackerDigis = cms.EDProducer("TTClusterBuilder_Phase2TrackerDigi_",
+    rawHits = cms.VInputTag(cms.InputTag("simPixelDigis")), #TODO: change the inpue
     simTrackHits = cms.InputTag("g4SimHits"),
     ADCThreshold = cms.uint32(30),
     storeLocalCoord = cms.bool(True), # if True, local coordinates (row and col)

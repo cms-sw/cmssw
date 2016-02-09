@@ -71,7 +71,7 @@ process.MIBextraction.doSTUB           = True
 # You can choose to extract the info from filtered stubs only
 #process.MIBextraction.STUB_container   = cms.string( "MergePROutput" )
 #process.MIBextraction.STUB_name        = cms.string( "StubInPattern" )
-process.MIBextraction.CLUS_container   = cms.string( "TTStubsFromPixelDigis")
+process.MIBextraction.CLUS_container   = cms.string( "TTStubsFromPhase2TrackerDigis")
 process.MIBextraction.CLUS_name        = cms.string( "ClusterAccepted" )
 
 process.MIBextraction.doL1TRK          = True

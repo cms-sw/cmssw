@@ -69,8 +69,8 @@ process.TTPatternsFromStub.debugMode = cms.int32(0)
 # The name of the stub container over which the association is done, please note that the filtered cluster container is
 # not associated due to the lack of simPixelDigis in official samples
 
-process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergePROutput", "StubInPattern"))
-process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
+process.TTStubAssociatorFromPhase2TrackerDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergePROutput", "StubInPattern"))
+process.TTStubAssociatorFromPhase2TrackerDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis","ClusterAccepted"))
 
 process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
