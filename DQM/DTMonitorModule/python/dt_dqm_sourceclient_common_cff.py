@@ -26,7 +26,7 @@ scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 # DT digitization and reconstruction
 # Switched to TwinMux
 from EventFilter.TwinMuxRawToDigi.dttmunpacker_cfi import *
-dttm7unpacker.DTTM7_FED_Source = 'rawDataCollector'
+twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
@@ -102,7 +102,7 @@ from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
 
 
-unpackers = cms.Sequence(dtunpacker + dttm7unpacker + scalersRawToDigi)
+unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
