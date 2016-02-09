@@ -335,24 +335,19 @@ class _TypedParameterizable(_Parameterizable):
         New parameters may be added by specify the exact type
         Modifying existing parameters can be done by just specifying the new
           value without having to specify the type.
+        A parameter may be removed from the clone using the value None.
+           #remove the parameter foo.fred
+           mod.toModify(foo, fred = None)
+        A parameter embedded within a PSet may be changed via a dictionary
+           #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
+           mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
         if len(myparams) == 0 and len(params) and len(args):
             args.append(None)
-        if len(params):
-            #need to treat items both in params and myparams specially
-            for key,value in params.iteritems():
-                if key in myparams:                    
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key] =value
-                    else:
-                        myparams[key].setValue(value)
-                else:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key]=value
-                    else:
-                        self._Parameterizable__raiseBadSetAttr(key)
+        
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
@@ -615,6 +610,35 @@ def saveOrigin(obj, level):
     obj._filename = frame[0]
     obj._lineNumber = frame[1]
 
+def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
+    if len(newParams):
+        #need to treat items both in params and myparams specially
+        for key,value in newParams.iteritems():
+            if key in params:
+                if value is None:
+                    del params[key]
+                elif isinstance(value, dict):
+                    if isinstance(params[key],_Parameterizable):
+                        pset = params[key]
+                        p =pset.parameters_()
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  keyDepth+"."+key)
+                        for k,v in p.iteritems():
+                            setattr(pset,k,v)
+                    else:
+                        raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
+                elif isinstance(value,_ParameterTypeBase):
+                    params[key] =value
+                else:
+                    params[key].setValue(value)
+            else:
+                if isinstance(value,_ParameterTypeBase):
+                    params[key]=value
+                else:
+                    errorRaiser(key)
+
+
 if __name__ == "__main__":
 
     import unittest
@@ -681,13 +705,34 @@ if __name__ == "__main__":
             class __TestType(_SimpleParameterTypeBase):
                 def _isValid(self,value):
                     return True
-            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
-            b = a.clone(t=3, v=__TestType(4))
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+            a = __Test("MyType",
+                       t=__TestType(1),
+                       u=__TestType(2),
+                       w = __TestType(3),
+                       x = __PSet(a = __TestType(4),
+                                  b = __TestType(6),
+                                  c = __PSet(gamma = __TestType(5))))
+            b = a.clone(t=3,
+                        v=__TestType(4),
+                        w= None,
+                        x = dict(a = 7,
+                                 c = dict(gamma = 8),
+                                 d = __TestType(9)))
             self.assertEqual(a.t.value(),1)
             self.assertEqual(a.u.value(),2)
             self.assertEqual(b.t.value(),3)
             self.assertEqual(b.u.value(),2)
             self.assertEqual(b.v.value(),4)
+            self.assertEqual(b.x.a.value(),7)
+            self.assertEqual(b.x.b.value(),6)
+            self.assertEqual(b.x.c.gamma.value(),8)
+            self.assertEqual(b.x.d.value(),9)
+            self.assertEqual(hasattr(b,"w"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
