@@ -1,6 +1,8 @@
 #ifndef SimTracker_TrackerHitAssociation_ClusterTPAssociation_h
 #define SimTracker_TrackerHitAssociation_ClusterTPAssociation_h
 
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/HandleBase.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -9,6 +11,12 @@
 #include <utility>
 #include <algorithm>
 
+/**
+ * Maps OmniClusterRefs to TrackingParticleRefs
+ *
+ * Assumes that the TrackingParticleRefs point to a single
+ * TrackingParticle collection.
+ */
 class ClusterTPAssociation {
 public:
   using key_type = OmniClusterRef;
@@ -19,11 +27,18 @@ public:
   using range = std::pair<const_iterator, const_iterator>;
 
   ClusterTPAssociation() {}
+  explicit ClusterTPAssociation(const edm::HandleBase& mappedHandle): ClusterTPAssociation(mappedHandle.id()) {}
+  explicit ClusterTPAssociation(const edm::ProductID& mappedProductId): mappedProductId_(mappedProductId) {}
 
   void emplace_back(const OmniClusterRef& cluster, const TrackingParticleRef& tp) {
+    checkMappedProductID(tp);
     map_.emplace_back(cluster, tp);
   }
   void sort() { std::sort(map_.begin(), map_.end(), compare); }
+  void swap(ClusterTPAssociation& other) {
+    map_.swap(other.map_);
+    mappedProductId_.swap(other.mappedProductId_);
+  }
 
   bool empty() const { return map_.empty(); }
   size_t size() const { return map_.size(); }
@@ -37,12 +52,17 @@ public:
     return std::equal_range(map_.begin(), map_.end(), value_type(key, TrackingParticleRef()), compare);
   }
 
+  void checkMappedProductID(const edm::HandleBase& mappedHandle) const { checkMappedProductID(mappedHandle.id()); }
+  void checkMappedProductID(const TrackingParticleRef& tp) const { checkMappedProductID(tp.id()); }
+  void checkMappedProductID(const edm::ProductID& id) const;
+
 private:
   static bool compare(const value_type& i, const value_type& j) {
     return i.first.rawIndex() > j.first.rawIndex();
   }
 
   map_type map_;
+  edm::ProductID mappedProductId_;
 };
 
 #endif

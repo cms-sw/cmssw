@@ -83,6 +83,14 @@ namespace
 		return collection[index];
 	}
 
+  template <typename Coll>
+  void checkClusterMapProductID(const ClusterTPAssociation& clusterToTPMap, const Coll& collection) {
+    clusterToTPMap.checkMappedProductID(collection.id());
+  }
+
+  template <typename Coll>
+  void checkClusterMapProductID(const TrackerHitAssociator& hitAssociator, const Coll& collection) {}
+
 } // end of the unnamed namespace
 
 QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
@@ -145,6 +153,8 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 {
 	reco::RecoToSimCollection returnValue(productGetter_);
 
+        checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
+
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
 	for( size_t i=0; i < collectionSize; ++i )
@@ -191,6 +201,8 @@ template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hi
 reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::SimToRecoCollection returnValue(productGetter_);
+
+        checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
 
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
@@ -576,6 +588,10 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
 	reco::SimToRecoCollectionSeed returnValue(productGetter_);
+
+        if(clusterToTPMap_) {
+          checkClusterMapProductID(*clusterToTPMap_, trackingParticleCollectionHandle);
+        }
 
 	size_t collectionSize=pSeedCollectionHandle_->size();
 

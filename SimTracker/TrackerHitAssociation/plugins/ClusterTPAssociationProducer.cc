@@ -76,8 +76,6 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 		
 void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  auto clusterTPList = std::make_unique<ClusterTPAssociation>();
- 
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
   //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
@@ -99,6 +97,8 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   // TrackingParticle
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   iEvent.getByToken(trackingParticleToken_,TPCollectionH);
+
+  auto clusterTPList = std::make_unique<ClusterTPAssociation>(TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
   std::map<std::pair<size_t, EncodedEventId>, TrackingParticleRef> mapping;
