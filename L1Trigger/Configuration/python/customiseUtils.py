@@ -18,7 +18,7 @@ def L1TTurnOffUnpackStage2GtAndGmt(process):
     return process
 
 # Unpack Stage-2 GT and GMT
-def L1TTurnOffUnpackStage2(process):
+def L1TTurnOffUnpackStage2GtGmtAndCalo(process):
     cutlist=['gtStage2Digis','gmtStage2Digis','caloStage2Digis']
     for b in cutlist:
         process.L1TRawToDigi.remove(getattr(process,b))
