@@ -11,7 +11,7 @@ def _modifyCscTriggerPrimitiveDigisForRun2( object ) :
     """
     object.debugParameters = True
     object.checkBadChambers = False
-    object.commonParam.isSLHC = True
+    object.commonParam.isSLHC = False
     object.commonParam.smartME1aME1b = True
     object.commonParam.gangedME1a = False
     object.alctParam07.alctNarrowMaskForR1 = True
