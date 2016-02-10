@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
 
+//#define DebugLog
+
 namespace HcalUnpacker_impl {
   template <class DigiClass>
   const HcalQIESample* unpack(const HcalQIESample* startPoint, const HcalQIESample* limit, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample, int expectedTime, const HcalHTRData& hhd) {
@@ -22,7 +24,9 @@ namespace HcalUnpacker_impl {
     digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan),zsmask);
 
     if (expectedTime>=0 && !hhd.isUnsuppressed()) {
-      //      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+#ifdef DebugLog
+      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+#endif
       digi.setFiberIdleOffset(hhd.getFibOrbMsgBCN(fiber)-expectedTime);
     }
 
@@ -63,7 +67,9 @@ namespace HcalUnpacker_impl {
     digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan),zsmask);
 
     if (expectedTime>=0 && !hhd.isUnsuppressed()) {
-      //      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+#ifdef DebugLog
+      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+#endif
       digi.setFiberIdleOffset(hhd.getFibOrbMsgBCN(fiber)-expectedTime);
     }
 
@@ -582,19 +588,24 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     int nps=(amc13->AMCId(iamc)>>12)&0xF;
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
+#ifdef DebugLog
     //debug printouts
-    //int nwords=uhtr.getRawLengthBytes()/2;
-    //for (int iw=0; iw<nwords; iw++) 
-    //    printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
+    int nwords=uhtr.getRawLengthBytes()/2;
+    for (int iw=0; iw<nwords; iw++) 
+        printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
+#endif
 
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
-      ///      std::cout << i.isHeader() << " " << i.flavor() << std::endl;
-      //std::cout << "This data is flavored:" << i.flavor() << std::endl;
+#ifdef DebugLog
+      std::cout << "This data is flavored:" << i.flavor() << std::endl;
+#endif
 
       if (!i.isHeader()) {
 	++i;
-	//std::cout << "its not a header" << std::endl;
+#ifdef DebugLog
+	std::cout << "its not a header" << std::endl;
+#endif
 	continue;
       }
       ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
@@ -628,9 +639,13 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               if (unknownIds_.find(eid)==unknownIds_.end()) {
                   if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
                   unknownIds_.insert(eid);
-                  //std::cout << "HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#ifdef DebugLog
+                  std::cout << "HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#endif
               }
-              //std::cout << "OH NO! detector id is null!" << std::endl;
+#ifdef DebugLog
+              std::cout << "OH NO! detector id is null!" << std::endl;
+#endif
           }
       }
 
@@ -667,9 +682,13 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 		if (unknownIds_.find(eid)==unknownIds_.end()) {
 			if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 			unknownIds_.insert(eid);
-			//std::cout << "HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#ifdef DebugLog
+			std::cout << "HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#endif
 		}
-		//std::cout << "OH NO! HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#ifdef DebugLog
+		std::cout << "OH NO! HcalUnpacker: No match found for electronics id :" << eid << std::endl;
+#endif
 	}
       }
       else if (i.flavor()==0x5) { // Old-style digis
@@ -728,7 +747,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	int itower=(i.channelid()&0xF);
 	HcalElectronicsId eid(crate,slot,ilink,itower,true);
 	DetId did=emap.lookupTrigger(eid);
-	//std::cout << "Unpacking " << eid << " " << i.channelid() << std::endl;
+#ifdef DebugLog
+	std::cout << "Unpacking " << eid << " " << i.channelid() << std::endl;
+#endif
 	if (did.null()) {
 	  report.countUnmappedTPDigi(eid);
 	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
@@ -742,7 +763,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  for (++i; i!=iend && !i.isHeader(); ++i);	
 	} else {
 	  HcalTrigTowerDetId id(did);
-	  //std::cout << "Unpacking " << id << std::endl;
+#ifdef DebugLog
+	  std::cout << "Unpacking " << id << std::endl;
+#endif
 	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	  int j=0;
 	  for (++i; i!=iend && !i.isHeader(); ++i) {
