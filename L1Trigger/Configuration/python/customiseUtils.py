@@ -17,18 +17,6 @@ def L1TTurnOffUnpackStage2GtAndGmt(process):
         process.L1TRawToDigi.remove(getattr(process,b))
     return process
 
-def L1TTurnOffOutputModule(process):
-    print "L1T INFO:  removing output module if found."
-    # print process.schedule    
-    cutlist=['RECOSIMoutput_step'] # extend as needed!
-    for b in cutlist:
-        if hasattr(process,b):
-            if process.schedule.count(getattr(process,b)):
-                print "Dropping module ", b
-                process.schedule.remove(getattr(process,b))
-    #print process.schedule
-    return process
-
 def L1TStage1DigisSummary(process):
     print "L1T INFO:  will dump a summary of unpacked Stage1 content to screen."
     process.load('L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi')
@@ -52,8 +40,8 @@ def L1TStage1SimDigisSummary(process):
 
 def L1TStage2SimDigisSummary(process):
     print "L1T INFO:  will dump a summary of simulated Stage2 content to screen."    
-    process.load('L1Trigger.L1TCommon.l1tSummarySimStage2Digis_cfi')
-    process.l1tsimstage2summary = cms.Path(process.l1tSummarySimStage2Digis)
+    process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
+    process.l1tsimstage2summary = cms.Path(process.l1tSummaryStage2SimDigis)
     process.schedule.append(process.l1tsimstage2summary)
     return process
 
