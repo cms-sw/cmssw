@@ -160,11 +160,12 @@ float xmax;
 float ymin;
 float ymax;
 //
+void createPlots(TString plot);
 
 using namespace std;
 
 // Main
-MaterialBudget_TDR() {
+void MaterialBudget_TDR() {
 
   //TDR style
   setTDRStyle();  
