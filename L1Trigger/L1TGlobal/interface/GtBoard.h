@@ -114,12 +114,6 @@ public:
                         std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
 			cms_uint64_t orbNr,
 			int bxNr);
-			
-     void fillExtRecord(int iBxInEvent,
-     		        std::auto_ptr<GlobalExtBlkBxCollection>& uGtExtRecord,
-			cms_uint64_t orbNr,
-			int bxNr);
-
 
 
     /// clear uGT
@@ -254,7 +248,6 @@ private:
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;
     
     GlobalAlgBlk m_uGtAlgBlk;
-    GlobalExtBlk m_uGtExtBlk;
 
     // cache  of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
