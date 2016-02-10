@@ -100,6 +100,11 @@ namespace l1t {
 	EMTFOutputCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
 	int iOut = res->size() - 1;
+
+	RegionalMuonCandBxCollection* res_cand;
+	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
+	RegionalMuonCand mu_;
+	
 	if (SP_.Format_Errors() > 0) goto write;
 
 	///////////////////////////////////
@@ -112,15 +117,19 @@ namespace l1t {
 	SP_.set_hl             ( GetHexBits(SP1a, 14, 14) );
 
 	SP_.set_phi_GMT_int    ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
+	mu_.setHwPhi           ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
 	SP_.set_bc0            ( GetHexBits(SP1b, 12, 12) );
 	SP_.set_se             ( GetHexBits(SP1b, 13, 13) );
 	SP_.set_vt             ( GetHexBits(SP1b, 14, 14) );
 
 	SP_.set_eta_GMT_int    ( TwosCompl(9, GetHexBits(SP1c, 0, 8)) );
+	mu_.setHwEta           ( TwosCompl(9, GetHexBits(SP1c, 0, 8)) );
 	SP_.set_quality        ( GetHexBits(SP1c,  9, 12) );
+	mu_.setHwQual          ( GetHexBits(SP1c,  9, 12) );
 	SP_.set_bx             ( GetHexBits(SP1c, 13, 14) );
 
 	SP_.set_pt_int         ( GetHexBits(SP1d,  0,  8) );
+	mu_.setHwPt            ( GetHexBits(SP1d,  0,  8) );
 	SP_.set_me1_ID         ( GetHexBits(SP1d,  9, 14) );
 
 	SP_.set_me2_ID         ( GetHexBits(SP2a,  0,  4) );
@@ -135,11 +144,19 @@ namespace l1t {
 
 	SP_.set_pt_lut_address ( GetHexBits(SP2c,  0, 14, SP2d,  0, 14) );
 
-	// SP.set_dataword        ( uint64_t dataword );
+	// SP_.set_dataword        ( uint64_t dataword );
+	// mu_.set_dataword        ( uint64_t dataword );
 
       write:
 
 	(res->at(iOut)).push_SP(SP_);
+
+	res_cand->setBXRange(0, 0);
+	res_cand->push_back(0, mu_);
+
+	// int iOut_cand = res_cand->size(0) - 1;
+	// (res_cand->at(iOut_cand)).setBXRange(0, 0);
+	// (res_cand->at(iOut_cand)).push_back(0, mu_);
 
 	// Finished with unpacking one SP Output Data Record
 	return true;

@@ -43,7 +43,7 @@ namespace l1t {
       
       // Not sure what this function does - AWB 27.01.16
       virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
-	// prod.produces<EMTFMuonCandBxCollection>();
+	prod.produces<RegionalMuonCandBxCollection>();
 	prod.produces<EMTFOutputCollection>();
       };
       
@@ -69,7 +69,7 @@ namespace l1t {
 	res[511] = emtf_headers_unp;
 	res[2]   = emtf_counters_unp;
 	res[3]   = emtf_me_unp;
-	 res[4]   = emtf_rpc_unp;
+	res[4]   = emtf_rpc_unp;
 	res[101] = emtf_sp_unp;
 	res[255] = emtf_trailers_unp;
 	

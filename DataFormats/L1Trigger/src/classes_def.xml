@@ -40,7 +40,8 @@
   <class name="l1t::TauBxCollection"/>
   <class name="edm::Wrapper<l1t::TauBxCollection>"/>
 
-  <class name="l1t::Muon" ClassVersion="15">
+  <class name="l1t::Muon" ClassVersion="16">
+   <version ClassVersion="16" checksum="1302394108"/>
    <version ClassVersion="15" checksum="957467775"/>
    <version ClassVersion="14" checksum="1302394108"/>
    <version ClassVersion="13" checksum="957467775"/>
