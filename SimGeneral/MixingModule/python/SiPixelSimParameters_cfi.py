@@ -40,6 +40,7 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     
     First argument is the pixelDigitizer object.
     """
+    #use default switches, new analog respnse, d.k. 2/16
     #digitizer.MissCalibrate = False
     #digitizer.LorentzAngle_DB = False
     #digitizer.killModules = False
