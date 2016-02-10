@@ -27,58 +27,16 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   
   ~Phase2OTtiltedBarrelLayer();
   
-  // GeometricSearchDet interface
-  
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
-  
   //virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
-
+  
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const;
     
 
-  // DetLayer interface
   virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
-
- private:
-  // private methods for the implementation of groupedCompatibleDets()
-  // the implementation of the methods is the same of the TOBLayer one.
-  // In the future, to move common code in a common place!
-
-/*
-  SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
-				      PropagationDirection propDir) const;
-  
-  bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
-		   const MeasurementEstimator& est,
-		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
-
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
-  
-  double calculatePhiWindow( double Xmax, const GeomDet& det,
-			     const TrajectoryStateOnSurface& state) const;
-
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const;
-
-
-  void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
-			const MeasurementEstimator& est,
-			const SubLayerCrossing& crossing,
-			float window, 
-			std::vector<DetGroup>& result,
-			bool checkClosest) const;
-
-  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
-    return (ind==0 ? theInnerComps : theOuterComps);}
-  
-*/
 
  private:
   Phase2OTBarrelLayer* thePhase2OTBarrelLayer;
@@ -86,9 +44,6 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   std::vector<const GeometricSearchDet*> theNegativeRingsComps;
   std::vector<const GeometricSearchDet*> thePositiveRingsComps;
   std::vector<const GeomDet*> theBasicComps;
-
-  BinFinderType    theInnerBinFinder;
-  BinFinderType    theOuterBinFinder;
 
   ReferenceCountingPointer<BoundCylinder>  theCylinder;
   

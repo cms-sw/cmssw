@@ -489,11 +489,6 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
       dz=(*size)(i).first;
       dr=(*size)(i).second;
 
-//      std::cout << "dr and dz " <<  dr << " " << dz << std::endl;
-//      std::cout << "zavedr and zavedz " <<  zavedr->GetBinContent(i) << " " << zavedz->GetBinContent(i) << std::endl;
-//      std::cout << "bins " <<  avez->GetBinContent(i)-dz<< " " <<averadius->GetBinContent(i)-dr << " " <<avez->GetBinContent(i)+dz+zavedz->GetBinContent(i)<< " " <<averadius->GetBinContent(i)+dr << std::endl;
-//      std::cout << "bins p1(" <<  avez->GetBinContent(i)+zavedr->GetBinContent(i)*dr << " , " << averadius->GetBinContent(i)-zavedz->GetBinContent(i)*dr << ")"<< std::endl;
-//      std::cout << "     p2(" <<  avez->GetBinContent(i)-zavedr->GetBinContent(i)*dr << " , " << averadius->GetBinContent(i)+zavedz->GetBinContent(i)*dr << ")"<< std::endl;
 
       if(dz<0 && dr<0) continue;
       
@@ -501,8 +496,6 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
         Double_t z[4] = {corner1z->GetBinContent(i),corner2z->GetBinContent(i),corner3z->GetBinContent(i),corner4z->GetBinContent(i)};
         Double_t r[4] = {corner1r->GetBinContent(i),corner2r->GetBinContent(i),corner3r->GetBinContent(i),corner4r->GetBinContent(i)};
         TPolyLine *modmult = new TPolyLine(4,z,r);
-	//TLine *modmult = new TLine(avez->GetBinContent(i),averadius->GetBinContent(i),avez->GetBinContent(i)+zavedz->GetBinContent(i),averadius->GetBinContent(i)+zavedr->GetBinContent(i));
-//	TLine *modmult = new TLine(avez->GetBinContent(i)-zavedr->GetBinContent(i)*dr,averadius->GetBinContent(i)-zavedz->GetBinContent(i)*dr,avez->GetBinContent(i)-zavedr->GetBinContent(i)*dr,averadius->GetBinContent(i)+zavedz->GetBinContent(i)*dr );
 	//TBox* modmult = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz+zavedz->GetBinContent(i),averadius->GetBinContent(i)+dr);
 	//modmult->SetLineStyle(1001);
 	if(color < 0) {

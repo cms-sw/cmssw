@@ -12,7 +12,6 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // This builder is very similar to TOBLayer one. Most of the code should be put in a 
   // common place.
 
-  std::cout << "yes, we are in the place where we should be ... Phase2OTBarrelLayerBuilder::build" << std::endl;
   vector<const GeometricDet*>  theGeometricDets = aPhase2OTBarrelLayer->components();
   LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Components: " << theGeometricDets.size() << std::endl;
   vector<const GeometricDet*>  theGeometricDetRods;
