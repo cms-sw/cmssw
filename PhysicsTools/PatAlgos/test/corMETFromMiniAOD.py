@@ -29,6 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 runOnData=False #data/MC switch
 usePrivateSQlite=False #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
+redoPuppi=False # rebuild puppiMET
 applyResiduals=True #application of residual corrections. Have to be set to True once the 13 TeV residual corrections are available. False to be kept meanwhile. Can be kept to False later for private tests or for analysis checks and developments (not the official recommendation!).
 #===================================================================
 
@@ -121,6 +122,19 @@ if not useHFCandidates:
                                postfix="NoHF"
                                )
 
+if redoPuppi:
+
+  from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+  makePuppiesFromMiniAOD( process );
+
+  runMetCorAndUncFromMiniAOD(process,
+                             isData=runOnData,
+                             pfCandColl=cms.InputTag("puppiForMET"),
+                             reclusterJets=False,
+                             recoMetFromPFCs=False,
+                             postfix="Puppi"
+                             )
+
 ### -------------------------------------------------------------------
 ### the lines below remove the L2L3 residual corrections when processing data
 ### -------------------------------------------------------------------
@@ -139,6 +153,14 @@ if not applyResiduals:
           process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
           process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
           process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+
+    if redoPuppi:
+          process.patPFMetT1T2CorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
+          process.patPFMetT1T2SmearCorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
+          process.patPFMetT2CorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
+          process.patPFMetT2SmearCorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
+          process.shiftedPatJetEnDownPuppi.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
+          process.shiftedPatJetEnUpPuppi.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
 ### ------------------------------------------------------------------
 
 
