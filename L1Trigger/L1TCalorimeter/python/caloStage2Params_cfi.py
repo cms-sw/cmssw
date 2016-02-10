@@ -108,4 +108,3 @@ caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1)
 caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30.)
 
-
