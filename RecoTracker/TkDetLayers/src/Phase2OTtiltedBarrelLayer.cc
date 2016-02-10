@@ -2,16 +2,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "LayerCrossingSide.h"
 #include "DetGroupMerger.h"
 #include "CompatibleDetToGroupAdder.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "Phase2OTEndcapLayerBuilder.h"
 
 //#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
@@ -28,10 +24,9 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTB
   theNegativeRingsComps(negRings.begin(),negRings.end()),
   thePositiveRingsComps(posRings.begin(),posRings.end())
 {
-  thePhase2OTBarrelLayer = new Phase2OTBarrelLayer(innerRods,outerRods);
 
   std::vector<const GeometricSearchDet*> theComps;
-  theComps.assign(thePhase2OTBarrelLayer->components().begin(),thePhase2OTBarrelLayer->components().end());
+  theComps.assign(Phase2OTBarrelLayer::components().begin(),Phase2OTBarrelLayer::components().end());
   theComps.insert(theComps.end(),negRings.begin(),negRings.end());
   theComps.insert(theComps.end(),posRings.begin(),posRings.end());
 
@@ -60,8 +55,8 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTB
 			    << (**i).position().phi()  ;
   }
   
-  for (vector<const GeometricSearchDet*>::const_iterator i=thePhase2OTBarrelLayer->components().begin();
-       i != thePhase2OTBarrelLayer->components().end(); i++){
+  for (vector<const GeometricSearchDet*>::const_iterator i=Phase2OTBarrelLayer::components().begin();
+       i != Phase2OTBarrelLayer::components().end(); i++){
     LogTrace("TkDetLayers") << "rods in Phase2OT tilted barrel pos z,perp,eta,phi: " 
 			    << (**i).position().z()    << " , " 
 			    << (**i).position().perp() << " , " 
@@ -102,7 +97,7 @@ Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurfac
   vector<DetGroup> closestResultRods;
   vector<DetGroup> closestResultNeg;
   vector<DetGroup> closestResultPos;
-  thePhase2OTBarrelLayer->groupedCompatibleDetsV(tsos, prop, est, closestResultRods);
+  Phase2OTBarrelLayer::groupedCompatibleDetsV(tsos, prop, est, closestResultRods);
   for(auto ring : theNegativeRingsComps){
     ring->groupedCompatibleDetsV(tsos, prop, est, closestResultNeg);
   }

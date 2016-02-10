@@ -6,19 +6,16 @@
 #include "Phase2OTBarrelLayer.h"
 #include "Phase2OTBarrelRod.h"
 #include "Phase2OTEndcapRing.h"
-#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "SubLayerCrossings.h"
 
 
-
-/** A concrete implementation for Phase2OTBarrel layer 
+/** A concrete implementation for Phase2OTtiltedBarrel layer 
  *  built out of BarrelPhase2OTBarrelRod
  */
 
 #pragma GCC visibility push(hidden)
 class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
  public:
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
   Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
                             std::vector<const Phase2OTBarrelRod*>& outerRods,
@@ -35,11 +32,9 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const;
     
-
   virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
  private:
-  Phase2OTBarrelLayer* thePhase2OTBarrelLayer;
   //std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeometricSearchDet*> theNegativeRingsComps;
   std::vector<const GeometricSearchDet*> thePositiveRingsComps;
