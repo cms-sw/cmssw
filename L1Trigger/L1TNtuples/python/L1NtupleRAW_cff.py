@@ -16,3 +16,9 @@ L1NtupleRAW = cms.Sequence(
 #  +l1MenuTree
 )
 
+from Configuration.StandardSequences.Eras import eras
+
+#  do not have l1t::CaloTowerBxCollection in Stage1 
+if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
+    L1NtupleRAW.remove(l1CaloTowerTree)
+
