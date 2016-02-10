@@ -99,7 +99,6 @@ Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurfac
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
-  std::cout << "yes, we are in the place where we should be ... Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV" << std::endl;
   vector<DetGroup> closestResultRods;
   vector<DetGroup> closestResultNeg;
   vector<DetGroup> closestResultPos;
