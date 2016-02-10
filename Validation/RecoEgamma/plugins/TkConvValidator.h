@@ -105,8 +105,8 @@ class TkConvValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> g4_simTk_Token_;
   edm::EDGetTokenT<edm::SimVertexContainer> g4_simVtx_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForEff_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForFake_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForEff_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForFake_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;
