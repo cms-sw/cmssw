@@ -190,7 +190,10 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     bool hasBHadron = false;
     for ( size_t j=0, m=fjConstituents.size(); j<m; ++j ) {
       const size_t index = fjConstituents[j].user_index();
-      if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) hasBHadron = true;
+      if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) {
+        hasBHadron = true;
+        continue;
+      }
       reco::CandidatePtr cand = finalStateHandle->ptrAt(index);
       constituents.push_back(cand);
     }
