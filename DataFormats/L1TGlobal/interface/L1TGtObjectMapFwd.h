@@ -19,7 +19,6 @@
 #include <vector>
 
 // user include files
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGtObject.h"
 
 // forward declarations

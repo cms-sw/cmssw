@@ -23,13 +23,13 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 
 
 class GlobalAlgBlk;
 typedef BXVector<GlobalAlgBlk> GlobalAlgBlkBxCollection;
+  
 
 // class interface
 

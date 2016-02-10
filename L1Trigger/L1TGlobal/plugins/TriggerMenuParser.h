@@ -41,7 +41,6 @@
 #include "tmEventSetup/esObject.hh"
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
-//#include "tmGrammar/Algorithm.hh"
 
 // forward declarations
 class GtCondition;
