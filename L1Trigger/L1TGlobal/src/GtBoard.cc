@@ -68,7 +68,6 @@ l1t::GtBoard::GtBoard() :
 {
 
     m_uGtAlgBlk.reset();
-    m_uGtExtBlk.reset();
     
     m_gtlAlgorithmOR.reset();
     m_gtlDecisionWord.reset();
@@ -135,7 +134,6 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
   m_candL1External->setBXRange( m_bxFirst_, m_bxLast_ );
 
   m_uGtAlgBlk.reset();
-  m_uGtExtBlk.reset();
   
   LogDebug("l1t|Global") << "\t Initializing Board with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_ << std::endl;
 
@@ -449,7 +447,6 @@ void l1t::GtBoard::runGTL(
 
     // Reset AlgBlk for this bx
      m_uGtAlgBlk.reset();
-     m_uGtExtBlk.reset();
      m_algInitialOr=false;
      m_algPrescaledOr=false;
      m_algFinalOrPreVeto=false;
@@ -1048,27 +1045,6 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
 
 }
 
-// Fill DAQ Record
-void l1t::GtBoard::fillExtRecord(int iBxInEvent, 
-				    std::auto_ptr<GlobalExtBlkBxCollection>& uGtExtRecord,
-				    cms_uint64_t orbNr,
-				    int bxNr
-				    ) 
-{
-
-    if (m_verbosity) {
-        LogDebug("l1t|Global")
-                << "\n**** Board fill DAQ Records for bx= " << iBxInEvent
-                << std::endl;
-
-    }
-// Set header information
-
-
-    uGtExtRecord->push_back(iBxInEvent, m_uGtExtBlk);
-
-}
-
 
 // clear GTL
 void l1t::GtBoard::reset() {
@@ -1078,7 +1054,6 @@ void l1t::GtBoard::reset() {
   resetExternal();
 
   m_uGtAlgBlk.reset();
-  m_uGtExtBlk.reset();
 
   m_gtlDecisionWord.reset();
   m_gtlAlgorithmOR.reset();
