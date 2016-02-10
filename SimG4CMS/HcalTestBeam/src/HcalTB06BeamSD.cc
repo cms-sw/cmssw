@@ -16,6 +16,7 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4Material.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
@@ -31,17 +32,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   birk2      = m_HC.getParameter<double>("BirkC2");
   birk3      = m_HC.getParameter<double>("BirkC3");
 
-  LogDebug("HcalTBSim") <<"***************************************************"
-			<< "\n"
-			<<"*                                                 *"
-			<< "\n"
-			<< "* Constructing a HcalTB06BeamSD  with name " 
-			<< name << "\n"
-			<<"*                                                 *"
-			<< "\n"
-			<<"***************************************************";
-
-  edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD:: Use of Birks law is set to " 
+  edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: Use of Birks law is set to " 
 			    << useBirk << "  with three constants kB = "
 			    << birk1 << ", C1 = " <<birk2 << ", C2 = " <<birk3;
 
@@ -56,12 +47,12 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   wcNames = getNames(fv1);
-  edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD:: Names to be tested for " 
-			    << attribute << " = " << value << ": " 
-			    << wcNames.size() << " paths";
+  edm::LogInfo("HcalTB06BeamSD") 
+    << "HcalTB06BeamSD:: Names to be tested for " 
+    << attribute << " = " << value << ": " << wcNames.size() << " paths";
   for (unsigned int i=0; i<wcNames.size(); i++)
-    edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD:: (" << i << ") " 
-			      << wcNames[i];
+    edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: (" << i << ") " 
+				   << wcNames[i];
 
   //Material list for scintillator detector
   attribute = "ReadOutName";
@@ -78,8 +69,9 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
     const DDLogicalPart & log = fv2.logicalPart();
     matName = log.material().name().name();
     bool notIn = true;
-    for (unsigned int i=0; i<matNames.size(); i++) 
+    for (unsigned int i=0; i<matNames.size(); i++) {
       if (matName == matNames[i]) {notIn = false; nocc[i]++;}
+    }
     if (notIn) {
       matNames.push_back(matName);
       nocc.push_back(0);
@@ -99,8 +91,10 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
     matName = "Not Found";
   }
 
-  edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD: Material name for " 
-			    << attribute << " = " << name << ":" << matName;
+  edm::LogInfo("HcalTB06BeamSD") 
+    << "HcalTB06BeamSD: Material name for " 
+    << attribute << " = " << name << ":" << matName;
+  matScin = G4Material::GetMaterial(matName);
 }
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
@@ -109,14 +103,13 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
 
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  if (useBirk) {
-    G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
-    if (mat->GetName() == matName)
-      weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  if (useBirk && matScin == aStep->GetPreStepPoint()->GetMaterial()) {
+    weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
-  LogDebug("HcalTBSim") << "HcalTB06BeamSD: Detector " 
-			<< aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
-			<< " weight " << weight;
+  LogDebug("HcalTB06BeamSD") 
+    << "HcalTB06BeamSD: Detector " 
+    << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
+    << " weight " << weight;
   return weight*destep;
 }
 
@@ -155,10 +148,10 @@ uint32_t HcalTB06BeamSD::packIndex(int det, int lay, int x, int y) {
   idx         += (ix&1)<<9;         //bit   9
   idx         += (ixx&511);         //bits  0-8
 
-  LogDebug("HcalTBSim") << "HcalTB06BeamSD: Detector " << det << " Layer "
-			<< lay << " x " << x << " " << ix << " " << ixx 
-			<< " y " << y << " " << iy << " " << iyy << " ID " 
-			<< std::hex << idx << std::dec;
+  LogDebug("HcalTB06BeamSD") << "HcalTB06BeamSD: Detector " << det << " Layer "
+			     << lay << " x " << x << " " << ix << " " << ixx 
+			     << " y " << y << " " << iy << " " << iyy << " ID " 
+			     << std::hex << idx << std::dec;
   return idx;
 }
 
