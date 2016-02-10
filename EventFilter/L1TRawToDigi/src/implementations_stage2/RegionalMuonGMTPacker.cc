@@ -24,21 +24,21 @@ namespace l1t {
       RegionalMuonGMTPacker::pack(const edm::Event& event, const PackerTokens* toks)
       {	 
 
-	//auto bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
-        // auto omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
-	//auto emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
+         auto bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
+         auto omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
+         auto emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
 
          Blocks blocks;
 
          // link ids for the different TFs
-         //std::vector<unsigned int> bmtfLinks {48,49,50,51,52,53,54,55,56,57,58,59};
-         //std::vector<unsigned int> omtfLinks {42,43,44,45,46,47,60,61,62,63,64,65};
-         //std::vector<unsigned int> emtfLinks {36,37,38,39,40,41,66,67,68,69,70,71};
+         std::vector<unsigned int> bmtfLinks {48,49,50,51,52,53,54,55,56,57,58,59};
+         std::vector<unsigned int> omtfLinks {42,43,44,45,46,47,60,61,62,63,64,65};
+         std::vector<unsigned int> emtfLinks {36,37,38,39,40,41,66,67,68,69,70,71};
 
          // pack the muons for each TF in blocks
-         //packTF(event, bmtfToken, blocks, bmtfLinks);
-         //packTF(event, omtfToken, blocks, omtfLinks);
-         //packTF(event, emtfToken, blocks, emtfLinks);
+         packTF(event, bmtfToken, blocks, bmtfLinks);
+         packTF(event, omtfToken, blocks, omtfLinks);
+         packTF(event, emtfToken, blocks, emtfLinks);
 
          return blocks;
       }
