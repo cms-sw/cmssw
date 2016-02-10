@@ -56,8 +56,6 @@ namespace l1t {
 	// Presumably need some logic based on fed, amc, etc (c.f. CaloSetup.cc) - AWB 11.01.16
 	UnpackerMap res;
 	
-	// std::cout << "Inside EMTFSetup.cc" << std::endl;
-	
 	// "RegionalMuonEMTFPacker" should be defined in RegionalMuonEMTFPacker.cc - AWB 11.01.15
 
 	auto emtf_headers_unp   = UnpackerFactory::get()->make("stage2::emtf::HeadersBlockUnpacker");  // Unpack "AMC data header" and "Event Record Header"
