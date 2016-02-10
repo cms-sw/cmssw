@@ -536,42 +536,43 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	fjJets_.push_back( transformedJet );
       }
     }
-
-    if ( useConstituentSubtractionHi_ ) { 
-      edm::Handle<std::vector<double>> etaRanges;
-      edm::Handle<std::vector<double>> rhoRanges;
-      edm::Handle<std::vector<double>> rhomRanges;
-      
-      iEvent.getByToken(etaToken_, etaRanges);
-      iEvent.getByToken(rhoToken_, rhoRanges);
-      iEvent.getByToken(rhomToken_, rhomRanges);
-    
-      for(int ie = 0; ie<(int)(etaRanges->size()-1); ie++) {
-        //Get rho and rhoM for eta regio
-        double rho = rhoRanges->at(ie);
-        double rhom = rhomRanges->at(ie);
-        //Printf("ie: %d rho: %f rhom: %f",ie,rho,rhom); 
-        //initialize constituent subtraction
-        fastjet::contrib::ConstituentSubtractor *subtractor;
-        subtractor     = new fastjet::contrib::ConstituentSubtractor(rho,rhom,csAlpha_,-1.);
-
-        for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
-                ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
-          fastjet::PseudoJet transformedJet = *ijet;
-          bool passed = true;
-          if ( transformedJet != 0 )
-            transformedJet = (*subtractor)(transformedJet);
-          else
-            passed = false;
-          if(transformedJet.eta()<=etaRanges->at(ie) || transformedJet.eta()>etaRanges->at(ie+1))
-            passed = false;
-          if ( passed )
-            fjJets_.push_back( transformedJet );
-        }
-        if(subtractor) { delete subtractor; subtractor = 0;} 
-      }
-    }
   }
+
+  if ( useConstituentSubtractionHi_ ) {
+    fjJets_.clear();
+    //Printf("Doing HI style constituent subtraction"); 
+    edm::Handle<std::vector<double>> etaRanges;
+    edm::Handle<std::vector<double>> rhoRanges;
+    edm::Handle<std::vector<double>> rhomRanges;
+      
+    iEvent.getByToken(etaToken_, etaRanges);
+    iEvent.getByToken(rhoToken_, rhoRanges);
+    iEvent.getByToken(rhomToken_, rhomRanges);
+
+    std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+    
+    for(int ie = 0; ie<(int)(etaRanges->size()-1); ie++) {
+      //Get rho and rhoM for eta regio
+      double rho = rhoRanges->at(ie);
+      double rhom = rhomRanges->at(ie);
+      //Printf("ie: %d rho: %f rhom: %f",ie,rho,rhom); 
+      //initialize constituent subtraction
+      fastjet::contrib::ConstituentSubtractor *subtractor;
+      subtractor     = new fastjet::contrib::ConstituentSubtractor(rho,rhom,csAlpha_,-1.);
+      
+      for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
+              ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
+        
+        if(ijet->eta()<=etaRanges->at(ie) || ijet->eta()>etaRanges->at(ie+1)) continue;
+        
+        fastjet::PseudoJet transformedJet = *ijet;
+        transformedJet = (*subtractor)(transformedJet);
+        fjJets_.push_back( transformedJet );
+      }
+      if(subtractor) { delete subtractor; subtractor = 0;} 
+    }
+  } //else Printf("HI style constituent subtraction not activated");
+  
 
 }
 
