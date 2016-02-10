@@ -136,7 +136,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int nacc = 0;
   unsigned int njetsEx = 0;
   for(auto jet = jets->begin(); jet != jets->end(); ++jet) {
-    if(njetsEx<nExcl_ && fabs(jet->eta())<2.) {
+    if(njetsEx<nExcl_ && fabs(jet->eta())<2. && jet->pt()>20.) {
       njetsEx++;
       continue;
     }
