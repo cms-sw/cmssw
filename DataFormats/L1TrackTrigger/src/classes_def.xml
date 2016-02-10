@@ -3,7 +3,9 @@
   <class name="Ref_Phase2TrackerDigi_" />
   <class name="std::vector<Ref_Phase2TrackerDigi_>" />
 
-  <class pattern="TTCluster<*>" />
+  <class pattern="TTCluster<*>" ClassVersion="2">
+  	<version ClassVersion="2" checksum="2375310555"/>
+  </class>
   <class pattern="std::vector<TTCluster<*>>" />
   <class pattern="edm::Wrapper<std::vector<TTCluster<*>>>" />
   <class pattern="edmNew::DetSetVector<TTCluster<*>>" />
@@ -11,10 +13,10 @@
 
   <class pattern="edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>" />
   <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>" />
-<!--  <class pattern="std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>" />
-      <class pattern="edm::Wrapper<std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>>" /> -->
 
-  <class pattern="TTStub<*>" />
+  <class pattern="TTStub<*>" ClassVersion="2">
+  	<version ClassVersion="2" checksum="2375310555"/>
+  </class>
   <class pattern="std::vector<TTStub<*>>" />
   <class pattern="edm::Wrapper<std::vector<TTStub<*>>>" />
   <class pattern="edmNew::DetSetVector<TTStub<*>>" />
@@ -22,8 +24,6 @@
 
   <class pattern="edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>" />
   <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>" />
-<!--  <class pattern="std::vector<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>" />
-      <class pattern="edm::Wrapper<std::vector<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>>" /> -->
 
 </lcgdict>
 
