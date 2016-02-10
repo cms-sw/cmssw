@@ -37,6 +37,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 from CondCore.DBCommon.CondDBSetup_cfi import *
