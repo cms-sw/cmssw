@@ -39,9 +39,10 @@ namespace l1t {
     static const int kHBHEEnd=28;
     static const int kHFBegin=29;
     static const int kHFEnd=41;
-    static const int kHFPhiSeg=1;
-    static const int kHFNrPhi=72/kHFPhiSeg;
-    static const int kHBHENrPhi=72;
+    static const int kHFPhiSeg=1;  // to be deprecated!
+    static const int kHFNrPhi=72/kHFPhiSeg;  // to be deprecated!
+    static const int kHBHENrPhi=72;  // to be deprecated!
+    static const int kNPhi=72;
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
     static const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi*2;
 
@@ -84,7 +85,7 @@ namespace l1t {
     // conversion to other index systems
     static int regionEta(int ieta);  // RCT region
     static int gtEta(int ieta);      // GT eta scale
-    static int gtPhi(int iphi);      // GT phi scale
+    static int gtPhi(int ieta, int iphi);      // GT phi scale
 
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
