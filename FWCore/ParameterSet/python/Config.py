@@ -1109,7 +1109,10 @@ class _ParameterModifier(object):
   def __call__(self,obj):
     params = {}
     for k in self.__args.iterkeys():
-        params[k] = getattr(obj,k)
+        if hasattr(obj,k):
+            params[k] = getattr(obj,k)
+        else:
+            params[k] = self.__args[k]
     _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
     for k in self.__args.iterkeys():
         if k in params:
@@ -2001,6 +2004,13 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             m1.toModify(p.a, fred = None)
             self.assertEqual(hasattr(p.a, "fred"), False)
             self.assertEqual(p.a.wilma.value(),1)
+            #test adding a parameter
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toModify(p.a, wilma = int32(2))
+            self.assertEqual(p.a.fred.value(), 1)
+            self.assertEqual(p.a.wilma.value(),2)
             #test setting of value in PSet
             m1 = Modifier()
             p = Process("test",m1)
