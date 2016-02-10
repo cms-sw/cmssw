@@ -147,9 +147,27 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // select hits, temporarily store as TrajectorySeedHitCandidates
     std::vector<TrajectorySeedHitCandidate> recHitCandidates;
     TrajectorySeedHitCandidate recHitCandidate;
-    unsigned numberOfCrossedLayers = 0;      
+    TrajectorySeed::range seedHitRange = seed.recHits();//Hits in a seed
+    for (TrajectorySeed::const_iterator ihit = seedHitRange.first; ihit != seedHitRange.second; ++ihit) {
+      TrajectorySeedHitCandidate seedHit=TrajectorySeedHitCandidate((const FastTrackerRecHit*)(&*ihit),
+								    trackerGeometry.product(),trackerTopology.product());
+      recHitCandidates.push_back(seedHit);
+    }
+    bool passedLastSeedHit = false;
+
     for (const auto & _hit : recHitCombination) {
-	
+      TrajectorySeedHitCandidate currentTrackerHit=TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
+      if(seed.nHits()==0)passedLastSeedHit=true;
+
+      if(!passedLastSeedHit)
+	{
+	  const FastTrackerRecHit * lastSeedHit = recHitCandidates.back().hit();
+	  if(seed.nHits()==0||lastSeedHit->sameId(currentTrackerHit.hit()))     
+	    {
+	      passedLastSeedHit=true;
+	    }
+	  continue;
+	}
 	
 	// apply hit masking
 	if(hitMaskHelper 
@@ -158,10 +176,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	}
 
       recHitCandidate = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
-      if ( recHitCandidates.size() == 0 || !recHitCandidate.isOnTheSameLayer(recHitCandidates.back()) ) {
-	++numberOfCrossedLayers;
-      }
-
       // hit selection
       //         - always select first hit
       if(        recHitCandidates.size() == 0 ) {
@@ -184,12 +198,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
       }
     }
-
-    // TODO: verify it makes sense to have this selection
-    if ( numberOfCrossedLayers < minNumberOfCrossedLayers ) {
-      continue;
-    }
-
 
     // order hits along the seed direction
     bool oiSeed = seed.direction()==oppositeToMomentum;
@@ -227,7 +235,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // add track candidate to output collection
     output->push_back(TrackCandidate(trackRecHits,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr)));
 
-  }
+    }
   }
   
   // Save the track candidates
