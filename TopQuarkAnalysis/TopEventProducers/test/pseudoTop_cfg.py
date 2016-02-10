@@ -24,18 +24,9 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.pseudoTop = cms.EDProducer("PseudoTopProducer",
-    genParticles = cms.InputTag("genParticles"),
-    finalStates = cms.InputTag("genParticles"),
-    leptonMinPt = cms.double(20),
-    leptonMaxEta = cms.double(2.4),
-    leptonConeSize = cms.double(0.1),
-    jetMinPt = cms.double(30),
-    jetMaxEta = cms.double(2.4),
-    jetConeSize = cms.double(0.4),
-    wMass = cms.double(80.4),
-    tMass = cms.double(172.5),
-)
+process.load("TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi")
+process.pseudoTop.genParticles = "genParticles"
+process.pseudoTop.finalStates = "genParticles"
 
 process.printDecay = cms.EDAnalyzer("ParticleListDrawer",
     src = cms.InputTag("pseudoTop"),
