@@ -248,12 +248,6 @@ L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets)
 void
 L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
   
-  float mHx = 0;
-  float mHy = 0;
-
-  met_data->Ht     = 0;
-  met_data->mHt    = -999.;
-  met_data->mHtPhi = -999.;
 
   for( auto it=pfJets->begin();
        it!=pfJets->end() && jet_data->nJets < maxJet_;
@@ -285,19 +279,9 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
     jet_data->cMult.push_back(it->chargedMultiplicity());
     jet_data->nMult.push_back(it->neutralMultiplicity()); 
     
-    jet_data->nJets++;
+    jet_data->nJets++;    
 
-    
-    if (it->pt()>jetptThreshold_ && jetId(*it) && fabs(it->eta())<jetetaMax_) {
-      mHx += -1.*it->px();
-      mHy += -1.*it->py();
-      met_data->Ht  += it->pt();
-    }
   }
-
-  TVector2 *tv2 = new TVector2(mHx,mHy);
-  met_data->mHt	   = tv2->Mod();
-  met_data->mHtPhi = tv2->Phi();
 
 }
 
@@ -321,14 +305,64 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
   
   //fill jet data array with sorted jet ets and corr factors
-  std::vector<std::pair<float,float> >::iterator it;
   uint nJets = 0;
   
-  for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
-    jet_data->etCorr.push_back(it->first);
-    jet_data->corrFactor.push_back(it->second);
+  float mHx = 0;
+  float mHy = 0;
+  
+  met_data->Ht     = 0;
+  met_data->mHt    = -999.;
+  met_data->mHtPhi = -999.;
+
+
+  for( auto it=pfJets->begin();
+       it!=pfJets->end() && nJets < maxJet_;
+       ++it) {
+    
+    corrFactor = pfJetCorr.product()->correction(*it);
+    
+    jet_data->etCorr.push_back(it->et()*corrFactor);
+    jet_data->corrFactor.push_back(corrFactor);
+
     nJets++;
+
+    if (it->pt()*corrFactor > jetptThreshold_ && jetId(*it) && fabs(it->eta())<jetetaMax_) {
+      mHx += -1.*it->px()*corrFactor;
+      mHy += -1.*it->py()*corrFactor;
+      met_data->Ht  += it->pt()*corrFactor;
+    }
+
   }
+
+  TVector2 *tv2 = new TVector2(mHx,mHy);
+  met_data->mHt	   = tv2->Mod();
+  met_data->mHtPhi = tv2->Phi();
+
+  // std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
+  
+  // //get jet correction and fill corrected jet ets and corrections
+  // for( auto it=pfJets->begin(); it!=pfJets->end(); ++it) 
+  //   {
+  //     float corr = pfJetCorr.product()->correction(*it);
+  //     std::pair<float,float> corrJetEtAndCorr(corr*it->et(),corr);
+  //     corrJetEtsAndCorrs.push_back(corrJetEtAndCorr);
+  //   }
+
+  // // sort corrected jet ets and correction factors 
+  // // by corrected jet et
+  // std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
+  
+  // //fill jet data array with sorted jet ets and corr factors
+  // std::vector<std::pair<float,float> >::iterator it;
+  // uint nJets = 0;
+    
+  // for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
+  //   jet_data->etCorr.push_back(it->first);
+  //   jet_data->corrFactor.push_back(it->second);
+  //   nJets++
+  // }
+
+>>>>>>> 9789e7c... corrected jets for ht, mht
 }
 
 void
