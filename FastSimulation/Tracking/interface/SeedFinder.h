@@ -89,7 +89,7 @@ public:
                         parentNode = parentNode->getParent();
                     }
                     
-                    if (_selector(seedCandidateHitList))
+                    if (!_selector(seedCandidateHitList))
                     {
                         return nullptr;
                     }

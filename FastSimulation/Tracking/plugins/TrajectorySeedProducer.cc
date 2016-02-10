@@ -178,12 +178,15 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
        
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&regions,&measurementTracker,selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
+    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) -> bool
     {
 	// criteria for hit pairs
 	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
+	std::cout << "I'm here," << " " << hits[0]->id() << " " << hits.size() << std::endl;
 	if (hits.size()==2)
 	{
+	    std::cout << "still here" << std::endl;
+
 	    const FastTrackerRecHit * innerHit = hits[0];
 	    const FastTrackerRecHit * outerHit = hits[1];
 	    
@@ -192,33 +195,37 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    
 	    std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
 	    std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
-	    for(auto ir=regions.begin(); ir < regions.end(); ++ir){
 		
-		const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
+	    std::cout << selectedTrackingRegion << std::endl;
+
+	    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
+	    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
 		
-		const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
+	    HitDoublets result(*ihm,*ohm); 
+	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,*ihm,*ohm,es,0,result);
 		
-		HitDoublets result(*ihm,*ohm); 
-		
-		HitPairGeneratorFromLayerPair::doublets(**ir,*innerLayer,*outerLayer,*ihm,*ohm,es,0,result);
-		
-		if(result.size()!=0)
-		{
-		    selectedTrackingRegion = ir->get();
-		    return true; 
-		}
-		
+	    if(result.size()!=0)
+	    {
+		std::cout << "I made it" << std::endl;
+		return true; 
 	    }
-	    
-	    return false;
+	    else
+	    {
+		return false;
+	    }
 	}
+	else
+	{
 	
-	// no criteria for hit combinations that are not pairs
-	return true;
+	    // no criteria for hit combinations that are not pairs
+	    std::cout << "returning true" << std::endl;
+	    return true;
+	}
     };
 
     if(skipSeedFinderSelector)
     {
+	std::cout << "woops" << std::endl;
 	selectedTrackingRegion = regions[0].get();
 	selectorFunction = [](const std::vector<const FastTrackerRecHit*>& hits) -> bool
 	{
@@ -247,37 +254,47 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    seedHitCandidates.push_back(_hit.get());
 	}
 
-	// find the hits on the seeds
-	std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
-
-	// create a seed from those hits
-	if (seedHitNumbers.size()>1)
+	std::cout << "# hits: " << seedHitCandidates.size() << std::endl;
+	
+	// loop over the regions
+	for(auto region = regions.begin();region != regions.end(); ++region)
 	{
-
-	    // copy the hits and make them aware of the combination they originate from
-	    edm::OwnVector<FastTrackerRecHit> seedHits;
-	    for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
-	    {
-		seedHits.push_back(seedHitCandidates[seedHitNumbers[iIndex]]->clone());
-	    }
-	    fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
 	    
-	    // the actual seed creation
-	    if(!selectedTrackingRegion){
-		throw cms::Exception("TrajectorySeedProducer") << "Somehow SeedFinder succeeded in finding seedhits, but failed to find a proper tracking region. Please check the code......" << std::endl;
+	    // set the region
+	    selectedTrackingRegion = region->get();
+
+	    // find the hits on the seeds
+	    std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
+
+	    std::cout << "# selected hits: " << seedHitNumbers.size() << std::endl;
+
+	    // create a seed from those hits
+	    if (seedHitNumbers.size()>1)
+	    {
+
+		// copy the hits and make them aware of the combination they originate from
+		edm::OwnVector<FastTrackerRecHit> seedHits;
+		for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
+		{
+		    seedHits.push_back(seedHitCandidates[seedHitNumbers[iIndex]]->clone());
+		}
+		fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
+	    
+		seedCreator->init(*selectedTrackingRegion,es,0);
+		seedCreator->makeSeed(
+		    *output,
+		    SeedingHitSet(
+			&seedHits[0],
+			&seedHits[1],
+			seedHits.size() >=3 ? &seedHits[2] : nullptr,
+			seedHits.size() >=4 ? &seedHits[3] : nullptr
+			)
+		    );
+		break; // break the loop over the regions
 	    }
-	    seedCreator->init(*selectedTrackingRegion,es,0);
-	    seedCreator->makeSeed(
-		*output,
-		SeedingHitSet(
-		    &seedHits[0],
-		    &seedHits[1],
-		    seedHits.size() >=3 ? &seedHits[2] : nullptr,
-		    seedHits.size() >=4 ? &seedHits[3] : nullptr
-		    )
-		);
 	}
     }
+    std::cout << "# seeds: " << output->size() << std::endl;
     e.put(std::move(output));
 
 }
