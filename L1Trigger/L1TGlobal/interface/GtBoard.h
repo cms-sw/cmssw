@@ -18,7 +18,6 @@
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
@@ -96,8 +95,7 @@ public:
         const int nrL1Mu,
         const int nrL1EG,
         const int nrL1Tau,	
-        const int nrL1Jet,
-        const int nrL1JetCounts);
+        const int nrL1Jet);
 
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
@@ -134,13 +132,13 @@ public:
     void printGmtData(const int iBxInEvent) const;
 
     /// return decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const
+    inline const std::bitset<GlobalAlgBlk::maxPhysicsTriggers>& getDecisionWord() const
     {
         return m_gtlDecisionWord;
     }
 
     /// return algorithm OR decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getAlgorithmOR() const
+    inline const std::bitset<GlobalAlgBlk::maxPhysicsTriggers>& getAlgorithmOR() const
     {
         return m_gtlAlgorithmOR;
     }
@@ -252,8 +250,8 @@ private:
     int m_bxFirst_;
     int m_bxLast_;
 
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
+    std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlAlgorithmOR;
+    std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;
     
     GlobalAlgBlk m_uGtAlgBlk;
     GlobalExtBlk m_uGtExtBlk;

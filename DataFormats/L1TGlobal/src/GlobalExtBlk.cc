@@ -24,7 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-const static unsigned int maxExternalConditions = 256;  //TO DO Move this to a standard parameter area.
+
 // constructors
 
 
