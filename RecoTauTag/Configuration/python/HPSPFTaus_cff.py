@@ -837,126 +837,6 @@ hpsPFTauPhotonPtSumOutsideSignalCone = hpsPFTauChargedIsoPtSum.clone(
     verbosity = cms.int32(0)
 )
 
-hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA2raw.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-    Prediscriminants = requireDecayMode.clone(),
-    loadMVAfromDB = cms.bool(True),
-    mvaName = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1"),
-    mvaOpt = cms.string("oldDMwoLT"),
-    srcTauTransverseImpactParameters = cms.InputTag('hpsPFTauTransverseImpactParameters'),    
-    srcChargedIsoPtSum = cms.InputTag('hpsPFTauChargedIsoPtSum'),
-    srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSum'),
-    srcPUcorrPtSum = cms.InputTag('hpsPFTauPUcorrPtSum'),
-    verbosity = cms.int32(0)
-)
-hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT = discriminationByIsolationMVA2VLoose.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-    Prediscriminants = requireDecayMode.clone(),    
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw'),
-    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw:category'),
-    loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_mvaOutput_normalization"),
-    mapping = cms.VPSet(
-        cms.PSet(
-            category = cms.uint32(0),
-            cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff90"),
-            variable = cms.string("pt")
-        )
-    )
-)
-hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone()
-hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff80")
-hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone()
-hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff70")
-hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone()
-hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff60")
-hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone()
-hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff50")
-hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone()
-hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_WPEff40")
-hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
-    mvaName = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1"),
-    mvaOpt = cms.string("oldDMwLT"),
-    verbosity = cms.int32(0)
-)
-hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone(
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw'),
-    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw:category'),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_mvaOutput_normalization"),
-    mapping = cms.VPSet(
-        cms.PSet(
-            category = cms.uint32(0),
-            cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff90"),
-            variable = cms.string("pt")
-        )
-    )
-)
-hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.clone()
-hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff80")
-hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.clone()
-hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff70")
-hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.clone()
-hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff60")
-hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.clone()
-hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff50")
-hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.clone()
-hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_WPEff40")
-hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
-    mvaName = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1"),
-    mvaOpt = cms.string("newDMwoLT"),
-    verbosity = cms.int32(0)
-)
-hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone(
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw'),
-    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw:category'),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_mvaOutput_normalization"),
-    mapping = cms.VPSet(
-        cms.PSet(
-            category = cms.uint32(0),
-            cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff90"),
-            variable = cms.string("pt")
-        )
-    ),
-    verbosity = cms.int32(0)
-)
-hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.clone()
-hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff80")
-hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.clone()
-hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff70")
-hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.clone()
-hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff60")
-hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.clone()
-hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff50")
-hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.clone()
-hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_WPEff40")
-hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
-    mvaName = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1"),
-    mvaOpt = cms.string("newDMwLT"),
-    verbosity = cms.int32(0)
-)
-hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.clone(
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw'),
-    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw:category'),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_mvaOutput_normalization"),
-    mapping = cms.VPSet(
-        cms.PSet(
-            category = cms.uint32(0),
-            cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff90"),
-            variable = cms.string("pt")
-        )
-    )
-)
-hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
-hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff80")
-hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
-hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff70")
-hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
-hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff60")
-hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
-hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff50")
-hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
-hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff40")
-
 #Define new Run2 MVA isolations
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByMVAIsolationRun2_cff import *
 hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = discriminationByIsolationMVArun2v1raw.clone(
@@ -1209,34 +1089,6 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    + hpsPFTauNeutralIsoPtSumWeight
    + hpsPFTauFootprintCorrection
    + hpsPFTauPhotonPtSumOutsideSignalCone
-   #+ hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw
-   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT
-   #+ hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT
-   #+ hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT
-   #+ hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT
-   #+ hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT
-   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT  
-   + hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw
-   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT
-   #+ hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT
-   #+ hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT
-   #+ hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT
-   #+ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT
-   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT  
    # new MVA isolations for Run2
    + hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw
    + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT
@@ -1304,51 +1156,47 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFindingOldDMs*
     hpsPFTauDiscriminationByDecayModeFinding* # CV: kept for backwards compatibility
     hpsPFTauDiscriminationByChargedIsolationSeq*
-    hpsPFTauDiscriminationByIsolationSeq*
+    #hpsPFTauDiscriminationByIsolationSeq*
     #hpsPFTauDiscriminationByIsolationSeqRhoCorr*
     #hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
-    hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
-    
-    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
-    hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
-    hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
-
-    hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
+    #hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
+    #hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
+    #hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
+    #hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
+    #hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3HitsdR03*
     hpsPFTauDiscriminationByPileupWeightedIsolationSeq3Hits*
     
-    hpsPFTauDiscriminationByLooseElectronRejection*
-    hpsPFTauDiscriminationByMediumElectronRejection*
-    hpsPFTauDiscriminationByTightElectronRejection*
-    hpsPFTauDiscriminationByMVA5rawElectronRejection*
-    hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
-    hpsPFTauDiscriminationByMVA5LooseElectronRejection*
-    hpsPFTauDiscriminationByMVA5MediumElectronRejection*
-    hpsPFTauDiscriminationByMVA5TightElectronRejection*
-    hpsPFTauDiscriminationByMVA5VTightElectronRejection*
+    #hpsPFTauDiscriminationByLooseElectronRejection*
+    #hpsPFTauDiscriminationByMediumElectronRejection*
+    #hpsPFTauDiscriminationByTightElectronRejection*
+    #hpsPFTauDiscriminationByMVA5rawElectronRejection*
+    #hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
+    #hpsPFTauDiscriminationByMVA5LooseElectronRejection*
+    #hpsPFTauDiscriminationByMVA5MediumElectronRejection*
+    #hpsPFTauDiscriminationByMVA5TightElectronRejection*
+    #hpsPFTauDiscriminationByMVA5VTightElectronRejection*
     hpsPFTauDiscriminationByMVA6rawElectronRejection*
     hpsPFTauDiscriminationByMVA6VLooseElectronRejection*
     hpsPFTauDiscriminationByMVA6LooseElectronRejection*
     hpsPFTauDiscriminationByMVA6MediumElectronRejection*
     hpsPFTauDiscriminationByMVA6TightElectronRejection*
     hpsPFTauDiscriminationByMVA6VTightElectronRejection*
-    hpsPFTauDiscriminationByDeadECALElectronRejection*
-    hpsPFTauDiscriminationByLooseMuonRejection*
-    hpsPFTauDiscriminationByMediumMuonRejection*
-    hpsPFTauDiscriminationByTightMuonRejection*
-    hpsPFTauDiscriminationByLooseMuonRejection2*
-    hpsPFTauDiscriminationByMediumMuonRejection2*
-    hpsPFTauDiscriminationByTightMuonRejection2*
+    #hpsPFTauDiscriminationByDeadECALElectronRejection*
+    #hpsPFTauDiscriminationByLooseMuonRejection*
+    #hpsPFTauDiscriminationByMediumMuonRejection*
+    #hpsPFTauDiscriminationByTightMuonRejection*
+    #hpsPFTauDiscriminationByLooseMuonRejection2*
+    #hpsPFTauDiscriminationByMediumMuonRejection2*
+    #hpsPFTauDiscriminationByTightMuonRejection2*
     hpsPFTauDiscriminationByLooseMuonRejection3*
     hpsPFTauDiscriminationByTightMuonRejection3*
     hpsPFTauDiscriminationByMVArawMuonRejection*
-    hpsPFTauDiscriminationByMVALooseMuonRejection*
-    hpsPFTauDiscriminationByMVAMediumMuonRejection*
-    hpsPFTauDiscriminationByMVATightMuonRejection*
-
+    #hpsPFTauDiscriminationByMVALooseMuonRejection*
+    #hpsPFTauDiscriminationByMVAMediumMuonRejection*
+    #hpsPFTauDiscriminationByMVATightMuonRejection*
     hpsPFTauVertexAndImpactParametersSeq*
-
     hpsPFTauMVAIsolation2Seq
 )
 
