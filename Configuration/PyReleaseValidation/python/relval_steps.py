@@ -1435,9 +1435,6 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT[
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
-defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
-defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
 defaultDataSets['2017']='CMSSW_8_0_0_pre4-76X_upgrade2017_design_v8_UPG17-v'
 keys=defaultDataSets.keys()
 for key in keys:
