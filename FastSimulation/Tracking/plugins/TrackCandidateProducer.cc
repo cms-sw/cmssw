@@ -176,7 +176,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    // add hits from combination to hit selection
 	    for (unsigned hitIndex = hitsAlongMomentum ? 0 : recHitCombination.size() - 1;
 		 hitIndex < recHitCombination.size();
-		 hitsAlongMomentum ? --hitIndex : ++hitIndex) 
+		 hitsAlongMomentum ? ++hitIndex : --hitIndex) 
 	    {
 		
 		const FastTrackerRecHit * selectedRecHit = recHitCombination[hitIndex].get();

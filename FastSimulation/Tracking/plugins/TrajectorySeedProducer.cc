@@ -182,11 +182,8 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     {
 	// criteria for hit pairs
 	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
-	std::cout << "I'm here," << " " << hits[0]->id() << " " << hits.size() << std::endl;
 	if (hits.size()==2)
 	{
-	    std::cout << "still here" << std::endl;
-
 	    const FastTrackerRecHit * innerHit = hits[0];
 	    const FastTrackerRecHit * outerHit = hits[1];
 	    
@@ -196,8 +193,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
 	    std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
 		
-	    std::cout << selectedTrackingRegion << std::endl;
-
 	    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
 	    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
 		
@@ -206,7 +201,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 		
 	    if(result.size()!=0)
 	    {
-		std::cout << "I made it" << std::endl;
 		return true; 
 	    }
 	    else
@@ -218,14 +212,12 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	{
 	
 	    // no criteria for hit combinations that are not pairs
-	    std::cout << "returning true" << std::endl;
 	    return true;
 	}
     };
 
     if(skipSeedFinderSelector)
     {
-	std::cout << "woops" << std::endl;
 	selectedTrackingRegion = regions[0].get();
 	selectorFunction = [](const std::vector<const FastTrackerRecHit*>& hits) -> bool
 	{
@@ -254,8 +246,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    seedHitCandidates.push_back(_hit.get());
 	}
 
-	std::cout << "# hits: " << seedHitCandidates.size() << std::endl;
-	
 	// loop over the regions
 	for(auto region = regions.begin();region != regions.end(); ++region)
 	{
@@ -265,8 +255,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 	    // find the hits on the seeds
 	    std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
-
-	    std::cout << "# selected hits: " << seedHitNumbers.size() << std::endl;
 
 	    // create a seed from those hits
 	    if (seedHitNumbers.size()>1)
@@ -294,7 +282,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    }
 	}
     }
-    std::cout << "# seeds: " << output->size() << std::endl;
     e.put(std::move(output));
 
 }
