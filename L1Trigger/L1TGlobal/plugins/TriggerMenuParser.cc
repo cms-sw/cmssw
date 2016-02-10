@@ -447,6 +447,7 @@ bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GtAlgorithm& alg) {
         return false;
     }
 
+    
     // chip number outside allowed values
     int chipNr = alg.algoChipNumber(static_cast<int>(m_numberConditionChips),
         static_cast<int>(m_pinsOnConditionChip), m_orderConditionChip);

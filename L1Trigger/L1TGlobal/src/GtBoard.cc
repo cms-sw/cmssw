@@ -439,8 +439,7 @@ void l1t::GtBoard::runGTL(
         const int nrL1Mu,
         const int nrL1EG,
 	const int nrL1Tau,
-	const int nrL1Jet,
-        const int nrL1JetCounts) {
+	const int nrL1Jet ) {
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
