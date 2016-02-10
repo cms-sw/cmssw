@@ -1435,10 +1435,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
-defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
-defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
-defaultDataSets['2017']='CMSSW_8_0_0_pre2-76X_upgrade2017_design_v7_UPG17-v'
+defaultDataSets['2017']='CMSSW_8_0_0_pre4-76X_upgrade2017_design_v8_UPG17-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1459,7 +1456,7 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
+    PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
 
 
 upgradeStepDict={}
