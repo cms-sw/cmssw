@@ -14,7 +14,7 @@ from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 from PhysicsTools.RecoAlgos.trackingParticleSelector_cfi import trackingParticleSelector as _trackingParticleSelector
 from CommonTools.RecoAlgos.trackingParticleConversionSelector_cfi import trackingParticleConversionSelector as _trackingParticleConversionSelector
-from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import sortedPrimaryVertices as _sortedPrimaryVertices
+from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
 from Configuration.StandardSequences.Eras import eras
@@ -388,7 +388,8 @@ tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
     trackingParticleRecoTrackAsssociation +
-    VertexAssociatorByPositionAndTracks
+    VertexAssociatorByPositionAndTracks +
+    trackingParticleNumberOfLayersProducer
 )
 eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
