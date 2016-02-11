@@ -45,6 +45,13 @@ validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          *globalValidation
                          *hltvalidation)
 
+# fastsim: remove bits that depend on digis, tracker simhits or tracker rechits
+def _validation_fastSimMods(sequence):
+    sequence.remove(globaldigisanalyze)
+    sequence.remove(globalhitsanalyze)
+    sequence.remove(globalrechitsanalyze)
+eras.fastSim.toModify(validation,func=_validation_fastSimMods)
+
 validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)

@@ -61,6 +61,18 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
 
+# fastsim mods
+def _DQMOfflinePrePOG_fastSimMods(sequence):
+    for _entry in [ TrackingDQMSourceTier0,  # clashes with HLT customisation
+                    muonMonitors,            # needs some fastsim mods
+                    jetMETDQMOfflineSource,  # needs some fastsim mods
+                    egammaDQMOffline,        # clashes with HLT customisation
+                    triggerOfflineDQMSource, # needs some fastsim mods
+                    alcaBeamMonitor]:        # not compatible with fastsim
+        sequence.remove(_entry)
+from Configuration.StandardSequences.Eras import eras
+eras.fastSim.toModify(DQMOfflinePrePOG,_DQMOfflinePrePOG_fastSimMods)
+
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
 
@@ -78,6 +90,15 @@ DQMOfflineFakeHLT.remove( HLTMonitoring )
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
                                    dqmPhysics )
+
+# fastsim mods
+def _DQMOffline_fastSimMods(sequence):
+    for _entry in [DQMOfflinePreDPG,                 # needs some fastsim mods
+                   dqmFastTimerServiceLuminosity,    # not compatible with fastsim
+                   HLTMonitoring]:                   # needs some fastsim mods
+        sequence.remove(_entry)
+from Configuration.StandardSequences.Eras import eras
+eras.fastSim.toModify(DQMOffline,_DQMOffline_fastSimMods)
 
 DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
                                 DQMMessageLogger )
