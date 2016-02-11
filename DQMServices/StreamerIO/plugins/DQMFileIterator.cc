@@ -69,6 +69,9 @@ DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset) : state_(EOR) {
   nextLumiTimeoutMillis_ =
       pset.getUntrackedParameter<int32_t>("nextLumiTimeoutMillis");
 
+  // scan one mode
+  flagScanOnce_ = pset.getUntrackedParameter<bool>("scanOnce");
+
   forceFileCheckTimeoutMillis_ = 5015;
   reset();
 }
@@ -259,8 +262,10 @@ void DQMFileIterator::collect(bool ignoreTimers) {
     }
   }
 
-  if (!fn_eor.empty()) {
-    logFileAction("EoR file found: ", fn_eor);
+  if ((!fn_eor.empty()) or flagScanOnce_) {
+    if (!fn_eor.empty()) {
+        logFileAction("EoR file found: ", fn_eor);
+    }
 
     // @TODO load EoR files correctly
     // eor_ = EorEntry::load_json(fn_eor);
@@ -282,10 +287,13 @@ void DQMFileIterator::update_state() {
   using std::chrono::duration_cast;
   using std::chrono::milliseconds;
 
-  collect(false);
-
-  // now update the state
   State old_state = state_;
+
+  // in scanOnce mode we don't do repeated scans
+  // whatever found at reset() is be used
+  if (!flagScanOnce_) {
+    collect(false);
+  }
 
   if ((state_ == State::OPEN) && (eor_.loaded)) {
     state_ = State::EOR_CLOSING;
@@ -378,6 +386,11 @@ void DQMFileIterator::fillDescription(edm::ParameterSetDescription& desc) {
       ->setComment(
           "Number of milliseconds to wait before switching to the next lumi "
           "section if the current is missing, -1 to disable.");
+
+  desc.addUntracked<bool>("scanOnce", false)
+      ->setComment(
+          "Don't repeat file scans: use what was found during the initial scan. "
+          "EOR file is ignored and the state is set to 'past end of run'.");
 
   desc.addUntracked<std::string>("runInputDir")
       ->setComment("Directory where the DQM files will appear.");
