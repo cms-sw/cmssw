@@ -19,6 +19,8 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauDiscriminationByDecayModeFinding_*_*',
         'keep *_hpsPFTauDiscriminationByDecayModeFindingNewDMs_*_*',
         'keep *_hpsPFTauDiscriminationByDecayModeFindingOldDMs_*_*',
+        'keep *_hpsPFTauDiscriminationByLooseIsolation_*_*',                               ## kept for Configuration/Skimming/python/PDWG_TauSkim_cff.py
+        'keep *_hpsPFTauDiscriminationByLooseChargedIsolation_*_*',                        ## kept for Configuration/Skimming/python/PDWG_TauSkim_cff.py
         'keep *_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03_*_*',
         'keep *_hpsPFTauDiscriminationByLooseElectronRejection_*_*',
@@ -101,6 +103,8 @@ RecoTauTagAOD = cms.PSet(
         'keep *_hpsPFTauDiscriminationByDecayModeFinding_*_*',
         'keep *_hpsPFTauDiscriminationByDecayModeFindingNewDMs_*_*',
         'keep *_hpsPFTauDiscriminationByDecayModeFindingOldDMs_*_*',
+        'keep *_hpsPFTauDiscriminationByLooseIsolation_*_*',                               ## kept for Configuration/Skimming/python/PDWG_TauSkim_cff.py
+        'keep *_hpsPFTauDiscriminationByLooseChargedIsolation_*_*',                        ## kept for Configuration/Skimming/python/PDWG_TauSkim_cff.py
         'keep *_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03_*_*',
         'keep *_hpsPFTauDiscriminationByLooseMuonRejection3_*_*',

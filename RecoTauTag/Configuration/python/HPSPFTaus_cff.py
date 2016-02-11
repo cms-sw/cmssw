@@ -128,7 +128,7 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
 ##
-## Discrimination ByLoose|Medium|TightCombinedIsolationDBSumptCorr
+## Discrimination ByLoose|Medium|TightCombinedIsolationDBSumPtCorr
 ##
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
@@ -836,6 +836,8 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFindingNewDMs*
     hpsPFTauDiscriminationByDecayModeFindingOldDMs*
     hpsPFTauDiscriminationByDecayModeFinding* # CV: kept for backwards compatibility
+    hpsPFTauDiscriminationByLooseChargedIsolation*
+    hpsPFTauDiscriminationByLooseIsolation*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3HitsdR03*
     hpsPFTauDiscriminationByPileupWeightedIsolationSeq3Hits*
