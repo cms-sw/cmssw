@@ -20,7 +20,7 @@ GeometryConf={
     'Extended'       : 'Extended,ExtendedReco',
     'Extended2015'   : 'Extended2015,Extended2015Reco',
     'Extended2015dev': 'Extended2015dev,Extended2015devReco',
-    'Extended2016'   : 'Extended2017,Extended2017Reco',
+    'Extended2016'   : 'Extended2016,Extended2016Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
     'Extended2023'   : 'Extended2023,Extended2023Reco',

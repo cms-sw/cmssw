@@ -37,13 +37,21 @@ public:
     std::vector<std::pair<int, int> > layer;
     HcalEtaBin(int eta=0, double et1=0, double et2=0, int nf=0, double fi0=0,
 	       double df=0) : ieta(eta), nPhi(nf),depthStart(0), etaMin(et1), 
-			      etaMax(et2), phi0(fi0), dphi(df) {}
+                              etaMax(et2), phi0(fi0), dphi(df) {}
   };
   struct HcalActiveLength {
     int    ieta, depth;
     double eta, thick;
     HcalActiveLength(int ie=0, int d=0, double et=0, 
 		     double t=0) : ieta(ie), depth(d), eta(et), thick(t) {}
+  };
+  struct HFCellParameters {
+    int    ieta, depth, firstPhi, stepPhi, nPhi;
+    double rMin, rMax;
+    HFCellParameters(int ie=0, int d=1, int ffi=1, int sfi=2, int nfi=36,
+		     double r1=0, double r2=0) : ieta(ie), depth(d), 
+                                                 firstPhi(ffi), stepPhi(sfi),
+                                                 nPhi(nfi), rMin(r1), rMax(r2) {}
   };
 
   std::vector<std::pair<double,double> > getConstHBHE(const int type) const {
@@ -52,6 +60,7 @@ public:
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
   const std::vector<int> &  getDepth(const unsigned int i) const;
+  int                       getDepthEta16(int i) const {return hcons.getDepthEta16(i);}
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
@@ -62,7 +71,9 @@ public:
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
+  std::vector<HFCellParameters>    getHFCellParameters() const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
+  int                       getMaxDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
@@ -74,6 +85,7 @@ public:
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  int                       maxHFDepth(int ieta, int iphi) const {return hcons.maxHFDepth(ieta,iphi);}
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
