@@ -238,7 +238,12 @@ class NTupleCollection:
 
         s += "    @staticmethod\n"
         s += "    def make_array(event):\n"
-        s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
+        s += "        return [{0}({1}) for n in range(n)]\n".format(self.name, vecstring)
+
+        if len(vs):
+            s += "    def __init__(self, {0}):\n".format(",".join(vs))
+            for h, v in zip(helps, vs):
+                s += "        self.{0} = {0} #{1}\n".format(v, h)
         return s
 
 
