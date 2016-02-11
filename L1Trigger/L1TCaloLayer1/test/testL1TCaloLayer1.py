@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import EventFilter.L1TCaloLayer1RawToDigi.util as util
+import EventFilter.L1TXRawToDigi.util as util
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -33,10 +33,12 @@ print 'Ok, time to analyze'
 process = cms.Process("L1TCaloLayer1Test")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('EventFilter.L1TCaloLayer1RawToDigi.l1tCaloLayer1Digis_cfi')
-process.load('L1Trigger.L1TCaloLayer1.layer1EmulatorDigis_cfi')
-process.layer1EmulatorDigis.useLUT = cms.bool(True)
-process.layer1EmulatorDigis.verbose = cms.bool(False)
+process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
+process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
+process.simCaloStage2Layer1Digis.useLUT = cms.bool(True)
+process.simCaloStage2Layer1Digis.verbose = cms.bool(False)
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -52,6 +54,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
 process.GlobalTag.globaltag = '74X_dataRun2_Express_v1'
 
-process.p = cms.Path(process.l1tCaloLayer1Digis*process.layer1EmulatorDigis)
+process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis)
 
 process.e = cms.EndPath(process.out)

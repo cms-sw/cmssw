@@ -14,14 +14,14 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('L1Trigger.L1TCaloLayer1Spy.l1tCaloLayer1SpyDigis_cfi')
 process.l1tCaloLayer1SpyDigis.setupString = cms.untracked.string(options.setupString)
 
-process.load('L1Trigger.L1TCaloLayer1.layer1EmulatorDigis_cfi')
-process.layer1EmulatorDigis.ecalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
-process.layer1EmulatorDigis.hcalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
-process.layer1EmulatorDigis.verbose = cms.bool(True)
+process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
+process.simCaloStage2Layer1Digis.ecalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
+process.simCaloStage2Layer1Digis.hcalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
+process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
 
 process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
 process.layer1Validator.testSource = cms.InputTag("l1tCaloLayer1SpyDigis")
-process.layer1Validator.emulSource = cms.InputTag("layer1EmulatorDigis")
+process.layer1Validator.emulSource = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.verbose = cms.bool(True)
 
 # Put multiples of 162 - output data for eighteen BXs are available for each capture
@@ -37,6 +37,6 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *')
 )
 
-process.p = cms.Path(process.l1tCaloLayer1SpyDigis*process.layer1EmulatorDigis*process.layer1Validator)
+process.p = cms.Path(process.l1tCaloLayer1SpyDigis*process.simCaloStage2Layer1Digis*process.layer1Validator)
 
 process.e = cms.EndPath(process.out)
