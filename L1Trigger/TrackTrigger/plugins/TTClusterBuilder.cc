@@ -42,8 +42,8 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       std::cout << " TTClusterBuilder taking into account the DetId: " << detid.rawId();
       std::cout << " is lower? " << tTopo->isLower(detid.rawId()) << std::endl;
 
-      const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid) );
-      const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit( tTopo->Upper(detid) );
+      const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->lower(detid) );
+      const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit( tTopo->upper(detid) );
       
       /// Find pixel pitch and topology related information                                                                                               
       const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
@@ -66,7 +66,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       
       /// Find the hits in each stack member                                                                                                                
       typename std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > >::const_iterator innerHitFind = rawHits.find(tTopo->isLower(detid) );
-      typename std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > >::const_iterator outerHitFind = rawHits.find(tTopo->PartnerDetId(detid) );
+      typename std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > >::const_iterator outerHitFind = rawHits.find(tTopo->partnerDetId(detid) );
       
       /// If there are hits, cluster them                                                                                                                    
       /// It is the TTClusterAlgorithm::Cluster method which                                                                                                
@@ -87,7 +87,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
         innerOutputFiller.abort();
      }
      {  
-       edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller outerOutputFiller( *TTClusterDSVForOutput, tTopo->PartnerDetId(detid) );
+       edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller outerOutputFiller( *TTClusterDSVForOutput, tTopo->partnerDetId(detid) );
      for ( unsigned int i = 0; i < outerHits.size(); i++ )
        {
 	 TTCluster< Ref_Phase2TrackerDigi_ > temp( outerHits.at(i), detid, 1, storeLocalCoord );

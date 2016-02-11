@@ -165,8 +165,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       //      const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid)  );
       //      const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit( tTopo->Upper(detid)  );
 
-      DetId id0 = tTopo->Lower(detid) ;
-      DetId id1 = tTopo->Upper(detid) ;
+      DetId id0 = tTopo->lower(detid) ;
+      DetId id1 = tTopo->upper(detid) ;
       std::cout<<"debug10"<<std::endl;
     /// Check that everything is ok in the maps
       /*    if ( theStackedTracker->findPairedDetector( id0 ) != id1 ||
@@ -176,8 +176,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
       }*/
 
-      if ( ( id0 ) != tTopo->PartnerDetId(id1) ||
-	   ( id1 ) != tTopo->PartnerDetId(id0) )
+      if ( ( id0 ) != tTopo->partnerDetId(id1) ||
+	   ( id1 ) != tTopo->partnerDetId(id0) )
     {
       std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
       continue;
@@ -190,7 +190,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
       }*/
 
-      if ( tTopo->Stack(id0) != tTopo->Stack(id1))
+      if ( tTopo->stack(id0) != tTopo->stack(id1))
     {
       std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
       continue;
@@ -228,7 +228,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     /// Get chip size information
     //    const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
-    const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid) );
+    const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->lower(detid) );
     const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
     const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
     const int chipSize = 2 * top0->rowsperroc(); /// Need to find ASIC size in half-strip units
