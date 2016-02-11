@@ -24,5 +24,7 @@ process.maxEvents.input = 100
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
 process.out.fileName = 'patTuple_standard.root'
+from  PhysicsTools.PatAlgos.patEventContent_cff import patExtraTauPOGRECOEventContent
+process.out.outputCommands += patExtraTauPOGRECOEventContent
 #                                         ##
-#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+#   process.options.wantSummary = False   ##  (to suppress the long output at fthe end of the job)
