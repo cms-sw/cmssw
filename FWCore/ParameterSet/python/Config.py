@@ -7,7 +7,7 @@ options = Options()
 
 ## imports
 import sys
-from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
+from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
 from Mixins import *
 from Types import *
 from Modules import *
@@ -1107,8 +1107,21 @@ class _ParameterModifier(object):
   def __init__(self,args):
     self.__args = args
   def __call__(self,obj):
-    for k,v in self.__args.iteritems():
-      setattr(obj,k,v)
+    params = {}
+    for k in self.__args.iterkeys():
+        if hasattr(obj,k):
+            params[k] = getattr(obj,k)
+        else:
+            params[k] = self.__args[k]
+    _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
+    for k in self.__args.iterkeys():
+        if k in params:
+            setattr(obj,k,params[k])
+        else:
+            #the parameter must have been removed
+            delattr(obj,k)
+  def _raiseUnknownKey(key):
+    raise KeyError("Unknown parameter name "+k+" specified while calling Modifier")
 
 class _AndModifier(object):
   """A modifier which only applies if multiple Modifiers are chosen"""
@@ -1155,6 +1168,12 @@ class Modifier(object):
     that will be the object passed in as the first argument.
     Form 2: A list of parameter name, value pairs can be passed
        mod.toModify(foo, fred=cms.int32(7), barney = cms.double(3.14))
+    This form can also be used to remove a parameter by passing the value of None
+        #remove the parameter foo.fred       
+        mod.toModify(foo, fred = None)
+    Additionally, parameters embedded within PSets can also be modified using a dictionary
+        #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
+        mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
     """
     if func is not None and len(kw) != 0:
       raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
@@ -1978,6 +1997,27 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual(p.a.wilma.value(),1)
             self.assertEqual(p.b.fred.value(),2)
             self.assertEqual(p.b.wilma.value(),3)
+            #test removal of parameter
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            m1.toModify(p.a, fred = None)
+            self.assertEqual(hasattr(p.a, "fred"), False)
+            self.assertEqual(p.a.wilma.value(),1)
+            #test adding a parameter
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toModify(p.a, wilma = int32(2))
+            self.assertEqual(p.a.fred.value(), 1)
+            self.assertEqual(p.a.wilma.value(),2)
+            #test setting of value in PSet
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = int32(1), wilma = int32(1)))
+            m1.toModify(p.a, flintstones = dict(fred = int32(2)))
+            self.assertEqual(p.a.flintstones.fred.value(),2)
+            self.assertEqual(p.a.flintstones.wilma.value(),1)
             #test that load causes process wide methods to run
             def _rem_a(proc):
                 del proc.a
