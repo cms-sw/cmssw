@@ -117,45 +117,23 @@ process.load('L1Trigger.Configuration.L1TReEmulateFromRAW_cff')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.l1tSummaryA = cms.EDAnalyzer("L1TSummary")
-process.l1tSummaryA.egCheck   = cms.bool(True);
-process.l1tSummaryA.tauCheck  = cms.bool(True);
-process.l1tSummaryA.jetCheck  = cms.bool(True);
-process.l1tSummaryA.sumCheck  = cms.bool(True);
-process.l1tSummaryA.muonCheck = cms.bool(True);
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryA.egToken   = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage1FinalDigis:rlxTaus");
-    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.muonToken = cms.InputTag("None");
-    process.l1tSummaryA.muonCheck = cms.bool(False);
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryA.egToken   = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
 
-process.l1tSummaryB = cms.EDAnalyzer("L1TSummary")
-process.l1tSummaryB.egCheck   = cms.bool(True);
-process.l1tSummaryB.tauCheck  = cms.bool(True);
-process.l1tSummaryB.jetCheck  = cms.bool(True);
-process.l1tSummaryB.sumCheck  = cms.bool(True);
-process.l1tSummaryB.muonCheck = cms.bool(True);
+
+
+
+import L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi
+import L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi
 if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryB.egToken   = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummaryB.tauToken  = cms.InputTag("simCaloStage1FinalDigis:rlxTaus");
-    process.l1tSummaryB.jetToken  = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummaryB.muonToken = cms.InputTag("None");
-    process.l1tSummaryB.muonCheck = cms.bool(False);
+    process.l1tSummaryA = L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi.l1tSummaryStage1Digis.clone()
 if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryB.egToken   = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummaryB.tauToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummaryB.jetToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummaryB.muonToken = cms.InputTag("simGmtStage2Digis","");
+    process.l1tSummaryA = L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi.l1tSummaryStage2Digis.clone()
+
+import L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi
+import L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi
+if (eras.stage1L1Trigger.isChosen()):
+    process.l1tSummaryB = L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi.l1tSummaryStage1SimDigis.clone()
+if (eras.stage2L1Trigger.isChosen()):
+    process.l1tSummaryB = L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi.l1tSummaryStage2SimDigis.clone()
 
 # Additional output definition
 # TTree output file
@@ -213,21 +191,6 @@ if (eras.stage2L1Trigger.isChosen()):
     process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("simGmtStage2Digis")
     process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage2Digis","")
     process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
-
-
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryA.egToken   = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage1FinalDigis:rlxTaus");
-    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryA.muonToken = cms.InputTag("None");
-    process.l1tSummaryA.muonCheck = cms.bool(False);
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryA.egToken   = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
 
 
 process.L1TSeq = cms.Sequence(   process.RawToDigi        

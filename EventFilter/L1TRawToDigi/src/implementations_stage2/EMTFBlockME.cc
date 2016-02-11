@@ -11,7 +11,7 @@ namespace l1t {
       
       class MEBlockUnpacker : public Unpacker { // "MEBlockUnpacker" inherits from "Unpacker"
       public:
-	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
+	virtual int  checkFormat(const Block& block);
 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
@@ -29,6 +29,36 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
+      int MEBlockUnpacker::checkFormat(const Block& block) {
+	
+	auto payload = block.payload();
+	int errors = 0;
+	
+	//Check the number of 16-bit words                                                                                                                                    
+	if(payload.size() != 4) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
+	
+	//Check that each word is 16 bits                                                                                                                                     
+	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'ME Data Record'"; }
+	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'ME Data Record'"; }
+	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'ME Data Record'"; }
+	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[3] has more than 16 bits in 'ME Data Record'"; }
+	
+	uint16_t MEa = payload[0];
+	uint16_t MEb = payload[1];
+	uint16_t MEc = payload[2];
+	uint16_t MEd = payload[3];
+
+	//Check Format                                                                                                                                                        
+	if(GetHexBits(MEa, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
+	if(GetHexBits(MEb, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
+	if(GetHexBits(MEc, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
+	if(GetHexBits(MEd, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEd are incorrect"; }
+
+	return errors;
+
+      }
+
+
       bool MEBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
@@ -42,21 +72,20 @@ namespace l1t {
         uint16_t MEc = payload[2];
         uint16_t MEd = payload[3];
 
-	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
-	// for (uint iWord = 0; iWord < payload.size(); iWord++)
-	//   std::cout << std::hex << std::setw(8) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
+	// Check Format of Payload
+	l1t::emtf::ME ME_;
+	for (int err = 0; err < checkFormat(block); err++) ME_.add_format_error();
 
 	// res is a pointer to a collection of EMTFOutput class objects
 	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
 	EMTFOutputCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
 	int iOut = res->size() - 1;
+	if (ME_.Format_Errors() > 0) goto write;
 
 	////////////////////////////
 	// Unpack the ME Data Record
 	////////////////////////////
-
-	l1t::emtf::ME ME_;
 
 	ME_.set_clct_pattern        ( GetHexBits(MEa,  0,  3) );
 	ME_.set_quality             ( GetHexBits(MEa,  4,  7) );
@@ -83,6 +112,8 @@ namespace l1t {
 	ME_.set_afef                ( GetHexBits(MEd, 14, 14) );
 
 	// ME_.set_dataword            ( uint64_t dataword);
+
+      write:
 
 	(res->at(iOut)).push_ME(ME_);
 
