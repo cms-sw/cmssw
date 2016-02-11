@@ -24,7 +24,6 @@ def L1TReEmulFromRAW(process):
         process.simBmtfDigis.DTDigi_Source         = cms.InputTag("simTwinMuxDigis")
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag("dttfDigis")
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
-        process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
         print "L1TReEmul sequence:  "
