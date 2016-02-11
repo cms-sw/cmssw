@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk')
+        SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkFilter')
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_hbhereco_*_*',
@@ -20,7 +20,7 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
         'keep *_generalTracks_*_*',
         'keep *_generalTracks_*_*',
         'keep *_offlinePrimaryVertices_*_*',
-        'keep *_TkAlIsoProd_*_*',
+        'keep *_TkAlIsoProdFilter_*_*',
         )
 )
 
