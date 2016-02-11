@@ -8,12 +8,12 @@ from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cfi import *
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 TkAlIsoProdFilter = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-TkAlIsoProd.filter = False
-TkAlIsoProd.applyBasicCuts = False
-TkAlIsoProd.applyMultiplicityFilter = False
-TkAlIsoProd.applyNHighestPt = False
-TkAlIsoProd.applyIsolationCut = False
-TkAlIsoProd.applyChargeCheck = False
+TkAlIsoProdFilter.filter = False
+TkAlIsoProdFilter.applyBasicCuts = False
+TkAlIsoProdFilter.applyMultiplicityFilter = False
+TkAlIsoProdFilter.applyNHighestPt = False
+TkAlIsoProdFilter.applyIsolationCut = False
+TkAlIsoProdFilter.applyChargeCheck = False
 
 seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(AlcaIsoTracksFilter*TkAlIsoProdFilter)
 
