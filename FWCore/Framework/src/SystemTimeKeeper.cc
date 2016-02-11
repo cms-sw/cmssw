@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "FWCore/Framework/interface/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "SystemTimeKeeper.h"
 
 using namespace edm;
@@ -294,6 +295,7 @@ SystemTimeKeeper::fillTriggerTimingReport(TriggerTimingReport& rep) const {
       ++modIndex;
     }
   }
+  sort_all(rep.workerSummaries);
   
   //Per path summary
   {
