@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalUHTRhistogramDigiCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
@@ -33,6 +34,7 @@ namespace DataFormats_HcalDigi {
     HcalCalibDigiCollection theHC_;
     HcalTrigPrimDigiCollection theHTP_;
     HcalHistogramDigiCollection theHH_;
+    HcalUHTRhistogramDigiCollection theHUH_;
     ZDCDigiCollection theZDC_;
     HBHEUpgradeDigiCollection theUHBHE_;
     HFUpgradeDigiCollection theUHF_;
@@ -63,6 +65,7 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
     edm::Wrapper<HOTrigPrimDigiCollection> theHOTPw_; 
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
+    edm::Wrapper<HcalUHTRhistogramDigiCollection> theHUHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;
     edm::Wrapper<HcalTTPDigiCollection> theTTPw_;

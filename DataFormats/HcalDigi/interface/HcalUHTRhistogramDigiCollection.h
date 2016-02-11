@@ -38,6 +38,7 @@ class HcalUHTRhistogramDigiMutable :public HcalUHTRhistogramDigi {
 
 class HcalUHTRhistogramDigiCollection {
 public:
+  HcalUHTRhistogramDigiCollection();
   static const size_t INVALID = (size_t)-1;
   const size_t find(HcalDetId id) const;
   bool separateCapIds() const {return separateCapIds_; }

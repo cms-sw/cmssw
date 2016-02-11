@@ -32,6 +32,9 @@
    <class name="HcalHistogramDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="1578148269"/>
    </class>
+   <class name="HcalUHTRhistogramDigiCollection" ClassVersion="0">
+    <version ClassVersion="0" checksum="2052529601"/>
+   </class>
    <class name="ZDCDataFrame" ClassVersion="10">
     <version ClassVersion="10" checksum="3263886031"/>
    </class>
