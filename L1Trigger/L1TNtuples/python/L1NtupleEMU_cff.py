@@ -13,7 +13,7 @@ l1CaloTowerEmuTree.l1ClusterToken = cms.untracked.InputTag("simCaloStage2Digis",
 l1UpgradeEmuTree = l1UpgradeTree.clone()
 l1UpgradeEmuTree.egToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.tauTokens = cms.untracked.VInputTag("simCaloStage2Digis")
-l1UpgradeEmuTree.jetToken = cms.untracked.InputTag("simCaloStage2Digis", "MP")
+l1UpgradeEmuTree.jetToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.muonToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
 
