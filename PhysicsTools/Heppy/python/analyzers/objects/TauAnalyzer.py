@@ -79,13 +79,14 @@ class TauAnalyzer( Analyzer ):
                     loose, medium, tight, very tight, very very tight)"""
                 return id5(tau, X) + tau.tauID(X%"VVTight")
 
-            tau.idMVA = id6(tau, "by%sIsolationMVArun2v1DBoldDMwLT")
-            tau.idMVANewDM = id6(tau, "by%sIsolationMVArun2v1DBnewDMwLT")
+            tau.idMVArun2 = id6(tau, "by%sIsolationMVArun2v1DBoldDMwLT")
+            tau.idMVArun2dR03 = id6(tau, "by%sIsolationMVArun2v1DBdR03oldDMwLT")
+            tau.idMVArun2NewDM = id6(tau, "by%sIsolationMVArun2v1DBnewDMwLT")
             tau.idCI3hit = id3(tau, "by%sCombinedIsolationDeltaBetaCorr3Hits")
-            tau.idMVAOldDMRun2dR03 = id3(tau, "by%sIsolationMVArun2v1DBdR03oldDMwLT")
+#            tau.idCI3hitdR03 = id3(tau, "by%sCombinedIsolationDeltaBetaCorr3HitsdR03")
             tau.idAntiMu = tau.tauID("againstMuonLoose3") + tau.tauID("againstMuonTight3")
-            tau.idAntiE = id5(tau, "againstElectron%sMVA6")
-            #print "Tau pt %5.1f: idMVA2 %d, idCI3hit %d, %s, %s" % (tau.pt(), tau.idMVA2, tau.idCI3hit, tau.tauID(self.cfg_ana.tauID), tau.tauID(self.cfg_ana.tauLooseID))
+#            tau.idAntiE = id5(tau, "againstElectron%sMVA5")
+            tau.idAntiErun2 = id5(tau, "againstElectron%sMVA6")
             
             if tau.tauID(self.cfg_ana.inclusive_tauID):
                 event.inclusiveTaus.append(tau)
@@ -167,6 +168,6 @@ setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
     loose_vetoLeptonsPOG = False, # If True, the following two IDs are required
     loose_tauAntiMuonID = "againstMuonLoose3",
-    loose_tauAntiElectronID = "againstElectronLooseMVA5"
+    loose_tauAntiElectronID = "againstElectronLooseMVA6"
   )
 )

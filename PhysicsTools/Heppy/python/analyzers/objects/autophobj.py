@@ -135,13 +135,16 @@ tauType = NTupleObjectType("tau",  baseObjectTypes = [ particleType ], variables
     NTupleVariable("rawMVArun2", lambda x : x.tauID("byIsolationMVArun2v1DBoldDMwLTraw"), help="byIsolationMVArun2v1DBoldDMwLT raw output discriminator"),
     NTupleVariable("idMVArun2dR03", lambda x : x.idMVArun2dR03, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBdR03oldDMwLT discriminator"),
     NTupleVariable("rawMVArun2dR03", lambda x : x.tauID("byIsolationMVArun2v1DBdR03oldDMwLTraw"), help="byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator"),
-    NTupleVariable("idMVANewDM", lambda x : x.idMVANewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3newDMwLT discriminator"),
+#    NTupleVariable("idMVANewDM", lambda x : x.idMVANewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3newDMwLT discriminator"),
     NTupleVariable("idMVArun2NewDM", lambda x : x.idMVArun2NewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBnewDMwLT discriminator"),
     NTupleVariable("rawMVArun2NewDM", lambda x : x.tauID("byIsolationMVArun2v1DBnewDMwLTraw"), help="byIsolationMVArun2v1DBnewDMwLT raw output discriminator"),
     NTupleVariable("idCI3hit", lambda x : x.idCI3hit, int, help="1,2,3 if the tau passes the loose, medium, tight WP of the By<X>CombinedIsolationDBSumPtCorr3Hits discriminator"),
+#    NTupleVariable("idCI3hitdR03", lambda x : x.idCI3hitdR03, int, help="1,2,3 if the tau passes the loose, medium, tight WP of the By<X>CombinedIsolationDeltaBetaCorr3HitsdR03 discriminator"),
     NTupleVariable("idAntiMu", lambda x : x.idAntiMu, int, help="1,2 if the tau passes the loose/tight WP of the againstMuon<X>3 discriminator"),
-    NTupleVariable("idAntiE", lambda x : x.idAntiE, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA5 discriminator"),
+#    NTupleVariable("idAntiE", lambda x : x.idAntiE, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA5 discriminator"),
+    NTupleVariable("idAntiErun2", lambda x : x.idAntiErun2, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA6 discriminator"),
     NTupleVariable("isoCI3hit",  lambda x : x.tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"), help="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
+    NTupleVariable("photonOutsideSigCone", lambda x : x.tauID("photonPtSumOutsideSignalCone"), help="photonPtSumOutsideSignalCone raw output discriminator"),
     # MC-match info
     NTupleVariable("mcMatchId",  lambda x : getattr(x, 'mcMatchId', -99), int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z), zero if non-prompt or fake"),
 ])
