@@ -1372,7 +1372,9 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
   c.reserve(c.size()+HMapping_.size());
   for(unsigned i=0; i<HMapping_.size(); i++) {
-    c.push_back(PCaloHit(DetId(HMapping_[i].first.unitID()),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID()));
+    uint32_t id = HMapping_[i].first.unitID();
+    theHFShowerLibrary->modifyDepth(id);
+    c.push_back(PCaloHit(DetId(id),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID()));
   }
 }
 
