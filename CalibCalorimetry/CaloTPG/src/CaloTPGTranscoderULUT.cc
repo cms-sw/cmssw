@@ -119,9 +119,9 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
   return HcalTriggerPrimitiveSample(outputLUT_[itower][sample],fineGrain,0,0);
 }
 
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, const int& compET) const {
+double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compET) const {
   double etvalue = 0.;
-  int itower = getOutputLUTId(ieta,iphi);
+  int itower = getOutputLUTId(ieta,iphi, version);
   if (itower < 0) {
     edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUT found for ieta, iphi = " << ieta << ", " << iphi;
   } else if (compET < 0 || compET >= (int) TPGMAX) {
@@ -132,7 +132,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, cons
   return(etvalue);
 }
 
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) const {
+double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& version, const int& compET) const {
 // This is now an obsolete method; we return the AVERAGE over all the allowed iphi channels if it's invoked
 // The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
 
@@ -142,9 +142,9 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) co
   } else {
 	int nphi = 0;
 	for (int iphi=1; iphi <= 72; iphi++) {
-		if (HTvalid(ieta,iphi)) {
+		if (HTvalid(ieta, iphi, version)) {
 			nphi++;
-			int itower = getOutputLUTId(ieta,iphi);
+			int itower = getOutputLUTId(ieta,iphi, version);
 			etvalue += hcaluncomp_[itower][compET];
 		}
 	}
@@ -179,8 +179,9 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
   throw cms::Exception("Not Implemented") << "CaloTPGTranscoderULUT::rctJetUncompress";
 }
 
-bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
+bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin, const int version) const {
 	HcalTrigTowerDetId id(ieta, iphiin);
+	id.setVersion(version);
 	if (!theTopology) {
 		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
 	}
@@ -194,11 +195,12 @@ int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
     return theTopology->detId2denseIdHT(id);
 }
 
-int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) const {
+int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin, const int version) const {
 	if (!theTopology) {
 		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
 	}
 	HcalTrigTowerDetId id(ieta, iphiin);
+	id.setVersion(version);
 	return theTopology->detId2denseIdHT(id);
 }
 
