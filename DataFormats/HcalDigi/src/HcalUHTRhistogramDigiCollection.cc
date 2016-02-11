@@ -42,3 +42,4 @@ HcalUHTRhistogramDigiMutable HcalUHTRhistogramDigiCollection::addHistogram(const
   bins_.insert( bins_.end(), res.begin(), res.end() );
   return HcalUHTRhistogramDigiMutable( ids_.size()-1, *this );
 }
+HcalUHTRhistogramDigiCollection::HcalUHTRhistogramDigiCollection() {}
