@@ -8,6 +8,6 @@ from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
 
 l1tStage2online = cms.Sequence(
-    l1tStage2CaloLayer2+
+#    l1tStage2CaloLayer2+
     l1tStage2mGMT
     )

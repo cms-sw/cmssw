@@ -31,16 +31,17 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   ibooker.setCurrentFolder(monitorDir);
   
   // eta ,phi, pt 
-  eta_bmtf = ibooker.book1D("eta_bmtf", "#eta of BMTF", 22, -0.5, 21.5);
-  phi_bmtf = ibooker.book1D("phi_bmtf", "#phi of BMTF", 18, -0.5, 17.5);
-  pt_bmtf = ibooker.book1D("pt_bmtf", "p_{T} of BMTF", 64, -0.5, 63.5);
-  bx_bmtf = ibooker.book1D("pt_bmtf", "BX", 5,-2.5, 2.5);
-  etaVSphi_bmtf = ibooker.book2D("etaVSphi_bmtf", "#eta VS #phi of BMTF", 22, -0.5, 21.5, 18, -0.5, 17.5);
-  phiVSpt_bmtf = ibooker.book2D("phiVSpt_bmtf", "#phi VS p_{T}of BMTF", 18, -0.5, 17.5, 64, -0.5, 63.5);
-  etaVSpt_bmtf = ibooker.book2D("etaVSpt_bmtf", "#eta VS p_{T} of BMTF", 22, -0.5, 21.5, 64, -0.5, 63.5);
-  etaVSbx_bmtf = ibooker.book2D("etaVSbx_bmtf", "#eta VS bx of BMTF", 22, -0.5, 21.5, 5,-2.5, 2.5);
-  phiVSbx_bmtf = ibooker.book2D("phiVSbx_bmtf", "#phi VS bx of BMTF", 18, -0.5, 17.5, 5,-2.5, 2.5);
-  ptVSbx_bmtf  = ibooker.book2D("ptVSbx_bmtf", "p_{T} VS bx of BMTF", 64, -0.5, 63.5, 5,-2.5, 2.5);
+  eta_bmtf = ibooker.book1D("eta_bmtf", "#eta of BMTF", 447, -223.5, 223.5);
+  phi_bmtf = ibooker.book1D("phi_bmtf", "#phi of BMTF", 64, -7.5, 56.5);
+  pt_bmtf  = ibooker.book1D("pt_bmtf" , "p_{T} of BMTF", 511, -0.5, 510.5);
+  bx_bmtf  = ibooker.book1D("bx", "BX", 5, -2.5, 2.5);
+
+  etaVSphi_bmtf = ibooker.book2D("etaVSphi_bmtf", "#eta VS #phi  of BMTF",  447, -223.5, 223.5, 64 , -7.5,   56.5);
+  phiVSpt_bmtf  = ibooker.book2D("phiVSpt_bmtf" , "#phi VS p_{T} of BMTF",  64 ,   -7.5,  56.5, 511, -0.5, 510.5);
+  etaVSpt_bmtf  = ibooker.book2D("etaVSpt_bmtf" , "#eta VS p_{T} of BMTF",  447, -223.5, 223.5, 511, -0.5, 510.5);
+  etaVSbx_bmtf  = ibooker.book2D("etaVSbx_bmtf" , "#eta VS bx of BMTF", 447, -223.5, 223.5,  5, -2.5, 2.5);
+  phiVSbx_bmtf  = ibooker.book2D("phiVSbx_bmtf" , "#phi VS bx of BMTF", 64 ,   -7.5,  56.5,  5, -2.5, 2.5);
+  ptVSbx_bmtf   = ibooker.book2D("ptVSbx_bmtf"  , "p_{T} VS bx of BMTF", 511,   -0.5, 510.5,  5, -2.5, 2.5);
 
 }
 
