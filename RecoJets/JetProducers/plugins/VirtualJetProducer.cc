@@ -775,6 +775,7 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
       constituents = it->constituents();
     }
 
+    double sumpt = 0.;
     std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = constituents.begin(),
       itSubJet = itSubJetBegin, itSubJetEnd = constituents.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet ){
@@ -808,6 +809,8 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
 	}
       }
 
+      sumpt+=subjet.pt();
+
       math::XYZTLorentzVector p4Subjet(subjet.px(), subjet.py(), subjet.pz(), subjet.e() );
       reco::Particle::Point point(0,0,0);
 
@@ -831,8 +834,9 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
       jet.setJetArea( subjetArea );
       subjetCollection->push_back( jet );
     }
+  //}
+  Printf("jet pt: %f sumpt: %f",it->pt(),sumpt);
   }
-
   // put subjets into event record
   subjetHandleAfterPut = iEvent.put( subjetCollection, jetCollInstanceName_ );
   
