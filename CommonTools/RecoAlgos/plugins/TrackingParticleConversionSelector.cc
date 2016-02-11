@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,13 +9,13 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-class TrackingParticleConversionSelector: public edm::stream::EDProducer<> {
+class TrackingParticleConversionSelector: public edm::global::EDProducer<> {
 public:
   TrackingParticleConversionSelector(const edm::ParameterSet& iConfig);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
@@ -34,7 +34,7 @@ void TrackingParticleConversionSelector::fillDescriptions(edm::ConfigurationDesc
   descriptions.add("trackingParticleConversionSelector", desc);
 }
 
-void TrackingParticleConversionSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TrackingParticleConversionSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<TrackingParticleCollection> h_tps;
   iEvent.getByToken(tpToken_, h_tps);
 
