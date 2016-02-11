@@ -17,7 +17,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
     bool is_primary_available = false;
     const edm::Provenance *parent_prov = prov;
     if (edm::moduleName(*prov) != "PrimaryVertexProducer") {
-        std::vector<edm::BranchID> parents = prov->parents();
+        std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
         for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
            edm::Provenance parprov = iEvent.getProvenance(*it);
            if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
@@ -34,7 +34,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
     configure(psetFromProvenance); 
 
     // Now we also dig out the ProcessName used for the reco::Tracks and reco::Vertices
-    std::vector<edm::BranchID> parents = prov->parents();
+    std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     bool foundTracks = false;
     bool foundBeamSpot = false;
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
