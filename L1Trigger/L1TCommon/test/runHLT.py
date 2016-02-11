@@ -10,13 +10,6 @@ from Configuration.StandardSequences.Eras import eras
 #process = cms.Process('L1SEQS',eras.Run2_25ns)
 process = cms.Process('L1SEQS',eras.Run2_2016)
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-    debugModules = cms.untracked.vstring('*'))
-
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -31,6 +24,21 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+#process.MessageLogger = cms.Service(
+#    "MessageLogger",
+#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+#    debugModules = cms.untracked.vstring('*'))
+
+
+process.MessageLogger = cms.Service("MessageLogger",
+            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
+            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
+            debugModules = cms.untracked.vstring( 'hltL1TSeed' )
+            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
+)
 
 #
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
@@ -106,6 +114,19 @@ process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
     Verbosity = cms.untracked.int32(0)
 )
 
+
+process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
+    saveTags = cms.bool( True ),
+    L1GtObjectMapTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    muonCollectionsTag = cms.InputTag("hltGmtStage2Digis"),
+    egammaCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+    jetCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+    tauCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+    etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+)
+
+
 process.HLTL1UnpackerSequence = cms.Sequence(
  process.hltGtStage2Digis +
  process.hltCaloStage2Digis +
@@ -115,6 +136,9 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 #
 # END HLT UNPACKER SEQUENCE FOR STAGE 2
 #
+
+# HLT testing sequence
+process.HLTTesting  = cms.Sequence( process.hltL1TSeed )
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -186,6 +210,7 @@ process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.hlt_step = cms.Path(process.HLTL1UnpackerSequence)
+process.hlt_step2 = cms.Path(process.HLTTesting)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
@@ -196,14 +221,15 @@ process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
 process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
-#    process.dumpES + 
+    process.dumpES + 
 #    process.dumpED +
     process.l1tSummaryStage2SimDigis +
     process.l1tSummaryStage2HltDigis
 )
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+#process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.hlt_step2,process.debug_step,process.endjob_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.hlt_step2,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
 #print "L1T Emulation Sequence is:  "
 #print process.SimL1Emulator
