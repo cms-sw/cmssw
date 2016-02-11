@@ -229,9 +229,10 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
   unsigned int type  = (itype == 0) ? 0 : 1;
   unsigned int lymax = (type == 0) ? 17 : 19;
   if (layerGroupSize(ieta-1) > 0) {
-    if (layerGroupSize(ieta-1) > lymax) lymax = layerGroupSize(ieta-1);
+    if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
     lmax = (int)(layerGroup(ieta-1, lymax-1));
     if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16(0);
+    if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29(0);
   }
   return lmax;
 }
