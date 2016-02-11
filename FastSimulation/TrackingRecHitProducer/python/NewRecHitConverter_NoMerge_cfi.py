@@ -93,3 +93,14 @@ for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
         )
         trackingRecHitProducerNoMerge.plugins.append(pluginConfig)
 
+#for subdetId in ["BPX","FPX","TIB","TID","TOB","TEC"]:
+#    plugin1Config = cms.PSet(
+#        name = cms.string("monitor"+subdetId),
+#        type=cms.string("TrackingRecHitMonitorPlugin"),
+#        dxmax=cms.double(0.05),
+#        dymax=cms.double(20.0),
+#        select=cms.string("subdetId=="+subdetId),
+#    )
+#    trackingRecHitProducerNoMerge.plugins.append(plugin1Config)
+
+#TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )

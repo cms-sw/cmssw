@@ -109,6 +109,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
 
+    std::cout << "n sim hits: " << simHits->size() << std::endl;
     std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
     output_recHits->reserve(simHits->size());
     
@@ -173,7 +174,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     {
 	    ((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
     }
-
+    std::cout << "number rec hits: "<< output_recHits->size() << std::endl;
     event.put(std::move(output_recHits));
     event.put(std::move(output_recHitRefs),"simHit2RecHitMap");
 

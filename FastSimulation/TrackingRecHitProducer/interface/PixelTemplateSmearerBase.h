@@ -38,7 +38,11 @@ class SimpleHistogramGenerator;
 class PixelTemplateSmearerBase : public TrackingRecHitAlgorithm {
 public:
   //--- Use this type to keep track of groups of hits that need to be merged:
-  typedef std::vector<const PSimHit*> MergeGroup;
+  //typedef std::vector<const PSimHit*> MergeGroup;
+  struct MergeGroup{
+    std::vector<const PSimHit*> group;
+    bool smearIt;        // this is
+  };
 
   //--- Constructor, virtual destructor (just in case)
   explicit PixelTemplateSmearerBase(  const std::string& name,
