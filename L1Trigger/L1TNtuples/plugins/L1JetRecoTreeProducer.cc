@@ -290,21 +290,7 @@ void
 L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr) {
 
 
-  std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
-  
-  //get jet correction and fill corrected jet ets and corrections
-  for( auto it=pfJets->begin(); it!=pfJets->end(); ++it) 
-    {
-      float corr = pfJetCorr.product()->correction(*it);
-      std::pair<float,float> corrJetEtAndCorr(corr*it->et(),corr);
-      corrJetEtsAndCorrs.push_back(corrJetEtAndCorr);
-    }
-
-  // sort corrected jet ets and correction factors 
-  // by corrected jet et
-  std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
-  
-  //fill jet data array with sorted jet ets and corr factors
+  float corrFactor = 1.;
   uint nJets = 0;
   
   float mHx = 0;
@@ -362,7 +348,6 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   //   nJets++
   // }
 
->>>>>>> 9789e7c... corrected jets for ht, mht
 }
 
 void
