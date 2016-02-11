@@ -30,20 +30,9 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.l1tSummary = cms.EDAnalyzer("L1TSummary")
-process.l1tSummary.egCheck   = cms.bool(True);
-process.l1tSummary.tauCheck  = cms.bool(True);
-process.l1tSummary.jetCheck  = cms.bool(True);
-process.l1tSummary.sumCheck  = cms.bool(True);
-process.l1tSummary.muonCheck = cms.bool(True);
-process.l1tSummary.egToken   = cms.InputTag("simCaloStage2Digis");
-process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","");
-#process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","imdMuonsBMTF");
+process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
 
-process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
+#process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
@@ -90,7 +79,7 @@ process.l1UpgradeTree = cms.EDAnalyzer(
 process.L1TSeq = cms.Sequence(   process.SimL1Emulator
 #                                   + process.dumpED
 #                                   + process.dumpES
-                                   + process.l1tSummary
+                                   + process.l1tSummaryStage2SimDigis
 #                                   + process.l1tGlobalAnalyzer
                                    + process.l1UpgradeTree
 )

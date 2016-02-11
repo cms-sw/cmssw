@@ -55,12 +55,13 @@ class OMTFConfiguration{
 
   void configure(XMLConfigReader *aReader);
 
-  void configure(std::shared_ptr<L1TMuonOverlapParams> omtfParams);
+  void configure(const L1TMuonOverlapParams* omtfParams);
 
   void initCounterMatrices();
   
   friend std::ostream & operator << (std::ostream &out, const OMTFConfiguration & aConfig);
 
+  static unsigned int fwVersion;
   static float minPdfVal;  
   static unsigned int nLayers;
   static unsigned int nHitsPerLayer;
@@ -98,19 +99,19 @@ class OMTFConfiguration{
   ///Second index: referecne layer number
   static std::vector<std::vector<int> > processorPhiVsRefLayer;
 
-  ///Begin and end local phi for each processor and each reference layer    
-  ///First index: processor number
+  ///Begin and end local phi for each logis region 
+  ///First index: input number
   ///Second index: reference layer number
   ///Third index: region
   ///pair.first: starting phi of region (inclusive)
   ///pair.second: ending phi of region (inclusive)
-  static std::vector<std::vector<std::vector<std::pair<int,int> > > >regionPhisVsRefLayerVsProcessor;
+  static std::vector<std::vector<std::vector<std::pair<int,int> > > >regionPhisVsRefLayerVsInput;
 
   ///Vector with definitions of reference hits
   ///Vector has fixed size of nRefHits
   ///Order of elements defines priority order
   ///First index: processor number (0-5)
-  ///Second index: ref hit number (0-79)
+  ///Second index: ref hit number (0-127)
   static std::vector<std::vector<RefHitDef> > refHitsDefs;
 
   ///Map of connections
@@ -128,18 +129,11 @@ class OMTFConfiguration{
   static vector4D measurements4D;
   static vector4D measurements4Dref;
 
-
-  ///Find number of logic region within a given processor.
-  ///Number is calculated assuming 10 deg wide logic regions
-  ///Global phi scale is assumed at input.
-  static unsigned int getRegionNumber(unsigned int iProcessor,
-				    unsigned int iRefLayer,
-				    int iPhi);
-
-  ///Find logic region number using shifted, 10 bit
-  ///phi values, and commection maps
-  static unsigned int getRegionNumberFromMap(unsigned int iProcessor,
-					     unsigned int iRefLayer,
+  ///Find logic region number using first input number
+  ///and then local phi value. The input and phi
+  ///ranges are taken from DB. 
+  static unsigned int getRegionNumberFromMap(unsigned int iInput,
+					     unsigned int iRefLayer,					     
 					     int iPhi);
   
   ///Check if given referecne hit is
