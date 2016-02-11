@@ -16,12 +16,11 @@
 //#define PEDANTIC_OUTPUT
 
 EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed):
-  //TString smearingFileName, unsigned int genSeed):
   doScale(false), doSmearings(false),
   smearingType_(ECALELF)
 {
   
-  if(correctionFileName.size() > 0) { //Sizeof() > 1){
+  if(correctionFileName.size() > 0) { 
     std::string filename = correctionFileName+"_scales.dat";
     ReadFromFile(filename);
     if(scales.empty()) {
@@ -30,8 +29,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     }
   }
   
-  //if(smearingFileName.Sizeof() > 1) {
-  if(correctionFileName.size() > 0) { //Sizeof() > 1){
+  if(correctionFileName.size() > 0) { 
     std::string filename = correctionFileName+"_smearings.dat";
     ReadSmearingFromFile(filename);
     if(smearings.empty()) {

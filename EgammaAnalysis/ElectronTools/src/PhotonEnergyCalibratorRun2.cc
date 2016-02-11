@@ -29,19 +29,19 @@ void PhotonEnergyCalibratorRun2::calibrate(SimplePhoton &photon, edm::StreamID c
     assert(isMC_ == photon.isMC());
     float smear = 0.0, scale = 1.0;
     float aeta = std::abs(photon.getEta()); //, r9 = photon.getR9();
-//	float et = photon.getNewEnergy()/cosh(aeta);
+    float et = photon.getNewEnergy()/cosh(aeta);
 
-	//scale = _correctionRetriever.ScaleCorrection(photon.getRunNumber(), photon.isEB(), photon.getR9(), aeta, et);
-	smear = _correctionRetriever.getSmearingSigma(photon.getRunNumber(), photon.getNewEnergy(), photon.isEB(), photon.getR9(), aeta); 
-  
+    scale = _correctionRetriever.ScaleCorrection(photon.getRunNumber(), photon.isEB(), photon.getR9(), aeta, et);
+    smear = _correctionRetriever.getSmearingSigma(photon.getRunNumber(), photon.getNewEnergy(), photon.isEB(), photon.getR9(), aeta); 
+    
     double newEcalEnergy, newEcalEnergyError;
     if (isMC_) {
         double corr = 1.0 + smear * gauss(id);
         newEcalEnergy      = photon.getNewEnergy() * corr;
         newEcalEnergyError = std::hypot(photon.getNewEnergyError() * corr, smear * newEcalEnergy);
     } else {
-        newEcalEnergy      = photon.getNewEnergy() / scale;
-        newEcalEnergyError = std::hypot(photon.getNewEnergyError() / scale, smear * newEcalEnergy);
+        newEcalEnergy      = photon.getNewEnergy() * scale;
+        newEcalEnergyError = std::hypot(photon.getNewEnergyError() * scale, smear * newEcalEnergy);
     }
     photon.setNewEnergy(newEcalEnergy); 
     photon.setNewEnergyError(newEcalEnergyError); 
