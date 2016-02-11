@@ -7,6 +7,9 @@
  *
  */
 
+#ifndef L1TRACKTRIGGER_CLASSES_H
+#define L1TRACKTRIGGER_CLASSES_H
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -15,11 +18,13 @@
 
 namespace
 {
-  namespace
-  {
+  struct dictionary1 {
     /// Main template type
     Ref_Phase2TrackerDigi_  PD;
+    std::vector< Ref_Phase2TrackerDigi_ >                              V_PD;
+  };
 
+  struct dictionary2 {
     /// TTCluster and containers
     TTCluster< Ref_Phase2TrackerDigi_ >                                               C_PD;
     std::vector< TTCluster< Ref_Phase2TrackerDigi_ > >                              V_C_PD;
@@ -32,7 +37,9 @@ namespace
     edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                  W_R_C_PD;
     std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                   V_R_C_PD;
     edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > > W_V_R_C_PD;
+  };
 
+  struct dictionary3 {
     /// TTStub and containers
     TTStub< Ref_Phase2TrackerDigi_ >                                               S_PD;
     std::vector< TTStub< Ref_Phase2TrackerDigi_ > >                              V_S_PD;
@@ -45,7 +52,7 @@ namespace
     edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                  W_R_S_PD;
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                   V_R_S_PD;
     edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > > W_V_R_S_PD;
-
-  }
+  };
 }
 
+#endif
