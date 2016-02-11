@@ -3,15 +3,11 @@
 
 #include <ostream>
 #include <vector>
-#include <boost/cstdint.hpp>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 class HcalUHTRhistogramDigiCollection;
 class HcalUHTRhistogramDigi {
 public:
-  typedef HcalDetId key_type; ///< For the sorted collection
-
-  HcalUHTRhistogramDigi(int index, HcalUHTRhistogramDigiCollection& collection);
-  HcalUHTRhistogramDigi(HcalDetId id, HcalUHTRhistogramDigiCollection& collection);
+  HcalUHTRhistogramDigi(size_t index, const HcalUHTRhistogramDigiCollection& collection);
    
   bool separateCapIds() const;
 
@@ -24,28 +20,41 @@ public:
   int getSum(int bin) const;
 
   /// get the array for the specified capid and channel
-  void fillBin(int capid, int bin, uint32_t val);
 
 private:
-  HcalUHTRhistogramDigiCollection& theCollection_;
-  int index_;
+  const HcalUHTRhistogramDigiCollection& theCollection_;
+protected:
+  size_t index_;
 
 };
-//std::ostream& operator<<(std::ostream&, const HcalUHTRhistogramDigi& digi);
 
+class HcalUHTRhistogramDigiMutable :public HcalUHTRhistogramDigi {
+  private:
+    HcalUHTRhistogramDigiCollection& theCollectionMutable_;
+  public:
+    void fillBin(int capid, int bin, uint32_t val);
+    HcalUHTRhistogramDigiMutable(size_t index, HcalUHTRhistogramDigiCollection& collection);
+};
 
 class HcalUHTRhistogramDigiCollection {
 public:
-  const HcalDetId& id(int index);
-  int index(HcalDetId id);
+  static const size_t INVALID = (size_t)-1;
+  const size_t find(HcalDetId id) const;
   bool separateCapIds() const {return separateCapIds_; }
 
-  const HcalUHTRhistogramDigi digi(int index);
-  const HcalUHTRhistogramDigi digi(HcalDetId id);
+  const HcalUHTRhistogramDigi at(size_t index) const;
+  const HcalUHTRhistogramDigi operator[](size_t index) const;
+  HcalUHTRhistogramDigiMutable addHistogram(const HcalDetId& id);
 
-  int getSum(int bin, int index) const;
-  uint32_t get(int capid, int bin, int index) const;
-  void fillBin(int capid, int bin, uint32_t val, HcalDetId id);
+  const size_t size() const { return ids_.size(); }
+
+protected:
+  friend class HcalUHTRhistogramDigi; 
+  friend class HcalUHTRhistogramDigiMutable;
+  const int getSum(int bin, size_t index) const;
+  const uint32_t get(int capid, int bin, size_t index) const;
+  void fillBin(int capid, int bin, uint32_t val, size_t index);
+  const HcalDetId& id(size_t index) const;
 private:
   std::vector<HcalDetId> ids_;
   std::vector<uint32_t> bins_;
