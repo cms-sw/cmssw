@@ -1,18 +1,15 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterIsolatedTrack.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <iostream>
 #include<list>
 #include<vector>
 #include<cmath>
-
-//using namespace edm;
-//using namespace std;
 
 std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ)
 {
@@ -20,44 +17,42 @@ std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP
   double etaEC=100;
   double phiEC=100;
   double Rcurv=pT*33.3*100/38; //r(m)=pT(GeV)*33.3/B(kG)
-  double ecDist=317;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
-  double ecRad=129;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
   double zNew;
-  if (theta>0.5*acos(-1)) theta=acos(-1)-theta;
+  if (theta>CLHEP::halfpi) theta=CLHEP::pi-theta;
   if (fabs(etaIP)<1.479) {
-    deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
-    double alpha1=2*asin(0.5*ecRad/Rcurv);
-    double z=ecRad/tan(theta);
-    if (etaIP>0) zNew=z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-    else  zNew=-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+    deltaPhi=-charge*asin(0.5*ecRad_/Rcurv);
+    double alpha1=2*asin(0.5*ecRad_/Rcurv);
+    double z=ecRad_/tan(theta);
+    if (etaIP>0) zNew=z*(Rcurv*alpha1)/ecRad_+vtxZ; //new z-coordinate of track
+    else  zNew=-z*(Rcurv*alpha1)/ecRad_+vtxZ; //new z-coordinate of track
     double zAbs=fabs(zNew);
-    if (zAbs<ecDist) {
-      etaEC=-log(tan(0.5*atan(ecRad/zAbs)));
-      deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
+    if (zAbs<ecDist_) {
+      etaEC=-log(tan(0.5*atan(ecRad_/zAbs)));
+      deltaPhi=-charge*asin(0.5*ecRad_/Rcurv);
     }
-    if (zAbs>ecDist) {
-      zAbs=(fabs(etaIP)/etaIP)*ecDist;
+    if (zAbs>ecDist_) {
+      zAbs=(fabs(etaIP)/etaIP)*ecDist_;
       double Zflight=fabs(zAbs-vtxZ);
-      double alpha=(Zflight*ecRad)/(z*Rcurv);
+      double alpha=(Zflight*ecRad_)/(z*Rcurv);
       double Rec=2*Rcurv*sin(alpha/2);
       deltaPhi=-charge*alpha/2;
-      etaEC=-log(tan(0.5*atan(Rec/ecDist)));
+      etaEC=-log(tan(0.5*atan(Rec/ecDist_)));
     }
   } else {
-    zNew=(fabs(etaIP)/etaIP)*ecDist;
+    zNew=(fabs(etaIP)/etaIP)*ecDist_;
     double Zflight=fabs(zNew-vtxZ);
     double Rvirt=fabs(Zflight*tan(theta));
     double Rec=2*Rcurv*sin(Rvirt/(2*Rcurv));
     deltaPhi=-(charge)*(Rvirt/(2*Rcurv));
-    etaEC=-log(tan(0.5*atan(Rec/ecDist)));
+    etaEC=-log(tan(0.5*atan(Rec/ecDist_)));
   }
   
   if (zNew<0) etaEC=-etaEC;
   phiEC=phiIP+deltaPhi;
   
-  if (phiEC<-acos(-1)) phiEC=2*acos(-1)+phiEC;
-  if (phiEC>acos(-1)) phiEC=-2*acos(-1)+phiEC;
+  if (phiEC<-CLHEP::pi) phiEC= 2*CLHEP::pi+phiEC;
+  if (phiEC> CLHEP::pi) phiEC=-2*CLHEP::pi+phiEC;
   
   std::pair<double,double> retVal(etaEC,phiEC);
   return retVal;
@@ -66,8 +61,8 @@ std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP
 double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double eta2, double phi2)
 {
   double dR, Rec;
-  if (fabs(eta1)<1.479) Rec=129;
-  else Rec=317;
+  if (fabs(eta1)<1.479) Rec=ecRad_;
+  else                  Rec=ecDist_;
   double ce1=cosh(eta1);
   double ce2=cosh(eta2);
   double te1=tanh(eta1);
@@ -79,32 +74,21 @@ double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double e
   return dR;
 }
 
-PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("ModuleLabel",edm::InputTag("generator","unsmeared")))),
-  MaxSeedEta_(iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3)),
-  MinSeedMom_(iConfig.getUntrackedParameter<double>("MinSeedMom", 20.)),
-  MinIsolTrackMom_(iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0)),
-  IsolCone_(iConfig.getUntrackedParameter<double>("IsolCone", 40.0)),
-  PixelEfficiency_(iConfig.getUntrackedParameter<double>("PixelEfficiency", 0.8))
-{ 
+PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig, const PythiaFilterIsoTracks::Counters* counters) : nAll_(0), nGood_(0), ecDist_(317.0), ecRad_(129.0) {
 
-  // check if the random number generator service was configured
-  if(!rng_.isAvailable()) {
-    throw cms::Exception("Configuration") << "PythiaFilterIsolatedTrack requires the RandomNumberGeneratorService\n";
-  }
+  token_ = consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("ModuleLabel",edm::InputTag("generator","unsmeared")));
+  MaxSeedEta_ = iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3);
+  MinSeedMom_ = iConfig.getUntrackedParameter<double>("MinSeedMom", 20.);
+  MinIsolTrackMom_ = iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0);
+  IsolCone_   = iConfig.getUntrackedParameter<double>("IsolCone", 40.0);
 }
 
-
-PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack()
-{
-}
-
+PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() { }
 
 // ------------ method called to produce the data  ------------
-bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
 
-  CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
-
+  ++nAll_;
   edm::ESHandle<ParticleDataTable> pdt;
   iSetup.getData( pdt );
 
@@ -137,6 +121,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
   }
 
   // loop over all the seeds and see if any of them are isolated
+  unsigned int ntrk(0);
   for(std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
     const HepMC::GenParticle *p1=*it1;
 
@@ -163,16 +148,29 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
       // find out how far apart the particles are
       // if the seed fails the isolation requirement, try a different seed
       // occasionally allow a seed to pass to isolation requirement
-      if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_ &&
-	 engine.flat() < PixelEfficiency_) {
+      if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
 	failsIso=true;
 	break;
       }
     }
 
-    if(!failsIso) return true;
-
+    if(!failsIso) ++ntrk;
   } //loop over seeds
+  if (ntrk>0) {
+    ++nGood_;
+    return true;
+  } else {
+    return false;
+  }
+}
 
-  return false;
+void PythiaFilterIsolatedTrack::endStream() {
+  globalCache()->nAll_  += nAll_;
+  globalCache()->nGood_ += nGood_;
+}
+
+void PythiaFilterIsolatedTrack::globalEndJob(const PythiaFilterIsoTracks::Counters* count) {
+  edm::LogInfo("PythiaFilter") << "PythiaFilterIsolatedTrack::Accepts " 
+			       << count->nGood_ <<" events out of "
+                               << count->nAll_ << std::endl;
 }
