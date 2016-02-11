@@ -1,7 +1,6 @@
 using namespace std;
 
-#include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalUHTRhistogramDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -14,7 +13,7 @@ using namespace std;
   {
 
     tok_raw_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
-    produces<HcalHistogramDigiCollection>();
+    produces<HcalUHTRhistogramDigiCollection>();
   }
 
   // Virtual destructor needed.
@@ -32,7 +31,7 @@ using namespace std;
     es.get<HcalElectronicsMapRcd>().get(item);
 
     const HcalElectronicsMap* readoutMap = item.product();
-    std::auto_ptr<HcalHistogramDigiCollection> hd(new HcalHistogramDigiCollection);
+    std::auto_ptr<HcalUHTRhistogramDigiCollection> hd(new HcalUHTRhistogramDigiCollection);
 
     const FEDRawData& fed = rawraw->FEDData(18);
 

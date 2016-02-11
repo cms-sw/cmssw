@@ -43,3 +43,7 @@ HcalUHTRhistogramDigiMutable HcalUHTRhistogramDigiCollection::addHistogram(const
   return HcalUHTRhistogramDigiMutable( ids_.size()-1, *this );
 }
 HcalUHTRhistogramDigiCollection::HcalUHTRhistogramDigiCollection() {}
+HcalUHTRhistogramDigiCollection::HcalUHTRhistogramDigiCollection(int numBins, bool sepCapIds) {
+  separateCapIds_ = sepCapIds;
+  binsPerHistogram_ = numBins;
+}
