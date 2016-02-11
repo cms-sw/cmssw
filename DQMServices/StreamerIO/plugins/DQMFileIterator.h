@@ -92,6 +92,7 @@ class DQMFileIterator {
   unsigned long delayMillis_;
   long nextLumiTimeoutMillis_;
   long forceFileCheckTimeoutMillis_;
+  bool flagScanOnce_;
 
   // file name position in the json file
   unsigned int datafnPosition_;
