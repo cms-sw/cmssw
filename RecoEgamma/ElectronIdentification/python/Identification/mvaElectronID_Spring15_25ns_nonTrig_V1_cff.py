@@ -77,6 +77,7 @@ MVA_WP80 = EleMVA_6Categories_WP(
     cutCategory5 =  0.726311  # EE        
     )
 
+### WP tuned for HZZ analysis with very high efficiency (about 98%)
 idNameLoose = "mvaEleID-Spring15-25ns-nonTrig-V1-wpLoose"
 MVA_WPLoose = EleMVA_6Categories_WP(
     idName = idNameLoose,
