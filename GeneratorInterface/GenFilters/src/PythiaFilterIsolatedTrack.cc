@@ -124,37 +124,39 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, edm::EventSetup const
   unsigned int ntrk(0);
   for(std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
     const HepMC::GenParticle *p1=*it1;
-
-    std::pair<double,double> EtaPhi1=GetEtaPhiAtEcal(p1->momentum().eta(),
-						     p1->momentum().phi(),
-						     p1->momentum().perp(),
-						     (pdt->particle(p1->pdg_id()))->ID().threeCharge()/3,
-						     0.0);
-
-    // loop over all of the other charged particles in the event, and see if any are close by
-    bool failsIso=false;
-    for(std::vector<const HepMC::GenParticle *>::const_iterator it2=chargedParticles.begin(); it2!=chargedParticles.end(); ++it2) {
-      const HepMC::GenParticle *p2=*it2;
-
-      // don't consider the seed particle among the other charge particles
-      if(p1==p2) continue;
-
-      std::pair<double,double> EtaPhi2=GetEtaPhiAtEcal(p2->momentum().eta(),
-						       p2->momentum().phi(),
-						       p2->momentum().perp(),
-						       (pdt->particle(p2->pdg_id()))->ID().threeCharge()/3,
+    if (p1->pdg_id() < -100 || p1->pdg_id() > 100) { // Select hadrons only
+      std::pair<double,double> EtaPhi1=GetEtaPhiAtEcal(p1->momentum().eta(),
+						       p1->momentum().phi(),
+						       p1->momentum().perp(),
+						       (pdt->particle(p1->pdg_id()))->ID().threeCharge()/3,
 						       0.0);
 
-      // find out how far apart the particles are
-      // if the seed fails the isolation requirement, try a different seed
-      // occasionally allow a seed to pass to isolation requirement
-      if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
-	failsIso=true;
-	break;
-      }
-    }
+      // loop over all of the other charged particles in the event, and see if any are close by
+      bool failsIso=false;
+      for(std::vector<const HepMC::GenParticle *>::const_iterator it2=chargedParticles.begin(); it2!=chargedParticles.end(); ++it2) {
+	const HepMC::GenParticle *p2=*it2;
 
-    if(!failsIso) ++ntrk;
+	// don't consider the seed particle among the other charge particles
+	if (p1!=p2) {
+
+	  std::pair<double,double> EtaPhi2=GetEtaPhiAtEcal(p2->momentum().eta(),
+							   p2->momentum().phi(),
+							   p2->momentum().perp(),
+							   (pdt->particle(p2->pdg_id()))->ID().threeCharge()/3,
+							   0.0);
+	  
+	  // find out how far apart the particles are
+	  // if the seed fails the isolation requirement, try a different seed
+	  // occasionally allow a seed to pass to isolation requirement
+	  if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
+	    failsIso=true;
+	    break;
+	  }
+	}
+      }
+
+      if (!failsIso) ++ntrk;
+    }
   } //loop over seeds
   if (ntrk>0) {
     ++nGood_;
