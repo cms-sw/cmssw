@@ -27,7 +27,8 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
         #                                "file:/afs/cern.ch/work/r/richard/public/PbPb_RECODEBUG.root",
-        "file:step3_hi_mc.root",
+#        "file:step3_hi_mc.root",
+        "file:/data_CMS/cms/mnguyen/step3_RAW2DIGI_L1Reco_RECO_99.root"
                                 )
                             )
 
