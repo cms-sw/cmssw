@@ -53,6 +53,7 @@ class TrackingRecHitStripGSSmearingPlugin:
         {
             for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {
+		std::cout << "A " << std::endl;
                 const PSimHit* simHit = simHitIdPair.second;
                 const Local3DPoint& simHitPosition = simHit->localPosition();
                 
@@ -63,13 +64,13 @@ class TrackingRecHitStripGSSmearingPlugin:
                 const double boundY = bounds.length()/2.;
                 
                 Local3DPoint recHitPosition;
-                do
+                //do
                 {
                     recHitPosition = Local3DPoint(this->getRandomEngine().gaussShoot(simHitPosition.x(),_resolutionX),0.0,0.0);
                     //TODO: this will skip the check if the smeared hit is inside the module - currently some SimHits are outside for no good reason
-                    break;
+                    //break;
                 }
-                while (not bounds.inside(recHitPosition));
+                //while (not bounds.inside(recHitPosition));
                 
                 LocalError error(
                     //xx (variance)
@@ -86,6 +87,7 @@ class TrackingRecHitStripGSSmearingPlugin:
                     *geomDet,         //GeomDet const &idet
 		            fastTrackerRecHitType::siStrip1D
 	            );
+		std::cout << "B " << std::endl;
                 product->addRecHit(recHit,{simHitIdPair});
             }
             return product;

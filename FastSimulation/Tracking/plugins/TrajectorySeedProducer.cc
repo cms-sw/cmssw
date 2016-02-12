@@ -238,6 +238,8 @@ void
     TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) 
 {        
 
+    std::cout << "########### new it" << std::endl;
+
     // services
     edm::ESHandle<MagneticField> magneticFieldHandle;
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -360,6 +362,7 @@ void
 							    seedHits.size() >=4 ? &seedHits[3] : nullptr));
 	    }
 	}
+    std::cout << "number of seeds" << output->size() << std::endl;
     e.put(std::move(output));
 
 }

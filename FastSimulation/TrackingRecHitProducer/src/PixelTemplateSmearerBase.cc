@@ -53,7 +53,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
   pset_(config),   // &&& obviously now a duplicate of a base class variable
   thePixelPart(GeomDetEnumerators::PixelBarrel)  // default.  Derived classes will fix it.
 {
-  std::cout << "PixelTemplateSmearerBase"<< std::endl;
+  //  std::cout << "PixelTemplateSmearerBase"<< std::endl;
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset_.getParameter<bool>("UseCMSSWPixelParametrization");
   //--- Check whether we're merging hits or not
@@ -68,7 +68,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
 //------------------------------------------------------------------------------
 PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 {
-  std::cout << "P ~PixelTemplateSmearerBase"<< std::endl;
+  //  std::cout << "P ~PixelTemplateSmearerBase"<< std::endl;
   std::map<unsigned,const SimpleHistogramGenerator*>::const_iterator it;
   for ( it=theXHistos.begin(); it!=theXHistos.end(); ++it )
     delete it->second;
@@ -78,7 +78,7 @@ PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
   theXHistos.clear();
   theYHistos.clear();
 
-  std::cout << "end P ~PixelTemplateSmearerBase"<< std::endl;
+  //  std::cout << "end P ~PixelTemplateSmearerBase"<< std::endl;
 }
 
 
@@ -100,6 +100,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   std::vector<std::pair<unsigned int,const PSimHit*>> & simHitIdPairs = product->getSimHitIdPairs();
   //this needs to be changed - the pair should be propagated to the 'addRecHit' method  instead 
   std::vector<const PSimHit*> simHits(simHitIdPairs.size());
+  std::cout << "simhitidpairs size: " << simHitIdPairs.size() << std::endl;
   for (unsigned int ihit = 0; ihit<simHitIdPairs.size();++ihit)
   {
     simHits[ihit]=simHitIdPairs[ihit].second;
@@ -130,7 +131,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   int nHits = simHits.size();                       //  Number of hits on this DetUnit
   MergeGroup* mergeGroupByHit[ nHits ];             // fixed size array, 0 if hit is unmerged
 
-  
+  std::cout << "nHits: " << nHits << std::endl;
   //--- Check special cases (nHits = 0 or 1), and finish them off first.
   //
   if ( nHits == 0 ) {
@@ -145,7 +146,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     //--- The usual case.  More than one hit on this DetUnit.
     //    Iterate over hits.
     //
-    std::cout << "Merge Hits On!" << std::endl;
+      //    std::cout << "Merge Hits On!" << std::endl;
     for (int i = 0; i < nHits; ++i ) {
       mergeGroupByHit[i] = 0; //initialize this cell to a NULL pointer here      
     }
@@ -160,32 +161,53 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	
 	//--- Decide what to do about these two hits.
 	if ( merged ) {
+	  //std::cout << "hit " << i << " is merged with " << j << std::endl;
 	  // First, check if the other guy (j) is in some merge group already
 	  if ( mergeGroupByHit[j] != 0 ) {
+	    //   std::cout << "mgbh " << j << " already has a merge group " << mergeGroupByHit[j] << std::endl;
 	    // It is... use it.
 	    if (mergeGroupByHit[i] == 0 ) {
+	      //std::cout << "adding hit " << i << " to merge group " << j << std::endl;
 	         mergeGroupByHit[i] = mergeGroupByHit[j];          // use the same MG
-	         mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there}
+	         mergeGroupByHit[i]->group.push_back( simHits[i] );      // save i in there}
+		 mergeGroupByHit[i]->smearIt = 1;
 	    }
 	    else{
-	      // Step 1: iterate over mgbh[j], append each hit to mgbh[i]                                                             
-              for ( int k = 0; k < (int)(sizeof(mergeGroupByHit[j])); ++k ) {
-		mergeGroupByHit[i]->push_back( mergeGroupByHit[j]->at(k) );  // copy simHit ptr from j to i
+	      // Step 1: iterate over mgbh[j], append each hit to mgbh[i]                            
+	      if (mergeGroupByHit[i] != mergeGroupByHit[j]){
+		//std::cout << "we found the special case - both hit " << i << " and hit " << j << " already have merge groups" << std::endl;
+		//std::cout << "mgbh " << i << " : " << mergeGroupByHit[i] << std::endl;
+		//std::cout << "mgbh " << j << " : " << mergeGroupByHit[j] << std::endl;
+		for (std::vector<const PSimHit*>::iterator 
+			 hit_it = mergeGroupByHit[j]->group.begin(), 
+			 hit_end = mergeGroupByHit[j]->group.end(); 
+		       hit_it !=hit_end; 
+		       ++hit_it) {
+		  //std::cout << "pushing back all the hits from " << mergeGroupByHit[j] << " to merge group " << mergeGroupByHit[i] << std::endl;
+		mergeGroupByHit[i]->group.push_back( *hit_it );
+		mergeGroupByHit[i]->smearIt = 1;
+		
+// copy simHit ptr from j to i
               }
 
               // Step 2: iterate over all hits, replace mgbh[j] by mgbh[i] (so that nobody points to i)                               
               MergeGroup * mgbhj = mergeGroupByHit[j];  // save it                                                                   
               for ( int k = 0; k < nHits; ++k ) {
+		if (k != j) {
                 if ( mgbhj == mergeGroupByHit[k] ) {
                   // Hit k also uses the same merge group, tell them to switch to mgbh[i]                                             
                   mergeGroupByHit[k] = mergeGroupByHit[i];
                 }
+		}
               }
+	      mergeGroupByHit[j]->smearIt = 0;
+	      mergeGroupByHit[i]->smearIt = 1;
 
               //  Step 3 would have been to delete mgbh[j]... however, we'll do that at the end anyway.                              
               //  The key was to prevent mgbh[j] from being accessed further, and we have done that,                                 
               //  since now no mergeGroupByHit[] points to mgbhj any more.  Note that the above loop                                
               //  also set mergeGroupByHit[i] = mergeGroupByHit[j], too. 
+	      }
 	    }
 	  }
 	  else { 
@@ -196,17 +218,18 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	      // other hit.  Create a new merge group for i and j
 	      mergeGroupByHit[i] = new MergeGroup();
 	      listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
+	      //std::cout << "new merge group " << mergeGroupByHit[i] << std::endl;
 	      //
 	      // Add hit i as the first to its own merge group
 	      // (simHits[i] is a const pointer to PSimHit).
-	      std::cout << "ALICE: simHits" << simHits[i] << std::endl;
-	      mergeGroupByHit[i]->push_back( simHits[i] );
+	      //std::cout << "ALICE: simHits" << simHits[i] << std::endl;
+	      mergeGroupByHit[i]->group.push_back( simHits[i] );
+	      mergeGroupByHit[i]->smearIt = 1;
 	    }
 	    //--- Add hit j as well
-	    mergeGroupByHit[i]->push_back( simHits[j] );
+	    mergeGroupByHit[i]->group.push_back( simHits[j] );
+	    mergeGroupByHit[i]->smearIt = 1;
 	    //	    for( int k = 0 ; k < (int)(sizeof(mergeGroupByHit[i])); ++k ) {
-	      std::cout << "ALICE: *mergeGroupByHit = " << *(mergeGroupByHit[i]->at(0))<<" " << std::endl;
-	      std::cout << "ALICE: mergeGroupByHit = " << mergeGroupByHit[i]->at(0)<<" " << std::endl;
 	      // }
 	    //
 	    //--- Mark that hit j is a part of the same merge group.  This
@@ -236,7 +259,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
      } //--- end of loop over i
     }// --- end of if (mergeHitsOn)
     else{
-      std::cout << "Merged Hits Off!" << std::endl;
+      //      std::cout << "Merged Hits Off!" << std::endl;
       //Now we've turned off hit merging, so all hits should be pushed
       //back to listOfUnmergedHits
       for (int i = 0; i < nHits; ++i ) {
@@ -286,10 +309,10 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
 							   const double boundY,
 							   RandomEngineAndDistribution const* random)  const
 {
-  std::cout << "P smearHit"<< std::endl;
+  //  std::cout << "P smearHit"<< std::endl;
   #ifdef FAMOS_DEBUG
-  std::cout << " Pixel smearing in " << thePixelPart 
-	    << std::endl;
+  //std::cout << " Pixel smearing in " << thePixelPart 
+  //	    << std::endl;
   #endif
   //
   // at the beginning the position is the Local Point in the local pixel module reference frame
@@ -298,11 +321,12 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
+  std::cout << "Local momentum for simhit: " << locx << " and " << locy << " and " << locz << std::endl;
   // alpha: angle with respect to local x axis in local (x,z) plane
   float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
     #ifdef FAMOS_DEBUG
-    std::cout << " isFlipped " << std::endl;
+    //std::cout << " isFlipped " << std::endl;
     #endif
   }
   // beta: angle with respect to local y axis in local (y,z) plane
@@ -327,10 +351,10 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   
  
   #ifdef FAMOS_DEBUG
-  std::cout << " Local Direction " << simHit.localDirection()
-	    << " cotalpha(x) = " << cotalpha
-	    << " cotbeta(y) = "  << cotbeta
-	    << std::endl;
+  //std::cout << " Local Direction " << simHit.localDirection()
+  //	    << " cotalpha(x) = " << cotalpha
+  //	    << " cotbeta(y) = "  << cotbeta
+  //	    << std::endl;
   #endif
   
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
@@ -344,20 +368,21 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   const MeasurementPoint mp = rectPixelTopology->measurementPosition( lp );
   float mpy = mp.y();
   float mpx = mp.x();
+  std::cout << "Simhit measurement: " << mpx << " and " << mpy << std::endl;
   //Get the center of the struck pixel in measurement position
   float pixelCenterY = 0.5 + (int)mpy;
   float pixelCenterX = 0.5 + (int)mpx;
   #ifdef FAMOS_DEBUG
-  cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
+  //cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
   #endif
 
   const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
   //Transform the center of the struck pixel back into local position
   const Local3DPoint lpCenter = rectPixelTopology->localPosition( mpCenter );
   #ifdef FAMOS_DEBUG
-  cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
-  cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
-  cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
+  //cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
+  //cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
+  //cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
   #endif
 
   //Get the relative position of struck point to the center of the struck pixel
@@ -554,10 +579,10 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   // as for resolution matrix
   //
   #ifdef FAMOS_DEBUG
-  std::cout << " Pixel Errors "
-	    << "\talpha(x) = " << theErrorX
-	    << "\tbeta(y) = "  << theErrorY
-	    << std::endl;	
+  //std::cout << " Pixel Errors "
+  //	    << "\talpha(x) = " << theErrorX
+  //	    << "\tbeta(y) = "  << theErrorY
+  //	    << std::endl;	
   #endif
   // Generate position
   // get resolution histograms
@@ -669,14 +694,13 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
                    simHit.localPosition().y() + thePositionY , 
                    simHit.localPosition().z() + thePositionZ );
     #ifdef FAMOS_DEBUG
-    std::cout << " Detector bounds: "
+    /* std::cout << " Detector bounds: "
               << "\t\tx = " << boundX
               << "\ty = " << boundY
               << std::endl;
     std::cout << " Generated local position "
               << "\tx = " << thePosition.x()
-              << "\ty = " << thePosition.y()
-              << std::endl;       
+              << "\ty = " << thePosition        << std::endl; */      
     #endif  
     counter++;
     if(counter > 20) {
@@ -689,10 +713,13 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
       break;
     }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
-  std::cout << "end P smearHit"<< std::endl;
+  //std::cout << "end P smearHit"<< std::endl;
 
   //--- We now have everything to make a FastSingleTrackerRecHit
   //
+  std::cout << "RecHit position: " << thePosition.x() << " and " << thePosition.y() << " and " << thePosition.z() << std::endl;
+  std::cout << "RecHit error: " << theError << std::endl;
+  //std::cout << "*detUnit: " << *detUnit << std::endl;
   FastSingleTrackerRecHit recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
 				  theError,    //const LocalError &
 				  *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
@@ -717,10 +744,13 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
   //--- Iterate over unmergedHits vector, and call smearHit() for each
   //    dereferenced iterator. 
   //
+  int nRecHits = 0;
   for (const PSimHit* simHit : unmergedHits) {
     FastSingleTrackerRecHit recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
     product->addRecHit( recHit ,{simHit});
+    nRecHits += 1;
   }
+  std::cout << "number rec hits: " << nRecHits << std::endl;
   return product;
 }
 
@@ -743,8 +773,15 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 	mg_it != mg_end;
 	++mg_it ) {
     //
+    //    std::cout << (*mg_it)->smearIt << " bool before processing" << std::endl;
+    if ((*mg_it)->smearIt){
+      //  std::cout << "processing merge group " << *mg_it << std::endl;    
     FastSingleTrackerRecHit recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
-    product->addRecHit( recHit, **mg_it);
+    product->addRecHit( recHit, (*mg_it)->group);
+    }
+    //    else{
+      //      std::cout << "not processing merge group " << *mg_it << std::endl;
+    //}
   }
   return product;
 }
@@ -761,33 +798,45 @@ smearMergeGroup( MergeGroup* mg,
 		 ) const 
 {
 
-  //getting simhits out of merge group
-  //for ( int k = 0; k < (int)(sizeof(mergeGroupByHit[j])); ++k ){
-    const PSimHit simHit1 = *(mg->at(0));
-    const PSimHit simHit2 = *(mg->at(1));
-    //     }
-  //
-  // at the beginning the position is the Local Point in the local pixel module reference frame
-  // same code as in PixelCPEBase
-  LocalVector localDir1 = simHit1.momentumAtEntry().unit();
-  float locx1 = localDir1.x();
-  float locy1 = localDir1.y();
-  float locz1 = localDir1.z();
+    float loccx = 0;
+    float loccy = 0;
+    float loccz = 0;
+    float nHit = 0;
+    float locpx = 0;
+    float locpy = 0;
+    float locpz = 0;
 
-  LocalVector localDir2 = simHit2.momentumAtEntry().unit();
-  float locx2 = localDir2.x();
-  float locy2 = localDir2.y();
-  float locz2 = localDir2.z();
-
-  float locx = 0.5*(locx1 + locx2);
-  float locy = 0.5*(locy1 + locy2);
-  float locz = 0.5*(locz1 + locz2);
+    for (std::vector<const PSimHit*>::iterator 
+    	   hit_it = mg->group.begin(), 
+    	   hit_end = mg->group.end(); 
+    	   hit_it !=hit_end; 
+    	 ++hit_it) {
+      //save hit_it as a PSimHit, must be dereferenced twice because mg is pointer
+      //to array of pointers
+       const PSimHit simHit = **hit_it; 
+       //getting local momentum and adding all of the hits' momentums up
+      LocalVector localDir = simHit.momentumAtEntry().unit();
+      loccx += localDir.x();
+      loccy += localDir.y();
+      loccz += localDir.z();
+      //getting local position and adding all of the hits' positions up
+      const Local3DPoint lpos = simHit.localPosition();
+      locpx += lpos.x();
+      locpy += lpos.y();
+      locpz += lpos.z();
+      //counting how many sim hits are in the merge group
+      nHit += 1;
+     }
+    //averaging the momentums by diving momentums added up/number of hits
+  float locx = loccx/nHit;
+  float locy = loccy/nHit;
+  float locz = loccz/nHit;
 
   // alpha: angle with respect to local x axis in local (x,z) plane
   float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
     #ifdef FAMOS_DEBUG
-    std::cout << " isFlipped " << std::endl;
+    //std::cout << " isFlipped " << std::endl;
     #endif
   }
   // beta: angle with respect to local y axis in local (y,z) plane
@@ -824,17 +873,9 @@ smearMergeGroup( MergeGroup* mg,
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();
   */
-  const Local3DPoint lpos1 = simHit1.localPosition();
-  const Local3DPoint lpos2 = simHit2.localPosition(); 
-  float lposy1 = lpos1.y();
-  float lposx1 = lpos1.x();
-  float lposy2 = lpos2.y();
-  float lposx2 = lpos2.x();
-  float lposz1 = lpos1.z();
-  float lposz2 = lpos2.z();
-  float lpx = 0.5*(lposx1 + lposx2);
-  float lpy = 0.5*(lposy1 + lposy2);
-  float lpz = 0.5*(lposz1 + lposz2);
+  float lpx = locpx/nHit;
+  float lpy = locpy/nHit;
+  float lpz = locpz/nHit;
   /*//Transform local position to measurement position
   const MeasurementPoint mp = rectPixelTopology->measurementPosition( lp );
   float mpy = mp.y();
@@ -1154,7 +1195,7 @@ smearMergeGroup( MergeGroup* mg,
       break;
     }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
-  std::cout << "end P smearHit"<< std::endl;
+  // std::cout << "end P smearHit"<< std::endl;
 
   //--- We now have everything to make a FastSingleTrackerRecHit
   //
@@ -1217,8 +1258,8 @@ bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& s
   float lpx2 = lp2.x();
   float locdis = 10000.* sqrt(pow(lpx1 - lpx2, 2) + pow(lpy1 - lpy2, 2));
 
-  std::cout << "cotbeta local x1 local y1 local x2 local y2 local eta local distance" << std::endl;
-  std::cout << cotbeta << " " << lpx1 << " " << lpy1 << " " << lpx2 << " " << lpy2 << " " << loceta << " " << locdis << std::endl;
+  //  std::cout << "cotbeta local x1 local y1 local x2 local y2 local eta local distance" << std::endl;
+  //std::cout << cotbeta << " " << lpx1 << " " << lpy1 << " " << lpx2 << " " << lpy2 << " " << loceta << " " << locdis << std::endl;
  
   //assigning probability file based on location (barrel or forward)
   //  if( isForward ) {
@@ -1230,12 +1271,13 @@ bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& s
   TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
   float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
   //assinging random probability between 0 and 1
-  float randprob = ((double) rand() / (RAND_MAX));
+  //float randprob = ((double) rand() / (RAND_MAX));
   
-  std::cout << "probability of merging: " << prob << " and assigned probability: " << randprob << std::endl;
+  //  std::cout << "probability of merging: " << prob << " and assigned probability: " << randprob << std::endl;
   
   //returning true if random probability is less than calculated, returning false if its more than calculated
-  if (randprob <= prob) return true;
+  //  if (randprob <= prob) return true;
+  if (prob > 0) return true;
   else return false;
 }
 
@@ -1253,12 +1295,12 @@ bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& s
 // better way.(PJ: And faster!)
 //-----------------------------------------------------------------------------
 bool PixelTemplateSmearerBase::isFlipped(const PixelGeomDetUnit* theDet) const {
-  std::cout << "P isFlipped"<< std::endl;
+  //std::cout << "P isFlipped"<< std::endl;
  // Check the relative position of the local +/- z in global coordinates.
   float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
   float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
   //  std::cout << " 1: " << tmp1 << " 2: " << tmp2 << std::endl;
-  std::cout << "end P isFlipped"<< std::endl;
+  //std::cout << "end P isFlipped"<< std::endl;
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }

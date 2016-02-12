@@ -13,6 +13,14 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
+#include "FastSimulation/Tracking/interface/FastTrackerRecHitSplitter.h"
+
+#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 class FastTrackerRecHitCombiner : public edm::stream::EDProducer<> {
     public:
@@ -79,6 +87,23 @@ void
 	    currentCombination.clear();
 	}
     }
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
+    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
+
+    //ALICE trying to debug and look at the maps
+    for(auto recHitCombination : *output){
+      std::cout << "Going through outputs..." << std::endl;
+      for(auto hit : recHitCombination){
+	std::cout << "simTrackId: " << hit->simTrackId(0) << std::endl;
+	TrajectorySeedHitCandidate currentTrackerHit;
+	currentTrackerHit = TrajectorySeedHitCandidate(hit.get(),trackerGeometry,trackerTopology);
+	std::cout << "Global position: " << currentTrackerHit.globalPosition() << " " << hit->rtti() << std::endl;
+      }
+    }       
 
     // put output in event
     iEvent.put(std::move(output));
