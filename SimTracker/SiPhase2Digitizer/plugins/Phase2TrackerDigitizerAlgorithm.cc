@@ -6,7 +6,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"

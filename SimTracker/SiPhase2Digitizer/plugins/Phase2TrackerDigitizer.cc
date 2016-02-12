@@ -16,13 +16,13 @@
 #include <memory>
 #include <set>
 #include <iostream>
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizer.h"
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/SSDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PSSDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PSPDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PixelDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/DigitizerUtility.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizer.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/SSDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/PSSDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/PSPDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"

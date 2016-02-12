@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
 
-#include "SimTracker/SiPhase2Digitizer/interface/PSSDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/PSSDigitizerAlgorithm.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 
