@@ -62,8 +62,8 @@
    <version ClassVersion="11" checksum="3351458717"/>
    <version ClassVersion="10" checksum="1112210423"/>
   </class>
-  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="13">
-   <version ClassVersion="16" checksum="1673531968"/>
+  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="14">
+   <version ClassVersion="14" checksum="1673531968"/>
    <version ClassVersion="13" checksum="1672519577"/>
    <version ClassVersion="12" checksum="2301242282"/>
   </class>

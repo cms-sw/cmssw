@@ -111,6 +111,9 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " L/" << fobs[ifob]->l1ttauSize()
        << " M/" << fobs[ifob]->l1tetsumSize()
        << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size() 
+       << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
      product->addFilterObject(tag,*fobs[ifob]);
    }
 

@@ -167,6 +167,11 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
   if (m_isDebugEnabled) {
         dumpTriggerFilterObjectWithRefs(filterproduct);
   }
+
+  LogTrace("HLTL1TSeed")
+  << "HLTL1Seed::hltFilter(..., trigger::TriggerFilterObjectWithRefs & filterproduct)"
+  << "\n\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size() 
+  << "\n\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
   return rc;
 
 }
