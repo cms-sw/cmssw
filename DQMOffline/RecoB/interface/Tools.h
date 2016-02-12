@@ -8,6 +8,7 @@
 #define Tools_H
 
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TArrayF.h"
 #include "TObjArray.h"
 #include "TCanvas.h"
@@ -49,6 +50,8 @@ namespace RecoBTag {
   int  checkCreateDirectory ( const std::string& ) ;
 
   int findBinClosestYValue ( const TH1F * , const float& yVal , const float& yLow , const float& yHigh ) ;
+
+  std::vector<int> findBinClosestYValueAtFixedZ ( const TH2F * , const float& yVal , const float& yLow , const float& yHigh, const TH2F *, const std::vector<double>& zVal) ;
 
   TStyle* setTDRStyle();
 
