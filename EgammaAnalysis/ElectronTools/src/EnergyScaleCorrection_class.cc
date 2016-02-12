@@ -211,7 +211,7 @@ void EnergyScaleCorrection_class::AddScale(TString category_, int runMin_, int r
 
 //============================== SMEARING
 void EnergyScaleCorrection_class::AddSmearing(TString category_, int runMin_, int runMax_,
-					      double constTerm, double err_constTerm, double alpha, double err_alpha,
+					      double rho, double err_rho, double phi, double err_phi,
 					      double Emean, double err_Emean)
 {
   
@@ -227,10 +227,10 @@ void EnergyScaleCorrection_class::AddSmearing(TString category_, int runMin_, in
   }
   
   correctionValue_class corr;
-  corr.constTerm    = constTerm;
-  corr.constTerm_err = err_constTerm;
-  corr.alpha        = alpha;
-  corr.alpha_err    = err_alpha;
+  corr.rho    = rho;
+  corr.rho_err = err_rho;
+  corr.phi        = phi;
+  corr.phi_err    = err_phi;
   corr.Emean        = Emean;
   corr.Emean_err    = err_Emean;
   smearings[cat] = corr;
@@ -294,78 +294,40 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
     }
     
     if(smearingType_ == UNKNOWN) { // trying to guess: not recommended
-      std::string line;
-      std::getline(f_in, line);
-      std::istringstream s_in(line);
-      s_in >> category >> unused >> etaMin >> etaMax
-	   >> r9Min >> r9Max >> runMin >> runMax
-	   >> Emean >> err_Emean
-	   >> rho >> err_rho >> phi >> err_phi;
-      if(s_in.eof()) { // this is not the globe format but the ECALELF format for tests
-	std::cout << "[INFO] smearingType_=ECALELF TOY" << std::endl;
-	smearingType_ = ECALELF_TOY;
-	s_in >> category >> constTerm >> alpha;
-	AddSmearing(category, runMin, runMax, constTerm,  err_constTerm, alpha, err_alpha, Emean, err_Emean);
-      } else {
-	smearingType_ = GLOBE;
-	std::cout << "[INFO] smearingType= GLOBE" << std::endl;
-	if(Emean != 0) {
-	  constTerm = rho * sin(phi);
-	  alpha = rho * Emean * cos(phi);
-	} else {
-	  alpha = 0;
-	  constTerm = rho;
-	}
-	
-	AddSmearing(category, runMin, runMax, constTerm,  err_constTerm, alpha, err_alpha, Emean, err_Emean);
-	
-      }
+		std::cerr << "[ERROR] Not implemented" << std::endl;
+		assert(false);
+		
     } else if(smearingType_ == GLOBE) {
-      f_in >> category >> unused >> etaMin >> etaMax >> r9Min >> r9Max >> runMin >> runMax >>
-	Emean >> err_Emean >>
-	rho >> err_rho >> phi >> err_phi;
-      if(Emean != 0) {
-	constTerm = rho * sin(phi);
-	alpha = rho * Emean * cos(phi);
-      } else {
-	alpha = 0;
-	constTerm = rho;
-      }
+		f_in >> category >> unused >> etaMin >> etaMax >> r9Min >> r9Max >> runMin >> runMax >>
+			Emean >> err_Emean >>
+			rho >> err_rho >> phi >> err_phi;
+
+		AddSmearing(category, runMin, runMax, rho,  err_rho, phi, err_phi, Emean, err_Emean);
       
-      AddSmearing(category, runMin, runMax, constTerm,  err_constTerm, alpha, err_alpha, Emean, err_Emean);
     } else if(smearingType_ == ECALELF) {
-      f_in >> category >> 
-	Emean >> err_Emean >>
-	rho >> err_rho >> phi_string >> err_phi_string;
+		f_in >> category >> 
+			Emean >> err_Emean >>
+			rho >> err_rho >> phi_string >> err_phi_string;
 #ifdef DEBUG
-      std::cout << category 
-	//<< "\t" << etaMin << "\t" << etaMax << "\t" << r9Min << "\t" << r9Max << "\t" << runMin << "\t" << runMax 
-		<< "\tEmean=" << Emean << "\t" 
-		<< rho << "\t" << err_rho << "\tphi_string=" 
-		<< phi_string << "#\terr_phi_string=" << err_phi_string << std::endl;
+		std::cout << category 
+			//<< "\t" << etaMin << "\t" << etaMax << "\t" << r9Min << "\t" << r9Max << "\t" << runMin << "\t" << runMax 
+				  << "\tEmean=" << Emean << "\t" 
+				  << rho << "\t" << err_rho << "\tphi_string=" 
+				  << phi_string << "#\terr_phi_string=" << err_phi_string << std::endl;
 #endif
-      
+		
       if(phi_string=="M_PI_2") phi=M_PI_2;
       else phi = std::stod(phi_string);
       
       if(err_phi_string=="M_PI_2") err_phi=M_PI_2;
       else err_phi = std::stod(err_phi_string);
       
-      if(Emean != 0) {
-	constTerm = rho * sin(phi);
-	alpha = rho * Emean * cos(phi);
-      } else {
-	alpha = 0;
-	err_alpha = 0; ///\todo to be fixed Emean should always be !=0 in order to get the proper propagation
-	constTerm = rho;
-	err_constTerm = err_rho;
-      }
       
-      AddSmearing(category, runMin, runMax, constTerm,  err_constTerm, alpha, err_alpha, Emean, err_Emean);
+      AddSmearing(category, runMin, runMax, rho,  err_rho, phi, err_phi, Emean, err_Emean);
       
     } else {
-      f_in >> category >> constTerm >> alpha;
-      AddSmearing(category, runMin, runMax, constTerm,  err_constTerm, alpha, err_alpha, Emean, err_Emean);
+      f_in >> category >> rho >> phi;
+      AddSmearing(category, runMin, runMax, rho,  err_rho, phi, err_phi, Emean, err_Emean);
     }
 #ifdef DEBUG
     std::cout << category << "\t" << etaMin << "\t" << etaMax << "\t" << r9Min << "\t" << r9Max << "\t" << runMin << "\t" << runMax << "\tEmean=" << Emean << "\t" << rho << "\t" << phi << std::endl;
@@ -404,9 +366,13 @@ float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy,
 	    << std::endl
 	    << "        given for category " <<  corr_itr->first;
 #endif
-  
-  double constTerm = corr_itr->second.constTerm;
-  double alpha = corr_itr->second.alpha;
+
+  double rho = (par == kRho) ? corr_itr->rho + rho_err *nSigma : corr_itr->rho;
+  double phi = (par == kPhi) ? corr_itr->phi + phi_err *nSigma : corr_itr->phi;
+
+  double constTerm =  rho * sin(phi);
+  double alpha =  rho *  corr_itr->Emean * cos( phi);
+
   return sqrt(constTerm * constTerm + alpha * alpha / (energy / cosh(etaSCEle)));
   
 }
@@ -424,12 +390,7 @@ float EnergyScaleCorrection_class::getSmearingRho(int runNumber, float energy, b
     corr_itr = smearings_not_defined.find(category);
   }
   
-  double constTerm = corr_itr->second.constTerm;
-  double alpha = (corr_itr->second.Emean == 0) ? 0 : corr_itr->second.alpha / corr_itr->second.Emean;
-  
-  //std::cout << (*corr_itr).second << std::endl;
-  return sqrt(constTerm * constTerm + alpha * alpha); ///< return rho; alpha is already scaled by Emean!
-  
+  return corr_itr->rho;
 }
 
 bool correctionCategory_class::operator<(const correctionCategory_class& b) const
