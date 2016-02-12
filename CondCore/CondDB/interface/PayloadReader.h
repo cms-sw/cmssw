@@ -23,8 +23,7 @@ namespace cond {
     class PayloadReader {
     public:
 
-      //static constexpr const char* const PRODUCTION_DB = "oracle://cms_orcon_adg/CMS_CONDITIONS";
-      static constexpr const char* const PRODUCTION_DB = "oracle://cms_orcoff_prep/CMS_CONDITIONS_002";
+      static constexpr const char* const PRODUCTION_DB = "oracle://cms_orcon_adg/CMS_CONDITIONS";
 
     public:
 
