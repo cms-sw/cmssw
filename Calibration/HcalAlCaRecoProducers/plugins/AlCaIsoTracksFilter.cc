@@ -198,9 +198,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 			   << iEvent.bunchCrossing();
 
   //Step1: Find if the event passes one of the chosen triggers
-  bool ok(false);
+  bool triggerSatisfied(false);
   if (trigNames_.size() == 0) {
-    ok = true;
+    triggerSatisfied = true;
   } else {
     trigger::TriggerEvent triggerEvent;
     edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -222,11 +222,11 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 	  int hlt    = triggerResults->accept(iHLT);
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
 	    if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
-	      if (hlt > 0) ok = true;
+	      if (hlt > 0) triggerSatisfied = true;
 	      LogDebug("HcalIsoTrack") << triggerNames_[iHLT] 
 				       << " has got HLT flag " << hlt 
-				       << ":" << ok;
-	      if (ok) break;
+				       << ":" << triggerSatisfied;
+	      if (triggerSatisfied) break;
 	    }
 	  }
 	}
@@ -235,7 +235,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
   }
 
   //Step2: Get geometry/B-field information
-  if (ok) {
+  if (triggerSatisfied) {
     //Get magnetic field
     edm::ESHandle<MagneticField> bFieldH;
     iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -246,13 +246,13 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     const CaloGeometry* geo = pG.product();
   
     //Also relevant information to extrapolate tracks to Hcal surface
-    bool okC(true);
+    bool foundCollections(true);
     //Get track collection
     edm::Handle<reco::TrackCollection> trkCollection;
     iEvent.getByToken(tok_genTrack_, trkCollection);
     if (!trkCollection.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-      okC = false;
+      foundCollections = false;
     }
     reco::TrackCollection::const_iterator trkItr;
 
@@ -275,24 +275,24 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
     if (!barrelRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
-      okC = false;
+      foundCollections = false;
     }
     edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
     iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
     if (!endcapRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
-      okC = false;
+      foundCollections = false;
     }
     edm::Handle<HBHERecHitCollection> hbhe;
     iEvent.getByToken(tok_hbhe_, hbhe);
     if (!hbhe.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
-      okC = false;
+      foundCollections = false;
     }
 	  
     //Step3 propagate the tracks to calorimeter surface and find
     // candidates for isolated tracks
-    if (okC) {
+    if (foundCollections) {
       //Propagate tracks to calorimeter surface)
       std::vector<spr::propagatedTrackDirection> trkCaloDirections;
       spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
