@@ -913,7 +913,7 @@ hltKey='fake'
 menu = autoHLT[hltKey]
 steps['HLTD']=merge([{'--process':'reHLT',
                       '-s':'L1REPACK,HLT:@%s'%hltKey,
-                      '--conditions':'auto:run1_hlt',
+                      '--conditions':'auto:run1_hlt_%s'%menu,
                       '--data':'',
                       '--eventcontent': 'FEVTDEBUGHLT',
                       '--datatier': 'FEVTDEBUGHLT',
@@ -927,16 +927,16 @@ steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 
 hltKey50ns='relval50ns'
 menuR2_50ns = autoHLT[hltKey50ns]
-steps['HLTDR2_50ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--era' : 'Run2_50ns'},steps['HLTD'] ] )
+steps['HLTDR2_50ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt_'+menuR2_50ns,},{'--era' : 'Run2_50ns'},steps['HLTD'] ] )
 
 hltKey25ns='relval25ns'
 menuR2_25ns = autoHLT[hltKey25ns]
-steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
+steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt_'+menuR2_25ns,},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
 
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
-steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
-steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_'+menuR2_50ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
+steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_'+menuR2_25ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
 
 
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
@@ -1049,9 +1049,9 @@ steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP
 
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
-steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data'},steps['RECOD']])
-steps['RECODR1reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data'},steps['RECODR1']])
-steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data'},steps['RECODAlCaCalo']])
+steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
+steps['RECODR1reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODR1']])
+steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
 steps['RECODR2_25nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_25ns']])
 steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']])
@@ -1241,10 +1241,10 @@ steps['HARVESTDR1']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
 
-steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data'}, steps['HARVESTD'] ])
-steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data'}, steps['HARVESTDR1'] ])
-steps['HARVESTDR2_50nsreHLT'] = merge([ {'--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
-steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
+steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTDR1'] ])
+steps['HARVESTDR2_50nsreHLT'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_50ns,}, steps['HARVESTD'] ])
+steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_25ns,}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
@@ -1345,7 +1345,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dasquery.log'}
 
-steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data','--filein':'file:step3.root'}, steps['SKIMD'] ])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:run1_data',
