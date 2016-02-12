@@ -36,8 +36,9 @@ using namespace std;
     const FEDRawData& fed = rawraw->FEDData(18);
 
     histoUnpacker_.unpack(fed, *readoutMap, hd);
-
+    std::cout << "PUTTING COLLECTION IN EVENT" << std::endl;
     e.put(hd);
+    std::cout << "DONE WITH EVENT" << std::endl;
   }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

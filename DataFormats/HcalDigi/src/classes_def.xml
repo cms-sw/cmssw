@@ -112,6 +112,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<HcalDataFrameContainer<QIE10DataFrame> >" splitLevel="0"/>
    <class name="edm::Wrapper<HcalDataFrameContainer<QIE11DataFrame> >" splitLevel="0"/>
+   <class name="edm::Wrapper<HcalUHTRhistogramDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
    <class name="HcalLaserDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2447500554"/>

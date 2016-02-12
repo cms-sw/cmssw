@@ -24,3 +24,6 @@ const HcalDetId& HcalUHTRhistogramDigi::id() const { return theCollection_.id(in
 HcalUHTRhistogramDigiMutable::HcalUHTRhistogramDigiMutable(size_t index, HcalUHTRhistogramDigiCollection& collection) : HcalUHTRhistogramDigi(index, collection), theCollectionMutable_(collection) {
   
 }
+void HcalUHTRhistogramDigiMutable::fillBin(int capid, int bin, uint32_t val) {
+  theCollectionMutable_.fillBin(capid, bin, val, index_);
+}

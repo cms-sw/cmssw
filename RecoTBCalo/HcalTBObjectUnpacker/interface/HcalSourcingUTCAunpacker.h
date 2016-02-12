@@ -11,7 +11,7 @@ class HcalSourcingUTCAunpacker {
 public:
   HcalSourcingUTCAunpacker(void) { }
 
-  void unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<HcalUHTRhistogramDigiCollection>  histoDigiCollection) const;
+  void unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<HcalUHTRhistogramDigiCollection>&  histoDigiCollection) const;
   std::set<HcalElectronicsId> unknownIds_;
 };
 

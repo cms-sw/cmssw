@@ -5,6 +5,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="RecoTBCalo/HcalTBObjectUnpacker"/>
 <use   name="CalibFormats/HcalObjects"/>
+<use   name="DataFormats/HcalDigi"/>
 <library   file="HcalTBObjectUnpacker.cc" name="RecoTBCaloHcalTBObjectUnpackerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -19,7 +19,9 @@ public:
   /// get the contents of the specified bin summed over capids
   int getSum(int bin) const;
 
-  /// get the array for the specified capid and channel
+
+
+  void fillBin();
 
 private:
   const HcalUHTRhistogramDigiCollection& theCollection_;
@@ -42,14 +44,14 @@ public:
   HcalUHTRhistogramDigiCollection(int numBins, bool sepCapIds);
   static const size_t INVALID = (size_t)-1;
   const size_t find(HcalDetId id) const;
-  bool separateCapIds() const {return separateCapIds_; }
+  bool separateCapIds() const { return separateCapIds_; }
 
   const HcalUHTRhistogramDigi at(size_t index) const;
   const HcalUHTRhistogramDigi operator[](size_t index) const;
   HcalUHTRhistogramDigiMutable addHistogram(const HcalDetId& id);
 
   const size_t size() const { return ids_.size(); }
-
+  const int binsPerHisto() const { return binsPerHistogram_; }
 protected:
   friend class HcalUHTRhistogramDigi; 
   friend class HcalUHTRhistogramDigiMutable;
