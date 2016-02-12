@@ -137,6 +137,13 @@ class EnergyScaleCorrection_class
     ECALELF_TOY,
     ECALELF
   };
+
+  enum paramSmear_t {
+        kNone = 0,
+        kRho,
+        kPhi,
+        kNParamSmear
+  };
   
 public:
   bool doScale, doSmearings;
@@ -168,7 +175,7 @@ private:
 
 	//============================== smearings
 public:
-	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle) const;
+	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma = 0.) const;
 
 
 private:

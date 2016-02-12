@@ -381,7 +381,7 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
 
 
 
-float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle) const
+float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma) const
 {
   
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, energy / cosh(etaSCEle));
