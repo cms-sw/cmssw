@@ -60,10 +60,14 @@ public:
 
 
   void settitle(const char* titleX, const char* titleY) ;
+
+  void plot (TPad * theCanvas = 0) ;
+  void epsPlot(const std::string& name);
   
   // needed for efficiency computations -> this / b
   // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
   void divide ( const FlavourHistograms2D<T, G> & bHD ) const ;
+  void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max;}
   inline void SetMinimum(const double& min) { theMin = min;}
@@ -524,6 +528,108 @@ void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY)
   }
 }
 
+template <class T, class G>
+void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
+
+//fixme:
+  bool btppNI = false;
+  bool btppColour = true;
+
+  if (theCanvas)
+    theCanvas->cd();
+
+  RecoBTag::setTDRStyle()->cd();
+  gPad->UseCurrentStyle();
+  gPad->SetLogy  ( 0 ) ;
+  gPad->SetGridx ( 0 ) ;
+  gPad->SetGridy ( 0 ) ;
+  gPad->SetTitle ( 0 ) ;
+
+  MonitorElement * histo[4];
+  int col[4], lineStyle[4], markerStyle[4];
+  int lineWidth = 1 ;
+
+  const double markerSize = gPad->GetWh() * gPad->GetHNDC() / 500.;
+  histo[0] = theHisto_dusg ;
+  histo[1] = theHisto_b ;
+  histo[2] = theHisto_c ;
+  histo[3]= 0 ;
+
+  double max = theMax;
+  if (theMax<=0.) {
+    max = theHisto_dusg->getTH2F()->GetMaximum();
+    if (theHisto_b->getTH2F()->GetMaximum() > max) max = theHisto_b->getTH2F()->GetMaximum();
+    if (theHisto_c->getTH2F()->GetMaximum() > max) max = theHisto_c->getTH2F()->GetMaximum();
+  } 
+
+  if (btppNI) {
+    histo[3] = theHisto_ni ;
+    if (theHisto_ni->getTH2F()->GetMaximum() > max) max = theHisto_ni->getTH2F()->GetMaximum();
+  }
+
+  if ( btppColour ) { // print colours 
+    col[0] = 4 ;
+    col[1] = 2 ;
+    col[2] = 6 ;
+    col[3] = 3 ;
+    lineStyle[0] = 1 ;
+    lineStyle[1] = 1 ;
+    lineStyle[2] = 1 ;
+    lineStyle[3] = 1 ;
+    markerStyle[0] = 20 ;
+    markerStyle[1] = 21 ;
+    markerStyle[2] = 22 ;
+    markerStyle[3] = 23 ;
+   lineWidth = 1 ;
+  }
+  else { // different marker/line styles
+    col[1] = 1 ;
+    col[2] = 1 ;
+    col[3] = 1 ;
+    col[0] = 1 ;
+    lineStyle[0] = 2 ;
+    lineStyle[1] = 1 ;
+    lineStyle[2] = 3 ;
+    lineStyle[3] = 4 ;
+    markerStyle[0] = 20 ;
+    markerStyle[1] = 21 ;
+    markerStyle[2] = 22 ;
+    markerStyle[3] = 23 ;
+  }
+
+  histo[0] ->getTH2F()->GetXaxis()->SetTitle ( theBaseNameDescription.c_str() ) ;
+  histo[0] ->getTH2F()->GetYaxis()->SetTitle ( "Arbitrary Units" ) ;
+  histo[0] ->getTH2F()->GetYaxis()->SetTitleOffset(1.25) ;
+
+  for (int i=0; i != 4; ++i) {
+    if (histo[i]== 0 ) continue;
+    histo[i] ->getTH2F()->SetStats ( false ) ;
+    histo[i] ->getTH2F()->SetLineStyle ( lineStyle[i] ) ;
+    histo[i] ->getTH2F()->SetLineWidth ( lineWidth ) ;
+    histo[i] ->getTH2F()->SetLineColor ( col[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerStyle ( markerStyle[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerColor ( col[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerSize ( markerSize ) ;
+  }
+
+    histo[0]->getTH2F()->SetMaximum(max*1.05);
+    if (theMin!=-1.) histo[0]->getTH2F()->SetMinimum(theMin);
+    histo[0]->getTH2F()->Draw() ;
+    histo[1]->getTH2F()->Draw("Same") ;
+    histo[2]->getTH2F()->Draw("Same") ;
+    if ( histo[3] != 0 ) histo[3]->getTH2F()->Draw("Same") ;
+
+}
+
+template <class T, class G>
+void FlavourHistograms2D<T, G>::epsPlot(const std::string& name)
+{
+   TCanvas tc(theBaseNameTitle.c_str() , theBaseNameDescription.c_str());
+
+   plot(&tc);
+   tc.Print((name + theBaseNameTitle + ".eps").c_str());
+}
+
 // needed for efficiency computations -> this / b
 // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
 template <class T, class G>
@@ -550,6 +656,24 @@ void FlavourHistograms2D<T, G>::divide ( const FlavourHistograms2D<T, G> & bHD )
     }
 }
   
+template <class T, class G>
+void FlavourHistograms2D<T, G>::setEfficiencyFlag(){
+  if(theHisto_all) theHisto_all ->setEfficiencyFlag();
+  if (mcPlots_) {
+    if (mcPlots_>2 ) {
+      theHisto_d    ->setEfficiencyFlag();
+      theHisto_u    ->setEfficiencyFlag();
+      theHisto_s    ->setEfficiencyFlag();
+      theHisto_g    ->setEfficiencyFlag();
+      theHisto_dus  ->setEfficiencyFlag();
+    }
+    theHisto_c    ->setEfficiencyFlag();
+    theHisto_b    ->setEfficiencyFlag();
+    theHisto_ni   ->setEfficiencyFlag();
+    theHisto_dusg ->setEfficiencyFlag();
+    theHisto_pu   ->setEfficiencyFlag();
+  }
+}
 
 template <class T, class G>
   void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY , const float & w) const {

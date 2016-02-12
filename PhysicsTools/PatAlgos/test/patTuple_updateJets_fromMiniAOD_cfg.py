@@ -23,7 +23,7 @@ updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags'] ## adding an old (Run 1) version of the CSV discriminator
+   btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags'] ## to add discriminators
 )
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
