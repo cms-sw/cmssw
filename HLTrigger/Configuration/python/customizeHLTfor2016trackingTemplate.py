@@ -29,6 +29,15 @@ def producers_by_type(process, *types):
 def esproducers_by_type(process, *types):
     return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
 
+def module_in_sequence_by_label(sequence,label):
+    return (module for module in sequence.values() if module.label_() == label)
+
+def all_sequences(process):
+    return process._Process__sequences.values()
+
+def all_paths(process):
+    return process._Process__paths
+
 def bug_fix(process):
     # fix 2015 bug
     for module in esproducers_by_type(process, 'MeasurementTrackerESProducer'):
@@ -117,552 +126,238 @@ def new_selector(process):
 
     # new selectors
     # iter0
-    if hasattr(process, 'HLTIterativeTrackingIteration0'):
-
-        setattr(process,'hltIter0PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
-           src = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
-           beamspot = cms.InputTag('hltOnlineBeamSpot'),
-           vertices = cms.InputTag('hltTrimmedPixelVertices'),
-           GBRForestLabel = cms.string(''),
-           GBRForestFileName = cms.string(''),
-           qualityCuts = cms.vdouble(
-            -0.7,
-             0.1,
-             0.7
-           ),
-           mva = cms.PSet(
-             minNdof = cms.vdouble(
-               1E-5,
-               1E-5,
-               1E-5
-             ),
-             minPixelHits = cms.vint32(
-               0,
-               0,
-               0
-             ),
-             minLayers = cms.vint32(
-               3,
-               3,
-               3
-             ),
-             min3DLayers = cms.vint32(
-               0,
-               0,
-               0
-             ),
-             maxLostLayers = cms.vint32(
-               1,
-               1,
-               1
-             ),
-             maxChi2 = cms.vdouble(
-               9999,
-               25.,
-               16.
-             ),
-             maxChi2n = cms.vdouble(
-               1.2,
-               1.,
-               0.7
-             ),
-             minNVtxTrk = cms.int32(3),
-             maxDz = cms.vdouble(
-               0.5,
-               0.2,
-         #      0.2
-               3.4028234663852886e+38
-             ),
-             maxDzWrtBS = cms.vdouble(
-               3.4028234663852886e+38,
-               24,
-               15
-             ),
-             maxDr = cms.vdouble(
-               0.5,
-               0.03,
-         #      0.03
-               3.4028234663852886e+38
-             ),
-             dz_par = cms.PSet(
-                     dz_exp = cms.vint32(
-                         4,
-                         4,
-                         4,
-                     ),
-                     dz_par1 = cms.vdouble(
-                         0.4,
-                         0.4,
-                         0.4
-         #                3.4028234663852886e+38
-                     ),
-                     dz_par2 = cms.vdouble(
-                         0.35,
-                         0.35,
-                         0.35
-         #                3.4028234663852886e+38
-                     ),
-             ),
-             dr_par = cms.PSet(
-                     dr_exp = cms.vint32(
-                         4,
-                         4,
-                         4,
-                     ),
-                     dr_par1 = cms.vdouble(
-                         0.4,
-                         0.4,
-                         0.4
-         #                3.4028234663852886e+38
-                     ),
-                     dr_par2 = cms.vdouble(
-                         0.3,
-                         0.3,
-                         0.3
-         #                3.4028234663852886e+38
-                     ),
-               d0err = cms.vdouble(
-                 0.003,
-                 0.003,
-                 0.003
-               ),
-               d0err_par = cms.vdouble(
-                 0.001,
-                 0.001,
-                 0.001
+    if hasattr(process,'HLTTrackReconstructionForPF'):
+        if hasattr(process, 'HLTIterativeTrackingIteration0') or hasattr(process,'HLTIterativeTrackingIter02'):
+            
+            setattr(process,'hltIter0PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
+               src = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
+               beamspot = cms.InputTag('hltOnlineBeamSpot'),
+               vertices = cms.InputTag('hltTrimmedPixelVertices'),
+               GBRForestLabel = cms.string(''),
+               GBRForestFileName = cms.string(''),
+               qualityCuts = cms.vdouble(-0.7,0.1,0.7),
+               mva = cms.PSet(
+                 minNdof       = cms.vdouble( 1E-5, 1E-5, 1E-5),
+                 minPixelHits  = cms.vint32(0, 0, 0),
+                 minLayers     = cms.vint32(3, 3, 3),
+                 min3DLayers   = cms.vint32(0, 0, 0),
+                 maxLostLayers = cms.vint32(1, 1, 1),
+                 maxChi2  = cms.vdouble(9999, 25., 16. ),
+                 maxChi2n = cms.vdouble( 1.2,  1.,  0.7),
+                 minNVtxTrk = cms.int32(3),
+                 maxDz      = cms.vdouble(0.5, 0.2, 3.4028234663852886e+38),
+                 maxDzWrtBS = cms.vdouble(3.4028234663852886e+38, 24, 15),
+                 maxDr      = cms.vdouble(0.5, 0.03, 3.4028234663852886e+38),
+                 dz_par = cms.PSet(
+                         dz_exp  = cms.vint32(4,4,4),
+                         dz_par1 = cms.vdouble(0.40, 0.40, 0.40),
+                         dz_par2 = cms.vdouble(0.35, 0.35, 0.35),
+                 ),
+                 dr_par = cms.PSet(
+                         dr_exp  = cms.vint32(4,4,4),
+                         dr_par1 = cms.vdouble(0.40, 0.40, 0.40),
+                         dr_par2 = cms.vdouble(0.30, 0.30, 0.30),
+                         d0err     = cms.vdouble(0.003,0.003,0.003),
+                         d0err_par = cms.vdouble(0.001,0.001,0.001)
+                 )
                )
+            )
+            )        
+
+            setattr(process,'hltIter0PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
+              originalSource   = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
+              originalMVAVals  = cms.InputTag('hltIter0PFlowTrackCutClassifier','MVAValues'),
+              originalQualVals = cms.InputTag('hltIter0PFlowTrackCutClassifier','QualityMasks'),
+              minQuality       = cms.string('highPurity') ,
+              cloner = cms.untracked.PSet(
+                copyExtras       = cms.untracked.bool(False),
+                copyTrajectories = cms.untracked.bool(False)
+              )
              )
-           )
-         )
-        )        
-        setattr(process,'hltIter0PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
-          originalSource   = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
-          originalMVAVals  = cms.InputTag('hltIter0PFlowTrackCutClassifier','MVAValues'),
-          originalQualVals = cms.InputTag('hltIter0PFlowTrackCutClassifier','QualityMasks'),
-          minQuality       = cms.string('highPurity') ,
-          cloner = cms.untracked.PSet(
-            copyExtras       = cms.untracked.bool(False),
-            copyTrajectories = cms.untracked.bool(False)
-          )
-         )
-        )
-        iter0HP  = getattr(process,'hltIter0PFlowTrackSelectionHighPurity')
+            )
 
-        iter0seq = getattr(process,'HLTIterativeTrackingIteration0')
-        iter0seq.insert( iter0seq.index( iter0HP ), getattr(process,'hltIter0PFlowTrackCutClassifier') )
-#        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
-#        iter02seq.insert( iter02seq.index( iter0HP ), process.hltIter0PFlowTrackCutClassifier )
-        
+            iter0HP  = getattr(process,'hltIter0PFlowTrackSelectionHighPurity')
+            iter0classifier = getattr(process,'hltIter0PFlowTrackCutClassifier')
 
+            sequences = ['HLTIterativeTrackingIteration0','HLTTrackReconstructionForPF']
+#            sequences = ['HLTIterativeTrackingIteration0','HLTIterativeTrackingIter02','HLTTrackReconstructionForPF']
+            for s in sequences:
+                if hasattr(process,s):
+                    seq = getattr(process,s)
+                    seq.insert( seq.index( iter0HP ), iter0classifier )
+
+#        PFseq = getattr(process,'HLTTrackReconstructionForPF')
+#
     ### iter1
-    if hasattr(process, 'HLTIterativeTrackingIteration1'):
+    if hasattr(process,'HLTTrackReconstructionForPF'):
+        if hasattr(process, 'HLTIterativeTrackingIteration1') or hasattr(process,'HLTIterativeTrackingIter02'):
 
-        setattr(process,'hltIter1PFlowTrackCutClassifierPrompt', cms.EDProducer('TrackCutClassifier',
-           src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
-           beamspot = cms.InputTag('hltOnlineBeamSpot'),
-           vertices = cms.InputTag('hltTrimmedPixelVertices'),
-           GBRForestLabel = cms.string(''),
-           GBRForestFileName = cms.string(''),
-           qualityCuts = cms.vdouble(
-            -0.7,
-             0.1,
-             0.7
-           ),
-           mva = cms.PSet(
-             minNdof = cms.vdouble(
-               1E-5,
-               1E-5,
-               1E-5
-             ),
-             minPixelHits = cms.vint32(
-               0,
-               0,
-               2
-             ),
-             minLayers = cms.vint32(
-               3,
-               3,
-               3
-             ),
-             min3DLayers = cms.vint32(
-               0,
-               0,
-               0
-             ),
-             maxLostLayers = cms.vint32(
-               1,
-               1,
-               1
-             ),
-             maxChi2 = cms.vdouble(
-               9999.,
-               25.,
-               16.
-             ),
-             maxChi2n = cms.vdouble(
-               1.2,
-               1.,
-               0.7
-             ),
-             minNVtxTrk = cms.int32(3),
-             maxDz = cms.vdouble(
-               3.4028234663852886e+38,
-               1.0,
-        #       0.4
-               3.4028234663852886e+38
-             ),
-             maxDzWrtBS = cms.vdouble(
-               3.4028234663852886e+38,
-               24,
-               15
-             ),
-             maxDr = cms.vdouble(
-               3.4028234663852886e+38,
-               1.0,
-        #       0.1
-               3.4028234663852886e+38
-             ),
-             dz_par = cms.PSet(
-                     dz_exp = cms.vint32(
-                         3,
-                         3,
-                         3,
-                     ),
-                     dz_par1 = cms.vdouble(
-                         3.4028234663852886e+38,
-                         1.0,
-                         0.9
-        #                 3.4028234663852886e+38
-                     ),
-                     dz_par2 = cms.vdouble(
-                         3.4028234663852886e+38,
-                         1.0,
-                         0.8
-        #                 3.4028234663852886e+38
-                     ),
-             ),
-             dr_par = cms.PSet(
-                     dr_exp = cms.vint32(
-                         3,
-                         3,
-                         3,
-                     ),
-                     dr_par1 = cms.vdouble(
-                         3.4028234663852886e+38,
-                         1.0,
-                         0.9
-        #                 3.4028234663852886e+38
-                     ),
-                     dr_par2 = cms.vdouble(
-                         3.4028234663852886e+38,
-                         1.0,
-                         0.85
-        #                 3.4028234663852886e+38
-                     ),
-               d0err = cms.vdouble(
-                 0.003,
-                 0.003,
-                 0.003
-               ),
-               d0err_par = cms.vdouble(
-                 0.001,
-                 0.001,
-                 0.001
+            setattr(process,'hltIter1PFlowTrackCutClassifierPrompt', cms.EDProducer('TrackCutClassifier',
+               src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
+               beamspot = cms.InputTag('hltOnlineBeamSpot'),
+               vertices = cms.InputTag('hltTrimmedPixelVertices'),
+               GBRForestLabel = cms.string(''),
+               GBRForestFileName = cms.string(''),
+               qualityCuts = cms.vdouble(-0.7,0.1,0.7),
+               mva = cms.PSet(
+                 minNdof       = cms.vdouble( 1E-5, 1E-5, 1E-5),
+                 minPixelHits = cms.vint32(0,0,2),
+                 minLayers     = cms.vint32(3, 3, 3),
+                 min3DLayers   = cms.vint32(0, 0, 0),
+                 maxLostLayers = cms.vint32(1, 1, 1),
+                 maxChi2  = cms.vdouble(9999, 25., 16. ),
+                 maxChi2n = cms.vdouble( 1.2,  1.,  0.7),
+                 minNVtxTrk = cms.int32(3),
+                 maxDz = cms.vdouble(3.4028234663852886e+38, 1.0, 3.4028234663852886e+38),
+                 maxDzWrtBS = cms.vdouble(3.4028234663852886e+38, 24, 15),
+                 maxDr = cms.vdouble(3.4028234663852886e+38, 1.0, 3.4028234663852886e+38),
+                 dz_par = cms.PSet(
+                         dz_exp  = cms.vint32(3,3,3),
+                         dz_par1 = cms.vdouble(3.4028234663852886e+38, 1.0, 0.9),
+                         dz_par2 = cms.vdouble(3.4028234663852886e+38, 1.0, 0.8),
+                 ),
+                 dr_par = cms.PSet(
+                         dr_exp = cms.vint32(3,3,3),
+                         dr_par1 = cms.vdouble(3.4028234663852886e+38, 1.0, 0.90),
+                         dr_par2 = cms.vdouble(3.4028234663852886e+38, 1.0, 0.85),
+                         d0err     = cms.vdouble(0.003,0.003,0.003),
+                         d0err_par = cms.vdouble(0.001,0.001,0.001)
+                 )
                )
+            )
+            )
+            
+            setattr(process,'hltIter1PFlowTrackCutClassifierDetached', cms.EDProducer('TrackCutClassifier',
+               src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
+               beamspot = cms.InputTag('hltOnlineBeamSpot'),
+               vertices = cms.InputTag('hltTrimmedPixelVertices'),
+               GBRForestLabel = cms.string(''),
+               GBRForestFileName = cms.string(''),
+               qualityCuts = cms.vdouble(-0.7,0.1,0.7),
+               mva = cms.PSet(
+                 minNdof       = cms.vdouble( 1E-5, 1E-5, 1E-5),
+                 minPixelHits = cms.vint32(0,0,2),
+                 minLayers = cms.vint32(5,5,5),
+                 min3DLayers   = cms.vint32(0, 0, 0),
+                 maxLostLayers = cms.vint32(1, 1, 1),
+                 maxChi2  = cms.vdouble(9999, 25., 16. ),
+                 maxChi2n = cms.vdouble(1.0, 0.7, 0.4),
+                 minNVtxTrk = cms.int32(3),
+                 maxDz = cms.vdouble(3.4028234663852886e+38, 1.0, 3.4028234663852886e+38),
+                 maxDzWrtBS = cms.vdouble(3.4028234663852886e+38, 24, 15),
+                 maxDr = cms.vdouble(3.4028234663852886e+38, 1.0, 3.4028234663852886e+38),
+                 dz_par = cms.PSet(
+                        dz_exp  = cms.vint32(4,4,4),
+                        dz_par1 = cms.vdouble(1.0, 1.0, 1.0),
+                        dz_par2 = cms.vdouble(1.0, 1.0, 1.0),
+                 ),
+                 dr_par = cms.PSet(
+                        dr_exp  = cms.vint32(4,4,4),
+                        dr_par1 = cms.vdouble(1.0,1.0,1.0),
+                        dr_par2 = cms.vdouble(1.0,1.0,1.0),
+                        d0err     = cms.vdouble(0.003,0.003,0.003),
+                        d0err_par = cms.vdouble(0.001,0.001,0.001)
+            
+                 )
+               )
+            )
+            )
+            setattr(process,'hltIter1PFlowTrackCutClassifierMerged', cms.EDProducer('ClassifierMerger',
+              inputClassifiers = cms.vstring('hltIter1PFlowTrackCutClassifierPrompt','hltIter1PFlowTrackCutClassifierDetached')
              )
-           )
-        )
-        )
-        
-        setattr(process,'hltIter1PFlowTrackCutClassifierDetached', cms.EDProducer('TrackCutClassifier',
-          src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
-          beamspot = cms.InputTag('hltOnlineBeamSpot'),
-          vertices = cms.InputTag('hltTrimmedPixelVertices'),
-          GBRForestLabel = cms.string(''),
-          GBRForestFileName = cms.string(''),
-          qualityCuts = cms.vdouble(
-           -0.7,
-            0.1,
-            0.7
-          ),
-          mva = cms.PSet(
-            minNdof = cms.vdouble(
-              1E-5,
-              1E-5,
-              1E-5
-            ),
-            minPixelHits = cms.vint32(
-              0,
-              0,
-              2
-            ),
-            minLayers = cms.vint32(
-              5,
-              5,
-              5
-            ),
-            min3DLayers = cms.vint32(
-              0,
-              0,
-              0
-            ),
-            maxLostLayers = cms.vint32(
-              1,
-              1,
-              1
-            ),
-            maxChi2 = cms.vdouble(
-              9999.,
-              25.,
-              16.
-            ),
-            maxChi2n = cms.vdouble(
-              1.0,
-              0.7,
-              0.4
-            ),
-            minNVtxTrk = cms.int32(3),
-            maxDz = cms.vdouble(
-              3.4028234663852886e+38,
-              1.0,
-        #      0.5
-              3.4028234663852886e+38
-            ),
-            maxDzWrtBS = cms.vdouble(
-              3.4028234663852886e+38,
-              24,
-              15
-            ),
-            maxDr = cms.vdouble(
-              3.4028234663852886e+38,
-              1.0,
-        #      0.2
-              3.4028234663852886e+38
-            ),
-            dz_par = cms.PSet(
-                    dz_exp = cms.vint32(
-                        4,
-                        4,
-                        4,
-                    ),
-                    dz_par1 = cms.vdouble(
-                        1.0,
-                        1.0,
-                        1.0
-        #                3.4028234663852886e+38
-                    ),
-                    dz_par2 = cms.vdouble(
-                        1.0,
-                        1.0,
-                        1.0
-        #                3.4028234663852886e+38
-                    ),
-            ),
-            dr_par = cms.PSet(
-                    dr_exp = cms.vint32(
-                        4,
-                        4,
-                        4,
-                    ),
-                    dr_par1 = cms.vdouble(
-                        1.0,
-                        1.0,
-                        1.0
-        #                3.4028234663852886e+38
-                    ),
-                    dr_par2 = cms.vdouble(
-                        1.0,
-                        1.0,
-                        1.0
-        #                3.4028234663852886e+38
-                    ),
-              d0err = cms.vdouble(
-                0.003,
-                0.003,
-                0.003
-              ),
-              d0err_par = cms.vdouble(
-                0.001,
-                0.001,
-                0.001
-              )
-        
             )
-          )
-         )
-        )
-        setattr(process,'hltIter1PFlowTrackCutClassifierMerged', cms.EDProducer('ClassifierMerger',
-          inputClassifiers = cms.vstring('hltIter1PFlowTrackCutClassifierPrompt','hltIter1PFlowTrackCutClassifierDetached')
-         )
-        )
-          
-        setattr(process,'hltIter1PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
-          originalSource   = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
-          originalMVAVals  = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','MVAValues'),
-          originalQualVals = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','QualityMasks'),
-          minQuality       = cms.string('highPurity') ,
-          cloner = cms.untracked.PSet(
-            copyExtras       = cms.untracked.bool(False),
-            copyTrajectories = cms.untracked.bool(False)
-          )
-         )
-        )
+              
+            setattr(process,'hltIter1PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
+              originalSource   = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
+              originalMVAVals  = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','MVAValues'),
+              originalQualVals = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','QualityMasks'),
+              minQuality       = cms.string('highPurity') ,
+              cloner = cms.untracked.PSet(
+                copyExtras       = cms.untracked.bool(False),
+                copyTrajectories = cms.untracked.bool(False)
+              )
+             )
+            )
+    
+            iter1prompt   = getattr(process,'hltIter1PFlowTrackCutClassifierPrompt')
+            iter1detached = getattr(process,'hltIter1PFlowTrackCutClassifierDetached')
+            iter1merge    = getattr(process,'hltIter1PFlowTrackCutClassifierMerged')
+            iter1HP       = getattr(process,'hltIter1PFlowTrackSelectionHighPurity')
 
-        iter1prompt   = getattr(process,'hltIter1PFlowTrackCutClassifierPrompt')
-        iter1detached = getattr(process,'hltIter1PFlowTrackCutClassifierDetached')
-        iter1merge    = getattr(process,'hltIter1PFlowTrackCutClassifierMerged')
-        iter1HP       = getattr(process,'hltIter1PFlowTrackSelectionHighPurity')
-
-        iter1seq = getattr(process,'HLTIterativeTrackingIteration1')
-        iter1seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), iter1prompt )
-        iter1seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), iter1detached )
-        iter1seq.insert( iter1seq.index( iter1HP ), iter1merge )
-
-        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
-        iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), iter1prompt )
-        iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), iter1detached )
-        iter02seq.insert( iter02seq.index( iter1HP ), iter1merge )
-
+        sequences = ['HLTIterativeTrackingIteration1','HLTTrackReconstructionForPF']
+#        sequences = ['HLTIterativeTrackingIteration1','HLTIterativeTrackingIter02','HLTTrackReconstructionForPF']
+        for s in sequences:
+            if hasattr(process,s):
+                seq = getattr(process,s)
+                seq.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, iter1prompt )
+                seq.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, iter1detached )
+                seq.insert( seq.index( iter1HP ), iter1merge )
+        
     #### iter2
-    if hasattr(process, 'HLTIterativeTrackingIteration2'):
+    if  hasattr(process,'HLTTrackReconstructionForPF'):
+        if hasattr(process, 'HLTIterativeTrackingIteration2') or hasattr(process,'HLTIterativeTrackingIter02'):
 
-        setattr(process,'hltIter2PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
-          src = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
-          beamspot = cms.InputTag('hltOnlineBeamSpot'),
-          vertices = cms.InputTag('hltTrimmedPixelVertices'),
-          GBRForestLabel = cms.string(''),
-          GBRForestFileName = cms.string(''),
-          qualityCuts = cms.vdouble(
-           -0.7,
-            0.1,
-            0.7
-          ),
-          mva = cms.PSet(
-            minNdof = cms.vdouble(
-              1E-5,
-              1E-5,
-              1E-5
-            ),
-            minPixelHits = cms.vint32(
-              0,
-              0,
-              0
-            ),
-            minLayers = cms.vint32(
-              3,
-              3,
-              3
-            ),
-            min3DLayers = cms.vint32(
-              0,
-              0,
-              0
-            ),
-            maxLostLayers = cms.vint32(
-              1,
-              1,
-              1
-            ),
-            maxChi2 = cms.vdouble(
-              9999,
-              25.,
-              16.
-            ),
-            maxChi2n = cms.vdouble(
-              1.2,
-              1.,
-              0.7
-            ),
-            minNVtxTrk = cms.int32(3),
-            maxDz = cms.vdouble(
-              0.5,
-              0.2,
-              3.4028234663852886e+38,
-        #      0.1 # 0.2
-            ),
-            maxDzWrtBS = cms.vdouble(
-              3.4028234663852886e+38,
-              24,
-              15
-            ),
-            maxDr = cms.vdouble(
-              0.5,
-              0.03,
-              3.4028234663852886e+38,
-        #      0.03
-            ),
-            dz_par = cms.PSet(
-                    dz_exp = cms.vint32(
-                        4,
-                        4,
-                        4,
-                    ),
-                    dz_par1 = cms.vdouble(
-                        3.4028234663852886e+38,
-                        0.4,
-                        0.4
-                    ),
-                    dz_par2 = cms.vdouble(
-                        3.4028234663852886e+38,
-                        0.35,
-                        0.35
-                    ),
-            ),
-            dr_par = cms.PSet(
-                    dr_exp = cms.vint32(
-                        4,
-                        4,
-                        4,
-                    ),
-                    dr_par1 = cms.vdouble(
-                        3.4028234663852886e+38,
-                        0.4,
-                        0.4
-                    ),
-                    dr_par2 = cms.vdouble(
-                        3.4028234663852886e+38,
-                        0.3,
-                        0.3
-                    ),
-              d0err = cms.vdouble(
-                0.003,
-                0.003,
-                0.003
-              ),
-              d0err_par = cms.vdouble(
-                0.001,
-                0.001,
-                0.001
-              )
+            setattr(process,'hltIter2PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
+              src = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
+              beamspot = cms.InputTag('hltOnlineBeamSpot'),
+              vertices = cms.InputTag('hltTrimmedPixelVertices'),
+              GBRForestLabel = cms.string(''),
+              GBRForestFileName = cms.string(''),
+               qualityCuts = cms.vdouble(-0.7,0.1,0.7),
+               mva = cms.PSet(
+                 minNdof       = cms.vdouble( 1E-5, 1E-5, 1E-5),
+                 minPixelHits  = cms.vint32(0, 0, 0),
+                 minLayers     = cms.vint32(3, 3, 3),
+                 min3DLayers   = cms.vint32(0, 0, 0),
+                 maxLostLayers = cms.vint32(1, 1, 1),
+                 maxChi2  = cms.vdouble(9999, 25., 16. ),
+                 maxChi2n = cms.vdouble( 1.2,  1.,  0.7),
+                 minNVtxTrk = cms.int32(3),
+                 maxDz      = cms.vdouble(0.5, 0.2, 3.4028234663852886e+38),
+                 maxDzWrtBS = cms.vdouble(3.4028234663852886e+38, 24, 15),
+                 maxDr      = cms.vdouble(0.5, 0.03, 3.4028234663852886e+38),
+                 dz_par = cms.PSet(
+                         dz_exp  = cms.vint32(4,4,4),
+                         dz_par1 = cms.vdouble(3.4028234663852886e+38, 0.40, 0.40),
+                         dz_par2 = cms.vdouble(3.4028234663852886e+38, 0.35, 0.35),
+                 ),
+                 dr_par = cms.PSet(
+                         dr_exp  = cms.vint32(4,4,4),
+                         dr_par1 = cms.vdouble(3.4028234663852886e+38, 0.40, 0.40),
+                         dr_par2 = cms.vdouble(3.4028234663852886e+38, 0.30, 0.30),
+                         d0err     = cms.vdouble(0.003,0.003,0.003),
+                         d0err_par = cms.vdouble(0.001,0.001,0.001)
+                 )
+               )
             )
-          )
-         )
-        )
-        setattr(process,'hltIter2PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
-          originalSource   = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
-          originalMVAVals  = cms.InputTag('hltIter2PFlowTrackCutClassifier','MVAValues'),
-          originalQualVals = cms.InputTag('hltIter2PFlowTrackCutClassifier','QualityMasks'),
-          minQuality       = cms.string('highPurity') ,
-          cloner = cms.untracked.PSet(
-            copyExtras       = cms.untracked.bool(False),
-            copyTrajectories = cms.untracked.bool(False)
-          )
-         )
-        )
-        iter2HP  = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
-
-        iter2seq = getattr(process,'HLTIterativeTrackingIteration2')
-        iter2seq.insert( iter2seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
-        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
-        if hasattr(iter02seq,'hltIter2PFlowTrackSelectionHighPurity'):
-            iter02seq.insert( iter02seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
-
+            )
+            setattr(process,'hltIter2PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
+              originalSource   = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
+              originalMVAVals  = cms.InputTag('hltIter2PFlowTrackCutClassifier','MVAValues'),
+              originalQualVals = cms.InputTag('hltIter2PFlowTrackCutClassifier','QualityMasks'),
+              minQuality       = cms.string('highPurity') ,
+              cloner = cms.untracked.PSet(
+                copyExtras       = cms.untracked.bool(False),
+                copyTrajectories = cms.untracked.bool(False)
+              )
+             )
+            )
+            iter2HP  = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
+            iter2classifier = getattr(process,'hltIter2PFlowTrackCutClassifier')
+    
+            sequences = ['HLTIterativeTrackingIteration2','HLTTrackReconstructionForPF']
+    #        sequences = ['HLTIterativeTrackingIteration2','HLTIterativeTrackingIter02','HLTTrackReconstructionForPF']
+            for s in sequences:
+                if hasattr(process,s):
+                    seq = getattr(process,s)
+                    seq.insert( seq.index( iter2HP ), iter2classifier )
+                        
     return process
 
 def customiseFor2016trackingTemplate(process):
     process = bug_fix(process)
     process = new_selector(process)
-    
+
     process = CCC(process)
     process = speedup_building(process)
     process = speedup_filtering(process)
