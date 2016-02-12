@@ -140,6 +140,9 @@ private:
 
   const bool makeProfileRoot_;
   const std::string profileRootName_;
+
+  const int modekTPSaturated_; // 0, do not use flag; 1, consider both flag and TT sum; 2, consider flag exclusively
+
   TFile *profFile;
   TTree *profTree;
 
@@ -157,6 +160,9 @@ private:
   int hastpDigiCollection_, hasReducedRecHits_;
 
   bool useTPmethod_, useHITmethod_;
+
+  bool exclusivelykTPSaturated_;
+  bool considerkTPSaturated_;
 
   void loadEventInfoForFilter(const edm::Event& iEvent);
 
@@ -194,10 +200,14 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_))
   , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot") )
   , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName") )
+  , modekTPSaturated_ (iConfig.getParameter<int>("modekTPSaturated") )
 {
   getEventInfoForFilterOnce_ = false;
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
   useTPmethod_ = true; useHITmethod_ = false;
+
+  considerkTPSaturated_ = modekTPSaturated_ > 0;
+  exclusivelykTPSaturated_ = modekTPSaturated_ == 2;
 
   if( makeProfileRoot_ ){
 
@@ -408,6 +418,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
   int isPassCut =0;
 
   EBRecHitCollection::const_iterator ebrechit;
+
   for (ebrechit = HitecalEB.begin(); ebrechit != HitecalEB.end(); ebrechit++) {
 
      EBDetId det = ebrechit->id();
@@ -433,7 +444,12 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      if( !ebrechit->isRecovered() ) toDo = false;
 //     if( !ebrechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
 
+
+
      if( toDo ){
+
+	//If we considerkTPSaturated and a recHit has a flag set, we can immediately flag the event.
+        if(ebrechit->checkFlag(EcalRecHit::kTPSaturated) && considerkTPSaturated_) return 1;
 
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
@@ -496,6 +512,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 
      if( toDo ){
 
+	//If we considerkTPSaturated and a recHit has a flag set, we can immediately flag the event.
+        if(eerechit->checkFlag(EcalRecHit::kTPSaturated) && considerkTPSaturated_) return 1;
+
 // vvvv= Only for debuging or testing purpose =vvvv
         EcalTrigTowerDetId ttDetId = ttItor->second;
 //        int ttzside = ttDetId.zside();
@@ -532,6 +551,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
         }
      }
   } // loop over EE
+
+  //If we are exclusively using kTPSaturated, then at this point we need not do anything further, we'll pass the event
+  if(exclusivelykTPSaturated_) return 0;
 
 // Checking for EB
   std::map<EcalTrigTowerDetId, double>::iterator ttetItor;

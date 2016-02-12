@@ -24,4 +24,5 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     makeProfileRoot = cms.untracked.bool( False ),
     profileRootName = cms.untracked.string("deadCellFilterProfile.root" ),
 
+    modekTPSaturated = cms.int32 ( 0 )
 )
