@@ -76,7 +76,7 @@ public:
   PhotonPFIsolationWithMapBasedVeto& operator=(const PhotonPFIsolationWithMapBasedVeto&) =delete;
 
   bool isInIsolationCone(const reco::CandidatePtr& photon,
-			 const reco::CandidatePtr& PFCandidate) const override final;
+			 const reco::CandidatePtr& pfCandidate) const override final;
   
    
   // this object is needed for reco case
@@ -114,18 +114,18 @@ DEFINE_EDM_PLUGIN(CITKIsolationConeDefinitionFactory,
 
 //This function defines whether particular PFCandidate is inside of isolation cone of photon or not by checking deltaR and whether footprint removal for this candidate should be done. Additionally, for miniAOD charged hadrons from the PV are considered. *** For AOD this should be done by the corresponding sequence beforehand!!! ***
  
-bool PhotonPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidatePtr& photon,  const reco::CandidatePtr& PFCandidate  ) const {
+bool PhotonPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidatePtr& photon,  const reco::CandidatePtr& pfCandidate  ) const {
  
   //convert the photon and candidate objects to the corresponding pat or reco objects. What is used depends on what is user running on: miniAOD or AOD
   pat::patPhotonPtr aspat_photonptr(photon);
   
-  pat::PackedCandidatePtr aspacked(PFCandidate);
-  reco::PFCandidatePtr aspf(PFCandidate);
+  pat::PackedCandidatePtr aspacked(pfCandidate);
+  reco::PFCandidatePtr aspf(pfCandidate);
 
   
   bool inFootprint = false;
   bool result = true;
-  const float deltar2 = reco::deltaR2(*photon,*PFCandidate); //calculate deltaR2 distance between PFCandidate and photon
+  const float deltar2 = reco::deltaR2(*photon,*pfCandidate); //calculate deltaR2 distance between PFCandidate and photon
   
   // dealing here with patObjects: miniAOD case
   if ( aspacked.get() )    
