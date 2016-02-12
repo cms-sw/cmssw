@@ -101,7 +101,7 @@ void
 	std::cout << "simTrackId: " << hit->simTrackId(0) << std::endl;
 	TrajectorySeedHitCandidate currentTrackerHit;
 	currentTrackerHit = TrajectorySeedHitCandidate(hit.get(),trackerGeometry,trackerTopology);
-	std::cout << "Global position: " << currentTrackerHit.globalPosition() << std::endl;
+	std::cout << "Global position: " << currentTrackerHit.globalPosition() << " " << hit->rtti() << std::endl;
       }
     }       
 

@@ -126,19 +126,25 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
    
     for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end(); ++simHitsIdPairIt)
     {
+	std::cout << "-----------------" << std::endl;
         const DetId& detId = simHitsIdPairIt->first;
         std::map<unsigned int, TrackingRecHitPipe>::const_iterator pipeIt = _detIdPipes.find(detId);
         if (pipeIt!=_detIdPipes.cend())
         {
             auto& simHitIdPairList = simHitsIdPairIt->second;
+	    std::cout << simHitIdPairList.size() << std::endl;
             
             const TrackingRecHitPipe& pipe = pipeIt->second;
 
             TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId,simHitIdPairList);
 
+	    std::cout << "pipe size " << pipe.size() << std::endl;
             product = pipe.produce(product);
             
             const std::vector<TrackingRecHitProduct::RecHitToSimHitIdPairs>& recHitToSimHitIdPairsList = product->getRecHitToSimHitIdPairs();
+
+	    std::cout << recHitToSimHitIdPairsList.size() << std::endl;
+
             for (unsigned int irecHit = 0; irecHit < recHitToSimHitIdPairsList.size(); ++irecHit)
             {
                 output_recHits->push_back(recHitToSimHitIdPairsList[irecHit].first);
@@ -174,6 +180,9 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     {
 	    ((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
     }
+
+    std::cout << "number of simhits: " << simHits->size() << std::endl;
+    std::cout << "number rec hit refs: " << output_recHitRefs->size() << std::endl;
     std::cout << "number rec hits: "<< output_recHits->size() << std::endl;
     event.put(std::move(output_recHits));
     event.put(std::move(output_recHitRefs),"simHit2RecHitMap");
