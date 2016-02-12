@@ -47,7 +47,7 @@ namespace {
 	{
 	    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
 	    {
-	      if( itr->key() == theCandidate.key() ) return true;// This line is commented out, because it's itroducing trouble for pfNoPileUpCandidates
+	      if( itr->key() == theCandidate.key() ) return true;
 	     }
 	    return false;
 	}
