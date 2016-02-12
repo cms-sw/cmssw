@@ -38,30 +38,32 @@ namespace pat {
   typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
 }
 
-// This template function finds whether theCandidate is in thefootprint
-// collection. It is templated to be able to handle both reco and pat
-// photons (from AOD and miniAOD, respectively).
-template <class T, class U>
-bool isInFootprint(const T& thefootprint, const U& theCandidate) 
-{
-    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
-    {
-      if( itr->key() == theCandidate.key() ) return true;// This line is commented out, because it's itroducing trouble for pfNoPileUpCandidates
-     }
-    return false;
-}
-
-//This function is needed because pfNoPileUpCandidates have changed keys, 
-//and thus the solution is to use sourceCandidatePtr(0) 
-// This function *shouldn't be used for packedCandidate*
-template <class T, class U>
-bool isInFootprintAlternative(const T& thefootprint, const U& theCandidate) 
-{
-    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
-    {
-      if( itr->key() == theCandidate->sourceCandidatePtr(0).key() ) return true;
-    }
-    return false;
+namespace {
+	// This template function finds whether theCandidate is in thefootprint
+	// collection. It is templated to be able to handle both reco and pat
+	// photons (from AOD and miniAOD, respectively).	
+	template <class T, class U>
+	bool isInFootprint(const T& thefootprint, const U& theCandidate) 
+	{
+	    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
+	    {
+	      if( itr->key() == theCandidate.key() ) return true;// This line is commented out, because it's itroducing trouble for pfNoPileUpCandidates
+	     }
+	    return false;
+	}
+	
+	//This function is needed because pfNoPileUpCandidates have changed keys, 
+	//and thus the solution is to use sourceCandidatePtr(0) 
+	// This function *shouldn't be used for packedCandidate*
+	template <class T, class U>
+	bool isInFootprintAlternative(const T& thefootprint, const U& theCandidate) 
+	{
+	    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
+	    {
+	      if( itr->key() == theCandidate->sourceCandidatePtr(0).key() ) return true;
+	    }
+	    return false;
+	}
 }
 
 class PhotonPFIsolationWithMapBasedVeto : public citk::IsolationConeDefinitionBase {
