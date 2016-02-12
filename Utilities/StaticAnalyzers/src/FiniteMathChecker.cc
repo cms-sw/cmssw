@@ -30,7 +30,7 @@ void FiniteMathChecker::checkPreStmt(const clang::CallExpr *CE, clang::ento::Che
   if (!II->isStr("isnan") && !II->isStr("isinf")) 
     return;
 
-  clang::ento::ExplodedNode *N = ctx.generateSink();
+  clang::ento::ExplodedNode *N = ctx.generateErrorNode();
   if (!N)
     return;
 

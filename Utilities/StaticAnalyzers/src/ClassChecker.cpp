@@ -218,7 +218,7 @@ void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,con
      case OO_PipeEqual:
      case OO_LessLessEqual:
      case OO_GreaterGreaterEqual:
-     if (const clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(OCE->arg_begin()->IgnoreParenImpCasts())){
+     if (const clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>((*OCE->arg_begin())->IgnoreParenImpCasts())){
           if (ME->isImplicitAccess())
                ReportMember(ME);
      } 
