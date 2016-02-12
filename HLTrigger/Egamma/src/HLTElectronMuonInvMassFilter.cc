@@ -7,6 +7,9 @@
  */
 
 #include "HLTrigger/Egamma/interface/HLTElectronMuonInvMassFilter.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -56,7 +59,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   using namespace reco;
   // The filter object
   using namespace trigger;
-
+  
   double const MuMass = 0.106;
   double const MuMass2 = MuMass*MuMass;
 
@@ -65,7 +68,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
     if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
     filterproduct.addCollectionTag(MuonCollTag_);
   }
-
+  
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
   iEvent.getByToken (eleCandToken_,EleFromPrevFilter);
 
@@ -84,7 +87,17 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
 
   vector<RecoChargedCandidateRef> l3muons;
   MuonFromPrevFilter->getObjects(TriggerMuon,l3muons);
-
+  
+  Ref<reco::RecoEcalCandidateCollection> ecalRef;
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection>> clusCands;
+  if(electrons.empty()){
+  	EleFromPrevFilter->getObjects(TriggerCluster,clusCands);
+  }
+  
+  if(clusCands.empty()){
+  	EleFromPrevFilter->getObjects(TriggerPhoton,clusCands);
+  }
+  
   for(unsigned int i=0; i<l3muons.size(); i++) {
     TrackRef tk = l3muons[i]->get<TrackRef>();
     //     TrackRef tk = l3muons[i].track();
@@ -102,8 +115,18 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
     pElectron.push_back( pThisEle );
     eleCharge.push_back( refele->charge() );
   }
+  
+  for(unsigned int i=0;i<clusCands.size();i++){
+  
+  	ecalRef = clusCands[i];
+	TLorentzVector pThisEle(ecalRef->px(), ecalRef->py(),
+				ecalRef->pz(), ecalRef->superCluster()->energy());
+	pElectron.push_back(pThisEle);
+	eleCharge.push_back( ecalRef->charge());	  
+  }
 
   int nEleMuPairs = 0;
+  
   for(unsigned int i=0; i<electrons.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
       TLorentzVector p1 = pElectron.at(i);
@@ -113,6 +136,20 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
 	filterproduct.addObject(TriggerElectron, electrons[i]);
+	filterproduct.addObject(TriggerMuon, l3muons[j]);
+      }
+    }
+  }
+  
+  for(unsigned int i=0; i<clusCands.size(); i++) {
+    for(unsigned int j=0; j<l3muons.size(); j++) {
+      TLorentzVector p1 = pElectron.at(i);
+      TLorentzVector p2 = pMuon.at(j);
+      TLorentzVector pTot = p1 + p2;
+      double mass = pTot.M();
+      if(mass>=lowerMassCut_ && mass<=upperMassCut_){
+	nEleMuPairs++;
+	filterproduct.addObject(TriggerElectron, clusCands[i]);
 	filterproduct.addObject(TriggerMuon, l3muons[j]);
       }
     }
