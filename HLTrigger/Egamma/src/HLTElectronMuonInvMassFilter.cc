@@ -108,6 +108,9 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
     muonCharge.push_back( tk->charge() );
   }
 
+  pElectron.reserve(electrons.size()+clusCands.size());
+  eleCharge.reserve(electrons.size()+clusCands.size());
+  
   for (unsigned int i=0; i<electrons.size(); i++) {
     refele = electrons[i];
     TLorentzVector pThisEle(refele->px(), refele->py(),
@@ -129,9 +132,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   for(unsigned int i=0; i<electrons.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
-      TLorentzVector p1 = pElectron.at(i);
-      TLorentzVector p2 = pMuon.at(j);
-      TLorentzVector pTot = p1 + p2;
+      TLorentzVector pTot = pElectron[i] + pMuon[j];
       double mass = pTot.M();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
