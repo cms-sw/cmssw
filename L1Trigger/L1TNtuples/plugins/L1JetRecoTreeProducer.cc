@@ -293,6 +293,14 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   float corrFactor = 1.;
   uint nJets = 0;
   
+  float mHx = 0;
+  float mHy = 0;
+  
+  met_data->Ht     = 0;
+  met_data->mHt    = -999.;
+  met_data->mHtPhi = -999.;
+
+
   for( auto it=pfJets->begin();
        it!=pfJets->end() && nJets < maxJet_;
        ++it) {
@@ -304,7 +312,17 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
     nJets++;
 
+    if (it->pt()*corrFactor > jetptThreshold_ && jetId(*it) && fabs(it->eta())<jetetaMax_) {
+      mHx += -1.*it->px()*corrFactor;
+      mHy += -1.*it->py()*corrFactor;
+      met_data->Ht  += it->pt()*corrFactor;
+    }
+
   }
+
+  TVector2 *tv2 = new TVector2(mHx,mHy);
+  met_data->mHt	   = tv2->Mod();
+  met_data->mHtPhi = tv2->Phi();
 
   // std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
   

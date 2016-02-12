@@ -116,7 +116,7 @@ if (eras.stage2L1Trigger.isChosen()):
 
     process.es_pool = cms.ESSource(
         "PoolDBESSource",
-        process.CondDBSetup,
+#        process.CondDBSetup,
         timetype = cms.string('runnumber'),
         toGet = cms.VPSet(
             cms.PSet(record = cms.string("HcalLutMetadataRcd"),
