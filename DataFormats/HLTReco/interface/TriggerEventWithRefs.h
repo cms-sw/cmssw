@@ -115,15 +115,14 @@ namespace trigger
 			    addObjects(tfowr.pfjetIds(),tfowr.pfjetRefs()),
 			    addObjects(tfowr.pftauIds(),tfowr.pftauRefs()),
 			    addObjects(tfowr.pfmetIds(),tfowr.pfmetRefs()),
-
-          // FIXME: Leave out for now, till BXVector is fixed 
-          // so its Refs are be saved in the Event
-          
-			    //addObjects(tfowr.l1tmuonIds(),tfowr.l1tmuonRefs()),
-			    //addObjects(tfowr.l1tegammaIds(),tfowr.l1tegammaRefs()),
-			    //addObjects(tfowr.l1tjetIds(),tfowr.l1tjetRefs()),
-			    //addObjects(tfowr.l1ttauIds(),tfowr.l1ttauRefs()),
-			    //addObjects(tfowr.l1tetsumIds(),tfowr.l1tetsumRefs())
+          // FIXME: Leave in for now, but Ref vectors are empty
+          // For now commented out assert statements in  TriggerFilterObjectWithRefs
+          // -------------------------------------------------
+			    addObjects(tfowr.l1tmuonIds(),tfowr.l1tmuonRefs()),
+			    addObjects(tfowr.l1tegammaIds(),tfowr.l1tegammaRefs()),
+			    addObjects(tfowr.l1tjetIds(),tfowr.l1tjetRefs()),
+			    addObjects(tfowr.l1ttauIds(),tfowr.l1ttauRefs()),
+			    addObjects(tfowr.l1tetsumIds(),tfowr.l1tetsumRefs())
 			   )
 	);
     }

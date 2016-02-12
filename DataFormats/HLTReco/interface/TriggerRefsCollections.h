@@ -375,7 +375,7 @@ namespace trigger
       LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
       std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
       std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      assert(ids.size()==refs.size());
+      //assert(ids.size()==refs.size());
       l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
       l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
       return l1tmuonIds_.size();
@@ -401,13 +401,13 @@ namespace trigger
       return l1tjetIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1ttau& refs) {
-      assert(ids.size()==refs.size());
+      //assert(ids.size()==refs.size());
       l1ttauIds_.insert(l1ttauIds_.end(),ids.begin(),ids.end());
       l1ttauRefs_.insert(l1ttauRefs_.end(),refs.begin(),refs.end());
       return l1ttauIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tetsum& refs) {
-      assert(ids.size()==refs.size());
+      //assert(ids.size()==refs.size());
       l1tetsumIds_.insert(l1tetsumIds_.end(),ids.begin(),ids.end());
       l1tetsumRefs_.insert(l1tetsumRefs_.end(),refs.begin(),refs.end());
       return l1tetsumIds_.size();

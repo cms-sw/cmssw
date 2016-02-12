@@ -25,21 +25,14 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.MessageLogger = cms.Service(
-#    "MessageLogger",
-#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-#    debugModules = cms.untracked.vstring('*'))
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+    debugModules = cms.untracked.vstring('*'))
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-)
-
-#
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
 #
 
@@ -104,17 +97,9 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
 )
 
-process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    processName = cms.string( "@" )
-)
-process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
-
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
     process.hltL1TSeed 
-    #+ process.hltTriggerSummaryRAW 
 )
 
 #
@@ -209,7 +194,6 @@ process.debug_step = cms.Path(
 )
 
 # Schedule definition
-#process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.hlt_step2,process.debug_step,process.endjob_step)
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.hlt_step2,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
 #print "L1T Emulation Sequence is:  "
