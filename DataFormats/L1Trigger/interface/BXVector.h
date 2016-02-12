@@ -67,7 +67,7 @@ class BXVector  {
   unsigned size( int bx ) const;
 
   // get N objects for a BX = 0
-  unsigned size( ) const { return size(0);}
+  unsigned size( ) const { return data_.size();}
 
   // add element with given BX index
   void push_back( int bx, T object );
@@ -99,9 +99,9 @@ class BXVector  {
   //int bx(const_iterator & iter) const; (potentially useful)
   unsigned int key(const_iterator & iter) const { return iter - begin(); }
 
-  // array subscript operator, always referring to objects for BX=0
-  T& operator[](std::size_t i) { return at(0,i); }
-  const T& operator[](std::size_t i) const { return at(0,i); }
+  // array subscript operator (incited by TriggerSummaryProducerAOD::fillTriggerObject...)
+  T& operator[](std::size_t i) { return data_[i]; }
+  const T& operator[](std::size_t i) const { return data_[i]; }
 
 
  private:
