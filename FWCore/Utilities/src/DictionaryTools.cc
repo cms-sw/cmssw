@@ -20,29 +20,22 @@
 
 namespace edm {
 
-  static TypeSet missingTypes_;
-
-  TypeSet&
-  missingTypes() {
-    return missingTypes_;
-  }
-
   bool
-  checkTypeDictionary(TypeID const& type) {
+  checkTypeDictionary(TypeID const& type, TypeSet& missingTypes) {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       // Assume not a class
       return true;
     }
     if(!cl->HasDictionary()) {
-      missingTypes().insert(type);
+      missingTypes.insert(type);
       return false;
     }
     return true;
   }
 
   void
-  checkTypeDictionaries(TypeID const& type, bool recursive) {
+  checkTypeDictionaries(TypeID const& type, TypeSet& missingTypes, bool recursive) {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       // Assume not a class
@@ -52,26 +45,26 @@ namespace edm {
     cl->GetMissingDictionaries(result, recursive); 
     for(auto const& item : result) {
       TClass const* cl = static_cast<TClass const*>(item);
-      missingTypes().insert(TypeID(cl->GetTypeInfo()));
+      missingTypes.insert(TypeID(cl->GetTypeInfo()));
     }
   }
 
   bool
-  checkClassDictionary(TypeID const& type) {
+  checkClassDictionary(TypeID const& type, TypeSet& missingTypes) {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
           << "No TClass for class: '" << type.className() << "'" << std::endl;
     }
     if(!cl->HasDictionary()) {
-      missingTypes().insert(type);
+      missingTypes.insert(type);
       return false;
     }
     return true;
   }
 
   void
-  checkClassDictionaries(TypeID const& type, bool recursive) {
+  checkClassDictionaries(TypeID const& type, TypeSet& missingTypes, bool recursive) {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
@@ -81,15 +74,15 @@ namespace edm {
     cl->GetMissingDictionaries(result, recursive); 
     for(auto const& item : result) {
       TClass const* cl = static_cast<TClass const*>(item);
-      missingTypes().insert(TypeID(cl->GetTypeInfo()));
+      missingTypes.insert(TypeID(cl->GetTypeInfo()));
     }
   }
 
   void
-  throwMissingDictionariesException() {
-    if (!missingTypes().empty()) {
+  throwMissingDictionariesException(TypeSet const& missingTypes) {
+    if (!missingTypes.empty()) {
       std::ostringstream ostr;
-      for(auto const& item : missingTypes()) {
+      for(auto const& item : missingTypes) {
         ostr << item << "\n\n";
       }
       throw Exception(errors::DictionaryNotFound)
@@ -108,9 +101,9 @@ namespace edm {
   }
 
   void
-  loadMissingDictionaries() {
-    while (!missingTypes().empty()) {
-      TypeSet missing(missingTypes());
+  loadMissingDictionaries(TypeSet missingTypes) {
+    while (!missingTypes.empty()) {
+      TypeSet missing(missingTypes);
       for(auto const& item : missing) {
         try {
           TClass::GetClass(item.typeInfo(), kTRUE);
@@ -118,18 +111,18 @@ namespace edm {
         // We don't want to fail if we can't load a plug-in.
         catch (...) {}
       }
-      missingTypes().clear();
+      missingTypes.clear();
       for(auto const& item : missing) {
-        checkTypeDictionaries(item, true);
+        checkTypeDictionaries(item, missingTypes,true);
       }
-      if (missingTypes() == missing) {
+      if (missingTypes == missing) {
         break;
       }
     }
-    if (missingTypes().empty()) {
+    if (missingTypes.empty()) {
       return;
     }
-    throwMissingDictionariesException();
+    throwMissingDictionariesException(missingTypes);
   }
 
   void
