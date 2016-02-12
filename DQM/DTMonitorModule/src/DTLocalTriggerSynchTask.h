@@ -78,8 +78,8 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
   int nevents;
 
-  int phCodeBestDCC[6][5][13];
-  int phCodeBXDCC[6][5][13][3];
+  int phCodeBestTM[6][5][13];
+  int phCodeBXTM[6][5][13][3];
   int phCodeBestDDU[6][5][13];
   int thCodeBestDDU[6][5][13];
   int segHitBest[6][5][13];

@@ -147,7 +147,7 @@ private:
   int inTimeHitsLowerBound;
   int inTimeHitsUpperBound;
   int timeBoxGranularity;
-  int maxTDCCounts;
+  int maxTTMounts;
   bool doAllHitsOccupancies;
   bool doNoiseOccupancies;
   bool doInTimeOccupancies;

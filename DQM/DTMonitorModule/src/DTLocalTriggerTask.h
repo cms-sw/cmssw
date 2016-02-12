@@ -76,8 +76,8 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
 
-  /// Run analysis on DCC data
-  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
+  /// Run analysis on TM data
+  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
@@ -86,7 +86,7 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   void runSegmentAnalysis(edm::Handle<DTRecSegment4DCollection>& segments4D);
 
   /// Run analysis on ROS data
-  void runDDUvsDCCAnalysis(std::string& trigsrc);
+  void runDDUvsTMAnalysis(std::string& trigsrc);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -97,8 +97,8 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
 
-  /// Get the Top folder (different between Physics and TP and DCC/DDU)
-  std::string& topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; }
+  /// Get the Top folder (different between Physics and TP and TM/DDU)
+  std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; }
 
  private:
 
@@ -108,13 +108,13 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
   edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 
-  bool useDCC, useDDU, useSEG;
+  bool useTM, useDDU, useSEG;
   std::string trigsrc;
   int nevents;
   bool tpMode;
-  std::string baseFolderDCC;
+  std::string baseFolderTM;
   std::string baseFolderDDU;
-  bool doDCCTheta;
+  bool doTMTheta;
   bool detailedAnalysis;
 
 

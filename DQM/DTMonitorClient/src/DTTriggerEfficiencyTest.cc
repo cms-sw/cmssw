@@ -40,7 +40,7 @@ using namespace std;
 DTTriggerEfficiencyTest::DTTriggerEfficiencyTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTTriggerEfficiency");
-  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderTM = "DT/03-LocalTrigger-TM/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   detailedPlots = ps.getUntrackedParameter<bool>("detailedAnalysis",true);
 
@@ -196,7 +196,7 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
 
   stringstream wheel; wheel << wh;
 
-  string folderName =  topFolder(hwSource=="DCC") + folder + "/";
+  string folderName =  topFolder(hwSource=="TM") + folder + "/";
 
   string histoname = sourceFolder + folderName 
     + fullName(histoTag) + "_W" + wheel.str();
@@ -208,8 +208,8 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
 void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag,string folder) {
 
   string basedir;  
-  bool isDCC = hwSource=="DCC" ;  
-  basedir = topFolder(isDCC);   //Book summary histo outside Task directory 
+  bool isTM = hwSource=="TM" ;  
+  basedir = topFolder(isTM);   //Book summary histo outside Task directory 
 
   if (folder != "") {
     basedir += folder +"/" ;
@@ -229,11 +229,11 @@ void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wh
 
   stringstream wh; wh << wheel;
   string basedir;  
-  bool isDCC = hwSource=="DCC" ;  
+  bool isTM = hwSource=="TM" ;  
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
+    basedir = topFolder(isTM);   //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
+    basedir = topFolder(isTM) + "Wheel" + wh.str() + "/" ;
 
   }
   if (folder != "") {
@@ -291,16 +291,16 @@ void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTCham
   stringstream sector; sector << chambId.sector();
 
   string fullType  = fullName(htype);
-  bool isDCC = hwSource=="DCC" ;
+  bool isTM = hwSource=="TM" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  ibooker.setCurrentFolder(topFolder(isDCC) + 
+  ibooker.setCurrentFolder(topFolder(isTM) + 
       "Wheel" + wheel.str() +
       "/Sector" + sector.str() +
       "/Station" + station.str() + 
       "/" + folder + "/");
 
-  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isDCC) + "Wheel" << wheel.str() 
+  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isTM) + "Wheel" << wheel.str() 
     <<"/Sector" << sector.str() << "/Station" << station.str() << "/" + folder + "/" << HistoName;
 
 
