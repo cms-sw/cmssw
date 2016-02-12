@@ -146,10 +146,10 @@ bool PhotonPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidateP
 	       }
       }      
     
-     result *= (is_vertex_allowed);
+     result &= (is_vertex_allowed);
     }
      //return true if the candidate is inside the cone and not in the footprint
-    result *= deltar2 < _coneSize2 && (!inFootprint);
+    result &= deltar2 < _coneSize2 && (!inFootprint);
 
    }
   
@@ -157,7 +157,7 @@ bool PhotonPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidateP
   else if ( aspf.get() && aspf.isNonnull())
   { 
      inFootprint = isInFootprintAlternative((*particleBasedIsolationMap)[photon], aspf); 
-     result *=  deltar2 < _coneSize2 && (!inFootprint);
+     result &=  deltar2 < _coneSize2 && (!inFootprint);
      
   }
   
