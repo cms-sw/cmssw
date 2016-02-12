@@ -81,6 +81,7 @@ PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iC
   MinSeedMom_ = iConfig.getUntrackedParameter<double>("MinSeedMom", 20.);
   MinIsolTrackMom_ = iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0);
   IsolCone_   = iConfig.getUntrackedParameter<double>("IsolCone", 40.0);
+  onlyHadrons_= iConfig.getUntrackedParameter<bool>("OnlyHadrons", true);
 }
 
 PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() { }
@@ -124,7 +125,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, edm::EventSetup const
   unsigned int ntrk(0);
   for(std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
     const HepMC::GenParticle *p1=*it1;
-    if (p1->pdg_id() < -100 || p1->pdg_id() > 100) { // Select hadrons only
+    if (p1->pdg_id() < -100 || p1->pdg_id() > 100 || (!onlyHadrons_)) { // Select hadrons only
       std::pair<double,double> EtaPhi1=GetEtaPhiAtEcal(p1->momentum().eta(),
 						       p1->momentum().phi(),
 						       p1->momentum().perp(),

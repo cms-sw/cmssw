@@ -66,6 +66,7 @@ private:
   double MinSeedMom_;       // minimum momentum of the isolated track seed
   double MinIsolTrackMom_;  // minimum prohibited momentum of a nearby track
   double IsolCone_;         // cone size (in mm) around the seed to consider a track "nearby"
+  bool   onlyHadrons_;      // select only isolated hadrons 
 
   unsigned int nAll_, nGood_;
   double ecDist_;           //distance to ECAL andcap from IP (cm)
