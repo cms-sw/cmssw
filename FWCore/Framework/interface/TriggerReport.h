@@ -56,6 +56,10 @@ namespace edm {
     std::string moduleLabel;
   };
 
+  inline
+  bool operator<(WorkerSummary const& a, WorkerSummary const& b) {
+    return a.moduleLabel < b.moduleLabel;
+  }
 
   struct TriggerReport
   {

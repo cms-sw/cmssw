@@ -205,12 +205,12 @@ def _addSeedToTrackProducers(seedProducers,modDict):
 # Validation iterative steps
 (_selectorsByAlgo, tracksValidationSelectorsByAlgo) = _addSelectorsByAlgo(_algos, globals())
 (_selectorsByAlgo_phase1Pixel, _tracksValidationSelectorsByAlgo_phase1Pixel) = _addSelectorsByAlgo(_algosForPhase1Pixel, globals())
-eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgo, _seq = _tracksValidationSelectorsByAlgo_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsByAlgo, _tracksValidationSelectorsByAlgo_phase1Pixel)
 
 # high purity
 (_selectorsByAlgoHp, tracksValidationSelectorsByAlgoHp) = _addSelectorsByHp(_algos,globals())
 (_selectorsByAlgoHp_phase1Pixel, _tracksValidationSelectorsByAlgoHp_phase1Pixel) = _addSelectorsByHp(_algosForPhase1Pixel,globals())
-eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgoHp, _seq = _tracksValidationSelectorsByAlgoHp_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsByAlgoHp, _tracksValidationSelectorsByAlgoHp_phase1Pixel)
 
 _generalTracksHp = _selectorsByAlgoHp[0]
 _generalTracksHp_phase1Pixel = _selectorsByAlgoHp_phase1Pixel[0]
@@ -275,7 +275,7 @@ generalTracksFromPV = _trackWithVertexRefSelector.clone(
 tracksValidationSelectorsFromPV.insert(0, generalTracksFromPV)
 (_selectorsFromPV_phase1Pixel, _tracksValidationSelectorsFromPV_phase1Pixel) = _addSelectorsBySrc([_generalTracksHp_phase1Pixel], "FromPV", "generalTracksFromPV", globals())
 _tracksValidationSelectorsFromPV_phase1Pixel.insert(0, generalTracksFromPV)
-eras.phase1Pixel.toModify(tracksValidationSelectorsFromPV, _seq = _tracksValidationSelectorsFromPV_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsFromPV, _tracksValidationSelectorsFromPV_phase1Pixel)
 
 ## Select conversion TrackingParticles, and define the corresponding associator
 # (do not use associations because the collections of interest are not subsets of each other)
@@ -434,16 +434,16 @@ _selectorsByAlgoAndHp = _selectorsByAlgo+_selectorsByAlgoHp
 _selectorsByAlgoAndHp_phase1Pixel = _selectorsByAlgo_phase1Pixel+_selectorsByAlgoHp_phase1Pixel
 (_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByOriginalAlgo", "originalAlgorithm",globals())
 (_selectorsByOriginalAlgo_phase1Pixel, _tracksValidationSelectorsByOriginalAlgoStandalone_phase1Pixel) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_phase1Pixel, "ByOriginalAlgo", "originalAlgorithm",globals())
-eras.phase1Pixel.toModify(tracksValidationSelectorsByOriginalAlgoStandalone, _seq = _tracksValidationSelectorsByOriginalAlgoStandalone_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsByOriginalAlgoStandalone, _tracksValidationSelectorsByOriginalAlgoStandalone_phase1Pixel)
 
 (_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByAlgoMask", "algorithmMaskContains",globals())
 (_selectorsByAlgoMask_phase1Pixel, _tracksValidationSelectorsByAlgoMaskStandalone_phase1Pixel) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_phase1Pixel, "ByAlgoMask", "algorithmMaskContains",globals())
-eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgoMaskStandalone, _seq = _tracksValidationSelectorsByAlgoMaskStandalone_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsByAlgoMaskStandalone, _tracksValidationSelectorsByAlgoMaskStandalone_phase1Pixel)
 
 # Select fromPV by iteration
 (_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgoAndHp, "FromPV", "generalTracksFromPV",globals())
 (_selectorsFromPVStandalone_phase1Pixel, _tracksValidationSelectorsFromPVStandalone_phase1Pixel) = _addSelectorsBySrc(_selectorsByAlgoAndHp_phase1Pixel, "FromPV", "generalTracksFromPV",globals())
-eras.phase1Pixel.toModify(tracksValidationSelectorsFromPVStandalone, _seq = _tracksValidationSelectorsFromPVStandalone_phase1Pixel._seq)
+eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsFromPVStandalone, _tracksValidationSelectorsFromPVStandalone_phase1Pixel)
 
 # MTV instances
 trackValidatorStandalone = trackValidator.clone( label = trackValidator.label+ _selectorsByOriginalAlgo + _selectorsByAlgoMask)
@@ -494,8 +494,8 @@ tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude
 (_seedSelectors, tracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducers, globals())
 (_fastSimSeedSelectors, _fastSimTracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForFastSim, globals())
 (_phase1PixelSeedSelectors, _phase1PixelTracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForPhase1Pixel, globals())
-eras.fastSim.toModify(tracksValidationSeedSelectorsTrackingOnly, _seq = _fastSimTracksValidationSeedSelectorsTrackingOnly._seq)
-eras.phase1Pixel.toModify(tracksValidationSeedSelectorsTrackingOnly, _seq=_phase1PixelTracksValidationSeedSelectorsTrackingOnly._seq)
+eras.fastSim.toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, _fastSimTracksValidationSeedSelectorsTrackingOnly)
+eras.phase1Pixel.toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, _phase1PixelTracksValidationSeedSelectorsTrackingOnly)
 
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )

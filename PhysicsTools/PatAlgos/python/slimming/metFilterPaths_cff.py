@@ -42,8 +42,8 @@ allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','
        
 def miniAOD_customizeMETFiltersFastSim(process):
     """Replace some MET filters that don't work in FastSim with trivial bools"""
-    for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','HcalStripHaloFilter','HBHENoiseFilter', 'HBHENoiseIsoFilter', 'HBHENoiseFilterResultProducer', 'chargedHadronTrackResolutionFilter', 'muonBadTrackFilter':
-        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))
+    for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','HcalStripHaloFilter':
+        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))    
     for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
     return process

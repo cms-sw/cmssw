@@ -56,10 +56,16 @@ unsigned int iFirst = 1;
 unsigned int iLast  = 9;
 //
 
+// function declarations
+void createPlots(TString plot);
+void create2DPlots(TString plot);
+void drawEtaValues();
+void makeColorTableRB();
+
 using namespace std;
 
 // Main
-TrackerMaterialBudgetComparison(TString detector) {
+void TrackerMaterialBudgetComparison(TString detector) {
 
   gROOT->SetStyle("Plain");
 
@@ -74,7 +80,7 @@ TrackerMaterialBudgetComparison(TString detector) {
      && theDetector!="InnerTracker"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
-    break;
+    exit(0);
   }
   //
   
@@ -423,7 +429,7 @@ void createPlots(TString plot) {
     histo_ratio->SetFillColor(0);     // white
     histo_ratio->SetMarkerStyle(20);  // cyrcles
     histo_ratio->SetMarkerSize(0.2);  // 
-    histo_ratio->SetLineWidth(0.8);  // 
+    histo_ratio->SetLineWidth(1);  // 
     //
     // Draw
     histo_ratio->GetXaxis()->SetTitle(abscissaName);
@@ -455,11 +461,13 @@ void create2DPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
+  TString quotaName = "dummy";
   Int_t zLog = 0;
   Int_t iDrawEta = 0; //draw Eta values
   Int_t iRebin = 0; //Rebin
   Double_t histoMin = -1.;
   Double_t histoMax = -1.;
+
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
     plotNumber = 30;
     abscissaName = TString("#eta");
@@ -712,7 +720,7 @@ void create2DPlots(TString plot) {
 void drawEtaValues(){
 
   //Add eta labels
-  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4., -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
+  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4, -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
   Float_t etax = 2940.;
   Float_t etay = 1240.;
   Float_t lineL = 100.;
@@ -728,16 +736,18 @@ void drawEtaValues(){
     TLine *linev = new TLine(0.,-10.,0.,10.); 
     linev->Draw();  
 
+    Float_t x1;
+    Float_t y1;
     if ( etas[ieta]>-1.6 && etas[ieta]<1.6 ){
-      Float_t x1 = etay/tan(th);
-      Float_t y1 = etay;
+      x1 = etay/tan(th);
+      y1 = etay;
     } else if ( etas[ieta]<=-1.6 ) {
-      Float_t x1 = -etax;
-      Float_t y1 = -etax*tan(th);
+      x1 = -etax;
+      y1 = -etax*tan(th);
       talign = 11;
     } else if ( etas[ieta]>=1.6 ){
-      Float_t x1 = etax;
-      Float_t y1 = etax*tan(th);
+      x1 = etax;
+      y1 = etax*tan(th);
       talign = 31;
     }
     Float_t x2 = x1+lineL*cos(th);
@@ -749,10 +759,11 @@ void drawEtaValues(){
     line1->Draw();  
     char text[20];
     int rc = sprintf(text, "%3.1f", etas[ieta]);
+    TLatex *t1;
     if ( etas[ieta] == 0 ) {
-      TLatex *t1 = new TLatex(xt,yt,"#eta = 0"); 
+      t1 = new TLatex(xt,yt,"#eta = 0"); 
     } else {
-      TLatex *t1 = new TLatex(xt,yt,text); 
+      t1 = new TLatex(xt,yt,text); 
     }
     t1->SetTextSize(0.03);
     t1->SetTextAlign(talign);

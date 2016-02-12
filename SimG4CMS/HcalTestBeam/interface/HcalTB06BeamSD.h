@@ -10,12 +10,12 @@
 
 #include "G4String.hh"
 
-#include <boost/cstdint.hpp>
 #include <string>
 
 class DDCompactView;
 class DDFilteredView;
 class G4Step;
+class G4Material;
 
 class HcalTB06BeamSD : public CaloSD {
 
@@ -39,7 +39,7 @@ private:
   double                birk1, birk2, birk3;
   std::vector<G4String> wcNames;
   G4String              matName;
-
+  const G4Material*     matScin;
 };
 
 #endif // HcalTB06BeamSD_h
