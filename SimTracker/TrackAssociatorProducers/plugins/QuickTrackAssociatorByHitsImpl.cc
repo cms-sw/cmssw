@@ -149,7 +149,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToReco( co
 
 
 template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
+reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::RecoToSimCollection returnValue(productGetter_);
 
@@ -198,7 +198,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 }
 
 template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
+reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::SimToRecoCollection returnValue(productGetter_);
 
@@ -258,7 +258,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 
 }
 
-template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHitsImpl::associateTrack( const TrackerHitAssociator& hitAssociator, T_TPCollection trackingParticles, iter begin, iter end ) const
+template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHitsImpl::associateTrack( const TrackerHitAssociator& hitAssociator, const T_TPCollection& trackingParticles, iter begin, iter end ) const
 {
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the number of associated hits as "second"
 	std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
@@ -295,7 +295,7 @@ template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<T
 	return returnValue;
 }
 
-template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHitsImpl::associateTrack( const ClusterTPAssociation& clusterToTPMap, T_TPCollection trackingParticles, iter begin, iter end ) const
+template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHitsImpl::associateTrack( const ClusterTPAssociation& clusterToTPMap, const T_TPCollection& trackingParticles, iter begin, iter end ) const
 {
 	// Note that the trackingParticles parameter is not actually required since all the information is in clusterToTPMap,
 	// but the method signature has to match the other overload because it is called from a templated method.
