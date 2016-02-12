@@ -63,24 +63,24 @@ PythiaFilterTTBar::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // count the final state leptons
 
-      if (fabs(pdgID) == 11)
+      if (std::abs(pdgID) == 11)
 	iE++;
 
-      if(fabs(pdgID) == 13)
+      if(std::abs(pdgID) == 13)
 	iMu++;
       
-      if(fabs(pdgID) == 15)
+      if(std::abs(pdgID) == 15)
 	iTau++;
 
       // count the final state neutrinos
       
-      if(fabs(pdgID) == 12)
+      if(std::abs(pdgID) == 12)
 	iNuE++;
 
-      if(fabs(pdgID) == 14)
+      if(std::abs(pdgID) == 14)
 	iNuMu++;
       
-      if(fabs(pdgID) == 16)
+      if(std::abs(pdgID) == 16)
 	iNuTau++;
 
     }
