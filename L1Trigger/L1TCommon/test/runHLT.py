@@ -37,7 +37,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
             detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
             debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
 )
 
 #
@@ -105,11 +104,22 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
 )
 
-#
-# END HLT UNPACKER SEQUENCE FOR STAGE 2
-#
+process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    processName = cms.string( "@" )
+)
+process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+    processName = cms.string( "@" )
+)
 
-process.HLTTesting  = cms.Sequence( process.hltL1TSeed )
+# HLT testing sequence
+process.HLTTesting  = cms.Sequence( 
+    process.hltL1TSeed 
+    #+ process.hltTriggerSummaryRAW 
+)
+
+#
+# END L1T SEEDS EXAMPLE FOR STAGE 2
+#
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -193,7 +203,7 @@ process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
     process.dumpES + 
-#    process.dumpED +
+    process.dumpED +
     process.l1tSummaryStage2SimDigis +
     process.l1tSummaryStage2HltDigis
 )
