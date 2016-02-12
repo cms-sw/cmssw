@@ -127,7 +127,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
-  string folderName = topFolder(hwSource=="DCC") + "Wheel" +  wheel.str() +
+  string folderName = topFolder(hwSource=="TM") + "Wheel" +  wheel.str() +
     "/Sector" + sector.str() + "/Station" + station.str() + "/" ; 
   if (subfolder!="") { folderName += subfolder + "/"; }
 
@@ -145,7 +145,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int 
 
   stringstream wheel; wheel << wh;
 
-  string folderName =  topFolder(hwSource=="DCC") + "Wheel" + wheel.str() + "/";
+  string folderName =  topFolder(hwSource=="TM") + "Wheel" + wheel.str() + "/";
   if (subfolder!="") { folderName += subfolder + "/"; }  
 
   string histoname = sourceFolder + folderName 
@@ -161,8 +161,8 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  bool isDCC = hwSource=="DCC" ;
-  string basedir = topFolder(isDCC)+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
+  bool isTM = hwSource=="TM" ;
+  string basedir = topFolder(isTM)+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
   if (folder!="") {
     basedir += folder +"/";
   }
@@ -223,8 +223,8 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
 void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker & ibooker, 
                                                string hTag, string folder, bool isGlb) {
 
-  bool isDCC = hwSource == "DCC"; 
-  string basedir = topFolder(isDCC);
+  bool isTM = hwSource == "TM"; 
+  string basedir = topFolder(isTM);
   if (folder != "") {
     basedir += folder +"/" ;
   }
@@ -245,11 +245,11 @@ void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker & ibooker,int whe
   
   stringstream wh; wh << wheel;
   string basedir;  
-  bool isDCC = hwSource=="DCC" ;  
+  bool isTM = hwSource=="TM" ;  
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
+    basedir = topFolder(isTM);   //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
+    basedir = topFolder(isTM) + "Wheel" + wh.str() + "/" ;
     
   }
   if (folder != "") {

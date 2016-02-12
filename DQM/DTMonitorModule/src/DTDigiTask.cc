@@ -77,7 +77,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
-  maxTDCCounts = ps.getUntrackedParameter<int>("maxTDCCounts", 6400);
+  maxTTMounts = ps.getUntrackedParameter<int>("maxTTMounts", 6400);
 
   doAllHitsOccupancies = ps.getUntrackedParameter<bool>("doAllHitsOccupancies", true);
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
@@ -266,13 +266,13 @@ void DTDigiTask::bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& d
 
     if (!readTTrigDB) {
       (digiHistos[histoTag])[dtSL.rawId()] =
-        ibooker.book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+        ibooker.book1D(histoName,histoTitle, maxTTMounts/timeBoxGranularity, 0, maxTTMounts);
       if(doLayerTimeBoxes) {      // Book TimeBoxes per layer
         for(int layer = 1; layer != 5; ++layer) {
           DTLayerId layerId(dtSL, layer);
           stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
           (digiHistos[histoTag])[layerId.rawId()] =
-            ibooker.book1D(layerHistoName.str(),layerHistoName.str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+            ibooker.book1D(layerHistoName.str(),layerHistoName.str(), maxTTMounts/timeBoxGranularity, 0, maxTTMounts);
         }
       }
     }
