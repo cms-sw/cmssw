@@ -2,7 +2,7 @@
 #define GtProducer_h
 
 /**
- * \class GtProducer
+ * \class L1TGlobalProducer
  *
  *
  * Description: L1 Global Trigger producer.
@@ -52,20 +52,19 @@ class TriggerMenu;
 
 // class declaration
 
-namespace l1t {
 
-  class GtProducer : public edm::EDProducer
+  class L1TGlobalProducer : public edm::EDProducer
 {
 
 public:
 
-    explicit GtProducer(const edm::ParameterSet&);
-    ~GtProducer();
+    explicit L1TGlobalProducer(const edm::ParameterSet&);
+    ~L1TGlobalProducer();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
     // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
-    inline const GtBoard* gtBrd() const
+    inline const l1t::GtBoard* gtBrd() const
     {
         return m_uGtBrd;
     }    
@@ -157,7 +156,7 @@ private:
     GtProducerGTL* m_gtGTL;
     GtProducerFDL* m_gtFDL;
 */
-    GtBoard* m_uGtBrd;
+    l1t::GtBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;
@@ -221,5 +220,5 @@ private:
 
 };
 
-}
+
 #endif /*GtProducer_h*/

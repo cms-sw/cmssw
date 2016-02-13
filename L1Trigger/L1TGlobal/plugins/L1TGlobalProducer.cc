@@ -1,5 +1,5 @@
 /**
- * \class GtProducer
+ * \class L1TGlobalProducer
  *
  *
  * Description: see header file.
@@ -17,7 +17,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/plugins/GtProducer.h"
+#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
 
 // system include files
 #include <memory>
@@ -64,11 +64,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-
+using namespace l1t;
 
 // constructors
 
-l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
+L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
             m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
 	    m_extInputTag(parSet.getParameter<edm::InputTag> ("extInputTag")),
@@ -92,12 +92,12 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 {
 
 
-  m_egInputToken = consumes <BXVector<l1t::EGamma> > (m_caloInputTag);
-  m_tauInputToken = consumes <BXVector<l1t::Tau> > (m_caloInputTag);
-  m_jetInputToken = consumes <BXVector<l1t::Jet> > (m_caloInputTag);
-  m_sumInputToken = consumes <BXVector<l1t::EtSum> > (m_caloInputTag);
+  m_egInputToken = consumes <BXVector<EGamma> > (m_caloInputTag);
+  m_tauInputToken = consumes <BXVector<Tau> > (m_caloInputTag);
+  m_jetInputToken = consumes <BXVector<Jet> > (m_caloInputTag);
+  m_sumInputToken = consumes <BXVector<EtSum> > (m_caloInputTag);
 
-  m_muInputToken = consumes <BXVector<l1t::Muon> > (m_muInputTag);
+  m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
 
   m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
 
@@ -136,7 +136,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_emulateBxInEvent = m_emulateBxInEvent - 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
                     << m_emulateBxInEvent << "\n         The number must be an odd number!\n"
                     << std::endl;
@@ -148,7 +148,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_L1DataBxInEvent = m_L1DataBxInEvent - 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing for incoming L1 Data rounded to: "
                     << m_L1DataBxInEvent << "\n         The number must be an odd number!\n"
                     << std::endl;
@@ -157,7 +157,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_L1DataBxInEvent = 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing for incoming L1 Data was changed to: "
                     << m_L1DataBxInEvent << "\n         The number must be an odd positive number!\n"
                     << std::endl;
@@ -395,7 +395,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 }
 
 // destructor
-l1t::GtProducer::~GtProducer()
+L1TGlobalProducer::~L1TGlobalProducer()
 {
 
     delete m_uGtBrd;
@@ -405,7 +405,7 @@ l1t::GtProducer::~GtProducer()
 // member functions
 
 // method called to produce the data
-void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
+void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     // get / update the parameters from the EventSetup
@@ -503,7 +503,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
         
 	// Instantiate Parser
-        l1t::TriggerMenuParser gtParser = l1t::TriggerMenuParser();   
+        TriggerMenuParser gtParser = TriggerMenuParser();   
 
 
 	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
@@ -956,7 +956,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
         LogDebug("l1t|Global")
-        << "Test gtObjectMapRecord in GtProducer \n\n" << myCoutStream.str() << "\n\n"
+        << "Test gtObjectMapRecord in L1TGlobalProducer \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
 
         myCoutStream.str("");
@@ -984,4 +984,4 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(l1t::GtProducer);
+DEFINE_FWK_MODULE(L1TGlobalProducer);

@@ -86,7 +86,7 @@ process.hltGmtStage2Digis = cms.EDProducer(
     lenAMC13Trailer = cms.untracked.int32(8)
 )
 
-process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
+process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),
