@@ -54,7 +54,6 @@
 #include <vector>
 
 #include<typeinfo>
-#include<iostream>
 
 namespace trigger
 {
@@ -195,11 +194,16 @@ namespace trigger
       std::swap(l1hfringsIds_,  other.l1hfringsIds_);
       std::swap(l1hfringsRefs_, other.l1hfringsRefs_);
 
-      std::swap(l1tmuonIds_,     other.l1tmuonIds_);
-      std::swap(l1tegammaIds_,   other.l1tegammaIds_);
-      std::swap(l1tjetIds_,      other.l1tjetIds_);
-      std::swap(l1ttauIds_,      other.l1ttauIds_);
-      std::swap(l1tetsumIds_,      other.l1tetsumIds_);
+      std::swap(l1tmuonIds_,    other.l1tmuonIds_);
+      std::swap(l1tmuonRefs_,   other.l1tmuonRefs_);
+      std::swap(l1tegammaIds_,  other.l1tegammaIds_);
+      std::swap(l1tegammaRefs_, other.l1tegammaRefs_);
+      std::swap(l1tjetIds_,     other.l1tjetIds_);
+      std::swap(l1tjetRefs_,    other.l1tjetRefs_);
+      std::swap(l1ttauIds_,     other.l1ttauIds_);
+      std::swap(l1ttauRefs_,    other.l1ttauRefs_);
+      std::swap(l1tetsumIds_,   other.l1tetsumIds_);
+      std::swap(l1tetsumRefs_,  other.l1tetsumRefs_);
 
       std::swap(pfjetIds_,      other.pfjetIds_);
       std::swap(pfjetRefs_,     other.pfjetRefs_);
@@ -371,43 +375,29 @@ namespace trigger
       return l1etmissIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tmuon& refs) {
-      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
-      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      //assert(ids.size()==refs.size());
+      assert(ids.size()==refs.size());
       l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
       l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
       return l1tmuonIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tegamma& refs) {
-      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
-      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      //assert(ids.size()==refs.size());
+      assert(ids.size()==refs.size());
       l1tegammaIds_.insert(l1tegammaIds_.end(),ids.begin(),ids.end());
       l1tegammaRefs_.insert(l1tegammaRefs_.end(),refs.begin(),refs.end());
       return l1tegammaIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tjet& refs) {
-      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
-      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      //assert(ids.size()==refs.size());
+      assert(ids.size()==refs.size());
       l1tjetIds_.insert(l1tjetIds_.end(),ids.begin(),ids.end());
       l1tjetRefs_.insert(l1tjetRefs_.end(),refs.begin(),refs.end());
       return l1tjetIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1ttau& refs) {
-      //assert(ids.size()==refs.size());
       l1ttauIds_.insert(l1ttauIds_.end(),ids.begin(),ids.end());
       l1ttauRefs_.insert(l1ttauRefs_.end(),refs.begin(),refs.end());
       return l1ttauIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tetsum& refs) {
-      //assert(ids.size()==refs.size());
       l1tetsumIds_.insert(l1tetsumIds_.end(),ids.begin(),ids.end());
       l1tetsumRefs_.insert(l1tetsumRefs_.end(),refs.begin(),refs.end());
       return l1tetsumIds_.size();
