@@ -100,14 +100,14 @@ namespace l1t {
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
-      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 8);
-      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
-      amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
-      amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer", 8);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader");
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer");
+      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader");
+      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer");
+      amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header");
+      amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer");
 
-      debug_ = config.getUntrackedParameter<bool>("debug", false);
+      debug_ = config.getUntrackedParameter<bool>("debug");
    }
 
 
@@ -269,8 +269,8 @@ namespace l1t {
      desc.addUntracked<bool>("CTP7", false);
      desc.addUntracked<bool>("MTF7", false);
      desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
-     desc.add<std::vector<int>>("FedIds", {});
-     desc.add<std::string>("Setup", "");
+     desc.add<std::vector<int>>("FedIds"); // required parameter, no default provided
+     desc.add<std::string>("Setup"); // required parameter, no default provided
      desc.addUntracked<int>("lenSlinkHeader", 8);
      desc.addUntracked<int>("lenSlinkTrailer", 8);
      desc.addUntracked<int>("lenAMCHeader", 8);
