@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/traits.h"
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace trigger
 {
@@ -94,10 +93,8 @@ namespace trigger
     /// setters - to build EDProduct
     void addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr) {
        
-      LogTrace("TriggerEventWithRefs") << "TriggerEventWithRefs::addFilterObjects(   )" 
-       << "\nTriggerEventWithRefs:: tfowr.l1tjetIds().size() = " << tfowr.l1tjetIds().size() 
-       << "\nTriggerEventWithRefs:: tfowr.l1tjetRefs().size() = " << tfowr.l1tjetRefs().size() << endl;
       filterObjects_.push_back(
+
         TriggerFilterObject(filterTag, 
 			    addObjects(tfowr.photonIds(),tfowr.photonRefs()),
 			    addObjects(tfowr.electronIds(),tfowr.electronRefs()),
@@ -115,16 +112,15 @@ namespace trigger
 			    addObjects(tfowr.pfjetIds(),tfowr.pfjetRefs()),
 			    addObjects(tfowr.pftauIds(),tfowr.pftauRefs()),
 			    addObjects(tfowr.pfmetIds(),tfowr.pfmetRefs()),
-          // FIXME: Leave in for now, but Ref vectors are empty
-          // For now commented out assert statements in  TriggerFilterObjectWithRefs
-          // -------------------------------------------------
 			    addObjects(tfowr.l1tmuonIds(),tfowr.l1tmuonRefs()),
 			    addObjects(tfowr.l1tegammaIds(),tfowr.l1tegammaRefs()),
 			    addObjects(tfowr.l1tjetIds(),tfowr.l1tjetRefs()),
 			    addObjects(tfowr.l1ttauIds(),tfowr.l1ttauRefs()),
 			    addObjects(tfowr.l1tetsumIds(),tfowr.l1tetsumRefs())
 			   )
-	);
+
+	    );
+
     }
 
     /// getters - for user access

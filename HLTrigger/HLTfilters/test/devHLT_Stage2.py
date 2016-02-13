@@ -134,9 +134,9 @@ process.myProducerLabel = cms.EDProducer(
     doRefs =cms.bool(True)
 )
 
-process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    processName = cms.string( "@" )
-)
+#process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    #processName = cms.string( "@" )
+#)
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
@@ -162,7 +162,7 @@ process.HLTTesting  = cms.Sequence(
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
