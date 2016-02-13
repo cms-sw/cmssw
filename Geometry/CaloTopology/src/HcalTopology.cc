@@ -445,9 +445,11 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
             if (aieta == etaBinsHE_[i].ieta) {
               if (aieta >= firstHEDoublePhiRing() && (iphi%2)==0) ok=false;
               if (aieta >= firstHEQuadPhiRing()   && (iphi%4)!=3) ok=false;
-              if (depth < etaBinsHE_[i].depthStart || 
-                  depth > (etaBinsHE_[i].depthStart+(int)(etaBinsHE_[i].layer.size())))
-                ok = false;
+              if (aieta+1 == hcons_->getNoff(1)) {
+		if (depth < 1) ok = false;
+	      } else {
+		if (depth < etaBinsHE_[i].depthStart) ok = false;
+	      }
               break;
             }
           }
