@@ -28,8 +28,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
-        from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import customiseFor2016trackingTemplate
-#       process = customiseFor2016trackingTemplate(process)
         pass
 
     return process
