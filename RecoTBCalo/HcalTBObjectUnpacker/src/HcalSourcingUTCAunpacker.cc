@@ -57,7 +57,6 @@ void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectron
   pData+=8;
   for (int iHist = 0; iHist<numHistos; iHist++) {
     if(DEBUG) std::cout << "Histogram: " << iHist << std::endl;
-    pData+=(numBins+2);
     crate   = ((*pData)>>16)&0x00FF;
     if(DEBUG) std::cout << "Crate: " << crate << std::endl;
     slot    = ((*pData)>>12)&0x0000F;
@@ -85,6 +84,8 @@ void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectron
       if(DEBUG) std::cout << "CapId: " << cap << "Bin: " << iBin << "Val: " << pData[iBin+1] << std::endl;
         
     }
+    if(iHist<numHistos-1)
+      pData+=(numBins+2);
 
   }
   if(DEBUG) std::cout << "DONE" << std::endl;
