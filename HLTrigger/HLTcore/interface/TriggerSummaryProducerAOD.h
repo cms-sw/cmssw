@@ -180,5 +180,10 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   edm::GetterOfProducts<l1extra::L1HFRingsCollection> getL1HFRingsCollection_;
   edm::GetterOfProducts<reco::PFJetCollection> getPFJetCollection_;
   edm::GetterOfProducts<reco::PFTauCollection> getPFTauCollection_;
+  edm::GetterOfProducts<l1t::MuonBxCollection> getL1TMuonParticleCollection_;
+  edm::GetterOfProducts<l1t::EGammaBxCollection> getL1TEGammaParticleCollection_;
+  edm::GetterOfProducts<l1t::JetBxCollection> getL1TJetParticleCollection_;
+  edm::GetterOfProducts<l1t::TauBxCollection> getL1TTauParticleCollection_;
+  edm::GetterOfProducts<l1t::EtSumBxCollection> getL1TEtSumParticleCollection_;
 };
 #endif

@@ -25,23 +25,14 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.MessageLogger = cms.Service(
-#    "MessageLogger",
-#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-#    debugModules = cms.untracked.vstring('*'))
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+    debugModules = cms.untracked.vstring('*'))
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myProducerLabel' )
-)
-
-#
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
 #
 
@@ -127,19 +118,6 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
 )
 
-process.myProducerLabel = cms.EDProducer(
-    #'TrackAndPointsProducer',
-    'TestBXVectorRefProducer',
-    src    =cms.InputTag('hltCaloStage2Digis'),
-    doRefs =cms.bool(False)
-)
-
-process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    processName = cms.string( "@" )
-)
-process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
 
 
 
@@ -155,14 +133,12 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
-    process.hltL1TSeed + 
-    #process.hltTriggerSummaryRAW 
-    process.myProducerLabel
+    process.hltL1TSeed 
 )
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
