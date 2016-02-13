@@ -21,7 +21,9 @@ const HcalDetId& HcalUHTRhistogramDigiCollection::id(size_t index) const{
   return ids_[index];
 }
 const size_t HcalUHTRhistogramDigiCollection::find(HcalDetId id) const{
-  return *(std::find(ids_.begin(), ids_.end(), id));
+   std::vector<HcalDetId>::const_iterator iter = std::find(ids_.begin(), ids_.end(), id);
+   if (iter == ids_.end()) return INVALID;
+   else return *iter;
 }
 
 const HcalUHTRhistogramDigi HcalUHTRhistogramDigiCollection::at(size_t index) const {

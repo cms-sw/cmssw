@@ -33,7 +33,7 @@ using namespace std;
     const HcalElectronicsMap* readoutMap = item.product();
     std::auto_ptr<HcalUHTRhistogramDigiCollection> hd(new HcalUHTRhistogramDigiCollection);
 
-    const FEDRawData& fed = rawraw->FEDData(18);
+    const FEDRawData& fed = rawraw->FEDData(61);
 
     histoUnpacker_.unpack(fed, *readoutMap, hd);
     std::cout << "PUTTING COLLECTION IN EVENT" << std::endl;

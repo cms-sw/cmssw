@@ -20,13 +20,14 @@ struct eventHeader {
   
 void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectronicsMap emap, std::auto_ptr<HcalUHTRhistogramDigiCollection>& histoDigiCollection) const {
   std::cout << "Unpacker Time!" << std::endl; 
-  if (raw.size()<32*38) {
-    throw cms::Exception("Missing Data") << "Less than 1 histogram in event";
+  if (raw.size()<4*38) {
+//    throw cms::Exception("Missing Data") << "Less than 1 histogram in event";
+    std::cout << "Warning: raw size in bytes: " << raw.size() << std::endl;
   }
   const uint32_t* pData = (const uint32_t*) raw.data(); 
   int nwords=raw.size()/4;
   for (int iw=0; iw<nwords; iw++)
-    printf("%04d %04d\n",iw,pData[iw]);
+    printf("%04d %04x\n",iw,pData[iw]);
   
   const struct eventHeader* eh =
     (const struct eventHeader*)(raw.data());
@@ -50,19 +51,20 @@ void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectron
   int channel = -1;
   int cap     = -1;
 //Loop over data
-  pData+=4;
+  pData+=8;
   for (int iHist = 0; iHist<numHistos; iHist++) {
     std::cout << "Histogram: " << iHist << std::endl;
-    pData+=iHist*numBins;
-    crate   = ((*pData)>>16)&0x00FF0000;
+    pData+=(numBins+2);
+    crate   = ((*pData)>>16)&0x00FF;
     std::cout << "Crate: " << crate << std::endl;
-    slot    = ((*pData)>>12)&0x0000F000;
+    slot    = ((*pData)>>12)&0x0000F;
     std::cout << "Slot: " << slot << std::endl;
-    fiber   = ((*pData)>>7)&0x00000F80;
+    fiber   = (*pData&0x00000F80)>>7;
     std::cout << "Fiber: " << fiber << std::endl;
-    channel = ((*pData)>>2)&0x0000007C;
+    channel = (*pData&0x0000007C)>>2;
     std::cout << "Channel: " << channel << std::endl;
     cap     = *pData&0x00000003;
+    std::cout << "Histo: " << iHist << std::endl;
     std::cout << "CapId: " << cap << std::endl;
     HcalElectronicsId eid(crate, slot, fiber, channel, false);
   //  eid.setHTR(htr_cr,htr_slot,htr_tb);
@@ -73,8 +75,9 @@ void HcalSourcingUTCAunpacker::unpack(const FEDRawData&  raw, const HcalElectron
       }
       continue;
     }
+    std::cout << "Det Id: " << ((HcalDetId)did) << std::endl;
     HcalUHTRhistogramDigiMutable digi = histoDigiCollection->addHistogram( did );
-    for(int iBin = 0; iBin<numBins; iBin++) {
+    for(int iBin = 0; iBin<numBins+1; iBin++) {
       digi.fillBin(cap, iBin, pData[iBin+1]);
       std::cout << "CapId: " << cap << "Bin: " << iBin << "Val: " << pData[iBin+1] << std::endl;
         
