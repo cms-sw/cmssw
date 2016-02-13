@@ -87,23 +87,11 @@ process.hltGmtStage2Digis = cms.EDProducer(
 )
 
 process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
-    #TechnicalTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtObjectMapRecord = cms.bool(True),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(5),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
     GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
-    extInputTag = cms.InputTag("gtInput"),
-    caloInputTag = cms.InputTag("hltCaloStage2Digis"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    TriggerMenuLuminosity = cms.string('startup'),
-    PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv'),
-    PrescaleSet = cms.uint32(1),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(0)
+    ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
+    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    AlgorithmTriggersUnprescaled = cms.bool(True),
+    AlgorithmTriggersUnmasked = cms.bool(True),
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence(

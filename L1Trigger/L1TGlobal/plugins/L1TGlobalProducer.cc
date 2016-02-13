@@ -1,24 +1,3 @@
-/**
- * \class L1TGlobalProducer
- *
- *
- * Description: see header file.
- *
- *   Based off legacy code written by Vasile Mihai Ghete - HEPHY Vienna
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author:   Brian Winer - Ohio State
- *
- * $Date$
- * $Revision$
- *
- */
-
-// this class header
-#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -40,6 +19,8 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "TriggerMenuParser.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,44 +31,55 @@
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
-/* //These are old but we might be able to reuse when these go into for upgrade
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-*/
-
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
+
 using namespace l1t;
 
 // constructors
 
+void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // These parameters are part of the L1T/HLT interface, best not to change:
+  desc.add<edm::InputTag> ("GmtInputTag");
+  desc.add<edm::InputTag> ("CaloInputTag");
+  desc.add<edm::InputTag> ("ExtInputTag");
+  desc.add<bool>("AlgorithmTriggersUnprescaled");
+  desc.add<bool>("AlgorithmTriggersUnmasked");
+  // These parameters are defaulted, and are not part of the L1T/HLT interface
+  // they can be cleaned up or updated at will:
+  desc.add<bool> ("ProduceL1GtDaqRecord",true);
+  desc.add<bool> ("ProduceL1GtObjectMapRecord",true);           
+  desc.add<int> ("EmulateBxInEvent",1);
+  desc.add<int> ("L1DataBxInEvent",5);
+  desc.add<unsigned int> ("AlternativeNrBxBoardDaq",0);
+  desc.add<int> ("BstLengthBytes",-1);
+  desc.add<unsigned int> ("PrescaleSet",1);    
+  desc.addUntracked<int>("Verbosity",0);            
+  desc.add<std::string>("TriggerMenuLuminosity","startup");
+  desc.add<std::string>("PrescaleCSVFile","prescale_L1TGlobal.csv");
+  descriptions.add("L1TGlobalProducer", desc);
+}
+
 L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
-            m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
-	    m_extInputTag(parSet.getParameter<edm::InputTag> ("extInputTag")),
-
+            m_caloInputTag(parSet.getParameter<edm::InputTag> ("CaloInputTag")),
+	    m_extInputTag(parSet.getParameter<edm::InputTag> ("ExtInputTag")),
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
-            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
-	    
+            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           	    
             m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
 	    m_L1DataBxInEvent(parSet.getParameter<int> ("L1DataBxInEvent")),
-
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
-
             m_prescaleSet(parSet.getParameter<unsigned int> ("PrescaleSet")),
-
             m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
-
-            m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
+            m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
             m_isDebugEnabled(edm::isDebugEnabled())
 {
 

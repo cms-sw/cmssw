@@ -1,23 +1,8 @@
-#ifndef GtProducer_h
-#define GtProducer_h
+//L1TGlobalProducer - Emulate L1T uGT
+//Author: Brian Winer  Ohio State
 
-/**
- * \class L1TGlobalProducer
- *
- *
- * Description: L1 Global Trigger producer.
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author: Brian Winer  Ohio State
- *
- * $Date$
- * $Revision$
- *
- * The CMSSW implementation based on Legacy System Code
- *
- */
+#ifndef L1TGLOBALPRODUCER_H
+#define L1TGLOBALPRODUCER_H
 
 // system include files
 #include <string>
@@ -62,12 +47,12 @@ public:
     ~L1TGlobalProducer();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
-
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
-    inline const l1t::GtBoard* gtBrd() const
-    {
-        return m_uGtBrd;
-    }    
+    //inline const l1t::GtBoard* gtBrd() const
+    //{
+    //    return m_uGtBrd;
+    //}     
 
 private:
 
