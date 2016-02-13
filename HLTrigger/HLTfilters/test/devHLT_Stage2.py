@@ -37,8 +37,8 @@ process.MessageLogger = cms.Service("MessageLogger",
             destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
             detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
             #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myProducerLabel' )
+            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
+            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myProducerLabel' )
 )
 
 #
@@ -131,7 +131,7 @@ process.myProducerLabel = cms.EDProducer(
     #'TrackAndPointsProducer',
     'TestBXVectorRefProducer',
     src    =cms.InputTag('hltCaloStage2Digis'),
-    doRefs =cms.bool(False)
+    doRefs =cms.bool(True)
 )
 
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
@@ -156,8 +156,8 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
     process.hltL1TSeed + 
-    #process.hltTriggerSummaryRAW 
-    process.myProducerLabel
+    process.hltTriggerSummaryRAW 
+    #process.myProducerLabel
 )
 
 
