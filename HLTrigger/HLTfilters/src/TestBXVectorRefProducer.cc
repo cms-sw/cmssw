@@ -76,20 +76,16 @@ TestBXVectorRefProducer::TestBXVectorRefProducer(const edm::ParameterSet& iConfi
 {
 
    //now do what ever other initialization is needed
-   src_  = iConfig.getParameter<edm::InputTag>( "src" );
-   doRefs_   = iConfig.getParameter<bool>("doRefs");
-
-   token_ = consumes<l1t::JetBxCollection>(src_);
+   src_       = iConfig.getParameter<edm::InputTag>( "src" );
+   doRefs_    = iConfig.getParameter<bool>("doRefs");
+   token_     = consumes<l1t::JetBxCollection>(src_);
 
    //register your products
    produces<vector<int>>( "jetPt" ).setBranchAlias( "jetPt");
-   produces<vector<float>>( "jetEta" ).setBranchAlias( "jetEta");
-   produces<BXVector<l1t::Jet>>( "l1tJet" ).setBranchAlias( "l1tJet");
 
    if(doRefs_) {
 
-     // FIXME: registering JetRefs crashes
-    produces<l1t::JetRef>( "l1tJetRef" ).setBranchAlias( "l1tJetRef");
+    produces<l1t::JetRefVector>( "l1tJetRef" ).setBranchAlias( "l1tJetRef");
 
    }
 
@@ -116,7 +112,7 @@ TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    using namespace edm;
 
    auto_ptr<vector<int>> jetMom ( new vector<int> );
-   auto_ptr<vector<l1t::JetRef>> jetRef ( new vector<l1t::JetRef> );
+   auto_ptr<l1t::JetRefVector> jetRef ( new l1t::JetRefVector );
 
    // retrieve the tracks
    Handle<l1t::JetBxCollection> jets;
@@ -140,7 +136,7 @@ TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    iEvent.put(jetMom,"jetPt");
    
-   if (doRefs_) iEvent.put(jetRef,"l1tJetRef ");
+   if (doRefs_) iEvent.put(jetRef,"l1tJetRef");
 
    return;
  
