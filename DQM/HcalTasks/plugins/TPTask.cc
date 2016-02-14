@@ -377,6 +377,10 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		status[1][fLowOcp_Emul] = constants::GOOD;
 
 	//	iphi Occupancy Uniformity for Data/Emul HF
+	bool nonUni_d = false;
+	bool nonUni_e = false;
+	bool nonUniMsm = false;
+	bool nonUniMsn = false;
 	for (int i=1; i<=69; i+=8)
 	{
 		int i1= i;
@@ -419,22 +423,33 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			std::max(msn1_p, msn2_p);
 
 		if (ratio_m_d<0.8 || ratio_p_d<0.8)
-			status[1][fOccUniphi_Data] = constants::VERY_LOW;
+			nonUni_d = true;
 		else
 			status[1][fOccUniphi_Data] = constants::GOOD;
 		if (ratio_m_e<0.8 || ratio_p_e<0.8)
-			status[1][fOccUniphi_Emul] = constants::VERY_LOW;
+			nonUni_e = true;
 		else 
 			status[1][fOccUniphi_Emul] = constants::GOOD;
 		if (msmratio_m<0.8 || msmratio_p<0.8)
-			status[1][fMsmEtUniphi] = constants::LOW;
+			nonUniMsm = true;
 		else 
 			status[1][fMsmEtUniphi] = constants::GOOD;
 		if (msnratio_m<0.8 || msnratio_p<0.8)
-			status[1][fMsnUniphi_Data] = constants::LOW;
+			nonUniMsn = true;
 		else
 			status[1][fMsnUniphi_Data] = constants::GOOD;
 	}
+
+	//	set status if any of the flags was set
+	if (nonUni_d)
+		status[1][fOccUniphi_Data] = constants::VERY_LOW;
+	if (nonUni_e)
+		status[1][fOccUniphi_Emul] = constants::VERY_LOW;
+	if (nonUniMsm)
+		status[1][fMsmEtUniphi] = constants::LOW;
+	if (nonUniMsn)
+		status[1][fMsnUniphi_Data] = constants::LOW;
+		
 
 	//	Correlation Ratio
 	double ratio_HBHE  = _cEtCorrRatiovsLS_TPSubDet.at(0)

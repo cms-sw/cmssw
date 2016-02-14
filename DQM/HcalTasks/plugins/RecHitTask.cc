@@ -448,7 +448,11 @@
 		double ratio_p = std::min(occ1_p, occ2_p)/std::max(occ1_p, occ2_p);
 
 		if (ratio_m<0.8 || ratio_p<0.8)
+		{
+			//	set and exit
 			status[3][fUniphi] = constants::VERY_LOW;
+			break;
+		}
 		else 
 			status[3][fUniphi] = constants::GOOD;
 	}

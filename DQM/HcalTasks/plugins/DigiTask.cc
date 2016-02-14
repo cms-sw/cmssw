@@ -606,7 +606,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		double ratio_p = std::min(occ1_p, occ2_p)/std::max(occ1_p, occ2_p);
 
 		if (ratio_m<0.8 || ratio_p<0.8)
+		{
+			//	set and exit the loop!
 			status[3][fUniphi] = constants::VERY_LOW;
+			break;
+		}
 		else
 			status[3][fUniphi] = constants::GOOD;
 	}
