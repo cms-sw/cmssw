@@ -45,14 +45,14 @@ using namespace l1t;
 
 void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  // These parameters are part of the L1T/HLT interface, best not to change:
-  desc.add<edm::InputTag> ("GmtInputTag");
-  desc.add<edm::InputTag> ("CaloInputTag");
-  desc.add<edm::InputTag> ("ExtInputTag");
-  desc.add<bool>("AlgorithmTriggersUnprescaled");
-  desc.add<bool>("AlgorithmTriggersUnmasked");
-  // These parameters are defaulted, and are not part of the L1T/HLT interface
-  // they can be cleaned up or updated at will:
+  // These parameters are part of the L1T/HLT interface, avoid changing if possible::
+  desc.add<edm::InputTag> ("GmtInputTag", edm::InputTag(""))->setComment("InputTag for Global Muon Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("CaloInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("ExtInputTag", edm::InputTag(""))->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
+  desc.add<bool>("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool>("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
+  // These parameters have well defined  default values and are not currently 
+  // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool> ("ProduceL1GtDaqRecord",true);
   desc.add<bool> ("ProduceL1GtObjectMapRecord",true);           
   desc.add<int> ("EmulateBxInEvent",1);
