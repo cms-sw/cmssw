@@ -130,6 +130,18 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
 				  handle->l1tegammaSlice(iFO).first);
        if (nL1TEGamma>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEGamma: " << nL1TEGamma;
 
+       const unsigned int nL1TJet(handle->l1tjetSlice(iFO).second-
+				  handle->l1tjetSlice(iFO).first);
+       if (nL1TJet>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TJet: " << nL1TJet;
+
+       const unsigned int nL1TTau(handle->l1ttauSlice(iFO).second-
+				  handle->l1ttauSlice(iFO).first);
+       if (nL1TTau>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTau: " << nL1TTau;
+
+       const unsigned int nL1TEtSum(handle->l1tetsumSlice(iFO).second-
+				  handle->l1tetsumSlice(iFO).first);
+       if (nL1TEtSum>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEtSum: " << nL1TEtSum;
+
 
        LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
      }
@@ -150,8 +162,11 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFJets:     " << handle->pfjetSize()     << endl;
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFTaus:     " << handle->pftauSize()     << endl;
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFMETs:     " << handle->pfmetSize()     << endl;
-     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuon:     " << handle->l1tmuonSize()    << endl;
-     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:   " << handle->l1tegammaSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuon:    " << handle->l1tmuonSize()   << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1tegammaSize() << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1tjetSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1ttauSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1tetsumSize()  << endl;
    } else {
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "Handle invalid! Check InputTag provided." << endl;
    }

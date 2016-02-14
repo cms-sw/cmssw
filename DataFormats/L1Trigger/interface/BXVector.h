@@ -66,7 +66,7 @@ class BXVector  {
   // get N objects for a given BX
   unsigned size( int bx ) const;
 
-  // get N objects for a BX = 0
+  // get N objects for all BXs together
   unsigned size( ) const { return data_.size();}
 
   // add element with given BX index
