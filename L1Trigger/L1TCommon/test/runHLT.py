@@ -88,13 +88,14 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 
 process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
-    saveTags = cms.bool( True ),
-    L1GtObjectMapTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    muonCollectionsTag = cms.InputTag("hltGmtStage2Digis"),
-    egammaCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    jetCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    tauCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+    SaveTags             = cms.bool( True ),
+    L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
+    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
+    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
+    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
+    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
 )
 
 # HLT testing sequence
