@@ -280,8 +280,8 @@ hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgain
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone()
 )
-## ByMVA6RawElectronRejection
-hpsPFTauDiscriminationByMVA6RawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA6.clone(
+## ByMVA6rawElectronRejection
+hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA6.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
     loadMVAfromDB = cms.bool(True),
@@ -298,8 +298,8 @@ hpsPFTauDiscriminationByMVA6RawElectronRejection = pfRecoTauDiscriminationAgains
 hpsPFTauDiscriminationByMVA6VLooseElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA6RawElectronRejection'),
-    key = cms.InputTag('hpsPFTauDiscriminationByMVA6RawElectronRejection:category'),
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA6rawElectronRejection'),
+    key = cms.InputTag('hpsPFTauDiscriminationByMVA6rawElectronRejection:category'),
     loadMVAfromDB = cms.bool(True),
     mapping = cms.VPSet(
         cms.PSet(
@@ -820,7 +820,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
-    hpsPFTauDiscriminationByMVA6RawElectronRejection*
+    hpsPFTauDiscriminationByMVA6rawElectronRejection*
     hpsPFTauDiscriminationByMVA6VLooseElectronRejection*
     hpsPFTauDiscriminationByMVA6LooseElectronRejection*
     hpsPFTauDiscriminationByMVA6MediumElectronRejection*
