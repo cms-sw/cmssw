@@ -223,12 +223,12 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
   int ietaUp = (jetEta + size > CaloTools::kHFEnd) ? 999 : jetEta+size;
-  int ietaDown = (jetEta - size < 1) ? 999 : jetEta-size;
+  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd) ? 999 : jetEta-size;
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
 
-    if (ieta > CaloTools::kHFEnd || ieta < 1) continue;
+    if (abs(ieta) > CaloTools::kHFEnd || abs(ieta) < 1) continue;
     int towerEta;
 
     if (jetEta > 0 && ieta <=0){
@@ -299,7 +299,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (ieta>CaloTools::kHFEnd || ieta<1) continue;
+      if (abs(ieta)>CaloTools::kHFEnd) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
@@ -327,7 +327,6 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
       }else{
-        ring[2] = 0;
         break;
       }
       
@@ -336,7 +335,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (ietaDown>=1) {
+      if (abs(ietaDown)<=CaloTools::kHFEnd) {
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
@@ -345,7 +344,6 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
       }else{
-        ring[3] = 0;
         break;
       }
       
