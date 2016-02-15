@@ -21,25 +21,13 @@ process.rawDataCollector = cms.EDProducer('DTNewROS8FileReader',
          eventsAnalysisRate = cms.untracked.int32(1),
 
          fileName = cms.untracked.string(
-         ##'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/data/eosdir/eos/cms/store/caf/user/dtdqm/InputLocalRuns/testpulses_YB2_test_vmepcs2g18-16_r213178.i0'
-         ##'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/marycruz/testROS8/data/testpuslsedefrancoprovaros8'
-         ##'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/marycruz/testROS8/data/test18032015.dat'
-         ##'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/marycruz/testROS8/data/test01072015.dat'
-         #'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/marycruz/testROS8/data/test01072015_2.dat'
-         #'file:/afs/cern.ch/user/b/bedoya/public/FM_cosmic_30mV_3020'
-         #'file:/afs/cern.ch/user/b/bedoya/public/FM_try3_3008'
-         #'file:/afs/cern.ch/user/b/bedoya/cms_offline/CMSSW_5_3_26/src/eosdir/eos/cms/store/group/dpg_dt/comm_dt/gif++/FM_cosmic_30mV_3020'
-	 # 'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/meneguz/GIF/FM_cosmic_30mV_3025'
- 	 #'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/tmpanalysis/meneguz/GIF/eosdir/eos/cms/store/group/dpg_dt/comm_dt/gif++/run28082015_3192'
-        #'file:/afs/cern.ch/user/b/bedoya/cms_offline/CMSSW_5_3_26/src/eosdir/eos/cms/store/group/dpg_dt/comm_dt/gif++/run27082015_3159'
-        #'file:/afs/cern.ch/user/b/bedoya/cms_offline/CMSSW_5_3_26/src/eosdir/eos/cms/store/group/dpg_dt/comm_dt/gif++/GIF++_004_verticalonly.dat'
         'file:./run27082015_3163'
          )
     
 )                                                
 
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from  CondCore.CondDB.CondDB_cfi import *
 
 ###### MAP ############################################################################
 ###process.mappingsource = cms.ESSource("PoolDBESSource",
