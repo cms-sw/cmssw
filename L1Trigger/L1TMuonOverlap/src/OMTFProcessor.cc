@@ -29,7 +29,8 @@ OMTFProcessor::OMTFProcessor(const edm::ParameterSet & theConfig){
     for(auto it: theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")){
       fileNames.push_back(it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath());
     }  
-    
+
+    resetConfiguration();
     XMLConfigReader myReader;
     for(auto it: fileNames){
       myReader.setPatternsFile(it);
@@ -46,7 +47,16 @@ OMTFProcessor::~OMTFProcessor(){
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
+void OMTFProcessor::resetConfiguration(){
+
+  myResults.clear();
+  theGPs.clear();
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 bool OMTFProcessor::configure(XMLConfigReader *aReader){
+
+  resetConfiguration();
 
   myResults.assign(OMTFConfiguration::nTestRefHits,OMTFProcessor::resultsMap());
 
@@ -61,6 +71,8 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 ///////////////////////////////////////////////
 bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 
+  resetConfiguration();
+  
   myResults.assign(OMTFConfiguration::nTestRefHits,OMTFProcessor::resultsMap());
   
   const l1t::LUT* chargeLUT =  omtfParams->chargeLUT();
