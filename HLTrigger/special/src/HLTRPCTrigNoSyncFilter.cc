@@ -187,18 +187,13 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     int lastbx=-7;
     bool outOfTime = false;
     bool incr = true;
-    bool anydifferentzero = true;
-    bool anydifferentone = true;
 
     //std::cout<<"\t \t loop on the RPCHit4D!!!"<<std::endl;
     for(std::vector<RPC4DHit>::iterator point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
       //float r=point->gp.mag();
       outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
       incr &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.
-      anydifferentzero &= (!point->bx==0); //to check one knee withoutzeros
-      anydifferentone &= (!point->bx==1); //to check one knee withoutones
       lastbx = point->bx;
-      //std::cout<<"\t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" outOfTime"<<outOfTime<<" incr"<<incr<<" anydifferentzero"<<anydifferentzero<<std::endl;
     }
     //std::cout<<"\t \t";
 
