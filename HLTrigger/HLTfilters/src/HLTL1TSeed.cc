@@ -31,13 +31,8 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   HLTStreamFilter(parSet),
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
   m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
-  // InputTag for the L1 Global Trigger DAQ readout record
-  //m_l1GtReadoutRecordTag(parSet.getParameter<edm::InputTag> ( "L1GtReadoutRecordTag")),
-  //m_l1GtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordTag)),
-  // InputTag for L1 Global Trigger object maps
   m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1ObjectMapInputTag")),
   m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag)),
-  //dummyTag(parSet.getParameter<edm::InputTag>("myDummyTag")), // FIX WHEN UNPACKERS ADDED
   m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("L1MuonInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1MuonTag(m_l1MuonCollectionsTag),
   m_l1MuonToken(consumes<l1t::MuonBxCollection>(m_l1MuonTag)),
@@ -56,15 +51,6 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
-
-  //m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
-
-  //m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
-  //m_l1GtObjectMapTag = edm::InputTag("L1GtObjectMapTag");
-  //m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
-  
-
-  
   if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
         // check also the logical expression - add/remove spaces if needed
@@ -86,13 +72,6 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 
   }
 
-  //LogDebug("HLTL1TSeed") 
-  //<< "\n";
-    //<< "L1 Seeding using L1 trigger object maps:       "
-    //<< useL1TriggerObjectMaps_ << "\n"
-    //<< "  if false: seeding with all L1T objects\n"
-    //<< "L1 Seeds Logical Expression:                   " << "\n      "
-    //<< logicalExpression_ << "\n";
 }
 
 // destructor
@@ -106,7 +85,6 @@ void
 HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-
 
 
   // # logical expression for the required L1 algorithms;
@@ -124,7 +102,6 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("L1TauInputTag",edm::InputTag("hltCaloStage2Digis"));
   desc.add<edm::InputTag>("L1EtSumInputTag",edm::InputTag("hltCaloStage2Digis"));
   descriptions.add("hltL1TSeed", desc);
-  //descriptions.add("hltL1TSeed", desc);
 }
 
 bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
@@ -653,12 +630,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       //
       for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
 
-        //LogTrace("HLTL1TSeed")
-        //<< "\ttokenName = " << opTokenVecObjMap[condNumber].tokenName
-        //<< "\ttokenNumber = " << opTokenVecObjMap[condNumber].tokenNumber 
-        //<< "\ttokenResult = " << opTokenVecObjMap[condNumber].tokenResult 
-        //<< endl;
-        
         std::vector<L1GtObject> condObjType = condObjTypeVec[condNumber];
 
         for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
@@ -799,17 +770,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           } // end for itObj
 
         } // end for itComb
-        //LogTrace("HLTL1TSeed")
-        //<< "Finished with all combinations" << endl;
 
       } // end for condition
-      //LogTrace("HLTL1TSeed")
-      //<< "Finished with all conditions" << endl;
 
     } // end for itSeed
-    //LogTrace("HLTL1TSeed")
-    //<< "Finished with all seeds" << endl;
-
 
 
     // eliminate duplicates
@@ -843,7 +807,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     
     // record the L1 physics objects in the HLT filterproduct
-    //
     // //////////////////////////////////////////////////////
 
     // Muon
