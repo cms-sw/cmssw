@@ -30,10 +30,10 @@ namespace L1Analysis
        hlt.resize(0);
     }
 
-    int             run;
-    int             event;
-    int             lumi;
-    int             bx;
+    unsigned             run;
+    unsigned long long   event;
+    unsigned             lumi;
+    unsigned             bx;
     //boost::uint64_t orbit;
     ULong64_t orbit;
     //boost::uint64_t time;
