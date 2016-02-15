@@ -510,8 +510,8 @@ trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
     doSimPlots = False,
 )
 
-eras.fastSim.toModify(trackValidatorTrackingOnly, label =  _trackProducersForFastSim )
-eras.phase1Pixel.toModify(trackValidatorTrackingOnly, label = _trackProducersForPhase1Pixel)
+eras.fastSim.toModify(trackValidatorBuildingTrackingOnly, label =  _trackProducersForFastSim )
+eras.phase1Pixel.toModify(trackValidatorBuildingTrackingOnly, label = _trackProducersForPhase1Pixel)
 
 trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
     dirName = "Tracking/TrackSeeding/",
