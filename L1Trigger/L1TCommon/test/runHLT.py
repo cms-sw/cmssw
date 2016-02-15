@@ -25,23 +25,14 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.MessageLogger = cms.Service(
-#    "MessageLogger",
-#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-#    debugModules = cms.untracked.vstring('*'))
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+    debugModules = cms.untracked.vstring('*'))
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myProducerLabel' )
-)
-
-#
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
 #
 
@@ -117,8 +108,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
 
 
 process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
-    #L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
     saveTags = cms.bool( True ),
     L1GtObjectMapTag = cms.InputTag( "hltGtStage2ObjectMap" ),
     muonCollectionsTag = cms.InputTag("hltGmtStage2Digis"),
@@ -128,19 +118,6 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
 )
 
-process.myProducerLabel = cms.EDProducer(
-    #'TrackAndPointsProducer',
-    'TestBXVectorRefProducer',
-    src    =cms.InputTag('hltCaloStage2Digis'),
-    doRefs =cms.bool(True)
-)
-
-#process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    #processName = cms.string( "@" )
-#)
-process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
 
 
 
@@ -156,9 +133,7 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
-    process.hltL1TSeed + 
-    process.hltTriggerSummaryRAW 
-    #process.myProducerLabel
+    process.hltL1TSeed 
 )
 
 

@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
-#include<vector>
+#include <vector>
 
 //
 // constructors and destructor
@@ -105,7 +105,27 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " E/" << fobs[ifob]->pfjetSize()
        << " F/" << fobs[ifob]->pftauSize()
        << " G/" << fobs[ifob]->pfmetSize()
+       << " I/" << fobs[ifob]->l1tmuonSize()
+       << " J/" << fobs[ifob]->l1tegammaSize()
+       << " K/" << fobs[ifob]->l1tjetSize()
+       << " L/" << fobs[ifob]->l1ttauSize()
+       << " M/" << fobs[ifob]->l1tetsumSize()
        << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tmuonIds().size() = " << fobs[ifob]->l1tmuonIds().size() 
+       << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tegammaIds().size() = " << fobs[ifob]->l1tegammaIds().size() 
+       << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size() 
+       << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size() 
+       << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size() 
+       << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
      product->addFilterObject(tag,*fobs[ifob]);
    }
 
