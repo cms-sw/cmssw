@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 #process = cms.Process('L1SEQS',eras.Run2_25ns)
-process = cms.Process('L1SEQS',eras.Run2_2016)
+process = cms.Process('HLT',eras.Run2_2016)
 
 
 # import of standard configurations
@@ -44,86 +44,46 @@ TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_
 # BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
 #
 
-
 process.hltGtStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup           = cms.string("stage2::GTSetup"),
-    InputLabel      = cms.InputTag("rawDataCollector"),
     FedIds          = cms.vint32( 1404 ),
-    FWId            = cms.uint32(2),
-    lenSlinkHeader  = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader    = cms.untracked.int32(8),
-    lenAMCTrailer   = cms.untracked.int32(0),
-    lenAMC13Header  = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
 process.hltCaloStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup           = cms.string("stage2::CaloSetup"),
-    InputLabel      = cms.InputTag("rawDataCollector"),
     FedIds          = cms.vint32( 1360, 1366 ),
-    lenSlinkHeader  = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader    = cms.untracked.int32(8),
-    lenAMCTrailer   = cms.untracked.int32(0),
-    lenAMC13Header  = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
 process.hltGmtStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup = cms.string("stage2::GMTSetup"),
-    InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1402),
-    FWId = cms.uint32(1),
-    lenSlinkHeader = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader = cms.untracked.int32(8),
-    lenAMCTrailer = cms.untracked.int32(0),
-    lenAMC13Header = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
-process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
-    #TechnicalTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtObjectMapRecord = cms.bool(True),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(5),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
+process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
-    extInputTag = cms.InputTag("gtInput"),
-    caloInputTag = cms.InputTag("hltCaloStage2Digis"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    TriggerMenuLuminosity = cms.string('startup'),
-    PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv'),
-    PrescaleSet = cms.uint32(1),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(0)
+    ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
+    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    AlgorithmTriggersUnprescaled = cms.bool(True),
+    AlgorithmTriggersUnmasked = cms.bool(True),
 )
+
 
 
 process.hltL1TSeedHLTMuonL1TFilter = cms.EDFilter( "HLTL1TSeed",
     #L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo OR L1_SingleEG10 OR L1_SingleS1Jet36 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo" ),
     saveTags = cms.bool( True ),
-    L1GtObjectMapTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    muonCollectionsTag = cms.InputTag("hltGmtStage2Digis"),
-    egammaCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    jetCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    tauCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
+    L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
+    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
+    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
+    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
+    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
 )
-
-#process.myProducerLabel = cms.EDProducer(
-    #'TestBXVectorRefProducer',
-    #src    =cms.InputTag('hltCaloStage2Digis'),
-    #doRefs =cms.bool(True)
-#)
 
 process.myFilterLabel = cms.EDFilter(
     'HLTMuonL1TFilter',
