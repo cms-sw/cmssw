@@ -22,9 +22,13 @@ autoCond = {
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '80X_dataRun2_v4',
     # GlobalTag for Run2 data reprocessing
+    'run2_data_relval'  :   '80X_dataRun2_relval_v0',
+    # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data'         :   '80X_dataRun2_v4',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '80X_dataRun2_HLT_frozen_v2',
+    # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
+    'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v0',
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '80X_dataRun2_HLT_frozen_v2',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
