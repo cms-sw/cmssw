@@ -30,30 +30,28 @@ void L1TStage2mGMT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
 {
   ibooker.setCurrentFolder(monitorDir);
 
-  eta_mgmt = ibooker.book1D("eta_mgmt", "#eta of mGMT Muon", 22, -0.5, 21.5);
-  phi_mgmt = ibooker.book1D("phi_mgmt", "#phi of mGMT Muon", 18, -0.5, 17.5);
-  pt_mgmt = ibooker.book1D("pt_mgmt", "p_{T} of mGMT Muon", 64, -0.5, 63.5);
-  charge_mgmt = ibooker.book1D("charge_mgmt", "charge of mGMT Muon", 3, -1, 2);
-  chargeVal_mgmt = ibooker.book1D("chargeValid_mgmt", "chargeValid  of mGMT Muon", 3, -1, 2);
-  qual_mgmt = ibooker.book1D("quality_mgmt", "quality of mGMT Muon", 16, 0, 16);
-  iso_mgmt = ibooker.book1D("iso_mgmt", "iso of mGMT Muon", 4, 0, 4);
+  eta_mgmt = ibooker.book1D("eta_ugmt", "#eta of uGMT", 447, -223.5, 223.5);
+  phi_mgmt = ibooker.book1D("phi_ugmt", "#phi of uGMT", 576, -0.5, 575.5);
+  pt_mgmt = ibooker.book1D("pt_ugmt", "p_{T} of  uGMT", 511, -0.5, 510.5);
+  charge_mgmt = ibooker.book1D("charge_ugmt", "charge of uGMT", 4, -2, 2);
+  chargeVal_mgmt = ibooker.book1D("chargeVal_ugmt", "chargeValid  of uGMT", 4, -2, 2);
+  qual_mgmt = ibooker.book1D("qual_ugmt", "quality of uGMT", 20, 0, 20);
+  iso_mgmt = ibooker.book1D("iso_ugmt", "iso of uGMT", 4, 0, 4);
 
-  bx_mgmt = ibooker.book1D("bx", "BX", 5,-2.5, 2.5);
+  bx_mgmt = ibooker.book1D("bx", "BX", 5, -2.5, 2.5);
 
-  etaVSphi_mgmt      = ibooker.book2D("etaVSphi_mgmt"       , "#eta VS #phi of mGMT"      , 22, -0.5, 21.5, 18, -0.5, 17.5);
-  phiVSpt_mgmt       = ibooker.book2D("phiVSpt_mgmt"        , "#phi VS p_{T}of mGMT"      , 18, -0.5, 17.5, 64, -0.5, 63.5);
-  etaVSpt_mgmt       = ibooker.book2D("etaVSpt_mgmt"        , "#eta VS p_{T} of mGMT"     , 22, -0.5, 21.5, 64, -0.5, 63.5);
+  etaVSphi_mgmt      = ibooker.book2D("etaVSphi_ugmt"       , "#eta VS #phi of uGMT"      , 447, -223.5, 223.5, 576, -0.5, 575.5);
+  phiVSpt_mgmt       = ibooker.book2D("phiVSpt_ugmt"        , "#phi VS p_{T} of uGMT"      , 576, -0.5, 575.5, 511, -0.5, 510.5);
+  etaVSpt_mgmt       = ibooker.book2D("etaVSpt_ugmt"        , "#eta VS p_{T} of uGMT"     , 447, -223.5, 223.5, 511, -0.5, 510.5);
 
-  etaVSbx_mgmt       = ibooker.book2D("etaVSbx_mgmt"        , "#eta VS bx of mGMT"        , 22, -0.5, 21.5,  5, -2.5, 2.5);
-  phiVSbx_mgmt       = ibooker.book2D("phiVSbx_mgmt"        , "#phi VS bx of mGMT"        , 18, -0.5, 17.5,  5, -2.5, 2.5);
-  ptVSbx_mgmt        = ibooker.book2D("ptVSbx_mgmt"         , "p_{T} VS bx of mGMT"       , 64, -0.5, 63.5,  5, -2.5, 2.5);
-  chargeVSbx_mgmt    = ibooker.book2D("chargeVSbx_mgmt"     , "charge VS bx of mGMT"      , 3 ,   -1,    2,  5, -2.5, 2.5);
-  chargeValVSbx_mgmt = ibooker.book2D("chargeValidVSbx_mgmt", "chargeValid VS bx of mGMT" , 3 ,   -1,    2,  5, -2.5, 2.5);
-  qualVSbx_mgmt      = ibooker.book2D("qualVSbx_mgmt"       , "quality VS bx of mGMT"     , 16,    0,   16,  5, -2.5, 2.5);
-  isoVSbx_mgmt       = ibooker.book2D("isoVSbx_mgmt"        , "iso VS bx of mGMT"         , 4 ,    0,    4,  5, -2.5, 2.5);
-
+  etaVSbx_mgmt       = ibooker.book2D("etaVSbx_ugmt"        , "#eta VS bx of uGMT"        , 447, -223.5, 223.5,  5, -2.5, 2.5);
+  phiVSbx_mgmt       = ibooker.book2D("phiVSbx_ugmt"        , "#phi VS bx of uGMT"        , 576, -0.5, 575.5,  5, -2.5, 2.5);
+  ptVSbx_mgmt        = ibooker.book2D("ptVSbx_ugmt"         , "p_{T} VS bx of uGMT"       , 511, -0.5, 510.5,  5, -2.5, 2.5);
+  chargeVSbx_mgmt    = ibooker.book2D("chargeVSbx_ugmt"     , "charge VS bx of uGMT"      , 4 ,   -2,    2,  5, -2.5, 2.5);
+  chargeValVSbx_mgmt = ibooker.book2D("chargeValVSbx_ugmt"  , "chargeValid VS bx of uGMT" , 4 ,   -2,    2,  5, -2.5, 2.5);
+  qualVSbx_mgmt      = ibooker.book2D("qualVSbx_ugmt"       , "quality VS bx of uGMT"     , 20,    0,   20,  5, -2.5, 2.5);
+  isoVSbx_mgmt       = ibooker.book2D("isoVSbx_ugmt"        , "iso VS bx of uGMT"         , 4 ,    0,    4,  5, -2.5, 2.5);
 }
-
 
 void L1TStage2mGMT::analyze(const edm::Event & eve, const edm::EventSetup & eveSetup)
 {
