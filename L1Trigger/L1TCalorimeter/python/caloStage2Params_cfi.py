@@ -34,7 +34,7 @@ caloStage2Params.egShapeIdVersion           = cms.uint32(0)
 caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
-caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_0.5_adapt_v16.01.28.txt")
+caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_0.5_adapt_v16.02.01.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
@@ -54,8 +54,8 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                 = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Flat_Tau_iso_LUT_eff90.txt")
-caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming5_PU40bx25_woCALOEnergy_compressedieta_compressedE_L1Tau_hasEM_L1Tau_isMerged_v3.0.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_iso_LUT_Option_4.txt")
+caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming5_PU40bx25_woCALOEnergy_compressedieta_compressedE_L1Tau_hasEM_L1Tau_isMerged_v4.0.0.txt")
 caloStage2Params.tauCompressLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Eta_Et_compression_LUT.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,27)
 
@@ -77,34 +77,34 @@ caloStage2Params.jetCalibrationType = cms.string("function6PtParams22EtaBins")
 # must be in this form as may require > 255 arguments
 jetCalibParamsVector = cms.vdouble()
 jetCalibParamsVector.extend([
-    1,0,1,0,1,1, # No calibrations in HF bins
-    1,0,1,0,1,1,
-    1,0,1,0,1,1,
-    1,0,1,0,1,1,
-    5.24246537,6.60700156,1.22785564,-13.69502129,0.00196905,-20.27233882,
-    0.90833682,6.50791252,0.61922676,-209.49688550,0.01329731,-18.51593877,
-    5.79849519,12.80862387,1.33405525,-25.10166231,0.00275828,-20.04923840,
-    6.78385680,23.01868950,2.25627456,-39.95709157,0.00390259,-17.70111029,
-    3.48234814,13.34746568,1.48348018,-46.10680359,0.00447602,-20.97512052,
-    4.45650191,16.52912233,1.97499544,-41.54895663,0.00394956,-20.44045700,
-    3.18556244,25.56760298,2.51677342,-103.26529010,0.00678420,-18.73657857,
-    3.18556244,25.56760298,2.51677342,-103.26529010,0.00678420,-18.73657857,
-    4.45650191,16.52912233,1.97499544,-41.54895663,0.00394956,-20.44045700,
-    3.48234814,13.34746568,1.48348018,-46.10680359,0.00447602,-20.97512052,
-    6.78385680,23.01868950,2.25627456,-39.95709157,0.00390259,-17.70111029,
-    5.79849519,12.80862387,1.33405525,-25.10166231,0.00275828,-20.04923840,
-    0.90833682,6.50791252,0.61922676,-209.49688550,0.01329731,-18.51593877,
-    5.24246537,6.60700156,1.22785564,-13.69502129,0.00196905,-20.27233882,
-    1,0,1,0,1,1, # No calibrations in HF bins
-    1,0,1,0,1,1,
-    1,0,1,0,1,1,
-    1,0,1,0,1,1
+    1.44307778301,0,1,0,1,1, # Constant calibrations in HF bins
+    1.26058321455,0,1,0,1,1,
+    1.32478863889,0,1,0,1,1,
+    1.45918510235,0,1,0,1,1,
+    227.01736820,750.63078553,525.40739528,-227.14450318,0.00219807,2.52246411,
+    227.03279291,759.30439917,520.09296374,-227.12919914,0.00355804,2.56065461,
+    226.31030729,400.06847196,169.00860128,-227.20273887,0.00383241,2.57461063,
+    19.07765721,424.12295555,10.39947925,-61.35187951,0.02158863,-1.54321595,
+    9.95665741,19.07602422,2.17668279,-34.95753932,0.00218180,-20.65194585,
+    9.17498863,18.56530947,2.36903187,-32.13403687,0.00211874,-20.97689108,
+    4.90280506,30.43093246,2.99797836,-88.72826750,0.00491589,-20.31278701,
+    4.90280506,30.43093246,2.99797836,-88.72826750,0.00491589,-20.31278701,
+    9.17498863,18.56530947,2.36903187,-32.13403687,0.00211874,-20.97689108,
+    9.95665741,19.07602422,2.17668279,-34.95753932,0.00218180,-20.65194585,
+    19.07765721,424.12295555,10.39947925,-61.35187951,0.02158863,-1.54321595,
+    226.31030729,400.06847196,169.00860128,-227.20273887,0.00383241,2.57461063,
+    227.03279291,759.30439917,520.09296374,-227.12919914,0.00355804,2.56065461,
+    227.01736820,750.63078553,525.40739528,-227.14450318,0.00219807,2.52246411,
+    1.45918510235,0,1,0,1,1, # Constant calibrations in HF bins
+    1.32478863889,0,1,0,1,1,
+    1.26058321455,0,1,0,1,1,
+    1.44307778301,0,1,0,1,1
 ])
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
-caloStage2Params.etSumEtaMin             = cms.vint32(-40, -36, -40, -36)
-caloStage2Params.etSumEtaMax             = cms.vint32(40,  36,  40,  36)
+caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1)
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30.)
 
