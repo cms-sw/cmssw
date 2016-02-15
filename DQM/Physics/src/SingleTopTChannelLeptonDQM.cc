@@ -139,24 +139,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     // corresponding working points
     includeBTag_ = jetExtras.existsAs<edm::ParameterSet>("jetBTaggers");
     if (includeBTag_) {
-      edm::ParameterSet btagEff =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("trackCountingEff");
-      btagEff_ = iC.consumes<reco::JetTagCollection>(
-          btagEff.getParameter<edm::InputTag>("label"));
-      btagEffWP_ = btagEff.getParameter<double>("workingPoint");
-      edm::ParameterSet btagPur =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("trackCountingPur");
-      btagPur_ = iC.consumes<reco::JetTagCollection>(
-          btagPur.getParameter<edm::InputTag>("label"));
-      btagPurWP_ = btagPur.getParameter<double>("workingPoint");
-      edm::ParameterSet btagVtx =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("secondaryVertex");
-      btagVtx_ = iC.consumes<reco::JetTagCollection>(
-          btagVtx.getParameter<edm::InputTag>("label"));
-      btagVtxWP_ = btagVtx.getParameter<double>("workingPoint");
+ 
       edm::ParameterSet btagCombVtx =
           jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
               .getParameter<edm::ParameterSet>("combinedSecondaryVertex");
@@ -208,9 +191,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
   muonSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_)); 
   muonIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_)); 
   
-  //jetSelectCalo=0;
-  //jetSelectPF=0;
-  //jetSelectJet=0;
+
   
   elecSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecSelect_)); 
   elecIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_)); 
@@ -288,12 +269,12 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
 
   // multiplicity of btagged jets (for track counting high efficiency) with
   // pt(L2L3)>30
-  hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
-      "N_{30}(b/eff)", 10, 0., 10.);
+ // hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
+    //  "N_{30}(b/eff)", 10, 0., 10.);
   // btag discriminator for track counting high efficiency for jets with
   // pt(L2L3)>30
-  hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
-      "Disc_{b/eff}(jet)", 100, 0., 10.);
+ // hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
+  //    "Disc_{b/eff}(jet)", 100, 0., 10.);
 
   // eta of the 1. leading jet
   hists_["jet1Eta_"] = ibooker.book1D("Jet1Eta", "#eta (jet1)", 50, -5., 5.);
@@ -367,26 +348,7 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   // relative electron isolation from photons for the leading electron
   hists_["elecPhIso_"] = ibooker.book1D("ElecPhIso", "Iso_{Ph}(e)", 100, 0., 1.);
 
-  // multiplicity of btagged jets (for track counting high purity) with
-  // pt(L2L3)>30
-  hists_["jetMultBPur_"] = ibooker.book1D("JetMultBPur",
-      "N_{30}(b/pur)", 10, 0., 10.);
-  // btag discriminator for track counting high purity
-  hists_["jetBDiscPur_"] = ibooker.book1D("JetBDiscPur",
-      "Disc_{b/pur}(Jet)", 200, -10., 10.);
-  // btag discriminator for track counting high purity for 1. leading jet
-  hists_["jet1BDiscPur_"] = ibooker.book1D("Jet1BDiscPur",
-      "Disc_{b/pur}(Jet1)", 200, -10., 10.);
-  // btag discriminator for track counting high purity for 2. leading jet
-  hists_["jet2BDiscPur_"] = ibooker.book1D("Jet2BDiscPur",
-      "Disc_{b/pur}(Jet2)", 200, -10., 10.);
 
-  // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
-  hists_["jetMultBVtx_"] = ibooker.book1D("JetMultBVtx",
-      "N_{30}(b/vtx)", 10, 0., 10.);
-  // btag discriminator for simple secondary vertex
-  hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
-      "Disc_{b/vtx}(Jet)", 35, -1., 6.);
 
   // multiplicity of btagged jets (for combined secondary vertex) with
   // pt(L2L3)>30
@@ -625,11 +587,9 @@ void MonitorEnsemble::fill(const edm::Event& event,
      ------------------------------------------------------------
   */
   // check availability of the btaggers
-  edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCombVtx;
+  edm::Handle<reco::JetTagCollection> btagCombVtx;
   if (includeBTag_) {
-    if (!event.getByToken(btagEff_, btagEff)) return;
-    if (!event.getByToken(btagPur_, btagPur)) return;
-    if (!event.getByToken(btagVtx_, btagVtx)) return;
+
     if (!event.getByToken(btagCombVtx_, btagCombVtx)) return;
   }
 
@@ -713,13 +673,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
       if (!((*jetSelectJet)(sel))) continue;
     }
-    // check for overlaps -- comment this to be synchronous with the selection
-    // bool overlap=false;
-    // for(std::vector<const reco::GsfElectron*>::const_iterator
-    // elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
-    //  if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(),
-    // jet->phi())<0.4){overlap=true; break;}
-    //} if(overlap){continue;}
+
 
     // prepare jet to fill monitor histograms
     reco::Jet monitorJet = *jet;
@@ -730,46 +684,14 @@ void MonitorEnsemble::fill(const edm::Event& event,
     if (includeBTag_) {
       // fill b-discriminators
       edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
-      if ((*btagVtx)[jetRef] > btagVtxWP_) ++multBVtx;
       if ((*btagCombVtx)[jetRef] > btagCombVtxWP_) ++multBCombVtx;
-      if ((*btagPur)[jetRef] > btagPurWP_) {
-        if (multBPur == 0) {
-          TaggedJetCand = monitorJet;
-          // TaggedJetCand = *jet;
-          bJetDiscVal.push_back((*btagPur)[jetRef]);
-
-        } else if (multBPur == 1) {
-          bJetDiscVal.push_back((*btagPur)[jetRef]);
-          if (bJetDiscVal[1] > bJetDiscVal[0]) TaggedJetCand = monitorJet;
-          // TaggedJetCand = *jet;
-        }
-        ++multBPur;
-      } else {
-        if (multNoBPur == 0) {
-          UnTaggedJetCand = monitorJet;
-          NobJetDiscVal.push_back((*btagPur)[jetRef]);
-
-        } else if (multNoBPur == 1) {
-          NobJetDiscVal.push_back((*btagPur)[jetRef]);
-          if (NobJetDiscVal[1] < NobJetDiscVal[0]) UnTaggedJetCand = monitorJet;
-        }
-
-        ++multNoBPur;
-      }
-
-      if ((*btagEff)[jetRef] > btagEffWP_) ++multBEff;
 
       if (mult == 1) {
-        fill("jet1BDiscPur_", (*btagPur)[jetRef]);
         fill("jet1BDiscCombVtx_", (*btagCombVtx)[jetRef]);
       } else if (mult == 2) {
-        fill("jet2BDiscPur_", (*btagPur)[jetRef]);
         fill("jet2BDiscCombVtx_", (*btagCombVtx)[jetRef]);
       }
 
-      fill("jetBDiscEff_", (*btagEff)[jetRef]);
-      fill("jetBDiscPur_", (*btagPur)[jetRef]);
-      fill("jetBDiscVtx_", (*btagVtx)[jetRef]);
       fill("jetBDiscCombVtx_", (*btagCombVtx)[jetRef]);
     }
     // fill pt (raw or L2L3) for the leading jets
