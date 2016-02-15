@@ -25,12 +25,12 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-    debugModules = cms.untracked.vstring('*'))
+#process.MessageLogger = cms.Service(
+#    "MessageLogger",
+#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+#    debugModules = cms.untracked.vstring('*'))
 
 
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
@@ -188,7 +188,7 @@ process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
 process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
-    process.dumpES + 
+#    process.dumpES + 
     process.dumpED +
     process.l1tSummaryStage2SimDigis +
     process.l1tSummaryStage2HltDigis
