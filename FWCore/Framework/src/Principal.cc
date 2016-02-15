@@ -38,16 +38,18 @@ namespace edm {
   void
   maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<TypeID> const& missingDictionaries) {
     if(isElement) {
+      TypeSet missingTypes;
       if(binary_search_all(missingDictionaries, productType)) {
-        checkTypeDictionary(productType);
-        throwMissingDictionariesException();
+        checkTypeDictionary(productType,missingTypes);
+        throwMissingDictionariesException(missingTypes);
       }
     } else {
       TClass* cl = TClass::GetClass(wrappedClassName(productType.className()).c_str());
       TypeID wrappedProductType = TypeID(cl->GetTypeInfo());
+      TypeSet missingTypes;
       if(binary_search_all(missingDictionaries, wrappedProductType)) {
-        checkClassDictionary(wrappedProductType);
-        throwMissingDictionariesException();
+        checkClassDictionary(wrappedProductType,missingTypes);
+        throwMissingDictionariesException(missingTypes);
       }
     }
   }
