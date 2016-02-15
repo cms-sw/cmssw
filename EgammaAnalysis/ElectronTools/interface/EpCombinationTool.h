@@ -18,11 +18,11 @@ class EpCombinationTool
 //                float momentum, float momentumError, 
 //                int electronClass,
 //                bool isEcalDriven, bool isTrackerDriven, bool isEB);
-	void combine(SimpleElectron & mySimpleElectron);
+	void combine(SimpleElectron & mySimpleElectron, bool applyExtraHighEnergyProtection = false);
 
 
     private:
-        GBRForest* m_forest;
+        GBRForest* m_forest;	
 
 };
 
