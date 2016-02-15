@@ -48,7 +48,7 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 
 #process.dtDQMPathCalib = cms.Path(process.unpackers + process.dqmmodules + process.calibrationEventsFilter * process.dtDQMCalib)
 
-process.dttfunpacker.DTTF_FED_Source = cms.InputTag("rawDataCollector")
+process.dttm7unpacker.DTTM7_FED_Source = cms.InputTag("rawDataCollector")
 process.dtunpacker.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
@@ -77,7 +77,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.dtunpacker.fedbyType = cms.bool(False)
-    process.dttfunpacker.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.dttm7unpacker.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.dtunpacker.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")

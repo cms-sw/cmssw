@@ -18,6 +18,12 @@ options.register('runInputDir',
                  VarParsing.VarParsing.varType.string,
                  "Directory where the DQM files will appear.")
 
+options.register('scanOnce',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't repeat file scans: use what was found during the initial scan. EOR file is ignored and the state is set to 'past end of run'.")
+
 options.register('skipFirstLumis',
                  False, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -45,17 +51,25 @@ if not options.runkey.strip():
 runType.setRunType(options.runkey.strip())
 
 # Input source
+nextLumiTimeoutMillis = 90000
+endOfRunKills = True
+
+if options.scanOnce:
+    endOfRunKills = False
+    nextLumiTimeoutMillis = 0
+
 source = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     SelectEvents = cms.untracked.vstring('*'),
     streamLabel = cms.untracked.string('streamDQM'),
+    scanOnce = cms.untracked.bool(options.scanOnce),
     minEventsPerLumi = cms.untracked.int32(1),
     delayMillis = cms.untracked.uint32(500),
-    nextLumiTimeoutMillis = cms.untracked.int32(90000),
+    nextLumiTimeoutMillis = cms.untracked.int32(nextLumiTimeoutMillis),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
-    endOfRunKills  = cms.untracked.bool(True),
+    endOfRunKills  = cms.untracked.bool(endOfRunKills),
 )
 
 print "Source:", source

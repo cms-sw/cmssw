@@ -158,6 +158,17 @@ do
     echo " Creating the list of bad modules "
     
     listbadmodule ${file_path}/$dqmFileName PCLBadComponents.log
+   if [ "$thisDataset" != "StreamExpress" ] ; then
+       sefile=QualityTest_run${Run_numb}.txt
+
+       if [ "$thisDataset" == "Cosmics" ]; then
+           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Cosmics/${nnn}/${Run_numb}/StreamExpressCosmics/${sefile}
+       else
+
+           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Beam/${nnn}/${Run_numb}/StreamExpress/${sefile}
+
+       fi
+   fi
 
 #    mv QualityTest*txt $Run_numb/$thisDataset
 

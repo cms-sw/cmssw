@@ -42,19 +42,19 @@ public:
   ~DTTPGCompareUnit() { };
 
   void setDDU(int qual, int bx) { theQual[0] = qual; theBX[0] = bx; }
-  void setDCC(int qual, int bx) { theQual[1] = qual; theBX[1] = bx; }
+  void setTM(int qual, int bx) { theQual[1] = qual; theBX[1] = bx; }
 
   bool hasOne()      const { return theQual[0]!=-1 || theQual[1]!=-1; };
   bool hasBoth()     const { return theQual[0]!=-1 && theQual[1]!=-1; };
   bool hasSameQual() const { return hasBoth() && theQual[0]==theQual[1]; };
   int  deltaBX() const { return theBX[0] - theBX[1]; }
   int  qualDDU() const { return theQual[0]; }
-  int  qualDCC() const { return theQual[1]; }
+  int  qualTM() const { return theQual[1]; }
 
 private:
 
-  int theQual[2]; // 0=DDU 1=DCC
-  int theBX[2];   // 0=DDU 1=DCC
+  int theQual[2]; // 0=DDU 1=TM
+  int theBX[2];   // 0=DDU 1=TM
 
 };
 
@@ -69,28 +69,28 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
   tpMode           = ps.getUntrackedParameter<bool>("testPulseMode");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
 
-  targetBXDCC  = ps.getUntrackedParameter<int>("targetBXDCC");
+  targetBXTM  = ps.getUntrackedParameter<int>("targetBXTM");
   targetBXDDU  = ps.getUntrackedParameter<int>("targetBXDDU");
   bestAccRange = ps.getUntrackedParameter<int>("bestTrigAccRange");
 
-  processDCC   = ps.getUntrackedParameter<bool>("processDCC");
+  processTM   = ps.getUntrackedParameter<bool>("processTM");
   processDDU   = ps.getUntrackedParameter<bool>("processDDU");
 
   dcc_phi_Token_ = consumes<L1MuDTChambPhContainer>(
-      ps.getUntrackedParameter<InputTag>("inputTagDCC"));
+      ps.getUntrackedParameter<InputTag>("inputTagTM"));
   dcc_theta_Token_ = consumes<L1MuDTChambThContainer>(
-      ps.getUntrackedParameter<InputTag>("inputTagDCC"));
+      ps.getUntrackedParameter<InputTag>("inputTagTM"));
   trig_Token_ = consumes<DTLocalTriggerCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagDDU"));
 
-  if (processDCC) theTypes.push_back("DCC");
+  if (processTM) theTypes.push_back("TM");
   if (processDDU) theTypes.push_back("DDU");
 
   if (tpMode) {
-    topFolder("DCC") = "DT/11-LocalTriggerTP-DCC/";
+    topFolder("TM") = "DT/11-LocalTriggerTP-TM/";
     topFolder("DDU") = "DT/12-LocalTriggerTP-DDU/";
   } else {
-    topFolder("DCC") = "DT/03-LocalTrigger-DCC/";
+    topFolder("TM") = "DT/03-LocalTrigger-TM/";
     topFolder("DDU") = "DT/04-LocalTrigger-DDU/";
   }
 
@@ -179,22 +179,22 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
 
   theCompMap.clear();
 
-  Handle<L1MuDTChambPhContainer> phiTrigsDCC;
-  Handle<L1MuDTChambThContainer> thetaTrigsDCC;
+  Handle<L1MuDTChambPhContainer> phiTrigsTM;
+  Handle<L1MuDTChambThContainer> thetaTrigsTM;
   Handle<DTLocalTriggerCollection> trigsDDU;
 
-  if (processDCC) {
-    InputTag inputTagDCC = theParams.getUntrackedParameter<InputTag>("inputTagDCC");
+  if (processTM) {
+    InputTag inputTagTM = theParams.getUntrackedParameter<InputTag>("inputTagTM");
 
-    e.getByToken(dcc_phi_Token_, phiTrigsDCC);
-    e.getByToken(dcc_theta_Token_, thetaTrigsDCC);
+    e.getByToken(dcc_phi_Token_, phiTrigsTM);
+    e.getByToken(dcc_theta_Token_, thetaTrigsTM);
 
-    if (phiTrigsDCC.isValid() && thetaTrigsDCC.isValid()) {
-      runDCCAnalysis(phiTrigsDCC->getContainer(),thetaTrigsDCC->getContainer());
+    if (phiTrigsTM.isValid() && thetaTrigsTM.isValid()) {
+      runTMAnalysis(phiTrigsTM->getContainer(),thetaTrigsTM->getContainer());
     } else {
       LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-	<< "[DTLocalTriggerBaseTask]: one or more DCC handles for Input Tag "
-	<< inputTagDCC <<" not found!" << endl;
+	<< "[DTLocalTriggerBaseTask]: one or more TM handles for Input Tag "
+	<< inputTagTM <<" not found!" << endl;
       return;
     }
   }
@@ -213,8 +213,8 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
     }
   }
 
-  if (processDCC && processDDU)
-    runDDUvsDCCAnalysis();
+  if (processTM && processDDU)
+    runDDUvsTMAnalysis();
 
 }
 
@@ -230,8 +230,8 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
   map<string,int> minBX;
   map<string,int> maxBX;
 
-  minBX["DCC"] = theParams.getUntrackedParameter<int>("minBXDCC");
-  maxBX["DCC"] = theParams.getUntrackedParameter<int>("maxBXDCC");
+  minBX["TM"] = theParams.getUntrackedParameter<int>("minBXTM");
+  maxBX["TM"] = theParams.getUntrackedParameter<int>("maxBXTM");
   minBX["DDU"] = theParams.getUntrackedParameter<int>("minBXDDU");
   maxBX["DDU"] = theParams.getUntrackedParameter<int>("maxBXDDU");
 
@@ -270,7 +270,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
       setQLabels(chamberHistos[rawId][histoTag],1);
     }
 
-    if (*typeIt=="DCC") {
+    if (*typeIt=="TM") {
       float minPh, maxPh; int nBinsPh;
       theTrigGeomUtils->phiRange(dtCh,minPh,maxPh,nBinsPh);
 
@@ -291,7 +291,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
     ibooker.setCurrentFolder(topFolder(*typeIt) + "Wheel" + wheel.str() + "/Sector"
 	         + sector.str() + "/Station" + station.str() + "/LocalTriggerTheta");
 
-    if((*typeIt)=="DCC") {
+    if((*typeIt)=="TM") {
       histoTag = (*typeIt) + "_PositionvsBX";
       chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"Theta trigger position vs BX",
 			      (int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5,7,-0.5,6.5);
@@ -309,20 +309,20 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
 
   }
 
-  if (processDCC && processDDU) {
-    // Book DCC/DDU Comparison Plots
+  if (processTM && processDDU) {
+    // Book TM/DDU Comparison Plots
     ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
 		       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhi");
 
-    string histoTag = "COM_QualDDUvsQualDCC";
+    string histoTag = "COM_QualDDUvsQualTM";
     chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,
-			"DDU quality vs DCC quality",8,-1.5,6.5,8,-1.5,6.5);
+			"DDU quality vs TM quality",8,-1.5,6.5,8,-1.5,6.5);
     setQLabels((chamberHistos[rawId])[histoTag],1);
     setQLabels((chamberHistos[rawId])[histoTag],2);
 
     histoTag = "COM_MatchingTrend";
     trendHistos[rawId] = new DTTimeEvolutionHisto(ibooker,histoTag+chTag,
-						  "Fraction of DDU-DCC matches w.r.t. proc evts",
+						  "Fraction of DDU-TM matches w.r.t. proc evts",
 						  nTimeBins,nLSTimeBin,true,0);
   }
 
@@ -340,7 +340,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, int wh) {
 
   string histoTag = "COM_BXDiff";
   MonitorElement *me = ibooker.bookProfile2D(histoTag+whTag,
-        "DDU-DCC BX Difference",12,1,13,4,1,5,0.,20.);
+        "DDU-TM BX Difference",12,1,13,4,1,5,0.,20.);
   me->setAxisTitle("Sector",1);
   me->setAxisTitle("station",2);
   wheelHistos[wh][histoTag] = me;
@@ -348,7 +348,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, int wh) {
 }
 
 
-void DTLocalTriggerBaseTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* phTrigs,
+void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const* phTrigs,
 					     std::vector<L1MuDTChambThDigi> const* thTrigs )
 {
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
@@ -371,20 +371,20 @@ void DTLocalTriggerBaseTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> cons
     float pos = theTrigGeomUtils->trigPos(&(*iph));
     float dir = theTrigGeomUtils->trigDir(&(*iph));
 
-    if (abs(bx-targetBXDCC)<= bestAccRange &&
-	theCompMap[rawId].qualDCC() <= qual)
-      theCompMap[rawId].setDCC(qual,bx);
+    if (abs(bx-targetBXTM)<= bestAccRange &&
+	theCompMap[rawId].qualTM() <= qual)
+      theCompMap[rawId].setTM(qual,bx);
 
     map<string, MonitorElement*> &innerME = chamberHistos[rawId];
     if (tpMode) {
-      innerME["DCC_BXvsQual"]->Fill(qual,bx);      // SM BX vs Qual Phi view (1st tracks)
-      innerME["DCC_QualvsPhirad"]->Fill(pos,qual); // SM Qual vs radial angle Phi view
+      innerME["TM_BXvsQual"]->Fill(qual,bx);      // SM BX vs Qual Phi view (1st tracks)
+      innerME["TM_QualvsPhirad"]->Fill(pos,qual); // SM Qual vs radial angle Phi view
     } else {
-      innerME["DCC_BXvsQual"]->Fill(qual,bx);         // SM BX vs Qual Phi view (1st tracks)
-      innerME["DCC_Flag1stvsQual"]->Fill(qual,is1st); // SM Qual 1st/2nd track flag Phi view
-      if (!is1st) innerME["DCC_QualvsPhirad"]->Fill(pos,qual);  // SM Qual vs radial angle Phi view ONLY for 1st tracks
+      innerME["TM_BXvsQual"]->Fill(qual,bx);         // SM BX vs Qual Phi view (1st tracks)
+      innerME["TM_Flag1stvsQual"]->Fill(qual,is1st); // SM Qual 1st/2nd track flag Phi view
+      if (!is1st) innerME["TM_QualvsPhirad"]->Fill(pos,qual);  // SM Qual vs radial angle Phi view ONLY for 1st tracks
       if (detailedAnalysis) {
-	innerME["DCC_QualvsPhibend"]->Fill(dir,qual); // SM Qual vs bending Phi view
+	innerME["TM_QualvsPhibend"]->Fill(dir,qual); // SM Qual vs bending Phi view
       }
     }
 
@@ -411,18 +411,18 @@ void DTLocalTriggerBaseTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> cons
 
     for (int pos=0; pos<7; pos++)
       if (thcode[pos])
-	innerME["DCC_PositionvsBX"]->Fill(bx,pos); // SM BX vs Position Theta view
+	innerME["TM_PositionvsBX"]->Fill(bx,pos); // SM BX vs Position Theta view
 
   }
 
-  // Fill Quality plots with best DCC triggers (phi view)
+  // Fill Quality plots with best TM triggers (phi view)
   if (!tpMode) {
     map<uint32_t,DTTPGCompareUnit>::const_iterator compIt  = theCompMap.begin();
     map<uint32_t,DTTPGCompareUnit>::const_iterator compEnd = theCompMap.end();
     for (; compIt!=compEnd; ++compIt) {
-      int bestQual = compIt->second.qualDCC();
+      int bestQual = compIt->second.qualTM();
       if (bestQual > -1)
-	chamberHistos[compIt->first]["DCC_BestQual"]->Fill(bestQual);  // SM Best Qual Trigger Phi view
+	chamberHistos[compIt->first]["TM_BestQual"]->Fill(bestQual);  // SM Best Qual Trigger Phi view
     }
   }
 
@@ -487,7 +487,7 @@ void DTLocalTriggerBaseTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& tr
 }
 
 
-void DTLocalTriggerBaseTask::runDDUvsDCCAnalysis(){
+void DTLocalTriggerBaseTask::runDDUvsTMAnalysis(){
 
   map<uint32_t,DTTPGCompareUnit>::const_iterator compIt  = theCompMap.begin();
   map<uint32_t,DTTPGCompareUnit>::const_iterator compEnd = theCompMap.end();
@@ -500,7 +500,7 @@ void DTLocalTriggerBaseTask::runDDUvsDCCAnalysis(){
 
     const DTTPGCompareUnit & compUnit = compIt->second;
     if ( compUnit.hasOne() ){
-      innerME["COM_QualDDUvsQualDCC"]->Fill(compUnit.qualDCC(),compUnit.qualDDU());
+      innerME["COM_QualDDUvsQualTM"]->Fill(compUnit.qualTM(),compUnit.qualDDU());
     }
     if ( compUnit.hasBoth() ){
       wheelHistos[chId.wheel()]["COM_BXDiff"]->Fill(chId.sector(),chId.station(),compUnit.deltaBX());

@@ -13,12 +13,11 @@
 
 class JetTagPlotter : public BaseBTagPlotter {
 
-
  public:
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		 const edm::ParameterSet& pSet, const unsigned int& mc , 
-		 const bool& willFinalize, DQMStore::IBooker & ibook);
+		 const bool& willFinalize, DQMStore::IBooker & ibook, const bool & doCTagPlots = false);
 
   virtual ~JetTagPlotter () ;
 
@@ -36,7 +35,6 @@ class JetTagPlotter : public BaseBTagPlotter {
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
 
   void epsPlot(const std::string & name);
-
   void psPlot(const std::string & name);
 
   int nBinEffPur() const {return nBinEffPur_;}
@@ -56,6 +54,8 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   unsigned int mcPlots_;
   bool willFinalize_;
+
+  bool doCTagPlots_;
 
   int *nJets;
   // jet multiplicity
@@ -80,7 +80,6 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // reconstructed jet phi
   FlavourHistograms<double> * dJetRecPhi;
-
-} ;
+};
 
 #endif

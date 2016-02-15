@@ -268,7 +268,7 @@ namespace l1t {
      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
      desc.addUntracked<bool>("CTP7", false);
      desc.addUntracked<bool>("MTF7", false);
-     desc.add<edm::InputTag>("InputLabel");
+     desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
      desc.add<std::vector<int>>("FedIds", {});
      desc.add<std::string>("Setup", "");
      desc.addUntracked<int>("lenSlinkHeader", 8);

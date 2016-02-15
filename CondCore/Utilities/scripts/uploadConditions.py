@@ -25,7 +25,8 @@ import json
 import tempfile
 
 defaultBackend = 'online'
-defaultHostname = 'cms-conddb-dev.cern.ch'
+defaultHostname = 'cms-conddb-prod.cern.ch'
+defaultDevHostname = 'cms-conddb-dev.cern.ch'
 defaultUrlTemplate = 'https://%s/cmsDbUpload/'
 defaultTemporaryFile = 'upload.tar.bz2'
 defaultNetrcHost = 'Dropbox'
@@ -132,8 +133,20 @@ I will ask you some questions to fill the metadata file. For some of the questio
             inputTag = getInputChoose(inputTags, '0',
                                       '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. 0 (you select the first in the list)\ninputTag [0]: ')
 
-        destinationDatabase = getInputRepeat(
-            '\nWhich is the destination database where the tags should be exported? \ne.g. prod: oracle://cms_orcon_prod/CMS_CONDITIONS - prep: oracle://cms_orcoff_prep/CMS_CONDITIONS\ndestinationDatabase: ')
+        destinationDatabase = ''
+        ntry = 0
+        while ( destinationDatabase != 'oracle://cms_orcon_prod/CMS_CONDITIONS' and destinationDatabase != 'oracle://cms_orcoff_prep/CMS_CONDITIONS' ): 
+            if ntry==0:
+                inputMessage = \
+                '\nWhich is the destination database where the tags should be exported? \nPossible choices: oracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \ndestinationDatabase: '
+            elif ntry==1:
+                inputMessage = \
+                '\nPlease choose one of the two valid destinations: \noracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \
+\ndestinationDatabase: '
+            else:
+                raise Exception('No valid destination chosen. Bailing out...')
+            destinationDatabase = getInputRepeat(inputMessage)
+            ntry += 1
 
         while True:
             since = getInput('',
@@ -151,14 +164,6 @@ I will ask you some questions to fill the metadata file. For some of the questio
         userText = getInput('',
                             '\nWrite any comments/text you may want to describe your request\ne.g. Muon alignment scenario for...\nuserText []: ')
 
-        print '''
-Finally, we are going to add the destination tags. There must be at least one.
-The tags (and its dependencies) can be synchronized to several workflows. You can synchronize to the following workflows:
-   * "offline" means no checks/synchronization will be done.
-   * "hlt" and "express" means that the IOV will be synchronized to the last online run number plus one (as seen by RunInfo).
-   * "prompt" means that the IOV will be synchronized to the smallest run number waiting for Prompt Reconstruction not having larger run numbers already released (as seen by the Tier0 monitoring).
-   * "pcl" is like "prompt", but the exportation will occur if and only if the begin time of the first IOV (as stored in the SQLite file or established by the since field in the metadata file) is larger than the first condition safe run number obtained from Tier0.'''
-
         destinationTags = {}
         while True:
             destinationTag = getInput('',
@@ -173,14 +178,7 @@ The tags (and its dependencies) can be synchronized to several workflows. You ca
                 logging.warning(
                     'You already added this destination tag. Overwriting the previous one with this new one.')
 
-            print( "The synchronization will be set to 'any' - the value is ignored for existing tags.") 
-            synchronizeTo = 'any'
-
-            dependencies = {}
-
             destinationTags[destinationTag] = {
-                'synchronizeTo': synchronizeTo,
-                'dependencies': dependencies,
             }
 
         metadata = {
@@ -422,12 +420,19 @@ class ConditionsUploader(object):
 
     def __init__(self, hostname = defaultHostname, urlTemplate = defaultUrlTemplate):
         self.hostname = hostname
+        self.urlTemplate = urlTemplate 
         self.userName = None
-        self.http = HTTP()
-        self.http.setBaseUrl(urlTemplate % hostname)
+        self.http = None
+        self.password = None
 
+    def setHost( self, hostname ):
+        self.hostname = hostname
 
     def signIn(self, username, password):
+        ''' init the server.
+        '''
+        self.http = HTTP()
+        self.http.setBaseUrl(self.urlTemplate % self.hostname)
         '''Signs in the server.
         '''
 
@@ -444,8 +449,11 @@ class ConditionsUploader(object):
 
         logging.debug( "got: '%s'", str(self.token) )
         self.userName = username
-
+        self.password = password
         return True
+
+    def signInAgain(self):
+        return self.signIn( self.userName, self.password )
 
     def signOut(self):
         '''Signs out the server.
@@ -571,8 +579,8 @@ class ConditionsUploader(object):
         if len(skippedTags) > 0: logging.warning("tags SKIPped to upload   : %s ", str(skippedTags) )
         if len(failedTags)  > 0: logging.error  ("tags FAILed  to upload   : %s ", str(failedTags) )
 
-        fileLogURL = 'https://cms-conddb-dev.cern.ch/logs/dropBox/getFileLog?fileHash=%s' 
-        logging.info('file log at: %s', fileLogURL % fileHash)
+        fileLogURL = 'https://%s/logs/dropBox/getFileLog?fileHash=%s' 
+        logging.info('file log at: %s', fileLogURL % (self.hostname,fileHash))
 
         return len(okTags)>0
 
@@ -650,8 +658,29 @@ def uploadAllFiles(options, arguments):
         dropBox._checkForUpdates()
 
         for filename in arguments:
-            results[filename] = dropBox.uploadFile(filename, options.backend, options.temporaryFile)
-        logging.debug("all files uploaded, logging out now.")
+            backend = options.backend
+            basepath = filename.rsplit('.db', 1)[0].rsplit('.txt', 1)[0]
+            metadataFilename = '%s.txt' % basepath
+            with open(metadataFilename, 'rb') as metadataFile:
+                metadata = json.load( metadataFile )
+            # When dest db = prep the hostname has to be set to dev.
+            forceHost = False
+            destDb = metadata['destinationDatabase']
+            if destDb.startswith('oracle://cms_orcon_prod') or destDb.startswith('oracle://cms_orcoff_prep'):
+                if destDb.startswith('oracle://cms_orcoff_prep'):
+                    dropBox.setHost( defaultDevHostname )
+                    dropBox.signInAgain()
+                    forceHost = True
+                results[filename] = dropBox.uploadFile(filename, options.backend, options.temporaryFile)
+                if forceHost:
+                    # set back the hostname to the original global setting
+                    dropBox.setHost( options.hostname )
+                    dropBox.signInAgain()
+            else:
+                results[filename] = False
+                logging.error("DestinationDatabase %s is not valid. Skipping the upload." %destDb)
+
+        logging.debug("all files processed, logging out now.")
 
         dropBox.signOut()
 

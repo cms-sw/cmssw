@@ -24,6 +24,8 @@
 
 #include "HcalHardcodeCalibrations.h"
 
+//#define DebugLog
+
 // class decleration
 //
 
@@ -36,10 +38,10 @@ namespace {
     int maxDepthHB=hcaltopology.maxDepthHB();
     int maxDepthHE=hcaltopology.maxDepthHE();
 
-  /*
-  std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepthHB, maxDepthHE = " 
-	    <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
-  */
+#ifdef DebugLog
+    std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepthHB, maxDepthHE = " 
+	      <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
+#endif
 
     if (result.size () <= 0) {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
@@ -48,14 +50,14 @@ namespace {
           for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
             for (int det = 1; det <= HcalForward; det++) {
 	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	      if (hcaltopology.valid(cell)) result.push_back (cell);
-
-	    /*
-            if (hcaltopology.valid(cell))  
-	      std::cout << " HcalHardcodedCalibrations: det, eta, phi, depth = "
-			<< det << ",  " << eta << ", " << phi << " , "
-			<< depth << std::endl;  
-	    */
+	      if (hcaltopology.valid(cell)) {
+		result.push_back (cell);
+#ifdef DebugLog
+		std::cout << " HcalHardcodedCalibrations: det|eta|phi|depth = "
+			  << det << "|" << eta << "|" << phi << "|"
+			  << depth << std::endl;  
+#endif
+	      }
 	    }
 	  }
 	}
@@ -95,7 +97,14 @@ namespace {
                eta <= HcalTrigTowerDetId::kHcalEtaMask; eta++) {
             for (int phi = 1; phi <= HcalTrigTowerDetId::kHcalPhiMask; phi++) {
               HcalTrigTowerDetId cell(eta, phi,depth,vers); 
-              if (hcaltopology.validHT(cell)) result.push_back (cell);
+              if (hcaltopology.validHT(cell)) {
+		result.push_back (cell);
+#ifdef DebugLog
+		std::cout << " HcalHardcodedCalibrations: eta|phi|depth|vers = "
+			  << eta << "|" << phi << "|" << depth << "|" << vers
+			  << std::endl;  
+#endif
+	      }
 	    }
 	  }
 	}
@@ -128,12 +137,17 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     }
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
-    //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
+#ifdef DebugLog
+    std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
+#endif
   }
 
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
+#ifdef DebugLog
+    std::cout << "Load parameters for " << *objectName << std::endl;
+#endif
     if ((*objectName == "Pedestals") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();

@@ -10,10 +10,7 @@
 
 #include <string>
 
-//class DQMStore;
-
 class EffPurFromHistos {
-
 
  public:
 
@@ -22,11 +19,9 @@ class EffPurFromHistos {
 		     TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
 		     const std::string& label, const unsigned int& mc,
 		     int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
-	// defaults reasonable for lifetime based tags
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, DQMStore::IBooker & ibook,
-		    int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
-	// defaults reasonable for lifetime based tags
+  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, 
+		    DQMStore::IBooker & ibook, int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 
   ~EffPurFromHistos () ;
 
@@ -34,44 +29,42 @@ class EffPurFromHistos {
   void compute (DQMStore::IBooker & ibook) ;
 
   // return the newly created histos
-  TH1F * getEffFlavVsBEff_d    () { return EffFlavVsBEff_d->getTH1F()    ; };
-  TH1F * getEffFlavVsBEff_u    () { return EffFlavVsBEff_u->getTH1F()    ; };
-  TH1F * getEffFlavVsBEff_s    () { return EffFlavVsBEff_s ->getTH1F()   ; };
-  TH1F * getEffFlavVsBEff_c    () { return EffFlavVsBEff_c ->getTH1F()   ; };
-  TH1F * getEffFlavVsBEff_b    () { return EffFlavVsBEff_b ->getTH1F()   ; };
-  TH1F * getEffFlavVsBEff_g    () { return EffFlavVsBEff_g ->getTH1F()   ; };
-  TH1F * getEffFlavVsBEff_ni   () { return EffFlavVsBEff_ni ->getTH1F()  ; };
-  TH1F * getEffFlavVsBEff_dus  () { return EffFlavVsBEff_dus ->getTH1F() ; };
-  TH1F * getEffFlavVsBEff_dusg () { return EffFlavVsBEff_dusg ->getTH1F(); };
-  TH1F * getEffFlavVsBEff_pu   () { return EffFlavVsBEff_pu ->getTH1F(); };
+  TH1F * getEffFlavVsBEff_d    () { return EffFlavVsXEff_d->getTH1F()    ; };
+  TH1F * getEffFlavVsBEff_u    () { return EffFlavVsXEff_u->getTH1F()    ; };
+  TH1F * getEffFlavVsBEff_s    () { return EffFlavVsXEff_s ->getTH1F()   ; };
+  TH1F * getEffFlavVsBEff_c    () { return EffFlavVsXEff_c ->getTH1F()   ; };
+  TH1F * getEffFlavVsBEff_b    () { return EffFlavVsXEff_b ->getTH1F()   ; };
+  TH1F * getEffFlavVsBEff_g    () { return EffFlavVsXEff_g ->getTH1F()   ; };
+  TH1F * getEffFlavVsBEff_ni   () { return EffFlavVsXEff_ni ->getTH1F()  ; };
+  TH1F * getEffFlavVsBEff_dus  () { return EffFlavVsXEff_dus ->getTH1F() ; };
+  TH1F * getEffFlavVsBEff_dusg () { return EffFlavVsXEff_dusg ->getTH1F(); };
+  TH1F * getEffFlavVsBEff_pu   () { return EffFlavVsXEff_pu ->getTH1F(); };
 
  
-
   void epsPlot(const std::string & name);
-
   void psPlot(const std::string & name);
 
   void plot(TPad * theCanvas = 0) ;
-
   void plot(const std::string & name, const std::string & ext);
 
-//   void print () const ;
+  FlavourHistograms<double> * discriminatorNoCutEffic() const {return discrNoCutEffic.get();}
+  FlavourHistograms<double> * discriminatorCutEfficScan() const {return discrCutEfficScan.get();}
 
-  FlavourHistograms<double> * discriminatorNoCutEffic() const {return discrNoCutEffic;}
-  FlavourHistograms<double> * discriminatorCutEfficScan() const {return discrCutEfficScan;}
-
+  bool doCTagPlots(bool Ctag) {doCTagPlots_ = Ctag; return doCTagPlots_;};
+ 
  private:
-
 
   // consistency check (same binning)
   void check () ;
   bool fromDiscriminatorDistr;
 
-
+  unsigned int mcPlots_;
+  bool doCTagPlots_;
+  std::string label_;
   // the string for the histo name extension
   std::string histoExtension ;
 
-  FlavourHistograms<double> * discrNoCutEffic, *discrCutEfficScan;
+  std::unique_ptr<FlavourHistograms<double> > discrNoCutEffic, discrCutEfficScan;
 
   // the input histograms (efficiency versus discriminator cut)
   // IMPORTANT: IT'S ASSUMED THAT ALL HISTOS HAVE THE SAME BINNING!!
@@ -88,7 +81,6 @@ class EffPurFromHistos {
   TH1F * effVersusDiscr_dusg ;
   TH1F * effVersusDiscr_pu   ;
 
-
   // the corresponding output histograms (flavour-eff vs. b-efficiency)
 
   // binning for output histograms
@@ -96,23 +88,16 @@ class EffPurFromHistos {
   double startOutput ;
   double endOutput ;
 
-  unsigned int mcPlots_;
-
-
-  MonitorElement * EffFlavVsBEff_d    ;
-  MonitorElement * EffFlavVsBEff_u    ;
-  MonitorElement * EffFlavVsBEff_s    ;
-  MonitorElement * EffFlavVsBEff_c    ;
-  MonitorElement * EffFlavVsBEff_b    ;
-  MonitorElement * EffFlavVsBEff_g    ;
-  MonitorElement * EffFlavVsBEff_ni   ;
-  MonitorElement * EffFlavVsBEff_dus  ;
-  MonitorElement * EffFlavVsBEff_dusg ;
-  MonitorElement * EffFlavVsBEff_pu   ;
-
-  //  DQMStore * dqmStore_; 
-  std::string label_;
-
-} ;
+  MonitorElement * EffFlavVsXEff_d    ;
+  MonitorElement * EffFlavVsXEff_u    ;
+  MonitorElement * EffFlavVsXEff_s    ;
+  MonitorElement * EffFlavVsXEff_c    ;
+  MonitorElement * EffFlavVsXEff_b    ;
+  MonitorElement * EffFlavVsXEff_g    ;
+  MonitorElement * EffFlavVsXEff_ni   ;
+  MonitorElement * EffFlavVsXEff_dus  ;
+  MonitorElement * EffFlavVsXEff_dusg ;
+  MonitorElement * EffFlavVsXEff_pu   ;
+};
 
 #endif

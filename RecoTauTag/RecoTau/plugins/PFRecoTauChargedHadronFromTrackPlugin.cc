@@ -158,7 +158,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
 	dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
       } else {
 	if ( numWarnings_ < maxWarnings_ ) {
-	  edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	  edm::LogInfo("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
 	    << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
 	  ++numWarnings_;
 	}

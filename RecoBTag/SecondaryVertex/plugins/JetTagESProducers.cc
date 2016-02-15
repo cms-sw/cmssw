@@ -29,7 +29,7 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos> CandidateCombinedSVJetTagComputer;
-
+		
 //this one is actually not fully non-candidate based anymore (no backward compatibility with old SL taginfos for the moment)
 typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
@@ -51,7 +51,7 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos,
 	reco::CandSoftLeptonTagInfo, muonTagInfos,
-	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonCvsLJetTagComputer;
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonJetTagComputer;
 
 typedef JetTagComputerESProducer<CandidateCombinedSVJetTagComputer> CandidateCombinedSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexESProducer);
