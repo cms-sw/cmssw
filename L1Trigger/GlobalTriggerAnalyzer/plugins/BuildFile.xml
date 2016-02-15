@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
-<library   file="Module.cc" name="L1TriggerGlobalTriggerAnalyzerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

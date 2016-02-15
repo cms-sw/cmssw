@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DQMServices/Core"/>
-<use   name="DataFormats/DTDigi"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="Geometry/Records"/>
-<use   name="root"/>
-<flags   EDM_PLUGIN="1"/>

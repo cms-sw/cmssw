@@ -1,1 +1,0 @@
-g++ -g -Wall -ansi -I $ROOTSYS/include -o $1 $1.C -L $ROOTSYS/lib `root-config --glibs`

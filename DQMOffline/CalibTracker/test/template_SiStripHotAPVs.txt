@@ -1,6 +1,0 @@
-destDB cms_orcon_prod/CMS_COND_31X_STRIP
-inputtag SiStripHotAPVs
-tag SiStripBadComponents_OfflineAnalysis_HotAPVs_GR09_31X_v1_offline
-since insertFirstRun
-till 
-usertext New IOVs appended: insertIOV

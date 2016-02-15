@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/HLTReco"/>
-<use   name="DataFormats/Math"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/TrackReco"/>

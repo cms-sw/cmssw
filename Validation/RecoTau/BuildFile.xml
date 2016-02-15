@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TauReco"/>
-<use   name="DQMServices/Core"/>
-<use   name="PhysicsTools/JetMCUtils"/>
-<use   name="CommonTools/Utils"/>
-<use   name="CommonTools/TriggerUtils"/>
-<flags   EDM_PLUGIN="1"/>

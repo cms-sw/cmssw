@@ -1,9 +1,0 @@
-<use   name="clhep"/>
-<library   file="*.cc" name="SimGeneralTrackingAnalysis_test">
-  <use   name="FWCore/Framework"/>
-  <use   name="SimDataFormats/TrackingAnalysis"/>
-  <use   name="SimDataFormats/Track"/>
-  <use   name="SimDataFormats/Vertex"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

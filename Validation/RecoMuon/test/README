@@ -1,8 +1,0 @@
-*******************************
-Muon Summary Validation script
-*******************************
-
-Version 0
----------
-a) User needs to set input data in the file userparams.py
-b) User needs to run muonReleaseSummary.py

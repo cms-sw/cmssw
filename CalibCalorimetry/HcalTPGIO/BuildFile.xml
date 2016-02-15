@@ -1,8 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="CalibFormats/CaloTPG"/>
-<use   name="DataFormats/HcalDigi"/>

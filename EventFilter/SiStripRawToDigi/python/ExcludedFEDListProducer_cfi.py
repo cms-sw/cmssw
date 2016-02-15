@@ -1,5 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-import EventFilter.SiStripRawToDigi.siStripExcludedFEDListProducer_cfi
-
-SiStripExcludedFEDListProducer = EventFilter.SiStripRawToDigi.siStripExcludedFEDListProducer_cfi.siStripExcludedFEDListProducer.clone()
-SiStripExcludedFEDListProduce.ProductLabel = cms.InputTag("rawDataCollector")

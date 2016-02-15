@@ -1,5 +1,0 @@
-cmsRun $CMSSW_BASE/src/Validation/RecoTrack/test/MultiTrackValidator_cfg.py
-will run 8 threads and produce an edm file named MTV_inDQM.root
-cmsRun $CMSSW_BASE/src/Validation/RecoTrack/test/MTV_HARVESTING.py
-will read the above and produce an histogram file
-DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root

@@ -1,4 +1,0 @@
-<use name="DQM/EcalMonitorDbModule"/>
-<library   file="*.cc" name="DQMEcalMonitorDbModulePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -1,9 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="DQMServices/Core"/>
-<use   name="root"/>
-<use   name="clhep"/>

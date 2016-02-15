@@ -1,4 +1,0 @@
-g++ -Wno-deprecated ${1}.C -o ${1} -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms9/include -L/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms9/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic
-
-#-L/cern/sw/root/v3.10.02/rh73_gcc32/root/lib -lNew -lRint -lTree -lTreePlayer -lCint -lThread -lGraf -lGraf3d -lHist -lHtml -lMatrix -lMinuit -lPostscript -lProof -lThread -lCore -lGX11 -lPhysics -lGpad -lGui -lTreeViewer -L/usr/X11R6/lib -lm -ldl -L/usr/lib -lpthread -rdynamic
-rm -f ${1}.o

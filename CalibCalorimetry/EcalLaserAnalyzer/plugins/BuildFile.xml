@@ -1,4 +1,0 @@
-<use   name="CalibCalorimetry/EcalLaserAnalyzer"/>
-<library   file="*.cc" name="CalibCalorimetryEcalLaserAnalyzerPlugin">
-  <flags   EDM_PLUGIN="1"/>
-</library>

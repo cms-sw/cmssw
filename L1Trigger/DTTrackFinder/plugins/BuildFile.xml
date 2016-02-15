@@ -1,4 +1,0 @@
-<use   name="L1Trigger/DTTrackFinder"/>
-<library   file="*.cc" name="L1TriggerDTTrackFinderPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

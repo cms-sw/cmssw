@@ -1,7 +1,0 @@
-  ##   Script to divide two histos in the same .root file
- 
-  ## Define file (REFFILE) where histos to be divided are
-  setenv REFFILE ./DTDigiPlots.root
-
-  root -b -p -q DoCompareandDivide.C
-

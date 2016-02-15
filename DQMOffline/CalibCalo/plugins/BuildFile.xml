@@ -1,4 +1,0 @@
-<library   file="*.cc" name="DQMOfflineCalibCaloPlugins">
-  <use   name="DQMOffline/CalibCalo"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

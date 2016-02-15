@@ -1,5 +1,0 @@
-<library   name="ValidationRecoVertexMacros" file="*.cc">
-<use   name="DPGAnalysis/SiStripTools"/>
-<use   name="root"/>
-<use   name="rootgraphics"/>
-</library>

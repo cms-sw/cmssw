@@ -1,8 +1,0 @@
-<use   name="DataFormats/L1Trigger"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="DataFormats/Candidate"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="Validation/L1T"/>
-<flags EDM_PLUGIN="1"/>

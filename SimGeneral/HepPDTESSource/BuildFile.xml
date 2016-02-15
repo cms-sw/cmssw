@@ -1,3 +1,0 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<flags   EDM_PLUGIN="1"/>

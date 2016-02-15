@@ -1,3 +1,0 @@
-#!/bin/zsh
-
-(/dqmdata/fm-scripts/visDQMSyncDaemon --dirs OnlineData,OfflineData/Run2011/StreamExpress,OfflineData/Run2011/StreamExpressCosmics,OfflineData/Run2011/Commissioning,OfflineData/Run2011/Cosmics,OfflineData/Run2011/MinimumBias --dirs_quotas=30G,20G,20G,20G,20G,20G 130G /dqmdata/offline/repository/data /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data) 2>&1 | /data/sw/slc5_amd64_gcc434/cms/dqmgui/5.4.0b/bin/visDQMRotateLogs /dqmdata/offline/agents/syncdn-%Y%m%d%H%M.txt 86400 </dev/null > /dev/null

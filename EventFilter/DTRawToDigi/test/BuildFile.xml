@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<library   file="FilterByLTC/*.cc" name="testFilterByLTC">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DataFormats/LTCDigi"/>
-</library>

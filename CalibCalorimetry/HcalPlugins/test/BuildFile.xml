@@ -1,7 +1,0 @@
-<environment>
-  <use   name="boost"/>
-  <use   name="CalibFormats/HcalObjects"/>
-  <library   file="HcalDbAnalyzer.cc" name="HcalDbAnalyzer">
-    <flags   EDM_PLUGIN="1"/>
-  </library>
-</environment>

@@ -1,4 +1,0 @@
-<use   name="root"/>
-<use   name="rootgraphics"/>
-<use   name="Validation/MuonRPCGeometry"/>
-<use   name="L1Trigger/RPCTrigger"/>

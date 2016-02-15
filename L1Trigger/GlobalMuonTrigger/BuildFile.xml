@@ -1,9 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Sources"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/L1GlobalMuonTrigger"/>
-<use   name="DataFormats/L1CaloTrigger"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/L1TObjects"/>

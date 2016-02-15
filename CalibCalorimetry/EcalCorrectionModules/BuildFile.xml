@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/EcalCorrections"/>
-<use   name="DataFormats/EcalDetId"/>
-<flags   EDM_PLUGIN="1"/>

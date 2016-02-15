@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CalibCalorimetry/HcalTPGAlgos"/>
-<use   name="CalibFormats/HcalObjects"/>
-<flags   EDM_PLUGIN="1"/>

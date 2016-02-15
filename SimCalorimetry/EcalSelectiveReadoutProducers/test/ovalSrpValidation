@@ -1,6 +1,0 @@
-#!/bin/sh
-
-#runs SRP in dump mode and displays contents of TT and SRP files 
-#with each line prefixed by '[OVAL]'. Used by Oval validation tests
-
-cat SRF.txt TTF.txt AF.txt | sed 's/\(.*\)/\[OVAL\] \1/'

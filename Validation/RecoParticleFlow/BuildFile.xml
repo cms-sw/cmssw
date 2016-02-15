@@ -1,7 +1,0 @@
-<use   name="root"/>
-<use   name="rootgpad"/>
-<use   name="rootcore"/>
-
-<export>
-  <lib   name="1"/>
-</export>

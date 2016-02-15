@@ -1,4 +1,0 @@
-<use   name="L1Trigger/RPCTrigger"/>
-<library   file="*.cc" name="L1TriggerRPCTriggerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

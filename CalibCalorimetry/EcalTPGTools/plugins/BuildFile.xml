@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/EcalMapping"/>
-<use   name="OnlineDB/EcalCondDB"/>
-<use   name="OnlineDB/Oracle"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="CalibCalorimetry/EcalTPGTools"/>
-<library   file="*.cc" name="CalibCalorimetryEcalTPGToolsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
