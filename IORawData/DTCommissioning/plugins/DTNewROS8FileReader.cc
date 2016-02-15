@@ -97,7 +97,7 @@ int DTNewROS8FileReader::fillRawData(Event& e,
     int numberEventHeadWords=8;
 
     //1.- Get the total NUMBER OF WORDs from the 1st word in the payload
-    int numberOfWords;
+    int numberOfWords=0;
     int nread = 0;
     nread = inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght); // ros8WordLength=4
     if ( nread<=0 ) throw 1;

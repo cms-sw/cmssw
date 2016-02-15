@@ -47,7 +47,7 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
     cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
   }
 
-  uint32_t runNumber_tmp;
+  uint32_t runNumber_tmp=1;
   inputFile.read(dataPointer<uint32_t>( &runNumber_tmp ), 4);
   runNumber = runNumber_tmp;
 

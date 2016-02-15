@@ -65,7 +65,7 @@ int DTROS8FileReader::fillRawData(Event& e,
     
 
     // Get the total number of words from the 1st word in the payload
-    int numberOfWords;
+    int numberOfWords=0;
     int nread = 0;
     nread = inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght);
     if ( nread<=0 )  throw 1;
