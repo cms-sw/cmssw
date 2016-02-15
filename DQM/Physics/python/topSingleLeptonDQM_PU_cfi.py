@@ -350,18 +350,6 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>30 & abs(eta)<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
-	    ),
 		cvsVertex = cms.PSet(
           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 	          workingPoint = cms.double(0.970)
