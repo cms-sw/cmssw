@@ -171,14 +171,14 @@ def main( options, args, parser ):
     selComps = split(selComps)
     # for comp in selComps:
     #    print comp
-    if len(selComps)>10:
-        print "WARNING: too many threads {tnum}, will just use a maximum of 10.".format(tnum=len(selComps))
+    if len(selComps)>options.ntasks:
+        print "WARNING: too many threads {tnum}, will just use a maximum of {jnum}.".format(tnum=len(selComps),jnum=options.ntasks)
     if not createOutputDir(outDir, selComps, options.force):
         print 'exiting'
         sys.exit(0)
     if len(selComps)>1:
         shutil.copy( cfgFileName, outDir )
-        pool = Pool(processes=min(len(selComps),10))
+        pool = Pool(processes=min(len(selComps),options.ntasks))
         ## workaround for a scoping problem in ipython+multiprocessing
         import PhysicsTools.HeppyCore.framework.heppy_loop as ML 
         for comp in selComps:
