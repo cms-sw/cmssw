@@ -64,12 +64,13 @@ std::string PrintoutHelper::dumpCandidate( const Candidate & traj,bool showError
 template< class collection > 
 std::string PrintoutHelper::dumpCandidates( collection & candidates) {
   std::stringstream buffer;
+  buffer	<< "\n____________________________\n";
   unsigned int ic=0;
-  typename collection::const_iterator traj=candidates.begin();
-  for (;traj!=candidates.end(); traj++) {  
-    buffer<<ic++<<"] ";
-    buffer<<PrintoutHelper::dumpCandidate(*traj);
+  for (auto const & traj : candidates) {  
+    buffer<<ic++<<"] " << (traj.isValid() ? "valid " : "invalid ");
+    buffer<<PrintoutHelper::dumpCandidate(traj);
   }
+ buffer << "\n____________________________\n";
   return buffer.str();
 }
 

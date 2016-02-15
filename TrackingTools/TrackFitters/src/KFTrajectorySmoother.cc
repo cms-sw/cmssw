@@ -18,6 +18,58 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+namespace {
+  void dump(TransientTrackingRecHit::ConstRecHitPointer hit ,int hitCounter) {
+      LogDebug("TrackFitters")
+	<< "----------------- HIT #" << hitCounter << " (VALID)-----------------------\n"
+	<< "HIT IS AT R   " << hit->globalPosition().perp() << "\n"
+	<< "HIT IS AT Z   " << hit->globalPosition().z() << "\n"
+	<< "HIT IS AT Phi " << hit->globalPosition().phi() << "\n"
+	<< "HIT IS AT Loc " << hit->localPosition() << "\n"
+	<< "WITH LocError " << hit->localPositionError() << "\n"
+	<< "HIT IS AT Glo " << hit->globalPosition() << "\n"
+	<< "SURFACE POSITION: " << hit->surface()->position() << "\n"
+	<< "SURFACE ROTATION: " << hit->surface()->rotation() << "\n"
+	<< "hit geographicalId=" << hit->geographicalId().rawId();
+      
+      DetId hitId = hit->geographicalId();
+      
+      if(hitId.det() == DetId::Tracker) {
+	if (hitId.subdetId() == StripSubdetector::TIB )  
+	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TOB ) 
+	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TEC ) 
+	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
+	else if (hitId.subdetId() == StripSubdetector::TID ) 
+	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
+	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
+	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
+	else 
+	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
+      }
+      else if(hitId.det() == DetId::Muon) {
+	if(hitId.subdetId() == MuonSubdetId::DT)
+	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::CSC )
+	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::RPC )
+	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
+	else 
+	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
+      }
+      else
+	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
+  }
+
+}
+#else
+namespace {
+  inline void dump(TransientTrackingRecHit::ConstRecHitPointer,int) {}
+}
 #endif
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -101,7 +153,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       LogDebug("TrackFitters")
       // std::cout 
                 << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' 
-		<< hitSize << ' ' << hitCounter << ' ' << hit->geographicalId() << ' '  
+		<< hitSize << ' ' << hitCounter << ' ' << int(hit->geographicalId()) << ' '  
                 << hit->surface()->position().perp() << ' ' << hit->surface()->eta() << ' ' << hit->surface()->phi() << std::endl;
       start++;
       retry = true;        
@@ -110,53 +162,6 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
     if(hit->isValid()) {
  
-#ifdef EDM_ML_DEBUG
-      LogDebug("TrackFitters")
-	<< "----------------- HIT #" << hitCounter << " (VALID)-----------------------\n"
-	<< "HIT IS AT R   " << hit->globalPosition().perp() << "\n"
-	<< "HIT IS AT Z   " << hit->globalPosition().z() << "\n"
-	<< "HIT IS AT Phi " << hit->globalPosition().phi() << "\n"
-	<< "HIT IS AT Loc " << hit->localPosition() << "\n"
-	<< "WITH LocError " << hit->localPositionError() << "\n"
-	<< "HIT IS AT Glo " << hit->globalPosition() << "\n"
-	<< "SURFACE POSITION: " << hit->surface()->position() << "\n"
-	<< "SURFACE ROTATION: " << hit->surface()->rotation() << "\n"
-	<< "hit geographicalId=" << hit->geographicalId().rawId();
-      
-      DetId hitId = hit->geographicalId();
-      
-      if(hitId.det() == DetId::Tracker) {
-	if (hitId.subdetId() == StripSubdetector::TIB )  
-	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TOB ) 
-	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TEC ) 
-	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
-	else if (hitId.subdetId() == StripSubdetector::TID ) 
-	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
-	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
-	else 
-	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
-      }
-      else if(hitId.det() == DetId::Muon) {
-	if(hitId.subdetId() == MuonSubdetId::DT)
-	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::CSC )
-	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::RPC )
-	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
-	else 
-	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
-      }
-      else
-	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
-#endif //EDM_ML_DEBUG
-      
-      
-      
       TSOS combTsos,smooTsos;
       
       //3 different possibilities to calculate smoothed state:
@@ -191,6 +196,8 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
         assert(preciseHit->isValid());
        	assert( (preciseHit->geographicalId()!=0U) | (!preciseHit->canImproveWithTrack()) );
        	assert(preciseHit->surface()!=nullptr);
+
+        dump(hit,hitCounter);
 
       if unlikely(!preciseHit->isValid()){
 	  LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";

@@ -35,7 +35,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     strictSeedExtension = cms.bool(False),
 
 # Cuts for looperTrajectoryFilter
-    minNumberOfHits = cms.int32(13),
+    minNumberOfHits = cms.int32(4),
     minNumberOfHitsPerLoop = cms.int32(4),
     extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
 
