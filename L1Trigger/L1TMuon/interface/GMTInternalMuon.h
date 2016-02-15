@@ -9,7 +9,7 @@
 namespace l1t {
 class GMTInternalMuon {
   public:
-    explicit GMTInternalMuon(const RegionalMuonCand&, int);
+    explicit GMTInternalMuon(const RegionalMuonCand&, int, int);
     GMTInternalMuon(const GMTInternalMuon&);
     // GMTInternalMuon() {};
 
@@ -25,8 +25,7 @@ class GMTInternalMuon {
     void setExtrapolation(int deta, int dphi);
     void setHwCaloEta(int idx) { m_hwCaloIndex.second = idx; };
     void setHwCaloPhi(int idx) { m_hwCaloIndex.first = idx; };
-
-    static int calcGlobalPhi(int locPhi, tftype t, int proc);
+    void setTfMuonIndex(int idx) { m_tfMuonIndex = idx; };
 
     const int hwCancelBit() const { return m_hwCancelBit; };
     const int hwRank() const { return m_hwRank; };
@@ -39,7 +38,7 @@ class GMTInternalMuon {
     const int hwCaloEta() const { return m_hwCaloIndex.second; };
     const int hwCaloPhi() const { return m_hwCaloIndex.first; };
     const int hwGlobalPhi() const { return m_hwGlobalPhi; }
-
+    const int tfMuonIndex() const { return m_tfMuonIndex; }
 
     const RegionalMuonCand& origin() const { return m_regional; };
 
@@ -65,6 +64,7 @@ class GMTInternalMuon {
     int m_hwAbsIso;
     int m_hwRelIso;
     int m_hwGlobalPhi;
+    int m_tfMuonIndex;
     std::pair<int, int> m_hwCaloIndex;
 };
 
