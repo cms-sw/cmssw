@@ -1,8 +1,12 @@
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="CondFormats/HcalObjects"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/Common"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

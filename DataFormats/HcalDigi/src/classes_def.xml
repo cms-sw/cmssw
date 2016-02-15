@@ -1,4 +1,10 @@
 <lcgdict>
+   <class name="QIE10DataFrame">
+   </class>
+   <class name="std::vector<QIE10DataFrame>">
+   </class>
+   <class name="edm::Wrapper<std::vector<QIE10DataFrame> >">
+   </class>
    <class name="HcalQIESample" ClassVersion="10">
     <version ClassVersion="10" checksum="3046719551"/>
    </class>
@@ -25,6 +31,9 @@
    </class>
    <class name="HcalHistogramDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="1578148269"/>
+   </class>
+   <class name="HcalUHTRhistogramDigiCollection" ClassVersion="0">
+    <version ClassVersion="0" checksum="2052529601"/>
    </class>
    <class name="ZDCDataFrame" ClassVersion="10">
     <version ClassVersion="10" checksum="3263886031"/>
@@ -103,6 +112,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<HcalDataFrameContainer<QIE10DataFrame> >" splitLevel="0"/>
    <class name="edm::Wrapper<HcalDataFrameContainer<QIE11DataFrame> >" splitLevel="0"/>
+   <class name="edm::Wrapper<HcalUHTRhistogramDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
    <class name="HcalLaserDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2447500554"/>
