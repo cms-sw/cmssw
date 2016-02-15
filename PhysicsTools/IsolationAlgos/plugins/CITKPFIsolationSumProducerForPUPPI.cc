@@ -9,7 +9,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
-
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/IsolationAlgos/interface/CITKIsolationConeDefinitionBase.h"
@@ -49,6 +48,7 @@ namespace citk {
     // indexed by pf candidate type
     std::array<IsoTypes,kNPFTypes> _isolation_types; 
     std::array<std::vector<std::string>,kNPFTypes> _product_names;
+    bool useValueMapForPUPPI = true;
   };
 }
 
@@ -69,8 +69,11 @@ namespace citk {
       consumes<CandView>(c.getParameter<edm::InputTag>("srcToIsolate"));
     _isolate_with = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcForIsolationCone"));
-     puppiValueMapToken_ = 
-      consumes<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
+      if (c.exists("puppiValueMap")) {
+        puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
+        useValueMapForPUPPI = true;
+      }
+      else useValueMapForPUPPI = false;
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
@@ -119,7 +122,8 @@ namespace citk {
     edm::Handle<CandView> isolate_with;
     ev.getByToken(_to_isolate,to_isolate);
     ev.getByToken(_isolate_with,isolate_with);
-    ev.getByToken(puppiValueMapToken_, puppiValueMap); 
+    if(useValueMapForPUPPI)ev.getByToken(puppiValueMapToken_, puppiValueMap);
+
     // the list of value vectors indexed as "to_isolate"
     std::array<std::vector<product_values>,kNPFTypes> the_values;    
     // get extra event info and setup value cache
@@ -143,15 +147,18 @@ namespace citk {
       }
       for( size_t ic = 0; ic < isolate_with->size(); ++ic ) {
         auto isocand = isolate_with->ptrAt(ic);
-	auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
-	const auto& isolations = _isolation_types[isotype];	
-	for( unsigned i = 0; i < isolations.size(); ++ i  ) {
-	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
-	    double puppiWeight = (*puppiValueMap)[isocand];
-      if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
-	  }
-	}
-      }
+        edm::Ptr<pat::PackedCandidate> aspackedCandidate(isocand);
+        auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
+	      const auto& isolations = _isolation_types[isotype];	
+    	   for( unsigned i = 0; i < isolations.size(); ++ i  ) {
+    	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
+          double puppiWeight = 0.;
+    	    if (!useValueMapForPUPPI) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+          else puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
+          if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
+    	  }
+    	}
+    }
       // add this candidate to isolation value list
       for( unsigned i = 0; i < kNPFTypes; ++i ) {
 	for( unsigned j = 0; j < cand_values[i].size(); ++j ) {
