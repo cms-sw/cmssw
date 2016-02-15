@@ -152,6 +152,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   long dataWord = 0;
   int newCRC = 0xFFFF;
 
+  ///--> Header - line 1 [must start with 0x5]
   readline( nline, dataWord );
   calcCRC( dataWord, newCRC );
 
@@ -160,7 +161,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   int bunchCnt = ( dataWord >> 20 ) & 0xFFF;  // positions 20 -> 31
   int eventCnt = ( dataWord >> 32 ) & 0xFFFFFF;  // positions 32 -> 55
   ***/
-  int BOEevTy  = ( dataWord >> 56 ) & 0xFf;  // positions 60 -> 63
+  int BOEevTy  = ( dataWord >> 60 ) & 0xF;  // positions 60 -> 63
 
   int linecounter = 0;
   if ( debug_ ) logfile << '[' << ++linecounter << "]\t"
@@ -168,7 +169,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                         << "BOEevTy " << BOEevTy << '\t'
                         << "TM7fedId "  << TM7fedId << '\n';
 
-  if ( (BOEevTy != 0x51) || ( TM7fedId != twinMuxFed ) ) {
+  if ( (BOEevTy != 0x5) || ( TM7fedId != twinMuxFed ) ) {
             
     edm::LogWarning("TwinMux_unpacker") << "Not a TM7 of FED " 
                                         << twinMuxFed << " header "
@@ -177,6 +178,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
     
   }
 
+  ///--> Header - line 2
   readline( nline, dataWord );
   calcCRC( dataWord, newCRC );
 
@@ -190,24 +192,24 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                         << dataWord << std::dec << "\t|\t"
                         << "nAMC " << nAMC << '\n';
 
+  ///--> AMC - line 3 to 3+nAMC
   for ( int j = 0; j < nAMC; ++j ) {
   
     readline( nline, dataWord ); 
     calcCRC( dataWord, newCRC );
    
-    int TM7boardID = dataWord & 0xFFFF;  // positions 0 -> 15
     int AMCno = (dataWord >> 16 ) & 0xF;  // positions 16 -> 19
     /*** NOT UNPACKED  
+    int TM7boardID = dataWord & 0xFFFF;  // positions 0 -> 15
     int bulkno = (dataWord >> 20 ) & 0xFF;  // positions 20 -> 27
     ***/
-    if ( AMCno < 12 ) {
-      AMCsizes[AMCno] = ( dataWord >> 32 ) & 0xFFFFFF;  // positions 32 -> 55
+    if ( (AMCno < 1) || (AMCno > 12) ) {
+        edm::LogWarning("TwinMux_unpacker") << "AMCnumber " << std::dec << AMCno 
+                                            << " out of range (1-12)";
+        return;
+    }    
 
-      edm::LogInfo("TwinMux_unpacker") << "reading line " << nline 
-                                       << " AMCno " << AMCno 
-                                       << " boardId " << TM7boardID 
-                                       << " size " << AMCsizes[AMCno] << " ";
-    }
+    AMCsizes[AMCno] = ( dataWord >> 32 ) & 0xFFFFFF;  // positions 32 -> 55
 
     if ( debug_ ) logfile << '[' << ++linecounter << "]\t"
                           << std::hex << dataWord
@@ -215,43 +217,40 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                           << "AMCsizes[" << AMCno << "] "
                           << AMCsizes[AMCno]
                           << std::dec << '\n';
-    //If we want to do something with the subheaders, here is the place
-   
   }
 
-  int chkEOE = 0;
-  readline( nline, dataWord );
-
-  if ( debug_ ) logfile << '[' << ++linecounter << "]\t" << std::hex
-                        << dataWord << std::dec << '\n';
-
-  while ( chkEOE != 0xA0 ) {
-
-    calcCRC( dataWord, newCRC);
-    DTTM7WordContainer.push_back( dataWord );
-
-    readline( nline, dataWord );
-    if ( debug_ ) logfile << '[' << ++linecounter << "]\t" << std::hex
-                          << dataWord << std::dec << '\n';
-    chkEOE = ( dataWord >> 56 ) & 0xFF;  // positions 56 -> 64
-
-    if ( nline > 3026 ) { 
-      // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
-      edm::LogWarning("TwinMux_unpacker") << "Warning : number of TwinMux nline > 3026 "; 
-      return;
+  ///--> Store payloads
+  std::map<int,int>::iterator AMCiterator = AMCsizes.begin();
+  std::map<int,int>::iterator AMCitend = AMCsizes.end();  
+  for ( ; AMCiterator != AMCitend; ++AMCiterator ) {
+      
+    for ( int k=0; k<AMCiterator->second; ++k) {
+        
+       readline( nline, dataWord );
+       calcCRC( dataWord, newCRC);
+       DTTM7WordContainer.push_back( dataWord );
     }
+  }  
 
-  } /// later on read RPC until crc
+  ///--> Trailer - line 1
+  readline( nline, dataWord );
+  calcCRC( dataWord, newCRC);
 
+  ///--> Trailer - line 2 [must start with 0xA]
+
+  readline( nline, dataWord );
   calcCRC( dataWord & 0xFFFFFFFF0000FFFF, newCRC); /// needed not to put crc in crc calc
-  edm::LogInfo("TwinMux_unpacker") << "TM7 of FED " << TM7fedId 
-                                   << ", asking " << twinMuxFed 
-                                   << " BOEevTy " << BOEevTy 
-                                   << " DTTM7WordContainer.size() " << DTTM7WordContainer.size();
 
-  //--> Trailer
+  ///--> AMC trailer - line 2
+  int chkEOE = (dataWord >> 60 ) & 0xF;  // positions 60 -> 63
   int CRC = ( dataWord >> 16 ) & 0xFFFF; // positions 17 ->32
   int evtLgth = ( dataWord >> 32 ) & 0xFFFFFF; // positions 33 ->56
+
+  if ( chkEOE != 0xA ) {
+      edm::LogWarning("TwinMux_unpacker") << "AMC block closing line " << std::hex << dataWord 
+                                          << std::dec << " does not start with 0xA";
+      return;
+  }    
 
   if ( debug_ ) logfile << "\tevtLgth " << std::hex
                         << evtLgth << "\tCRC " << CRC << std::dec << '\n';
@@ -570,14 +569,8 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
     } //end of loop over AMCsize
 
 
-    /// Trailer AMC with CRC
+    /// Trailer of payload with CRC
     ++DTTM7iterator;
-    /*** NOT UNPACKED  
-    dataWord = (*DTTM7iterator);
-    int amcCrc = ( dataWord >> 32 ); // positions 32 -> 63
-    int eventCountdataEnd = ( dataWord >> 24 ) & 0xFF; // positions 24 -> 31
-    int dataLenghtEnd = ( dataWord & 0xFFFFF ); // positions 0 -> 20
-    ***/
 
     if( DTTM7iterator == DTTM7itend ) break;
 
