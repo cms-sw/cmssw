@@ -154,14 +154,8 @@ namespace citk {
     	   for( unsigned i = 0; i < isolations.size(); ++ i  ) {
     	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
           double puppiWeight = 0.;
-    	    if (!useValueMapForPUPPI) {
-            puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
-            std::cout << "from candidate" << std::endl;
-          }
-          else {
-            puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
-            std::cout << "from map" << std::endl;
-          }
+    	    if (!useValueMapForPUPPI) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+          else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
           if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
     	  }
     	}
