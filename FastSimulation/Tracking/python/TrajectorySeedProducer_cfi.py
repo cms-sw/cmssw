@@ -9,7 +9,7 @@ trajectorySeedProducer = cms.EDProducer(
     minLayersCrossed = cms.uint32(0),
     recHitCombinations = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
     layerList = cms.vstring(),
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
+    measurementTracker = cms.string("")
     )
 
 

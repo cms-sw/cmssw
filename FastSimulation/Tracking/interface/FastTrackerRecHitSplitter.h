@@ -9,37 +9,52 @@
 #include "DataFormats/TrackerRecHit2D/interface/FastMatchedTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
 
-class FastTrackerRecHitSplitter {
+class FastTrackerRecHitSplitter 
+{
     
-    public:
+public:
     
     FastTrackerRecHitSplitter(){;}
     ~FastTrackerRecHitSplitter(){;}
     
-    inline void split(const FastTrackerRecHit & hitIn,edm::OwnVector<TrackingRecHit> & hitsOut,bool reverseHits) const {
+    inline void split(const FastTrackerRecHit & hitIn,edm::OwnVector<TrackingRecHit> & hitsOut,bool alongMomentum) const 
+    {
 	
 	if(hitIn.dimension()==1 || hitIn.isPixel())
+	{
 	    hitsOut.push_back( hitIn.clone() );
-	
+	}
+
 	else if(hitIn.isProjected())
+	{
 	    hitsOut.push_back(buildSplitStripHit(static_cast<const FastProjectedTrackerRecHit &>(hitIn).originalHit()));
-	
-	else if(hitIn.isMatched()){
-	    const FastSingleTrackerRecHit & firstHit = (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).firstHit();
-	    const FastSingleTrackerRecHit & secondHit = (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).secondHit();
-	    hitsOut.push_back(buildSplitStripHit(reverseHits ? secondHit : firstHit));
-	    hitsOut.push_back(buildSplitStripHit(reverseHits ? firstHit : secondHit));
 	}
 	
-	else{
+	else if(hitIn.isMatched())
+	{
+	    if(alongMomentum)
+	    {
+		hitsOut.push_back(buildSplitStripHit( (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).firstHit()));
+		hitsOut.push_back(buildSplitStripHit( (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).secondHit()));
+	    }
+	    else
+	    {
+		hitsOut.push_back(buildSplitStripHit( (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).secondHit()));
+		hitsOut.push_back(buildSplitStripHit( (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).firstHit()));
+	    }
+	}
+	
+	else
+	{
 	    hitsOut.push_back(buildSplitStripHit(static_cast<const FastSingleTrackerRecHit &>(hitIn)));
 	}
     }
 
     
-    private:
+private:
     
-    inline FastSingleTrackerRecHit * buildSplitStripHit (const FastSingleTrackerRecHit & hit) const {
+    inline FastSingleTrackerRecHit * buildSplitStripHit (const FastSingleTrackerRecHit & hit) const 
+    {
 	FastSingleTrackerRecHit * newHit = hit.clone();
 	newHit->set2D(newHit->detUnit()->type().isEndcap());
 	return newHit;
