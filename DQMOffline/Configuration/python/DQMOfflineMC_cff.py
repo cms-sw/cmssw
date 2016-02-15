@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Configuration.DQMOffline_cff import *
 
+#	remove Trigger Primtive Task from hcal's sequence
+hcalOfflineSourceSequence.remove(tpTask)
+
 siStripFEDCheck.RawDataTag = 'rawDataCollector'
 siStripFEDMonitor.RawDataTag = 'rawDataCollector'
 SiPixelHLTSource.RawInput = 'rawDataCollector'
