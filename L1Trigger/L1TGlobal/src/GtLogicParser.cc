@@ -91,7 +91,7 @@ GtLogicParser::GtLogicParser(std::string& logicalExpressionVal)
         << std::endl;
     }
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //    << "\nInitial logical expression = '" << logicalExpressionVal << "'"
     //    << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n"
     //    << std::endl;
@@ -172,7 +172,7 @@ bool GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
         return false;
     }
 
-    LogDebug("GtLogicParser") << "\nGtLogicParser::checkLogicalExpression - "
+    LogDebug("L1TGlobal") << "\nGtLogicParser::checkLogicalExpression - "
         << "\nInitial logical expression = '" << logicalExpressionVal << "'"
         << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n"
         << std::endl;
@@ -196,7 +196,7 @@ bool GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
 bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 {
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //<< "\nGtLogicParser::buildRpnVector - "
     //<< "\nLogical expression = '" << logicalExpressionVal << "'\n"
     //<< std::endl;
@@ -225,7 +225,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
         if (tokenString.find_first_not_of(whitespaces) == std::string::npos ||
                 tokenString.length() == 0) {
 
-            //LogTrace("GtLogicParser")
+            //LogTrace("L1TGlobal")
             //<< "  Break for token string = " << tokenString
             //<< std::endl;
 
@@ -234,7 +234,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
         actualOperation = getOperation(tokenString, lastOperation, rpnToken);
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "  Token string = '" << tokenString << "'"
         //<< "\tActual Operation = " << actualOperation
         //<< std::endl;
@@ -253,7 +253,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
                     int errorPosition = exprStringStream.tellg();
 
 
-                    edm::LogError("GtLogicParser")
+                    edm::LogError("L1TGlobal")
                     << "\nLogical expression = '" << logicalExpressionVal << "'"
                     << "\n  Syntax error during parsing: "
                     << "\n     " << exprStringStream.str().substr(0,errorPosition)
@@ -311,7 +311,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
                         int errorPosition = exprStringStream.tellg();
 
-                        edm::LogError("GtLogicParser")
+                        edm::LogError("L1TGlobal")
                         << "\nLogical expression = '" << logicalExpressionVal << "'"
                         << "\n  Syntax error during parsing - misplaced ')':"
                         << "\n     " << exprStringStream.str().substr(0,errorPosition)
@@ -335,7 +335,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
                             int errorPosition = exprStringStream.tellg();
 
-                            edm::LogError("GtLogicParser")
+                            edm::LogError("L1TGlobal")
                             << "\nLogical expression = '" << logicalExpressionVal << "'"
                             << "\n  Syntax error during parsing - misplaced ')':"
                             << "\n     " << exprStringStream.str().substr(0,errorPosition)
@@ -367,7 +367,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
     while (!operatorStack.empty()) {
         if (operatorStack.top().operation == OP_OPENBRACKET) {
 
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nLogical expression = '" << logicalExpressionVal << "'"
             << "\n  Syntax error during parsing - missing ')':"
             << "\n  Returned empty RPN vector and result false."
@@ -391,7 +391,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
             counter--;
         if (counter < 1) {
 
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nLogical expression = '" << logicalExpressionVal << "'"
             << "\n  Syntax error during parsing - too many operators"
             << "\n  Returned empty RPN vector and result false."
@@ -405,7 +405,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
     if (counter > 1) {
 
-        edm::LogError("GtLogicParser")
+        edm::LogError("L1TGlobal")
         << "\nLogical expression = '" << logicalExpressionVal << "'"
         << "\n  Syntax error during parsing - too many operands"
         << "\n  Returned empty RPN vector and result false."
@@ -434,7 +434,7 @@ void GtLogicParser::clearRpnVector()
 void GtLogicParser::buildOperandTokenVector()
 {
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::buildOperandTokenVector - "
     //<< std::endl;
 
@@ -446,7 +446,7 @@ void GtLogicParser::buildOperandTokenVector()
 
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -514,7 +514,7 @@ int GtLogicParser::operandIndex(const std::string& operandNameVal) const
 
         exprStringStream >> tokenString;
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "Token string = " << tokenString
         //<< std::endl;
 
@@ -522,7 +522,7 @@ int GtLogicParser::operandIndex(const std::string& operandNameVal) const
         if (actualOperation == OP_INVALID) {
 
             // it should never be invalid
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nLogical expression = '" << m_logicalExpression << "'"
             << "\n  Invalid operation/operand " << operandNameVal
             << "\n  Returned index is by default out of range (-1)."
@@ -542,7 +542,7 @@ int GtLogicParser::operandIndex(const std::string& operandNameVal) const
             if (rpnToken.operand == operandNameVal) {
                 result = tmpIndex;
 
-                //LogDebug("GtLogicParser")
+                //LogDebug("L1TGlobal")
                 //<< "\nGtLogicParser::operandIndex - "
                 //<< "\nLogical expression = '" << m_logicalExpression << "'"
                 //<< "\nIndex of operand " << operandNameVal << " = " << result
@@ -555,7 +555,7 @@ int GtLogicParser::operandIndex(const std::string& operandNameVal) const
     }
 
     //
-    edm::LogError("GtLogicParser")
+    edm::LogError("L1TGlobal")
     << "\nLogical expression = '" << m_logicalExpression << "'"
     << "\n  Operand " << operandNameVal << " not found in the logical expression"
     << "\n  Returned index is by default out of range (-1)."
@@ -586,7 +586,7 @@ std::string GtLogicParser::operandName(const int iOperand) const
 
         exprStringStream >> tokenString;
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "Token string = " << tokenString
         //<< std::endl;
 
@@ -594,7 +594,7 @@ std::string GtLogicParser::operandName(const int iOperand) const
         if (actualOperation == OP_INVALID) {
 
             // it should never be invalid
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nLogical expression = '" << m_logicalExpression << "'"
             << "\n  Invalid operation/operand at position " << iOperand
             << "\n  Returned empty name by default."
@@ -614,7 +614,7 @@ std::string GtLogicParser::operandName(const int iOperand) const
             if (tmpIndex == iOperand) {
                 result = rpnToken.operand;
 
-                //LogDebug("GtLogicParser")
+                //LogDebug("L1TGlobal")
                 //<< "\nGtLogicParser::operandName - "
                 //<< "\nLogical expression = '" << m_logicalExpression << "'"
                 //<< "\nOperand with index " << iOperand << " = " << result
@@ -627,7 +627,7 @@ std::string GtLogicParser::operandName(const int iOperand) const
     }
 
     //
-    edm::LogError("GtLogicParser")
+    edm::LogError("L1TGlobal")
     << "\nLogical expression = '" << m_logicalExpression << "'"
     << "\n  No operand found at position " << iOperand
     << "\n  Returned empty name by default."
@@ -649,7 +649,7 @@ bool GtLogicParser::operandResult(const std::string& operandNameVal) const {
     }
 
     // return false - should not arrive here
-    edm::LogError("GtLogicParser")
+    edm::LogError("L1TGlobal")
         << "\n  Operand " << operandNameVal << " not found in the operand token vector"
         << "\n  Returned false by default."
         << std::endl;
@@ -670,7 +670,7 @@ bool GtLogicParser::operandResult(const int tokenNumberVal) const {
     }
 
     // return false - should not arrive here
-    edm::LogError("GtLogicParser")
+    edm::LogError("L1TGlobal")
         << "\n  No operand with token number " << tokenNumberVal
         << " found in the operand token vector"
         << "\n  Returned false by default."
@@ -685,13 +685,13 @@ bool GtLogicParser::operandResult(const int tokenNumberVal) const {
 const bool GtLogicParser::expressionResult() const
 {
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::expressionResult - "
     //<< std::endl;
 
     // return false if there is no RPN vector built
     if ( m_rpnVector.empty() ) {
-        edm::LogError("GtLogicParser")
+        edm::LogError("L1TGlobal")
             << "\n  No built RPN vector exists."
             << "\n  Returned false by default."
             << std::endl;
@@ -705,7 +705,7 @@ const bool GtLogicParser::expressionResult() const
 
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -753,7 +753,7 @@ const bool GtLogicParser::expressionResult() const
 
     // get the result in the top of the stack
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::expressionResult - "
     //<< "\nResult = " << resultStack.top()
     //<< std::endl;
@@ -805,7 +805,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
 
         exprStringStream >> tokenString;
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "Token string = " << tokenString
         //<< std::endl;
 
@@ -813,7 +813,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
         if (actualOperation == OP_INVALID) {
 
             // it should never be invalid
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nNumerical expression = '" << m_numericalExpression << "'"
             << "\n  Invalid operation/operand at position " << iOperand
             << "\n  Returned false by default."
@@ -840,7 +840,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
                     } else {
                         // something went wrong - break
                         //
-                        edm::LogError("GtLogicParser")
+                        edm::LogError("L1TGlobal")
                         << "\nNumerical expression = '" << m_numericalExpression << "'"
                         << "\n  Invalid result for operand at position " << iOperand
                         << ": " << rpnToken.operand
@@ -853,7 +853,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
                     }
                 }
 
-                //LogDebug("GtLogicParser")
+                //LogDebug("L1TGlobal")
                 //<< "\nGtLogicParser::operandResult - "
                 //<< "\nNumerical expression = '" << m_numericalExpression << "'"
                 //<< "\nResult for operand with index " << iOperand
@@ -867,7 +867,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
     }
 
     //
-    edm::LogError("GtLogicParser")
+    edm::LogError("L1TGlobal")
     << "\nNumerical expression = '" << m_numericalExpression << "'"
     << "\n  No operand found at position " << iOperand
     << "\n  Returned false by default."
@@ -883,7 +883,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
 void GtLogicParser::buildOperandTokenVectorNumExp()
 {
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::buildOperandTokenVector - "
     //<< std::endl;
 
@@ -895,7 +895,7 @@ void GtLogicParser::buildOperandTokenVectorNumExp()
 
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -946,13 +946,13 @@ void GtLogicParser::buildOperandTokenVectorNumExp()
 const bool GtLogicParser::expressionResultNumExp() const
 {
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::expressionResult - "
     //<< std::endl;
 
     // return false if there is no expression
     if ( m_rpnVector.empty() ) {
-        edm::LogError("GtLogicParser")
+        edm::LogError("L1TGlobal")
             << "\n  No built RPN vector exists."
             << "\n  Returned false by default."
             << std::endl;
@@ -966,7 +966,7 @@ const bool GtLogicParser::expressionResultNumExp() const
 
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -1014,7 +1014,7 @@ const bool GtLogicParser::expressionResultNumExp() const
 
     // get the result in the top of the stack
 
-    //LogTrace("GtLogicParser")
+    //LogTrace("L1TGlobal")
     //<< "\nGtLogicParser::expressionResult - "
     //<< "\nLogical expression   = '" << m_logicalExpression << "'"
     //<< "\nNumerical expression = '" << m_numericalExpression << "'"
@@ -1062,7 +1062,7 @@ void GtLogicParser::convertNameToIntLogicalExpression(
         if (actualOperation == OP_INVALID) {
 
             // it should never be invalid
-            edm::LogError("GtLogicParser")
+            edm::LogError("L1TGlobal")
             << "\nLogical expression = '" << m_logicalExpression << "'"
             << "\n  Invalid operation/operand in logical expression."
             << "\n  Return empty logical expression."
@@ -1092,7 +1092,7 @@ void GtLogicParser::convertNameToIntLogicalExpression(
             } else {
 
                 // it should never be happen
-                edm::LogError("GtLogicParser")
+                edm::LogError("L1TGlobal")
                 << "\nLogical expression = '" << m_logicalExpression << "'"
                 << "\n  Could not convert " << rpnToken.operand << " to integer!"
                 << "\n  Return empty logical expression."
@@ -1112,7 +1112,7 @@ void GtLogicParser::convertNameToIntLogicalExpression(
     //convertedLogicalExpression.erase(convertedLogicalExpression.size() - 1);
     boost::trim(convertedLogicalExpression);
 
-    LogDebug("GtLogicParser")
+    LogDebug("L1TGlobal")
     << "\nGtLogicParser::convertNameToIntLogicalExpression - "
     << "\nLogical expression (strings) = '" << m_logicalExpression << "'"
     << "\nLogical expression (int)     = '" << convertedLogicalExpression << "'\n"
@@ -1158,7 +1158,7 @@ void GtLogicParser::convertIntToNameLogicalExpression(
         if (actualOperation == OP_INVALID) {
 
             // it should never be invalid
-            edm::LogError("GtLogicParser") << "\nLogical expression = '" << m_logicalExpression
+            edm::LogError("L1TGlobal") << "\nLogical expression = '" << m_logicalExpression
                     << "'" << "\n  Invalid operation/operand in logical expression."
                     << "\n  Return empty logical expression." << std::endl;
 
@@ -1188,7 +1188,7 @@ void GtLogicParser::convertIntToNameLogicalExpression(
             } else {
 
                 // it should never be happen
-                edm::LogError("GtLogicParser") << "\nLogical expression = '"
+                edm::LogError("L1TGlobal") << "\nLogical expression = '"
                         << m_logicalExpression << "'" << "\n  Could not convert "
                         << rpnToken.operand << " to string!"
                         << "\n  Return empty logical expression." << std::endl;
@@ -1207,7 +1207,7 @@ void GtLogicParser::convertIntToNameLogicalExpression(
     //convertedLogicalExpression.erase(convertedLogicalExpression.size() - 1);
     boost::trim(convertedLogicalExpression);
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //        << "\nGtLogicParser::convertIntToNameLogicalExpression - "
     //        << "\nLogical expression (int) =    '" << m_logicalExpression << "'"
     //        << "\nLogical expression (string) = '" << convertedLogicalExpression << "'\n"
@@ -1227,7 +1227,7 @@ void GtLogicParser::convertIntToNameLogicalExpression(
 std::vector<GtLogicParser::OperandToken>
     GtLogicParser::expressionSeedsOperandList() {
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //<< "\nGtLogicParser::expressionSeedsOperandList - "
     //<< "\nLogical expression = '" << m_logicalExpression << "'"
     //<< "\nm_rpnVector.size() = " << m_rpnVector.size()
@@ -1258,7 +1258,7 @@ std::vector<GtLogicParser::OperandToken>
 
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -1278,7 +1278,7 @@ std::vector<GtLogicParser::OperandToken>
 
                             opVector.push_back(*itOp);
 
-                            //LogTrace("GtLogicParser")
+                            //LogTrace("L1TGlobal")
                             //<< "  Push operand " << (*itOp).tokenName
                             //<<" on the seed operand list"
                             //<< std::endl;
@@ -1295,7 +1295,7 @@ std::vector<GtLogicParser::OperandToken>
 
                     iOperand++;
 
-                    //LogTrace("GtLogicParser")
+                    //LogTrace("L1TGlobal")
                     //<< "  Push operand " << (m_operandTokenVector.at(iOperand)).tokenName
                     //<< " on the operand stack"
                     //<< std::endl;
@@ -1314,7 +1314,7 @@ std::vector<GtLogicParser::OperandToken>
 
                     tmpStack.push(dummyToken);               // and push dummy result
 
-                    //LogTrace("GtLogicParser")
+                    //LogTrace("L1TGlobal")
                     //<< "  Clear tmp operand list"
                     //<< std::endl;
 
@@ -1338,7 +1338,7 @@ std::vector<GtLogicParser::OperandToken>
                     if ( b1.tokenNumber >= 0 ) {
                         tmpVector.push_back(b1);
 
-                        //LogTrace("GtLogicParser")
+                        //LogTrace("L1TGlobal")
                         //<< "  Push operand " << b1.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
@@ -1347,7 +1347,7 @@ std::vector<GtLogicParser::OperandToken>
                     if ( b2.tokenNumber >= 0 ) {
                         tmpVector.push_back(b2);
 
-                        //LogTrace("GtLogicParser")
+                        //LogTrace("L1TGlobal")
                         //<< "  Push operand " << b2.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
@@ -1372,7 +1372,7 @@ std::vector<GtLogicParser::OperandToken>
                     if ( b1.tokenNumber >= 0 ) {
                         tmpVector.push_back(b1);
 
-                        //LogTrace("GtLogicParser")
+                        //LogTrace("L1TGlobal")
                         //<< "  Push operand " << b1.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
@@ -1381,7 +1381,7 @@ std::vector<GtLogicParser::OperandToken>
                     if ( b2.tokenNumber >= 0 ) {
                         tmpVector.push_back(b2);
 
-                        //LogTrace("GtLogicParser")
+                        //LogTrace("L1TGlobal")
                         //<< "  Push operand " << b2.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
@@ -1416,7 +1416,7 @@ std::vector<GtLogicParser::OperandToken>
 
             opVector.push_back(*itOp);
 
-            //LogTrace("GtLogicParser")
+            //LogTrace("L1TGlobal")
             //<< "  One block or one operand only: push operand " << (*itOp).tokenName
             //<<" on the seed operand list"
             //<< std::endl;
@@ -1425,7 +1425,7 @@ std::vector<GtLogicParser::OperandToken>
 
     } else {
 
-        //LogTrace("GtLogicParser")
+        //LogTrace("L1TGlobal")
         //        << "  More blocks:  push the last block on the seed operand list" << std::endl;
 
         for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin();
@@ -1433,7 +1433,7 @@ std::vector<GtLogicParser::OperandToken>
 
             opVector.push_back(*itOp);
 
-            //LogTrace("GtLogicParser")
+            //LogTrace("L1TGlobal")
             //<< "  Push operand:  " << (*itOp).tokenName
             //<<" on the seed operand list"
             //<< std::endl;
@@ -1603,7 +1603,7 @@ bool GtLogicParser::setLogicalExpression(const std::string& logicalExpressionVal
 
     m_logicalExpression = logicalExpressionBS;
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //<< "\nGtLogicParser::setLogicalExpression - "
     //<< "\nLogical expression = '" << m_logicalExpression << "'\n"
     //<< std::endl;
@@ -1630,7 +1630,7 @@ bool GtLogicParser::setNumericalExpression(const std::string& numericalExpressio
 
     m_numericalExpression = numericalExpressionBS;
 
-    //LogDebug("GtLogicParser")
+    //LogDebug("L1TGlobal")
     //<< "\nGtLogicParser::setNumericalExpression - "
     //<< "\nNumerical Expression = '" << m_numericalExpression << "'\n"
     //<< std::endl;

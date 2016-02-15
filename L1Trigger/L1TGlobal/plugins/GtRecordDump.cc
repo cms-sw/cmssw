@@ -172,7 +172,7 @@ namespace l1t {
      //Fill the L1 result maps
      m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
 
-     LogDebug("l1t|Global") << "retrieved L1 data " << endl;
+     LogDebug("GtRecordDump") << "retrieved L1 data " << endl;
      
      // grab the map for the final decisions
      const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
@@ -182,7 +182,7 @@ namespace l1t {
      const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
      const std::vector<std::pair<std::string, bool> > vetoMasks = m_gtUtil->vetoMasks();
 
-     LogDebug("l1t|Global") << "retrieved all event vectors " << endl;
+     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
 
      // Dump the results
      cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;

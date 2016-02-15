@@ -162,7 +162,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       MissingEnergy = false;
       break;
     default:
-      edm::LogError("l1t|Global")
+      edm::LogError("L1TGlobal")
 	<< "\n  Error: "
 	<< "Unmatched object type from template to EtSumType, (m_gtEnergySumTemplate->objectType())[0] = "
 	<< (m_gtEnergySumTemplate->objectType())[0]
@@ -201,7 +201,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
     // check energy threshold
     if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
-      LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
         return false;
     }
 
@@ -212,7 +212,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     if( MissingEnergy ){
       // check phi
       if( !checkRangePhi(candPhi, objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
-	LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
+	LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
 	return false;
       }
     }

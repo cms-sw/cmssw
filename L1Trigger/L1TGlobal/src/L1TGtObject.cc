@@ -53,14 +53,14 @@ l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
     // in case of unrecognized L1TGtObject, returns Mu
     // and write a warning (to not throw an exception)
     if (!found) {
-        edm::LogInfo("L1TGtObject") << "\n  '" << label
+        edm::LogInfo("L1TGlobal") << "\n  '" << label
                 << "' is not a recognized L1TGtObject. \n  Return ObjNull.";
 
         value = ObjNull;
     }
 
     if (value == ObjNull) {
-        edm::LogInfo("L1TGtObject")
+        edm::LogInfo("L1TGlobal")
                 << "\n  ObjNull means no valid L1TGtObject defined!";
     }
 
@@ -116,13 +116,13 @@ std::string l1t::l1TGtObjectEnumToString(const L1TGtObject& gtObject) {
 
         case ObjNull: {
             gtObjectString = "ObjNull";
-            edm::LogInfo("L1TGtObject")
+            edm::LogInfo("L1TGlobal")
                     << "\n  ObjNull means no valid L1TGtObject defined!";
         }
             break;
 
         default: {
-            edm::LogInfo("L1TGtObject") << "\n  '" << gtObject
+            edm::LogInfo("L1TGlobal") << "\n  '" << gtObject
                     << "' is not a recognized L1TGtObject. "
                     << "\n  Return ObjNull, which means no valid L1TGtObject defined!";
 
