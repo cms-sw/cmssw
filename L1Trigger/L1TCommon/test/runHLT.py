@@ -29,10 +29,58 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+#
+# LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
+#
+
+from L1Trigger.L1TGlobal.StableParameters_cff import *
+from L1Trigger.L1TGlobal.TriggerMenu_cff import *
+TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+
+#
+# BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
+#
+
+process.hltGtStage2Digis = cms.EDProducer(
+    "L1TRawToDigi",
+    Setup           = cms.string("stage2::GTSetup"),
+    FedIds          = cms.vint32( 1404 ),
+)
+
+process.hltCaloStage2Digis = cms.EDProducer(
+    "L1TRawToDigi",
+    Setup           = cms.string("stage2::CaloSetup"),
+    FedIds          = cms.vint32( 1360, 1366 ),
+)
+
+process.hltGmtStage2Digis = cms.EDProducer(
+    "L1TRawToDigi",
+    Setup = cms.string("stage2::GMTSetup"),
+    FedIds = cms.vint32(1402),
+)
+
+process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
+    GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
+    ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
+    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    AlgorithmTriggersUnprescaled = cms.bool(True),
+    AlgorithmTriggersUnmasked = cms.bool(True),
+)
+
+process.HLTL1UnpackerSequence = cms.Sequence(
+ process.hltGtStage2Digis +
+ process.hltCaloStage2Digis +
+ process.hltGmtStage2Digis +
+ process.hltGtStage2ObjectMap
+)
+
+#
+# END HLT UNPACKER SEQUENCE FOR STAGE 2
+#
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -102,34 +150,33 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.raw2digi_step = cms.Path(process.RawToDigi)
-process.l1reco_step = cms.Path(process.L1Reco)
+process.hlt_step = cms.Path(process.HLTL1UnpackerSequence)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # additional tests:
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-process.load('L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi')
 process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
+process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
 #    process.dumpES + 
 #    process.dumpED +
-    process.l1tSummaryStage2Digis +
-    process.l1tSummaryStage2SimDigis
+    process.l1tSummaryStage2SimDigis +
+    process.l1tSummaryStage2HltDigis
 )
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.l1reco_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
-print "L1T Emulation Sequence is:  "
-print process.SimL1Emulator
+#print "L1T Emulation Sequence is:  "
+#print process.SimL1Emulator
 #print "L1T DigiToRaw Sequence is:  "
 #print process.L1TDigiToRaw
 #print "L1T RawToDigi Sequence is:  "
 #print process.L1TRawToDigi
 #print "L1T Reco Sequence is:  "
 #print process.L1Reco
-print "DigiToRaw is:  "
-print process.DigiToRaw
+#print "DigiToRaw is:  "
+#print process.DigiToRaw
