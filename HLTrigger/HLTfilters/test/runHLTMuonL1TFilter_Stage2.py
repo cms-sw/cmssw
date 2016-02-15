@@ -1,8 +1,8 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: debug --no_exec --conditions auto:run2_mc_25ns14e33_v4 -s DIGI:pdigi_valid,L1,DIGI2RAW,RAW2DIGI --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 --era Run2_25ns --eventcontent FEVTDEBUGHLT --filein filelist:step1_dasquery.log --fileout file:step2.root
+# Example of simple HLT filter selecting Stage2 L1 muons 
+# Stage2: Unpackers + GT Emulator + HLT seeding + HLT filter
+#
+# V.Rekovic
+
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -25,19 +25,10 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.MessageLogger = cms.Service(
-#    "MessageLogger",
-#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-#    debugModules = cms.untracked.vstring('*'))
-
 
 process.MessageLogger = cms.Service("MessageLogger",
             destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
             detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
             debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myFilterLabel' )
 )
 
@@ -258,13 +249,3 @@ process.debug_step = cms.Path(
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hlt_step,process.hlt_step2,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
-#print "L1T Emulation Sequence is:  "
-#print process.SimL1Emulator
-#print "L1T DigiToRaw Sequence is:  "
-#print process.L1TDigiToRaw
-#print "L1T RawToDigi Sequence is:  "
-#print process.L1TRawToDigi
-#print "L1T Reco Sequence is:  "
-#print process.L1Reco
-#print "DigiToRaw is:  "
-#print process.DigiToRaw
