@@ -112,15 +112,15 @@ process.p = cms.Path(
     process.SiStripSpyUnpacker
     *process.SiStripSpyDigiConverter
     *process.SiStripFEDEmulator
-    *process.SiStripSpyMonitor
-    *process.SiStripSpyDisplay
+#     *process.SiStripSpyMonitor
+#     *process.SiStripSpyDisplay
     )
 
 
 # --- What to output ---
 process.output = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("SpyRawToDigis.root"),
+    fileName = cms.untracked.string("SpyRawToDigis298270_FED.root"),
     outputCommands = cms.untracked.vstring(
        'keep *',
        #'drop *',
