@@ -18,7 +18,7 @@ void ThingsTSelector::begin(TList*&)
 void ThingsTSelector::preProcessing(const TList*, TList& out ) {
   if(nullptr != h_a) {
      out.Remove(h_a);
-     delete h_a;
+     delete h_a.get();
      h_a = nullptr;
   }
   h_a  = new TH1F( kA , "a"  , 100,  0, 20 );
@@ -26,7 +26,7 @@ void ThingsTSelector::preProcessing(const TList*, TList& out ) {
 
   if(nullptr != h_refA) {
      out.Remove(h_refA);
-     delete h_refA;
+     delete h_refA.get();
      h_refA = nullptr;
   }
   h_refA  = new TH1F( kRefA , "refA"  , 100,  0, 20 );

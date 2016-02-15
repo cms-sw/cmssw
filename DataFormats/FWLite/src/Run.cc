@@ -47,7 +47,7 @@ namespace fwlite {
     pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
-                std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                std::make_shared<RunHistoryGetter>(this),
                 branchMap_)
   {
     if(nullptr == iFile) {
@@ -84,7 +84,7 @@ namespace fwlite {
 //       auxBranch_->SetAddress(&pOldAux_);
     }
     branchMap_->updateRun(0);
-//     getter_ = std::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
+//     getter_ = std::make_shared<ProductGetter>(this);
 }
 
   Run::Run(std::shared_ptr<BranchMapReader> branchMap):
@@ -93,7 +93,7 @@ namespace fwlite {
     pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
-                std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                std::make_shared<RunHistoryGetter>(this),
                 branchMap_)
   {
     if(nullptr == branchMap_->getRunTree()) {
@@ -129,7 +129,7 @@ namespace fwlite {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
 //     }
 
-//     getter_ = std::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
+//     getter_ = std::make_shared<ProductGetter>(this);
 }
 
 Run::~Run()
