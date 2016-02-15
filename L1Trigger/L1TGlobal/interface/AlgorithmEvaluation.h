@@ -1,6 +1,8 @@
 #ifndef GlobalTrigger_AlgorithmEvaluation_h
 #define GlobalTrigger_AlgorithmEvaluation_h
 
+// work-around for missing dependency - force checkout...
+
 /**
  * \class AlgorithmEvaluation
  * 

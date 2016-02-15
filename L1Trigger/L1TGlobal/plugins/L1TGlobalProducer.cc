@@ -1,24 +1,3 @@
-/**
- * \class GtProducer
- *
- *
- * Description: see header file.
- *
- *   Based off legacy code written by Vasile Mihai Ghete - HEPHY Vienna
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author:   Brian Winer - Ohio State
- *
- * $Date$
- * $Revision$
- *
- */
-
-// this class header
-#include "L1Trigger/L1TGlobal/plugins/GtProducer.h"
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -40,6 +19,8 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "TriggerMenuParser.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,54 +31,65 @@
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
-/* //These are old but we might be able to reuse when these go into for upgrade
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-*/
-
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
 
+using namespace l1t;
 
 // constructors
 
-l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
-            m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
-            m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
-	    m_extInputTag(parSet.getParameter<edm::InputTag> ("extInputTag")),
+void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // These parameters are part of the L1T/HLT interface, avoid changing if possible::
+  desc.add<edm::InputTag> ("GmtInputTag", edm::InputTag(""))->setComment("InputTag for Global Muon Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("CaloInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("ExtInputTag", edm::InputTag(""))->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
+  desc.add<bool>("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool>("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
+  // These parameters have well defined  default values and are not currently 
+  // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
+  desc.add<bool> ("ProduceL1GtDaqRecord",true);
+  desc.add<bool> ("ProduceL1GtObjectMapRecord",true);           
+  desc.add<int> ("EmulateBxInEvent",1);
+  desc.add<int> ("L1DataBxInEvent",5);
+  desc.add<unsigned int> ("AlternativeNrBxBoardDaq",0);
+  desc.add<int> ("BstLengthBytes",-1);
+  desc.add<unsigned int> ("PrescaleSet",1);    
+  desc.addUntracked<int>("Verbosity",0);            
+  desc.add<std::string>("TriggerMenuLuminosity","startup");
+  desc.add<std::string>("PrescaleCSVFile","prescale_L1TGlobal.csv");
+  descriptions.add("L1TGlobalProducer", desc);
+}
 
+L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
+            m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
+            m_caloInputTag(parSet.getParameter<edm::InputTag> ("CaloInputTag")),
+	    m_extInputTag(parSet.getParameter<edm::InputTag> ("ExtInputTag")),
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
-            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
-	    
+            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           	    
             m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
 	    m_L1DataBxInEvent(parSet.getParameter<int> ("L1DataBxInEvent")),
-
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
-
             m_prescaleSet(parSet.getParameter<unsigned int> ("PrescaleSet")),
-
             m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
-
-            m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
+            m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
             m_isDebugEnabled(edm::isDebugEnabled())
 {
 
 
-  m_egInputToken = consumes <BXVector<l1t::EGamma> > (m_caloInputTag);
-  m_tauInputToken = consumes <BXVector<l1t::Tau> > (m_caloInputTag);
-  m_jetInputToken = consumes <BXVector<l1t::Jet> > (m_caloInputTag);
-  m_sumInputToken = consumes <BXVector<l1t::EtSum> > (m_caloInputTag);
+  m_egInputToken = consumes <BXVector<EGamma> > (m_caloInputTag);
+  m_tauInputToken = consumes <BXVector<Tau> > (m_caloInputTag);
+  m_jetInputToken = consumes <BXVector<Jet> > (m_caloInputTag);
+  m_sumInputToken = consumes <BXVector<EtSum> > (m_caloInputTag);
 
-  m_muInputToken = consumes <BXVector<l1t::Muon> > (m_muInputTag);
+  m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
 
   m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
 
@@ -136,7 +128,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_emulateBxInEvent = m_emulateBxInEvent - 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
                     << m_emulateBxInEvent << "\n         The number must be an odd number!\n"
                     << std::endl;
@@ -148,7 +140,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_L1DataBxInEvent = m_L1DataBxInEvent - 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing for incoming L1 Data rounded to: "
                     << m_L1DataBxInEvent << "\n         The number must be an odd number!\n"
                     << std::endl;
@@ -157,7 +149,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         m_L1DataBxInEvent = 1;
 
         if (m_verbosity) {
-            edm::LogWarning("GtProducer")
+            edm::LogWarning("L1TGlobalProducer")
                     << "\nWARNING: Number of bunch crossing for incoming L1 Data was changed to: "
                     << m_L1DataBxInEvent << "\n         The number must be an odd positive number!\n"
                     << std::endl;
@@ -395,7 +387,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 }
 
 // destructor
-l1t::GtProducer::~GtProducer()
+L1TGlobalProducer::~L1TGlobalProducer()
 {
 
     delete m_uGtBrd;
@@ -405,7 +397,7 @@ l1t::GtProducer::~GtProducer()
 // member functions
 
 // method called to produce the data
-void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
+void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     // get / update the parameters from the EventSetup
@@ -503,7 +495,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
         
 	// Instantiate Parser
-        l1t::TriggerMenuParser gtParser = l1t::TriggerMenuParser();   
+        TriggerMenuParser gtParser = TriggerMenuParser();   
 
 
 	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
@@ -956,7 +948,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
         LogDebug("l1t|Global")
-        << "Test gtObjectMapRecord in GtProducer \n\n" << myCoutStream.str() << "\n\n"
+        << "Test gtObjectMapRecord in L1TGlobalProducer \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
 
         myCoutStream.str("");
@@ -984,4 +976,4 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(l1t::GtProducer);
+DEFINE_FWK_MODULE(L1TGlobalProducer);
