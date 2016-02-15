@@ -10,6 +10,7 @@ public:
   
   explicit SeedExtensionTrajectoryFilter(edm::ParameterSet const & pset, edm::ConsumesCollector&) :
      theStrict(pset.getParameter<bool>("strictSeedExtension")),
+     thePixel(pset.getParameter<bool>("pixelSeedExtension")),
      theExtension(pset.getParameter<int>("seedExtension")) {}
 
   virtual bool qualityFilter( const Trajectory& traj) const { return QF(traj); }
@@ -36,19 +37,31 @@ private:
 
 
    bool theStrict=false;
+   bool thePixel=false;
    int theExtension = 0;
 
 
 };
 
 template<class T> bool SeedExtensionTrajectoryFilter::looseTBC(const T& traj) const {
-    return (int(traj.measurements().size())>int(traj.seedNHits())+theExtension) | (0==traj.lostHits());
+  int nhits = 0;
+  if(thePixel) {
+    for(const auto& tm: traj.measurements()) {
+      if(Trajectory::pixel(*(tm.recHit())))
+        ++nhits;
+    }
+  }
+  else {
+    nhits = traj.measurements().size();
+  }
+  return (nhits>int(traj.seedNHits())+theExtension) | (0==traj.lostHits());
 }
 
 
 // strict case as a real seeding: do not allow even inactive
 template<class T> bool SeedExtensionTrajectoryFilter::strictTBC(const T& traj) const {
-    return traj.foundHits()>=int(traj.seedNHits())+theExtension;
+  const int nhits = thePixel ? traj.foundPixelHits() : traj.foundHits();
+  return nhits>=int(traj.seedNHits())+theExtension;
 }
 
 

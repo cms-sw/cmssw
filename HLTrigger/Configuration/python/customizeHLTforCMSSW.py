@@ -62,6 +62,13 @@ def customiseFor14317(process):
                     pset.seedPairPenalty = cms.int32(0)
     return process
 
+# Add pixel seed extension (PR #14356)
+def customiseFor14356(process):
+    for name, pset in process.psets_().iteritems():
+        if hasattr(pset, "ComponentType") and pset.ComponentType.value() == "CkfBaseTrajectoryFilter" and not hasattr(pset, "pixelSeedExtension"):
+            pset.pixelSeedExtension = cms.bool(False)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -73,6 +80,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor13753(process)
         process = customiseFor14282(process)
         process = customiseFor14317(process)
+        process = customiseFor14356(process)
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
