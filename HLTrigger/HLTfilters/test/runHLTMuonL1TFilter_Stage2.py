@@ -29,7 +29,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.MessageLogger = cms.Service("MessageLogger",
             destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
             detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'myFilterLabel' )
+            debugModules = cms.untracked.vstring( 'hltL1TSeedHLTMuonL1TFilter', 'myFilterLabel' )
 )
 
 #
@@ -107,7 +107,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
 )
 
 
-process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
+process.hltL1TSeedHLTMuonL1TFilter = cms.EDFilter( "HLTL1TSeed",
     #L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo OR L1_SingleEG10 OR L1_SingleS1Jet36 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo" ),
     saveTags = cms.bool( True ),
@@ -128,7 +128,7 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
 process.myFilterLabel = cms.EDFilter(
     'HLTMuonL1TFilter',
     CandTag   =cms.InputTag('hltGmtStage2Digis'),
-    PreviousCandTag   =cms.InputTag('hltL1TSeed'),
+    PreviousCandTag   =cms.InputTag('hltL1TSeedHLTMuonL1TFilter'),
     MinPt = cms.double(6.0),
     MaxEta = cms.double(2.0)
 )
@@ -139,8 +139,6 @@ process.myFilterLabel = cms.EDFilter(
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-
-
 
 process.HLTL1UnpackerSequence = cms.Sequence(
  process.hltGtStage2Digis +
@@ -154,7 +152,7 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
-    process.hltL1TSeed + 
+    process.hltL1TSeedHLTMuonL1TFilter + 
     process.myFilterLabel +
     process.hltTriggerSummaryRAW 
 )
