@@ -84,13 +84,13 @@ constexpr entry<l1t::GtConditionCategory> l1GtConditionCategoryStringToEnumMap[]
 l1t::L1GtBoardType l1t::l1GtBoardTypeStringToEnum(const std::string& label) {
     l1t::L1GtBoardType value = keyToValue(label.c_str(), l1GtBoardTypeStringToEnumMap);
     if (value == (l1t::L1GtBoardType) - 1) {
-        edm::LogInfo("GtDefinitions") << "\n  '" << label
+        edm::LogInfo("L1TGlobal") << "\n  '" << label
                 << "' is not a recognized l1t::L1GtBoardType. \n  Return l1t::BoardNull.";
         value = l1t::BoardNull;
     }
 
     if (value == l1t::BoardNull) {
-        edm::LogInfo("GtDefinitions")
+        edm::LogInfo("L1TGlobal")
                 << "\n  l1t::BoardNull means no valid board type defined!";
     }
 
@@ -100,11 +100,11 @@ l1t::L1GtBoardType l1t::l1GtBoardTypeStringToEnum(const std::string& label) {
 std::string l1t::l1GtBoardTypeEnumToString(const l1t::L1GtBoardType& boardType) {
     char const *result= valueToKey(boardType, l1GtBoardTypeStringToEnumMap);
     if (boardType == l1t::BoardNull) {
-        edm::LogInfo("GtDefinitions")
+        edm::LogInfo("L1TGlobal")
                 << "\n  l1t::BoardNull means no valid board type defined!";
     }
     if (!result) {
-      edm::LogInfo("GtDefinitions") << "\n  '" << boardType
+      edm::LogInfo("L1TGlobal") << "\n  '" << boardType
                   << "' is not a recognized l1t::L1GtBoardType. "
                   << "\n  Return l1t::BoardNull, which means no valid board type defined!";
       return "l1t::BoardNull";
@@ -122,14 +122,14 @@ l1t::GtConditionType l1t::l1GtConditionTypeStringToEnum(const std::string& label
     // in case of unrecognized l1t::GtConditionType, return l1t::TypeNull
     // to be dealt by the corresponding module
     if (value == (l1t::GtConditionType) -1) {
-        edm::LogInfo("GtDefinitions")  << "\n  '" << label
+        edm::LogInfo("L1TGlobal")  << "\n  '" << label
                 << "' is not a recognized l1t::GtConditionType. \n  Return l1t::TypeNull.";
 
         value = l1t::TypeNull;
     }
 
     if (value == l1t::TypeNull) {
-        edm::LogInfo("GtDefinitions")
+        edm::LogInfo("L1TGlobal")
                 << "\n  l1t::TypeNull means no valid condition type defined!";
     }
 
@@ -139,11 +139,11 @@ l1t::GtConditionType l1t::l1GtConditionTypeStringToEnum(const std::string& label
 std::string l1t::l1GtConditionTypeEnumToString(const l1t::GtConditionType& conditionType) {
   const char *result = valueToKey(conditionType, l1GtConditionTypeStringToEnumMap);
   if (conditionType == l1t::TypeNull)
-    edm::LogInfo("GtDefinitions") 
+    edm::LogInfo("L1TGlobal") 
       << "\n  Return l1t::TypeNull, which means no valid condition type defined!";
   if (!result) {
     result = "l1t::TypeNull";
-    edm::LogInfo("GtDefinitions") << "\n  '" << conditionType
+    edm::LogInfo("L1TGlobal") << "\n  '" << conditionType
             << "' is not a recognized l1t::GtConditionType. "
             << "\n  Return l1t::TypeNull, which means no valid condition type defined!";
   }
@@ -155,14 +155,14 @@ l1t::GtConditionCategory l1t::l1GtConditionCategoryStringToEnum(const std::strin
   // in case of unrecognized l1t::GtConditionCategory, return l1t::CondNull
   // to be dealt by the corresponding module
   if (value == (l1t::GtConditionCategory) -1) {
-    edm::LogInfo("GtDefinitions") << "\n  '" << label
+    edm::LogInfo("L1TGlobal") << "\n  '" << label
             << "' is not a recognized l1t::GtConditionCategory. \n  Return l1t::CondNull.";
 
     value = l1t::CondNull;
   }
 
   if (value == l1t::CondNull) {
-      edm::LogInfo("GtDefinitions")
+      edm::LogInfo("L1TGlobal")
               << "\n  l1t::CondNull means no valid condition category defined!";
   }
 
@@ -172,12 +172,12 @@ l1t::GtConditionCategory l1t::l1GtConditionCategoryStringToEnum(const std::strin
 std::string l1t::l1GtConditionCategoryEnumToString(const l1t::GtConditionCategory& conditionCategory) {
   char const *result = valueToKey(conditionCategory, l1GtConditionCategoryStringToEnumMap);
   if (conditionCategory == l1t::CondNull)
-    edm::LogInfo("GtDefinitions")
+    edm::LogInfo("L1TGlobal")
             << "\n  Return l1t::CondNull, which means no valid condition category defined!";
     
   if (!result) {
     result = "l1t::CondNull";
-    edm::LogInfo("GtDefinitions") << "\n  '" << conditionCategory
+    edm::LogInfo("L1TGlobal") << "\n  '" << conditionCategory
             << "' is not a recognized l1t::GtConditionCategory. "
             << "\n  Return l1t::CondNull, which means no valid condition category defined!";
   }

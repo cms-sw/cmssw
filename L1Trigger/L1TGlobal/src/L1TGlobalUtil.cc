@@ -106,14 +106,14 @@ void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
 
        //Pick which set we are using
        if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
-	  LogTrace("l1t|Global")
+	  LogTrace("L1TGlobal")
 	   << "\nNo Prescale Set: " << m_PreScaleColumn
 	   << "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()  
 	    << "\nSetting prescale column to 1"
 	    << std::endl;
 	 m_PreScaleColumn = 1;
        }
-       LogDebug("l1t|Global") << "Grabing prescale column "<< m_PreScaleColumn << endl;
+       LogDebug("L1TGlobal") << "Grabing prescale column "<< m_PreScaleColumn << endl;
        const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig).at(m_PreScaleColumn-1);
            
        for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
@@ -300,7 +300,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 	    }
 	  }
 	  else{
-	    LogTrace("l1t|Global")
+	    LogTrace("L1TGlobal")
 	      << "\nPrescale file has algo bit: " << algoBit
 	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
 	      << "\nSomething is wrong. Ignoring."
@@ -311,7 +311,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
     }
     else {
-      LogTrace("l1t|Global")
+      LogTrace("L1TGlobal")
 	<< "\nCould not find file: " << m_preScaleFileName
 	<< "\nFilling the prescale vectors with prescale 1"
 	<< "\nSetting prescale set to 1"
