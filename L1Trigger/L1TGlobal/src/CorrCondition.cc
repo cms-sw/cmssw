@@ -437,13 +437,39 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Energy Sums		
             case CondEnergySum: {
 
+		//Stupid mapping between enum types for energy sums.
+		l1t::EtSum::EtSumType type;
+		switch( cndObjTypeVec[0] ){
+		case gtETM:
+		  type = l1t::EtSum::EtSumType::kMissingEt;
+		  break;
+		case gtETT:
+		  type = l1t::EtSum::EtSumType::kTotalEt;
+		  break;
+		case gtHTM:
+		  type = l1t::EtSum::EtSumType::kMissingHt;
+		  break;
+		case gtHTT:
+		  type = l1t::EtSum::EtSumType::kTotalHt;
+		  break;
+		default:
+		  edm::LogError("L1TGlobal")
+		    << "\n  Error: "
+		    << "Unmatched object type from template to EtSumType, cndObjTypeVec[0] = "
+		    << cndObjTypeVec[0]
+		    << std::endl;
+		  type = l1t::EtSum::EtSumType::kTotalEt;
+		  break;
+		}
+
+
                 for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
+		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                     phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                     etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
 
-		    //Scales need to come from the Menu (FIX ME)
+		    //Scales need to come from the Menu (FIX ME)   
 		    phi0Phy = phiIndex0 * 1.0908307824964559E-02;
 		    eta0Phy = 0.; //No Eta for Energy Sums
 		    et0Phy  = etIndex0 * 0.5;
@@ -534,8 +560,33 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 case CondEnergySum: {
 
+                   //Stupid mapping between enum types for energy sums.
+		   l1t::EtSum::EtSumType type;
+		   switch( cndObjTypeVec[1] ){
+		   case gtETM:
+		     type = l1t::EtSum::EtSumType::kMissingEt;
+		     break;
+		   case gtETT:
+		     type = l1t::EtSum::EtSumType::kTotalEt;
+		     break;
+		   case gtHTM:
+		     type = l1t::EtSum::EtSumType::kMissingHt;
+		     break;
+		   case gtHTT:
+		     type = l1t::EtSum::EtSumType::kTotalHt;
+		     break;
+		   default:
+		     edm::LogError("L1TGlobal")
+		       << "\n  Error: "
+		       << "Unmatched object type from template to EtSumType, cndObjTypeVec[1] = "
+		       << cndObjTypeVec[1]
+		       << std::endl;
+		     type = l1t::EtSum::EtSumType::kTotalEt;
+		     break;
+		   }
+
                    for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
+		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                        phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                        etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
