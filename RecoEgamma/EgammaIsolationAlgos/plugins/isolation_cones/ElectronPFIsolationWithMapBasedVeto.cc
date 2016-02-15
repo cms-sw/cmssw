@@ -38,20 +38,34 @@ namespace pat {
   typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
   typedef edm::Ptr<pat::Electron> patElectronPtr;
 }
-// This template function finds whether theCandidate is in thefootprint
-// collection. It is templated to be able to handle both reco and pat
-// photons (from AOD and miniAOD, respectively).
-template <class T, class U>
-bool isInFootprint(const T& thefootprint, const U& theCandidate) 
-{
-    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
-    {
-      if( itr->key() == theCandidate.key() ) return true;
-    }
-    return false;
+namespace{
+	// This template function finds whether theCandidate is in thefootprint
+	// // collection. It is templated to be able to handle both reco and pat
+	// // photons (from AOD and miniAOD, respectively).
+	//
+	template <class T, class U>
+	bool isInFootprint(const T& thefootprint, const U& theCandidate) 
+	{
+	    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) 
+    	    { 
+      	      if( itr->key() == theCandidate.key() ) return true;
+   	    }
+ 	    return false;
+	}
+        //This function is needed because pfNoPileUpCandidates have changed keys, 
+        ////and thus the solution is to use sourceCandidatePtr(0) 
+        // // This function *shouldn't be used for packedCandidate*
+       template <class T, class U>
+        bool isInFootprintAlternative(const T& thefootprint, const U& theCandidate)
+        {
+            for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr )
+            {
+              if( itr->key() == theCandidate->sourceCandidatePtr(0).key() ) return true;
+            }
+            return false;
+        }
+
 }
-
-
 class ElectronPFIsolationWithMapBasedVeto : public citk::IsolationConeDefinitionBase {
 public:
   ElectronPFIsolationWithMapBasedVeto(const edm::ParameterSet& c) :
@@ -79,7 +93,7 @@ public:
   //As far as I understand now, the object particleBasedIsolationMap should be fixed, so we don't configure the name
   void setConsumes(edm::ConsumesCollector iC)
   {
-      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolation", "gedPhotons"));
+      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolation", "gedGsfElectrons"));
   }
 
   //! Destructor
@@ -100,18 +114,18 @@ DEFINE_EDM_PLUGIN(CITKIsolationConeDefinitionFactory,
 
 //This function defines whether particular PFCandidate is inside of isolation cone of photon or not by checking deltaR and whether footprint removal for this candidate should be done. Additionally, for miniAOD charged hadrons from the PV are considered. *** For AOD this should be done by the corresponding sequence beforehand!!! ***
  
-bool ElectronPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidatePtr& electron,  const reco::CandidatePtr& PFCandidate  ) const {
+bool ElectronPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidatePtr& electron,  const reco::CandidatePtr& pfCandidate  ) const {
  
   //convert the electron and candidate objects to the corresponding pat or reco objects. What is used depends on what is user running on: miniAOD or AOD
   pat::patElectronPtr aspat_electronptr(electron);
   
-  pat::PackedCandidatePtr aspacked(PFCandidate);
-  reco::PFCandidatePtr aspf(PFCandidate);
+  pat::PackedCandidatePtr aspacked(pfCandidate);
+  reco::PFCandidatePtr aspf(pfCandidate);
 
   
   bool inFootprint = false;
   bool result = true;
-  const float deltar2 = reco::deltaR2(*electron,*PFCandidate); //calculate deltaR2 distance between PFCandidate and photon
+  const float deltar2 = reco::deltaR2(*electron,*pfCandidate); //calculate deltaR2 distance between PFCandidate and photon
   
   // dealing here with patObjects: miniAOD case
   if ( aspacked.get() )    
@@ -130,18 +144,18 @@ bool ElectronPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::Candidat
       	}
       }      
     
-     result *= (is_vertex_allowed);
+     result &= (is_vertex_allowed);
     }
      //return true if the candidate is inside the cone and not in the footprint
-    result *= deltar2 < _coneSize2 && (!inFootprint);
+    result &= deltar2 < _coneSize2 && (!inFootprint);
    }
   
   // dealing here with recoObjects: AOD case
   else if ( aspf.get())
   {
-      inFootprint = isInFootprint((*particleBasedIsolationMap)[electron], PFCandidate); 
+      inFootprint = isInFootprintAlternative((*particleBasedIsolationMap)[electron], pfCandidate); 
       //return true if the candidate is inside the cone and not in the footprint
-      result *= deltar2 < _coneSize2 && (!inFootprint);
+      result &= deltar2 < _coneSize2 && (!inFootprint);
   }
   
   // throw exception if it is not a patObject or recoObject
