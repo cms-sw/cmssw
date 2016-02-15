@@ -198,141 +198,152 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 			   << iEvent.bunchCrossing();
 
   //Step1: Find if the event passes one of the chosen triggers
-  trigger::TriggerEvent triggerEvent;
-  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-  iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
-  if (!triggerEventHandle.isValid()) {
-    edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
-				    << triggerEvent_.label() ;
+  bool triggerSatisfied(false);
+  if (trigNames_.size() == 0) {
+    triggerSatisfied = true;
   } else {
-    triggerEvent = *(triggerEventHandle.product());
+    trigger::TriggerEvent triggerEvent;
+    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    if (!triggerEventHandle.isValid()) {
+      edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
+				      << triggerEvent_.label() ;
+    } else {
+      triggerEvent = *(triggerEventHandle.product());
 
-    /////////////////////////////TriggerResults
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
-    if (triggerResults.isValid()) {
-      bool ok(false);
-      std::vector<std::string> modules;
-      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-      const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
-      for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
-	int hlt    = triggerResults->accept(iHLT);
-	for (unsigned int i=0; i<trigNames_.size(); ++i) {
-          if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
-	    if (hlt > 0) {
-	      ok = true;
+      /////////////////////////////TriggerResults
+      edm::Handle<edm::TriggerResults> triggerResults;
+      iEvent.getByToken(tok_trigRes_, triggerResults);
+      if (triggerResults.isValid()) {
+	std::vector<std::string> modules;
+	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+	const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
+	for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
+	  int hlt    = triggerResults->accept(iHLT);
+	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
+	    if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	      if (hlt > 0) triggerSatisfied = true;
+	      LogDebug("HcalIsoTrack") << triggerNames_[iHLT] 
+				       << " has got HLT flag " << hlt 
+				       << ":" << triggerSatisfied;
+	      if (triggerSatisfied) break;
 	    }
-	    LogDebug("HcalIsoTrack") <<"This is the trigger we are looking for "
-				     << triggerNames_[iHLT] << " Flag " << hlt 
-				     << ":" << ok;
-          }
-        }
+	  }
+	}
       }
-      if (ok) {
-	//Step2: Get geometry/B-field information
-	//Get magnetic field
-	edm::ESHandle<MagneticField> bFieldH;
-	iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-	const MagneticField *bField = bFieldH.product();
-	// get handles to calogeometry and calotopology
-	edm::ESHandle<CaloGeometry> pG;
-	iSetup.get<CaloGeometryRecord>().get(pG);
-	const CaloGeometry* geo = pG.product();
-  
-	//Also relevant information to extrapolate tracks to Hcal surface
-	bool okC(true);
-	//Get track collection
-	edm::Handle<reco::TrackCollection> trkCollection;
-	iEvent.getByToken(tok_genTrack_, trkCollection);
-	if (!trkCollection.isValid()) {
-	  edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-	  okC = false;
-	}
-	reco::TrackCollection::const_iterator trkItr;
+    }
+  }
 
-	//Define the best vertex and the beamspot
-	edm::Handle<reco::VertexCollection> recVtxs;
-	iEvent.getByToken(tok_recVtx_, recVtxs);  
-	edm::Handle<reco::BeamSpot> beamSpotH;
-	iEvent.getByToken(tok_bs_, beamSpotH);
-	math::XYZPoint leadPV(0,0,0);
-	if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
-	  leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
-				  (*recVtxs)[0].z());
-	} else if (beamSpotH.isValid()) {
-	  leadPV = beamSpotH->position();
-	}
-	LogDebug("HcalIsoTrack") << "Primary Vertex " << leadPV;
+  //Step2: Get geometry/B-field information
+  if (triggerSatisfied) {
+    //Get magnetic field
+    edm::ESHandle<MagneticField> bFieldH;
+    iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
+    const MagneticField *bField = bFieldH.product();
+    // get handles to calogeometry and calotopology
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    const CaloGeometry* geo = pG.product();
   
-	// RecHits
-	edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-	iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
-	if (!barrelRecHitsHandle.isValid()) {
-	  edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
-	  okC = false;
-	}
-	edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-	iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
-	if (!endcapRecHitsHandle.isValid()) {
-	  edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
-	  okC = false;
-	}
-	edm::Handle<HBHERecHitCollection> hbhe;
-	iEvent.getByToken(tok_hbhe_, hbhe);
-	if (!hbhe.isValid()) {
-	  edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
-	  okC = false;
-	}
+    //Also relevant information to extrapolate tracks to Hcal surface
+    bool foundCollections(true);
+    //Get track collection
+    edm::Handle<reco::TrackCollection> trkCollection;
+    iEvent.getByToken(tok_genTrack_, trkCollection);
+    if (!trkCollection.isValid()) {
+      edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+      foundCollections = false;
+    }
+    reco::TrackCollection::const_iterator trkItr;
+
+    //Define the best vertex and the beamspot
+    edm::Handle<reco::VertexCollection> recVtxs;
+    iEvent.getByToken(tok_recVtx_, recVtxs);  
+    edm::Handle<reco::BeamSpot> beamSpotH;
+    iEvent.getByToken(tok_bs_, beamSpotH);
+    math::XYZPoint leadPV(0,0,0);
+    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+      leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
+			      (*recVtxs)[0].z());
+    } else if (beamSpotH.isValid()) {
+      leadPV = beamSpotH->position();
+    }
+    LogDebug("HcalIsoTrack") << "Primary Vertex " << leadPV;
+  
+    // RecHits
+    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
+    iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+    if (!barrelRecHitsHandle.isValid()) {
+      edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
+      foundCollections = false;
+    }
+    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
+    iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+    if (!endcapRecHitsHandle.isValid()) {
+      edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
+      foundCollections = false;
+    }
+    edm::Handle<HBHERecHitCollection> hbhe;
+    iEvent.getByToken(tok_hbhe_, hbhe);
+    if (!hbhe.isValid()) {
+      edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
+      foundCollections = false;
+    }
 	  
-	if (okC) {
-	  //Step3 propagate the tracks to calorimeter surface and find
-	  // candidates for isolated tracks
-	  //Propagate tracks to calorimeter surface)
-	  std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-	  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
-			     trkCaloDirections, false);
+    //Step3 propagate the tracks to calorimeter surface and find
+    // candidates for isolated tracks
+    if (foundCollections) {
+      //Propagate tracks to calorimeter surface)
+      std::vector<spr::propagatedTrackDirection> trkCaloDirections;
+      spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
+			 trkCaloDirections, false);
 
-	  std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-	  unsigned int nTracks(0), nselTracks(0);
-	  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
-	       trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
-	    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
-	    math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
-				       pTrack->pz(), pTrack->p());
-	    LogDebug("HcalIsoTrack") << "This track : " << nTracks 
-				     << " (pt|eta|phi|p) :" << pTrack->pt() 
-				     << "|" << pTrack->eta() << "|" 
-				     << pTrack->phi() << "|" << pTrack->p();
+      std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
+      unsigned int nTracks(0), nselTracks(0);
+      for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
+	   trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
+	const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+	math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
+				   pTrack->pz(), pTrack->p());
+	LogDebug("HcalIsoTrack") << "This track : " << nTracks 
+				 << " (pt|eta|phi|p) :" << pTrack->pt() 
+				 << "|" << pTrack->eta() << "|" 
+				 << pTrack->phi() << "|" << pTrack->p();
 	    
-	    //Selection of good track
-	    selectionParameter_.minPt = maxRestrictionPt_ - std::abs(pTrack->eta())/slopeRestrictionPt_;
-	    bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameter_,false);
-	    LogDebug("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
-				     << "|" << trkDetItr->okECAL << "|" 
-				     << trkDetItr->okHCAL;
-	    if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
-	      double t_p        = pTrack->p();
-	      nselTracks++;
-	      int    nRH_eMipDR(0), nNearTRKs(0);
-	      double eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
-					      endcapRecHitsHandle,
-					      trkDetItr->pointHCAL,
-					      trkDetItr->pointECAL, a_mipR_,
-					      trkDetItr->directionECAL, 
-					      nRH_eMipDR);
-	      double hmaxNearP = spr::chargeIsolationCone(nTracks,
-							  trkCaloDirections,
-							  a_charIsoR_, 
-							  nNearTRKs, false);
-	      LogDebug("HcalIsoTrack") << "This track : " << nTracks 
-				       << " (pt|eta|phi|p) :"  << pTrack->pt() 
-				       << "|" << pTrack->eta() << "|" 
-				       << pTrack->phi() << "|" << t_p
-				       << "e_MIP " << eMipDR 
-				       << " Chg Isolation " << hmaxNearP;
-	      if (t_p>pTrackMin_ && eMipDR<eEcalMax_ && hmaxNearP<eIsolation_) 
-		accept = true;
-	    }
+	//Selection of good track
+	int ieta(0);
+	if (trkDetItr->okHCAL) {
+	  HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
+	  ieta = detId.ietaAbs();
+	}
+	selectionParameter_.minPt = maxRestrictionPt_ - std::abs((double)ieta)*slopeRestrictionPt_;
+	bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameter_,false);
+	LogDebug("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
+				 << "|" << trkDetItr->okECAL << "|" 
+				 << trkDetItr->okHCAL;
+	if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
+	  double t_p        = pTrack->p();
+	  nselTracks++;
+	  int    nRH_eMipDR(0), nNearTRKs(0);
+	  double eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+					  endcapRecHitsHandle,
+					  trkDetItr->pointHCAL,
+					  trkDetItr->pointECAL, a_mipR_,
+					  trkDetItr->directionECAL, 
+					  nRH_eMipDR);
+	  double hmaxNearP = spr::chargeIsolationCone(nTracks,
+						      trkCaloDirections,
+						      a_charIsoR_, 
+						      nNearTRKs, false);
+	  LogDebug("HcalIsoTrack") << "This track : " << nTracks 
+				   << " (pt|eta|phi|p) :"  << pTrack->pt() 
+				   << "|" << pTrack->eta() << "|" 
+				   << pTrack->phi() << "|" << t_p
+				   << "e_MIP " << eMipDR 
+				   << " Chg Isolation " << hmaxNearP;
+	  if (t_p>pTrackMin_ && eMipDR<eEcalMax_ && hmaxNearP<eIsolation_) {
+	    accept = true;
+	    break;
 	  }
 	}
       }
