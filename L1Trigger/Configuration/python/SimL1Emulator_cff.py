@@ -53,12 +53,15 @@ from L1Trigger.L1TCalorimeter.simDigis_cff import *
 from L1Trigger.L1TMuon.simDigis_cff import *
 from L1Trigger.L1TGlobal.simDigis_cff import *
 
-SimL1Emulator = cms.Sequence(
+# define a core which can be extented in customizations:
+SimL1EmulatorCore = cms.Sequence(
     SimL1TCalorimeter +
     SimL1TMuon +
 #    SimL1TTechnical +
     SimL1TGlobal
     )
+
+SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
 
 #
 # Next we load ES producers for any conditions that are not yet in GT,

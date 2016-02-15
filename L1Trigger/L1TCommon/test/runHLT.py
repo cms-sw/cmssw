@@ -25,12 +25,12 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring('l1tdebug','cerr'),
-    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
-    debugModules = cms.untracked.vstring('*'))
+#process.MessageLogger = cms.Service(
+#    "MessageLogger",
+#    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+#    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+#    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+#    debugModules = cms.untracked.vstring('*'))
 
 
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
@@ -44,98 +44,68 @@ TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_
 # BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
 #
 
-
 process.hltGtStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup           = cms.string("stage2::GTSetup"),
-    InputLabel      = cms.InputTag("rawDataCollector"),
     FedIds          = cms.vint32( 1404 ),
-    FWId            = cms.uint32(2),
-    lenSlinkHeader  = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader    = cms.untracked.int32(8),
-    lenAMCTrailer   = cms.untracked.int32(0),
-    lenAMC13Header  = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
 process.hltCaloStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup           = cms.string("stage2::CaloSetup"),
-    InputLabel      = cms.InputTag("rawDataCollector"),
     FedIds          = cms.vint32( 1360, 1366 ),
-    lenSlinkHeader  = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader    = cms.untracked.int32(8),
-    lenAMCTrailer   = cms.untracked.int32(0),
-    lenAMC13Header  = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
 process.hltGmtStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup = cms.string("stage2::GMTSetup"),
-    InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1402),
-    FWId = cms.uint32(1),
-    lenSlinkHeader = cms.untracked.int32(8),
-    lenSlinkTrailer = cms.untracked.int32(8),
-    lenAMCHeader = cms.untracked.int32(8),
-    lenAMCTrailer = cms.untracked.int32(0),
-    lenAMC13Header = cms.untracked.int32(8),
-    lenAMC13Trailer = cms.untracked.int32(8)
 )
 
-process.hltGtStage2ObjectMap = cms.EDProducer("l1t::GtProducer",
-    #TechnicalTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtObjectMapRecord = cms.bool(True),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(5),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
+process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
-    extInputTag = cms.InputTag("gtInput"),
-    caloInputTag = cms.InputTag("hltCaloStage2Digis"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    TriggerMenuLuminosity = cms.string('startup'),
-    PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv'),
-    PrescaleSet = cms.uint32(1),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(0)
+    ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
+    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    AlgorithmTriggersUnprescaled = cms.bool(True),
+    AlgorithmTriggersUnmasked = cms.bool(True),
 )
-
-
-process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
-    saveTags = cms.bool( True ),
-    L1GtObjectMapTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    muonCollectionsTag = cms.InputTag("hltGmtStage2Digis"),
-    egammaCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    jetCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    tauCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-    etsumCollectionsTag = cms.InputTag("hltCaloStage2Digis"),
-)
-
-
-
 
 process.HLTL1UnpackerSequence = cms.Sequence(
  process.hltGtStage2Digis +
  process.hltCaloStage2Digis +
  process.hltGmtStage2Digis +
- process.hltGtStage2ObjectMap)
+ process.hltGtStage2ObjectMap
+)
 
 #
 # END HLT UNPACKER SEQUENCE FOR STAGE 2
 #
+
+#
+# BEGIN L1T SEEDS EXAMPLE FOR STAGE 2
+#
+
+
+process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
+    SaveTags             = cms.bool( True ),
+    L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
+    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
+    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
+    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
+    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
+    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
+)
 
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
     process.hltL1TSeed 
 )
 
+#
+# END L1T SEEDS EXAMPLE FOR STAGE 2
+#
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -218,6 +188,7 @@ process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
     process.dumpES + 
+#    process.dumpES + 
     process.dumpED +
     process.l1tSummaryStage2SimDigis +
     process.l1tSummaryStage2HltDigis
