@@ -53,6 +53,11 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     combinationRegressionInputPath = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root"),
     scaleCorrectionsInputPath = cms.string("EgammaAnalysis/ElectronTools/data/scalesNewReg-May2013.csv"),
     linearityCorrectionsInputPath = cms.string("EgammaAnalysis/ElectronTools/data/linearityNewReg-May2013.csv")
+
+    # only do the combination for high energy electrons (Ecal energy > 200 GeV) if track pt
+    # error is less than 10 times the track pt
+    applyExtraHighEnergyProtection = cms.bool(False)
+
 )
 
 
