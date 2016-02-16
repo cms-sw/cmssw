@@ -321,7 +321,7 @@ BareRootProductGetter::createNewBuffer(edm::BranchID const& branchID) const {
   //connect the instance to the branch
   //void* address  = wrapperObj.Address();
   Buffer b(prod, branch, address, rootClassType);
-  idToBuffers_[branchID] = b;
+  idToBuffers_[branchID] = std::move(b);
 
   //As of 5.13 ROOT expects the memory address held by the pointer passed to
   // SetAddress to be valid forever

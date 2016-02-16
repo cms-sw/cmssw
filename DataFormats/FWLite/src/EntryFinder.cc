@@ -105,7 +105,7 @@ namespace fwlite {
    }
 
    void
-   EntryFinder::fillIndex(BranchMapReader const& branchMap) {
+   EntryFinder::fillIndex(BranchMapReader& branchMap) {
     if (empty()) {
       TTree* meta = dynamic_cast<TTree*>(branchMap.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
       if (nullptr == meta) {

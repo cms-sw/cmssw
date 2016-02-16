@@ -111,7 +111,7 @@ namespace fwlite {
     }
 
     void
-    DataGetterHelper::getBranchData(edm::EDProductGetter* iGetter,
+    DataGetterHelper::getBranchData(edm::EDProductGetter const* iGetter,
                     Long64_t eventEntry,
                     internal::Data& iData) const
     {

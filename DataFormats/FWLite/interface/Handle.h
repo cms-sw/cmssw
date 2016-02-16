@@ -253,7 +253,7 @@ class Handle
       const T* temp = data_;
       data_ = iOther.data_;
       iOther.data_ = temp;
-      ErrorThrower* tempE = errorThrower_;
+      ErrorThrower const* tempE = errorThrower_;
       errorThrower_ = iOther.errorThrower_;
       iOther.errorThrower_ = tempE;
    }
@@ -263,7 +263,7 @@ class Handle
 
       // ---------- member data --------------------------------
       const T* data_;
-      ErrorThrower*  errorThrower_;
+      ErrorThrower const*  errorThrower_;
 };
 
 }
