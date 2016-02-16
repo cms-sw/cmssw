@@ -70,7 +70,6 @@ namespace citk {
     _isolate_with = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcForIsolationCone"));
       if (c.getParameter<edm::InputTag>("puppiValueMap").label().size() != 0) {
-        std::cout << c.getParameter<edm::InputTag>("puppiValueMap").label() << std::endl;
         puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
         useValueMapForPUPPI = true;
       }
