@@ -13,16 +13,12 @@
 template< >
 void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::cout<<"debug0"<<std::endl;
   /// Prepare output
   std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > );
-  std::cout<<"debug01"<<std::endl;
   std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > > rawHits; /// This is a map containing hits:
                                                             /// a vector of type Ref_PixelDigi_ is mapped wrt
                                                             /// the DetId
-  std::cout<<"debug02"<<std::endl;
   this->RetrieveRawHits( rawHits, iEvent );
-  std::cout<<"debug1"<<std::endl;
   //added from here
   //Retrieve tracker topology from geometry                                                                                                               
   
@@ -37,10 +33,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
   //added by me                                                                                                                                           
   for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
     {     
-      std::cout<<"debug3"<<std::endl;
       DetId detid = (*gd)->geographicalId();
-      std::cout << " TTClusterBuilder taking into account the DetId: " << detid.rawId();
-      std::cout << " is lower? " << tTopo->isLower(detid.rawId()) << std::endl;
 
       const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid) );
       const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit( tTopo->Upper(detid) );
@@ -108,30 +101,26 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
 template< >
 void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::RetrieveRawHits( std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > > &mRawHits,
                                                           const edm::Event& iEvent )
-{ std::cout<<"debug02i"<<std::endl;
+{ 
   mRawHits.clear();
-  std::cout<<"debug02ii"<<std::endl;
   /// Loop over the tags used to identify hits in the cfg file
   std::vector< edm::InputTag >::iterator it;
   for ( it = rawHitInputTags.begin();
         it != rawHitInputTags.end();
         ++it )
-  { std::cout<<"debug02iii"<<std::endl;
+  { 
     /// For each tag, get the corresponding handle
     //    edm::Handle< edm::DetSetVector< PixelDigi > > HitHandle;
     edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > HitHandle;
-    iEvent.getByLabel( it->label(), HitHandle );
-    std::cout<<"debug02iv"<<std::endl;
-    //    edm::DetSetVector<PixelDigi>::const_iterator detsIter; std::cout<<"debug02v"<<std::endl;
-    //    edm::DetSet<PixelDigi>::const_iterator       hitsIter; std::cout<<"debug02vi"<<std::endl;
-    edm::DetSetVector<Phase2TrackerDigi>::const_iterator detsIter; std::cout<<"debug02v"<<std::endl;
-    edm::DetSet<Phase2TrackerDigi>::const_iterator       hitsIter; std::cout<<"debug02vi"<<std::endl;
+    iEvent.getByLabel( *it, HitHandle );
+    edm::DetSetVector<Phase2TrackerDigi>::const_iterator detsIter;
+    edm::DetSet<Phase2TrackerDigi>::const_iterator       hitsIter;
 
     /// Loop over detector elements identifying PixelDigis
     for ( detsIter = HitHandle->begin();
           detsIter != HitHandle->end();
           detsIter++ )
-    { std::cout<<"debug02vii"<<std::endl;
+    { 
       DetId id = detsIter->id;
 
       /// Is it Pixel?
