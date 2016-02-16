@@ -75,6 +75,7 @@ public:
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
+  int                       getNoff(const int i) const {return hpar->noff[i];}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}

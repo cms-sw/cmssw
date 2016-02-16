@@ -35,6 +35,9 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
   for (int ieta = iEtaMin[type]; ieta <= iEtaMax[type]; ++ieta) {
     int nfi = (int)((20.001*nModule[itype]*CLHEP::deg)/phibin[ieta-1]);
     HcalDDDRecConstants::HcalEtaBin etabin = HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
+    int n = (ieta == iEtaMax[type]) ? 0 : 1;
+    HcalDDDRecConstants::HcalEtaBin etabin0= HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta+n], nfi, hpar->phioff[type], phibin[ieta-1]);
+    etabin0.depthStart = hcons.getDepthEta29(0)+1;
     int dstart = -1;
     if (layerGroupSize(ieta-1) > 0) {
       int lmin(0), lmax(0);
@@ -47,20 +50,26 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	  lmax = l + 1;
 	} else if ((int)layerGroup( ieta-1, l ) > dep) {
 	  if (dstart < 0) dstart = dep;
-	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  if (type == 1 && ieta+1 == hpar->noff[1] && dep > hcons.getDepthEta29(0)) {
+	    etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  } else {
+	    etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  }
 	  lmin = (l + 1);
 	  lmax = l;
 	  dep  = layerGroup(ieta-1, l);
 	}
 	if (type == 0 && ieta == iEtaMax[type] && dep > hcons.getDepthEta16(0)) break;
+	if (type == 1 && ieta == hpar->noff[1] && dep > hcons.getDepthEta29(0)){
+	  lmax = lymx0;
+	  break;
+	}
       }
       if (lmax >= lmin) {
 	if (ieta+1 == hpar->noff[1]) {
-	} else if (ieta == hpar->noff[1]) {
-	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta-1, etaTable[ieta-2], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
-	  etabin0.depthStart = dep;
 	  etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  bins.push_back(etabin0);
+	} else if (ieta == hpar->noff[1]) {
 	} else {
 	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  if (dstart < 0) dstart = dep;
@@ -229,9 +238,10 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
   unsigned int type  = (itype == 0) ? 0 : 1;
   unsigned int lymax = (type == 0) ? 17 : 19;
   if (layerGroupSize(ieta-1) > 0) {
-    if (layerGroupSize(ieta-1) > lymax) lymax = layerGroupSize(ieta-1);
+    if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
     lmax = (int)(layerGroup(ieta-1, lymax-1));
     if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16(0);
+    if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29(0);
   }
   return lmax;
 }

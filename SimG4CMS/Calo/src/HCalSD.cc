@@ -309,7 +309,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                             << " pointer " << materials[i];
 
   mumPDG = mupPDG = 0;
-  maxDepthHF = 2;
   
   if (useLayerWt) readWeightFromFile(file);
 
@@ -605,8 +604,7 @@ void HCalSD::update(const BeginOfJob * job) {
 
   numberingFromDDD = new HcalNumberingFromDDD(hcalConstants);
 
-  maxDepthHF = hcalConstants->getMaxDepth(2);
-  edm::LogInfo("HcalSim") << "Maximum depth for HF " << maxDepthHF;
+  edm::LogInfo("HcalSim") << "Maximum depth for HF " << hcalConstants->getMaxDepth(2);
 
   //Special Geometry parameters
   gpar      = hcalConstants->getGparHF();
@@ -1197,8 +1195,12 @@ void HCalSD::plotHF(G4ThreeVector& hitPoint, bool emType) {
 }
 
 void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
-  if (id.subdet == 4 && maxDepthHF > 2) {
-    if (id.depth <= 2)
-      if (G4UniformRand() > 0.5) id.depth += 2;
+  if (id.subdet == 4) {
+    int ieta = (id.zside == 0) ? -id.etaR : id.etaR;
+    if (hcalConstants->maxHFDepth(ieta,id.phis) > 2) {
+      if (id.depth <= 2) {
+	if (G4UniformRand() > 0.5) id.depth += 2;
+      }
+    }
   }
 }
