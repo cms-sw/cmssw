@@ -160,12 +160,6 @@ const char* const TaggingVariableTokens[] = {
   /* [vertexEnergyRatio]                        = */ "vertexEnergyRatio",
   /* [vertexJetDeltaR]                          = */ "vertexJetDeltaR",
 
-  /* [flightDistance1dAbsVal]                   = */ "flightDistance1dAbsVal",
-  /* [flightDistance1dAbsSig]                   = */ "flightDistance1dAbsSig",
-  /* [flightDistance2dAbsVal]                   = */ "flightDistance2dAbsVal",
-  /* [flightDistance2dAbsSig]                   = */ "flightDistance2dAbsSig",
-  /* [flightDistance3dAbsVal]                   = */ "flightDistance3dAbsVal",
-  /* [flightDistance3dAbsSig]                   = */ "flightDistance3dAbsSig",
   /* [flightDistance1dVal]                      = */ "flightDistance1dVal",
   /* [flightDistance1dSig]                      = */ "flightDistance1dSig", 
   /* [flightDistance2dVal]                      = */ "flightDistance2dVal",

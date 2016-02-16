@@ -135,12 +135,6 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
 	if (vtx >= 0) {
 		vtxType = btag::Vertices::RecoVertex;
-                vars.insert(btau::flightDistance1dAbsVal,flipValue(fabs(svInfo.flightDistance(vtx, 1).value()),true),true);
-                vars.insert(btau::flightDistance1dAbsSig,flipValue(fabs(svInfo.flightDistance(vtx, 1).significance()),true),true);
-                vars.insert(btau::flightDistance2dAbsVal,flipValue(fabs(svInfo.flightDistance(vtx, 2).value()),true),true);
-                vars.insert(btau::flightDistance2dAbsSig,flipValue(fabs(svInfo.flightDistance(vtx, 2).significance()),true),true);
-                vars.insert(btau::flightDistance3dAbsVal,flipValue(fabs(svInfo.flightDistance(vtx, 3).value()),true),true);
-                vars.insert(btau::flightDistance3dAbsSig,flipValue(fabs(svInfo.flightDistance(vtx, 3).significance()),true),true);
 		vars.insert(btau::flightDistance1dVal,flipValue(svInfo.flightDistance(vtx, 1).value(),true),true);
                 vars.insert(btau::flightDistance1dSig,flipValue(svInfo.flightDistance(vtx, 1).significance(),true),true);
 		vars.insert(btau::flightDistance2dVal,flipValue(svInfo.flightDistance(vtx, 2).value(),true),true);
