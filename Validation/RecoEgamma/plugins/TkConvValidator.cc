@@ -142,9 +142,9 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     g4_simTk_Token_  = consumes<edm::SimTrackContainer>(pset.getParameter<edm::InputTag>("simTracks"));
     g4_simVtx_Token_ = consumes<edm::SimVertexContainer>(pset.getParameter<edm::InputTag>("simTracks"));
 
-    tpSelForEff_Token_ = consumes<TrackingParticleCollection> (
+    tpSelForEff_Token_ = consumes<TrackingParticleRefVector> (
         edm::InputTag("tpSelecForEfficiency"));
-    tpSelForFake_Token_ = consumes<TrackingParticleCollection> (
+    tpSelForFake_Token_ = consumes<TrackingParticleRefVector> (
         edm::InputTag("tpSelecForFakeRate"));
     hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
     genjets_Token_ = consumes<reco::GenJetCollection>(
@@ -895,10 +895,10 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   e.getByToken(g4_simVtx_Token_, SimVtx);
 
   bool useTP = parameters_.getParameter<bool>("useTP");
-  TrackingParticleCollection tpForEfficiency;
-  TrackingParticleCollection tpForFakeRate;
-  edm::Handle<TrackingParticleCollection> TPHandleForEff;
-  edm::Handle<TrackingParticleCollection> TPHandleForFakeRate;
+  TrackingParticleRefVector tpForEfficiency;
+  TrackingParticleRefVector tpForFakeRate;
+  edm::Handle<TrackingParticleRefVector> TPHandleForEff;
+  edm::Handle<TrackingParticleRefVector> TPHandleForFakeRate;
   if (useTP) {
     e.getByToken(tpSelForEff_Token_, TPHandleForEff);
     tpForEfficiency = *(TPHandleForEff.product());
@@ -969,8 +969,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for(size_t i = 0; i < tpForEfficiency.size(); ++i){
-	TrackingParticleRef tp (TPHandleForEff,i);
+      for(TrackingParticleRef tp: tpForEfficiency) {
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
@@ -1425,8 +1424,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       theConvTP_.clear();
-      for(size_t i = 0; i < tpForFakeRate.size(); ++i){
-	TrackingParticleRef tp (TPHandleForFakeRate,i);
+      for(TrackingParticleRef tp: tpForFakeRate) {
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
@@ -1481,10 +1479,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     if (0) {
         theConvTP_.clear();
-        for(size_t i = 0; i < tpForFakeRate.size(); ++i){
-          TrackingParticleRef tp (TPHandleForFakeRate,i);
-            theConvTP_.push_back( tp );
-        }
+        theConvTP_ = tpForFakeRate;
         reco::RecoToSimCollection p1incl =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
         reco::RecoToSimCollection p2incl =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
 
@@ -1515,8 +1510,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
         theConvTP_.clear();
-        for(size_t i = 0; i < tpForFakeRate.size(); ++i){
-          TrackingParticleRef tp (TPHandleForFakeRate,i);
+        for(TrackingParticleRef tp: tpForFakeRate) {
           if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
               fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
               fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
