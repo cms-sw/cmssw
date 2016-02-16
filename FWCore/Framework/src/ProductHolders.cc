@@ -144,9 +144,6 @@ namespace edm {
   void
   InputProductHolder::setProduct(std::unique_ptr<WrapperBase> prod) const {
     assert (!product());
-    if(prod.get() == nullptr || !prod->isPresent()) {
-      setProductUnavailable();
-    }
     productData_.unsafe_setWrapper(std::move(prod));  // ProductHolder takes ownership
   }
 
@@ -176,16 +173,9 @@ namespace edm {
   // If it is not known if there is a real product, it returns false.
   bool
   InputProductHolder::productUnavailable_() const {
-    if(productIsUnavailable()) {
-      return true;
-    }
     // If there is a product, we know if it is real or a dummy.
     if(product()) {
-      bool unavailable = !(product()->isPresent());
-      if(unavailable) {
-        setProductUnavailable();
-      }
-      return unavailable;
+      return !(product()->isPresent());
     }
     return false;
   }

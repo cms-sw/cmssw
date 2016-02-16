@@ -30,7 +30,7 @@ namespace edm {
   class InputProductHolder : public ProductHolderBase {
     public:
     explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd) :
-        ProductHolderBase(), productData_(bd), productIsUnavailable_(false),
+        ProductHolderBase(), productData_(bd),
         productHasBeenDeleted_(false) {}
 
     private:
@@ -38,13 +38,10 @@ namespace edm {
       // cache after creation of the ProductHolder, without changing the meaning
       // of the ProductHolder.
       void setProduct(std::unique_ptr<WrapperBase> prod) const;
-      bool productIsUnavailable() const {return productIsUnavailable_;}
-      void setProductUnavailable() const {productIsUnavailable_ = true;}
     
       virtual void swap_(ProductHolderBase& rhs) override {
         InputProductHolder& other = dynamic_cast<InputProductHolder&>(rhs);
         edm::swap(productData_, other.productData_);
-        std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
@@ -56,8 +53,7 @@ namespace edm {
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
       virtual void checkType_(WrapperBase const&) const override {}
-      virtual void resetStatus_() override {productIsUnavailable_ = false;
-        productHasBeenDeleted_=false;}
+      virtual void resetStatus_() override {productHasBeenDeleted_=false;}
       virtual bool onDemand_() const override {return false;}
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override {return productHasBeenDeleted_;}
@@ -74,7 +70,6 @@ namespace edm {
       virtual bool singleProduct_() const override;
 
       ProductData productData_;
-      mutable bool productIsUnavailable_;
       mutable bool productHasBeenDeleted_;
   };
 
