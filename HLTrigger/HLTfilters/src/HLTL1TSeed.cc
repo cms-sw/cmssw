@@ -137,10 +137,6 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
         dumpTriggerFilterObjectWithRefs(filterproduct);
   }
 
-  LogTrace("HLTL1TSeed")
-  << "HLTL1Seed::hltFilter(..., trigger::TriggerFilterObjectWithRefs & filterproduct)"
-  << "\n\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size() 
-  << "\n\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
   return rc;
 
 }
@@ -161,18 +157,18 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1MuonToken, muons);
     if (!muons.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1MuonBxCollection with input tag "
-	<< m_l1MuonTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo muons added to filterproduct."
-	<< endl;	
+	    << "\nWarning: L1MuonBxCollection with input tag "
+	    << m_l1MuonTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << "\nNo muons added to filterproduct."
+	    << endl;	
     } else {
 
       l1t::MuonBxCollection::const_iterator iter;
       for (iter = muons->begin(0); iter != muons->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::MuonRef myref(muons, muons->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Mu, myref);
+	      //objectsInFilter = true;
+	      l1t::MuonRef myref(muons, muons->key(iter));
+	      filterproduct.addObject(trigger::TriggerL1Mu, myref);
       }
     }
 
@@ -184,18 +180,18 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1EGammaToken, egammas);
     if (!egammas.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1EGammaBxCollection with input tag "
-	<< m_l1EGammaTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo egammas added to filterproduct."
-	<< endl;	
+	    << "\nWarning: L1EGammaBxCollection with input tag "
+	    << m_l1EGammaTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << "\nNo egammas added to filterproduct."
+	    << endl;	
     } else {
 
       l1t::EGammaBxCollection::const_iterator iter;
       for (iter = egammas->begin(0); iter != egammas->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::EGammaRef myref(egammas, egammas->key(iter));
-	filterproduct.addObject(trigger::TriggerL1EG, myref);
+	      //objectsInFilter = true;
+	      l1t::EGammaRef myref(egammas, egammas->key(iter));
+	      filterproduct.addObject(trigger::TriggerL1EG, myref);
       }
     }
 
@@ -207,18 +203,18 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1JetToken, jets);
     if (!jets.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1JetBxCollection with input tag "
-	<< m_l1JetTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo jets added to filterproduct."
-	<< endl;	
+	    << "\nWarning: L1JetBxCollection with input tag "
+	    << m_l1JetTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << "\nNo jets added to filterproduct."
+	    << endl;	
     } else {
 
       l1t::JetBxCollection::const_iterator iter;
       for (iter = jets->begin(0); iter != jets->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::JetRef myref(jets, jets->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+	      //objectsInFilter = true;
+	      l1t::JetRef myref(jets, jets->key(iter));
+	      filterproduct.addObject(trigger::TriggerL1Jet, myref); 
       }
     }
 
@@ -230,18 +226,18 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1TauToken, taus);
     if (!taus.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1TauBxCollection with input tag "
-	<< m_l1TauTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo taus added to filterproduct."
-	<< endl;	
+	    << "\nWarning: L1TauBxCollection with input tag "
+	    << m_l1TauTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << "\nNo taus added to filterproduct."
+	    << endl;	
     } else {
 
       l1t::TauBxCollection::const_iterator iter;
       for (iter = taus->begin(0); iter != taus->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::TauRef myref(taus, taus->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Tau, myref); 
+	      //objectsInFilter = true;
+	      l1t::TauRef myref(taus, taus->key(iter));
+	      filterproduct.addObject(trigger::TriggerL1Tau, myref); 
       }
     }
 
@@ -253,29 +249,34 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1EtSumToken, etsums);
     if (!etsums.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1EtSumBxCollection with input tag "
-	<< m_l1EtSumTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo etsums added to filterproduct."
-	<< endl;	
+	    << "\nWarning: L1EtSumBxCollection with input tag "
+	    << m_l1EtSumTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << "\nNo etsums added to filterproduct."
+	    << endl;	
     } else {
 
+      LogTrace("HLTL1TSeed") << "\nHLT1TSeed::seedsAll: L1EtSum objects found in the EtSumBxCollection " << endl;
       l1t::EtSumBxCollection::const_iterator iter;
       for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::EtSumRef myref(etsums, etsums->key(iter));
+
+	      //objectsInFilter = true;
+	      l1t::EtSumRef myref(etsums, etsums->key(iter));
+
+        LogTrace("HLTL1TSeed") << "pt="<<myref->pt() << "\ttype = " << iter->getType() << endl;
+
         switch(iter->getType()) {
           case l1t::EtSum::kTotalEt : 
-	    filterproduct.addObject(trigger::TriggerL1ETT, myref); 
+	          filterproduct.addObject(trigger::TriggerL1ETT, myref); 
             break;
           case l1t::EtSum::kTotalHt : 
-	    filterproduct.addObject(trigger::TriggerL1HTT, myref); 
+	          filterproduct.addObject(trigger::TriggerL1HTT, myref); 
             break;
           case l1t::EtSum::kMissingEt: 
-	    filterproduct.addObject(trigger::TriggerL1ETM, myref); 
+	          filterproduct.addObject(trigger::TriggerL1ETM, myref); 
             break;
           case l1t::EtSum::kMissingHt: 
-	    filterproduct.addObject(trigger::TriggerL1HTM, myref); 
+	          filterproduct.addObject(trigger::TriggerL1HTM, myref); 
             break;
           default:
             LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
@@ -469,7 +470,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     std::list<int> listJetCounts;
 
-
     // get handle to object maps (one object map per algorithm)
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
@@ -494,7 +494,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       for (size_t imap =0; imap < objMaps.size(); imap++) {
 
         LogTrace("HLTL1TSeed")
-        << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
+        << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() 
+        << "\tGtlResult = " <<  objMaps[imap].algoGtlResult()
+        << endl;
 
       }
       LogTrace("HLTL1TSeed") << endl;
@@ -670,8 +672,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                 const L1GtObject objTypeVal = condObjType.at(iType);
 
                 LogTrace("HLTL1TSeed")
-                << "\tAdd object of type " << objTypeVal
-                << " and index " << (*itObject) << " to the seed list."
+                << "\tAdd object of type " << objTypeVal << " and index " << (*itObject) << " to the seed list."
                 << std::endl;
 
                 switch (objTypeVal) {
@@ -812,50 +813,54 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // Muon
     if (!listMuon.empty()) {
 
-        edm::Handle<l1t::MuonBxCollection> muons;
-        iEvent.getByToken(m_l1MuonToken, muons);
-        if (!muons.isValid()){ 
+      edm::Handle<l1t::MuonBxCollection> muons;
+      iEvent.getByToken(m_l1MuonToken, muons);
+
+      if (!muons.isValid()){ 
           edm::LogWarning("HLTL1TSeed")
-    	<< "\nWarning: L1MuonBxCollection with input tag "
-    	<< m_l1MuonTag
-    	<< "\nrequested in configuration, but not found in the event."
-    	<< "\nNo muons added to filterproduct."
-    	<< endl;	
-        } else {
+    	  << "\nWarning: L1MuonBxCollection with input tag "
+    	  << m_l1MuonTag
+    	  << "\nrequested in configuration, but not found in the event."
+    	  << "\nNo muons added to filterproduct."
+    	  << endl;	
+      } 
+      else {
     
-          l1t::MuonBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+        for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
     	
     	    l1t::MuonRef myref(muons, *itObj);
     	    filterproduct.addObject(trigger::TriggerL1Mu, myref);
 
-          }
         }
+
+      } 
+
     }
 
     // EG (isolated)
     if (!listEG.empty()) {
 
-        edm::Handle<l1t::EGammaBxCollection> egammas;
-        iEvent.getByToken(m_l1EGammaToken, egammas);
-        if (!egammas.isValid()){ 
-          edm::LogWarning("HLTL1TSeed")
-    	<< "\nWarning: L1EGammaBxCollection with input tag " << m_l1EGammaTag
-    	<< "\nrequested in configuration, but not found in the event."
-    	<< "\nNo egammas added to filterproduct."
-    	<< endl;	
-        } else {
+      edm::Handle<l1t::EGammaBxCollection> egammas;
+      iEvent.getByToken(m_l1EGammaToken, egammas);
+      if (!egammas.isValid()){ 
+        edm::LogWarning("HLTL1TSeed")
+        << "\nWarning: L1EGammaBxCollection with input tag " << m_l1EGammaTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo egammas added to filterproduct."
+        << endl;	
+      } 
+      else {
     
-          l1t::EGammaBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+        for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
 
     	    l1t::EGammaRef myref(egammas, *itObj);
     	    filterproduct.addObject(trigger::TriggerL1EG, myref);
 
-          }
-        }
+        } 
+
+      } 
     
-    }
+    } 
 
     // Jet
     if (!listJet.empty()) {
@@ -865,18 +870,20 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (!jets.isValid()){ 
         edm::LogWarning("HLTL1TSeed")
-  	<< "\nWarning: L1JetBxCollection with input tag " << m_l1JetTag
-  	<< "\nrequested in configuration, but not found in the event."
-  	<< "\nNo jets added to filterproduct."
-  	<< endl;	
-      } else {
+        << "\nWarning: L1JetBxCollection with input tag " << m_l1JetTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo jets added to filterproduct."
+        << endl;	
+      } 
+      else {
   
-        l1t::JetBxCollection::const_iterator iter;
         for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
-  	l1t::JetRef myref(jets, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+          l1t::JetRef myref(jets, *itObj);
+          filterproduct.addObject(trigger::TriggerL1Jet, myref); 
         }
+
       }
+
     }
 
     // Tau
@@ -887,115 +894,67 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (!taus.isValid()){ 
         edm::LogWarning("HLTL1TSeed")
-  	<< "\nWarning: L1TauBxCollection with input tag " << m_l1TauTag
-  	<< "\nrequested in configuration, but not found in the event."
-  	<< "\nNo taus added to filterproduct."
-  	<< endl;	
-      } else {
+        << "\nWarning: L1TauBxCollection with input tag " << m_l1TauTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo taus added to filterproduct."
+        << endl;	
+      } 
+      else {
   
-        l1t::TauBxCollection::const_iterator iter;
         for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
-  	l1t::TauRef myref(taus, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Tau, myref); 
+          l1t::TauRef myref(taus, *itObj);
+          filterproduct.addObject(trigger::TriggerL1Tau, myref); 
         }
+
       }
+
     }
 
-    // ETM
-    if (!listETM.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
+    // ETT, HTT, ETM, HTM
+		edm::Handle<l1t::EtSumBxCollection> etsums;
+		iEvent.getByToken(m_l1EtSumToken, etsums);
+		if (!etsums.isValid()){ 
+		  edm::LogWarning("HLTL1TSeed")
+		    << "\nWarning: L1EtSumBxCollection with input tag "
+		    << m_l1EtSumTag
+		    << "\nrequested in configuration, but not found in the event."
+		    << "\nNo etsums added to filterproduct."
+		    << endl;	
+		} else {
+		  
+			l1t::EtSumBxCollection::const_iterator iter;
+			
+			for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
+			
+			  l1t::EtSumRef myref(etsums, etsums->key(iter));
+			
+			  switch(iter->getType()) {
 
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1ETM, myref);
+			    case l1t::EtSum::kTotalEt : 
+            if(!listETT.empty())
+			        filterproduct.addObject(trigger::TriggerL1ETT, myref); 
+			      break;
+			    case l1t::EtSum::kTotalHt : 
+            if(!listHTT.empty())
+			        filterproduct.addObject(trigger::TriggerL1HTT, myref); 
+			      break;
+			    case l1t::EtSum::kMissingEt: 
+            if(!listETM.empty())
+			        filterproduct.addObject(trigger::TriggerL1ETM, myref); 
+			      break;
+			    case l1t::EtSum::kMissingHt: 
+            if(!listHTM.empty())
+			        filterproduct.addObject(trigger::TriggerL1HTM, myref); 
+			      break;
+			    default:
+			      LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
 
-          }
-        }
-    }
+			  } // end switch
 
-    // ETT
-    if (!listETT.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
+			} // end for
 
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1ETT, myref);
+		} // end else
 
-          }
-        }
-    }
-
-    // HTM
-    if (!listHTM.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listHTM.begin(); itObj != listHTM.end(); ++itObj) {
-
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1HTM, myref);
-
-          }
-        }
-    }
-
-    // HTT
-    if (!listHTT.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listHTT.begin(); itObj != listHTT.end(); ++itObj) {
-
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1HTT, myref);
-
-          }
-        }
-    }
 
     // TODO FIXME uncomment if block when JetCounts implemented
 
