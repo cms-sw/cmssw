@@ -131,7 +131,6 @@ GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet
   // fill data members from parameters (eventually data members could be dropped)
   //
   theMaxCand                  = conf.getParameter<int>("maxCand");
-
   theLostHitPenalty           = conf.getParameter<double>("lostHitPenalty");
   theFoundHitBonus            = conf.getParameter<double>("foundHitBonus");
   theIntermediateCleaning     = conf.getParameter<bool>("intermediateCleaning");

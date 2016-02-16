@@ -31,6 +31,7 @@ void Trajectory::pop() {
     if(theData.back().recHit()->isValid()) {
       theNumberOfFoundHits--;
       theChiSquared -= theData.back().estimate();
+      if(badForCCC(theData.back())) theNumberOfCCCBadHits_--; 
     }
     else if(lost(* (theData.back().recHit()) )) {
       theNumberOfLostHits--;
@@ -38,7 +39,6 @@ void Trajectory::pop() {
     else if(isBad(* (theData.back().recHit()) ) && theData.back().recHit()->geographicalId().det()==DetId::Muon ) {
       theChiSquaredBad -= theData.back().estimate();
     }
-    else if(badForCCC(theData.back())) theNumberOfCCCBadHits_--;
 
     theData.pop_back();
     theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
@@ -72,6 +72,7 @@ void Trajectory::pushAux(double chi2Increment) {
     theChiSquared += chi2Increment;
     theNumberOfFoundHits++;
     theNumberOfTrailingFoundHits++;
+    if (badForCCC(tm)) theNumberOfCCCBadHits_++;
   }
   // else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) ) {
@@ -82,8 +83,6 @@ void Trajectory::pushAux(double chi2Increment) {
   else if (isBad( *(tm.recHit()) ) && tm.recHit()->geographicalId().det()==DetId::Muon ) {
     theChiSquaredBad += chi2Increment;
   }
- 
-  else if (badForCCC(tm)) theNumberOfCCCBadHits_++;
 
   // in case of a Trajectory constructed without direction, 
   // determine direction from the radii of the first two measurements
@@ -174,11 +173,9 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
 }
 
 bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  auto const * thit = dynamic_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
-  if (!thit)
-    return false;
-  if (thit->isPixel())
-    return false;
+  if (trackerHitRTTI::isUndef(*tm.recHit())) return false;
+  auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
+  if (thit->isPixel()) return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
                                           thit->firstClusterRef().stripCluster(),
                                           tm.updatedState().localParameters()) < theCCCThreshold_;

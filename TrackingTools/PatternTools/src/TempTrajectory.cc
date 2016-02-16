@@ -42,9 +42,11 @@ TempTrajectory::TempTrajectory(Trajectory && traj):
 
 void TempTrajectory::pop() { 
   if (!empty()) {
-    if (theData.back().recHit()->isValid()) {theNumberOfFoundHits--; }
+    if (theData.back().recHit()->isValid()) {
+        theNumberOfFoundHits--;
+        if(badForCCC(theData.back())) theNumberOfCCCBadHits_--; 
+    }
     else if(lost(* (theData.back().recHit()) )) {theNumberOfLostHits--;}
-    else if(badForCCC(theData.back())) theNumberOfCCCBadHits_--;
     theData.pop_back();
     theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
   }
@@ -57,10 +59,10 @@ void TempTrajectory::pushAux(double chi2Increment) {
   if ( tm.recHit()->isValid()) {
     theNumberOfFoundHits++;
     theNumberOfTrailingFoundHits++;
+    if (badForCCC(tm)) theNumberOfCCCBadHits_++;
    }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) )   { theNumberOfLostHits++; theNumberOfTrailingFoundHits=0;}
-  else if (badForCCC(tm)) theNumberOfCCCBadHits_++;
 
   theChiSquared += chi2Increment;
 
@@ -126,11 +128,9 @@ bool TempTrajectory::lost( const TrackingRecHit& hit)
 }
 
 bool TempTrajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  auto const * thit = dynamic_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
-  if (!thit)
-    return false;
-  if (thit->isPixel())
-    return false;
+  if (trackerHitRTTI::isUndef(*tm.recHit())) return false;
+  auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
+  if (thit->isPixel()) return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
                                           thit->firstClusterRef().stripCluster(),
                                           tm.updatedState().localParameters()) < theCCCThreshold_;

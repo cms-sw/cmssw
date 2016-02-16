@@ -79,11 +79,6 @@ namespace cms{
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
     skipClusters_(false)
   {  
-    //produces<TrackCandidateCollection>();  
-    // old configuration totally descoped.
-    //    if (!conf.exists("src"))
-    //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
-    //    else
       theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
 #ifndef	VI_REPRODUCIBLE
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
