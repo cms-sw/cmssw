@@ -19,8 +19,7 @@ toGet = cms.untracked.vstring('GainWidths'),
 )
 
 from Configuration.StandardSequences.Eras import eras
-if eras.run2_HF_2016.isChosen():
-    es_hardcode.testHFQIE10 = cms.bool(True)
+eras.run2_HF_2016.toModify( es_hardcode, testHFQIE10=cms.bool(True) )
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
