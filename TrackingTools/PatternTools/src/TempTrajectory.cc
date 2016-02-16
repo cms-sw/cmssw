@@ -161,6 +161,7 @@ Trajectory TempTrajectory::toTrajectory() const {
   Trajectory traj(p);
   traj.setNLoops(theNLoops);
   traj.setStopReason(stopReason_);
+  traj.numberOfCCCBadHits(theNumberOfCCCBadHits_);
 
   traj.reserve(theData.size());
   const TrajectoryMeasurement* tmp[theData.size()];
