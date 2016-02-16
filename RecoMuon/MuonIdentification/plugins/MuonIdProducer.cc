@@ -146,7 +146,6 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
    
-   //FIXME Disabled for now
    if (doME0_){
      edm::InputTag me0HitTag("me0Segments");
      me0HitToken_ = consumes<ME0SegmentCollection>(me0HitTag);   
@@ -263,7 +262,6 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
 
-   //FIXME Disabled for now
    if (doME0_){
      iEvent.getByToken(me0HitToken_, me0HitHandle_);
    }
@@ -290,8 +288,6 @@ reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
    reco::CaloMuon aMuon;
    aMuon.setInnerTrack( muon.innerTrack() );
 
-   //FIXME check this:
-   //if (muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
    if (fillEnergy_ && muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
    // get calo compatibility
    if (fillCaloCompatibility_) aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(muon) );
@@ -581,7 +577,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          bool newMuon = true;
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
-	 //FIXME disabled for now
 
 	 bool goodME0Muon = false;
 	 if (doME0_){
@@ -590,7 +585,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
-	 //FIXME Disabled for now
 	 if (doME0_){
 	   if ( goodME0Muon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::ME0Muon );
 	 }
@@ -603,12 +597,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              newMuon = false;
              muon.setMatches( trackerMuon.matches() );
              if (trackerMuon.isTimeValid()) muon.setTime( trackerMuon.time() );
-	     //FIXME check this
-             //if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (fillEnergy_ && trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
-	     //FIXME Disabled for now
 	     if (doME0_){
 	       if (goodME0Muon) muon.setType( muon.type() | reco::Muon::ME0Muon );
 	     }
@@ -617,7 +608,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
          }
          if ( newMuon ) {
-	   //FIXME Disabled for now
 	   if (doME0_){
 	     if ( goodTrackerMuon || goodRPCMuon || goodME0Muon){
 	       outputMuons->push_back( trackerMuon );
@@ -816,7 +806,6 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
 }
 
-//FIXME disabled for now
 bool MuonIdProducer::isGoodME0Muon( const reco::Muon& muon )
 {
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
@@ -870,7 +859,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       aMuon.setCalEnergy( muonEnergy );
    }
 
-   //FIXME Disabled for now
    if (doME0_){
      if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() && ! aMuon.isME0Muon() ) return;
    } 
@@ -885,7 +873,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    {
      if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 
-     //FIXME Disabled for now
      if (doME0_){
        if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0HitHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
      }
@@ -1008,7 +995,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Fill ME0 info
 
-   //FIXME Disabled for now
    if (doME0_){
      if ( me0HitHandle_.isValid() )
        {

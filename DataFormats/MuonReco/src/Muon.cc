@@ -83,7 +83,6 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          continue;
       }
       
-      //FIXME: Need to add this back in
       if(type == ME0HitAndTrackArbitration) {
          if(chamberMatch->me0Matches.empty()) continue;
          matches += chamberMatch->me0Matches.size();
@@ -168,11 +167,9 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
          continue;
       }
 
-      //FIXME: Need to add this back in
       if(type == ME0HitAndTrackArbitration) {
       	 if(chamberMatch->me0Matches.empty()) continue;
 
-      	 //ME0DetId rollId = chamberMatch->id.rawId();
 
          for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
       	      me0Match != chamberMatch->me0Matches.end(); me0Match++ )
