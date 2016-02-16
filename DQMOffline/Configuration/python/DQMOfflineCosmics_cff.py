@@ -5,7 +5,7 @@ from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cosmic_cff import *
-from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
+from DQM.HcalTasks.OfflineSourceSequence_cosmic import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_Cosmic_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_Cosmics_cff import *
@@ -16,7 +16,7 @@ from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
 DQMOfflineCosmicsPreDPG = cms.Sequence( dqmDcsInfo *
                                         ecal_dqm_source_offline *
-                                        hcalOfflineDQMSource *
+                                        hcalOfflineSourceSequence *
                                         SiStripDQMTier0 *
                                         siPixelOfflineDQM_cosmics_source *
                                         dtSourcesCosmics *
