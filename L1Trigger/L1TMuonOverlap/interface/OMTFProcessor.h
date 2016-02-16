@@ -63,6 +63,9 @@ class OMTFProcessor{
   
  private:
 
+  ///Reset all configuration parameters
+  void resetConfiguration();
+
   ///Add GoldenPattern to pattern map.
   ///If GP key already exists in map, a new entry is ignored
   bool addGP(GoldenPattern *aGP);
