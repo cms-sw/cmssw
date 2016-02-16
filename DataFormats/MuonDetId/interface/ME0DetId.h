@@ -49,12 +49,16 @@ class ME0DetId :public DetId {
 
   /// Layer id: each station have two layers of chambers: layer 1 is the inner chamber and layer 6 is the outer chamber 
   int layer() const{
+    //FIXME a hack, removing the "+minLayerId", to allow for 0 layer id
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
+    //return int((id_>>LayerStartBit_) & LayerMask_);
   }
 
   /// Chamber id: it identifies a chamber in a ring it goes from 1 to 36 
   int chamber() const{
-    return int((id_>>ChamberStartBit_) & ChamberMask_) + minChamberId;
+    return int((id_>>ChamberStartBit_) & ChamberMask_)+minChamberId;
+    //FIXME a hack to force the chamber counting to start at 1, rather than the 0 listed for minchamber id
+    //return int((id_>>ChamberStartBit_) & ChamberMask_)-1;
   }
 
  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
@@ -73,13 +77,15 @@ class ME0DetId :public DetId {
   static const int maxRegionId=      1;
  
   static const int minChamberId=     0;
-  static const int maxChamberId=     36;
+  //static const int maxChamberId=     36;
+  static const int maxChamberId=     18;
 
-  static const int minLayerId=     0;
-  static const int maxLayerId=    31;
+  //static const int minLayerId=     0;
+  static const int minLayerId=     1;
+  static const int maxLayerId=    6;
 
   static const int minRollId=	  0;
-  static const int maxRollId=	 31;
+  static const int maxRollId=	 1;
 
  private:
   static const int RegionNumBits_  =  2;
@@ -87,16 +93,28 @@ class ME0DetId :public DetId {
   static const int RegionMask_     =  0X3;
 
   static const int ChamberNumBits_  =  6;
-  static const int ChamberStartBit_ =  RegionStartBit_+RegionNumBits_;  
+  static const int ChamberStartBit_ =  RegionStartBit_+RegionNumBits_;
   static const unsigned int ChamberMask_     =  0X3F;
 
+  /* static const int ChamberNumBits_  =  5; */
+  /* static const int ChamberStartBit_ =  RegionStartBit_+RegionNumBits_;   */
+  /* static const unsigned int ChamberMask_     =  0X1F; */
+
   static const int LayerNumBits_  =  5;
-  static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_;  
+  static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_;
   static const unsigned int LayerMask_     =  0X1F;
 
+  /* static const int LayerNumBits_  =  3; */
+  /* static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_; */
+  /* static const unsigned int LayerMask_     =  0X7; */
+
   static const int RollNumBits_  =  5;
-  static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
+  static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;
   static const unsigned int RollMask_     =  0X1F;
+
+  /* static const int RollNumBits_  =  2; */
+  /* static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;   */
+  /* static const unsigned int RollMask_     =  0X3; */
  
   static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
 
