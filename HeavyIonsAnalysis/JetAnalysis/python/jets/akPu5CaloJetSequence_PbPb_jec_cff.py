@@ -238,4 +238,4 @@ akPu5CaloJetSequence_mix = cms.Sequence(akPu5CaloJetSequence_mc)
 
 akPu5CaloJetSequence = cms.Sequence(akPu5CaloJetSequence_jec)
 akPu5CaloJetAnalyzer.genPtMin = cms.untracked.double(1)
-akPu5CaloJetAnalyzer.jetPtMin = cms.untracked.double(1)
+akPu5CaloJetAnalyzer.jetPtMin = cms.double(1)

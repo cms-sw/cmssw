@@ -1,17 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff import *
-from RecoHI.HiJetAlgos.HiGenJets_cff import *
-from RecoJets.Configuration.GenJetParticles_cff import *
 from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiBackgroundPF, voronoiBackgroundCalo
-
-akHiGenJets = cms.Sequence(
-    genParticlesForJets +
-    ak2HiGenJets +
-    ak3HiGenJets +
-    ak4HiGenJets +
-    ak5HiGenJets)
-
 
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs2CaloJetSequence_PbPb_mc_cff import *
@@ -39,8 +29,6 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
 jetSequences = cms.Sequence(
-    akHiGenJets +
-
     voronoiBackgroundPF+
     voronoiBackgroundCalo+
 

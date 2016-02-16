@@ -1,18 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff import *
-from RecoHI.HiJetAlgos.HiGenJets_cff import *
-from RecoJets.Configuration.GenJetParticles_cff import *
 from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiBackgroundPF, voronoiBackgroundCalo
-
-akHiGenJets = cms.Sequence(
-    genParticlesForJets +
-    ak1HiGenJets +
-    ak2HiGenJets +
-    ak3HiGenJets +
-    ak4HiGenJets +
-    ak5HiGenJets +
-    ak6HiGenJets)
 
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu1CaloJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs1CaloJetSequence_PbPb_jec_cff import *
@@ -120,56 +109,56 @@ ak6CaloJetAnalyzer.doSubEvent = True
 
 
 
-jetSequences = cms.Sequence(akHiGenJets +
-                            voronoiBackgroundPF+
-                            voronoiBackgroundCalo+
+jetSequences = cms.Sequence(
+    voronoiBackgroundPF+
+    voronoiBackgroundCalo+
 
-                            hiReRecoCaloJets +
-                            hiReRecoPFJets +
-                            
-							myPartons +
-							highPurityTracks +
-							offlinePrimaryVertices +
-							
-                    	    ak1CaloJetSequence +
-                            akPu1CaloJetSequence +
-                            akVs1CaloJetSequence +
-                            ak1PFJetSequence +
-                            akVs1PFJetSequence +
-                            akPu1PFJetSequence +
+    hiReRecoCaloJets +
+    hiReRecoPFJets +
+    
+    myPartons +
+    highPurityTracks +
+    offlinePrimaryVertices +
+    
+    ak1CaloJetSequence +
+    akPu1CaloJetSequence +
+    akVs1CaloJetSequence +
+    ak1PFJetSequence +
+    akVs1PFJetSequence +
+    akPu1PFJetSequence +
 
-			                ak2CaloJetSequence +
-			                akPu2CaloJetSequence +
-                            akVs2CaloJetSequence +
-                            akVs2PFJetSequence +
-                            akPu2PFJetSequence +
-                            ak2PFJetSequence +
+    ak2CaloJetSequence +
+    akPu2CaloJetSequence +
+    akVs2CaloJetSequence +
+    akVs2PFJetSequence +
+    akPu2PFJetSequence +
+    ak2PFJetSequence +
 
-			                ak3CaloJetSequence +
-			                akPu3CaloJetSequence +
-                            akVs3CaloJetSequence +
-                            ak3PFJetSequence +
-                            akVs3PFJetSequence +
-                            akPu3PFJetSequence +
+    ak3CaloJetSequence +
+    akPu3CaloJetSequence +
+    akVs3CaloJetSequence +
+    ak3PFJetSequence +
+    akVs3PFJetSequence +
+    akPu3PFJetSequence +
 
-                            ak4CaloJetSequence +
-                            akPu4CaloJetSequence +
-                            akVs4CaloJetSequence +
-                            ak4PFJetSequence +
-                            akVs4PFJetSequence +
-                            akPu4PFJetSequence +
+    ak4CaloJetSequence +
+    akPu4CaloJetSequence +
+    akVs4CaloJetSequence +
+    ak4PFJetSequence +
+    akVs4PFJetSequence +
+    akPu4PFJetSequence +
 
-                            ak5CaloJetSequence +
-                            akPu5CaloJetSequence +
-                            akVs5CaloJetSequence +
-                            ak5PFJetSequence +
-                            akVs5PFJetSequence +
-                            akPu5PFJetSequence +
+    ak5CaloJetSequence +
+    akPu5CaloJetSequence +
+    akVs5CaloJetSequence +
+    ak5PFJetSequence +
+    akVs5PFJetSequence +
+    akPu5PFJetSequence +
 
-                            ak6CaloJetSequence +
-                            akPu6CaloJetSequence +
-                            akVs6CaloJetSequence +
-                            ak6PFJetSequence +
-                            akVs6PFJetSequence +
-                            akPu6PFJetSequence
+    ak6CaloJetSequence +
+    akPu6CaloJetSequence +
+    akVs6CaloJetSequence +
+    ak6PFJetSequence +
+    akVs6PFJetSequence +
+    akPu6PFJetSequence
 )
