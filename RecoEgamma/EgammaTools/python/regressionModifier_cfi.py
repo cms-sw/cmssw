@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 regressionModifier = \
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDB'),  
               autoDetectBunchSpacing = cms.bool(True),
+              applyExtraHighEnergyProtection = cms.bool(True),
               bunchSpacingTag = cms.InputTag("bunchSpacingProducer"),
               manualBunchSpacing = cms.int32(50),              
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
