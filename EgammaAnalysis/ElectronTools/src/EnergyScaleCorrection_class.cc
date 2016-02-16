@@ -277,7 +277,7 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
   int unused = 0;
   TString category, region2;
   //double smearing, err_smearing;
-  double rho, phi, Emean, constTerm, alpha, err_rho, err_phi, err_Emean, err_alpha = 0., err_constTerm = 0.;
+  double rho, phi, Emean, err_rho, err_phi, err_Emean;
   double etaMin, etaMax, r9Min, r9Max;
   std::string phi_string, err_phi_string;
   
@@ -345,6 +345,13 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
 
 float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma) const
 {
+  if (par == kRho) return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, nSigma, 0.);
+  if (par == kPhi) return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, 0., nSigma);
+  return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, 0., 0.);
+}
+
+float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, float nSigma_rho, float nSigma_phi) const
+{
   
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, energy / cosh(etaSCEle));
   correction_map_t::const_iterator corr_itr = smearings.find(category);
@@ -367,11 +374,11 @@ float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy,
 	    << "        given for category " <<  corr_itr->first;
 #endif
 
-  double rho = (par == kRho) ? corr_itr->rho + rho_err *nSigma : corr_itr->rho;
-  double phi = (par == kPhi) ? corr_itr->phi + phi_err *nSigma : corr_itr->phi;
+  double rho = corr_itr->second.rho + corr_itr->second.rho_err * nSigma_rho;
+  double phi = corr_itr->second.phi + corr_itr->second.phi_err * nSigma_phi;
 
   double constTerm =  rho * sin(phi);
-  double alpha =  rho *  corr_itr->Emean * cos( phi);
+  double alpha =  rho *  corr_itr->second.Emean * cos( phi);
 
   return sqrt(constTerm * constTerm + alpha * alpha / (energy / cosh(etaSCEle)));
   
@@ -390,7 +397,7 @@ float EnergyScaleCorrection_class::getSmearingRho(int runNumber, float energy, b
     corr_itr = smearings_not_defined.find(category);
   }
   
-  return corr_itr->rho;
+  return corr_itr->second.rho;
 }
 
 bool correctionCategory_class::operator<(const correctionCategory_class& b) const

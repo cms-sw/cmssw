@@ -176,6 +176,7 @@ private:
 	//============================== smearings
 public:
 	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma = 0.) const;
+	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, float nSigma_rho, float nSigma_phi) const;
 
 
 private:
