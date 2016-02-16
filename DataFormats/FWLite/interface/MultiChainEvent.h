@@ -26,6 +26,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -160,7 +161,7 @@ class MultiChainEvent: public EventBase
 
       std::shared_ptr<ChainEvent> event1_;  // primary files
       std::shared_ptr<ChainEvent> event2_;  // secondary files
-      std::shared_ptr<internal::MultiProductGetter> getter_;
+      std::shared_ptr<internal::MultiProductGetter const> getter_;
 
       // speed up secondary file access with a (run range)_1 ---> index_2 map,
       // when the files are sorted by run,event within the file.

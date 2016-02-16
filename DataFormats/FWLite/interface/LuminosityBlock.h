@@ -127,8 +127,8 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::LuminosityBlockAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::LuminosityBlockAuxiliary* pAux_;
-         edm::LuminosityBlockAux* pOldAux_;
+         edm::LuminosityBlockAuxiliary const* pAux_;
+         edm::LuminosityBlockAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
 
