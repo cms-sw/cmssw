@@ -440,7 +440,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             case CondEnergySum: {
 
                 for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
+		  // this is clearly a bug:
+		  //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
+		  // untested bug fix, to quiet compile time warnings, will need to push back to GT experts:
+		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() ==  l1t::EtSum::kMissingEt ) {
                     phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                     etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
@@ -537,7 +540,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 case CondEnergySum: {
 
                    for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
+		     // this is clearly a bug:		     
+		     //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
+		     // untested bug fix, to quiet compile time warnings, will need to push back to GT experts:		    		    
+		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() ==  l1t::EtSum::kMissingEt ) {
                        phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                        etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
