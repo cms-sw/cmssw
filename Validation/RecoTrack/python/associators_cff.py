@@ -3,16 +3,12 @@ import FWCore.ParameterSet.Config as cms
 #### TrackAssociation
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
 import SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cfi
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
 
-hltTPClusterProducer = cms.EDProducer("ClusterTPAssociationProducer",
-    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
-    verbose = cms.bool(False),
-    pixelClusterSrc = cms.InputTag("hltSiPixelClusters"),
-    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
-    trackingParticleSrc = cms.InputTag("mix","MergedTrackTruth"),
-#    stripClusterSrc = cms.InputTag("hltSiStripClusters"),
-    stripClusterSrc = cms.InputTag("hltSiStripRawToClustersFacility"),                                      
-    simTrackSrc = cms.InputTag("g4SimHits")
+hltTPClusterProducer = _tpClusterProducer.clone(
+    pixelClusterSrc = "hltSiPixelClusters",
+#    stripClusterSrc = "hltSiStripClusters",
+    stripClusterSrc = "hltSiStripRawToClustersFacility",
 )
 
 hltTrackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
