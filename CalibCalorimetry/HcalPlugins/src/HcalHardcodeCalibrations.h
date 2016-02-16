@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "HERecalibration.h"
@@ -50,6 +52,7 @@ public:
   ~HcalHardcodeCalibrations ();
 
   void produce () {};
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 protected:
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

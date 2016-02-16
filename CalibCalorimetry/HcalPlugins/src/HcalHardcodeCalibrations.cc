@@ -746,3 +746,17 @@ std::auto_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianc
   }
   return result;
 }
+
+void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
+	edm::ParameterSetDescription desc;
+	desc.add<double>("iLumi",-1.);
+	desc.add<bool>("HERecalibration",false);
+	desc.add<double>("HEreCalibCutoff",20.);
+	desc.add<bool>("HFRecalibration",false);
+	desc.add<bool>("GainWidthsForTrigPrims",false);
+	desc.add<bool>("testHFQIE10",false);
+	desc.addUntracked<std::vector<std::string>>("toGet",std::vector<std::string>());
+	desc.addUntracked<bool>("fromDDD",false);
+	
+	descriptions.addDefault(desc);
+}
