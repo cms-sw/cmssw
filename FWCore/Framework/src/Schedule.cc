@@ -20,7 +20,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 #include "boost/graph/graph_traits.hpp"
 #include "boost/graph/adjacency_list.hpp"
@@ -453,8 +452,6 @@ namespace edm {
     });
     // Now that the output workers are filled in, set any output limits or information.
     limitOutput(proc_pset, branchIDListHelper.branchIDLists());
-
-    loadMissingDictionaries();
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.

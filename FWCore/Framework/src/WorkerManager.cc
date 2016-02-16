@@ -102,7 +102,6 @@ namespace edm {
     }
     
     for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
-    loadMissingDictionaries();
   }
 
   void
