@@ -7,6 +7,18 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+namespace {
+  template<typename DataContainer>
+  unsigned short countTrailingValidHits(DataContainer const & meas) { 
+    unsigned short n=0;
+    for(auto it=meas.rbegin(); it!=meas.rend(); --it) {  // it is not consistent with std...
+      if (TempTrajectory::lost(*(*it).recHit())) break;
+      if((*it).recHit()->isValid()) ++n;
+    }
+    return n;
+  }
+
+}
 
 TempTrajectory::TempTrajectory(Trajectory && traj):
   theChiSquared(0),
@@ -21,11 +33,8 @@ TempTrajectory::TempTrajectory(Trajectory && traj):
   theCCCThreshold_(traj.cccThreshold()),
   stopReason_(traj.stopReason()) {
 
-  Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
-  Trajectory::DataContainer::const_iterator end=traj.measurements().end();
-
-  for(Trajectory::DataContainer::const_iterator it=begin; it!=end; ++it){
-    push(std::move(*it));
+  for(auto & it : traj.measurements()){
+    push(std::move(it));
   }
 
 }
@@ -33,10 +42,11 @@ TempTrajectory::TempTrajectory(Trajectory && traj):
 
 void TempTrajectory::pop() { 
   if (!empty()) {
-    if (theData.back().recHit()->isValid()) theNumberOfFoundHits--;
-    else if(lost(* (theData.back().recHit()) )) theNumberOfLostHits--;
+    if (theData.back().recHit()->isValid()) {theNumberOfFoundHits--; }
+    else if(lost(* (theData.back().recHit()) )) {theNumberOfLostHits--;}
     else if(badForCCC(theData.back())) theNumberOfCCCBadHits_--;
     theData.pop_back();
+    theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
   }
 }
 
@@ -46,9 +56,10 @@ void TempTrajectory::pushAux(double chi2Increment) {
   const TrajectoryMeasurement& tm = theData.back();
   if ( tm.recHit()->isValid()) {
     theNumberOfFoundHits++;
+    theNumberOfTrailingFoundHits++;
    }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
-  else if (lost( *(tm.recHit()) ) )   theNumberOfLostHits++;
+  else if (lost( *(tm.recHit()) ) )   { theNumberOfLostHits++; theNumberOfTrailingFoundHits=0;}
   else if (badForCCC(tm)) theNumberOfCCCBadHits_++;
 
   theChiSquared += chi2Increment;
@@ -69,6 +80,7 @@ void TempTrajectory::push(const TempTrajectory& segment) {
   theNumberOfFoundHits+= segment.theNumberOfFoundHits;
   theNumberOfLostHits += segment.theNumberOfLostHits;
   theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
+  theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
   theChiSquared += segment.theChiSquared;
 }
 
@@ -85,6 +97,7 @@ void TempTrajectory::join( TempTrajectory& segment) {
     theNumberOfFoundHits+= segment.theNumberOfFoundHits;
     theNumberOfLostHits += segment.theNumberOfLostHits;
     theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
+    theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
     theChiSquared += segment.theChiSquared;
   }
 }

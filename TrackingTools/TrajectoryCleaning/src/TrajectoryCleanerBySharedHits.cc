@@ -94,7 +94,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
       if(!theTrajMap.empty() > 0){
 	for(TrajMap::iterator imapp = theTrajMap.begin(); 
 	    imapp != theTrajMap.end(); ++imapp){
-	  if((*imapp).second > 0 ){
+	  if((*imapp).second > 1 ){  // at least 2 hits in common!!!
 	    int innerHit = 0;
 	    if ( allowSharedFirstHit ) {
 	      const TrajectoryMeasurement & innerMeasure1 = ( (*itt)->direction() == alongMomentum ) ? 
