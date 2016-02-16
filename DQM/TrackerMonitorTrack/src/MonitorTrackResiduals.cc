@@ -169,6 +169,10 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	  // book histogramms on layer level, check for barrel/pixel only for correct labeling
 	  auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
 	  auto isPixel = subdetandlayer.first.find("X") != std::string::npos;
+
+	  // Skip the Y plots for strips.
+	  if (!isPixel && histopair.second[0] == 'Y') continue;
+
 	  // TODO: We use a legacy name to stay compatible with other code. 
 	  // Check if this is necessary.
 	  std::string histoname = Form("HitResiduals_%s__%s__%d%s",
