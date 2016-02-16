@@ -27,6 +27,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "CommonTools/Utils/interface/associationMapFilterValues.h"
 #include<type_traits>
+#include <unordered_set>
 
 
 #include "TMath.h"
@@ -239,6 +240,26 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   }// end loop ww
 }
 
+namespace {
+  void ensureEffIsSubsetOfFake(const TrackingParticleRefVector& eff, const TrackingParticleRefVector& fake) {
+    // First ensure product ids
+    if(eff.id() != fake.id()) {
+      throw cms::Exception("Configuration") << "Efficiency and fake TrackingParticle (refs) point to different collections (eff " << eff.id() << " fake " << fake.id() << "). This is not supported. Efficiency TP set must be the same or a subset of the fake TP set.";
+    }
+
+    // Same technique as in associationMapFilterValues
+    std::unordered_set<reco::RecoToSimCollection::index_type> fakeKeys;
+    for(const auto& ref: fake) {
+      fakeKeys.insert(ref.key());
+    }
+
+    for(const auto& ref: eff) {
+      if(fakeKeys.find(ref.key()) == fakeKeys.end()) {
+        throw cms::Exception("Configuration") << "Efficiency TrackingParticle " << ref.key() << " is not found from the set of fake TPs. This is not supported. The efficiency TP set must be the same or a subset of the fake TP set.";
+      }
+    }
+  }
+}
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
   using namespace reco;
@@ -292,6 +313,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   TrackingParticleRefVector const & tPCeff = *tmpTPeffPtr;
   TrackingParticleRefVector const & tPCfake = *tmpTPfakePtr;
+
+  ensureEffIsSubsetOfFake(tPCeff, tPCfake);
 
   if(parametersDefinerIsCosmic_) {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
@@ -526,7 +549,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         recSimCollL = std::move(theAssociator->associateRecoToSim(trackRefs, tPCfake));
         recSimCollP = &recSimCollL;
 	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-        simRecCollL = std::move(theAssociator->associateSimToReco(trackRefs, tPCeff));
+        // It is necessary to do the association wrt. fake TPs,
+        // because this SimToReco association is used also for
+        // duplicates. Since the set of efficiency TPs are required to
+        // be a subset of the set of fake TPs, for efficiency
+        // histograms it doesn't matter if the association contains
+        // associations of TPs not in the set of efficiency TPs.
+        simRecCollL = std::move(theAssociator->associateSimToReco(trackRefs, tPCfake));
         simRecCollP = &simRecCollL;
       }
       else{
@@ -546,7 +575,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
         // We need to filter the associations of the fake-TrackingParticle
         // collection only from RecoToSim collection, otherwise the
-        // RecoTosim histograms get false entries
+        // RecoToSim histograms get false entries
         recSimCollL = associationMapFilterValues(*recSimCollP, tPCfake);
         recSimCollP = &recSimCollL;
       }
