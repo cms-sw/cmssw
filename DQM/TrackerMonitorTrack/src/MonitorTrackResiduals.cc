@@ -156,8 +156,9 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	auto& histos = m_SubdetLayerResiduals[subdetandlayer];
 	switch (id.subdetId()) {
 	  // Pixel Barrel, Endcap
-	  case 1:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 2); break;
-	  case 2:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 6); break;
+	  // We can't use the folder organizer here (SiPixelActionExecutor.cc#1638 does the same)
+	  case 1:   ibooker.setCurrentFolder("Pixel/Barrel"); break;
+	  case 2:   ibooker.setCurrentFolder("Pixel/Endcap"); break;
 	  // All strip
 	  default:  strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
 	}
@@ -173,13 +174,17 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	  // Skip the Y plots for strips.
 	  if (!isPixel && histopair.second[0] == 'Y') continue;
 
-	  // TODO: We use a legacy name to stay compatible with other code. 
 	  // Check if this is necessary.
-	  std::string histoname = Form("HitResiduals_%s__%s__%d%s",
-		subdetandlayer.first.c_str(),
-		isBarrel ? "Layer" : "wheel",
-		std::abs(subdetandlayer.second),
-		histopair.second[0] == 'X' ? "" : "_Y");
+	  std::string histoname = isPixel ? ( // Pixel name
+	        Form("HitResiduals%s_%s%d",
+	        histopair.second,
+	        isBarrel ? "L" : (subdetandlayer.second > 0 ? "Dp" : "Dm"),
+	        std::abs(subdetandlayer.second)))
+	     : (Form("HitResiduals_%s__%s__%d", // Strip TODO: We use a legacy name. 
+	        subdetandlayer.first.c_str(),
+	        isBarrel ? "Layer" : "wheel",
+	        std::abs(subdetandlayer.second)));
+
 	  std::string histotitle = Form("HitResiduals %s on %s%s full %s %d",
 		histopair.second,
 		subdetandlayer.first.c_str(),
