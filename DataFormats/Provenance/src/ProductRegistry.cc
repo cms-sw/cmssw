@@ -26,15 +26,6 @@
 #include <ostream>
 
 namespace edm {
-  namespace {
-    void checkDicts(BranchDescription const& productDesc) {
-      if(productDesc.transient()) {
-        checkClassDictionaries(TypeID(productDesc.wrappedType().typeInfo()), false);
-      } else {
-        checkClassDictionaries(TypeID(productDesc.wrappedType().typeInfo()), true);
-      }
-    }
-  }
 
   ProductRegistry::ProductRegistry() :
       productList_(),
@@ -87,7 +78,6 @@ namespace edm {
                               bool fromListener) {
     assert(productDesc.produced());
     throwIfFrozen();
-    checkDicts(productDesc);
     std::pair<ProductList::iterator, bool> ret =
          productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if(!ret.second) {

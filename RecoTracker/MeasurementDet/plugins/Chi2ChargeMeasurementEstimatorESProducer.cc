@@ -98,35 +98,42 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include <boost/shared_ptr.hpp>
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+
 namespace {
 
 
 class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
  public:
-  // static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & p);
   virtual ~Chi2ChargeMeasurementEstimatorESProducer(); 
   boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+
  private:
   boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
   const edm::ParameterSet m_pset;
 };
 
-/*  need support for RefToPSet
 void
 Chi2ChargeMeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  //  edm::ParameterSetDescription desc = Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription();
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName","");
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
-  desc.add<double>("MaxDispacement",1.5); 
+  desc.add<double>("MaxDisplacement",0.5); 
+  desc.add<double>("MaxSagitta",2.);
+  desc.add<double>("MinimalTolerance",0.5);
+  desc.add<std::string>("ComponentName","Chi2Charge");
   desc.add<double>("pTChargeCutThreshold",-1.);
-  edm::ParameterSetDescription descCCC;
-  descCCC.add<what>("",...);
+  edm::ParameterSetDescription descCCC = getFilledConfigurationDescription4CCC();
   desc.add<edm::ParameterSetDescription>("clusterChargeCut", descCCC);
-  descriptions.add("Chi2ChargeMeasurementEstimator", desc);
+  descriptions.add("Chi2ChargeMeasurementEstimatorDefault", desc);
 }
-*/
+
 
 
 Chi2ChargeMeasurementEstimatorESProducer::Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & pset) :
@@ -141,11 +148,11 @@ Chi2ChargeMeasurementEstimatorESProducer::~Chi2ChargeMeasurementEstimatorESProdu
 boost::shared_ptr<Chi2MeasurementEstimatorBase> 
 Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
-  auto maxChi2             =  m_pset.getParameter<double>("MaxChi2");
-  auto nSigma              =  m_pset.getParameter<double>("nSigma");
-  auto maxDis  = m_pset.existsAs<double>("MaxDispacement") ? m_pset.getParameter<double>("MaxDispacement") : 100.;
-  auto maxSag  = m_pset.existsAs<double>("MaxSagitta") ? m_pset.getParameter<double>("MaxSagitta") : -1.;
-  auto minTol = m_pset.existsAs<double>("MinimalTolerance") ?  m_pset.getParameter<double>("MinimalTolerance") : 10;
+  auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
+  auto nSigma  = m_pset.getParameter<double>("nSigma");
+  auto maxDis  = m_pset.getParameter<double>("MaxDisplacement");
+  auto maxSag  = m_pset.getParameter<double>("MaxSagitta");
+  auto minTol  = m_pset.getParameter<double>("MinimalTolerance");
   auto minGoodPixelCharge  = 0;
   auto minGoodStripCharge  =  clusterChargeCut(m_pset);
   auto pTChargeCutThreshold=   m_pset.getParameter<double>("pTChargeCutThreshold");

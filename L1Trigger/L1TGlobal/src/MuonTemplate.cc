@@ -27,7 +27,6 @@
 //   base class
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
@@ -118,16 +117,36 @@ void MuonTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].enableIso << std::endl;
         myCout << "    requestIso        = "
         << std::hex << m_objectParameter[i].requestIso << std::endl;
+	myCout << "    charge            ="
+	<< std::dec << m_objectParameter[i].charge << std::endl;
         myCout << "    qualityLUT        = "
         << std::hex << m_objectParameter[i].qualityLUT << std::endl;
         myCout << "    isolationLUT      = "
         << std::hex << m_objectParameter[i].isolationLUT << std::endl;
-        myCout << "    etaRange          = "
-        << std::hex << m_objectParameter[i].etaRange << std::endl;
-        myCout << "    phiHigh           = "
-        << std::hex << m_objectParameter[i].phiHigh << std::endl;
-        myCout << "    phiLow            = "
-        << std::hex << m_objectParameter[i].phiLow << std::endl;
+ //       myCout << "    etaRange          = "
+ //       << std::hex << m_objectParameter[i].etaRange << std::endl;
+ //       myCout << "    phiHigh           = "
+ //       << std::hex << m_objectParameter[i].phiHigh << std::endl;
+ //       myCout << "    phiLow            = "
+//        << std::hex << m_objectParameter[i].phiLow << std::endl;
+          myCout << "    phiWindow1Lower   ="
+	  << std::hex << m_objectParameter[i].phiWindow1Lower << std::endl;
+          myCout << "    phiWindow1Upper   ="
+	  << std::hex << m_objectParameter[i].phiWindow1Upper << std::endl;
+          myCout << "    phiWindow2Lower   ="
+	  << std::hex << m_objectParameter[i].phiWindow2Lower << std::endl;
+          myCout << "    phiWindow2Upper   ="
+	  << std::hex << m_objectParameter[i].phiWindow2Upper << std::endl;
+          myCout << "    etaWindow1Lower   ="
+	  << std::hex << m_objectParameter[i].etaWindow1Lower << std::endl;
+          myCout << "    etaWindow1Upper   ="
+	  << std::hex << m_objectParameter[i].etaWindow1Upper << std::endl;
+          myCout << "    etaWindow2Lower   ="
+	  << std::hex << m_objectParameter[i].etaWindow2Lower << std::endl;
+          myCout << "    etaWindow2Upper   ="
+	  << std::hex << m_objectParameter[i].etaWindow2Upper << std::endl;
+
+
     }
 
 

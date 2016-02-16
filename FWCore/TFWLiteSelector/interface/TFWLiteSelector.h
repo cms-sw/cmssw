@@ -50,6 +50,7 @@ class TList;
 // user include files
 
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 template <class TWorker>
@@ -72,7 +73,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       const TFWLiteSelector& operator=(const TFWLiteSelector&); // stop default
 
       virtual void preProcessing(const TList*in, TList& out) {
-        worker_.reset(new TWorker(in,out));
+        worker_ = std::make_shared<TWorker>(in,out);
       }
       virtual void process(const edm::Event& iEvent) {
         worker_->process(iEvent);
@@ -82,7 +83,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       }
       
       // ---------- member data --------------------------------
-      std::shared_ptr<TWorker> worker_;
+      edm::propagate_const<std::shared_ptr<TWorker>> worker_;
       ClassDef(TFWLiteSelector,2)
 };
 

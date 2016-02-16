@@ -55,6 +55,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
 # ECAL calibration with eta hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
+# ECAL ES alignment
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 ###############################################################
 # HCAL Calibration
 ###############################################################
@@ -64,6 +66,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import *
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
 # HCAL calibration with iterative phi sym                                                                                       
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_Output_cff import *

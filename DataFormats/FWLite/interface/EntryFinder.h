@@ -35,7 +35,7 @@ namespace fwlite {
      EntryNumber_t findEvent(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi, edm::EventNumber_t const& event) const;
      EntryNumber_t findLumi(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi) const;
      EntryNumber_t findRun(edm::RunNumber_t const& run) const;
-     void fillIndex(BranchMapReader const& branchMap);
+     void fillIndex(BranchMapReader& branchMap);
      static EntryNumber_t const invalidEntry = -1LL;
    private:
      edm::IndexIntoFile indexIntoFile_;

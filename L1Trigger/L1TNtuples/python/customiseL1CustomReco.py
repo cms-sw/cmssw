@@ -4,6 +4,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 def L1NtupleCustomReco(process):
 
@@ -35,11 +36,15 @@ def L1NtupleCustomReco(process):
     
     # re-apply JEC for AK4 CHS PF jets
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
-    process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
-    process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
+    #process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+    #process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
 
-    process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
+    #process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
 
+####  Custom Met Filter reco
+
+    # load hbhe noise filter result producer
+    process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
 
 
 ####  Custom E/Gamma reco ####
@@ -55,9 +60,11 @@ def L1NtupleCustomReco(process):
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 
+
+
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
-        +process.ak4PFCHSJetsL1FastL2L3Residual
+        +process.HBHENoiseFilterResultProducer
         +process.egmGsfElectronIDSequence
         )
     

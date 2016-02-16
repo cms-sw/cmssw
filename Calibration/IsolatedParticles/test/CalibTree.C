@@ -27,7 +27,7 @@ void Run(const char *inFileName="QCD_5_3000_PUS14",
 	 const char *corrFileName="QCD_5_3000_PUS14_Out.txt",
 	 bool useweight=true, int nMin=0, bool inverse=false, 
 	 double ratMin=0.25, double ratMax=10., int ietaMax=21, 
-	 double l1Cut=0.0);
+	 int applyL1Cut=1, double l1Cut=0.5);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -39,6 +39,7 @@ public :
   // Declaration of leaf types
   Int_t           t_Run;
   Int_t           t_Event;
+  Int_t           t_DataType;
   Int_t           t_ieta;
   Double_t        t_EventWeight;
   Int_t           t_goodPV;
@@ -61,11 +62,12 @@ public :
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies;
   std::vector<bool>         *t_trgbits;
-  std::map<unsigned int, double> Cprev;
+  std::map<unsigned int, std::pair<double,double> > Cprev;
   
   // List of branches
   TBranch        *b_t_Run;           //!
   TBranch        *b_t_Event;         //!
+  TBranch        *b_t_DataType;      //!
   TBranch        *b_t_ieta;          //!
   TBranch        *b_t_EventWeight;   //!
   TBranch        *b_t_goodPV;        //!
@@ -93,10 +95,10 @@ public :
   TProfile *h_Ebyp_bfr, *h_Ebyp_aftr;
 
   struct myEntry {
-    myEntry (int k=0, double f1=0, double f2=0) : kount(k), factor1(f1), 
-						  factor2(f2) {}
+    myEntry (int k=0, double f0=0, double f1=0, double f2=0) : kount(k), fact0(f0),
+							       fact1(f1), fact2(f2) {}
     int    kount;
-    double factor1, factor2;
+    double fact0, fact1, fact2;
   };
 
   CalibTree(TTree *tree=0);
@@ -107,7 +109,7 @@ public :
   virtual void     Init(TTree *tree);
   virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
 			bool inverse, double rMin, double rMax, int ietaMax,
-			double l1Cut, bool last);
+			int applyL1Cut, double l1Cut, bool last);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   bool             goodTrack();
@@ -118,7 +120,7 @@ public :
 void Run(const char *inFileName, const char *dirName, const char *treeName, 
 	 const char *outFileName, const char *corrFileName,  bool useweight, 
 	 int nMin, bool inverse, double ratMin, double ratMax, int ietaMax, 
-	 double l1Cut) {
+	 int applyL1Cut, double l1Cut) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -143,7 +145,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   for (; k<=kmax; ++k) {
     std::cout << "Calling Loop() "  << k << "th time\n"; 
     double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
-			ietaMax, l1Cut, k==kmax);
+			ietaMax, applyL1Cut, l1Cut, k==kmax);
     itrs[k] = k;
     cvgs[k] = cvg;
     if (cvg < 0.00001) break;
@@ -220,6 +222,7 @@ void CalibTree::Init(TTree *tree) {
 
   fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+  fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
@@ -271,7 +274,7 @@ Int_t CalibTree::Cut(Long64_t ) {
 
 Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 bool inverse, double rmin, double rmax, int ietaMax,
-			 double l1Cut, bool last) {
+			 int applyL1Cut, double l1Cut, bool last) {
   bool debug=false;
   if (fChain == 0) return 0;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -292,7 +295,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	double hitEn=0.0;
         unsigned int detid = (*t_DetIds)[idet] & mask;
 	if (Cprev.find(detid) != Cprev.end()) 
-	  hitEn = Cprev[detid] * (*t_HitEnergies)[idet];
+	  hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	else 
 	  hitEn = (*t_HitEnergies)[idet];
 	Etot += hitEn;
@@ -306,8 +309,10 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       if (last){
         h_Ebyp_aftr->Fill(t_ieta, ratio, evWt);
       }
-      if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) &&
-	  (t_mindR1 >= l1Cut)) {
+      bool l1c(true);
+      if (applyL1Cut != 0) l1c = ((t_mindR1 >= l1Cut) || 
+				  ((applyL1Cut == 1) && (t_DataType == 1)));
+      if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) && l1c) {
 	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
 	  unsigned int detid = (*t_DetIds)[idet] & mask;
 	  double hitEn=0.0;
@@ -316,19 +321,22 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			       << detid << "/" << (*t_HitEnergies)[idet] 
 			       << std::endl;
 	  if (Cprev.find(detid) != Cprev.end()) 
-	    hitEn = Cprev[detid] * (*t_HitEnergies)[idet];
+	    hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	  else 
 	    hitEn = (*t_HitEnergies)[idet];
 	  double Wi  = evWt * hitEn/Etot;
-	  double Fac = (inverse) ? ((Wi*Etot)/t_p) : ((Wi*t_p)/Etot);
+	  double Fac = (inverse) ? (Etot/t_p) : (t_p/Etot);
+	  double Fac2= Wi*Fac*Fac;
+	  Fac       *= Wi;
 	  if (SumW.find(detid) != SumW.end() ) {
-	    Wi  += SumW[detid].factor1;
-	    Fac += SumW[detid].factor2;
+	    Wi  += SumW[detid].fact0;
+	    Fac += SumW[detid].fact1;
+	    Fac2+= SumW[detid].fact2;
 	    int kount = SumW[detid].kount + 1;
-	    SumW[detid]   = myEntry(kount,Wi,Fac); 
+	    SumW[detid]   = myEntry(kount,Wi,Fac,Fac2); 
 	    nTrks[detid] += evWt;
 	  } else {
-	    SumW.insert(std::pair<unsigned int,myEntry>(detid,myEntry(1,Wi,Fac)));
+	    SumW.insert(std::pair<unsigned int,myEntry>(detid,myEntry(1,Wi,Fac,Fac2)));
 	    nTrks.insert(std::pair<unsigned int,unsigned int>(detid, evWt));
 	  }
 	}
@@ -354,21 +362,31 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     double id = ieta*zside + 0.25*(depth-1);
     if (debug) 
       std::cout<< "Detid|kount|SumWi|SumFac|myId : " << SumWItr->first << " | "
-	       << (SumWItr->second).kount << " | " << (SumWItr->second).factor1
-	       << " | " << (SumWItr->second).factor2 << " | " << id <<std::endl;
-    double factor = (SumWItr->second).factor2/(SumWItr->second).factor1;
+	       << (SumWItr->second).kount << " | " << (SumWItr->second).fact0 <<"|"
+	       << (SumWItr->second).fact1 << "|" << (SumWItr->second).fact2 << "|"
+	       << id <<std::endl;
+    double factor = (SumWItr->second).fact1/(SumWItr->second).fact0;
+    double dfac   = std::sqrt(((SumWItr->second).fact2/(SumWItr->second).fact0
+			       -factor*factor)/(SumWItr->second).kount);
     if (inverse) factor = 2.-factor;
     if ((SumWItr->second).kount > nMin) {
       kountus++;
       if (factor > 1) sumfactor += (1-1/factor);
       else            sumfactor += (1-factor);
     }
-    if (ieta > ietaMax) factor = 1;
+    if (ieta > ietaMax) {
+      factor = 1;
+      dfac   = 0;
+    }
+    std::pair<double,double> cfac(factor,dfac);
     if (Cprev.find(detid) != Cprev.end()) {
-      Cprev[detid] *= factor;
-      cfacs[kount] = Cprev[detid];
+      dfac        /= factor;
+      factor      *= Cprev[detid].first;
+      dfac        *= factor;
+      Cprev[detid] = std::pair<double,double>(factor,dfac);
+      cfacs[kount] = factor;
     } else {
-      Cprev.insert( std::pair<unsigned int, double>(detid, factor) );
+      Cprev[detid] = std::pair<double,double>(factor,dfac);
       cfacs[kount] = factor;
     }
     wfacs[kount]= factor;
@@ -408,13 +426,13 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   TGraph *g_nTrk = new TGraph(kount, myId, nTrk); 
   sprintf (fname, "nTrk");
   if(loop==0){
-  g_nTrk->SetMarkerStyle(7);
-  g_nTrk->SetMarkerSize(5.0);
-  g_nTrk->Draw("AP");
-  g_nTrk->Write(fname);
+    g_nTrk->SetMarkerStyle(7);
+    g_nTrk->SetMarkerSize(5.0);
+    g_nTrk->Draw("AP");
+    g_nTrk->Write(fname);
   }
   std::cout << "The new factors are :" << std::endl;
-  std::map<unsigned int, double>::iterator CprevItr = Cprev.begin();
+  std::map<unsigned int, std::pair<double,double> >::iterator CprevItr = Cprev.begin();
   unsigned int indx(0);
   for (; CprevItr != Cprev.end(); CprevItr++, indx++){
     unsigned int detid = CprevItr->first;
@@ -423,7 +441,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     int depth= (detid>>14)&0x1F;
     std::cout << "DetId[" << indx << "] " << std::hex << detid << std::dec
 	      << "(" << ieta*zside << "," << depth << ") ( nTrks:" 
-	      << nTrks[detid] << ") : " << CprevItr->second << std::endl;
+	      << nTrks[detid] << ") : " << CprevItr->second.first << " +- "
+	      << CprevItr->second.second << std::endl;
   }
   double mean = (kountus > 0) ? (sumfactor/kountus) : 0;
   std::cout << "Mean deviation " << mean << " from 1 for " << kountus 
@@ -447,8 +466,8 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
     myfile << std::setprecision(4) << std::setw(10) << "detId" 
 	   << std::setw(10) << "ieta" << std::setw(10) << "depth" 
 	   << std::setw(10) << "corrFactor" << std::endl;
-    for (std::map<unsigned int, double>::const_iterator itr=Cprev.begin();
-	 itr != Cprev.end(); ++itr) {
+    std::map<unsigned int, std::pair<double,double> >::const_iterator itr;
+    for (itr=Cprev.begin(); itr != Cprev.end(); ++itr) {
       unsigned int detId = itr->first;
       int etaAbs= ((detId>>7)&0x3f);
       int ieta  = ((detId&0x2000) ? etaAbs : -etaAbs);
@@ -456,8 +475,8 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
       if (etaAbs <= ietaMax) {
 	myfile << std::setw(10) << std::hex << detId << std::setw(10) 
 	       << std::dec << ieta << std::setw(10) << depth << std::setw(10) 
-	       << itr->second << std::endl;
-
+	       << itr->second.first << " " << std::setw(10) << itr->second.second 
+	       << std::endl;
       }
     }
     myfile.close();

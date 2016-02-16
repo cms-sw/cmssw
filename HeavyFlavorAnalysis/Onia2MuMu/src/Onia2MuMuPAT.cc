@@ -37,6 +37,8 @@ Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet& iConfig):
   resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
   addMCTruth_(iConfig.getParameter<bool>("addMCTruth"))
 {  
+    revtxtrks_ = consumes<reco::TrackCollection>((edm::InputTag)"generalTracks"); //if that is not true, we will raise an exception
+    revtxbs_ = consumes<reco::BeamSpot>((edm::InputTag)"offlineBeamSpot");
     produces<pat::CompositeCandidateCollection>();  
 }
 
@@ -181,13 +183,11 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if( addMuonlessPrimaryVertex_  && thePrimaryV.tracksSize()>2) {
 	    // Primary vertex matched to the dimuon, now refit it removing the two muons
 	    OniaVtxReProducer revertex(priVtxs, iEvent);
-            edm::EDGetTokenT<reco::TrackCollection> revtxtrks_ = consumes<reco::TrackCollection>(revertex.inputTracks());
 	    edm::Handle<reco::TrackCollection> pvtracks;
 	    iEvent.getByToken(revtxtrks_,   pvtracks);
  	    if( !pvtracks.isValid()) { std::cout << "pvtracks NOT valid " << std::endl; }
  	    else {
 	      edm::Handle<reco::BeamSpot> pvbeamspot; 
-              edm::EDGetTokenT<reco::BeamSpot> revtxbs_ = consumes<reco::BeamSpot>(revertex.inputBeamSpot());
 	      iEvent.getByToken(revtxbs_, pvbeamspot);
 	      if (pvbeamspot.id() != theBeamSpot.id()) edm::LogWarning("Inconsistency") << "The BeamSpot used for PV reco is not the same used in this analyzer.";
 	      // I need to go back to the reco::Muon object, as the TrackRef in the pat::Muon can be an embedded ref.
@@ -324,6 +324,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  myCand.addUserFloat("cosAlpha",-100);
 	  myCand.addUserFloat("ppdlBS",-100);
           myCand.addUserFloat("ppdlErrBS",-100);
+          myCand.addUserFloat("DCA", -1 );
 	  if (addCommonVertex_) {
 	    myCand.addUserData("commonVertex",Vertex());
 	  }

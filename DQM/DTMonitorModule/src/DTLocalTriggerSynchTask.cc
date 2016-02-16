@@ -45,7 +45,7 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
   parameters = ps;
   dcc_Token_  = consumes<L1MuDTChambPhContainer>(
-      parameters.getParameter<edm::InputTag>("DCCInputTag"));
+      parameters.getParameter<edm::InputTag>("TMInputTag"));
   ddu_Token_  = consumes<DTLocalTriggerCollection>(
       parameters.getParameter<edm::InputTag>("DDUInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
@@ -102,20 +102,20 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   nevents++;
 
-  InputTag inputTagDCC  = parameters.getParameter<edm::InputTag>("DCCInputTag");
+  InputTag inputTagTM  = parameters.getParameter<edm::InputTag>("TMInputTag");
   InputTag inputTagDDU  = parameters.getParameter<edm::InputTag>("DDUInputTag");
   InputTag inputTagSEG  = parameters.getParameter<edm::InputTag>("SEGInputTag");
 
   for (int i=0;i<5;++i){
     for (int j=0;j<6;++j){
       for (int k=0;k<13;++k){
-	phCodeBestDCC[j][i][k] = -1;
+	phCodeBestTM[j][i][k] = -1;
 	phCodeBestDDU[j][i][k] = -1;
       }
     }
   }
 
-  // Get best DCC triggers
+  // Get best TM triggers
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   event.getByToken(dcc_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
@@ -129,8 +129,8 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
     int phst    = iph->stNum();
     int phcode  = iph->code();
 
-    if(phcode>phCodeBestDCC[phwheel+3][phst][phsec] && phcode<7) {
-      phCodeBestDCC[phwheel+3][phst][phsec]=phcode;
+    if(phcode>phCodeBestTM[phwheel+3][phst][phsec] && phcode<7) {
+      phCodeBestTM[phwheel+3][phst][phsec]=phcode;
     }
 
   }
@@ -214,13 +214,13 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
       int station = chambId.station();
       int scsector = sector>12 ? sector==13 ? 4 : 10 : sector;
 
-      int qualDCC = phCodeBestDCC[wheel+3][station][scsector];
+      int qualTM = phCodeBestTM[wheel+3][station][scsector];
       int qualDDU = phCodeBestDDU[wheel+3][station][scsector];
 
       if (fabs(t0seg)>0.01) {
 	innerME.find("SEG_TrackCrossingTime")->second->Fill(htime);
-	if ( qualDCC>=0 ) innerME.find("DCC_TrackCrossingTimeAll")->second->Fill(htime);
-	if ( qualDCC==6 ) innerME.find("DCC_TrackCrossingTimeHH")->second->Fill(htime);
+	if ( qualTM>=0 ) innerME.find("TM_TrackCrossingTimeAll")->second->Fill(htime);
+	if ( qualTM==6 ) innerME.find("TM_TrackCrossingTimeHH")->second->Fill(htime);
 	if ( qualDDU>=0 ) innerME.find("DDU_TrackCrossingTimeAll")->second->Fill(htime);
 	if ( qualDDU==6 ) innerME.find("DDU_TrackCrossingTimeHH")->second->Fill(htime);
       }
@@ -240,7 +240,7 @@ void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker, const DTCh
   ibooker.setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
 
 
-  string histoTag[5] = { "SEG_TrackCrossingTime", "DCC_TrackCrossingTimeAll", "DCC_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
+  string histoTag[5] = { "SEG_TrackCrossingTime", "TM_TrackCrossingTimeAll", "TM_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
 
   float min = rangeInBX ?      0 : nBXLow*bxTime;
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;

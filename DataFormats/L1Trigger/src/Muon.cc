@@ -1,5 +1,19 @@
-
 #include "DataFormats/L1Trigger/interface/Muon.h"
+
+l1t::Muon::Muon()
+  : L1Candidate(math::PtEtaPhiMLorentzVector{0., 0., 0., 0.}, 0., 0., 0., 0, 0),
+    hwCharge_(0),
+    hwChargeValid_(0),
+    tfMuonIndex_(-1),
+    hwTag_(0),
+    debug_(false),
+    hwIsoSum_(0),
+    hwDPhiExtra_(0),
+    hwDEtaExtra_(0),
+    hwRank_(0)
+{
+
+}
 
 l1t::Muon::Muon( const LorentzVector& p4,
     int pt,
@@ -9,6 +23,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
     int charge,
     int chargeValid,
     int iso,
+    int tfMuonIndex,
     int tag,
     bool debug,
     int isoSum,
@@ -18,6 +33,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
+    tfMuonIndex_(tfMuonIndex),
     hwTag_(tag),
     debug_(debug),
     hwIsoSum_(isoSum),
@@ -36,6 +52,7 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     int charge,
     int chargeValid,
     int iso,
+    int tfMuonIndex,
     int tag,
     bool debug,
     int isoSum,
@@ -45,6 +62,7 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
+    tfMuonIndex_(tfMuonIndex),
     hwTag_(tag),
     debug_(debug),
     hwIsoSum_(isoSum),
@@ -79,6 +97,12 @@ l1t::Muon::setHwTag(int tag)
 }
 
 void 
+l1t::Muon::setTfMuonIndex(int index)
+{
+  tfMuonIndex_ = index;
+}
+
+void 
 l1t::Muon::setHwIsoSum(int isoSum) 
 {
   hwIsoSum_ = isoSum;
@@ -87,7 +111,7 @@ l1t::Muon::setHwIsoSum(int isoSum)
 void 
 l1t::Muon::setHwDPhiExtra(int dPhi)
 {
-  hwDEtaExtra_ = dPhi;
+  hwDPhiExtra_ = dPhi;
 }
 
 void 
@@ -100,6 +124,12 @@ void
 l1t::Muon::setHwRank(int rank) 
 {
   hwRank_ = rank;
+}
+
+void
+l1t::Muon::setDebug(bool debug)
+{
+  debug_ = debug;
 }
 
 int 
@@ -118,6 +148,12 @@ int
 l1t::Muon::hwTag() const
 {
   return hwTag_;
+}
+
+int 
+l1t::Muon::tfMuonIndex() const
+{
+  return tfMuonIndex_;
 }
 
 int 
@@ -142,4 +178,10 @@ int
 l1t::Muon::hwRank() const
 {
   return hwRank_;
+}
+
+bool
+l1t::Muon::debug() const
+{
+  return debug_;
 }

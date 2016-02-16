@@ -25,10 +25,8 @@ pixelPairStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cf
 )
 
 # tracks
-pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-)
+pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(TTRHBuilder = 'WithoutRefit')
+
 # final Selection
 pixelPairStep = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStep.clone()
 pixelPairStep.vertices = "firstStepPrimaryVerticesBeforeMixing"

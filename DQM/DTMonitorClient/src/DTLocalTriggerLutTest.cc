@@ -37,7 +37,7 @@ using namespace std;
 DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerLut");
-  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderTM = "DT/03-LocalTrigger-TM/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   thresholdPhiMean  = ps.getUntrackedParameter<double>("thresholdPhiMean",1.5);
   thresholdPhiRMS   = ps.getUntrackedParameter<double>("thresholdPhiRMS",.5);
@@ -133,7 +133,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 
 
 	if (doCorrStudy) {
-	  // Perform Correlation Plots analysis (DCC + segment Phi)
+	  // Perform Correlation Plots analysis (TM + segment Phi)
 
 	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(igetter.get(getMEName("PhitkvsPhitrig","Segment", chId)));
 	
@@ -169,7 +169,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 	    
 	  }
 	
-	  // Perform Correlation Plots analysis (DCC + segment Phib)
+	  // Perform Correlation Plots analysis (TM + segment Phib)
 	  TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(igetter.get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	  
 	  if (stat != 3 && TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information

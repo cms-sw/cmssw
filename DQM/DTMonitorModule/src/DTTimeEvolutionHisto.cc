@@ -64,7 +64,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const st
       } else {
 	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS;
       }
-      histo->setBinLabel(bin, label.str(),1);
+      if (bin%(2*(int)theLSPrescale)==0) histo->setBinLabel(bin, label.str(),1); //JF to allow easy reading of x-axis
     }
   }
 }
@@ -100,7 +100,9 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
 	histo->setBinError(bin, histo->getBinError(bin+1));
-	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1);
+	//JF to allow easy reading of x-axis
+	if (bin%(2*(int)theLSPrescale)==0){ histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); }
+	else  histo->setBinLabel(bin,"");
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -170,7 +172,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      histo->setBinLabel(nBookedBins,binLabel.str(),1);
+      //if(nBookedBins%(int)theLSPrescale==0) 
+	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
       nEventsInLastTimeSlot.clear();

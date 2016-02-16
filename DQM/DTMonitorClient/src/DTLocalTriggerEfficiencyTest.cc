@@ -38,7 +38,7 @@ using namespace std;
 DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(0) {
 
   setConfig(ps,"DTLocalTriggerEfficiency");
-  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderTM = "DT/03-LocalTrigger-TM/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
   bookingdone = 0;
@@ -192,7 +192,7 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibook
 	     
 	    }
 	
-	    // Perform Efficiency analysis (Theta+Segments)  CB FIXME -> no DCC theta qual info
+	    // Perform Efficiency analysis (Theta+Segments)  CB FIXME -> no TM theta qual info
 	    TH2F * TrackThetaPosvsAngle            = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngle","Segment", chId)));
 	    TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
 	    TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
@@ -316,14 +316,14 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,D
   stringstream sector; sector << chambId.sector();
 
   string fullType  = fullName(htype);
-  bool isDCC = hwSource=="DCC" ;
+  bool isTM = hwSource=="TM" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  ibooker.setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/Segment");
 
-  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isDCC) + "Wheel" << wheel.str() 
+  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isTM) + "Wheel" << wheel.str() 
 		       <<"/Sector" << sector.str() << "/Station" << station.str() << "/Segment/" << HistoName;
 
   

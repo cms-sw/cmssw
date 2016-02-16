@@ -45,7 +45,7 @@ using namespace std;
 DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
 
   setConfig(ps,"DTLocalTriggerSynch");
-  baseFolderDCC = "DT/90-LocalTriggerSynch/";
+  baseFolderTM = "DT/90-LocalTriggerSynch/";
   baseFolderDDU = "DT/90-LocalTriggerSynch/";
 
   bookingdone = 0;
@@ -171,7 +171,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 			    << "Test]: writeDB flag set to true. Producing peak position database." << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
-    hwSource =  parameters.getParameter<bool>("dbFromDCC") ? "DCC" : "DDU";
+    hwSource =  parameters.getParameter<bool>("dbFromTM") ? "TM" : "DDU";
     std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
     std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
       for (; chambIt!=chambEnd; ++chambIt) { 
@@ -237,7 +237,7 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
    stringstream station; station << chId.station();
    stringstream sector; sector << chId.sector();
 
-   string folderName = topFolder(hwSource=="DCC") + "Wheel" +  wheel.str() +
+   string folderName = topFolder(hwSource=="TM") + "Wheel" +  wheel.str() +
      "/Sector" + sector.str() + "/Station" + station.str() + "/" ; 
 
    string histoname = sourceFolder + folderName 
@@ -266,10 +266,10 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker,
   stringstream sector; sector << chambId.sector();
 
   string fullType  = fullName(htype);
-  bool isDCC = hwSource=="DCC" ;
+  bool isTM = hwSource=="TM" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  string folder = topFolder(isDCC) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
+  string folder = topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if ( subfolder!="") { folder += "7" + subfolder; }
 
   ibooker.setCurrentFolder(folder);

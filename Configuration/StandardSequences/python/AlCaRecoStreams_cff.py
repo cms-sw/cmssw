@@ -52,6 +52,7 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_cff import *
 # -- alcarereco (rereco done starting from alcaraw
 #from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -66,6 +67,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 # HCAL isotrack
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 #HCAL calibration iterative PhiSym
@@ -149,12 +151,15 @@ pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
 #### Not meant to be used for central production
 #pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
 
+pathALCARECOEcalESAlign      = cms.Path(seqEcalESAlign)
+
 ####
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
+pathALCARECOHcalCalIsoTrkFilter = cms.Path(seqALCARECOHcalCalIsoTrkFilter)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
@@ -356,6 +361,15 @@ ALCARECOStreamEcalUncalWElectron = cms.FilteredStream(
 # 	dataTier = cms.untracked.string('ALCARECO')
 # 	)
 
+ALCARECOStreamEcalESAlign    = cms.FilteredStream(
+    responsible = 'Shervin Nourbakhsh',
+    name = 'EcalESAlign',
+    paths = (pathALCARECOEcalESAlign),
+    content = OutALCARECOEcalESAlign.outputCommands,
+    selectEvents = OutALCARECOEcalESAlign.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
 ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'HcalCalDijets',
@@ -393,11 +407,21 @@ ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
 	)
 
 ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
+	responsible = 'Sunanda Banerjee',
 	name = 'HcalCalIsoTrk',
 	paths  = (pathALCARECOHcalCalIsoTrk),
 	content = OutALCARECOHcalCalIsoTrk.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+
+ALCARECOStreamHcalCalIsoTrkFilter = cms.FilteredStream(
+	responsible = 'Sunanda Banerjee',
+	name = 'HcalCalIsoTrkFilter',
+	paths  = (pathALCARECOHcalCalIsoTrkFilter),
+	content = OutALCARECOHcalCalIsoTrkFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrkFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

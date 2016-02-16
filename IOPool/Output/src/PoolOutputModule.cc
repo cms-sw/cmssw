@@ -88,13 +88,6 @@ namespace edm {
   }
 
   void PoolOutputModule::beginJob() {
-    for(int i = InEvent; i < NumBranchTypes; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      SelectedProducts const& keptVector = keptProducts()[branchType];
-      for(auto const& prod : keptVector) {
-        checkClassDictionaries(TypeID(prod->wrappedType().typeInfo()), false);
-      }
-    }
   }
 
   std::string const& PoolOutputModule::currentFileName() const {

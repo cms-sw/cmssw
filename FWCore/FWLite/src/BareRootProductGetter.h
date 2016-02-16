@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include "Rtypes.h"
@@ -92,10 +93,10 @@ class BareRootProductGetter : public edm::EDProductGetter {
         Buffer() : product_(), branch_(), address_(), eventEntry_(-1), class_(nullptr) {}
 
         std::shared_ptr<edm::WrapperBase const> product_;
-        TBranch* branch_;
+        edm::propagate_const<TBranch*> branch_;
         void* address_; //the address to pass to Root since as of 5.13 they cache that info
         Long_t eventEntry_; //the event Entry used with the last GetEntry call
-        TClass* class_;
+        edm::propagate_const<TClass*> class_;
       };
 
       BareRootProductGetter(BareRootProductGetter const&); // stop default

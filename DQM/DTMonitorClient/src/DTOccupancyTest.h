@@ -66,6 +66,8 @@ private:
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId& chId);
 
+  int getIntegral(TH2F *histo, int, int, int, int, bool);
+
   // Run the test on the occupancy histos
   int runOccupancyTest(TH2F *histo, const DTChamberId& chId, float& chamberPercentage);
 

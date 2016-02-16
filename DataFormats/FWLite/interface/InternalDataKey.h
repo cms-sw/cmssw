@@ -21,6 +21,7 @@
 
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TBranch.h"
 
@@ -78,7 +79,7 @@ namespace fwlite {
       };
 
       struct Data {
-            TBranch* branch_;
+            edm::propagate_const<TBranch*> branch_;
             Long64_t lastProduct_;
             edm::ObjectWithDict obj_; // For wrapped object
             void* pObj_; // ROOT requires the address of the pointer be stable

@@ -1,3 +1,8 @@
+#
+# WARNING: This file is in the L1T configuration critical path.
+#
+# All changes must be explicitly discussed with the L1T offline coordinator.
+#
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 #
@@ -29,8 +34,4 @@ if eras.stage2L1Trigger.isChosen():
 #
     print "L1TGlobal Sequence configured for Stage-2 (2016) trigger. "
     from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
-    simGtStage2Digis.caloInputTag = cms.InputTag('simCaloStage2Digis')
-    simGtStage2Digis.GmtInputTag = cms.InputTag('simGmtStage2Digis')
-    simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-    simGtStage2Digis.PrescaleSet = cms.uint32(1)
     SimL1TGlobal = cms.Sequence(simGtStage2Digis)

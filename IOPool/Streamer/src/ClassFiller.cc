@@ -15,11 +15,10 @@
 
 namespace edm {
   void loadType(TypeID const& type) {
-    checkClassDictionaries(type, true);
-    if (!missingTypes().empty()) {
-      TypeSet missing = missingTypes();
-      missingTypes().clear();
-      for_all(missing, loadType);
+    TypeSet missingTypes;
+    checkClassDictionaries(type,missingTypes,true);
+    if (!missingTypes.empty()) {
+      for_all(missingTypes, loadType);
     }
   }
 
