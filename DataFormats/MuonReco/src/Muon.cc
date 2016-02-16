@@ -84,7 +84,6 @@ int Muon::numberOfMatches( ArbitrationType type ) const
       }
       
       if(type == ME0HitAndTrackArbitration) {
-         if(chamberMatch->me0Matches.empty()) continue;
          matches += chamberMatch->me0Matches.size();
          continue;
       }

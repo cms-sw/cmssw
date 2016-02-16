@@ -82,7 +82,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
 
   // ME0
   if ( doME0_ ){
-    if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
+    if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannot get ME0Geometry\n";
     auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
     for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
       if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) validIds.push_back(me0->id());

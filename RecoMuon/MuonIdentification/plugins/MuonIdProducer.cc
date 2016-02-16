@@ -608,25 +608,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
          }
          if ( newMuon ) {
-	   if (doME0_){
-	     if ( goodTrackerMuon || goodRPCMuon || goodME0Muon){
-	       outputMuons->push_back( trackerMuon );
-	     } else {
-	       LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-	       const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-	       if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-	       caloMuons->push_back( caloMuon );
-	     }
-	   }
-	   else{
-	     if ( goodTrackerMuon || goodRPCMuon){
-	       outputMuons->push_back( trackerMuon );
-	     } else {
-	       LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-	       const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-	       if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-	       caloMuons->push_back( caloMuon );
-	     }	       
+	   if ( goodTrackerMuon || goodRPCMuon || ( goodME0Muon && doME0_)){
+	     outputMuons->push_back( trackerMuon );
+	   } else {
+	     LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+	     const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
+	     if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
+	     caloMuons->push_back( caloMuon );
 	   }
 	 }
        }
@@ -859,12 +847,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       aMuon.setCalEnergy( muonEnergy );
    }
 
-   if (doME0_){
-     if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() && ! aMuon.isME0Muon() ) return;
-   } 
-   else{
-     if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
-   }
+   if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() && ( ! doME0_ || ! aMuon.isME0Muon() ) ) return;
 
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -1022,8 +1005,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    	     matchedChamber.edgeY = chamber.localDistanceY;
 
    	     matchedChamber.id = chamber.id;
-   	     // for ( ME0SegmentCollection::const_iterator me0Segment = me0Segments->begin();
-   	     // 	me0Segment != me0Segments->end(); ++me0Segment )
    	     for ( const auto& me0RecHit : *me0HitHandle_ )
    	       {
    		 reco::MuonSegmentMatch me0HitMatch;
@@ -1040,8 +1021,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    		 const double AbsDx = std::abs(me0RecHit.localPosition().x()-chamber.tState.localPosition().x());
    		 const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
-   		 // std::cout<<"AbsDx = "<<AbsDx<<", PullX = "<<sqrt(localError.xx() + me0RecHit.localPositionError().xx())<<std::endl;
-   		 // std::cout<<"AbsDy = "<<AbsDy<<", PullY = "<<sqrt(localError.yy() + me0RecHit.localPositionError().yy())<<std::endl;
 
    		 //These matches are hardcoded, is that okay?
    		 if( (AbsDx <= 3 or AbsDx/sqrt(localError.xx() + me0RecHit.localPositionError().xx()) <= 4) and 
