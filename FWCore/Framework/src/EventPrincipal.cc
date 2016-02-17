@@ -167,7 +167,7 @@ namespace edm {
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(std::move(edp), productProvenance);
+    phb->putProduct(std::move(edp));
   }
 
   void
@@ -182,7 +182,7 @@ namespace edm {
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(std::move(edp), productProvenance);
+    phb->putProduct(std::move(edp));
   }
 
    void

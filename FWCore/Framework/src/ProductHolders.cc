@@ -76,21 +76,6 @@ namespace edm {
     return nullptr;
   }
 
-  void
-  ProducedProductHolder::putProduct_(
-        std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const {
-    if(product()) {
-      throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
-    }
-    assert(branchDescription().produced());
-    assert(edp.get() != nullptr);
-    assert(status() != ProductStatus::Present);
-    assert(status() != ProductStatus::Uninitialized);
-    setProduct(std::move(edp)); // ProductHolder takes ownership
-  }
-
   bool
   ProducedProductHolder::putOrMergeProduct_() const {
     return productUnavailable();
@@ -114,14 +99,6 @@ namespace edm {
     assert(status() != ProductStatus::Uninitialized);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
-  }
-
-  void
-  InputProductHolder::putProduct_(
-        std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const {
-    assert(!product());
-    setProduct(std::move(edp));
   }
 
   void
@@ -307,12 +284,6 @@ namespace edm {
   bool NoProcessProductHolder::productWasDeleted_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::productWasDeleted_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

@@ -127,11 +127,6 @@ namespace edm {
     // Retrieves the product ID of the product.
     ProductID const& productID() const {return provenance()->productID();}
 
-    // Puts the product and its per event(lumi)(run) provenance into the ProductHolder.
-    void putProduct(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) const {
-      putProduct_(std::move(edp), productProvenance);
-    }
-
     // Puts the product into the ProductHolder.
     void putProduct(std::unique_ptr<WrapperBase> edp) const {
       putProduct_(std::move(edp));
@@ -177,7 +172,6 @@ namespace edm {
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productWasDeleted_() const = 0;
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) const = 0;
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
