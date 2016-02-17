@@ -132,31 +132,6 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, cons
   return(etvalue);
 }
 
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& version, const int& compET) const {
-// This is now an obsolete method; we return the AVERAGE over all the allowed iphi channels if it's invoked
-// The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
-
-  double etvalue = 0.;
-  if (compET < 0 || compET >= (int) TPGMAX) {
-    edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, cET = " << ieta << ", " << compET;
-  } else {
-	int nphi = 0;
-	for (int iphi=1; iphi <= 72; iphi++) {
-		if (HTvalid(ieta, iphi, version)) {
-			nphi++;
-			int itower = getOutputLUTId(ieta,iphi, version);
-			etvalue += hcaluncomp_[itower][compET];
-		}
-	}
-	if (nphi > 0) {
-		etvalue /= nphi;
-	} else {
-		edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUTs found for any iphi for ieta = " << ieta;
-	}
-  }
-  return(etvalue);
-}
-
 double CaloTPGTranscoderULUT::hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const {
   int compET = hc.compressedEt();	// to be within the range by the class
   int itower = getOutputLUTId(hid);
