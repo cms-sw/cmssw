@@ -11,7 +11,7 @@ namespace l1t {
       
       class HeadersBlockUnpacker : public Unpacker { // "HeadersBlockUnpacker" inherits from "Unpacker"
       public:
-	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
+	virtual int  checkFormat(const Block& block);
 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
@@ -29,6 +29,64 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
+      int HeadersBlockUnpacker::checkFormat(const Block& block) {
+
+	auto payload = block.payload();
+	int errors = 0;
+
+	//Check the number of 16-bit words                                                                                                                                    
+	if(payload.size() != 12) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'AMC Data Header' is different than expected"; }
+
+	//Check that each word is 16 bits                                                                                                                                     
+	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[0] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[1] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[2] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[3] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[4], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[4] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[5], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[5] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[6], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[6] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[7], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[7] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[8], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[8] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[9], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF")  << "Payload[9] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[10], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[10] has more than 16 bits in 'AMC Data Header'"; }
+	if(GetHexBits(payload[11], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[11] has more than 16 bits in 'AMC Data Header'"; }
+
+	uint16_t HD1a = payload[0];
+	uint16_t HD1b = payload[1];
+	uint16_t HD1c = payload[2];
+	uint16_t HD1d = payload[3];
+	uint16_t HD2a = payload[4];
+	uint16_t HD2b = payload[5];
+	uint16_t HD2c = payload[6];
+	uint16_t HD2d = payload[7];
+	uint16_t HD3a = payload[8];
+	uint16_t HD3b = payload[9];
+	uint16_t HD3c = payload[10];
+	uint16_t HD3d = payload[11];
+
+	//Check Format                                                                                                                                                        
+	if(GetHexBits(HD1a, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1a are incorrect"; }
+	if(GetHexBits(HD1b, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1b are incorrect"; }
+	if(GetHexBits(HD1c, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect"; }
+	if(GetHexBits(HD1c, 0, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect"; }
+	if(GetHexBits(HD1d, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1d are incorrect"; }
+	if(GetHexBits(HD2a, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect"; }
+	if(GetHexBits(HD2a, 0, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect"; }
+	if(GetHexBits(HD2b, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2b are incorrect"; }
+	if(GetHexBits(HD2c, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect"; }
+	if(GetHexBits(HD2c, 11, 11) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect"; }
+	if(GetHexBits(HD2d, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2d are incorrect"; }
+	if(GetHexBits(HD3a, 9, 14) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect"; }
+	if(GetHexBits(HD3a, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect"; }
+	if(GetHexBits(HD3b, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3b are incorrect"; }
+	if(GetHexBits(HD3c, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3c are incorrect"; }
+	if(GetHexBits(HD3d, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3d are incorrect"; }
+
+	return errors;
+
+      }
+
+
       bool HeadersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
@@ -36,23 +94,11 @@ namespace l1t {
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
 
-	// TODO: Proper error handling for payload size check (also in other Block functions)
-	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
-	if (payload.size() != 12) {
-	  std::cout << "Critical error in EMTFBlockHeaders.cc: payload.size() = " 
-		    << payload.size() << ", not 12!!!" << std::endl;
-	  // return 0;
-	}
-
-	// TODO: Proper error handling for > 16-bit words (also in other Block functions)
-	for (uint iWord = 0; iWord < payload.size(); iWord++) {
-	  // std::cout << std::hex << std::setw(4) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
-	  if ( (payload[iWord] >> 16) > 0 ) {
-	    std::cout << "Critical error: payload[" << iWord << "] = " << std::hex << payload[iWord]
-		      << std::dec << ", more than 16 bits!!!" << std::dec << std::endl;
-	    // return 0; 
-	  }
-	}
+	// Check Format of Payload
+	l1t::emtf::AMC13Header AMC13Header_;
+	l1t::emtf::MTF7Header MTF7Header_;
+	l1t::emtf::EventHeader EventHeader_;
+	for (int err = 0; err < checkFormat(block); err++) EventHeader_.add_format_error();
 
 	// Assign payload to 16-bit words
 	uint16_t HD1a = payload[0];
@@ -68,15 +114,12 @@ namespace l1t {
 	uint16_t HD3c = payload[10];
 	uint16_t HD3d = payload[11];
 
-	// TODO: Proper checks for Event Record Header format (also in other Block functions)
-
 	// res is a pointer to a collection of EMTFOutput class objects
 	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
 	EMTFOutputCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
 	
 	EMTFOutput EMTFOutput_;
-	// std::cout << "So far " << res->size() << " MTF7s have been unpacked" << std::endl;
 	res->push_back(EMTFOutput_);
 	int iOut = res->size() - 1;
 
@@ -85,8 +128,7 @@ namespace l1t {
 	//////////////////////////////////////
 	
 	if ( (res->at(iOut)).HasAMC13Header() == true )
-	  std::cout << "Why is there already an AMC13Header?" << std::endl;
-	l1t::emtf::AMC13Header AMC13Header_;
+	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an AMC13Header object?"; goto write_AMC13; }
 
 	// TODO: Write functions in interface/AMC13Spec.h (as in AMCSpec.h) to extract all AMC13 header and trailer info
 	// TODO: Edit interface/Block.h to have a amc13() function similar to amc()
@@ -104,6 +146,8 @@ namespace l1t {
 	// AMC13Header_.set_x( block.amc13().get() )            {  x = bits; };
 	// AMC13Header_.set_dataword(uint64_t bits)  { dataword = bits; };
 	
+      write_AMC13:
+
 	(res->at(iOut)).set_AMC13Header(AMC13Header_);
 	
 	/////////////////////////////////////
@@ -111,8 +155,7 @@ namespace l1t {
 	/////////////////////////////////////
 
 	if ( (res->at(iOut)).HasMTF7Header() == true )
-	  std::cout << "Why is there already an MTF7Header?" << std::endl;
-	l1t::emtf::MTF7Header MTF7Header_;
+	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an MTF7Header object?"; goto write_MTF7; }
 
 	// AMC header info defined in interface/AMCSpec.h
 	MTF7Header_.set_amc_number   ( block.amc().getAMCNumber() );
@@ -123,20 +166,24 @@ namespace l1t {
 	MTF7Header_.set_data_length  ( block.amc().getSize() );
 	MTF7Header_.set_user_id      ( block.amc().getUserData() );
 	// MTF7Header_.set_dataword(uint64_t bits)  { dataword = bits;    };	
+
+      write_MTF7:
 	
 	(res->at(iOut)).set_MTF7Header(MTF7Header_);
 
 	/////////////////////////////////////////////
 	// Unpack the Event Record header information
 	/////////////////////////////////////////////
-	
+
 	if ( (res->at(iOut)).HasEventHeader() == true )
-	  std::cout << "Why is there already an EventHeader?" << std::endl;
-	l1t::emtf::EventHeader EventHeader_;
+	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an EventHeader object?"; goto write_Event; }
+	if (EventHeader_.Format_Errors() > 0) goto write_Event;
 	
 	EventHeader_.set_l1a     ( GetHexBits(HD1a,  0, 11, HD1b,  0, 11) );
 	EventHeader_.set_l1a_bxn ( GetHexBits(HD1d,  0, 11) );
 	EventHeader_.set_sp_ts   ( GetHexBits(HD2b,  8, 11) );
+	EventHeader_.set_endcap  ( GetHexBits(HD2b, 11, 11) ? -1 : 1 ); 
+	EventHeader_.set_sector  ( GetHexBits(HD2b,  8, 10) + 1 );      
 	EventHeader_.set_sp_ersv ( GetHexBits(HD2b,  5,  7) );
 	EventHeader_.set_sp_addr ( GetHexBits(HD2b,  0,  4) );
 	EventHeader_.set_tbin    ( GetHexBits(HD2c,  8, 10) );
@@ -154,6 +201,8 @@ namespace l1t {
 	EventHeader_.set_me3     ( GetHexBits(HD3c,  0, 10) );
 	EventHeader_.set_me4     ( GetHexBits(HD3d,  0, 10) );
 	// EventHeader_.set_dataword(uint64_t bits)  { dataword = bits;  };
+
+      write_Event:
 
 	(res->at(iOut)).set_EventHeader(EventHeader_);
 

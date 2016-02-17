@@ -15,7 +15,7 @@ options.register('skipEvents',
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
 options.register('streamer',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Read input from streamer file")
@@ -181,7 +181,7 @@ process.path = cms.Path(
     process.validationEventFilter
     +process.dumpRaw
     +process.caloStage2Digis
-    +process.gtStage2Digis
+    #+process.gtStage2Digis
     +process.l1tStage2CaloAnalyzer
 )
 

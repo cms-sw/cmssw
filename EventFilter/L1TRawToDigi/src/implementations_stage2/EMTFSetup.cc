@@ -43,7 +43,7 @@ namespace l1t {
       
       // Not sure what this function does - AWB 27.01.16
       virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
-	// prod.produces<EMTFMuonCandBxCollection>();
+	prod.produces<RegionalMuonCandBxCollection>();
 	prod.produces<EMTFOutputCollection>();
       };
       
@@ -56,14 +56,12 @@ namespace l1t {
 	// Presumably need some logic based on fed, amc, etc (c.f. CaloSetup.cc) - AWB 11.01.16
 	UnpackerMap res;
 	
-	// std::cout << "Inside EMTFSetup.cc" << std::endl;
-	
 	// "RegionalMuonEMTFPacker" should be defined in RegionalMuonEMTFPacker.cc - AWB 11.01.15
 
 	auto emtf_headers_unp   = UnpackerFactory::get()->make("stage2::emtf::HeadersBlockUnpacker");  // Unpack "AMC data header" and "Event Record Header"
 	auto emtf_counters_unp  = UnpackerFactory::get()->make("stage2::emtf::CountersBlockUnpacker"); // Unpack "Block of Counters"
 	auto emtf_me_unp       = UnpackerFactory::get()->make("stage2::emtf::MEBlockUnpacker");      // Unpack "ME Data Record"
-	// auto emtf_rpc_unp      = UnpackerFactory::get()->make("stage2::emtf::RPCBlockUnpacker");     // // Unpack "RPC Data Record"
+	auto emtf_rpc_unp      = UnpackerFactory::get()->make("stage2::emtf::RPCBlockUnpacker");     // // Unpack "RPC Data Record"
 	auto emtf_sp_unp       = UnpackerFactory::get()->make("stage2::emtf::SPBlockUnpacker");      // Unpack "SP Output Data Record"
 	auto emtf_trailers_unp  = UnpackerFactory::get()->make("stage2::emtf::TrailersBlockUnpacker"); // Unpack "Event Record Trailer"
 	
@@ -71,7 +69,7 @@ namespace l1t {
 	res[511] = emtf_headers_unp;
 	res[2]   = emtf_counters_unp;
 	res[3]   = emtf_me_unp;
-	// res[4]   = emtf_rpc_unp;
+	res[4]   = emtf_rpc_unp;
 	res[101] = emtf_sp_unp;
 	res[255] = emtf_trailers_unp;
 	
