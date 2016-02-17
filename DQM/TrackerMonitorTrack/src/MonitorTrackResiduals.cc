@@ -9,6 +9,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -122,7 +123,6 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
     {
       auto id = DetId(ModuleID);
 
-      // TODO: Not yet implemented for Pixel.
       // Book module histogramms?
       if (ModOn) {
 	switch (id.subdetId()) {
@@ -230,6 +230,7 @@ void MonitorTrackResiduals::endJob(void){
 
 void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  auto vtracks = std::vector<TrackerValidationVariables::AVTrackStruct>();
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -238,28 +239,35 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;
-  avalidator_.fillHitQuantities(iEvent,v_hitstruct);
-  for (auto it : v_hitstruct) {
-    uint RawId = it.rawDetId;
+  avalidator_.fillTrackQuantities(iEvent, iSetup, 
+                  // tell the validator to only look at good tracks
+                  [](const reco::Track& track) -> bool { 
+                    return track.pt() > 0.75
+                        && abs( track.dxy() ) > 5*track.dxyError();
+                  }, vtracks);
 
-    if (ModOn) {
-      auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
-      mod_histos.x.base->Fill(it.resXprime);
-      mod_histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
-      mod_histos.y.base->Fill(it.resYprime);
-      mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
-    }
-    auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
-    auto histos = m_SubdetLayerResiduals[subdetandlayer];
-    // fill if its error is not zero
-    if(it.resXprimeErr != 0 && histos.x.base) {
-      histos.x.base->Fill(it.resXprime);
-      histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
-    }
-    if(it.resYprimeErr != 0 && histos.y.base) {
-      histos.y.base->Fill(it.resYprime);
-      histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+  for (auto& track : vtracks) {
+    for (auto& it : track.hits) {
+      uint RawId = it.rawDetId;
+
+      if (ModOn) {
+	auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
+	mod_histos.x.base->Fill(it.resXprime);
+	mod_histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	mod_histos.y.base->Fill(it.resYprime);
+	mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+      }
+      auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
+      auto histos = m_SubdetLayerResiduals[subdetandlayer];
+      // fill if its error is not zero
+      if(it.resXprimeErr != 0 && histos.x.base) {
+	histos.x.base->Fill(it.resXprime);
+	histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+      }
+      if(it.resYprimeErr != 0 && histos.y.base) {
+	histos.y.base->Fill(it.resYprime);
+	histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+      }
     }
   }
 }

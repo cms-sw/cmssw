@@ -310,6 +310,18 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                 const edm::EventSetup& eventSetup,
                                                 std::vector<AVTrackStruct> & v_avtrackout)
 {
+  fillTrackQuantities(event, 
+                      eventSetup,
+                      [](const reco::Track&) -> bool { return true; },
+                      v_avtrackout);
+}
+
+void
+TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
+                                                const edm::EventSetup& eventSetup,
+                                                std::function<bool(const reco::Track&)> trackFilter, 
+                                                std::vector<AVTrackStruct> & v_avtrackout)
+{
   edm::ESHandle<MagneticField> magneticField;
   eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
@@ -326,6 +338,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
     
     trajectory = &(*(*iPair).key);
     track = &(*(*iPair).val);
+    
+    if (!trackFilter(*track)) continue;
     
     AVTrackStruct trackStruct;
     
