@@ -369,18 +369,3 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   }
 }
 
-void
-TrackerValidationVariables::fillHitQuantities(const edm::Event& event, std::vector<AVHitStruct> & v_avhitout)
-{
-  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  event.getByToken(trajCollectionToken_, trajCollectionHandle);
-  
-  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
-
-  for (std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
-       it!=itEnd;
-       ++it) {
-    
-    fillHitQuantities(&(*it), v_avhitout);
-  }
-}
