@@ -13,7 +13,7 @@ double EtSumHelper::MissingEt() const {
 
 double EtSumHelper::MissingEtPhi() const {
   for (auto it=sum_->begin(0); it!=sum_->end(0); it++){      
-    if (it->getType() == EtSum::kMissingEt) return it->hwPhi();
+    if (it->getType() == EtSum::kMissingEt) return it->phi();
   }
   return -999.0;
 }  
@@ -27,7 +27,7 @@ double EtSumHelper::MissingHt() const {
 
 double EtSumHelper::MissingHtPhi() const {
   for (auto it=sum_->begin(0); it!=sum_->end(0); it++){      
-    if (it->getType() == EtSum::kMissingHt) return it->hwPhi();
+    if (it->getType() == EtSum::kMissingHt) return it->phi();
   }
   return -999.0;
 }  
