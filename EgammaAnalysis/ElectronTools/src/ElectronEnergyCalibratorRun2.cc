@@ -53,8 +53,8 @@ void ElectronEnergyCalibratorRun2::calibrate(SimpleElectron &electron, edm::Stre
     newEcalEnergy      = electron.getNewEnergy() * corr;
     newEcalEnergyError = std::hypot(electron.getNewEnergyError() * corr, smear * newEcalEnergy);
   } else {
-    newEcalEnergy      = electron.getNewEnergy() / scale;
-    newEcalEnergyError = std::hypot(electron.getNewEnergyError() / scale, smear * newEcalEnergy);
+    newEcalEnergy      = electron.getNewEnergy() * scale;
+    newEcalEnergyError = std::hypot(electron.getNewEnergyError() * scale, smear * newEcalEnergy);
   }
   electron.setNewEnergy(newEcalEnergy); 
   electron.setNewEnergyError(newEcalEnergyError); 
