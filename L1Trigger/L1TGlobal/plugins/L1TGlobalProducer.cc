@@ -233,7 +233,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
     unsigned int temp_numberPhysTriggers = 512;
  
     // Get prescale factors from CSV file for now
-    std::fstream inputPrescaleFile;
+    std::ifstream inputPrescaleFile;
     inputPrescaleFile.open(m_prescalesFile);
 
     std::vector<std::vector<int> > vec;
