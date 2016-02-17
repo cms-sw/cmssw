@@ -22,7 +22,8 @@ public:
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const;
   virtual void adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const {}
   virtual void fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const { }
-
+  virtual void adc2fC(const QIE10DataFrame& df, CaloSamples& lf) const {}
+  virtual void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const { }
 };
 
 #endif

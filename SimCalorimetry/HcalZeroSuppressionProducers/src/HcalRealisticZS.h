@@ -30,6 +30,7 @@ private:
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUpgrade_;
   edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUpgrade_;
+  edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
 };
 
 #endif

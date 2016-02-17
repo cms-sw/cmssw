@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <math.h>
 
@@ -35,6 +36,11 @@ void HcalElectronicsSim::convert(CaloSamples & frame, Digi & result, CLHEP::HepR
   theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
 }
 
+template<> 
+void HcalElectronicsSim::convert<QIE10DataFrame>(CaloSamples & frame, QIE10DataFrame & result, CLHEP::HepRandomEngine* engine) {
+  theAmplifier->amplify(frame, engine);
+  theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
+}
 
 void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HBHEDataFrame & result) {
   convert<HBHEDataFrame>(lf, result, engine);
@@ -124,6 +130,14 @@ void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSam
   convert<HcalUpgradeDataFrame>(lf, result, engine);
 //   std::cout << HcalDetId(lf.id()) << ' ' << lf;
   theTDC.timing(lf, result, engine);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf,
+					 QIE10DataFrame & result) {
+  convert<QIE10DataFrame>(lf, result, engine);
+  //TODO:
+  //HcalTDC extension for QIE10?
+  //PreMixDigis for QIE10?
 }
 
 void HcalElectronicsSim::newEvent(CLHEP::HepRandomEngine* engine) {
