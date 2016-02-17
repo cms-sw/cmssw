@@ -81,16 +81,12 @@ std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensamble ensamble, const EnsambleHi
       rechits_clusters = this->clusterHits(rechits );
     }
     // loop over the found clusters:
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::run] Looping over found clusters ";
     for(auto sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
       // clear the buffer for the subset of segments:
-      //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::run] Clearing buffer ";
       segments_temp.clear();
       // build the subset of segments:
-      //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::run] Building subset ";
       segments_temp = this->buildSegments( (*sub_rechits) );
       // add the found subset of segments to the collection of all segments in this chamber:
-      //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::run] Adding found subset of segments ";
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
   
@@ -340,7 +336,6 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
 
   proto_segment.clear();
   // select hits from the ensemble and sort it 
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::buildSegments] Sorting hits ";
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
   }
@@ -359,11 +354,8 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
   #endif
 
   // The actual fit on all hit of the protosegments;
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::buildSegments] Fitting all hits ";
   this->doSlopesAndChi2();
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::buildSegments] Filling direction ";
   this->fillLocalDirection();
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::buildSegments] Getting errors ";
   AlgebraicSymMatrix protoErrors = this->calculateError();
   this->flipErrors( protoErrors );
 
@@ -408,34 +400,25 @@ void ME0SegAlgoMM::fitSlopes() {
   CLHEP::HepVector B(4,0);
   // In absence of a geometrical construction of the ME0Ensamble take layer 1  
   const ME0EtaPartition* ens = theEnsamble.first;
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Looping over proto segments ";
   for (auto ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
     const ME0RecHit& hit = (**ih);
 
-    //FIXME  a hack to skip segments with layer 0
-    //if (hit.layer()==0) continue;
 
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] About to grab roll with id: " <<hit.me0Id();
     const ME0EtaPartition* roll  = theEnsamble.second[hit.me0Id()];
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Making a global point ";
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
     // Locat w,r,t, to the first layer;
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Getting local position ";
     LocalPoint  lp         = ens->toLocal(gp); 
     // ptc: Local position of hit w.r.t. chamber
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Making local position ";
     double u = lp.x();
     double v = lp.y();
     double z = lp.z();
     // ptc: Covariance matrix of local errors 
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Making covariance ";
     CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
     IC(2,1) = IC(1,2); // since Cov is symmetric
     // ptc: Invert covariance matrix (and trap if it fails!)
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Inverting covariance ";
     int ierr = 0;
     IC.invert(ierr); // inverts in place
     if (ierr != 0) {
@@ -443,7 +426,6 @@ void ME0SegAlgoMM::fitSlopes() {
       //       std::cout<< "ME0Segment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n"<<std::endl;
     }
     
-    //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Math incoming...";
     M(1,1) += IC(1,1);
     M(1,2) += IC(1,2);
     M(1,3) += IC(1,1) * z;
@@ -468,12 +450,10 @@ void ME0SegAlgoMM::fitSlopes() {
     M(4,4) += IC(2,2) * z * z;
     B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
   }
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Solve for p";
   CLHEP::HepVector p = solve(M, B);
   
   // Update member variables 
   // Note that origin has local z = 0
-  //LogTrace("ME0SegAlgoMM|ME0") << "[ME0SegAlgoMM::fitSlopes] Update variables";
   protoIntercept = LocalPoint(p(1), p(2), 0.);
   protoSlope_u = p(3);
   protoSlope_v = p(4);

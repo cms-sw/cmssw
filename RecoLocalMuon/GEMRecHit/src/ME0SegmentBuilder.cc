@@ -40,18 +40,13 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
   // Loop on the ME0 rechit and select the different ME0 Ensemble
   for(ME0RecHitCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {        
     ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll());
-    //ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),0);
 
-    //CHECKME
     //Changing to using a chamber, not a rawId, for the map of me0rechits and ME0 chambers
     std::vector<ME0RecHit* > pp = ensembleRH[id.rawId()];
-    //std::vector<ME0RecHit* > pp = ensembleRH[id.chamberId()];
     pp.push_back(it2->clone());
     ensembleRH[id.rawId()]=pp;
-    //ensembleRH[id.chamberId()]=pp;
   }
   
-  LogDebug("ME0Segment|ME0")<< "Here now, after the first loop over rechit collection";
 
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
     
@@ -69,46 +64,16 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
 
     // given the chamber select the appropriate algo... and run it
     std::vector<ME0Segment> segv = algo->run(ensamble, me0RecHits);
-    LogDebug("ME0Segment|ME0")<< "About to get me0detid";
-
-    //CHECKME
-    //Changing to using the chamber id of 'mid', not just 'mid'
-
-    // DetId geoId = geom_->geographicalId();
-    // ME0DetId chamberId(geoId.rawId());
 
     ME0DetId mid(enIt->first);
-
-
-    // LogDebug("ME0Segment|ME0") << "found " << me0RecHits.size() << " rechits in chamber " << mid;
-    // LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << mid;
-    
-    // // Add the segments to master collection
-    // oc.put(mid, segv.begin(), segv.end());
 
     //HACK to make it a chamberID
 
     ME0DetId midchamber(mid.region(),1,mid.chamber(),0);
 
 
-    LogDebug("ME0Segment|ME0") << "found " << me0RecHits.size() << " rechits in chamber " << midchamber;
-    LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << midchamber;
-    
     // Add the segments to master collection
     oc.put(midchamber, segv.begin(), segv.end());
-
-    // LogDebug("ME0Segment|ME0") << "found " << me0RecHits.size() << " rechits in chamber " << chamberId;
-    // LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << chamberId;
-    
-    // // Add the segments to master collection
-    // oc.put(chamberId, segv.begin(), segv.end());
-
-    // LogDebug("ME0Segment|ME0") << "found " << me0RecHits.size() << " rechits in chamber " << mid.chamber();
-    // LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << mid.chamber();
-
-    
-    // // Add the segments to master collection
-    // oc.put(mid.chamber(), segv.begin(), segv.end());
   }
 }
 
