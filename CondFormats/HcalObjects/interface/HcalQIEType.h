@@ -12,6 +12,7 @@ contains the QIE Typese + corresponding DetId
 class HcalQIEType
 {
  public:
+  enum {QIE8=0, QIE10=1, QIE11=2};
   HcalQIEType(): mId(0), mValue(0) {}
   HcalQIEType(unsigned long fid, int value): mId(fid), mValue(value) {}
 
