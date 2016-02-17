@@ -689,14 +689,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             continue;
         }
 
-        /// check decision in GlobalAlgBlk
-        //------------------------------
+        /// check final decision in GlobalAlgBlk (after prescale and masks)
+        //-----------------------------------------------------------------
         /// initial
         //if((uGtAlgoBlocks->at(0,0)).getAlgoDecisionInitial(algoSeedMapNumber)) continue;
         ///  after prescale
         //if(uGtAlgoBlocks->at(0,0).getAlgoDecisionPreScaled(algoSeedMapNumber)) continue;
         /// final
-        //if(uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedMapNumber)) continue;
+        if(! uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedMapNumber)) continue;
 
         // loop over combinations for a given condition
         //
