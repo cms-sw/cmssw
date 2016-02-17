@@ -11,16 +11,16 @@ namespace l1t {
 
   class EtSumHelper{
   public:
-    EtSumHelper(edm::Handle<l1t::EtSumBxCollection> & sum ):sum_(sum) {} // class assumes sum has been checked to be valid. 
-    double MissingEt();
-    double MissingEtPhi();
-    double MissingHt();
-    double MissingHtPhi();
-    double TotalEt();
-    double TotalHt();
+    EtSumHelper(const edm::Handle<l1t::EtSumBxCollection> & sum ):sum_(sum) {} // class assumes sum has been checked to be valid. 
+    double MissingEt() const;
+    double MissingEtPhi() const;
+    double MissingHt() const;
+    double MissingHtPhi() const;
+    double TotalEt() const;
+    double TotalHt() const;
 
   private:
-    edm::Handle<l1t::EtSumBxCollection> & sum_;
+    const edm::Handle<l1t::EtSumBxCollection> & sum_;
   };
 }
 
