@@ -3,7 +3,7 @@
 
 static const int HEADER_LENGTH_16BIT=2*sizeof(uint64_t)/sizeof(uint16_t);
 
-HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr, const uint16_t* limit) : m_ptr(ptr), m_limit(limit) {
+HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr, const uint16_t* limit) : m_ptr(ptr), m_limit(limit), m_stepclass(0) {
   if (isHeader()) determineMode();
 }
 
