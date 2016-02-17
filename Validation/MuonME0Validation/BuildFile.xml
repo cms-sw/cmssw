@@ -1,0 +1,20 @@
+<use name="boost"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="DataFormats/GEMRecHit"/>
+<use name="DataFormats/Scalers"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/Track"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DQMServices/Core"/>
+<use name="rootcore"/>
+<export>
+   <lib name="1"/>
+</export>
