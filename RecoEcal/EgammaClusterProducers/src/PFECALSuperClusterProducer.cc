@@ -332,7 +332,7 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
     psd0.add<std::string>("uncertaintyKeyEB","pfscecal_EBUncertainty_offline_v1");
     psd0.add<std::string>("uncertaintyKeyEE","pfscecal_EEUncertainty_offline_v1");
     psd0.add<edm::InputTag>("vertexCollection",edm::InputTag("offlinePrimaryVertices")); 
-    psd0.add<double>("etRecHitThreshold", 1.);
+    psd0.add<double>("eRecHitThreshold", 1.);
     desc.add<edm::ParameterSetDescription>("regressionConfig",psd0);
   }
   desc.add<bool>("applyCrackCorrections",false);
