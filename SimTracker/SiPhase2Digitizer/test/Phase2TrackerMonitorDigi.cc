@@ -15,7 +15,7 @@
 //
 // system include files
 #include <memory>
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerMonitorDigi.h"
+#include "SimTracker/SiPhase2Digitizer/test/Phase2TrackerMonitorDigi.h"
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"

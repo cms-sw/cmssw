@@ -143,6 +143,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   // tMax(conf.getUntrackedParameter<double>("DeltaProductionCut",0.030)),
   tMax(conf_common.getParameter<double>("DeltaProductionCut")),
 
+  badPixels(conf_specific.getParameter<std::vector<edm::ParameterSet> >("CellsToKill")),
   fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
   theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf_specific) : 0),
@@ -203,7 +204,7 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit,
     << hit.particleType() 
     << " " << hit.pabs();
 
-  float* elossVector = new float[NumberOfSegments];  // Eloss vector
+  std::vector<float> elossVector(NumberOfSegments,0);  // Eloss vector
 
   if (fluctuateCharge) {
     int pid = hit.particleType();
@@ -233,7 +234,6 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit,
       << ionization_points[i].z() << " "
       << ionization_points[i].energy();
   }
-  delete [] elossVector;
 }
 //==============================================================================
 //
@@ -246,7 +246,7 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
 						     float eloss, 
 						     float length,
 						     int NumberOfSegs,
-						     float elossVector[]) const {
+						     std::vector<float> & elossVector) const {
 
   // Get dedx for this track
   //float dedx;
@@ -275,12 +275,12 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
     // track segment length in mm, segment eloss in MeV
     // Returns fluctuated eloss in MeV
     double deltaCutoff = tMax; // the cutoff is sometimes redefined inside, so fix it.
-    de = fluctuate->SampleFluctuations(double(particleMomentum*1000.),
+    de = fluctuate->SampleFluctuations(static_cast<double>(particleMomentum*1000.),
 				       particleMass, deltaCutoff,
-				       double(segmentLength*10.),
+				       static_cast<double>(segmentLength*10.),
 				       segmentEloss,
                                        rengine_ )/1000.; //convert to GeV
-    elossVector[i] = de;
+    elossVector.push_back(de);
     sum += de;
   }
   if (sum > 0.) {  // If fluctuations give eloss>0.
@@ -853,6 +853,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
   if (!isbad)
     return;
 
+
   signal_map_type& theSignal = _signal[detID]; // check validity
   
   if (badmodule.errorType == 0) { // this is a whole dead module.
@@ -878,6 +879,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
 	}
       }
     }
+
     
     for (auto & s : theSignal) {
       std::pair<int,int> ip;
@@ -885,15 +887,10 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       else ip = Phase2TrackerDigi::channelToPixel(s.first);
       
       for (auto const & p : badrocpositions) {
-	if (p.row >= 80 && ip.first >= 80) {
-	  if ((fabs(ip.second - p.col) < 26) ) {s.second.set(0.);}
-          else if (p.row == 120 && ip.second-p.col == 26) {s.second.set(0.);}
-          else if (p.row == 119 && p.col-ip.second == 26) {s.second.set(0.);}
-	}
-	else if (p.row < 80 && ip.first < 80 ) {
-	  if ((fabs(ip.second - p.col) < 26) ) {s.second.set(0.);}
-          else if(p.row == 40 && ip.second-p.col == 26) {s.second.set(0.);}
-          else if(p.row == 39 && p.col-ip.second == 26) {s.second.set(0.);}
+        for (auto & k : badPixels ) {       
+	  if ( p.row == k.getParameter<int>("row") && 
+	       ip.first == k.getParameter<int>("row")  && 
+	       fabs(ip.second - p.col) < k.getParameter<int>("col")) {s.second.set(0.);}
 	}
       }
     }

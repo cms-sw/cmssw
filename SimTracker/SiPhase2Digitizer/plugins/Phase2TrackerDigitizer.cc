@@ -75,10 +75,6 @@
 
 namespace cms
 {
-  const std::string Phase2TrackerDigitizer::InnerPixel = "P2Pixel"; 
-  const std::string Phase2TrackerDigitizer::PixelinPS  = "PSP";
-  const std::string Phase2TrackerDigitizer::StripinPS  = "PSS";
-  const std::string Phase2TrackerDigitizer::TwoStrip   = "SS";   
 
   Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
     first_(true),
@@ -98,7 +94,7 @@ namespace cms
 
   }
 
-  void Phase2TrackerDigitizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+  void Phase2TrackerDigitizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -107,16 +103,34 @@ namespace cms
            "in the configuration file or remove the modules that require it.";
     }
     rndEngine_ = &(rng->getEngine(lumi.index()));
+
+    iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    
+    if (theTkDigiGeomWatcher.check(iSetup)) {
+      iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
+      detectorUnits_.clear();
+      for (auto const & det_u : pDD_->detUnits()) {
+	unsigned int detId_raw = det_u->geographicalId().rawId();
+	DetId detId = DetId(detId_raw);
+	if (DetId(detId).det() == DetId::Detector::Tracker) {
+	  const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
+	  assert(pixdet);
+	  detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
+	}
+      }
+    }
+  
     // one type of Digi and DigiSimLink suffices 
     // changes in future: InnerPixel -> Tracker
     // creating algorithm objects and pushing them into the map
-    algomap_[InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
+    algomap_[AlgorithmType::InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iconfig_, (*rndEngine_)));
+    algomap_[AlgorithmType::PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iconfig_, (*rndEngine_)));
+    algomap_[AlgorithmType::StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
+    algomap_[AlgorithmType::TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
   }
 
-  void Phase2TrackerDigitizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+  void Phase2TrackerDigitizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
     algomap_.clear();
   }
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {  
@@ -133,7 +147,7 @@ namespace cms
         if (detectorUnits_.find(detId_raw) == detectorUnits_.end()) continue;
 	if (detIds.insert(detId_raw).second) {
 	  // The insert succeeded, so this detector element has not yet been processed.
-	  const std::string algotype = getAlgoType(detId_raw);
+	  AlgorithmType algotype = getAlgoType(detId_raw);
 	  const Phase2TrackerGeomDetUnit* phase2det = detectorUnits_[detId_raw];
 	  // access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
@@ -142,7 +156,7 @@ namespace cms
 	  if (algomap_.find(algotype) != algomap_.end()) 
 	    algomap_[algotype]->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, phase2det, bfield);
 	  else
-	    edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: " << algotype;
+	    edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: ";
 	}
       }
     }
@@ -162,24 +176,6 @@ namespace cms
     // indices used to create the digi-sim link (if configured to do so) rather than starting
     // from zero for each crossing.
     crossingSimHitIndexOffset_.clear();
-  
-    iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
-    iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
-    
-    // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
-    if (true) { // Replace with ESWatcher 
-      detectorUnits_.clear();
-      for (auto const & det_u : pDD_->detUnits()) {
-	unsigned int detId_raw = det_u->geographicalId().rawId();
-	DetId detId = DetId(detId_raw);
-	if (DetId(detId).det() == DetId::Detector::Tracker) {
-	  const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
-	  assert(pixdet);
-	  detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
-	}
-      }
-    }
   }  
   void 
   Phase2TrackerDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -220,27 +216,27 @@ namespace cms
   }
   void Phase2TrackerDigitizer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   }
-  std::string Phase2TrackerDigitizer::getAlgoType(unsigned int detId_raw) {
+  Phase2TrackerDigitizer::AlgorithmType Phase2TrackerDigitizer::getAlgoType(unsigned int detId_raw) {
     DetId detId(detId_raw); 
 
-    std::string algotype = "";
+    AlgorithmType algotype = AlgorithmType::Unknown;
     TrackerGeometry::ModuleType mType = pDD_->getDetectorType(detId);    
     switch(mType){
 
     case TrackerGeometry::ModuleType::Ph1PXB:
-      algotype = InnerPixel;
+      algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph1PXF:
-      algotype = InnerPixel;
+      algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph2PSP:
-      algotype = PixelinPS;
+      algotype = AlgorithmType::PixelinPS;
       break;
     case TrackerGeometry::ModuleType::Ph2PSS:
-      algotype = StripinPS;
+      algotype = AlgorithmType::StripinPS;
       break;
     case TrackerGeometry::ModuleType::Ph2SS:
-      algotype = TwoStrip;
+      algotype = AlgorithmType::TwoStrip;
       break;
     default:
       edm::LogError("Phase2TrackerDigitizer")<<"ERROR - Wrong Detector Type, No Algorithm available ";
@@ -254,11 +250,11 @@ namespace cms
     std::vector<edm::DetSet<PixelDigiSimLink> > digiLinkVector;
     for (auto const & det_u : pDD_->detUnits()) {
       DetId detId_raw = DetId(det_u->geographicalId().rawId());
-      const std::string algotype = getAlgoType(detId_raw);
+      AlgorithmType algotype = getAlgoType(detId_raw);
       if (algomap_.find(algotype) == algomap_.end()) continue;
 
       //Decide if we want analog readout for Outer Tracker.
-      if( !ot_analog && algotype != Phase2TrackerDigitizer::InnerPixel) continue;
+      if( !ot_analog && algotype != AlgorithmType::InnerPixel) continue;
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u),
                                    digi_map,tTopo);
@@ -292,9 +288,9 @@ namespace cms
     std::vector<edm::DetSet<PixelDigiSimLink> > digiLinkVector;
     for (auto const & det_u : pDD_->detUnits()) {
       DetId detId_raw = DetId(det_u->geographicalId().rawId());
-      const std::string algotype = getAlgoType(detId_raw);
+      AlgorithmType algotype = getAlgoType(detId_raw);
 
-      if (algomap_.find(algotype) == algomap_.end() || algotype == Phase2TrackerDigitizer::InnerPixel) continue;
+      if (algomap_.find(algotype) == algomap_.end() || algotype == AlgorithmType::InnerPixel) continue;
 
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u),

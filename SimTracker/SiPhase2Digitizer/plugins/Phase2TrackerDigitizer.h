@@ -20,7 +20,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
 // Forward declaration
@@ -41,6 +41,7 @@ class PileUpEventPrincipal;
 class PSimHit;
 class Phase2TrackerDigitizerAlgorithm;
 class TrackerGeometry;
+class TrackerDigiGeometryRecord;
 
 namespace cms 
 {
@@ -55,21 +56,25 @@ namespace cms
     virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
     virtual void beginJob() {}
     void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override; 
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override; 
 
-    std::string getAlgoType(unsigned int idet); 
     template <class T>
     void accumulate_local(T const& iEvent, edm::EventSetup const& iSetup);
 
-    // constants of different algorithm types
-    const static std::string InnerPixel;
-    const static std::string PixelinPS;
-    const static std::string StripinPS;
-    const static std::string TwoStrip;        
   
   private:
     using vstring = std::vector<std::string> ;
+
+    // constants of different algorithm types
+    enum class AlgorithmType {
+      InnerPixel,
+      PixelinPS,
+      StripinPS,
+      TwoStrip,
+      Unknown   
+    };
+    AlgorithmType getAlgoType(unsigned int idet); 
 
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, 
 			     size_t globalSimHitIndex,
@@ -77,7 +82,9 @@ namespace cms
     void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);
     void addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
    
+
     bool first_;
+
     /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
      *
      * I need to know what each sim hit index will be when the hits from all crossing frames are merged into
@@ -87,7 +94,7 @@ namespace cms
      * put into the crossing frame, which I'm pretty sure is true.<br/>
      * The key is the name of the sim hit collection. */
     std::map<std::string,size_t> crossingSimHitIndexOffset_; 
-    std::map<std::string, std::unique_ptr<Phase2TrackerDigitizerAlgorithm> > algomap_;
+    std::map<AlgorithmType, std::unique_ptr<Phase2TrackerDigitizerAlgorithm> > algomap_;
     const std::string hitsProducer_;
     const vstring trackerContainers_;
     const std::string geometryType_;
@@ -96,7 +103,9 @@ namespace cms
     std::map<unsigned int, const Phase2TrackerGeomDetUnit*> detectorUnits_;
     CLHEP::HepRandomEngine* rndEngine_;
     edm::ESHandle<TrackerTopology> tTopoHand;
+    edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
     const edm::ParameterSet& iconfig_;
+
   };
 }
 #endif

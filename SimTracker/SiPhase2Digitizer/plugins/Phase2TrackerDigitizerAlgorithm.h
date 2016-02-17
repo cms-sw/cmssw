@@ -155,6 +155,9 @@ class Phase2TrackerDigitizerAlgorithm  {
   //-- charge fluctuation
   const double tMax;  // The delta production cut, should be as in OSCAR = 30keV
 
+  // Bad Pixels to be killed
+  std::vector<edm::ParameterSet> badPixels;
+
   // The eloss fluctuation class from G4. Is the right place? 
   const std::unique_ptr<SiG4UniversalFluctuation> fluctuate;   // make a pointer
   const std::unique_ptr<GaussianTailNoiseGenerator> theNoiser;
@@ -174,7 +177,7 @@ class Phase2TrackerDigitizerAlgorithm  {
 		     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
   void fluctuateEloss(int particleId, float momentum, float eloss, 
 		      float length, int NumberOfSegments,
-		      float elossVector[]) const;
+		      std::vector<float> & elossVector) const;
   virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
   virtual void pixel_inefficiency(const SubdetEfficiencies& eff,
 				  const Phase2TrackerGeomDetUnit* pixdet,
