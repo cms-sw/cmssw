@@ -318,7 +318,7 @@ unsigned int Muon::ME0layerMask( ArbitrationType type ) const
       //chamberMatch->station() on me0s now returns "1" no matter what, since there is only one station
       //This means as it is written now there is a bit shift equal to which number layer the me0Match is
       //ME0Segments have detId.layer() of 1 every time, with a roll of "-1"
-      if (region==1 && region==-1) {
+      if (region==1 || region==-1) {
 	 me0Layer = chamberMatch->station()-1 + chamberMatch->station()*layer;
       }
 
