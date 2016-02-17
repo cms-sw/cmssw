@@ -26,7 +26,7 @@ namespace edm {
       if(product() && !productUnavailable()) {
         // Found the match
         resolveStatus = ProductFound;
-        return &productData_;
+        return &getProductData();
       }
     }
     resolveStatus = ProductNotFound;
@@ -45,7 +45,7 @@ namespace edm {
       }
       if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
-        return &productData_;
+        return &getProductData();
       }
     }
     resolveStatus = ProductNotFound;
@@ -64,12 +64,12 @@ namespace edm {
       }
       if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
-        return &productData_;
+        return &getProductData();
       }
       principal.unscheduledFill(moduleLabel(), sra, mcc);
       if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
-        return &productData_;
+        return &getProductData();
       }
     }
     resolveStatus = ProductNotFound;
@@ -86,10 +86,9 @@ namespace edm {
     }
     assert(branchDescription().produced());
     assert(edp.get() != nullptr);
-    assert(status() != Present);
-    assert(status() != Uninitialized);
-    getProductData().unsafe_setWrapper(std::move(edp)); // ProductHolder takes ownership
-    status_() = Present;
+    assert(status() != ProductStatus::Present);
+    assert(status() != ProductStatus::Uninitialized);
+    setProduct(std::move(edp)); // ProductHolder takes ownership
   }
 
   bool
@@ -99,7 +98,7 @@ namespace edm {
 
   void
   ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
-    assert(status() == Present);
+    assert(status() == ProductStatus::Present);
     mergeTheProduct(std::move(edp));
   }
 
@@ -111,10 +110,10 @@ namespace edm {
     }
     assert(branchDescription().produced());
     assert(edp.get() != nullptr);
-    assert(status() != Present);
-    assert(status() != Uninitialized);
-    getProductData().unsafe_setWrapper(std::move(edp));  // ProductHolder takes ownership
-    status_() = Present;
+    assert(status() != ProductStatus::Present);
+    assert(status() != ProductStatus::Uninitialized);
+    
+    setProduct(std::move(edp));  // ProductHolder takes ownership
   }
 
   void
@@ -141,86 +140,71 @@ namespace edm {
     setProduct(std::move(edp));
   }
 
-  void
-  InputProductHolder::setProduct(std::unique_ptr<WrapperBase> prod) const {
-    assert (!product());
-    productData_.unsafe_setWrapper(std::move(prod));  // ProductHolder takes ownership
-  }
-
-  void InputProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    productData_.setProvenance(provRetriever,ph,pid);
-  }
-
-  void InputProductHolder::setProcessHistory_(ProcessHistory const& ph) {
-    productData_.setProcessHistory(ph);
-  }
-
-  ProductProvenance const* InputProductHolder::productProvenancePtr_() const {
-    return provenance()->productProvenance();
-  }
-
-  void InputProductHolder::resetProductData_() {
-    productData_.resetProductData();
-    resetStatus();
-  }
-
-  bool InputProductHolder::singleProduct_() const {
-    return true;
-  }
-
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
   bool
   InputProductHolder::productUnavailable_() const {
     // If there is a product, we know if it is real or a dummy.
-    if(product()) {
-      return !(product()->isPresent());
+    auto p = product();
+    if(p) {
+      return !(p->isPresent());
     }
     return false;
   }
+  
+  void
+  DataManagingProductHolder::connectTo(ProductHolderBase const& iOther) {
+    productData_.connectTo(iOther.getProductData());
+  }
+  
 
+  void
+  DataManagingProductHolder::setProduct(std::unique_ptr<WrapperBase> edp) const {
+    productData_.unsafe_setWrapper(std::move(edp));
+    theStatus_ = ProductStatus::Present;
+  }
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
   bool
-  ProducedProductHolder::productUnavailable_() const {
+  DataManagingProductHolder::productUnavailable_() const {
     // If unscheduled production, the product is potentially available.
     if(onDemand()) return false;
     // The product is available if and only if a product has been put.
     bool unavailable = !(product() && product()->isPresent());
     return unavailable;
   }
-
+  
   // This routine returns true if the product was deleted early in order to save memory
   bool
-  ProducedProductHolder::productWasDeleted_() const {
-    return status() == ProductDeleted;
-  }
-
-  void 
-  ProducedProductHolder::setProductDeleted_() const {
-    status() = ProductDeleted;
-  }
-
-  void ProducedProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    getProductData().setProvenance(provRetriever,ph,pid);
-  }
-
-  void ProducedProductHolder::setProcessHistory_(ProcessHistory const& ph) {
-    getProductData().setProcessHistory(ph);
+  DataManagingProductHolder::productWasDeleted_() const {
+    return status() == ProductStatus::ProductDeleted;
   }
   
-  ProductProvenance const* ProducedProductHolder::productProvenancePtr_() const {
+  void
+  DataManagingProductHolder::setProductDeleted_() const {
+    theStatus_ = ProductStatus::ProductDeleted;
+  }
+  
+  void DataManagingProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+    productData_.setProvenance(provRetriever,ph,pid);
+  }
+  
+  void DataManagingProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+    productData_.setProcessHistory(ph);
+  }
+  
+  ProductProvenance const* DataManagingProductHolder::productProvenancePtr_() const {
     return provenance()->productProvenance();
   }
-
-  void ProducedProductHolder::resetProductData_() {
-    getProductData().resetProductData();
+  
+  void DataManagingProductHolder::resetProductData_() {
+    productData_.resetProductData();
     resetStatus();
   }
-
-  bool ProducedProductHolder::singleProduct_() const {
+  
+  bool DataManagingProductHolder::singleProduct_() const {
     return true;
   }
 
@@ -233,12 +217,6 @@ namespace edm {
   }
 
   ProductData const& NoProcessProductHolder::getProductData() const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::getProductData() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  ProductData& NoProcessProductHolder::getProductData() {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::getProductData() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -378,5 +356,12 @@ namespace edm {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
+  }
+  
+  void NoProcessProductHolder::connectTo(ProductHolderBase const&) {
+    throw Exception(errors::LogicError)
+    << "NoProcessProductHolder::connectTo() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+    
   }
 }

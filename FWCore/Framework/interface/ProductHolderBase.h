@@ -27,11 +27,14 @@ namespace edm {
   class SharedResourcesAcquirer;
   class Principal;
   class AliasProductHolder;
+  class DataManagingProductHolder;
 
   class ProductHolderBase {
   public:
 
     friend class AliasProductHolder;
+    friend class DataManagingProductHolder;
+    
     enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
 
     ProductHolderBase();
@@ -77,8 +80,6 @@ namespace edm {
 
     // Retrieves a pointer to the wrapper of the product.
     WrapperBase const * product() const { return getProductData().wrapper(); }
-
-    WrapperBase * product() { return getProductData().wrapper(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -159,11 +160,10 @@ namespace edm {
 
     void throwProductDeletedException() const;
 
-    void connectTo(ProductHolderBase const&);
+    virtual void connectTo(ProductHolderBase const&) = 0;
 
   protected:
     virtual ProductData const& getProductData() const = 0;
-    virtual ProductData& getProductData() = 0;
 
   private:
     WrapperBase * unsafe_product() const { return getProductData().unsafe_wrapper(); }
