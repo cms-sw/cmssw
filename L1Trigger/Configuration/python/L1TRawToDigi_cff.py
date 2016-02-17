@@ -33,7 +33,7 @@ def unpack_legacy():
     
 
 def unpack_stage1():
-    global csctfDigis, dttfDigis, gtDigis,caloStage1Digis,caloStage1FinalDigis
+    global csctfDigis, dttfDigis, gtDigis,caloStage1Digis,caloStage1FinalDigis,gctDigis
     global caloStage1LegacyFormatDigis
     global L1TRawToDigi_Stage1    
     import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
@@ -49,7 +49,11 @@ def unpack_stage1():
     csctfDigis.producer = 'rawDataCollector'
     dttfDigis.DTTF_FED_Source = 'rawDataCollector'
     gtDigis.DaqGtInputTag = 'rawDataCollector'
-    L1TRawToDigi_Stage1 = cms.Sequence(csctfDigis+dttfDigis+gtDigis+caloStage1Digis+caloStage1FinalDigis+caloStage1LegacyFormatDigis)    
+    # unpack GCT digis too, so DQM offline doesn't crash:
+    import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
+    gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
+    gctDigis.inputLabel = 'rawDataCollector'
+    L1TRawToDigi_Stage1 = cms.Sequence(csctfDigis+dttfDigis+gtDigis+caloStage1Digis+caloStage1FinalDigis+caloStage1LegacyFormatDigis+gctDigis)    
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
