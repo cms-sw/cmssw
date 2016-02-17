@@ -14,7 +14,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
+template<TrackerType pixel_or_strip>
+MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
    : dqmStore_( edm::Service<DQMStore>().operator->() )
    , conf_(iConfig), m_cacheID_(0)
    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this))
@@ -22,15 +23,13 @@ MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
   ModOn = conf_.getParameter<bool>("Mod_On");
 }
 
-MonitorTrackResiduals::~MonitorTrackResiduals() {
+template<TrackerType pixel_or_strip>
+MonitorTrackResidualsBase<pixel_or_strip>::~MonitorTrackResidualsBase() {
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 }
 
-
-void MonitorTrackResiduals::beginJob(void) {
-}
-
-void MonitorTrackResiduals::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
 {
   unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
@@ -39,13 +38,15 @@ void MonitorTrackResiduals::bookHistograms(DQMStore::IBooker & ibooker , const e
   }
 }
 
-void MonitorTrackResiduals::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( run, iSetup );
 }
 
-std::pair<std::string, int32_t> MonitorTrackResiduals::findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo) {
+template<TrackerType pixel_or_strip>
+std::pair<std::string, int32_t> MonitorTrackResidualsBase<pixel_or_strip>::findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo) {
       std::string subdet = "";
       int32_t layer = 0;
       auto id = DetId(ModuleID);
@@ -85,7 +86,8 @@ std::pair<std::string, int32_t> MonitorTrackResiduals::findSubdetAndLayer(uint32
 }
 
 
-void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
 
   //Retrieve tracker topology and geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -122,6 +124,8 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
   for(auto ModuleID : activeDets)
     {
       auto id = DetId(ModuleID);
+      auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+      if (isPixel != (pixel_or_strip == TRACKERTYPE_PIXEL)) continue; 
 
       // Book module histogramms?
       if (ModOn) {
@@ -162,14 +166,14 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	  // All strip
 	  default:  strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
 	}
+      
+	auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
 	
 	auto xy = std::vector<std::pair<HistoPair&, const char*> >
       		{ std::make_pair(std::ref(histos.x), "X"),
 	          std::make_pair(std::ref(histos.y), "Y") };
 	for (auto& histopair : xy) {
 	  // book histogramms on layer level, check for barrel/pixel only for correct labeling
-	  auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
-	  auto isPixel = subdetandlayer.first.find("X") != std::string::npos;
 
 	  // Skip the Y plots for strips.
 	  if (!isPixel && histopair.second[0] == 'Y') continue;
@@ -213,11 +217,8 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 }
 
 
-void MonitorTrackResiduals::endRun(const edm::Run&, const edm::EventSetup&){
-}
-
-
-void MonitorTrackResiduals::endJob(void){
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::endJob(void){
 
   //dqmStore_->showDirStructure();
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
@@ -228,7 +229,8 @@ void MonitorTrackResiduals::endJob(void){
 }
 
 
-void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   auto vtracks = std::vector<TrackerValidationVariables::AVTrackStruct>();
   // Filter out events if Trigger Filtering is requested
@@ -250,6 +252,11 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
     for (auto& it : track.hits) {
       uint RawId = it.rawDetId;
 
+      auto id = DetId(RawId);
+      auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+      if (isPixel != (pixel_or_strip == TRACKERTYPE_PIXEL)) continue; 
+      
+
       if (ModOn) {
 	auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
 	mod_histos.x.base->Fill(it.resXprime);
@@ -257,6 +264,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	mod_histos.y.base->Fill(it.resYprime);
 	mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
       }
+
       auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
       auto histos = m_SubdetLayerResiduals[subdetandlayer];
       // fill if its error is not zero
@@ -275,4 +283,5 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
 DEFINE_FWK_MODULE(MonitorTrackResiduals);
+DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals);
  
