@@ -4,6 +4,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE10Traits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
@@ -74,6 +75,7 @@ private:
   void updateGeometry(const edm::EventSetup& eventSetup);
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
 
   //function to evaluate aging at the digi level
   void darkening(std::vector<PCaloHit>& hcalHits);
@@ -84,6 +86,7 @@ private:
   typedef CaloTDigitizer<HFDigitizerTraits>   HFDigitizer;
   typedef CaloTDigitizer<ZDCDigitizerTraits>  ZDCDigitizer;
   typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
+  typedef CaloTDigitizer<HcalQIE10DigitizerTraits,CaloTDigitizerQIE10Run> QIE10Digitizer;
 
   HcalSimParameterMap * theParameterMap;
   HcalShapes * theShapes;
@@ -112,6 +115,7 @@ private:
   HcalElectronicsSim * theZDCElectronicsSim;
   HcalElectronicsSim * theUpgradeHBHEElectronicsSim;
   HcalElectronicsSim * theUpgradeHFElectronicsSim;
+  HcalElectronicsSim * theHFQIE10ElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
@@ -132,6 +136,7 @@ private:
   ZDCDigitizer* theZDCDigitizer;
   UpgradeDigitizer * theHBHEUpgradeDigitizer;
   UpgradeDigitizer * theHFUpgradeDigitizer;
+  QIE10Digitizer * theHFQIE10Digitizer;
   HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
@@ -139,6 +144,7 @@ private:
   std::vector<DetId> theHBHEDetIds;
   std::vector<DetId> theHOHPDDetIds;
   std::vector<DetId> theHOSiPMDetIds;
+  std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool relabel_;
