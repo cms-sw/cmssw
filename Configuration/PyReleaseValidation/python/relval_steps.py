@@ -186,6 +186,13 @@ Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,2
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015DHS',events=100000,location='STD', ls=Run2015DHS)}
  
 
+#### run2 2015 HighLumi High Stat workflows ##
+# Run2015HLHS, 25ns, run 260627, JetHT: 2.9M, SingleMuon: 5.7M, ZeroBias: 1.6M
+Run2015HLHS=selectedLS([260627])
+steps['RunJetHT2015HLHS']={'INPUT':InputInfo(dataSet='/JetHT/Run2015D-v1/RAW',label='jetHT2015HLHT',events=100000,location='STD', ls=Run2015HLHS)}
+steps['RunZeroBias2015HLHS']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015D-v1/RAW',label='zb2015HLHT',events=100000,location='STD', ls=Run2015HLHS)}
+steps['RunSingleMu2015HLHS']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-v1/RAW',label='sigMu2015HLHT',events=100000,location='STD', ls=Run2015HLHS)}
+
 def gen(fragment,howMuch):
     global step1Defaults
     return merge([{'cfg':fragment},howMuch,step1Defaults])
