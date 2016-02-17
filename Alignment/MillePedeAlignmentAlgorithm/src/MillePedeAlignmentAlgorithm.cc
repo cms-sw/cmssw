@@ -311,10 +311,12 @@ void MillePedeAlignmentAlgorithm::terminate()
     files = getExistingFormattedFiles(plainFiles, theDir);
     // Do some logging:
     std::string filesForLogOutput;
-    for (std::vector<std::string>::const_iterator i = files.begin(), iEnd = files.end(); i != iEnd; ++i) {
-      filesForLogOutput += " " + *i;
-    }
-    edm::LogInfo("Alignment") << "Based on the config parameter mergeBinaryFiles, using the following files as input:" << filesForLogOutput;
+    for (const auto& file: files) filesForLogOutput += " " + file + ",";
+    if (filesForLogOutput.length() != 0) filesForLogOutput.pop_back();
+    edm::LogInfo("Alignment")
+      << "Based on the config parameter mergeBinaryFiles, using the following "
+      << "files as input (assigned weights are indicated by ' -- <weight>'):"
+      << filesForLogOutput;
   }
 
   // cache all positions, rotations and deformations
@@ -331,10 +333,10 @@ void MillePedeAlignmentAlgorithm::terminate()
   theLastWrittenIov = 0;
 }
 
-std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string> plainFiles, std::string theDir) {
+std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir) {
   std::vector<std::string> files;
-  for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end(); i != iEnd; ++i) {
-    std::string theInputFileName = *i;
+  for (const auto& plainFile: plainFiles) {
+    std::string theInputFileName = plainFile;
     int theNumber = 0;
     while (true) {
       // Create a formatted version of the filename, with growing numbers
@@ -342,9 +344,11 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
       char theNumberedInputFileName[200];
       sprintf(theNumberedInputFileName, theInputFileName.c_str(), theNumber);
       std::string theCompleteInputFileName = theDir + theNumberedInputFileName;
+      const auto endOfStrippedFileName = theCompleteInputFileName.rfind(" --");
+      const auto strippedInputFileName = theCompleteInputFileName.substr(0, endOfStrippedFileName);
       // Check if the file exists
       struct stat buffer;
-      if (stat (theCompleteInputFileName.c_str(), &buffer) == 0) {
+      if (stat (strippedInputFileName.c_str(), &buffer) == 0) {
         // If the file exists, add it to the list
         files.push_back(theCompleteInputFileName);
         if (theNumberedInputFileName == theInputFileName) {
@@ -356,6 +360,8 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
         }
       } else {
         // The file doesn't exist, break out of the loop
+	edm::LogWarning("Alignment")
+	  << "The input file '" << strippedInputFileName << "' does not exist.";
         break;
       }
     }
