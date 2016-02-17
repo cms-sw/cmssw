@@ -400,10 +400,9 @@ void ME0SegAlgoMM::fitSlopes() {
   CLHEP::HepVector B(4,0);
   // In absence of a geometrical construction of the ME0Ensamble take layer 1  
   const ME0EtaPartition* ens = theEnsamble.first;
+
   for (auto ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
     const ME0RecHit& hit = (**ih);
-
-
     const ME0EtaPartition* roll  = theEnsamble.second[hit.me0Id()];
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
     // Locat w,r,t, to the first layer;
