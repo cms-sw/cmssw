@@ -33,10 +33,14 @@ namespace stage2 {
 	 // get jets from this BX
 	for (auto j = jets->begin(i); j != jets->end(i); ++j ) {
 
+	  uint32_t packed_eta = abs(j->hwEta()) & 0x7F;
+	  if (j->hwEta() < 0){
+	    packed_eta = (128 - packed_eta) | 1<<7;
+	  }
+
 	  uint32_t word =			\
 	    std::min(j->hwPt(), 0x7FF) |
-	    (abs(j->hwEta()) & 0x7F) << 11 |
-	    ((j->hwEta() < 0) & 0x1) << 18 |
+	    packed_eta << 11 |
 	    (j->hwPhi() & 0xFF) << 19 |
 	    (j->hwQual() & 0x7) << 27;
 	  
