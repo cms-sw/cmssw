@@ -16,8 +16,7 @@
 
 template<TrackerType pixel_or_strip>
 MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
-   : dqmStore_( edm::Service<DQMStore>().operator->() )
-   , conf_(iConfig), m_cacheID_(0)
+   : conf_(iConfig), m_cacheID_(0)
    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this))
    , avalidator_(iConfig, consumesCollector()) {
   ModOn = conf_.getParameter<bool>("Mod_On");
@@ -178,7 +177,6 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
 	  // Skip the Y plots for strips.
 	  if (!isPixel && histopair.second[0] == 'Y') continue;
 
-	  // Check if this is necessary.
 	  std::string histoname = isPixel ? ( // Pixel name
 	        Form("HitResiduals%s_%s%d",
 	        histopair.second,
@@ -215,19 +213,6 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
       }      
     } // end loop over activeDets
 }
-
-
-template<TrackerType pixel_or_strip>
-void MonitorTrackResidualsBase<pixel_or_strip>::endJob(void){
-
-  //dqmStore_->showDirStructure();
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    dqmStore_->save(outputFileName);
-  }
-}
-
 
 template<TrackerType pixel_or_strip>
 void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

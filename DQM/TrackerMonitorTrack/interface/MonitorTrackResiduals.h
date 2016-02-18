@@ -39,19 +39,12 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
   explicit MonitorTrackResidualsBase(const edm::ParameterSet&);
   ~MonitorTrackResidualsBase();
   void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) ;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){};
-  virtual void beginJob(void){};
-  virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  // Own methods 
-  void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
  private:
 
-  DQMStore * dqmStore_;
-  edm::ParameterSet conf_;
-  edm::ParameterSet Parameters;
-
+  // Own methods 
+  void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
   std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
   
   struct HistoPair {
@@ -68,8 +61,12 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
   HistoSet m_SubdetLayerResiduals;
   HistoSet m_ModuleResiduals;
   
+  edm::ParameterSet conf_;
+  edm::ParameterSet Parameters;
+
   unsigned long long m_cacheID_;
   bool ModOn;
+
   GenericTriggerEventFlag* genTriggerEventFlag_;
   TrackerValidationVariables avalidator_;
 };
