@@ -46,7 +46,6 @@ using namespace Pythia8;
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
-#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 
@@ -63,7 +62,7 @@ namespace CLHEP {
 using namespace gen;
 
 
-class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
+class Pythia8Hadronizer : public Py8InterfaceBase {
 
   public:
 
@@ -84,8 +83,6 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 
     const char *classname() const override { return "Pythia8Hadronizer"; }
     
-    int randomIndex() const override { return randomIndex_; }
-
   private:
 
     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
@@ -151,7 +148,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
-  BaseHadronizer(params), Py8InterfaceBase(params),
+  Py8InterfaceBase(params),
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
