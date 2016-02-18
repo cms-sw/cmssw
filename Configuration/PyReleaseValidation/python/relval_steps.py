@@ -1175,7 +1175,7 @@ for k in upgradeKeys:
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotfixFull'][k]['--customise']=cust
    
-    upgradeStepDict['GenSimHLBeamSpotCrabKiss'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpotCrabKissFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHCCrabKissing',
