@@ -86,9 +86,12 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
       //end filling theTrajMap
 
      auto score = [&](Trajectory const&t)->float {
+            // possible variant under study
             // auto ns = t.foundHits()-t.trailingFoundHits();
-            auto penalty =  missingHitPenalty_;
-            return validHitBonus_*t.foundHits()  - penalty*t.lostHits() - t.chiSquared();
+            //auto penalty =  0.8f*missingHitPenalty_;
+            // return validHitBonus_*(t.foundHits()-0.2f*t.cccBadHits())  - penalty*t.lostHits() - t.chiSquared();
+         // classical score
+         return validHitBonus_*t.foundHits()  - missingHitPenalty_*t.lostHits() - t.chiSquared();
      };
 
       // check for duplicated tracks
