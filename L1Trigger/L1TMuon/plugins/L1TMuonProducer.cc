@@ -389,7 +389,7 @@ L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfiguration::I
   if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
   int muIdx = 0;
   int currentLink = 0;
-  for (size_t i = 0; i < in->size(bx); ++i) {
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
     if (currentLink != in->at(bx, i).link()) {
       muIdx = 0;
       currentLink = in->at(bx, i).link();
@@ -424,7 +424,7 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
   if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
   int muIdx = 0;
   int currentLink = 0;
-  for (size_t i = 0; i < in->size(bx); ++i) {
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
     if (currentLink != in->at(bx, i).link()) {
       muIdx = 0;
       currentLink = in->at(bx, i).link();
