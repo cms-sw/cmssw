@@ -40,7 +40,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+#include "FastSimulation/Tracking/interface/FastTrackingUtilities.h"
 
 using namespace std;
 
@@ -142,7 +142,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( const auto & recHitRef : recHitCombination) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -152,7 +152,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
@@ -161,7 +161,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
-			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
 			   const TrajectorySeed* aSeed = &ts;
@@ -206,7 +206,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -216,7 +216,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( outerId == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
@@ -225,7 +225,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
-			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
 			   const TrajectorySeed* aSeed = &ts;
