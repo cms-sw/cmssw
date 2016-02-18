@@ -61,11 +61,9 @@ bool Py8InterfaceBase::readSettings( int )
    fDecayer->readString("Next:numberShowEvent = 0");  
   
    edm::ParameterSet currentParameters;
-   if (fParameters.exists("RandomizedParameters")) {
+   if (randomIndex()>=0) {
      std::vector<edm::ParameterSet> randomizedParameters = fParameters.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
-     double drandom = p8RndmEngine_.flat();
-     unsigned int idx = (unsigned int)(randomizedParameters.size()*drandom);
-     currentParameters = randomizedParameters[idx];
+     currentParameters = randomizedParameters[randomIndex()];
    }
    else {
      currentParameters = fParameters;

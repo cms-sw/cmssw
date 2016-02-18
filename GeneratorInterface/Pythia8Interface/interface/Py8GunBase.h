@@ -23,6 +23,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
@@ -60,6 +61,9 @@ namespace gen {
     bool initializeForInternalPartons();
     void finalizeEvent(); 
     void statistics();
+    
+    void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {}
+    int randomIndex() const override { return -1; }
 
     void setRandomEngine(CLHEP::HepRandomEngine* v) { p8SetRandomEngine(v); }
     std::vector<std::string> const& sharedResources() const { return p8SharedResources; }

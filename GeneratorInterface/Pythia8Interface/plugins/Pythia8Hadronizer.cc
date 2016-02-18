@@ -83,6 +83,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     void statistics() override;
 
     const char *classname() const override { return "Pythia8Hadronizer"; }
+    
+    int randomIndex() const override { return randomIndex_; }
 
   private:
 
