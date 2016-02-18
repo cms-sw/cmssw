@@ -51,7 +51,6 @@ class TTStubBuilder : public edm::EDProducer
 
   private:
     /// Data members
-    //    const StackedTrackerGeometry *theStackedTracker;
     edm::ESHandle< TTStubAlgorithm< T > > theStubFindingAlgoHandle;
     edm::InputTag TTClustersInputTag;
     
@@ -108,7 +107,6 @@ void TTStubBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSe
 template< typename T >
 void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  ///////ADDED from here /////
   //Retrieve tracker topology from geometry                                                                                                              
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
@@ -116,90 +114,75 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ESHandle< TrackerGeometry > tGeomHandle;
   iSetup.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+
   /// Prepare output
   std::auto_ptr< edmNew::DetSetVector< TTCluster< T > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputAccepted( new edmNew::DetSetVector< TTStub< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< T > > );
+
   /// Get the Clusters already stored away
   edm::Handle< edmNew::DetSetVector< TTCluster< T > > > TTClusterHandle;
   iEvent.getByLabel( TTClustersInputTag, TTClusterHandle );
+
   /// Get the maximum number of stubs per ROC
   /// (CBC3-style)
   //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
   unsigned maxStubs = 3;
 
-  for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
-    {        
+  for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
-
-      DetId id0 = tTopo->Lower(detid) ;
-      DetId id1 = tTopo->Upper(detid) ;
-
-      if ( ( id0 ) != tTopo->PartnerDetId(id1) ||
-	   ( id1 ) != tTopo->PartnerDetId(id0) )
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
-      continue;
-    }
-
-      if ( tTopo->Stack(id0) != tTopo->Stack(id1))
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
-      continue;
-    }
+      if(detid.subdetId()==1 || detid.subdetId()==2 ) continue; // only run on OT
+      if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
+      DetId lowerDetid = detid;
+      DetId upperDetid = tTopo->PartnerDetId(detid);
+      DetId stackDetid = tTopo->Stack(detid);
 
     /// Go on only if both detectors have Clusters
-    if ( TTClusterHandle->find( id0 ) == TTClusterHandle->end() ||
-         TTClusterHandle->find( id1 ) == TTClusterHandle->end() )
+    if ( TTClusterHandle->find( lowerDetid ) == TTClusterHandle->end() ||
+         TTClusterHandle->find( upperDetid ) == TTClusterHandle->end() )
       continue;
 
     /// Get the DetSets of the Clusters
-    edmNew::DetSet< TTCluster< T > > innerClusters = (*TTClusterHandle)[ id0 ];
-    edmNew::DetSet< TTCluster< T > > outerClusters = (*TTClusterHandle)[ id1 ];
+    edmNew::DetSet< TTCluster< T > > lowerClusters = (*TTClusterHandle)[ lowerDetid ];
+    edmNew::DetSet< TTCluster< T > > upperClusters = (*TTClusterHandle)[ upperDetid ];
 
-    typename edmNew::DetSet< TTCluster< T > >::iterator innerClusterIter, outerClusterIter;
+    typename edmNew::DetSet< TTCluster< T > >::iterator lowerClusterIter, upperClusterIter;
 
     /// If there are Clusters in both sensors
     /// you can try and make a Stub
     /// This is ~redundant
-    if ( innerClusters.size() == 0 || outerClusters.size() == 0 )
+    if ( lowerClusters.size() == 0 || upperClusters.size() == 0 )
       continue;
 
-/* IR 2014 04 20
- * from pointer to object to deallocate memory in the correct way
-*/
     /// Create the vectors of objects to be passed to the FastFillers
-    std::vector< TTCluster< T > > tempInner; // = new std::vector< TTCluster< T > >();
-    std::vector< TTCluster< T > > tempOuter; // = new std::vector< TTCluster< T > >();
-    std::vector< TTStub< T > >   tempOutput; // = new std::vector< TTStub< T > >();
-    //std::vector< TTStub< T > > tempRejected; // = new std::vector< TTStub< T > >();
+    std::vector< TTCluster< T > > tempInner; 
+    std::vector< TTCluster< T > > tempOuter; 
+    std::vector< TTStub< T > >   tempOutput; 
     tempInner.clear();
     tempOuter.clear();
     tempOutput.clear();
-    //tempRejected.clear();
 
     /// Get chip size information
-    //    const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
-    const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid) );
+    const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( lowerDetid );
     const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
     const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
     const int chipSize = 2 * top0->rowsperroc(); /// Need to find ASIC size in half-strip units
+
     std::map< int, std::vector< TTStub< T > > > moduleStubs; /// Temporary storage for stubs before max check
 
     /// Loop over pairs of Clusters
-    for ( innerClusterIter = innerClusters.begin();
-          innerClusterIter != innerClusters.end();
-          ++innerClusterIter )
-    {
-      for ( outerClusterIter = outerClusters.begin();
-            outerClusterIter != outerClusters.end();
-            ++outerClusterIter )
-      {
+    for ( lowerClusterIter = lowerClusters.begin();
+          lowerClusterIter != lowerClusters.end();
+          ++lowerClusterIter ) {
+      for ( upperClusterIter = upperClusters.begin();
+            upperClusterIter != upperClusters.end();
+            ++upperClusterIter ) {
+
         /// Build a temporary Stub
-        TTStub< T > tempTTStub( detid );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, innerClusterIter ) );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, outerClusterIter ) );
+        TTStub< T > tempTTStub( stackDetid );
+        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, lowerClusterIter ) );
+        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, upperClusterIter ) );
 
         /// Check for compatibility
         bool thisConfirmation = false;
@@ -218,8 +201,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           if ( maxStubs == 0 )
           {
             /// This means that ALL stubs go into the output
-            tempInner.push_back( *innerClusterIter );
-            tempOuter.push_back( *outerClusterIter );
+            tempInner.push_back( *lowerClusterIter );
+            tempOuter.push_back( *upperClusterIter );
             tempOutput.push_back( tempTTStub );
           }
           else
@@ -242,13 +225,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             }
           }
         } /// Stub accepted
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
-        else
-        {
-          tempRejected->push_back( tempTTStub );
-        } /// Stub rejected
-*/
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
 
@@ -287,14 +263,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             tempOuter.push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
             tempOutput.push_back( is.second[bendMap[i].first] );
           }
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
-          for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
-          {
-            /// Reject the rest
-            tempRejected->push_back( is.second[bendMap[i].first] );
-          }
-*/
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
@@ -302,29 +270,29 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     /// Create the FastFillers
     if ( tempInner.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTCluster< T > >::FastFiller innerOutputFiller( *TTClusterDSVForOutput, id0 );
+      typename edmNew::DetSetVector< TTCluster< T > >::FastFiller lowerOutputFiller( *TTClusterDSVForOutput, lowerDetid );
       for ( unsigned int m = 0; m < tempInner.size(); m++ )
       {
-        innerOutputFiller.push_back( tempInner.at(m) );
+        lowerOutputFiller.push_back( tempInner.at(m) );
       }
-      if ( innerOutputFiller.empty() )
-        innerOutputFiller.abort();
+      if ( lowerOutputFiller.empty() )
+        lowerOutputFiller.abort();
     }
 
     if ( tempOuter.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTCluster< T > >::FastFiller outerOutputFiller( *TTClusterDSVForOutput, id1 );
+      typename edmNew::DetSetVector< TTCluster< T > >::FastFiller upperOutputFiller( *TTClusterDSVForOutput, upperDetid );
       for ( unsigned int m = 0; m < tempOuter.size(); m++ )
       {
-        outerOutputFiller.push_back( tempOuter.at(m) );
+        upperOutputFiller.push_back( tempOuter.at(m) );
       }
-      if ( outerOutputFiller.empty() )
-        outerOutputFiller.abort();
+      if ( upperOutputFiller.empty() )
+        upperOutputFiller.abort();
     }
 
     if ( tempOutput.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, detid);
+      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, stackDetid);
       for ( unsigned int m = 0; m < tempOutput.size(); m++ )
       {
         tempOutputFiller.push_back( tempOutput.at(m) );
@@ -332,20 +300,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       if ( tempOutputFiller.empty() )
         tempOutputFiller.abort();
     }
-
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
-    if ( tempRejected->size() > 0 )
-    {
-      typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
-      for ( unsigned int m = 0; m < tempRejected->size(); m++ )
-      {
-        rejectedOutputFiller.push_back( tempRejected->at(m) );
-      }
-      if ( rejectedOutputFiller.empty() )
-      rejectedOutputFiller.abort();
-    }
-*/
 
   } /// End of loop over detector elements
 
@@ -356,45 +310,21 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   /// Now, correctly reset the output
   typename edmNew::DetSetVector< TTStub< T > >::const_iterator stubDetIter;
 
-  /*  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
+  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
         stubDetIter != TTStubDSVForOutputTemp->end();
-        ++stubDetIter )
-  {
+        ++stubDetIter ) {
     /// Get the DetId and prepare the FastFiller
-        DetId thisStackedDetId = stubDetIter->id();
+    DetId thisStackedDetId = stubDetIter->id();
     typename edmNew::DetSetVector< TTStub< T > >::FastFiller acceptedOutputFiller( *TTStubDSVForOutputAccepted, thisStackedDetId );
 
-    /// Get its DetUnit
-    const StackedTrackerDetUnit* thisUnit = theStackedTracker->idToStack( thisStackedDetId );
-    DetId id0 = thisUnit->stackMember(0);
-    DetId id1 = thisUnit->stackMember(1);
-
-    /// Check that everything is ok in the maps
-    /// Redundant up to (*)
-    if ( theStackedTracker->findPairedDetector( id0 ) != id1 ||
-         theStackedTracker->findPairedDetector( id1 ) != id0 )
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
-      continue;
-    }
-
-    if ( theStackedTracker->findStackFromDetector( id0 ) != thisStackedDetId ||
-         theStackedTracker->findStackFromDetector( id1 ) != thisStackedDetId )
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
-      continue;
-    }
-    
-    /// Go on only if both detectors have clusters
-    if ( TTClusterAcceptedHandle->find( id0 ) == TTClusterAcceptedHandle->end() ||
-         TTClusterAcceptedHandle->find( id1 ) == TTClusterAcceptedHandle->end() )
-      continue;
-
-    /// (*)
+    /// detid of the two components. 
+    ///This should be done via a TrackerTopology method that is not yet available.
+    DetId lowerDetid = thisStackedDetId+1;
+    DetId upperDetid = thisStackedDetId+2;
 
     /// Get the DetSets of the clusters
-    edmNew::DetSet< TTCluster< T > > innerClusters = (*TTClusterAcceptedHandle)[ id0 ];
-    edmNew::DetSet< TTCluster< T > > outerClusters = (*TTClusterAcceptedHandle)[ id1 ];
+    edmNew::DetSet< TTCluster< T > > lowerClusters = (*TTClusterAcceptedHandle)[ lowerDetid ];
+    edmNew::DetSet< TTCluster< T > > upperClusters = (*TTClusterAcceptedHandle)[ upperDetid ];
 
     /// Get the DetSet of the stubs
     edmNew::DetSet< TTStub< T > > theseStubs = (*TTStubDSVForOutputTemp)[ thisStackedDetId ];
@@ -405,43 +335,37 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     typename edmNew::DetSet< TTStub< T > >::iterator stubIter;
     for ( stubIter = theseStubs.begin();
           stubIter != theseStubs.end();
-          ++stubIter )
-    {
+          ++stubIter ) {
       /// Create a temporary stub
       TTStub< T > tempTTStub( stubIter->getDetId() );
 
       /// Compare the clusters stored in the stub with the ones of this module
-      edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > innerClusterToBeReplaced = stubIter->getClusterRef(0);
-      edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > outerClusterToBeReplaced = stubIter->getClusterRef(1);
+      edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+      edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > upperClusterToBeReplaced = stubIter->getClusterRef(1);
 
-      bool innerOK = false;
-      bool outerOK = false;
+      bool lowerOK = false;
+      bool upperOK = false;
 
-      for ( clusterIter = innerClusters.begin();
-            clusterIter != innerClusters.end() && !innerOK;
-            ++clusterIter )
-      {
-        if ( clusterIter->getHits() == innerClusterToBeReplaced->getHits() )
-        {
+      for ( clusterIter = lowerClusters.begin();
+            clusterIter != lowerClusters.end() && !lowerOK;
+            ++clusterIter ) {
+        if ( clusterIter->getHits() == lowerClusterToBeReplaced->getHits() ) {
           tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
-          innerOK = true;
+          lowerOK = true;
         }
       }
 
-      for ( clusterIter = outerClusters.begin();
-            clusterIter != outerClusters.end() && !outerOK;
-            ++clusterIter )
-      {
-        if ( clusterIter->getHits() == outerClusterToBeReplaced->getHits() )
-        {
+      for ( clusterIter = upperClusters.begin();
+            clusterIter != upperClusters.end() && !upperOK;
+            ++clusterIter ) {
+        if ( clusterIter->getHits() == upperClusterToBeReplaced->getHits() ) {
           tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
-          outerOK = true;
+          upperOK = true;
         }
       }
 
       /// If no compatible clusters were found, skip to the next one
-      if ( !innerOK || !outerOK )
-        continue;
+      if ( !lowerOK || !upperOK ) continue;
 
       tempTTStub.setTriggerDisplacement( 2.*stubIter->getTriggerDisplacement() ); /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setTriggerOffset( 2.*stubIter->getTriggerOffset() );             /// getter is in FULL-strip units, setter is in HALF-strip units
@@ -454,7 +378,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       acceptedOutputFiller.abort();
    
   } /// End of loop over stub DetSetVector
-*/    
+    
   /// Put output in the event (2)
   iEvent.put( TTStubDSVForOutputAccepted, "StubAccepted" );
   iEvent.put( TTStubDSVForOutputRejected, "StubRejected" );
