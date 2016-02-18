@@ -46,6 +46,3 @@ ConversionTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.put(output);
 
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ConversionTrackRefFix);
