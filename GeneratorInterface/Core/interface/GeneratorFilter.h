@@ -62,7 +62,6 @@ namespace edm
     //gen::ExternalDecayDriver* decayer_;
     Decayer*              decayer_;
     unsigned int          nEventsInLumiBlock_;
-    bool randomInit_;
   };
 
   //------------------------------------------------------------------------
@@ -74,8 +73,7 @@ namespace edm
     EDFilter(),
     hadronizer_(ps),
     decayer_(0),
-    nEventsInLumiBlock_(0),
-    randomInit_(false)
+    nEventsInLumiBlock_(0)
   {
     // TODO:
     // Put the list of types produced by the filters here.
@@ -102,10 +100,6 @@ namespace edm
          usesResource(resource);
        }
     }
-    
-    if (ps.exists("RandomizedParameters")) {
-      randomInit_ = true;
-    }    
     
     // This handles the case where there are no shared resources, because you
     // have to declare something when the SharedResources template parameter was used.
@@ -228,12 +222,7 @@ namespace edm
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
-    if (randomInit_) {
-      double drandom = randomEngineSentry.randomEngine()->flat();
-      unsigned long ulrandom = (unsigned long)(std::numeric_limits<unsigned long>::max()*drandom);
-      long newseed = std::abs((long)(ulrandom + lumi.id().value()));
-      randomEngineSentry.randomEngine()->setSeed(newseed,0);
-    }
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
     
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
