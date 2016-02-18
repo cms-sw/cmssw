@@ -1098,8 +1098,8 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 # for each geometry define the GT and processing string here
 defaultDataSets={}
 #defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
-#defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeHLLHC-v'
-defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeCrab-v'
+defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeHLLHC-v'
+#defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeCrab-v'
 defaultDataSets['Extended2023HGCalMuonPandora']=defaultDataSets['Extended2023HGCalMuon'] # Geometry is the same, only reco is different
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
 defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
