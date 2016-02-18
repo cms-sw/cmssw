@@ -5,19 +5,24 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
 TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, 
-						       const TrackerTopology* tTopo) :
+			     const TrackerGeometry* theGeometry,
+			     const TrackerTopology* tTopo) :
   theHit(hit),
   theRingNumber(0),
-  theCylinderNumber(0)
+  theCylinderNumber(0),
+  theLocalError(0.),
+  theLargerError(0.)
+     
 { 
-  init(tTopo);
+  init(theGeometry, tTopo);
 }
 
 void
-TrajectorySeedHitCandidate::init(const TrackerTopology *tTopo) { 
+TrajectorySeedHitCandidate::init(const TrackerGeometry* theGeometry, const TrackerTopology *tTopo) { 
 
   const DetId& theDetId = hit()->geographicalId();
   int subDetId = theDetId.subdetId();
+  theGeomDet = theGeometry->idToDet(theDetId);
   seedingLayer=TrackingLayer::createFromDetId(theDetId,*tTopo);
   if ( subDetId == StripSubdetector::TIB) { 
      
