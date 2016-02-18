@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-import FastSimulation.Tracking.InitialStep_cff
 
 # pixel triplet seeds
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 hltPixelTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.layerList,
-    skipSeedFinderSelector = cms.untracked.bool(True),
-    RegionFactoryPSet = FastSimulation.Tracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.clone()
+    layerList = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.layerList
     )
 
 # pixel pair seeds
@@ -23,9 +20,7 @@ hltPixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajector
         
         'FPix1_pos+FPix2_pos',
         'FPix1_neg+FPix2_neg',
-        ),
-    skipSeedFinderSelector = cms.untracked.bool(True),
-    RegionFactoryPSet = FastSimulation.Tracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.clone()
+        )
     )
 
 # todo: add mixed pair seeds?
