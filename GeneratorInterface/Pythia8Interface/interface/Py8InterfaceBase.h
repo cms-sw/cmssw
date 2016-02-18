@@ -36,6 +36,7 @@ namespace gen {
          virtual void finalizeEvent() = 0; 
          virtual void statistics();
          virtual const char* classname() const = 0;
+         virtual int randomIndex() const = 0;
 
          void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_.setRandomEngine(v); }
          P8RndmEngine& randomEngine() { return p8RndmEngine_; }

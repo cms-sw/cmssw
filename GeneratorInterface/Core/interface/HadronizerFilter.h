@@ -84,7 +84,6 @@ namespace edm
     InputTag runInfoProductTag_;
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
-    bool randomInit_;
   };
 
   //------------------------------------------------------------------------
@@ -100,8 +99,7 @@ namespace edm
     fromSource_(true),
     runInfoProductTag_(),
     counterRunInfoProducts_(0),
-    nAttempts_(1),
-    randomInit_(false)
+    nAttempts_(1)
   {
     callWhenNewProductsRegistered([this]( BranchDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
@@ -147,10 +145,6 @@ namespace edm
     //initialize setting for multiple hadronization attempts
     if (ps.exists("nAttempts")) {
       nAttempts_ = ps.getParameter<unsigned int>("nAttempts");
-    }
-
-    if (ps.exists("RandomizedParameters")) {
-      randomInit_ = true;
     }
     
     // This handles the case where there are no shared resources, because you
@@ -351,13 +345,8 @@ namespace edm
 
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
-
-    if (randomInit_) {
-      double drandom = randomEngineSentry.randomEngine()->flat();
-      unsigned long ulrandom = (unsigned long)(std::numeric_limits<unsigned long>::max()*drandom);
-      long newseed = std::abs((long)(ulrandom + lumi.id().value()));
-      randomEngineSentry.randomEngine()->setSeed(newseed,0);
-    }
+    
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
     
     if ( !hadronizer_.readSettings(1) )
        throw edm::Exception(errors::Configuration) 
