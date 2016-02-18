@@ -242,6 +242,13 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
 namespace {
   void ensureEffIsSubsetOfFake(const TrackingParticleRefVector& eff, const TrackingParticleRefVector& fake) {
+    // If efficiency RefVector is empty, don't check the product ids
+    // as it will be 0:0 for empty. This covers also the case where
+    // both are empty. The case of fake being empty and eff not is an
+    // error.
+    if(eff.empty())
+      return;
+
     // First ensure product ids
     if(eff.id() != fake.id()) {
       throw cms::Exception("Configuration") << "Efficiency and fake TrackingParticle (refs) point to different collections (eff " << eff.id() << " fake " << fake.id() << "). This is not supported. Efficiency TP set must be the same or a subset of the fake TP set.";
