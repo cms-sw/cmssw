@@ -99,18 +99,29 @@ do
    echo $ff
    export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
    source $VO_CMS_SW_DIR/cmsset_default.sh
-   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
-   /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
-   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
-   /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
-   echo $idx
-   if [ $? -ne 0 ]; then
-      echo "ERROR: remote copy failed for file $ff"
-   else
+   for try in `seq 1 3`; do
+      echo "Stageout try $try"
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
+      if [ $? -ne 0 ]; then
+         echo "ERROR: remote copy failed for file $ff"
+         continue
+      fi
       echo "remote copy succeeded"
+      remsize=$(/afs/cern.ch/project/eos/installation/pro/bin/eos.select find --size {srm}/${{ff}}_{idx}.root | cut -d= -f3) 
+      locsize=$(cat `pwd`/$f | wc -c)
+      ok=$(($remsize==$locsize))
+      if [ $ok -ne 1 ]; then
+         echo "Problem with copy (file sizes don't match), will retry in 30s"
+         sleep 30
+         continue
+      fi
+      echo "everything ok"
       rm $f
       echo root://eoscms.cern.ch/{srm}/${{ff}}_{idx}.root > $f.url
-   fi
+   done
 done
 cp -r Loop/* $LS_SUBCWD
 if [ $? -ne 0 ]; then
