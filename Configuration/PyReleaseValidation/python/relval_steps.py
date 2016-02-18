@@ -1185,7 +1185,7 @@ for k in upgradeKeys:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotCrabKiss'][k]['--customise']=cust
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotCrabKissFull'][k]['--customise']=cust
 
  
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
