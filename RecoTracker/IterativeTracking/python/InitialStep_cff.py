@@ -105,7 +105,6 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     AlgorithmName = cms.string('initialStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
-eras.trackingPhase1.toModify(initialStepTracks, TTRHBuilder = 'WithTrackAngle')
 
 
 #vertices

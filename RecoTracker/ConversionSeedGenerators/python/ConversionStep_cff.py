@@ -381,7 +381,6 @@ convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone
     AlgorithmName = cms.string('conversionStep'),
     Fitter = 'convStepFitterSmoother',
     )
-eras.trackingPhase1.toModify(convStepTracks, TTRHBuilder = 'WithTrackAngle')
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

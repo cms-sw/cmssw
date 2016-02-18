@@ -259,7 +259,6 @@ mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     src = 'mixedTripletStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
 )
-eras.trackingPhase1.toModify(mixedTripletStepTracks, TTRHBuilder = 'WithTrackAngle')
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *

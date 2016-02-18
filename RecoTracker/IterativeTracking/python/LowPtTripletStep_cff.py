@@ -136,7 +136,6 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
-eras.trackingPhase1.toModify(lowPtTripletStepTracks, TTRHBuilder = 'WithTrackAngle')
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(

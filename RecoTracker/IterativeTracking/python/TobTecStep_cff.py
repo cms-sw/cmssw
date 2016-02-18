@@ -299,7 +299,6 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
     #Fitter = 'tobTecStepFitterSmoother',
     Fitter = 'tobTecFlexibleKFFittingSmoother',
     )
-eras.trackingPhase1.toModify(tobTecStepTracks, TTRHBuilder = 'WithTrackAngle')
 
 
 
