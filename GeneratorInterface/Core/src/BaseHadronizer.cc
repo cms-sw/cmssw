@@ -14,7 +14,7 @@ BaseHadronizer::BaseHadronizer( edm::ParameterSet const& ps ) :
       std::vector<edm::ParameterSet> randomizedParameters = ps.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
       randomInitWeights_.resize(randomizedParameters.size());
       for (unsigned int irand = 0; irand<randomizedParameters.size(); ++irand) {
-        randomInitWeights_[irand] = randomizedParameters[irand].getParameter<double>("weight");
+        randomInitWeights_[irand] = randomizedParameters[irand].getParameter<double>("ConfigWeight");
       }
     }  
   
@@ -31,9 +31,9 @@ void BaseHadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::Hep
   if (randomInitWeights_.size()>0) {
     //randomly select from a list of provided configuration sets (for parameter scans)
     
-    //seeds std 32-bit mersene twister with 10 random integers plus run and lumi section numbers
+    //seeds std 32-bit mersene twister with 50 random integers plus run and lumi section numbers
     //(random integers will be the same for every lumi section in a job)
-    constexpr unsigned int nseeds = 10;
+    constexpr unsigned int nseeds = 50;
     std::array<unsigned int, nseeds+2> seeds;
     for (unsigned int iseed=0; iseed<nseeds; ++iseed) {
       double drandom = rengine->flat();
@@ -48,6 +48,8 @@ void BaseHadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::Hep
     
     randomIndex_ = randdist(randgen);
 
+    printf("selected random index = %i\n",randomIndex_);
+    
   }
 }
 
