@@ -421,6 +421,13 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     genLumiInfo->setProcessInfo( GenLumiProcess );
+    
+    //fill information on randomized configs for parameter scans
+    genLumiInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genLumiInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
+    
     lumi.put(genLumiInfo);
 
 
