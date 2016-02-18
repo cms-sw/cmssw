@@ -37,6 +37,16 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     fedUnpackList_.push_back(1118);
     fedUnpackList_.push_back(1120);
     fedUnpackList_.push_back(1122);
+    // HBHE uTCA
+    fedUnpackList_.push_back(1100);     
+    fedUnpackList_.push_back(1102);     
+    fedUnpackList_.push_back(1104);     
+    fedUnpackList_.push_back(1106);     
+    fedUnpackList_.push_back(1108);     
+    fedUnpackList_.push_back(1110);     
+    fedUnpackList_.push_back(1112);     
+    fedUnpackList_.push_back(1114);     
+    fedUnpackList_.push_back(1116);     
   } 
   
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
