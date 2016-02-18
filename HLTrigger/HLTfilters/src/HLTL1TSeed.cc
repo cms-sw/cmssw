@@ -565,7 +565,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         if(objMap == 0) {
 
-          LogTrace("HLTL1TSeed") 
+          edm::LogWarning("HLTL1TSeed") 
           << "\nWarning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
           return false;
 
