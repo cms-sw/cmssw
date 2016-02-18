@@ -88,7 +88,7 @@ unsigned int TrackingMaterialPlotter::fill_gradient(const TColor & first, const 
 
   m_gradient.resize(steps);
   for (unsigned int i = 0; i < steps; ++i) {
-    new TColor(index + i, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(static_cast<Int_t>(index + i), r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient[i] = index + i;
   }
 
