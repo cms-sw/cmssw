@@ -1,18 +1,18 @@
 ### Purpose
 
-This code generates the `HitResiduals` and `NormalizedHitResiduals` histograms.
+This code generates the `HitResiduals` and `NormalizedHitResiduals` histograms for SiStip and SiPixel. The source file `MonitorTrackResiduals.cc` actually implements two modules (using a template parameter) from the same code, such that the SiStrip and SiPixel configurations can be handled independently. The disadvantage of this is that every track has to be handled twice (which might hurt performance).
 
 ### Data displayed
 
-The data shown in the histograms is computed by the Alignment/OfflineValidation code. It is computed for SiPixel and SiStrip in x- and y-direction (resXprime, resYprime values), however for the strips only the x-residual is relevant.
+The data shown in the histograms is computed by the Alignment/OfflineValidation code. It is computed for SiPixel and SiStrip in x- and y-direction (resXprime, resYprime values), however for the strips only the x-residual is relevant. Simple cuts on pT and the significance of dxy are applied to only select good tracks. Additionally, a trigger can be applied. 
 
 ### Options
 
-* `MonitorTrackResiduals.Mod_On` setting this to `True` will generate plots for every module. By default, only one plot per layer and wheel/disk is generated.
+`MonitorTrackResiduals` (for SiStrip) and `SiPixelMonitorTrackResiduals` (for SiPixel) accept the same options.
 
-### Bugs
-
-* The plots for pixel disks appear hidden in the shell and half cylinder folders, even though they cover the full layer/disk.
+* `Mod_On` setting this to `True` will generate plots for every module. By default, only one plot per layer and wheel/disk is generated.
+* `Tracks` the sort of tracks to be used. (Note that `TrackerValidationVariables.cc` uses `trajcetoryInput` as well, but this should not affect this module.)
+* The usual parameters of `GenericTriggerEventFlag`.
 
 ### Currently generated histograms
 
