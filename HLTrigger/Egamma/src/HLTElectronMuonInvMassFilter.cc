@@ -55,13 +55,11 @@ bool
 HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
+  using namespace math;
   using namespace edm;
   using namespace reco;
   // The filter object
   using namespace trigger;
-  
-  double const MuMass = 0.106;
-  double const MuMass2 = MuMass*MuMass;
 
   if (saveTags()) {
     filterproduct.addCollectionTag(L1IsoCollTag_);
@@ -75,20 +73,12 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   edm::Handle<trigger::TriggerFilterObjectWithRefs> MuonFromPrevFilter;
   iEvent.getByToken (muonCandToken_,MuonFromPrevFilter);
 
-  std::vector<TLorentzVector> pElectron;
-  std::vector<double> eleCharge;
-
-  std::vector<TLorentzVector> pMuon;
-  std::vector<double> muonCharge;
-
-  Ref< ElectronCollection > refele;
   vector< Ref< ElectronCollection > > electrons;
   EleFromPrevFilter->getObjects(TriggerElectron, electrons);
 
   vector<RecoChargedCandidateRef> l3muons;
   MuonFromPrevFilter->getObjects(TriggerMuon,l3muons);
   
-  Ref<reco::RecoEcalCandidateCollection> ecalRef;
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection>> clusCands;
   if(electrons.empty()){
   	EleFromPrevFilter->getObjects(TriggerCluster,clusCands);
@@ -98,42 +88,11 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   	EleFromPrevFilter->getObjects(TriggerPhoton,clusCands);
   }
   
-  for(unsigned int i=0; i<l3muons.size(); i++) {
-    TrackRef tk = l3muons[i]->get<TrackRef>();
-    //     TrackRef tk = l3muons[i].track();
-    double muonEnergy = sqrt(tk->momentum().Mag2()+MuMass2);
-    TLorentzVector pThisMuon(tk->px(), tk->py(),
-			     tk->pz(), muonEnergy );
-    pMuon.push_back( pThisMuon );
-    muonCharge.push_back( tk->charge() );
-  }
-
-  pElectron.reserve(electrons.size()+clusCands.size());
-  eleCharge.reserve(electrons.size()+clusCands.size());
-  
-  for (unsigned int i=0; i<electrons.size(); i++) {
-    refele = electrons[i];
-    TLorentzVector pThisEle(refele->px(), refele->py(),
-			    refele->pz(), refele->energy() );
-    pElectron.push_back( pThisEle );
-    eleCharge.push_back( refele->charge() );
-  }
-  
-  for(unsigned int i=0;i<clusCands.size();i++){
-  
-  	ecalRef = clusCands[i];
-	TLorentzVector pThisEle(ecalRef->px(), ecalRef->py(),
-				ecalRef->pz(), ecalRef->superCluster()->energy());
-	pElectron.push_back(pThisEle);
-	eleCharge.push_back( ecalRef->charge());	  
-  }
-
   int nEleMuPairs = 0;
   
   for(unsigned int i=0; i<electrons.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
-      TLorentzVector pTot = pElectron[i] + pMuon[j];
-      double mass = pTot.M();
+      double mass = (electrons[i]->p4()+l3muons[j]->p4()).mass();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
 	filterproduct.addObject(TriggerElectron, electrons[i]);
@@ -144,10 +103,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   for(unsigned int i=0; i<clusCands.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
-      TLorentzVector p1 = pElectron.at(i);
-      TLorentzVector p2 = pMuon.at(j);
-      TLorentzVector pTot = p1 + p2;
-      double mass = pTot.M();
+      double mass = (clusCands[i]->p4()+l3muons[j]->p4()).mass();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
 	filterproduct.addObject(TriggerElectron, clusCands[i]);
