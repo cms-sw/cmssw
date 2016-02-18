@@ -73,6 +73,12 @@ class GenEventInfoProduct {
 	void setNMEPartons(int n) {nMEPartons_ = n;}
 	
 	void setNMEPartonsFiltered(int n) {nMEPartonsFiltered_ = n;}
+	
+	int randomConfigIndex() const { return randomConfigIndex_; }
+	void setRandomConfigIndex(int idx) { randomConfigIndex_ = idx; }
+	
+	const std::string &configDescription() const { return configDescription_; }
+	void setConfigDescription(const std::string &str) { configDescription_ = str; }
 
     private:
 	// HepMC::GenEvent provides a list of weights
@@ -99,6 +105,9 @@ class GenEventInfoProduct {
         std::vector<float>      DJRValues_;
         int                     nMEPartons_;
         int                     nMEPartonsFiltered_;
+        
+        int randomConfigIndex_;
+        std::string configDescription_;
 };
 
 #endif // SimDataFormats_GeneratorProducts_GenEventInfoProduct_h

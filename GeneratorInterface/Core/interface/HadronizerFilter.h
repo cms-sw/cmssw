@@ -270,6 +270,11 @@ namespace edm
       finalEvent->weights()[0] *= multihadweight;
     }
     
+    //fill information on randomized configs for parameter scans
+    finalGenEventInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      finalGenEventInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
     
     ev.put(finalGenEventInfo);
 
