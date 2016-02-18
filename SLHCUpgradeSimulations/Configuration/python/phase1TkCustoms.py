@@ -531,26 +531,27 @@ def customise_Reco(process,pileup):
     process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
     process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # Enable, for now, pixel tracks and vertices
-    # To be removed later together with the cluster splitting
-    process.globalreco_tracking.replace(process.standalonemuontracking,
-                                        process.standalonemuontracking+process.recopixelvertexing)
-    process.initialStepSelector.vertices = "pixelVertices"
-    process.highPtTripletStepSelector.vertices = "pixelVertices"
-    process.lowPtQuadStepSelector.vertices = "pixelVertices"
-    process.lowPtTripletStepSelector.vertices = "pixelVertices"
-    process.detachedQuadStepSelector.vertices = "pixelVertices"
-    process.mixedTripletStepSelector.vertices = "pixelVertices"
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
-    process.pixelPairStepSelector.vertices = "pixelVertices"
-    process.tobTecStepSelector.vertices = "pixelVertices"
-    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
-    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
-    process.duplicateTrackClassifier.vertices = "pixelVertices"
-    process.convStepSelector.vertices = "pixelVertices"
-    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
-    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
-    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
+    if not eras.phase1Pixel.isChosen():
+        # Enable, for now, pixel tracks and vertices
+        # To be removed later together with the cluster splitting
+        process.globalreco_tracking.replace(process.standalonemuontracking,
+                                            process.standalonemuontracking+process.recopixelvertexing)
+        process.initialStepSelector.vertices = "pixelVertices"
+        process.highPtTripletStepSelector.vertices = "pixelVertices"
+        process.lowPtQuadStepSelector.vertices = "pixelVertices"
+        process.lowPtTripletStepSelector.vertices = "pixelVertices"
+        process.detachedQuadStepSelector.vertices = "pixelVertices"
+        process.mixedTripletStepSelector.vertices = "pixelVertices"
+        process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+        process.pixelPairStepSelector.vertices = "pixelVertices"
+        process.tobTecStepSelector.vertices = "pixelVertices"
+        process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+        process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+        process.duplicateTrackClassifier.vertices = "pixelVertices"
+        process.convStepSelector.vertices = "pixelVertices"
+        process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
+        process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+        process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
 
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(

@@ -73,7 +73,8 @@ eras.trackingPhase1.toModify(pixelPairStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
             ptMin = 1.2,
-            useMultipleScattering = False
+            useMultipleScattering = False,
+            VertexCollection = "pixelVertices",
         )
     ),
 )
