@@ -310,7 +310,7 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
-  LogDebug("HLTL1TSeed") 
+  LogTrace("HLTL1TSeed") 
   << "\nHLTL1TSeed::hltFilter "
   << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
   
@@ -480,10 +480,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     if (!uGtAlgoBlocks.isValid()) {
 
-        //LogTrace("HLTL1TSeed")
-        //<< "\nWarning: GlobalAlgBlkBxCollection with input tag "
-        //<< m_l1GlobalToken
-        //<< "\nrequested in configuration, but not found in the event." << std::endl;
+      edm::LogWarning("HLTL1TSeed")
+      << "\nWarning: GlobalAlgBlkBxCollection with input tag "
+      << m_l1GlobalTag
+      << "\nrequested in configuration, but not found in the event." << std::endl;
 
         return false;
     }
@@ -561,9 +561,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         std::string algoName = (algOpTokenVector[i]).tokenName;
 
-        //LogTrace("HLTL1TSeed") 
-        //<< "tokenName = " << algoName << endl;
-
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
 
         if(objMap == 0) {
@@ -593,23 +590,20 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
 
     // TODO check that the L1GlobalTriggerObjectMapRecord corresponds to the same menu as
-    // the menu run by HLTL1TSeed
-    //     true normally online (they are run in the same job)
-    //     can be false offline, when re-running HLT without re-running the object map producer
+    // the menu run by HLTL1TSeed.  True normally online (they are run in the same job)
+    // can be false offline, when re-running HLT without re-running the object map producer
+    //
 
-    // loop over the list of required algorithms for seeding
+    /// Loop over the list of required algorithms for seeding
+    /// /////////////////////////////////////////////////////
 
     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
             itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
-
-      bool matchedAlgo = false;
       
-      int algoSeedMapNumber = (*itSeed).tokenNumber;
       std::string algoSeedName = (*itSeed).tokenName;
-      bool algoSeedResult = (*itSeed).tokenResult;
 
       LogTrace("HLTL1TSeed") 
-        << "\n ----------------  seed name = " << algoSeedName << endl;
+      << "\n ----------------  algo seed name = " << algoSeedName << endl;
 
       const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
 
@@ -623,37 +617,39 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       }
 
-      algoSeedResult = objMap->algoGtlResult();
+      int  algoSeedBitNumber = objMap->algoBitNumber();
+      bool algoSeedResult    = objMap->algoGtlResult();
 
-      algoSeedMapNumber = objMap->algoBitNumber();
+      // uGtAlgoBlock has decisions initial, prescaled, and final
+      bool algoSeedRsultMaskAndPresc = uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedBitNumber); 
+
+      LogTrace("HLTL1TSeed") 
+      << "\n\tAlgo seed " << algoSeedName << " result emulated (initial) | final = " << algoSeedResult  << " | " << algoSeedRsultMaskAndPresc << endl;
+
 
       // algorithm result is false - no seeds
-      if ( !algoSeedResult) {
-          continue;
-      }
+      /// ///////////////////////////////////////////////////////////////
+      if ( !algoSeedResult) continue;
+
+      /// algorithm result is false after masks and prescales  - no seeds
+      /// ///////////////////////////////////////////////////////////////
+      if(!algoSeedRsultMaskAndPresc) continue;
 
       const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
       const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
       const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
 
       LogTrace("HLTL1TSeed")
-      << "\talgoMapNumber = " << algoSeedMapNumber 
-      << "\talgoName=" << objMap->algoName() 
-      << "\talgoGtlResult = " << objMap->algoGtlResult();
+      << "\n\talgoName =" << objMap->algoName() 
+      << "\talgoBitNumber = " << algoSeedBitNumber 
+      << "\talgoGtlResult = " << algoSeedResult << endl << endl;
 
-      if (matchedAlgo) 
-        LogTrace("HLTL1TSeed") 
-        << "\tmatched to seed algo = " << algoSeedName 
-        << "\talgo result = " << algoSeedResult; 
-
-      LogTrace("HLTL1TSeed")
-      << endl << endl;
 
       if (opTokenVecObjMap.size() != condObjTypeVec.size() ) {
           edm::LogWarning("HLTL1TSeed")
           << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
-          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
+          << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
     
           assert(opTokenVecObjMap.size() == condObjTypeVec.size());
       }
@@ -662,7 +658,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           edm::LogWarning("HLTL1TSeed")
           << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
-          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition object combinations!"  << std::endl;
+          << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object combinations!"  << std::endl;
     
           assert(opTokenVecObjMap.size() == condCombinations.size());
       }
@@ -676,7 +672,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
 
           LogTrace("HLTL1TSeed")
-          << "\tcondObjType = " << condObjType[jOb] << endl;
+          << setw(15) << "\tcondObjType = " << condObjType[jOb] << endl;
 
         }
 
@@ -689,21 +685,12 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             continue;
         }
 
-        /// check final decision in GlobalAlgBlk (after prescale and masks)
-        //-----------------------------------------------------------------
-        /// initial
-        //if((uGtAlgoBlocks->at(0,0)).getAlgoDecisionInitial(algoSeedMapNumber)) continue;
-        ///  after prescale
-        //if(uGtAlgoBlocks->at(0,0).getAlgoDecisionPreScaled(algoSeedMapNumber)) continue;
-        /// final
-        if(! uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedMapNumber)) continue;
-
         // loop over combinations for a given condition
         //
         const CombinationsInCond* condComb = objMap->getCombinationsInCond(condNumber);
 
         LogTrace("HLTL1TSeed")
-        << "\tcondCombinations = " << condComb->size() << endl;
+        << setw(15) << "\tcondCombinations = " << condComb->size() << endl;
 
         for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
 
@@ -804,7 +791,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                     default: {
                         // should not arrive here
 
-                        LogDebug("HLTL1TSeed")
+                        LogTrace("HLTL1TSeed")
                         << "\n    HLTL1TSeed::hltFilter "
                         << "\n      Unknown object of type " << objTypeVal
                         << " and index " << (*itObject) << " in the seed list."
