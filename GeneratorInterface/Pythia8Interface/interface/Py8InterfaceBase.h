@@ -58,7 +58,7 @@ namespace gen {
          // EvtGen plugin
          //
          bool useEvtGen;
-         EvtGenDecays* evtgenDecays;
+         std::auto_ptr<EvtGenDecays> evtgenDecays;
          std::string evtgenDecFile;
          std::string evtgenPdlFile;
          std::vector<std::string> evtgenUserFiles;

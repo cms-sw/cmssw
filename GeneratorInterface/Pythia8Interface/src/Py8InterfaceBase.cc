@@ -14,13 +14,7 @@ namespace gen {
 Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
 BaseHadronizer(ps),
 useEvtGen(false), evtgenDecays(0)
-{
-  fMasterGen.reset(new Pythia);
-  fDecayer.reset(new Pythia);
-
-  fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
-  fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
-  
+{  
   fParameters = ps;
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
@@ -55,8 +49,20 @@ useEvtGen(false), evtgenDecays(0)
 bool Py8InterfaceBase::readSettings( int ) 
 {
 
-   fMasterGen->settings.resetAll();
-   fDecayer->settings.resetAll();
+   fMasterGen.reset(new Pythia);
+   fDecayer.reset(new Pythia);
+
+   //add settings for resonance decay filter
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuTauAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
+   fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
+   fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);   
+   
+   fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
+   fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
   
    fMasterGen->readString("Next:numberShowEvent = 0");
    fDecayer->readString("Next:numberShowEvent = 0");  
