@@ -1,13 +1,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -30,7 +31,7 @@ MonitorTrackResidualsBase<pixel_or_strip>::~MonitorTrackResidualsBase() {
 template<TrackerType pixel_or_strip>
 void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
 {
-  unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
+  unsigned long long cacheID = iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
@@ -113,16 +114,11 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
   auto pixel_organizer = SiPixelFolderOrganizer(false);
 
   // Collect list of modules from Tracker Geometry
-  std::vector<uint32_t> activeDets;
-  auto ids = TG->detIds(); // or detUnitIds?
-  for (DetId id : ids) {
-    activeDets.push_back(id.rawId());
-  }
-
   // book histo per each detector module
-  for(auto ModuleID : activeDets)
+  auto ids = TG->detIds(); // or detUnitIds?
+  for (DetId id : ids) 
     {
-      auto id = DetId(ModuleID);
+      auto ModuleID = id.rawId();
       auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
       if (isPixel != (pixel_or_strip == TRACKERTYPE_PIXEL)) continue; 
 
