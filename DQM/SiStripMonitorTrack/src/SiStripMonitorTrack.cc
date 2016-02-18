@@ -833,6 +833,16 @@ using namespace reco;
     }
   }
 }
+
+//------------------------------------------------------------------------
+// Should return true if the track is good, false if it should be discarded.
+bool SiStripMonitorTrack::trackFilter(const reco::Track& track) {
+  if (track.pt() < 0.8) return false;
+  if (track.p()  < 2.0) return false;
+  if (track.hitPattern().numberOfValidTrackerHits()  <= 6) return false;
+  if (track.normalizedChi2() < 10.0) return false;
+  return true;
+}
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es) {
 
@@ -845,8 +855,8 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end(); 
        track!=etrack; ++track) {
     
+    if ( trackFilter(*track) == false ) continue;
     //    const reco::TransientTrack transientTrack = transientTrackBuilder->build(track);
-    
      
     for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd();
 	 hit!=ehit; ++hit) {
@@ -934,6 +944,7 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<TrajTrackAssociat
       //      <<"\n\t\touter PT "<< trackref->outerPt()<<std::endl;
 
     //    trajectoryStudy(traj_iterator,trackref,es);
+    if ( trackFilter(*(it->val)) == false ) continue;
     trajectoryStudy(traj_iterator,es);
 
   }

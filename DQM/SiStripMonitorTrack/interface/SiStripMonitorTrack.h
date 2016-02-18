@@ -95,6 +95,7 @@ private:
   void trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es);
   void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, const edm::EventSetup& es);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
+  bool trackFilter(const reco::Track& track);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   void hitStudy(const edm::EventSetup& es,
 		const ProjectedSiStripRecHit2D* projhit,
