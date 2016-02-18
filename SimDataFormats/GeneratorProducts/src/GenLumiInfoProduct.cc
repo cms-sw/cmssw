@@ -83,21 +83,23 @@ const bool operator ==(const GenLumiInfoProduct& lhs, const GenLumiInfoProduct& 
 
 
 GenLumiInfoProduct::GenLumiInfoProduct() :
-  hepidwtup_(-1)
+  hepidwtup_(-1), randomConfigIndex_(-1)
 {
   internalProcesses_.clear();
   
 }
 
 GenLumiInfoProduct::GenLumiInfoProduct(const int id) :
-  hepidwtup_(id)
+  hepidwtup_(id), randomConfigIndex_(-1)
 {
   internalProcesses_.clear();
 }
 
 GenLumiInfoProduct::GenLumiInfoProduct(GenLumiInfoProduct const &other) :
   hepidwtup_(other.hepidwtup_),
-  internalProcesses_(other.internalProcesses_)
+  internalProcesses_(other.internalProcesses_),
+  randomConfigIndex_(other.randomConfigIndex_),
+  configDescription_(other.configDescription_)
 {
 }
 

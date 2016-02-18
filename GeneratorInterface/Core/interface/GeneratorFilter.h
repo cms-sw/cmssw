@@ -188,6 +188,13 @@ namespace edm
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
 	genEventInfo.reset(new GenEventInfoProduct(event.get()));
       }
+      
+    //fill information on randomized configs for parameter scans
+    genEventInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genEventInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
+      
     ev.put(genEventInfo);
    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
@@ -283,6 +290,13 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo( GenLumiProcess );
+    
+    //fill information on randomized configs for parameter scans
+    genLumiInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genLumiInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }    
+    
     lumi.put(genLumiInfo);
 
     nEventsInLumiBlock_ = 0;

@@ -49,7 +49,8 @@ GenEventInfoProduct::GenEventInfoProduct(GenEventInfoProduct const &other) :
 	binningValues_(other.binningValues_),
 	DJRValues_(other.DJRValues_),
 	nMEPartons_(other.nMEPartons_), nMEPartonsFiltered_(other.nMEPartons_),
-	randomConfigIndex_(other.randomConfigIndex_)
+	randomConfigIndex_(other.randomConfigIndex_),
+	configDescription_(other.configDescription_)
 {
 	setPDF(other.pdf());
 }
@@ -69,7 +70,8 @@ GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct const 
 	DJRValues_ = other.DJRValues_;
 	nMEPartons_=other.nMEPartons_;
         nMEPartonsFiltered_=other.nMEPartonsFiltered_;
-        randomConfigIndex_=other.randomConfigIndex_;
+        randomConfigIndex_= other.randomConfigIndex_;
+        configDescription_ = other.configDescription_;
 
 	setPDF(other.pdf());
 

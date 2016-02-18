@@ -27,6 +27,12 @@ class GenLumiInfoProduct {
   void setHEPIDWTUP(const int id) { hepidwtup_ = id;}
   void setProcessInfo(const std::vector<ProcessInfo> & processes) {internalProcesses_ = processes;}
 
+  int randomConfigIndex() const { return randomConfigIndex_; }
+  void setRandomConfigIndex(int idx) { randomConfigIndex_ = idx; }
+  
+  const std::string &configDescription() const { return configDescription_; }
+  void setConfigDescription(const std::string &str) { configDescription_ = str; }  
+  
   // Struct- definitions
   struct XSec {
   public:
@@ -151,7 +157,9 @@ class GenLumiInfoProduct {
   // cross sections
   int     hepidwtup_;
   std::vector<ProcessInfo> internalProcesses_; 
-
+  
+  int randomConfigIndex_;
+  std::string configDescription_;
 
 };
 
