@@ -227,7 +227,7 @@ void FWColorManager::initialize()
       ++it) {
     //NOTE: this constructor automatically places this color into the gROOT color list
     //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
-    new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+    new TColor(static_cast<Int_t>(index++),(*it)[0],(*it)[1],(*it)[2]);
   }
 }
 
