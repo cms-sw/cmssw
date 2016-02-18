@@ -474,7 +474,6 @@ def customise_Reco(process,pileup):
     # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)
 
-
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
     process.reconstruction.remove(process.ak5CastorJets)
@@ -483,13 +482,6 @@ def customise_Reco(process,pileup):
     #process.reconstruction.remove(process.ak7BasicJets)
     process.reconstruction.remove(process.ak7CastorJetID)
 
-    #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
-    
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
     # CPE for other steps

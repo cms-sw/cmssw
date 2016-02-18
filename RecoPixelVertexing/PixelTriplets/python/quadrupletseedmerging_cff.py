@@ -26,12 +26,12 @@ PixelSeedMergerQuadruplets = cms.PSet(
   ),
 
   BPix = cms.PSet( 
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    TTRHBuilder = cms.string( "PixelTTRHBuilderWithoutAngle" ),
+    HitProducer = cms.string( "siPixelRecHits" ),
   ),
   FPix = cms.PSet( 
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    TTRHBuilder = cms.string( "PixelTTRHBuilderWithoutAngle" ),
+    HitProducer = cms.string( "siPixelRecHits" ),
   ),
   TEC = cms.PSet(  )
 )
