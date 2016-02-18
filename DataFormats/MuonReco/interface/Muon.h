@@ -175,7 +175,7 @@ namespace reco {
 
 
     /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration, ME0HitAndTrackArbitration };
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
     ///
     /// ====================== USEFUL METHODs ===========================
@@ -199,9 +199,9 @@ namespace reco {
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
     int numberOfMatchedRPCLayers( ArbitrationType type = RPCHitAndTrackArbitration ) const;
-    int numberOfMatchedME0Layers( ArbitrationType type = ME0HitAndTrackArbitration ) const;
+    int numberOfMatchedME0Layers( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int RPClayerMask( ArbitrationType type = RPCHitAndTrackArbitration ) const;
-    unsigned int ME0layerMask( ArbitrationType type = ME0HitAndTrackArbitration ) const;
+    unsigned int ME0layerMask( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;

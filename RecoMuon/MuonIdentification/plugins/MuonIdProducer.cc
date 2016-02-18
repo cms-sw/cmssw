@@ -149,8 +149,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
    
    if (doME0_){
-     edm::InputTag me0HitTag("me0Segments");
-     me0HitToken_ = consumes<ME0SegmentCollection>(me0HitTag);   
+     edm::InputTag me0SegmentTag("me0Segments");
+     me0SegmentToken_ = consumes<ME0SegmentCollection>(me0SegmentTag);   
    }
    //Consumes... UGH
    inputCollectionTypes_.resize(inputCollectionLabels_.size());
@@ -265,7 +265,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
 
    if (doME0_){
-     iEvent.getByToken(me0HitToken_, me0HitHandle_);
+     iEvent.getByToken(me0SegmentToken_, me0SegmentHandle_);
    }
    if (fillGlobalTrackQuality_) iEvent.getByToken(glbQualToken_, glbQualHandle_);
 
@@ -781,12 +781,13 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGoodME0Muon( const reco::Muon& muon )
 {
-  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  //The pt requirements are not appopriate for ME0, they may need to be reexamined in the future...
+  //if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
   //These "ExtraSoftMuons" may not be relevant, since there's no eta coverage below eta 1.5 anyway - the eta requirement should always fail
-   if ( addExtraSoftMuons_ && 
-	muon.pt()<5 && fabs(muon.eta())<1.5 && 
-	muon.numberOfMatchedME0Layers( reco::Muon::ME0HitAndTrackArbitration ) > 0 ) return true;
-   return ( muon.numberOfMatchedME0Layers( reco::Muon::ME0HitAndTrackArbitration ) >= minNumberOfMatches_ );
+  // if ( addExtraSoftMuons_ && 
+  // 	muon.pt()<5 && fabs(muon.eta())<1.5 && 
+  // 	muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) > 0 ) return true;
+  return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -850,7 +851,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 
      if (doME0_){
-       if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0HitHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
+       if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0SegmentHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
      }
      reco::MuonChamberMatch matchedChamber;
 
@@ -973,7 +974,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
   // Fill ME0 info
 
    if (doME0_){
-     if ( me0HitHandle_.isValid() )
+     if ( me0SegmentHandle_.isValid() )
        {
    	 for(  const auto& chamber : info.chambers )
    	   {
@@ -999,9 +1000,9 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    	     matchedChamber.edgeY = chamber.localDistanceY;
 
    	     matchedChamber.id = chamber.id;
-   	     for ( const auto& me0RecHit : *me0HitHandle_ )
+   	     for ( const auto& me0RecHit : *me0SegmentHandle_ )
    	       {
-   		 reco::MuonSegmentMatch me0HitMatch;
+   		 reco::MuonSegmentMatch me0SegmentMatch;
 
    		 //ME0DetId SegIdPreCompare (me0RecHit.rawId());
    		 ME0DetId SegIdForCompare (me0RecHit.me0DetId().region(),
@@ -1010,16 +1011,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    					   0);
    		 if ( SegIdForCompare != chamber.id.rawId() ) continue;
 
-   		 me0HitMatch.x = me0RecHit.localPosition().x();
-   		 me0HitMatch.mask = 0;
+   		 me0SegmentMatch.x = me0RecHit.localPosition().x();
+   		 me0SegmentMatch.mask = 0;
 
    		 const double AbsDx = std::abs(me0RecHit.localPosition().x()-chamber.tState.localPosition().x());
-   		 const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
+   		 //const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
 
    		 //These matches are hardcoded, is that okay?
-   		 if( (AbsDx <= 3 or AbsDx/sqrt(localError.xx() + me0RecHit.localPositionError().xx()) <= 4) and 
-   		     (AbsDy <= 9999. or AbsDy/sqrt(localError.yy() + me0RecHit.localPositionError().yy()) <= 9999.)
-   		     ) matchedChamber.me0Matches.push_back(me0HitMatch);
+   		 if(AbsDx <= 3 or AbsDx <= (sqrt(localError.xx() + me0RecHit.localPositionError().xx()) * 4) ) matchedChamber.segmentMatches.push_back(me0SegmentMatch);
    	       }
 
    	     muonChamberMatches.push_back(matchedChamber);

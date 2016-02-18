@@ -83,9 +83,10 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          continue;
       }
       
-      if(type == ME0HitAndTrackArbitration) {
-         matches += chamberMatch->me0Matches.size();
-         continue;
+      if(type == ME0SegmentAndTrackArbitration) {
+	//If ME0SegmentAndTrackArbitration, check only for ME0 chambers, and add segment matches (will be 0 or 1)
+	if (chamberMatch->id.subdetId() == MuonSubdetId::ME0) matches+= chamberMatch->segmentMatches.size();
+	continue;
       }
 
       if(chamberMatch->segmentMatches.empty()) continue;
@@ -166,21 +167,13 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
          continue;
       }
 
-      if(type == ME0HitAndTrackArbitration) {
-      	 if(chamberMatch->me0Matches.empty()) continue;
-
-
-         for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
-      	      me0Match != chamberMatch->me0Matches.end(); me0Match++ )
-      	   {
-      	     //Not sure if mask is correct..
-      	     curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
-	     
-      	     // do not double count
-      	     if(!(totMask & curMask))
-      	       totMask += curMask;
-      	   }
-         continue;
+      if(type == ME0SegmentAndTrackArbitration) {
+	//DTs from 0-3, CSCs from 4-7, so ME0 will be 8 (there is only 1 ME0 station)
+	curMask = 1<<8;
+	// do not double count
+	if(!(totMask & curMask))
+	  totMask += curMask;
+	continue;
       }
 
       if(chamberMatch->segmentMatches.empty()) continue;
@@ -250,20 +243,6 @@ int Muon::numberOfMatchedRPCLayers( ArbitrationType type ) const
 }
 
 
-int Muon::numberOfMatchedME0Layers( ArbitrationType type ) const
-{
-   int layers(0);
-
-   unsigned int theME0LayerMask = ME0layerMask(type);
-   // RPC had this:  maximum ten layers because of 6 layers in barrel and 3 (4) layers in each endcap before (after) upscope
-   //So ME0 has only 6 layers in each endcap, so max would be 6?
-   for(int it = 0; it < 6; ++it)
-     if (theME0LayerMask & 1<<it)
-       ++layers;
-
-   return layers;
-}
-
 unsigned int Muon::RPClayerMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
@@ -287,45 +266,6 @@ unsigned int Muon::RPClayerMask( ArbitrationType type ) const
 	    rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++ )
       {
 	 curMask = 1<<(rpcLayer-1);
-
-	 // do not double count
-	 if(!(totMask & curMask))
-	    totMask += curMask;
-      }
-   }
-   
-   return totMask;
-
-}
-
-
-unsigned int Muon::ME0layerMask( ArbitrationType type ) const
-{
-   unsigned int totMask(0);
-   unsigned int curMask(0);
-   for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-	 chamberMatch != muMatches_.end(); chamberMatch++ )
-   {
-      if(chamberMatch->me0Matches.empty()) continue;
-	 
-      ME0DetId rollId = chamberMatch->id.rawId();
-      const int region = rollId.region();
-
-      const int layer  = rollId.layer();
-      int me0Layer = chamberMatch->station();
-
-      //Not sure if this correctly computes the layer...
-      //chamberMatch->station() on me0s now returns "1" no matter what, since there is only one station
-      //This means as it is written now there is a bit shift equal to which number layer the me0Match is
-      //ME0Segments have detId.layer() of 1 every time, with a roll of "-1"
-      if (region==1 || region==-1) {
-	 me0Layer = chamberMatch->station()-1 + chamberMatch->station()*layer;
-      }
-
-      for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
-	    me0Match != chamberMatch->me0Matches.end(); me0Match++ )
-      {
-	 curMask = 1<<(me0Layer-1);
 
 	 // do not double count
 	 if(!(totMask & curMask))

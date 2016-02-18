@@ -211,18 +211,17 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::EDGetTokenT<reco::TrackToTrackMap>             dytCollectionToken_;
 
    edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
-   edm::EDGetTokenT<ME0SegmentCollection> me0HitToken_;
+   edm::EDGetTokenT<ME0SegmentCollection> me0SegmentToken_;
    edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
    edm::Handle<RPCRecHitCollection> rpcHitHandle_;
-   edm::Handle<ME0SegmentCollection> me0HitHandle_;
+   edm::Handle<ME0SegmentCollection> me0SegmentHandle_;
    edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
-   //bool doME0_;
    std::string trackDepositName_;
    std::string ecalDepositName_;
    std::string hcalDepositName_;
