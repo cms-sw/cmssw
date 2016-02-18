@@ -123,7 +123,7 @@ process.Out.outputCommands.append('keep *_L1TkHTMissCaloHI_*_*')   	# from HLT H
 process.Out.outputCommands.append('keep *_L1TkHTMissVtxHI_*_*')   	# from HLT HI jets, with vertex constraint
 
 # keep the L1TkTracks if one needs the tracks associated with the jets 
-process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
+process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_Level1TTTracks_*')
 
 
 #process.Out.outputCommands.append('keep *')

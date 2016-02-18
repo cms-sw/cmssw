@@ -192,12 +192,12 @@ process.Out.outputCommands.append('keep *_genParticles_*_*')
 
 
 	# the L1Tracks, clusters and stubs
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_Level1TTTracks_*')
 
 	# the L1EG objects
 process.Out.outputCommands.append('keep *_SLHCL1ExtraParticles_*_*' )
@@ -218,9 +218,9 @@ process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
 
 
 # --- to use the genParticles, one needs to keep the collections of associators below:
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

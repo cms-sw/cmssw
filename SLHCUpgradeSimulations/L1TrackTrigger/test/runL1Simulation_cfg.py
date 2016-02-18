@@ -109,9 +109,9 @@ process.Out.outputCommands.append('keep *_SLHCL1ExtraParticles_IsoTaus_*')	# old
 process.Out.outputCommands.append('keep *L1Muon*_l1extraParticles__*')		# Run-1 L1Muons
 
 # needed to be able to use the _genParticles_  ...
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

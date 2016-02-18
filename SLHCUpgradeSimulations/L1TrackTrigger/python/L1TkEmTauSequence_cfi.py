@@ -13,7 +13,7 @@ L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
 
 
 L1TkEmTauProducer = cms.EDProducer( 'L1TkEmTauProducer' ,
-                                  L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+                                  L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
                                   L1EmInputTag = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster"),
                                   ptleadcut = cms.double(5.0),
                                   ptleadcone = cms.double(0.3),

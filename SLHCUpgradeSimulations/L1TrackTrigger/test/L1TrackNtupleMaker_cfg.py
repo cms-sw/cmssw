@@ -52,7 +52,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('Single
 
 #run the tracking
 BeamSpotFromSim = cms.EDProducer("BeamSpotFromSimProducer")
-#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)  ## uncomment this to run with wider projection windows (for electrons)
+#process.TTTracksFromPhase2TrackerDigis.phiWindowSF = cms.untracked.double(2.0)  ## uncomment this to run with wider projection windows (for electrons)
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 
@@ -90,8 +90,8 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        SaveAllTracks = cms.bool(True),   ## save all L1 tracks, not just truth matched to primary particle
                                        DoPixelTrack = cms.bool(False),   ## save information for pixel tracks
                                        SaveStubs = cms.bool(False),      ## save some info for *all* stubs
-                                       L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),               ## TTTrack input
-                                       MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), ## MCTruth input 
+                                       L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),               ## TTTrack input
+                                       MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPhase2TrackerDigis", "Level1TTTracks"), ## MCTruth input 
                                        )
 process.ana = cms.Path(process.L1TrackNtuple)
 

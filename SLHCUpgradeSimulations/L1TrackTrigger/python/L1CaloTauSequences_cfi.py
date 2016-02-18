@@ -8,7 +8,7 @@ L1CaloTauCorrectionsProducer = cms.EDProducer("L1CaloTauCorrectionsProducer",
 # Setup the L1TkTauFromCalo producer:
 L1TkTauFromCaloProducer = cms.EDProducer("L1TkTauFromCaloProducer",
       L1CaloTaus_InputTag                = cms.InputTag("L1CaloTauCorrectionsProducer","CalibratedTaus"),
-      L1TkTracks_InputTag                = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+      L1TkTracks_InputTag                = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
       #L1TkPV_InputTag                    = cms.InputTag("L1TkPrimaryVertex"),
       L1TkPV_InputTag                    = cms.InputTag("Dummy"),
       L1TkTracks_NFitParameters          = cms.uint32(  4    ),  # Number of fit parameters: 4 or 5? (pT, eta, phi, z0, d0)

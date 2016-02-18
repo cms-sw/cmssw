@@ -46,7 +46,7 @@ using namespace l1extra ;
 class L1TkEmParticleProducer : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit L1TkEmParticleProducer(const edm::ParameterSet&);

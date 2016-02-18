@@ -11,14 +11,14 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window2012< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window2012< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                           int &aDisplacement,
                                                                           int &anOffset,
-                                                                          const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                          const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
-  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+  /*  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
   MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
@@ -106,5 +106,6 @@ void TTStubAlgorithm_window2012< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
       anOffset = 2*offsetI; /// In HALF-STRIP units!
     } /// End of stub is accepted
   }
+  */
 }
 

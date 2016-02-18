@@ -46,9 +46,9 @@ class TTStubAlgorithm_window2012 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window2012( const StackedTrackerGeometry *aStackedTracker,
+    TTStubAlgorithm_window2012( //const StackedTrackerGeometry *aStackedTracker,
                                 double aPtScalingFactor )
-      : TTStubAlgorithm< T >( aStackedTracker,__func__ )
+      : TTStubAlgorithm< T >( __func__ )
     {
       mPtScalingFactor = aPtScalingFactor;
     }
@@ -73,10 +73,10 @@ class TTStubAlgorithm_window2012 : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window2012< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window2012< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                           int &aDisplacement, 
                                                                           int &anOffset, 
-                                                                          const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
+                                                                          const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 
 
@@ -123,11 +123,11 @@ class ES_TTStubAlgorithm_window2012 : public edm::ESProducer
       //double mPtScalingFactor = (CLHEP::c_light * mMagneticFieldStrength) / (100.0 * 2.0e+9 * mPtThreshold);
       double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window2012< T >( &(*StackedTrackerGeomHandle),
+        new TTStubAlgorithm_window2012< T >(// &(*StackedTrackerGeomHandle),
                                                                mPtScalingFactor );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );

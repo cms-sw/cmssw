@@ -100,19 +100,19 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
    
   /// Track Trigger Stubs
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
-  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTStubHandle;
+  iEvent.getByLabel( tagTTStubs_, Phase2TrackerDigiTTStubHandle );
   
   
   //loop over input Stubs
-  typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
-  typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
-  for ( otherInputIter = PixelDigiTTStubHandle->begin();otherInputIter != PixelDigiTTStubHandle->end();++otherInputIter )
+  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherInputIter;
+  typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherContentIter;
+  for ( otherInputIter = Phase2TrackerDigiTTStubHandle->begin();otherInputIter != Phase2TrackerDigiTTStubHandle->end();++otherInputIter )
   {
     for ( otherContentIter = otherInputIter->begin();otherContentIter != otherInputIter->end();++otherContentIter )
     {
       //Make reference stub
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( Phase2TrackerDigiTTStubHandle, otherContentIter );
 
       // Define position stub 
       GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );

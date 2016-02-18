@@ -13,12 +13,17 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+//#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
 class TTClusterAlgorithmRecord
-  : public edm::eventsetup::DependentRecordImplementation< TTClusterAlgorithmRecord, boost::mpl::vector< StackedTrackerGeometryRecord, IdealMagneticFieldRecord > >{};
+: public edm::eventsetup::DependentRecordImplementation< TTClusterAlgorithmRecord, boost::mpl::vector< IdealMagneticFieldRecord > >{};
+
+
+//class TTClusterAlgorithmRecord
+//  : public edm::eventsetup::DependentRecordImplementation< TTClusterAlgorithmRecord, boost::mpl::vector< StackedTrackerGeometryRecord, IdealMagneticFieldRecord > >{};
 
 #endif
 

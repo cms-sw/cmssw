@@ -3,6 +3,7 @@
   <use   name="DataFormats/L1TrackTrigger"/>
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="DataFormats/Phase2TrackerDigi"/>
   <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

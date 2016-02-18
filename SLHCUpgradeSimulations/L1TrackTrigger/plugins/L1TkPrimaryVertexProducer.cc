@@ -65,7 +65,7 @@
 class L1TkPrimaryVertexProducer : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit L1TkPrimaryVertexProducer(const edm::ParameterSet&);
@@ -282,7 +282,7 @@ float L1TkPrimaryVertexProducer::SumPtVertex(const edm::Handle<L1TkTrackCollecti
     float nstubs = 0;
 
       // get pointers to stubs associated to the L1 track
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
 
       int tmp_trk_nstub = (int) theStubs.size();
       if ( tmp_trk_nstub < 0) {

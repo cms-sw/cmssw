@@ -105,7 +105,7 @@ TrackFitRetinaProducer::TrackFitRetinaProducer( const edm::ParameterSet& iConfig
   removeDuplicates_   = iConfig.getUntrackedParameter< int >( "removeDuplicates", 1 );
   fitPerTriggerTower_ = iConfig.getUntrackedParameter< bool >( "fitPerTriggerTower", false );
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackOutputTag );
+  produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( TTTrackOutputTag );
 }
 
 /// Destructor
@@ -146,11 +146,11 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   /// Prepare output
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > );
 
   /// Get the Stubs already stored away
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTPatternHandle;
 
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );
   iEvent.getByLabel( TTPatternsInputTag, TTPatternHandle );
@@ -171,13 +171,13 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   map<int,vector<Hit*>* > m_hitsPerSector;
   map<int,set<long>*> m_uniqueHitsPerSector;
 
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
+  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubIter;
 
-  std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
+  std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
 
 
-  /// Go on only if there are Patterns from PixelDigis
+  /// Go on only if there are Patterns from Phase2TrackerDigis
   if ( TTPatternHandle->size() > 0 )
   {
 
@@ -227,14 +227,14 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
     unsigned int j     = 0;
     unsigned int jreal = 0;
 
-    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
-    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMapUsed;
+    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubMap;
+    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubMapUsed;
 
     for ( iterTTTrack = TTPatternHandle->begin();
 	  iterTTTrack != TTPatternHandle->end();
 	  ++iterTTTrack )
     {
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
 
       /// Get everything relevant
       unsigned int seedSector = tempTrackPtr->getSector();
@@ -242,7 +242,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       //		<< seedWedge << " active layers contains " 
       //		<< nStubs << " stubs" << std::endl;
 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_  > >, TTStub< Ref_Phase2TrackerDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
 
       //get the hits list of this sector
       map<int,vector<Hit*>*>::iterator sec_it = m_hitsPerSector.find(seedSector);
@@ -279,7 +279,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       {
 	++j;
 
-	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
+	edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = trackStubs.at(i);
 
 	stubMap.insert( std::make_pair( j, tempStubRef ) );
 
@@ -363,8 +363,8 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 	  // Find the stub index:
 	  unsigned int stub_index = 0;
 	  for(std::map< unsigned int , 
-		edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
-		TTStub< Ref_PixelDigi_ > > >::iterator istub  = stubMapUsed.begin();
+		edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, 
+		TTStub< Ref_Phase2TrackerDigi_ > > >::iterator istub  = stubMapUsed.begin();
 	                                               istub != stubMapUsed.end(); 
                                                      ++istub ){
 
@@ -394,7 +394,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 	cout << "   road/number of stubs = " << j << " / " << road_hits.size() << endl;
 
       std::vector<Track*> tracks; 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > tempVec;
       RetinaTrackFitter* fitter = new RetinaTrackFitter(5);
 
       fitter->setSectorID(seedSector);
@@ -434,7 +434,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
 	double pz = pt_fit/(tan(2.*atan(exp(-tracks[tt]->getEta0()))));
 
-	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+	TTTrack< Ref_Phase2TrackerDigi_ > tempTrack( tempVec );
 	GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
 	GlobalVector mom(pt_fit*cos(tracks[tt]->getPhi0()),
 			 pt_fit*sin(tracks[tt]->getPhi0()),
@@ -482,7 +482,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
       RetinaTrackFitter* fitter = new RetinaTrackFitter(5);
       vector<Track*> tracks; 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > tempVec;
 
       // Loop over the different sectors
       for(map<int,vector<Hit*>*>::iterator sec_it=m_hitsPerSector.begin();sec_it!=m_hitsPerSector.end();sec_it++)
@@ -527,7 +527,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
 	      double pz = pt_fit/(tan(2.*atan(exp(-tracks[tt]->getEta0()))));
 	      
-	      TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+	      TTTrack< Ref_Phase2TrackerDigi_ > tempTrack( tempVec );
 	      GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
 	      GlobalVector mom(pt_fit*cos(tracks[tt]->getPhi0()),
 			       pt_fit*sin(tracks[tt]->getPhi0()),
@@ -565,11 +565,11 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
     if ( TTTracksForOutput->size()>1 && removeDuplicates_>0 ){
 
       
-      for ( std::vector< TTTrack< Ref_PixelDigi_ > >::iterator itrk  = TTTracksForOutput->begin();
+      for ( std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::iterator itrk  = TTTracksForOutput->begin();
 	                                                       itrk != TTTracksForOutput->end(); 
 	                                                     ++itrk ){
 
-	for ( std::vector< TTTrack< Ref_PixelDigi_ > >::iterator jtrk  = itrk+1;
+	for ( std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::iterator jtrk  = itrk+1;
 	                                                         jtrk != TTTracksForOutput->end(); 
 	                                                              ){ 
 
@@ -646,7 +646,7 @@ void TrackFitRetinaProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       else
 	cout << "  Fitted tracks (after duplicate removal):" << endl;
       
-      for ( std::vector< TTTrack< Ref_PixelDigi_ > >::iterator itrk  = TTTracksForOutput->begin();
+      for ( std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::iterator itrk  = TTTracksForOutput->begin();
 	                                                             itrk != TTTracksForOutput->end(); 
                                                                    ++itrk ){
 	cout << "   "

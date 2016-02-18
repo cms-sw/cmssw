@@ -90,7 +90,7 @@ TrackFitHoughProducer::TrackFitHoughProducer( const edm::ParameterSet& iConfig )
   TTPatternsInputTag = iConfig.getParameter< edm::InputTag >( "TTInputPatterns" );
   TTTrackOutputTag   = iConfig.getParameter< std::string >( "TTTrackName" );
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackOutputTag );
+  produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( TTTrackOutputTag );
 }
 
 /// Destructor
@@ -121,11 +121,11 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   /// Prepare output
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > );
 
   /// Get the Stubs already stored away
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTPatternHandle;
 
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );
   iEvent.getByLabel( TTPatternsInputTag, TTPatternHandle );
@@ -146,12 +146,12 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   map<int,vector<Hit*>* > m_hitsPerSector;
   map<int,set<long>*> m_uniqueHitsPerSector;
 
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
+  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubIter;
 
-  std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
+  std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
   
-  /// Go on only if there are Patterns from PixelDigis
+  /// Go on only if there are Patterns from Phase2TrackerDigis
   if ( TTPatternHandle->size() > 0 )
   {
     /// Loop over Patterns
@@ -159,14 +159,14 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
     unsigned int j     = 0;
     unsigned int jreal = 0;
 
-    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
-    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMapUsed;
+    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubMap;
+    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubMapUsed;
 
     for ( iterTTTrack = TTPatternHandle->begin();
 	  iterTTTrack != TTPatternHandle->end();
 	  ++iterTTTrack )
     {
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
 
       /// Get everything relevant
       unsigned int seedSector = tempTrackPtr->getSector();
@@ -175,7 +175,7 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
       //      		<< seedWedge << " active layers contains " 
       //		<< nStubs << " stubs" << std::endl;
 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_  > >, TTStub< Ref_Phase2TrackerDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
 
       //get the hits list of this sector
       map<int,vector<Hit*>*>::iterator sec_it = m_hitsPerSector.find(seedSector);
@@ -210,7 +210,7 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
       {
 	++j;
 
-	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
+	edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = trackStubs.at(i);
 
 	stubMap.insert( std::make_pair( j, tempStubRef ) );
 
@@ -305,7 +305,7 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
     
     TrackFitter* fitter = new HoughFitter();
     vector<Track*> tracks; 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > tempVec;
 
     // Loop over the different sectors
 
@@ -339,7 +339,7 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 
 	double pz = tracks[tt]->getCurve()/(tan(2*atan(exp(-tracks[tt]->getEta0()))));
 
-	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+	TTTrack< Ref_Phase2TrackerDigi_ > tempTrack( tempVec );
 	GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
 	GlobalVector mom(tracks[tt]->getCurve()*cos(tracks[tt]->getPhi0()),
 			 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),

@@ -11,28 +11,29 @@
 #include <iostream>
 
 /// Constructor
-WindowFinder::WindowFinder( const StackedTrackerGeometry *aGeometry,
+WindowFinder::WindowFinder( //const StackedTrackerGeometry *aGeometry,
                             double aPtScalingFactor,
                             double aIPwidth,
                             double aRowResolution,
                             double aColResolution )
-  : mGeometry( aGeometry ),
+  :// mGeometry( aGeometry ),
     mPtScalingFactor( aPtScalingFactor ),
     mIPwidth( aIPwidth ),
     mRowResolution( aRowResolution ),
     mColResolution( aColResolution ),
     mMinrow(0), mMaxrow(0), mMincol(0), mMaxcol(0),
-    mLastId(0), mlastInnerRow(-1), mlastInnerCol(-1){}
+    //mLastId(0), 
+    mlastInnerRow(-1), mlastInnerCol(-1){}
 
 /// Destructor
 WindowFinder::~WindowFinder(){}
 
 /// Dump hit
-void WindowFinder::dumphit( const StackedTrackerDetId & anId,
+void WindowFinder::dumphit( //const StackedTrackerDetId & anId,
                             unsigned int hitIdentifier,
                             const double & aInnerRow,
                             const double & aInnerColumn )
-{
+{/*
   const PixelGeomDetUnit* detunit = reinterpret_cast< const PixelGeomDetUnit* > (mGeometry->idToDetUnit( anId, hitIdentifier ));
 
   /// Find the centre of the Pixel
@@ -40,15 +41,20 @@ void WindowFinder::dumphit( const StackedTrackerDetId & anId,
   LocalPoint LP  = detunit->topology().localPosition( mp );
   GlobalPoint GP = detunit->surface().toGlobal( LP );
   std::cout << (hitIdentifier?"INNER":"OUTER") << " -> eta = " << GP.eta() << std::endl;
+ */
 }
 
 /// Get window
-StackedTrackerWindow WindowFinder::getWindow( const StackedTrackerDetId & anId,
+//StackedTrackerWindow WindowFinder::getWindow( //const StackedTrackerDetId & anId,
+//                                              const double & aInnerRow,
+//                                              const double & aInnerColumn )
+
+void WindowFinder::getWindow( //const StackedTrackerDetId & anId,
                                               const double & aInnerRow,
                                               const double & aInnerColumn )
 {
   /// Particular cases
-  if ( (anId == mLastId) && (mlastInnerRow == aInnerRow) && (mlastInnerCol == aInnerColumn) )
+  /*  if ( (anId == mLastId) && (mlastInnerRow == aInnerRow) && (mlastInnerCol == aInnerColumn) )
   {
     StackedTrackerWindow thisWindow = StackedTrackerWindow( mMinrow, mMaxrow, mMincol, mMaxcol );
     return thisWindow;
@@ -138,6 +144,6 @@ StackedTrackerWindow WindowFinder::getWindow( const StackedTrackerDetId & anId,
 
   /// Return the window
   StackedTrackerWindow theWindow = StackedTrackerWindow( mMinrow, mMaxrow, mMincol, mMaxcol );
-  return theWindow;
+  return theWindow;*/
 }
 

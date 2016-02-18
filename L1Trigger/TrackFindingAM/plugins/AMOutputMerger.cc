@@ -82,8 +82,8 @@ AMOutputMerger::AMOutputMerger( const edm::ParameterSet& iConfig )
   TTStubOutputTag     = iConfig.getParameter< std::string >( "TTFiltStubsName" );
   TTPatternOutputTag  = iConfig.getParameter< std::string >( "TTPatternsName" );
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
-  produces<  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >( TTStubOutputTag );
+  produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( TTPatternOutputTag );
+  produces<  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >( TTStubOutputTag );
 }
 
 /// Destructor
@@ -114,18 +114,18 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
   /// Prepare output
 
   /// Get the Stubs/Cluster already stored
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );
 
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClusterHandle;
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterHandle;
   iEvent.getByLabel( TTClustersInputTag, TTClusterHandle );
 
   // The container for filtered patterns / stubs 
 
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubsForOutput( new edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > );
+  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubsForOutput( new edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > );
 
-  std::vector< edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > > TTPatternHandle;
+  std::vector< edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > > TTPatternHandle;
 
   TTPatternHandle.clear();
   TTPatternHandle.resize(static_cast<int>(TTPatternsInputTags.size()));
@@ -140,10 +140,10 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
   //
 
   unsigned int stub_n = 0;
-  std::map< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > , unsigned int > stubMap;
+  std::map< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > , unsigned int > stubMap;
 
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
+  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubIter;
 
   for ( inputIter = TTStubHandle->begin(); inputIter != TTStubHandle->end(); ++inputIter )
   {
@@ -152,7 +152,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
       ++stub_n;
 
       /// Make the Ref to be put in the Track
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = makeRefTo( TTStubHandle, stubIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = makeRefTo( TTStubHandle, stubIter );
 
       stubMap.insert( std::make_pair( tempStubRef, stub_n ) );
     }
@@ -163,11 +163,11 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
   // because they are stored in vectors
   //
  
-  std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
+  std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
 
   for ( unsigned j = 0; j < TTPatternsInputTags.size(); ++j )
   {
-    edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatterns = TTPatternHandle.at(j);
+    edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTPatterns = TTPatternHandle.at(j);
 
     if ( TTPatterns->size() > 0 )
     {      
@@ -176,7 +176,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 	    ++iterTTTrack )
       {
 
-	TTTrack< Ref_PixelDigi_ > tempTTPatt(iterTTTrack->getStubRefs());
+	TTTrack< Ref_Phase2TrackerDigi_ > tempTTPatt(iterTTTrack->getStubRefs());
 	
 	tempTTPatt.setSector(iterTTTrack->getSector());
 	tempTTPatt.setWedge(iterTTTrack->getWedge());
@@ -190,7 +190,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   // Get the OrphanHandle of the accepted patterns
   
-  edm::OrphanHandle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternAcceptedHandle = iEvent.put( TTTracksForOutput, TTPatternOutputTag );
+  edm::OrphanHandle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTPatternAcceptedHandle = iEvent.put( TTTracksForOutput, TTPatternOutputTag );
  
 
   //
@@ -212,9 +212,9 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 	  iterTTTrack != TTPatternAcceptedHandle->end();
 	  ++iterTTTrack )
     {
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTPatternAcceptedHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( TTPatternAcceptedHandle, tkCnt++ );
 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_  > >, TTStub< Ref_Phase2TrackerDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
 
       // Loop over stubs contained in the pattern to recover the info
 
@@ -273,7 +273,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
       continue;
 
     /// Create the vector of stubs to be passed to the FastFiller
-    std::vector< TTStub< Ref_PixelDigi_ > > *tempOutput = new std::vector< TTStub< Ref_PixelDigi_ > >();
+    std::vector< TTStub< Ref_Phase2TrackerDigi_ > > *tempOutput = new std::vector< TTStub< Ref_Phase2TrackerDigi_ > >();
     tempOutput->clear();
 
     for ( stubIter = inputIter->begin(); stubIter != inputIter->end(); ++stubIter )
@@ -282,7 +282,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 
       if (!AMOutputMerger::inPattern(j2)) continue;
 
-      TTStub< Ref_PixelDigi_ > tempTTStub( stubIter->getDetId() );
+      TTStub< Ref_Phase2TrackerDigi_ > tempTTStub( stubIter->getDetId() );
 
       tempTTStub.addClusterRef(stubIter->getClusterRef(0));
       tempTTStub.addClusterRef(stubIter->getClusterRef(1));
@@ -295,7 +295,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 
     if ( tempOutput->size() > 0 )
     {
-      typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::FastFiller tempOutputFiller( *TTStubsForOutput, thisStackedDetId );
+      typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller tempOutputFiller( *TTStubsForOutput, thisStackedDetId );
       for ( unsigned int m = 0; m < tempOutput->size(); m++ )
       {
         tempOutputFiller.push_back( tempOutput->at(m) );

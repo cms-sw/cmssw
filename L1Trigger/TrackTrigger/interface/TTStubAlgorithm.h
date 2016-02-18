@@ -29,14 +29,15 @@ class TTStubAlgorithm
 {
   protected:
     /// Data members
-    const StackedTrackerGeometry *theStackedTracker;
+  //    const StackedTrackerGeometry *theStackedTracker;
     std::string                  className_;
 
   public:
     /// Constructors
-    TTStubAlgorithm( const StackedTrackerGeometry *aStackedTracker,
-                     std::string fName )
-      : theStackedTracker( aStackedTracker )
+    //    TTStubAlgorithm( const StackedTrackerGeometry *aStackedTracker,
+    //                     std::string fName )
+    //      : theStackedTracker( aStackedTracker )
+    TTStubAlgorithm( std::string fName )
     {
       className_ = classNameFinder< T >( fName );
     }
