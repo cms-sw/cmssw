@@ -13,8 +13,10 @@ BaseHadronizer::BaseHadronizer( edm::ParameterSet const& ps ) :
     if (ps.exists("RandomizedParameters")) {
       std::vector<edm::ParameterSet> randomizedParameters = ps.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
       randomInitWeights_.resize(randomizedParameters.size());
+      randomInitConfigDescriptions_.resize(randomizedParameters.size());
       for (unsigned int irand = 0; irand<randomizedParameters.size(); ++irand) {
         randomInitWeights_[irand] = randomizedParameters[irand].getParameter<double>("ConfigWeight");
+        randomInitConfigDescriptions_[irand] = randomizedParameters[irand].getParameter<std::string>("ConfigDescription");
       }
     }  
   

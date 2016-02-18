@@ -72,8 +72,11 @@ namespace gen {
     std::vector<std::string> const& sharedResources() const { return doSharedResources(); }
     
     int randomIndex() const { return randomIndex_; }
+    const std::string &randomInitConfigDescription() { return randomInitConfigDescriptions_[randomIndex_]; }
     
     void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    
+    
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
@@ -102,6 +105,8 @@ namespace gen {
     static const std::vector<std::string> theSharedResources;
 
     std::vector<double> randomInitWeights_;
+    std::vector<std::string> randomInitConfigDescriptions_;
+    
   };
 
 } // namespace gen
