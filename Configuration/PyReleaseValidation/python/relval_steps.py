@@ -1174,7 +1174,19 @@ for k in upgradeKeys:
                                        '--geometry' : geom
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotfixFull'][k]['--customise']=cust
-    
+   
+    upgradeStepDict['GenSimHLBeamSpotCrabKiss'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHCCrabKissing',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotCrabKiss'][k]['--customise']=cust
+
+ 
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
