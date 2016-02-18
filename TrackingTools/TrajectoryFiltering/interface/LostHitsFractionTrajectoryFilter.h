@@ -6,15 +6,14 @@
 class LostHitsFractionTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=1./10.,float constantValue=1 ): 
+  explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=999.,float constantValue=1. ): 
+  //  explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=1./10.,float constantValue=1 ): 
   theMaxLostHitsFraction( maxLostHitsFraction), 
   theConstantValue( constantValue) {}
   
   explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
-    theMaxLostHitsFraction = pset.existsAs<double>("maxLostHitsFraction") ? 
-      pset.getParameter<double>("maxLostHitsFraction") : 999; 
-    theConstantValue =  pset.existsAs<double>("constantValueForLostHitsFractionFilter") ? 
-      pset.getParameter<double>("constantValueForLostHitsFractionFilter") : 1; 
+    theMaxLostHitsFraction = pset.getParameter<double>("maxLostHitsFraction"); 
+    theConstantValue       = pset.getParameter<double>("constantValueForLostHitsFractionFilter"); 
   }
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
@@ -24,6 +23,13 @@ public:
   virtual bool toBeContinued( Trajectory& traj) const{ return TBC<Trajectory>(traj);}
 
   virtual std::string name() const{return "LostHitsFractionTrajectoryFilter";}
+
+  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
+    edm::ParameterSetDescription desc;
+    desc.add<double>("maxLostHitsFraction",                     999.);
+    desc.add<double>("constantValueForLostHitsFractionFilter",    1.);
+    return desc;
+  }
 
 protected:
 
