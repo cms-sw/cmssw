@@ -7,6 +7,7 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     timeResolution = cms.double(0.001), # in ns
     phiResolution = cms.double(0.05),   # in cm average resolution along local x in case of no correlation
     etaResolution = cms.double(1.),     # in cm average resolution along local y in case of no correlation
+    constantPhiSpatialResolution = cms.bool(False),
     useCorrelation = cms.bool(False),
     useEtaProjectiveGEO = cms.bool(False),
     averageEfficiency = cms.double(0.98),
