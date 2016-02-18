@@ -103,6 +103,3 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
     newExtra.setHits( rNewHits, firstTrackIndex, newHits_->size() - firstTrackIndex);
   }
 }
-
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
-DEFINE_DIGI_ACCUMULATOR(RecoTrackAccumulator);
