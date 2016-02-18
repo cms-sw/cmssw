@@ -6,6 +6,7 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
 #include "HepMC/IO_AsciiParticles.h"
 
@@ -20,7 +21,7 @@ namespace CLHEP {
 
 namespace gen {
 
-   class Py8InterfaceBase {
+   class Py8InterfaceBase : public BaseHadronizer {
 
       public:
          
@@ -36,7 +37,6 @@ namespace gen {
          virtual void finalizeEvent() = 0; 
          virtual void statistics();
          virtual const char* classname() const = 0;
-         virtual int randomIndex() const = 0;
 
          void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_.setRandomEngine(v); }
          P8RndmEngine& randomEngine() { return p8RndmEngine_; }

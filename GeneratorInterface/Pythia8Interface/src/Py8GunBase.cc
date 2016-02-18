@@ -15,14 +15,6 @@ namespace gen {
 Py8GunBase::Py8GunBase( edm::ParameterSet const& ps )
    : Py8InterfaceBase(ps)
 {
-
-  runInfo().setFilterEfficiency(
-    ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
-  runInfo().setExternalXSecLO(
-    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSection", -1.)) );
-  runInfo().setExternalXSecNLO(
-    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSectionNLO", -1.)) );
-
   // PGun specs
   //
   edm::ParameterSet pgun_params = 
