@@ -568,10 +568,10 @@ def customise_Reco(process,pileup):
     #process.templates.LoadTemplatesFromDB = cms.bool(False)
     #process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
 
-    # This probably breaks badly the "displaced muon" reconstruction,
-    # but let's do it for now, until the upgrade tracking sequences
-    # are modernized
-    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
-    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+        # This probably breaks badly the "displaced muon" reconstruction,
+        # but let's do it for now, until the upgrade tracking sequences
+        # are modernized
+        process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+        process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
     return process
