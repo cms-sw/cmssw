@@ -27,7 +27,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #============================================
 # Castor Conditions: from Global Conditions Tag 
 #============================================
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.load('Configuration.StandardSequences.CondDBESSource_cff')
 #FIXME: they should use an official GT, not define custom records and conditions on their own!!!
 process.GlobalTag.toGet = cms.VPSet( cms.PSet( record = cms.string('CastorGainsRcd'),
                                                tag = cms.string('CastorGains_v2.1_hlt'), 
