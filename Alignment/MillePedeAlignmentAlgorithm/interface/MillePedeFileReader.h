@@ -52,20 +52,17 @@ class MillePedeFileReader {
     std::string millePedeLogFile_;
     std::string millePedeResFile_;
 
-    // Cutoff in micro-meter & micro-rad
+    // signifiance of movement must be above
+    double sigCut_;
+    // cutoff in micro-meter & micro-rad
     double Xcut_, tXcut_;
     double Ycut_, tYcut_;
     double Zcut_, tZcut_;
-
     // maximum movement in micro-meter/rad
     double maxMoveCut_, maxErrorCut_;
 
-    // Signifiance of movement must be above
-    double sigCut_;
-
-
-
-    double Cutoffs[6] = {Xcut_, Ycut_, Zcut_, tXcut_, tYcut_, tZcut_};
+    double Cutoffs[6] = {  Xcut_,  Ycut_,  Zcut_,
+                          tXcut_, tYcut_, tZcut_};
 
     bool PedeSuccess = false;
     bool Movements   = false;
@@ -76,6 +73,7 @@ class MillePedeFileReader {
     bool HitErrorMax = false;
 
     int Nrec = 0;
+
 
 
     std::array<double, 6> Xobs     = {{0.,0.,0.,0.,0.,0.}};
@@ -106,6 +104,7 @@ MillePedeFileReader
   millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
   millePedeResFile_(config.getParameter<std::string>("millePedeResFile")),
 
+  sigCut_     (config.getParameter<double>("sigCut")),
   Xcut_       (config.getParameter<double>("Xcut")),
   tXcut_      (config.getParameter<double>("tXcut")),
   Ycut_       (config.getParameter<double>("Ycut")),
@@ -113,8 +112,7 @@ MillePedeFileReader
   Zcut_       (config.getParameter<double>("Zcut")),
   tZcut_      (config.getParameter<double>("tZcut")),
   maxMoveCut_ (config.getParameter<double>("maxMoveCut")),
-  maxErrorCut_(config.getParameter<double>("maxErrorCut")),
-  sigCut_     (config.getParameter<double>("sigCut"))
+  maxErrorCut_(config.getParameter<double>("maxErrorCut"))
 {
 }
 
