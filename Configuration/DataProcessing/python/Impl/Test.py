@@ -13,6 +13,8 @@ from Configuration.DataProcessing.Scenario import Scenario
 import FWCore.ParameterSet.Config as cms
 
 class Test(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _Test_
 
@@ -28,7 +30,7 @@ class Test(Scenario):
         Returns skeleton process object
 
         """
-        return cms.Process("RECO")
+        return cms.Process("RECO", self.eras)
 
 
     def expressProcessing(self, globalTag):
@@ -38,7 +40,7 @@ class Test(Scenario):
         Returns skeleton process object
 
         """
-        return cms.Process("Express")
+        return cms.Process("Express", self.eras)
 
 
     def alcaSkim(self, skims):
@@ -48,7 +50,7 @@ class Test(Scenario):
         Returns skeleton process object
 
         """
-        return cms.Process("ALCARECO")
+        return cms.Process("ALCARECO", self.eras)
         
         
     def dqmHarvesting(self, datasetName, runNumber,  globalTag, **args):
@@ -85,7 +87,7 @@ class Test(Scenario):
 
         options.__dict__.update(args)
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
@@ -114,4 +116,4 @@ class Test(Scenario):
         Returns skeleton process object
 
         """
-        return cms.Process("Skimming")
+        return cms.Process("Skimming", self.eras)
