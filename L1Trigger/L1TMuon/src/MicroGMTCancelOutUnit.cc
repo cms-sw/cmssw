@@ -167,16 +167,10 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
       if (dEta < 16 && dPhi < 8) {
         int match = matchLUT->lookup(dEta & dEtaMask, dPhi & dPhiMask);
         if (match == 1) {
-          if((*mu_w1)->hwQual() < (*mu_w2)->hwQual()) {
-            (*mu_w1)->setHwCancelBit(1);
-          } else if ((*mu_w1)->hwQual() > (*mu_w2)->hwQual()) {
+          if((*mu_w1)->hwQual() > (*mu_w2)->hwQual()) {
             (*mu_w2)->setHwCancelBit(1);
           } else {
-            if ((*mu_w1)->hwPt() < (*mu_w2)->hwPt()) {
-              (*mu_w2)->setHwCancelBit(1);
-            } else {
-              (*mu_w1)->setHwCancelBit(1);
-            }
+            (*mu_w1)->setHwCancelBit(1);
           }
         }
       }
