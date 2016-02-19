@@ -27,8 +27,6 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
-process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
 # Condition for lxplus
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
