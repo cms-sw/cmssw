@@ -13,11 +13,15 @@ from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
 
 class pp(Reco):
+    def __init__(self):
+        Reco.__init__(self)
+        self.recoSeq=''
+        self.cbSc='pp'
     """
     _pp_
 
     Implement configuration building for data processing for proton
-    collision data taking
+    collision data taking for Run2
 
     """
 
@@ -33,9 +37,9 @@ class pp(Reco):
             args['skims']=['@allForPrompt']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePrompt']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePrompt')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2')
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -53,9 +57,9 @@ class pp(Reco):
             args['skims']=['@allForExpress']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpress']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpress')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -68,11 +72,10 @@ class pp(Reco):
         Proton collision data taking visualization processing
 
         """
-
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpress']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpress')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
@@ -85,6 +88,7 @@ class pp(Reco):
         Proton collisions data taking AlCa Harvesting
 
         """
+
 
         if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
