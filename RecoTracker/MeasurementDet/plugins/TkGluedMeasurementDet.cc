@@ -218,9 +218,12 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const
 #endif
 
 #include<cstdint>
+#ifdef VI_STAT
 #include<cstdio>
+#endif
 namespace {
   struct Stat {
+#ifdef VI_STAT
     double totCall=0;
     double totMono=0;
     double totStereo=0;
@@ -259,8 +262,14 @@ namespace {
 	       totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/matchT,
 	       filtMono/totCall,filtStereo/totCall,filtComb/matchF);
     }
+#else
+   void match(uint64_t) const{}
+   void operator()(uint64_t,uint64_t, uint64_t, uint64_t) const {}
+#endif
   };
-
+#ifndef VI_STAT
+  const
+#endif
   Stat stat;
 }
 
