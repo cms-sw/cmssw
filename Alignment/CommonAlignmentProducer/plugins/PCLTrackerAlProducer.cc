@@ -38,6 +38,7 @@
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
 /*** Geometry ***/
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -89,6 +90,9 @@ PCLTrackerAlProducer
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   theFirstRun              (cond::timeTypeSpecs[cond::runnumber].endValue)
+
+  //millePedeLogFile_(config.getUntrackedParameter<std::string>("millePedeLogFile")),
+  //millePedeResFile_(config.getUntrackedParameter<std::string>("millePedeResFile"))
 {
   
   tjTkAssociationMapToken = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
@@ -985,7 +989,13 @@ void PCLTrackerAlProducer
                             << "Terminating algorithm.";
   theAlignmentAlgo->terminate();
 
-  storeAlignmentsToDB();
+  MillePedeFileReader mpReader(
+    theParameterSet.getParameter<edm::ParameterSet>("millePedeFileReaderConfig")
+  );
+  mpReader.read();
+  if (mpReader.storeAlignments()) {
+    storeAlignmentsToDB();
+  }
 }
 
 //_____________________________________________________________________________
