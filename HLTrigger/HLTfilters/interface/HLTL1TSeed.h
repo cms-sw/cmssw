@@ -147,6 +147,9 @@ private:
     edm::InputTag                                    m_l1GtObjectMapTag;
     edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
 
+    /// InputTag for L1 Global Trigger 
+    edm::InputTag                                    m_l1GlobalTag;
+    edm::EDGetTokenT<GlobalAlgBlkBxCollection>       m_l1GlobalToken;
 
     //edm::InputTag dummyTag;
     /// Meta InputTag for L1 Muon collection
