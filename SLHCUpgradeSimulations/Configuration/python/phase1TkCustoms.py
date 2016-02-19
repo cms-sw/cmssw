@@ -553,16 +553,16 @@ def customise_Reco(process,pileup):
         process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
         process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
 
-    # Make pixelTracks use quadruplets
-    process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-        )
-    process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
-    process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+        # Make pixelTracks use quadruplets
+        process.pixelTracks.SeedMergerPSet = cms.PSet(
+            layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+            addRemainingTriplets = cms.bool(False),
+            mergeTriplets = cms.bool(True),
+            ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+            )
+        process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
+        process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
+        process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
 
     # use defaults d.k. 2/16
     #process.templates.DoLorentz=False
