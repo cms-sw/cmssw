@@ -361,7 +361,8 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
