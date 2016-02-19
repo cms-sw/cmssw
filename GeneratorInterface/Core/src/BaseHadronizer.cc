@@ -16,7 +16,9 @@ BaseHadronizer::BaseHadronizer( edm::ParameterSet const& ps ) :
       randomInitConfigDescriptions_.resize(randomizedParameters.size());
       for (unsigned int irand = 0; irand<randomizedParameters.size(); ++irand) {
         randomInitWeights_[irand] = randomizedParameters[irand].getParameter<double>("ConfigWeight");
-        randomInitConfigDescriptions_[irand] = randomizedParameters[irand].getParameter<std::string>("ConfigDescription");
+        if (randomizedParameters[irand].exists("ConfigDescription")) {
+          randomInitConfigDescriptions_[irand] = randomizedParameters[irand].getParameter<std::string>("ConfigDescription");
+        }
       }
     }  
   
