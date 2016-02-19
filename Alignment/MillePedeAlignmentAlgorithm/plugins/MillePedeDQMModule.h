@@ -15,9 +15,6 @@
 
 /*** system includes ***/
 #include <array>
-//#include <memory>
-//#include <fstream>
-//#include <string>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
