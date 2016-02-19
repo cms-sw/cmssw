@@ -14,6 +14,7 @@ import FWCore.ParameterSet.Config as cms
 
 class HeavyIonsRun2(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
         self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2PromptHI'

@@ -13,6 +13,7 @@ from Configuration.DataProcessing.Impl.pp import pp
 
 class hcalnzsRun2(pp):
     def __init__(self):
+        pp.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
     """

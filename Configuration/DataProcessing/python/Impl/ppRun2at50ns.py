@@ -14,6 +14,7 @@ import FWCore.ParameterSet.Config as cms
 
 class ppRun2at50ns(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
     """

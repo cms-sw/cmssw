@@ -13,6 +13,7 @@ from Configuration.DataProcessing.Reco import Reco
 
 class cosmicsRun2(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='cosmics'
     """
