@@ -840,7 +840,7 @@ bool SiStripMonitorTrack::trackFilter(const reco::Track& track) {
   if (track.pt() < 0.8) return false;
   if (track.p()  < 2.0) return false;
   if (track.hitPattern().numberOfValidTrackerHits()  <= 6) return false;
-  if (track.normalizedChi2() < 10.0) return false;
+  if (track.normalizedChi2() > 10.0) return false;
   return true;
 }
 //------------------------------------------------------------------------
