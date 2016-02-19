@@ -5,6 +5,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
+from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 akVs5PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akVs5PFJets"),
@@ -175,6 +176,12 @@ akVs5PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs5PFJets
         # embedPFCandidates = True
         )
 
+akVs5PFNjettiness = Njettiness.clone(
+		    src = cms.InputTag("akVs5PFJets"),
+           	    R0  = cms.double( 0.5)
+)
+akVs5PFpatJetsWithBtagging.userData.userFloats.src += ['akVs5PFNjettiness:tau1','akVs5PFNjettiness:tau2','akVs5PFNjettiness:tau3']
+
 akVs5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs5PFpatJetsWithBtagging"),
                                                              genjetTag = 'ak5GenJets',
                                                              rParam = 0.5,
@@ -191,6 +198,7 @@ akVs5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs5PFpa
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akVs5PF"),
+                                                             jetName = cms.untracked.string("akVs5PF"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(False)
@@ -215,6 +223,8 @@ akVs5PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   akVs5PFJetBtagging
                                                   *
+                                                  akVs5PFNjettiness
+                                                  *
                                                   akVs5PFpatJetsWithBtagging
                                                   *
                                                   akVs5PFJetAnalyzer
@@ -227,6 +237,8 @@ akVs5PFJetSequence_data = cms.Sequence(akVs5PFcorr
                                                     akVs5PFJetTracksAssociatorAtVertex
                                                     *
                                                     akVs5PFJetBtagging
+                                                    *
+                                                    akVs5PFNjettiness 
                                                     *
                                                     akVs5PFpatJetsWithBtagging
                                                     *
