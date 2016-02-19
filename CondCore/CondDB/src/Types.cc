@@ -7,6 +7,10 @@
 
 namespace cond {
 
+  template<size_t SIZE, class T> inline size_t array_size(T (&arr)[SIZE]){
+    return SIZE;
+  }
+
   void Iov_t::clear(){
     since = time::MAX_VAL;
     till = time::MIN_VAL;
@@ -44,6 +48,8 @@ namespace cond {
 											       std::make_pair("Prompt", SYNCH_PROMPT),
 											       std::make_pair("Pcl", SYNCH_PCL) };
   std::string synchronizationTypeNames(SynchronizationType type) {
+    if ( type>=array_size( s_synchronizationTypeArray ) )
+      throwException( "SynchronizationType \""+boost::lexical_cast<std::string>(type)+"\" is unknown.","synchronizationTypeNames");      
     return s_synchronizationTypeArray[type].first;
   }
 
@@ -56,3 +62,4 @@ namespace cond {
   }
 
 }
+
