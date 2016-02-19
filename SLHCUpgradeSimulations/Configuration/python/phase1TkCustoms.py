@@ -337,12 +337,12 @@ def customise_Reco(process,pileup):
     nPU=70
     if pileup>100: nPU=140
     
-    #use with latest pixel geometry
-    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
-    # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-
     if not eras.phase1Pixel.isChosen():
+        #use with latest pixel geometry
+        process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+        # Need this line to stop error about missing siPixelDigis.
+        process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+
         # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
         process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                             'BPix2+BPix3+BPix4',
