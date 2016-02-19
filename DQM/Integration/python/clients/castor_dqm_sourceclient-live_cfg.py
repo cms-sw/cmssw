@@ -27,113 +27,38 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #============================================
 # Castor Conditions: from Global Conditions Tag 
 #============================================
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load('Configuration.StandardSequences.CondDBESSource_cff')
+#FIXME: they should use an official GT, not define custom records and conditions on their own!!!
+process.GlobalTag.toGet = cms.VPSet( cms.PSet( record = cms.string('CastorGainsRcd'),
+                                               tag = cms.string('CastorGains_v2.1_hlt'), 
+                                               ),
+                                     cms.PSet( record = cms.string('CastorSaturationCorrsRcd'),
+                                               tag = cms.string('CastorSaturationCorrs_v3.00_offline'),
+                                               ),
+                                     cms.PSet( record = cms.string('CastorPedestalWidthsRcd'),
+                                               tag = cms.string('CastorPedestalWidths_v3.00_offline'),
+                                               ),
+                                     cms.PSet( record = cms.string('CastorGainWidthsRcd'),
+                                               tag = cms.string('CastorGainWidths_v3.00_offline'),
+                                               ),
+                                     cms.PSet( record = cms.string('CastorQIEDataRcd'),
+                                               tag = cms.string('CastorQIEData_v3.00_offline'),
+                                               ),
+                                     cms.PSet( record = cms.string('CastorChannelQualityRcd'),
+                                               tag = cms.string('CastorChannelQuality_v3.00_offline'),
+                                               ),
+                                     cms.PSet( record = cms.string('CastorElectronicsMapRcd'),
+                                               tag = cms.string('CastorElectronicsMap_v3.00_offline'),
+                                               ),
+                                      )
 
 process.CastorDbProducer = cms.ESProducer("CastorDbProducer")
 
-###process.es_pool = cms.ESSource(
-###   "PoolDBESSource",
-###   process.CondDBSetup,
-###   timetype = cms.string('runnumber'),
-###   connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOn Prod)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_HCAL'),
-###   authenticationMethod = cms.untracked.uint32(0),
-###   toGet = cms.VPSet(
-###       cms.PSet(
-###           record = cms.string('CastorPedestalsRcd'),
-###           tag = cms.string('castor_pedestals_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorPedestalWidthsRcd'),
-###           tag = cms.string('castor_pedestalwidths_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorGainsRcd'),
-###           tag = cms.string('castor_gains_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorGainWidthsRcd'),
-###           tag = cms.string('castor_gainwidths_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorQIEDataRcd'),
-###           tag = cms.string('castor_qie_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorChannelQualityRcd'),
-###           tag = cms.string('castor_channelquality_v1.0')
-###           ),
-###       cms.PSet(
-###           record = cms.string('CastorElectronicsMapRcd'),
-###           tag = cms.string('castor_emap_dcc_v1.0')
-###           )
-###   )
-###)
-
-process.es_pool0 = cms.ESSource(
-   "PoolDBESSource",
-   process.CondDBSetup,
-   timetype = cms.string('runnumber'),
-   ###connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HCAL'),
-   connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOn Prod)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_HCAL'),
-   authenticationMethod = cms.untracked.uint32(0),
-   toGet = cms.VPSet(
-       cms.PSet(
-           record = cms.string('CastorGainsRcd'),
-           tag = cms.string('CastorGains_v2.1_hlt') #all gains=1, corresponding to GR_P_V43D and CastorGains_v2.1_hlt in frontier://PromptProd/CMS_COND_31X_HCAL
-           )
-   )
-)
-
-process.es_pool = cms.ESSource(
-   "PoolDBESSource",
-   process.CondDBSetup,
-   timetype = cms.string('runnumber'),
-   #connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_COND_30X_HCAL'),
-   #connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
-   ###connect = cms.string('frontier://FrontierProd/CMS_COND_HCAL_000'),
-   connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOn Prod)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_HCAL_000'),
-   authenticationMethod = cms.untracked.uint32(0),
-   toGet = cms.VPSet(
-       cms.PSet(
-           record = cms.string('CastorSaturationCorrsRcd'),
-           tag = cms.string('CastorSaturationCorrs_v3.00_offline')
-           ),
-#
-       cms.PSet(
-           record = cms.string('CastorPedestalsRcd'),
-           tag = cms.string('CastorPedestals_v3.00_offline')
-           ),
-#
-       cms.PSet(
-           record = cms.string('CastorPedestalWidthsRcd'),
-           tag = cms.string('CastorPedestalWidths_v3.00_offline')
-           ),
-#
-#       cms.PSet(
-#           record = cms.string('CastorGainsRcd'),
-#           tag = cms.string('CastorGains_v3.00_offline')
-#           ),
-#
-       cms.PSet(
-           record = cms.string('CastorGainWidthsRcd'),
-           tag = cms.string('CastorGainWidths_v3.00_offline')
-           ),
-       cms.PSet(
-           record = cms.string('CastorQIEDataRcd'),
-           tag = cms.string('CastorQIEData_v3.00_offline')
-           ),
-       cms.PSet(
-           record = cms.string('CastorChannelQualityRcd'),
-           tag = cms.string('CastorChannelQuality_v3.00_offline')
-           ),
-       cms.PSet(
-           record = cms.string('CastorElectronicsMapRcd'),
-           tag = cms.string('CastorElectronicsMap_v3.00_offline')
-           )
-   )
-)
-
+##most likely the real fix:
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+## Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------------
 # Castor DQM Source + SimpleReconstrctor
