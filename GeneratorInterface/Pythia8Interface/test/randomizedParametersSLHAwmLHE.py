@@ -2,7 +2,7 @@
 #in the SLHA table
 
 #since the randomization occurs only at lumi section boundaries, test with command like
-+#cmsDriver.py randomizedParametersSLHAwmLHE.py -s LHE,GEN --conditions auto:run2_mc -n 1000 --eventcontent LHE,RAWSIM --datatier LHE,GEN-SIM --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"
+#cmsDriver.py randomizedParametersSLHAwmLHE.py -s LHE,GEN --conditions auto:run2_mc -n 1000 --eventcontent LHE,RAWSIM --datatier LHE,GEN-SIM --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"
 
 #or for full chain with fastsim
 #cmsDriver.py randomizedParametersSLHAwmLHE.py -s LHE,GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns --datamix PreMix --conditions auto:run2_mc --pileup_input dbs:/RelValFS_PREMIXUP15_PU25/CMSSW_8_0_0_pre2-PU25ns_76X_mcRun2_asymptotic_v12_FastSim-v1/GEN-SIM-DIGI-RAW --fast --era Run2_25ns --eventcontent AODSIM,RAWSIM,LHE --datatier AODSIM,GEN-SIM,LHE --beamspot Realistic50ns13TeVCollision --customise SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"  -n 1000
