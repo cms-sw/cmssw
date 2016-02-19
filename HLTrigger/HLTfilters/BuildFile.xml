@@ -10,6 +10,7 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1TGlobal"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="FWCore/Framework"/>
