@@ -24,11 +24,11 @@ process.maxEvents = cms.untracked.PSet(
 
 # Conditions (Global Tag is used here):
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.CondDBESSource_cff")
 process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 #process.prefer("GlobalTag")
 
-# Magnetic fiuld: force mag field to be 3.8 tesla
+# Magnetic field: force mag field to be 3.8 tesla
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #Geometry
