@@ -121,6 +121,7 @@ do
       echo "everything ok"
       rm $f
       echo root://eoscms.cern.ch/{srm}/${{ff}}_{idx}.root > $f.url
+      break
    done
 done
 cp -r Loop/* $LS_SUBCWD
