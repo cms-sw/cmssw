@@ -263,6 +263,7 @@ namespace {
 	       filtMono/totCall,filtStereo/totCall,filtComb/matchF);
     }
 #else
+   Stat(){}
    void match(uint64_t) const{}
    void operator()(uint64_t,uint64_t, uint64_t, uint64_t) const {}
 #endif
