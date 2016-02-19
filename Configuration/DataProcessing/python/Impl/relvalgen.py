@@ -13,6 +13,8 @@ from Configuration.DataProcessing.Scenario import *
 import FWCore.ParameterSet.Config as cms
 
 class relvalgen(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _relvalgen_
 
@@ -42,7 +44,7 @@ class relvalgen(Scenario):
         options.filein = []
         options.harvesting = "AtJobEnd"
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
