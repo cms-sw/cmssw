@@ -850,9 +850,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    {
      if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 
-     if (doME0_){
-       if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0SegmentHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
-     }
+     if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0SegmentHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
+
      reco::MuonChamberMatch matchedChamber;
 
      const auto& lErr = chamber.tState.localError();
@@ -973,58 +972,57 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Fill ME0 info
 
-   if (doME0_){
-     if ( me0SegmentHandle_.isValid() )
-       {
-   	 for(  const auto& chamber : info.chambers )
-   	   {
-   	     if (chamber.id.subdetId() != MuonSubdetId::ME0 ) continue; // Consider ME0 chambers only
+   if ( me0SegmentHandle_.isValid() )
+     {
+       for(  const auto& chamber : info.chambers )
+	 {
+	   if (chamber.id.subdetId() != MuonSubdetId::ME0 ) continue; // Consider ME0 chambers only
 	  
-   	     reco::MuonChamberMatch matchedChamber;
+	   reco::MuonChamberMatch matchedChamber;
 
-   	     //LocalError localError = chamber.tState.localError().positionError();
-   	     const auto& localError = chamber.tState.localError().positionError();
-   	     matchedChamber.x = chamber.tState.localPosition().x();
-   	     matchedChamber.y = chamber.tState.localPosition().y();
-   	     matchedChamber.xErr = sqrt( localError.xx() );
-   	     matchedChamber.yErr = sqrt( localError.yy() );
+	   //LocalError localError = chamber.tState.localError().positionError();
+	   const auto& localError = chamber.tState.localError().positionError();
+	   matchedChamber.x = chamber.tState.localPosition().x();
+	   matchedChamber.y = chamber.tState.localPosition().y();
+	   matchedChamber.xErr = sqrt( localError.xx() );
+	   matchedChamber.yErr = sqrt( localError.yy() );
 
-   	     matchedChamber.dXdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().x()/chamber.tState.localDirection().z():9999;
-   	     matchedChamber.dYdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().y()/chamber.tState.localDirection().z():9999;
-   	     // DANGEROUS - compiler cannot guaranty parameters ordering
-   	     AlgebraicSymMatrix55 trajectoryCovMatrix = chamber.tState.localError().matrix();
-   	     matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
-   	     matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
+	   matchedChamber.dXdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().x()/chamber.tState.localDirection().z():9999;
+	   matchedChamber.dYdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().y()/chamber.tState.localDirection().z():9999;
+	   // DANGEROUS - compiler cannot guaranty parameters ordering
+	   AlgebraicSymMatrix55 trajectoryCovMatrix = chamber.tState.localError().matrix();
+	   matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
+	   matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
 
-   	     matchedChamber.edgeX = chamber.localDistanceX;
-   	     matchedChamber.edgeY = chamber.localDistanceY;
+	   matchedChamber.edgeX = chamber.localDistanceX;
+	   matchedChamber.edgeY = chamber.localDistanceY;
 
-   	     matchedChamber.id = chamber.id;
-   	     for ( const auto& me0RecHit : *me0SegmentHandle_ )
-   	       {
-   		 reco::MuonSegmentMatch me0SegmentMatch;
+	   matchedChamber.id = chamber.id;
+	   for ( const auto& me0RecHit : *me0SegmentHandle_ )
+	     {
+	       reco::MuonSegmentMatch me0SegmentMatch;
 
-   		 //ME0DetId SegIdPreCompare (me0RecHit.rawId());
-   		 ME0DetId SegIdForCompare (me0RecHit.me0DetId().region(),
-   					   me0RecHit.me0DetId().layer(),
-   					   me0RecHit.me0DetId().chamber(),
-   					   0);
-   		 if ( SegIdForCompare != chamber.id.rawId() ) continue;
+	       //ME0DetId SegIdPreCompare (me0RecHit.rawId());
+	       ME0DetId SegIdForCompare (me0RecHit.me0DetId().region(),
+					 me0RecHit.me0DetId().layer(),
+					 me0RecHit.me0DetId().chamber(),
+					 0);
+	       if ( SegIdForCompare != chamber.id.rawId() ) continue;
 
-   		 me0SegmentMatch.x = me0RecHit.localPosition().x();
-   		 me0SegmentMatch.mask = 0;
+	       me0SegmentMatch.x = me0RecHit.localPosition().x();
+	       me0SegmentMatch.mask = 0;
 
-   		 const double AbsDx = std::abs(me0RecHit.localPosition().x()-chamber.tState.localPosition().x());
-   		 //const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
+	       const double AbsDx = std::abs(me0RecHit.localPosition().x()-chamber.tState.localPosition().x());
+	       //const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
 
-   		 //These matches are hardcoded, is that okay?
-   		 if(AbsDx <= 3 or AbsDx <= (sqrt(localError.xx() + me0RecHit.localPositionError().xx()) * 4) ) matchedChamber.segmentMatches.push_back(me0SegmentMatch);
-   	       }
+	       //These matches are hardcoded, is that okay?
+	       if(AbsDx <= 3 or AbsDx <= (sqrt(localError.xx() + me0RecHit.localPositionError().xx()) * 4) ) matchedChamber.segmentMatches.push_back(me0SegmentMatch);
+	     }
 
-   	     muonChamberMatches.push_back(matchedChamber);
-   	   }
-       }
-   }
+	   muonChamberMatches.push_back(matchedChamber);
+	 }
+     }
+   
 
    aMuon.setMatches(muonChamberMatches);
 
