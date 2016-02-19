@@ -40,8 +40,9 @@ from L1Trigger.L1TGlobal.StableParameters_cff import *
 from L1Trigger.L1TGlobal.TriggerMenu_cff import *
 TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
 
-#
-# BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
+
+# ####################################################
+# BEGIN L1T UNPACKER-EMULTATOR SEQUENCE FOR STAGE 2
 #
 
 process.hltGtStage2Digis = cms.EDProducer(
@@ -70,10 +71,21 @@ process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool(True),
 )
 
+process.HLTL1UnpackerSequence = cms.Sequence(
+ process.hltGtStage2Digis +
+ process.hltCaloStage2Digis +
+ process.hltGmtStage2Digis +
+ process.hltGtStage2ObjectMap)
+
+#
+# END L1T UNPACKER-EMULATOR SEQUENCE FOR STAGE 2
+# ####################################################
 
 
-process.hltL1TSeedHLTMuonL1TFilter = cms.EDFilter( "HLTL1TSeed",
-    #L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo OR L1_SingleEG10 OR L1_SingleS1Jet36 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
+# ####################################################
+# BEGIN HLT SEED SEQUENCE FOR STAGE 2
+#
+process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMuBeamHalo" ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
@@ -85,41 +97,32 @@ process.hltL1TSeedHLTMuonL1TFilter = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
 )
 
-process.myFilterLabel = cms.EDFilter(
-    'HLTMuonL1TFilter',
-    CandTag   =cms.InputTag('hltGmtStage2Digis'),
-    PreviousCandTag   =cms.InputTag('hltL1TSeedHLTMuonL1TFilter'),
-    MinPt = cms.double(6.0),
-    MaxEta = cms.double(2.0)
-)
-
 #process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     #processName = cms.string( "@" )
 #)
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-
-process.HLTL1UnpackerSequence = cms.Sequence(
- process.hltGtStage2Digis +
- process.hltCaloStage2Digis +
- process.hltGmtStage2Digis +
- process.hltGtStage2ObjectMap)
-
-#
-# END HLT UNPACKER SEQUENCE FOR STAGE 2
-#
-
-# HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
-    process.hltL1TSeedHLTMuonL1TFilter + 
-    process.myFilterLabel +
+    process.hltL1TSeed + 
     process.hltTriggerSummaryRAW 
 )
+#
+# END HLT SEED SEQUENCE FOR STAGE 2
+# ####################################################
+# work-around for upstream problems with Calo packer/unpacker sequence, pending fix.
+process.hltL1TSeed.L1GlobalInputTag = cms.InputTag("simGtStage2Digis")
+process.hltL1TSeed.L1ObjectMapInputTag = cms.InputTag("simGtStage2Digis")
+
+# temp for testing
+#process.simGtStage2Digis.PrescaleSet = cms.uint32(4)
+#process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
+
+
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
