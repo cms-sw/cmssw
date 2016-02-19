@@ -9,6 +9,7 @@ testing with a few input files etc from the command line
 
 import sys
 import getopt
+import traceback
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -105,7 +106,7 @@ class RunPromptReco:
             return
         except Exception as ex:
             msg = "Error creating Prompt Reco config:\n"
-            msg += str(ex)
+            msg += traceback.format_exc()
             raise RuntimeError(msg)
 
         process.source.fileNames.append(self.inputLFN)
