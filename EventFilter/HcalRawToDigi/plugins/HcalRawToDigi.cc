@@ -31,12 +31,13 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
 
   if (fedUnpackList_.empty()) {
+    // VME range for back-compatibility
     for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
       fedUnpackList_.push_back(i);
-    // HF uTCA
-    fedUnpackList_.push_back(1118);
-    fedUnpackList_.push_back(1120);
-    fedUnpackList_.push_back(1122);
+
+    // uTCA range 
+    for (int i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
+      fedUnpackList_.push_back(i);
   } 
   
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
