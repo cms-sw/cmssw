@@ -990,7 +990,7 @@ void PCLTrackerAlProducer
   theAlignmentAlgo->terminate();
 
   MillePedeFileReader mpReader(
-    theParameterSet.getParameter<edm::ParameterSet>("millePedeFileReaderConfig")
+    theParameterSet.getParameter<edm::ParameterSet>("MillePedeFileReader")
   );
   mpReader.read();
   if (mpReader.storeAlignments()) {

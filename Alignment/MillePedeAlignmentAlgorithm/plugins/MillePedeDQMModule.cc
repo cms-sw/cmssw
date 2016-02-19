@@ -19,18 +19,18 @@
 MillePedeDQMModule
 ::MillePedeDQMModule(const edm::ParameterSet& config) :
   mpReaderConfig_(
-    config.getParameter<edm::ParameterSet>("millePedeFileReaderConfig")
+    config.getParameter<edm::ParameterSet>("MillePedeFileReader")
   ),
   mpReader(mpReaderConfig_),
 
-  Xcut_       (config.getParameter<double>("Xcut")),
-  tXcut_      (config.getParameter<double>("tXcut")),
-  Ycut_       (config.getParameter<double>("Ycut")),
-  tYcut_      (config.getParameter<double>("tYcut")),
-  Zcut_       (config.getParameter<double>("Zcut")),
-  tZcut_      (config.getParameter<double>("tZcut")),
-  maxMoveCut_ (mpReaderConfig_.getParameter<double>("maxMoveCut")),
-  sigCut_     (mpReaderConfig_.getParameter<double>("sigCut"))
+  sigCut_     (mpReaderConfig_.getParameter<double>("sigCut")),
+  Xcut_       (mpReaderConfig_.getParameter<double>("Xcut")),
+  tXcut_      (mpReaderConfig_.getParameter<double>("tXcut")),
+  Ycut_       (mpReaderConfig_.getParameter<double>("Ycut")),
+  tYcut_      (mpReaderConfig_.getParameter<double>("tYcut")),
+  Zcut_       (mpReaderConfig_.getParameter<double>("Zcut")),
+  tZcut_      (mpReaderConfig_.getParameter<double>("tZcut")),
+  maxMoveCut_ (mpReaderConfig_.getParameter<double>("maxMoveCut"))
 {
 }
 

@@ -69,14 +69,15 @@ class MillePedeDQMModule : public DQMEDAnalyzer {
     const edm::ParameterSet& mpReaderConfig_;
     MillePedeFileReader mpReader;
 
+    // Signifiance of movement must be above
+    double sigCut_;
     // Cutoff in micro-meter & micro-rad
     double Xcut_, tXcut_;
     double Ycut_, tYcut_;
     double Zcut_, tZcut_;
     // maximum movement in micro-meter/rad
     double maxMoveCut_;
-    // Signifiance of movement must be above
-    double sigCut_;
+
 
     // Histograms
     MonitorElement* h_xPos[4];
