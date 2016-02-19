@@ -124,7 +124,7 @@ void L1RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
       
     }
-    
+    tree_->Fill();
   }
 
 }
