@@ -4,11 +4,11 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
 #include <string>
 #include <fstream>
 #include <cmath>
 #include<cassert>
-
 
 namespace {
  /// Logistic function (needed for transformation of weight and mean)
@@ -122,40 +122,37 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     if ( rl<0.01f )  rl = 0.01f;
     if ( rl>0.20f )  rl = 0.20f;
 
-    #if __clang__
-    std::vector<GSContainer> mixtureHolder(theNrComponents);
-    GSContainer *mixture = mixtureHolder.data();
-    #else
-    GSContainer mixture[theNrComponents];
-    #endif
+    float mixtureData[3][theNrComponents];
+    GSContainer mixture{mixtureData[0],mixtureData[1],mixtureData[2]};
+
     getMixtureParameters(rl,mixture);
     correctWeights(mixture);
     if ( theCorrectionFlag>=1 )
-      mixture[0].second = correctedFirstMean(rl,mixture);
+      mixture.second[0] = correctedFirstMean(rl,mixture);
     if ( theCorrectionFlag>=2 )
-      mixture[0].third = correctedFirstVar(rl,mixture);
+      mixture.third[0] = correctedFirstVar(rl,mixture);
 
     for ( int i=0; i<theNrComponents; i++ ) {
       float varPinv;
-      effects[i].weight*=mixture[i].first;
+      effects[i].weight*=mixture.first[i];
       if ( propDir==alongMomentum ) {
 	//
 	// for forward propagation: calculate in p (linear in 1/z=p_inside/p_outside),
 	// then convert sig(p) to sig(1/p). 
 	//
-	 effects[i].deltaP += p*(mixture[i].second-1.f);
-	//    float f = 1./p/mixture[i].second/mixture[i].second;
+	 effects[i].deltaP += p*(mixture.second[i]-1.f);
+	//    float f = 1./p/mixture.second[i]/mixture.second[i];
 	// patch to ensure consistency between for- and backward propagation
-	float f = 1.f/(p*mixture[i].second);
-	varPinv = f*f*mixture[i].third;
+	float f = 1.f/(p*mixture.second[i]);
+	varPinv = f*f*mixture.third[i];
       }
       else {
 	//
 	// for backward propagation: delta(1/p) is linear in z=p_outside/p_inside
 	// convert to obtain equivalent delta(p)
 	//
-	effects[i].deltaP += p*(1.f/mixture[i].second-1.f);
-	varPinv = mixture[i].third/(p*p);
+	effects[i].deltaP += p*(1.f/mixture.second[i]-1.f);
+	varPinv = mixture.third[i]/(p*p);
       }
       using namespace materialEffect;
       effects[i].deltaCov[elos] +=  varPinv;
@@ -167,24 +164,38 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 //
 void 
 GsfBetheHeitlerUpdator::getMixtureParameters (const float rl,
-					      GSContainer mixture[]) const
+					      GSContainer & mixture) const
 {
 
+  if ( theTransformationCode ) 
   for ( int i=0; i<theNrComponents; i++ ) {
 
     float weight = thePolyWeights[i](rl);
-    if ( theTransformationCode )  weight = logisticFunction(weight);
+    weight = logisticFunction(weight);
 
     float z = thePolyMeans[i](rl);
-    if ( theTransformationCode )  z = logisticFunction(z);
+    z = logisticFunction(z);
 
     float vz = thePolyVars[i](rl);
-    if ( theTransformationCode )  
-      vz = unsafe_expf<4>(vz);
-    else                          
-      vz = vz*vz;
+    vz = unsafe_expf<4>(vz);
 
-    mixture[i]=Triplet<float,float,float>(weight,z,vz);
+    mixture.first[i]=weight;
+    mixture.second[i]=z;
+    mixture.third[i]=vz;
+  }
+  else // theTransformationCode
+  for ( int i=0; i<theNrComponents; i++ ) {
+
+    float weight = thePolyWeights[i](rl);
+
+    float z = thePolyMeans[i](rl);
+
+    float vz = thePolyVars[i](rl);
+    vz = vz*vz;
+
+    mixture.first[i]=weight;
+    mixture.second[i]=z;
+    mixture.third[i]=vz;
   }
 }
 
@@ -192,57 +203,57 @@ GsfBetheHeitlerUpdator::getMixtureParameters (const float rl,
 // Correct weights
 //
 void
-GsfBetheHeitlerUpdator::correctWeights (GSContainer mixture[]) const
+GsfBetheHeitlerUpdator::correctWeights (GSContainer & mixture) const
 {
   //
   // get sum of weights
   //
   float wsum(0);
   for ( int i=0; i<theNrComponents; i++ )
-    wsum += mixture[i].first;
+    wsum += mixture.first[i];
   //
   // rescale to obtain 1
   //
   wsum = 1.f/wsum;
   for ( int i=0; i<theNrComponents; i++ )
-     mixture[i].first *= wsum;
+     mixture.first[i] *= wsum;
 }
 //
 // Correct means
 //
 float
 GsfBetheHeitlerUpdator::correctedFirstMean (const float rl,
-					    const GSContainer mixture[]) const
+					    const GSContainer & mixture) const
 {
   //
   // calculate difference true mean - weighted sum
   //
   float mean = BetheHeitlerMean(rl);
   for ( int i=1; i<theNrComponents; i++ )
-    mean -= mixture[i].first*mixture[i].second;
+    mean -= mixture.first[i]*mixture.second[i];
   //
   // return corrected mean for first component
   //
-  return std::max(std::min(mean/mixture[0].first,1.f),0.f);
+  return std::max(std::min(mean/mixture.first[0],1.f),0.f);
 }
 //
 // Correct variances
 //
 float
 GsfBetheHeitlerUpdator::correctedFirstVar (const float rl,
-					   const GSContainer mixture[]) const
+					   const GSContainer & mixture) const
 {
   //
   // calculate difference true variance - weighted sum
   //
   float var = BetheHeitlerVariance(rl) +
     BetheHeitlerMean(rl)*BetheHeitlerMean(rl) -
-    mixture[0].first*mixture[0].second*mixture[0].second;
+    mixture.first[0]*mixture.second[0]*mixture.second[0];
   for ( int i=1; i<theNrComponents; i++ )
-    var -= mixture[i].first*(mixture[i].second*mixture[i].second+mixture[i].third);
+    var -= mixture.first[i]*(mixture.second[i]*mixture.second[i]+mixture.third[i]);
   //
   // return corrected variance for first component
   //
-  return std::max(var/mixture[0].first,0.f);
+  return std::max(var/mixture.first[0],0.f);
 }
 
