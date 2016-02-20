@@ -20,7 +20,7 @@ namespace {
   /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerVariance (const float rl)
   {
-    const float l3ol2 = std::log(3.)/std::log(2.);
+    constexpr float l3ol2 = std::log(3.)/std::log(2.);
     float mean = BetheHeitlerMean(rl);
     return unsafe_expf<4>(-rl*l3ol2) -  mean*mean;
   }
@@ -143,10 +143,10 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 	// for forward propagation: calculate in p (linear in 1/z=p_inside/p_outside),
 	// then convert sig(p) to sig(1/p). 
 	//
-	 effects[i].deltaP += p*(mixture[i].second-1);
+	 effects[i].deltaP += p*(mixture[i].second-1.f);
 	//    float f = 1./p/mixture[i].second/mixture[i].second;
 	// patch to ensure consistency between for- and backward propagation
-	float f = 1./p/mixture[i].second;
+	float f = 1.f/(p*mixture[i].second);
 	varPinv = f*f*mixture[i].third;
       }
       else {
@@ -154,8 +154,8 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 	// for backward propagation: delta(1/p) is linear in z=p_outside/p_inside
 	// convert to obtain equivalent delta(p)
 	//
-	effects[i].deltaP += p*(1/mixture[i].second-1);
-	varPinv = mixture[i].third/p/p;
+	effects[i].deltaP += p*(1.f/mixture[i].second-1.f);
+	varPinv = mixture[i].third/(p*p);
       }
       using namespace materialEffect;
       effects[i].deltaCov[elos] +=  varPinv;
@@ -181,7 +181,8 @@ GsfBetheHeitlerUpdator::getMixtureParameters (const float rl,
     float vz = thePolyVars[i](rl);
     if ( theTransformationCode )  
       vz = unsafe_expf<4>(vz);
-    else                          vz = vz*vz;
+    else                          
+      vz = vz*vz;
 
     mixture[i]=Triplet<float,float,float>(weight,z,vz);
   }
@@ -202,8 +203,9 @@ GsfBetheHeitlerUpdator::correctWeights (GSContainer mixture[]) const
   //
   // rescale to obtain 1
   //
+  wsum = 1.f/wsum;
   for ( int i=0; i<theNrComponents; i++ )
-     mixture[i].first /= wsum;
+     mixture[i].first *= wsum;
 }
 //
 // Correct means
