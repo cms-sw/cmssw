@@ -335,6 +335,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   math::XYZVector mom( p.x(), p.y(), p.z() );
   
   LogDebug("GsfTrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
+  std::cout << "GsfTrackProducer " << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag() << std::endl;
   
   auto theTrack = new reco::GsfTrack(theTraj->chiSquared(),
 				int(ndof),//FIXME fix weight() in TrackingRecHit
