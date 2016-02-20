@@ -37,9 +37,9 @@ class ppRun2(Reco):
             args['skims']=['@allForPrompt']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated')
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -57,9 +57,9 @@ class ppRun2(Reco):
             args['skims']=['@allForExpress']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated')
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -73,9 +73,9 @@ class ppRun2(Reco):
 
         """
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated')
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         

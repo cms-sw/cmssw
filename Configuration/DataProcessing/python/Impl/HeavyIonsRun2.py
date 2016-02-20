@@ -17,9 +17,9 @@ class HeavyIonsRun2(Reco):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
-        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2PromptHI'
-        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
-        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
+        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedPromptHI'
+        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedExpressHI'
+        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedExpressHI'
     """
     _HeavyIonsRun2_
 
