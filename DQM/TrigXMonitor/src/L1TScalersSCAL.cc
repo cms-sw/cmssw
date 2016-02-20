@@ -26,16 +26,18 @@ const double SECS_PER_LUMI = 23.31040958083832;
 using namespace edm;
 using namespace std;
 
-L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps)
-    : scalersSource_(ps.getParameter<edm::InputTag>("scalersResults")),
-      verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-      denomIsTech_(ps.getUntrackedParameter<bool>("denomIsTech", true)),
-      denomBit_(ps.getUntrackedParameter<unsigned int>("denomBit", 40)),
-      muonBit_(ps.getUntrackedParameter<unsigned int>("muonBit", 55)),
-      egammaBit_(ps.getUntrackedParameter<unsigned int>("egammaBit", 46)),
-      jetBit_(ps.getUntrackedParameter<unsigned int>("jetBit", 15)) {
+L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
+  l1triggerscalers_(consumes<Level1TriggerScalersCollection>(ps.getParameter<edm::InputTag>("scalersResults"))),
+  lumiscalers_(consumes<LumiScalersCollection>(ps.getParameter<edm::InputTag>("scalersResults"))),
+  l1acceptBX_(consumes<L1AcceptBunchCrossingCollection>(ps.getParameter<edm::InputTag>("scalersResults"))),
+  verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+  denomIsTech_(ps.getUntrackedParameter<bool>("denomIsTech", true)),
+  denomBit_(ps.getUntrackedParameter<unsigned int>("denomBit", 40)),
+  muonBit_(ps.getUntrackedParameter<unsigned int>("muonBit", 55)),
+  egammaBit_(ps.getUntrackedParameter<unsigned int>("egammaBit", 46)),
+  jetBit_(ps.getUntrackedParameter<unsigned int>("jetBit", 15)) {
   LogDebug("Status") << "constructor";
-
+  
   for (int i = 0; i < Level1TriggerScalers::nLevel1Triggers; i++) {
     bufferAlgoRates_.push_back(0);
     algorithmRates_.push_back(0);
@@ -287,17 +289,17 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent,
   nev_++;
   // access SCAL info
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
-  bool a = iEvent.getByLabel(scalersSource_, triggerScalers);
+  bool a = iEvent.getByToken(l1triggerscalers_, triggerScalers);
   edm::Handle<LumiScalersCollection> lumiScalers;
-  bool c = iEvent.getByLabel(scalersSource_, lumiScalers);
+  bool c = iEvent.getByToken(lumiscalers_, lumiScalers);
   edm::Handle<L1AcceptBunchCrossingCollection> bunchCrossings;
-  bool d = iEvent.getByLabel(scalersSource_, bunchCrossings);
+  bool d = iEvent.getByToken(l1acceptBX_, bunchCrossings);
 
   double evtLumi = iEvent.luminosityBlock();
   int run = iEvent.id().run();
 
   if (!(a && c && d)) {
-    LogInfo("Status") << "getByLabel failed with label " << scalersSource_;
+    LogInfo("Status") << "getByToken failed";
   } else {  // we have the data
     Level1TriggerScalersCollection::const_iterator it = triggerScalers->begin();
     if (triggerScalers->size()) {
@@ -470,5 +472,5 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent,
         bunchCrossingDiff_small[l1accept - 1]->Fill(bxdiff);
       }
     }
-  }  // getByLabel succeeds for scalers
+  }  // getByToken succeeds for scalers
 }
