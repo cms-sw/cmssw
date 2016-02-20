@@ -97,13 +97,13 @@ correctionValue_class EnergyScaleCorrection_class::getScaleCorrection(unsigned i
     // }
     // corr_itr = scales_not_defined.find(category);
     /// \todo this can be switched to an exeption 
-    std::cout << "[ERROR] Category not found: " << std::endl;
+    std::cout << "[ERROR] Scale category not found: " << std::endl;
     std::cout << category << std::endl;
     //     exit(1);
   }
   
 #ifdef DEBUG
-  std::cout << "[DEBUG] Checking correction for category: " << category << std::endl;
+  std::cout << "[DEBUG] Checking scale correction for category: " << category << std::endl;
   std::cout << "[DEBUG] Correction is: " << corr_itr->second
 	    << std::endl
 	    << "        given for category " <<  corr_itr->first << std::endl;;
@@ -126,13 +126,13 @@ float EnergyScaleCorrection_class::getScaleOffset(unsigned int runNumber, bool i
     // }
     // corr_itr = scales_not_defined.find(category);
     /// \todo this can be switched to an exeption 
-    std::cout << "[ERROR] Category not found: " << std::endl;
+    std::cout << "[ERROR] Scale offset category not found: " << std::endl;
     std::cout << category << std::endl;
     //     exit(1);
   }
   
 #ifdef DEBUG
-  std::cout << "[DEBUG] Checking correction for category: " << category << std::endl;
+  std::cout << "[DEBUG] Checking scale offset correction for category: " << category << std::endl;
   std::cout << "[DEBUG] Correction is: " << corr_itr->second
 	    << std::endl
 	    << "        given for category " <<  corr_itr->first << std::endl;;
@@ -343,17 +343,17 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
 
 
 
-float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma) const
+float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, paramSmear_t par, float nSigma) const
 {
-  if (par == kRho) return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, nSigma, 0.);
-  if (par == kPhi) return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, 0., nSigma);
-  return getSmearingSigma(runNumber, energy, isEBEle, R9Ele, etaSCEle, 0., 0.);
+  if (par == kRho) return getSmearingSigma(runNumber, isEBEle, R9Ele, etaSCEle, EtEle, nSigma, 0.);
+  if (par == kPhi) return getSmearingSigma(runNumber, isEBEle, R9Ele, etaSCEle, EtEle, 0., nSigma);
+  return getSmearingSigma(runNumber, isEBEle, R9Ele, etaSCEle, EtEle, 0., 0.);
 }
 
-float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, float nSigma_rho, float nSigma_phi) const
+float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, float nSigma_rho, float nSigma_phi) const
 {
   
-  correctionCategory_class category(runNumber, etaSCEle, R9Ele, energy / cosh(etaSCEle));
+  correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
   correction_map_t::const_iterator corr_itr = smearings.find(category);
   if(corr_itr == smearings.end()) { // if not in the standard classes, add it in the list of not defined classes
     // the following commented part makes the method non const
@@ -362,13 +362,13 @@ float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy,
     // 	smearings_not_defined[category] = corr;
     // }
     corr_itr = smearings_not_defined.find(category);
-    std::cerr << "[WARNING] Category not found: " << std::endl;
+    std::cerr << "[WARNING] Smearing category not found: " << std::endl;
     std::cerr << category << std::endl;
     //     exit(1);
   }
   
 #ifdef DEBUG
-  std::cout << "[DEBUG] Checking correction for category: " << category << std::endl;
+  std::cout << "[DEBUG] Checking smearing correction for category: " << category << std::endl;
   std::cout << "[DEBUG] Correction is: " << corr_itr->second
 	    << std::endl
 	    << "        given for category " <<  corr_itr->first;
@@ -380,14 +380,14 @@ float EnergyScaleCorrection_class::getSmearingSigma(int runNumber, float energy,
   double constTerm =  rho * sin(phi);
   double alpha =  rho *  corr_itr->second.Emean * cos( phi);
 
-  return sqrt(constTerm * constTerm + alpha * alpha / (energy / cosh(etaSCEle)));
+  return sqrt(constTerm * constTerm + alpha * alpha / EtEle);
   
 }
 
-float EnergyScaleCorrection_class::getSmearingRho(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle) const
+float EnergyScaleCorrection_class::getSmearingRho(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle) const
 {
   
-  correctionCategory_class category(runNumber, etaSCEle, R9Ele, energy / cosh(etaSCEle));
+  correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
   correction_map_t::const_iterator corr_itr = smearings.find(category);
   if(corr_itr == smearings.end()) { // if not in the standard classes, add it in the list of not defined classes
     // if(smearings_not_defined.count(category) == 0) {

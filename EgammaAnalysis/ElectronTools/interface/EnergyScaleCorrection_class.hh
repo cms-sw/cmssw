@@ -175,8 +175,8 @@ private:
 
 	//============================== smearings
 public:
-	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, paramSmear_t par, float nSigma = 0.) const;
-	float getSmearingSigma(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle, float nSigma_rho, float nSigma_phi) const;
+	float getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, paramSmear_t par, float nSigma = 0.) const;
+	float getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, float nSigma_rho, float nSigma_phi) const;
 
 
 private:
@@ -198,7 +198,7 @@ public:
 		}
 	};
 
-	float getSmearingRho(int runNumber, float energy, bool isEBEle, float R9Ele, float etaSCEle) const; ///< public for sigmaE estimate
+	float getSmearingRho(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle) const; ///< public for sigmaE estimate
 
 
 
