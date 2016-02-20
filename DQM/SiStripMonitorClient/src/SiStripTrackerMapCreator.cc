@@ -410,11 +410,11 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
     dqm_store->cd(mechanicalview_dir);
   }
   dqm_store->cd();
-  if (topModules) printTopModules(topNmodVec, eSetup);
+  if (topModules) printTopModules(topNmodVec, eSetup, htype);
   delete topNmodVec;
 }
 
-void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup){
+void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup, std::string& htype){
 
    //////////////Retrieve tracker topology from geometry
    //edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -426,8 +426,16 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
 
    if (topNmodVec->empty()) return;
 
-   std::sort(topNmodVec->rbegin(), topNmodVec->rend());
-   if (topNmodVec->size() > numTopModules) topNmodVec->resize(numTopModules);
+   if (htype == "StoNCorrOnTrack") {
+      topModLabel += " less than 10";
+      std::sort(topNmodVec->begin(), topNmodVec->end());
+      while ((topNmodVec->back()).first > 10)
+        topNmodVec->pop_back();
+   }
+   else{
+      std::sort(topNmodVec->rbegin(), topNmodVec->rend());
+      if (topNmodVec->size() > numTopModules) topNmodVec->resize(numTopModules);
+   }
    
    edm::LogVerbatim("TopModules") << topModLabel;
    edm::LogVerbatim("TopModules") << "------------------------------------------------------";
