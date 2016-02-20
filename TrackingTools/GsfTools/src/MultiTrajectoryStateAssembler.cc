@@ -136,7 +136,7 @@ MultiTrajectoryStateAssembler::prepareCombinedState () {
   // Check for minimum fraction of valid states
   //
   double allWeights(theValidWeightSum+theInvalidWeightSum);
-  if ( theInvalidWeightSum>0. && (theValidWeightSum/allWeights)<minValidFraction )  return false;
+  if ( theInvalidWeightSum>0. && theValidWeightSum <minValidFraction*allWeights )  return false;
   //
   // remaining part to be done only once
   //
@@ -191,7 +191,7 @@ MultiTrajectoryStateAssembler::removeSmallWeights()
   //
   // check total weight
   //
-  double totalWeight(theInvalidWeightSum+theValidWeightSum);
+  auto totalWeight(theInvalidWeightSum+theValidWeightSum);
   if ( totalWeight == 0. ) {
     theStates.clear();
     return;
@@ -204,7 +204,7 @@ MultiTrajectoryStateAssembler::removeSmallWeights()
     redo = false;
     for ( MultiTSOS::iterator i=theStates.begin();
 	  i!=theStates.end(); i++ ) {
-      if ( (*i).weight()/totalWeight < minFractionalWeight ) {
+      if ( (*i).weight()  < minFractionalWeight*totalWeight ) {
 	theStates.erase(i);
 	redo = true;
 	break;
