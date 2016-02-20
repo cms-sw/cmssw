@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include <string>
 #include <fstream>
 #include <cmath>
@@ -166,36 +165,24 @@ void
 GsfBetheHeitlerUpdator::getMixtureParameters (const float rl,
 					      GSContainer & mixture) const
 {
-
+ 
+  float weight[theNrComponents], z[theNrComponents], vz[theNrComponents]; 
+  for ( int i=0; i<theNrComponents; i++ ) {
+    weight[i] = thePolyWeights[i](rl);
+    z[i] = thePolyMeans[i](rl);
+    vz[i] = thePolyVars[i](rl);
+  }
   if ( theTransformationCode ) 
   for ( int i=0; i<theNrComponents; i++ ) {
-
-    float weight = thePolyWeights[i](rl);
-    weight = logisticFunction(weight);
-
-    float z = thePolyMeans[i](rl);
-    z = logisticFunction(z);
-
-    float vz = thePolyVars[i](rl);
-    vz = unsafe_expf<4>(vz);
-
-    mixture.first[i]=weight;
-    mixture.second[i]=z;
-    mixture.third[i]=vz;
+    mixture.first[i]=logisticFunction(weight[i]);
+    mixture.second[i]=logisticFunction(z[i]);
+    mixture.third[i]=unsafe_expf<4>(vz[i]);;
   }
   else // theTransformationCode
   for ( int i=0; i<theNrComponents; i++ ) {
-
-    float weight = thePolyWeights[i](rl);
-
-    float z = thePolyMeans[i](rl);
-
-    float vz = thePolyVars[i](rl);
-    vz = vz*vz;
-
-    mixture.first[i]=weight;
-    mixture.second[i]=z;
-    mixture.third[i]=vz;
+    mixture.first[i]=weight[i];
+    mixture.second[i]=z[i];
+    mixture.third[i]=vz[i]*vz[i];
   }
 }
 
