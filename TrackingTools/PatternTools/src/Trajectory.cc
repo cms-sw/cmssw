@@ -173,7 +173,9 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
 }
 
 bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  if (trackerHitRTTI::isUndef(*tm.recHit())) return false;
+  if (trackerHitRTTI::isUndef(*tm.recHit()) |
+      trackerHitRTTI::isFast(*tm.recHit())
+     ) return false;
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (thit->isPixel()) return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
