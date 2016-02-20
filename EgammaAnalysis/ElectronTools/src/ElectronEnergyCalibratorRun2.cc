@@ -45,7 +45,7 @@ void ElectronEnergyCalibratorRun2::calibrate(SimpleElectron &electron, edm::Stre
   float et = electron.getNewEnergy()/cosh(aeta);
   
   scale = _correctionRetriever.ScaleCorrection(electron.getRunNumber(), electron.isEB(), electron.getR9(), aeta, et);
-  smear = _correctionRetriever.getSmearingSigma(electron.getRunNumber(), electron.getNewEnergy(), electron.isEB(), electron.getR9(), aeta, 0., 0.); 
+  smear = _correctionRetriever.getSmearingSigma(electron.getRunNumber(), electron.isEB(), electron.getR9(), aeta, et, 0., 0.); 
   
   double newEcalEnergy, newEcalEnergyError;
   if (isMC_) {

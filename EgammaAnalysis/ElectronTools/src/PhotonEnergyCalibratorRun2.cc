@@ -32,7 +32,7 @@ void PhotonEnergyCalibratorRun2::calibrate(SimplePhoton &photon, edm::StreamID c
     float et = photon.getNewEnergy()/cosh(aeta);
 
     scale = _correctionRetriever.ScaleCorrection(photon.getRunNumber(), photon.isEB(), photon.getR9(), aeta, et);
-    smear = _correctionRetriever.getSmearingSigma(photon.getRunNumber(), photon.getNewEnergy(), photon.isEB(), photon.getR9(), aeta, 0., 0.); 
+    smear = _correctionRetriever.getSmearingSigma(photon.getRunNumber(), photon.isEB(), photon.getR9(), aeta, et, 0., 0.); 
     
     double newEcalEnergy, newEcalEnergyError;
     if (isMC_) {
