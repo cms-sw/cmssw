@@ -13,7 +13,7 @@ function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?
 
 runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppRun2" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBias+SiStripCalMinBias "
@@ -22,7 +22,7 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppRun2" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
@@ -36,7 +36,7 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "HeavyIonsRun2" "HeavyIonsEra_Run2_HI" "AlCaLumiPixels" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppRun2" "HeavyIons" "HeavyIonsRun2" "HeavyIonsEra_Run2_HI" "AlCaLumiPixels" "ppRun2B0T" "ppRun2at50ns" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario $scenario --lfn=/store/whatever --global-tag GLOBALTAG --skims SiStripCalZeroBias,SiStripCalMinBias,PromptCalibProd"
