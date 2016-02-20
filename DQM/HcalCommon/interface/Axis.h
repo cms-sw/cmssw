@@ -64,6 +64,9 @@ namespace hcaldqm
 				Axis(std::string title,AxisType type, AxisQType qtype, 
 					int n, double min, double max, bool log=false);
 				virtual ~Axis() {}
+				virtual Axis* makeCopy()
+				{return new Axis(_title, _type, _qtype, _nbins,
+					_min, _max, _log);}
 
 				//	getters of Value to put
 				virtual int get(HcalDetId const&) {return 0;}
