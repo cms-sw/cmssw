@@ -17,14 +17,14 @@ class HeavyIons(Reco):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
-        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2PromptHI'
-        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
-        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
+        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customisePromptHI'
+        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseExpressHI'
+        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseExpressHI'
     """
     _HeavyIons_
 
     Implement configuration building for data processing for Heavy Ions
-    collision data taking for Run2
+    collision data taking
 
     """
 

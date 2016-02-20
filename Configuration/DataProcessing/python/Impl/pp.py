@@ -21,7 +21,7 @@ class pp(Reco):
     _pp_
 
     Implement configuration building for data processing for proton
-    collision data taking for Run2
+    collision data taking
 
     """
 
@@ -37,9 +37,9 @@ class pp(Reco):
             args['skims']=['@allForPrompt']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePrompt']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePrompt')
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -57,9 +57,9 @@ class pp(Reco):
             args['skims']=['@allForExpress']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpress']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpress')
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -73,9 +73,9 @@ class pp(Reco):
 
         """
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpress']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpress')
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
