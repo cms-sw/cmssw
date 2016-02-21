@@ -74,7 +74,8 @@ namespace edm {
       wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_[0]);
+                                                      selectors_[0],
+                                                      consumesCollector());
 
     }
     
@@ -193,7 +194,8 @@ namespace edm {
           detail::configureEventSelector(selectEvents_,
                                          process_name_,
                                          getAllTriggerNames(),
-                                         s);
+                                         s,
+                                         consumesCollector());
         } else {
           seenFirst = true;
         }
