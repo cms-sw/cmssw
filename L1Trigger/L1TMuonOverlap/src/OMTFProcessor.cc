@@ -29,8 +29,7 @@ OMTFProcessor::OMTFProcessor(const edm::ParameterSet & theConfig){
     for(auto it: theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")){
       fileNames.push_back(it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath());
     }  
-
-    resetConfiguration();
+    resetConfiguration(); 
     XMLConfigReader myReader;
     for(auto it: fileNames){
       myReader.setPatternsFile(it);
@@ -72,7 +71,7 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 
   resetConfiguration();
-  
+
   myResults.assign(OMTFConfiguration::nTestRefHits,OMTFProcessor::resultsMap());
   
   const l1t::LUT* chargeLUT =  omtfParams->chargeLUT();
@@ -185,10 +184,10 @@ void  OMTFProcessor::averagePatterns(int charge){
    
     for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
       for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi2[iLayer][iRefLayer];
-	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi3[iLayer][iRefLayer];
-	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi4[iLayer][iRefLayer];
-	meanDistPhi[iLayer][iRefLayer]/=4;
+      	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi2[iLayer][iRefLayer];
+      	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi3[iLayer][iRefLayer];
+      	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi4[iLayer][iRefLayer];
+      	meanDistPhi[iLayer][iRefLayer]/=4;
       }
     }
     
@@ -265,17 +264,21 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
-	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
-										      phiRef,
-										      restrictedLayerHits);
-       
-	int phiRefSt2 = itGP.second->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);       	
-	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
-												  aLayerResult.first,
-												  phiRefSt2,etaRef);	 
+      	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
+      										      phiRef,
+      										      restrictedLayerHits);
+        
+        // if(itGP.second->pdfValue(1,0,0))
+        //   std::cout <<  itGP.second->pdfValue(1,0,0) << std::endl;
+             
+      	int phiRefSt2 = itGP.second->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);       	
+      	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].setRefPhiRHits(aRefHitDef.iRefLayer, phiRef); 
+        myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
+      												  aLayerResult.first,
+      												  phiRefSt2,etaRef);	 
       }
     }
-  }  
+  }
   //////////////////////////////////////
   ////////////////////////////////////// 
   for(auto & itRefHit: myResults) for(auto & itKey: itRefHit) itKey.second.finalise();

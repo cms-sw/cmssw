@@ -6,13 +6,14 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
 
-#include "L1Trigger/L1TMuonOverlap/interface/InternalObj.h"
+#include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 
 #include <iostream>
 #include <sstream>
 #include <cmath>
 #include <ctime>
 #include <iomanip>
+#include <bitset>
 
 #include "xercesc/framework/StdOutFormatTarget.hpp"
 #include "xercesc/framework/LocalFileFormatTarget.hpp"
@@ -180,35 +181,42 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
 //////////////////////////////////////////////////
 void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
 					  unsigned int iRefHit,
-					  const InternalObj & aCand){
+					  const AlgoMuon & aCand){
 
-  xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("Candidate"));
+  xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("AlgoMuon"));
   std::ostringstream stringStr;
   stringStr.str("");
   stringStr<<iRefHit;
   aResult->setAttribute(_toDOMS("iRefHit"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.pt;
+  stringStr<<aCand.getPt();
   aResult->setAttribute(_toDOMS("ptCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.phi;
+  stringStr<<aCand.getPhi();
   aResult->setAttribute(_toDOMS("phiCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.eta;
+  stringStr<<aCand.getEta();
   aResult->setAttribute(_toDOMS("etaCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.charge;
+  stringStr<<aCand.getCharge();
   aResult->setAttribute(_toDOMS("charge"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.q;
+  stringStr<<aCand.getQ();
   aResult->setAttribute(_toDOMS("nHits"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.disc;
+  stringStr<<aCand.getDisc();
   aResult->setAttribute(_toDOMS("disc"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.refLayer;
+  stringStr<<aCand.getRefLayer();
   aResult->setAttribute(_toDOMS("iRefLayer"), _toDOMS(stringStr.str()));
-  aTopElement->appendChild(aResult); 
+  stringStr.str("");
+  stringStr<<std::bitset<18>(aCand.getHits());
+  aResult->setAttribute(_toDOMS("layers"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.getPhiRHit();
+  aResult->setAttribute(_toDOMS("phiRHit"),_toDOMS(stringStr.str()));
+
+  aTopElement->appendChild(aResult);
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////

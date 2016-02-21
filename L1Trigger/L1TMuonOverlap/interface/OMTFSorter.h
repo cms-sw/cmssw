@@ -9,8 +9,8 @@
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
-#include "L1Trigger/L1TMuonOverlap/interface/InternalObj.h"
-
+#include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
+#include "L1Trigger/L1TMuonOverlap/interface/GhostBuster.h"
 
 class OMTFSorter{
 
@@ -20,30 +20,39 @@ class OMTFSorter{
   ///First for each region cone find a best candidate using sortRegionResults()
   ///Then select best candidate amongs found for each logic region.
   ///The sorting is made for candidates with a given charge
-  InternalObj sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
+  void sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults, 
+            std::vector<AlgoMuon> & refHitCands,
 				   int charge=0);
-  //
-  void sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
-			    std::vector<InternalObj> & refHitCleanCands,
+  
+  AlgoMuon sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
+           int charge=0);
+
+
+  void sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
+			    std::vector<AlgoMuon> & refHitCleanCands,
 			    int charge=0);
+
+
+  void processCandidates(unsigned int iProcessor, int bx,
+             std::auto_ptr<l1t::RegionalMuonCandBxCollection > & myCands,
+             const l1t::RegionalMuonCandBxCollection & myOTFCandidates,
+             l1t::tftype mtfType);
 
   ///Sort all processor results.
   ///First for each region cone find a best candidate using sortRegionResults()
   ///Then select best candidate amongs found for each logic region
   l1t::RegionalMuonCand sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-				      int charge=0);
-
+						int charge=0);
   //
-  void sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
-				     const std::vector<OMTFProcessor::resultsMap> & procResults,
-				     l1t::RegionalMuonCandBxCollection & sortedCands,
-				     int bx, int charge=0);
+  void rewriteToRegionalMuon(const std::vector<AlgoMuon> & AlgoCands,
+		     l1t::RegionalMuonCandBxCollection & sortedCands,
+		     int bx, int charge=0);
 
   ///Sort results from a single reference hit.
   ///Select candidate with highest number of hit layers
   ///Then select a candidate with largest likelihood value and given charge
   ///as we allow two candidates with opposite charge from single 10deg region
-  InternalObj sortRefHitResults(const OMTFProcessor::resultsMap & aResultsMap,
+  AlgoMuon sortRefHitResults(const OMTFProcessor::resultsMap & aResultsMap,
 				int charge=0);
 
  private:
@@ -61,7 +70,7 @@ class OMTFSorter{
   ///The output tuple contains (nHitsMax, pdfValMax, refPhi, refLayer, hitsWord, refEta)
   ///hitsWord codes number of layers hit: hitsWord= sum 2**iLogicLayer,
   ///where sum runs over layers which were hit
-  std::tuple<unsigned int,unsigned int, int, int, unsigned int, int> sortSingleResult(const OMTFResult & aResult);
+  AlgoMuon sortSingleResult(const OMTFResult & aResult);
 
 };
 
