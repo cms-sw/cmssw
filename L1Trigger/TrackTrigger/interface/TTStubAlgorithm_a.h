@@ -33,10 +33,7 @@ class TTStubAlgorithm_a : public TTStubAlgorithm< T >
 {
   public:
     /// Constructor
-  //    TTStubAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
-  //      : TTStubAlgorithm< T >( aStackedTracker, __func__ ){}
-    TTStubAlgorithm_a()
-      : TTStubAlgorithm< T >( __func__ ){}
+    TTStubAlgorithm_a( const TrackerGeometry* const theTrackerGeom ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ ){}
 
     /// Destructor
     ~TTStubAlgorithm_a(){}
@@ -51,10 +48,6 @@ class TTStubAlgorithm_a : public TTStubAlgorithm< T >
     }
 
 }; /// Close class
-
-
-
-
 
 /*! \class   ES_TTStubAlgorithm_a
  *  \brief   Class to declare the algorithm to the framework
@@ -83,15 +76,11 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
 
     boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
-      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
-      //      TTStubAlgorithm< T >* TTStubAlgo =
-      //        new TTStubAlgorithm_a< T >( &(*StackedTrackerGeomHandle) );
-
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_a< T > ();
-
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_a< T > (theTrackerGeom);
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }

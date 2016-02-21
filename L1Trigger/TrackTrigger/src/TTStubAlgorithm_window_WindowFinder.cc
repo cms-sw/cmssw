@@ -11,25 +11,25 @@
 #include <iostream>
 
 /// Constructor
-WindowFinder::WindowFinder( //const StackedTrackerGeometry *aGeometry,
+WindowFinder::WindowFinder( const TrackerGeometry* const theTrackerGeom,
                             double aPtScalingFactor,
                             double aIPwidth,
                             double aRowResolution,
                             double aColResolution )
-  :// mGeometry( aGeometry ),
+  : mTrackerGeom( theTrackerGeom ),
     mPtScalingFactor( aPtScalingFactor ),
     mIPwidth( aIPwidth ),
     mRowResolution( aRowResolution ),
     mColResolution( aColResolution ),
     mMinrow(0), mMaxrow(0), mMincol(0), mMaxcol(0),
-    //mLastId(0), 
+    mLastId(0), 
     mlastInnerRow(-1), mlastInnerCol(-1){}
 
 /// Destructor
 WindowFinder::~WindowFinder(){}
 
 /// Dump hit
-void WindowFinder::dumphit( //const StackedTrackerDetId & anId,
+void WindowFinder::dumphit( const DetId & anId,
                             unsigned int hitIdentifier,
                             const double & aInnerRow,
                             const double & aInnerColumn )
@@ -49,9 +49,9 @@ void WindowFinder::dumphit( //const StackedTrackerDetId & anId,
 //                                              const double & aInnerRow,
 //                                              const double & aInnerColumn )
 
-void WindowFinder::getWindow( //const StackedTrackerDetId & anId,
-                                              const double & aInnerRow,
-                                              const double & aInnerColumn )
+void WindowFinder::getWindow( const DetId & anId,
+                              const double & aInnerRow,
+                              const double & aInnerColumn )
 {
   /// Particular cases
   /*  if ( (anId == mLastId) && (mlastInnerRow == aInnerRow) && (mlastInnerCol == aInnerColumn) )

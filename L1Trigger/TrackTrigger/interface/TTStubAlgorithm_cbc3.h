@@ -21,8 +21,6 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-//#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include <boost/shared_ptr.hpp>
 #include <memory>
@@ -35,21 +33,13 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
 {
   private:
     /// Data members
-    //bool        mPerformZMatchingPS;
     bool        mPerformZMatching2S;
     std::string className_;
 
   public:
     /// Constructor
-    //    TTStubAlgorithm_cbc3( const StackedTrackerGeometry *aStackedTracker,
-    //                          //bool aPerformZMatchingPS,
-    //                          bool aPerformZMatching2S )
-    //      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
-    TTStubAlgorithm_cbc3( //bool aPerformZMatchingPS,
-                          bool aPerformZMatching2S )
-      : TTStubAlgorithm< T >( __func__ )
+    TTStubAlgorithm_cbc3( const TrackerGeometry* const theTrackerGeom, bool aPerformZMatching2S ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
     {
-      //mPerformZMatchingPS = aPerformZMatchingPS;
       mPerformZMatching2S = aPerformZMatching2S;
     }
 
@@ -78,10 +68,6 @@ void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool
                                                                     int &anOffset,
                                                                     const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
-
-
-
-
 /*! \class   ES_TTStubAlgorithm_cbc3
  *  \brief   Class to declare the algorithm to the framework
  *
@@ -98,16 +84,13 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
     boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
     /// Z-matching
-    //bool  mPerformZMatchingPS;
     bool  mPerformZMatching2S;
 
   public:
     /// Constructor
     ES_TTStubAlgorithm_cbc3( const edm::ParameterSet & p )
     {
-      //mPerformZMatchingPS =  p.getParameter< bool >("zMatchingPS");
       mPerformZMatching2S =  p.getParameter< bool >("zMatching2S");
-
       setWhatProduced( this );
     }
 
@@ -117,14 +100,11 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
-      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_cbc3< T >( //&(*StackedTrackerGeomHandle),
-                                       //mPerformZMatchingPS,
-                                       mPerformZMatching2S );
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_cbc3< T >( theTrackerGeom, mPerformZMatching2S );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 
