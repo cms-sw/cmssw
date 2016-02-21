@@ -18,6 +18,10 @@ class hcalnzsEra_Run2_25ns(hcalnzs):
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
         self.eras = eras.eras.Run2_25ns
+        self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
+        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
+        self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
+
     """
     _hcalnzsEra_Run2_25ns_
 
