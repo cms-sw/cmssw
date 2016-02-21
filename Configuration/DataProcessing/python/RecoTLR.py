@@ -27,9 +27,23 @@ def _overridesFor50ns(process):
     
     return process
 
-#gone with the fact that there is no difference between production and development sequence
-#def customiseCommon(process):
-#    return (process)
+##############################################################################
+# post-era customizations
+# these are here instead of generating Data-specific eras
+##############################################################################
+def _hcalCustoms25ns(process):
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    return process
+
+def customisePostEra_Run2_25ns(process):
+    _hcalCustoms25ns(process)
+    return process
+
+def customisePostEra_Run2_2016(process):
+    _hcalCustoms25ns(process)
+    return process
 
 
 ##############################################################################
@@ -143,9 +157,7 @@ def customiseDataRun2Common_withStage1(process):
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
 
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    _hcalCustoms25ns(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):
