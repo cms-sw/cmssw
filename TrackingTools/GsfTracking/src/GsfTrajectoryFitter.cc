@@ -2,16 +2,95 @@
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-// #include "CommonDet/BasicDet/interface/Det.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
-// #include "Utilities/Notification/interface/Verbose.h"
-// #include "Utilities/Notification/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+
+
+#ifdef EDM_ML_DEBUG
+
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+namespace {
+   void dump(TrackingRecHit const & hit, int hitcounter) {
+    if (hit.isValid()) {
+      LogTrace("GsfTrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
+	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
+	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
+	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
+	<< "  WITH LocError " << hit.localPositionError() << "\n"
+	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
+	<< "SURFACE POSITION" << "\n"
+	<< hit.surface()->position()<<"\n"
+	<< "SURFACE ROTATION" << "\n"
+	<< hit.surface()->rotation()
+        <<  "dimension " << hit.dimension();
+
+      DetId hitId = hit.geographicalId();
+
+      LogDebug("GsfTrackFitters") << " hit det=" << hitId.rawId();
+
+      if(hitId.det() == DetId::Tracker) {
+	if (hitId.subdetId() == StripSubdetector::TIB )
+	  LogDebug("GsfTrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TOB )
+	  LogDebug("GsfTrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TEC )
+	  LogDebug("GsfTrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
+	else if (hitId.subdetId() == StripSubdetector::TID )
+	  LogDebug("GsfTrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
+	  LogDebug("GsfTrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
+	  LogDebug("GsfTrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
+	else
+	  LogDebug("GsfTrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
+      }
+      else if(hitId.det() == DetId::Muon) {
+	if(hitId.subdetId() == MuonSubdetId::DT)
+	  LogDebug("GsfTrackFitters") << " I am DT " << DTWireId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::CSC )
+	  LogDebug("GsfTrackFitters") << " I am CSC " << CSCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::RPC )
+	  LogDebug("GsfTrackFitters") << " I am RPC " << RPCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::GEM )
+	  LogDebug("GsfTrackFitters") << " I am GEM " << GEMDetId(hitId);
+
+	else if (hitId.subdetId() == MuonSubdetId::ME0 )
+	  LogDebug("GsfTrackFitters") << " I am ME0 " << ME0DetId(hitId);
+	else 
+	  LogDebug("GsfTrackFitters") << " UNKNOWN MUON HIT TYPE ";
+      }
+      else
+	LogDebug("GsfTrackFitters") << " UNKNOWN HIT TYPE ";
+
+    } else {
+      LogDebug("GsfTrackFitters")
+	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
+    }
+   }
+}
+#else
+namespace {
+   inline void dump(TrackingRecHit const &, int) {}
+}
+#endif
+
 
 
 GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
@@ -26,8 +105,6 @@ GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
   theGeometry(detLayerGeometry)
 {
   if(!theGeometry) theGeometry = &dummyGeometry;
-  //   static SimpleConfigurable<bool> timeConf(false,"GsfTrajectoryFitter:activateTiming");
-  //   theTiming = timeConf.value();
 }
 
 GsfTrajectoryFitter::~GsfTrajectoryFitter() {
@@ -60,22 +137,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 				    const TrajectoryStateOnSurface& firstPredTsos,
 				    fitType) const {
 
-  //   static TimingReport::Item* propTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectoryFitter:propagation")];
-  //   propTimer->switchCPU(false);
-  //   if ( !theTiming )  propTimer->switchOn(false);
-  //   static TimingReport::Item* updateTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectoryFitter:update")];
-  //   updateTimer->switchCPU(false);
-  //   if ( !theTiming )  updateTimer->switchOn(false);
-
   if(hits.empty()) return Trajectory();
 
   Trajectory myTraj(aSeed, propagator()->propagationDirection());
 
   TSOS predTsos(firstPredTsos);
   if(!predTsos.isValid()) {
-    edm::LogInfo("GsfTrajectoryFitter") 
+    edm::LogInfo("GsfTrackFitter") 
       << "GsfTrajectoryFitter: predicted tsos of first measurement not valid!";
     return Trajectory();
   } 
@@ -87,8 +155,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
      auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
+     dump(*preciseHit,1);
     {
-      //       TimeMe t(*updateTimer,false);
       currTsos = updator()->update(predTsos, *preciseHit);
     }
     if (!predTsos.isValid() || !currTsos.isValid()){
@@ -106,8 +174,11 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
   }
   
+  int hitcounter = 1;
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; 
-      ihit != hits.end(); ihit++) {    
+      ihit != hits.end(); ihit++) {
+        ++hitcounter;
+    
     //
     // temporary protection copied from KFTrajectoryFitter.
     //
@@ -116,23 +187,6 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       continue;
     }
 
-    //!!! no invalid hits on cylinders anymore??
-    //     //
-    //     // check type of surface in case of invalid hit
-    //     // (in this version only propagations to planes are
-    //     // supported for multi trajectory states)
-    //     //
-    //     if ( !(**ihit).isValid() ) {
-    //       const BoundPlane* plane = 
-    // 	dynamic_cast<const BoundPlane*>(&(**ihit).det().surface());
-    //       //
-    //       // no plane: insert invalid measurement
-    //       //
-    //       if ( plane==0 ) {
-    // 	myTraj.push(TM(TrajectoryStateOnSurface(),&(**ihit)));
-    // 	continue;
-    //       }
-    //     }
     {
       //       TimeMe t(*propTimer,false);
       predTsos = propagator()->propagate(currTsos,
@@ -140,13 +194,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
     if(!predTsos.isValid()) {
       if ( myTraj.foundHits()>=3 ) {
-	edm::LogInfo("GsfTrajectoryFitter") 
+	edm::LogInfo("GsfTrackFitter") 
 	  << "GsfTrajectoryFitter: predicted tsos not valid! \n"
 	  << "Returning trajectory with " << myTraj.foundHits() << " found hits.";
 	return myTraj;
       }
       else {
-      edm::LogInfo("GsfTrajectoryFitter") 
+      edm::LogInfo("GsfTrackFitter") 
 	<< "GsfTrajectoryFitter: predicted tsos not valid after " << myTraj.foundHits()
 	<< " hits, discarding candidate!";
 	return Trajectory();
@@ -159,8 +213,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
        auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
+       dump(*preciseHit,hitcounter);
       {
-	// 	TimeMe t(*updateTimer,false);
 	currTsos = updator()->update(predTsos, *preciseHit);
       }
       if (!predTsos.isValid() || !currTsos.isValid()){
@@ -178,6 +232,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
+    LogTrace("GsfTrackFitters")
+      << "predTsos !" << "\n"
+      << predTsos 
+      <<" with local position " << predTsos.localPosition()
+      <<"currTsos !" << "\n"
+      << currTsos
+      <<" with local position " << currTsos.localPosition();
   }
   return myTraj;
 }
