@@ -47,24 +47,28 @@ class WindowFinder
 {
   public:
     /// Constructor
-  explicit WindowFinder( double aPtScalingFactor,
-                         double aIPwidth,
-                         double aRowResolution,
-                         double aColResolution );
+    explicit WindowFinder( const TrackerGeometry* const theTrackerGeom,
+                           double aPtScalingFactor,
+                           double aIPwidth,
+                           double aRowResolution,
+                           double aColResolution );
 
     /// Destructor
     virtual ~WindowFinder();
 
     /// Other methods
-    void dumphit( unsigned int hitIdentifier,
+    void dumphit( const DetId & anId,
+                  unsigned int hitIdentifier,
                   const double & aInnerRow,
                   const double & aInnerColumn );
 
-    void getWindow( const double & aInnerRow,
+    void getWindow( const DetId & anId,
+                    const double & aInnerRow,
                     const double & aInnerColumn );
   
   private:
     /// Data members
+    const TrackerGeometry* const mTrackerGeom;
     double mPtScalingFactor;
     double mIPwidth;
     double mRowResolution;
@@ -75,6 +79,7 @@ class WindowFinder
 
     /// As all hits in the same stack are tested sequentially,
     /// then cache the sensor parameters for speed!
+    DetId mLastId;
     PixelGeomDetUnit *mInnerDet, *mOuterDet;
     double mSeparation;
     double mHalfPixelLength;

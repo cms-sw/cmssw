@@ -40,10 +40,9 @@ class TTStubAlgorithm_globalgeometry : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_globalgeometry( double aCompatibilityScalingFactor,
-                                    double aIPWidth )
-      : TTStubAlgorithm< T >( __func__ )
-
+    TTStubAlgorithm_globalgeometry( const TrackerGeometry* const theTrackerGeom,
+                                    double aCompatibilityScalingFactor,
+                                    double aIPWidth ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
     {
       mCompatibilityScalingFactor = aCompatibilityScalingFactor;
       mIPWidth = aIPWidth;
@@ -73,10 +72,6 @@ void TTStubAlgorithm_globalgeometry< Ref_Phase2TrackerDigi_ >::PatternHitCorrela
                                                                               int &aDisplacement,
                                                                               int &anOffset,
                                                                               const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
-
-
-
-
 
 /*! \class   ES_TTStubAlgorithm_globalgeometry
  *  \brief   Class to declare the algorithm to the framework
@@ -118,10 +113,11 @@ class  ES_TTStubAlgorithm_globalgeometry : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mCompatibilityScalingFactor = ( CLHEP::c_light * mMagneticFieldStrength ) / ( 100.0 * 2.0e+9 * mPtThreshold );
 
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_globalgeometry< T >( mCompatibilityScalingFactor,
-                                                 mIPWidth );
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_globalgeometry< T >( theTrackerGeom, mCompatibilityScalingFactor, mIPWidth );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }

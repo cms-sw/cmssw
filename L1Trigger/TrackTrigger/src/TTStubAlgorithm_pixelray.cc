@@ -69,8 +69,8 @@ void TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
 /// Get pixel ray end points
 template< >
 std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_Phase2TrackerDigi_ > & aTTStub,
-    //                                                                                               const StackedTrackerGeometry* stackedTracker,
-                                                                                               double scalingFactor )
+                                                                                                       const TrackerGeometry* const theTrackerGeom,
+                                                                                                       double scalingFactor )
 {
   /// Get the coordinates of the boundaries of the inner and outer pixels.
   /// Code adapted from Cluster::averagePosition

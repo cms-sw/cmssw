@@ -46,8 +46,9 @@ class TTStubAlgorithm_window2012 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window2012( double aPtScalingFactor )
-      : TTStubAlgorithm< T >( __func__ )
+    TTStubAlgorithm_window2012( const TrackerGeometry* const theTrackerGeom,
+                                double aPtScalingFactor )
+      : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
     {
       mPtScalingFactor = aPtScalingFactor;
     }
@@ -77,9 +78,6 @@ void TTStubAlgorithm_window2012< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation
                                                                           int &anOffset, 
                                                                           const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
-
-
-
 /*! \class   ES_TTStubAlgorithm_window2012
  *  \brief   Class to declare the algorithm to the framework
  *
@@ -101,7 +99,6 @@ class ES_TTStubAlgorithm_window2012 : public edm::ESProducer
     /// Constructor
     ES_TTStubAlgorithm_window2012( const edm::ParameterSet & p )
       : mPtThreshold( p.getParameter< double >("minPtThreshold") )
-    //                                mIPWidth( p.getParameter<double>("ipWidth") ),
     {
       setWhatProduced( this );
     }
@@ -118,13 +115,13 @@ class ES_TTStubAlgorithm_window2012 : public edm::ESProducer
       double mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
 
       /// Calculate scaling factor based on B and Pt threshold
-      //double mPtScalingFactor = 0.0015*mMagneticFieldStrength/mPtThreshold;
-      //double mPtScalingFactor = (CLHEP::c_light * mMagneticFieldStrength) / (100.0 * 2.0e+9 * mPtThreshold);
       double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
 
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window2012< T >( mPtScalingFactor );
-
+       edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+ 
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_window2012< T >(theTrackerGeom, mPtScalingFactor );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 
