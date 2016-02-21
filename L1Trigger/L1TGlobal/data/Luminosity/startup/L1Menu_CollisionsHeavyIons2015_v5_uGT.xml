@@ -3,11 +3,11 @@
 
   <ancestor_id>0</ancestor_id>
 
-  <name>L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT</name>
+  <name>L1Menu_CollisionsHeavyIons2015_v5_uGT</name>
 
-  <uuid_menu>9ee4c87a-1dd1-504c-83aa-060548f0e1d7</uuid_menu>
+  <uuid_menu>5af7e1d6-bcbf-5468-8eaa-c76533b09f94</uuid_menu>
 
-  <uuid_firmware>433011d4-d4ef-11e5-bd8f-001c4289f194</uuid_firmware>
+  <uuid_firmware>86e7bec2-d823-11e5-8878-001c4289f194</uuid_firmware>
 
   <global_tag/>
 
@@ -19,410 +19,29 @@
 
   <is_obsolete>false</is_obsolete>
 
-  <comment>Implementation of L1Menu_Collisions2015_5TeV_pp_reference_v5  for uGT.</comment>
+  <comment>L1Menu_CollisionsHeavyIons2015_v5 + uGT test algorithms</comment>
 
   <algorithm>
-    <name>L1_ZeroBias</name>
-    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <name>L1_DoubleEG10</name>
+    <expression>comb{EG10,EG10}</expression>
     <index>1</index>
     <module_id>0</module_id>
     <module_index>0</module_index>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
-    </external_requirement>
+    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_AlwaysTrue</name>
-    <expression>EXT_BPTX_plus_AND_minus.v0 OR (NOT EXT_BPTX_plus_AND_minus.v0)</expression>
+    <name>L1_DoubleEG_13_7</name>
+    <expression>comb{EG13,EG7}</expression>
     <index>2</index>
     <module_id>0</module_id>
     <module_index>1</module_index>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG5</name>
-    <expression>EG5</expression>
-    <index>3</index>
-    <module_id>0</module_id>
-    <module_index>2</module_index>
-    <object_requirement>
-      <name>EG5</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet8_BptxAND</name>
-    <expression>JET8 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>4</index>
-    <module_id>0</module_id>
-    <module_index>3</module_index>
-    <object_requirement>
-      <name>JET8</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+8.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet12_BptxAND</name>
-    <expression>JET12 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>5</index>
-    <module_id>0</module_id>
-    <module_index>4</module_index>
-    <object_requirement>
-      <name>JET12</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet16</name>
-    <expression>JET16</expression>
-    <index>6</index>
-    <module_id>0</module_id>
-    <module_index>5</module_index>
-    <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet20_BptxAND</name>
-    <expression>JET20 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>7</index>
-    <module_id>0</module_id>
-    <module_index>6</module_index>
-    <object_requirement>
-      <name>JET20</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet36_BptxAND</name>
-    <expression>JET36 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>8</index>
-    <module_id>0</module_id>
-    <module_index>7</module_index>
-    <object_requirement>
-      <name>JET36</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet68_BptxAND</name>
-    <expression>JET68 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>9</index>
-    <module_id>0</module_id>
-    <module_index>8</module_index>
-    <object_requirement>
-      <name>JET68</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+6.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet200</name>
-    <expression>JET200</expression>
-    <index>10</index>
-    <module_id>0</module_id>
-    <module_index>9</module_index>
-    <object_requirement>
-      <name>JET200</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+02</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJetC20_NotBptxOR</name>
-    <expression>JET20[JET-ETA_CEN] AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0))</expression>
-    <index>11</index>
-    <module_id>0</module_id>
-    <module_index>10</module_index>
-    <cut>
-      <name>JET-ETA_CEN</name>
-      <object>JET</object>
-      <type>ETA</type>
-      <minimum>-3.0014999999999996E+00</minimum>
-      <maximum>+3.0014999999999996E+00</maximum>
-      <data/>
-    </cut>
-    <object_requirement>
-      <name>JET20</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJetC32_NotBptxOR</name>
-    <expression>JET32[JET-ETA_CEN] AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0))</expression>
-    <index>12</index>
-    <module_id>0</module_id>
-    <module_index>11</module_index>
-    <cut>
-      <name>JET-ETA_CEN</name>
-      <object>JET</object>
-      <type>ETA</type>
-      <minimum>-3.0014999999999996E+00</minimum>
-      <maximum>+3.0014999999999996E+00</maximum>
-      <data/>
-    </cut>
-    <object_requirement>
-      <name>JET32</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet16_BptxAND</name>
-    <expression>JET16 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>13</index>
-    <module_id>0</module_id>
-    <module_index>12</module_index>
-    <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleMuOpen</name>
-    <expression>MU0p5</expression>
-    <index>14</index>
-    <module_id>0</module_id>
-    <module_index>13</module_index>
-    <object_requirement>
-      <name>MU0p5</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E-01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleJet28_BptxAND</name>
-    <expression>comb{JET28,JET28} AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>15</index>
-    <module_id>0</module_id>
-    <module_index>14</module_index>
-    <object_requirement>
-      <name>JET28</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG20</name>
-    <expression>EG20</expression>
-    <index>16</index>
-    <module_id>0</module_id>
-    <module_index>15</module_index>
-    <object_requirement>
-      <name>EG20</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet36</name>
-    <expression>JET36</expression>
-    <index>17</index>
-    <module_id>0</module_id>
-    <module_index>16</module_index>
-    <object_requirement>
-      <name>JET36</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet68</name>
-    <expression>JET68</expression>
-    <index>18</index>
-    <module_id>0</module_id>
-    <module_index>17</module_index>
-    <object_requirement>
-      <name>JET68</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+6.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT40</name>
-    <expression>ETT40</expression>
-    <index>19</index>
-    <module_id>0</module_id>
-    <module_index>18</module_index>
-    <object_requirement>
-      <name>ETT40</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG2_BptxAND</name>
-    <expression>EG2 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>20</index>
-    <module_id>0</module_id>
-    <module_index>19</module_index>
-    <object_requirement>
-      <name>EG2</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG5_BptxAND</name>
-    <expression>EG5 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>21</index>
-    <module_id>0</module_id>
-    <module_index>20</module_index>
-    <object_requirement>
-      <name>EG5</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG20_BptxAND</name>
-    <expression>EG20 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>22</index>
-    <module_id>0</module_id>
-    <module_index>21</module_index>
-    <object_requirement>
-      <name>EG20</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG7_BptxAND</name>
-    <expression>EG7 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>23</index>
-    <module_id>0</module_id>
-    <module_index>22</module_index>
     <object_requirement>
       <name>EG7</name>
       <type>EG</type>
@@ -430,18 +49,180 @@
       <threshold>+7.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
+    <object_requirement>
+      <name>EG13</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.3000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
-    </external_requirement>
+    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleEG12_BptxAND</name>
-    <expression>EG12 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>24</index>
+    <name>L1_SingleMu3_SingleCenJet28</name>
+    <expression>MU3[MU-QLTY_High] AND JET28[JET-ETA_CEN]</expression>
+    <index>3</index>
     <module_id>0</module_id>
-    <module_index>23</module_index>
+    <module_index>2</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET28</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_SingleCenJet32</name>
+    <expression>MU3[MU-QLTY_High] AND JET32[JET-ETA_CEN]</expression>
+    <index>4</index>
+    <module_id>0</module_id>
+    <module_index>3</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET32</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_SingleCenJet40</name>
+    <expression>MU3[MU-QLTY_High] AND JET40[JET-ETA_CEN]</expression>
+    <index>5</index>
+    <module_id>0</module_id>
+    <module_index>4</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET40</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_SingleEG20</name>
+    <expression>MU3[MU-QLTY_High] AND EG20</expression>
+    <index>6</index>
+    <module_id>0</module_id>
+    <module_index>5</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG20</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_SingleEG12</name>
+    <expression>MU3[MU-QLTY_High] AND EG12</expression>
+    <index>7</index>
+    <module_id>0</module_id>
+    <module_index>6</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
     <object_requirement>
       <name>EG12</name>
       <type>EG</type>
@@ -449,204 +230,104 @@
       <threshold>+1.2000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleEG15_BptxAND</name>
-    <expression>EG15 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>25</index>
+    <name>L1_SingleMu5_SingleEG20</name>
+    <expression>MU5[MU-QLTY_High] AND EG20</expression>
+    <index>8</index>
     <module_id>0</module_id>
-    <module_index>24</module_index>
+    <module_index>7</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
     <object_requirement>
-      <name>EG15</name>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG20</name>
       <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.5000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG30_BptxAND</name>
-    <expression>EG30 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>26</index>
-    <module_id>0</module_id>
-    <module_index>25</module_index>
-    <object_requirement>
-      <name>EG30</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT15_BptxAND</name>
-    <expression>ETT15 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>27</index>
-    <module_id>0</module_id>
-    <module_index>26</module_index>
-    <object_requirement>
-      <name>ETT15</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.5000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT40_BptxAND</name>
-    <expression>ETT40 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>28</index>
-    <module_id>0</module_id>
-    <module_index>27</module_index>
-    <object_requirement>
-      <name>ETT40</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT60_BptxAND</name>
-    <expression>ETT60 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>29</index>
-    <module_id>0</module_id>
-    <module_index>28</module_index>
-    <object_requirement>
-      <name>ETT60</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+6.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT90_BptxAND</name>
-    <expression>ETT90 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>30</index>
-    <module_id>0</module_id>
-    <module_index>29</module_index>
-    <object_requirement>
-      <name>ETT90</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+9.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT130</name>
-    <expression>ETT130</expression>
-    <index>31</index>
-    <module_id>0</module_id>
-    <module_index>30</module_index>
-    <object_requirement>
-      <name>ETT130</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.3000000000000000E+02</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT20_BptxAND</name>
-    <expression>ETT20 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>32</index>
-    <module_id>0</module_id>
-    <module_index>31</module_index>
-    <object_requirement>
-      <name>ETT20</name>
-      <type>ETT</type>
       <comparison_operator>.ge.</comparison_operator>
       <threshold>+2.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT30_BptxAND</name>
-    <expression>ETT30 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>33</index>
+    <name>L1_SingleMu7_SingleEG12</name>
+    <expression>MU7[MU-QLTY_High] AND EG12</expression>
+    <index>9</index>
     <module_id>0</module_id>
-    <module_index>32</module_index>
+    <module_index>8</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
     <object_requirement>
-      <name>ETT30</name>
-      <type>ETT</type>
+      <name>MU7</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+01</threshold>
+      <threshold>+7.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT45_BptxAND</name>
-    <expression>ETT45 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>34</index>
-    <module_id>0</module_id>
-    <module_index>33</module_index>
     <object_requirement>
-      <name>ETT45</name>
-      <type>ETT</type>
+      <name>EG12</name>
+      <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.5000000000000000E+01</threshold>
+      <threshold>+1.2000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT50_BptxAND</name>
-    <expression>ETT50 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>35</index>
+    <name>L1_SingleMu12_SingleEG7</name>
+    <expression>MU12[MU-QLTY_High] AND EG7</expression>
+    <index>10</index>
     <module_id>0</module_id>
-    <module_index>34</module_index>
+    <module_index>9</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETT50</name>
+    <expression>ETT50</expression>
+    <index>11</index>
+    <module_id>0</module_id>
+    <module_index>10</module_index>
     <object_requirement>
       <name>ETT50</name>
       <type>ETT</type>
@@ -654,101 +335,894 @@
       <threshold>+5.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT55_BptxAND</name>
-    <expression>ETT55 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>36</index>
+    <name>L1_ETT100</name>
+    <expression>ETT100</expression>
+    <index>12</index>
     <module_id>0</module_id>
-    <module_index>35</module_index>
+    <module_index>11</module_index>
     <object_requirement>
-      <name>ETT55</name>
+      <name>ETT100</name>
       <type>ETT</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.5000000000000000E+01</threshold>
+      <threshold>+1.0000000000000000E+02</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT70_BptxAND</name>
-    <expression>ETT70 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>37</index>
+    <name>L1_ETT1000</name>
+    <expression>ETT1000</expression>
+    <index>13</index>
     <module_id>0</module_id>
-    <module_index>36</module_index>
+    <module_index>12</module_index>
     <object_requirement>
-      <name>ETT70</name>
+      <name>ETT1000</name>
       <type>ETT</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+7.0000000000000000E+01</threshold>
+      <threshold>+1.0000000000000000E+03</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu3p5</name>
-    <expression>MU3p5</expression>
-    <index>38</index>
+    <name>L1_HTT50</name>
+    <expression>HTT50</expression>
+    <index>14</index>
     <module_id>0</module_id>
-    <module_index>37</module_index>
+    <module_index>13</module_index>
     <object_requirement>
-      <name>MU3p5</name>
-      <type>MU</type>
+      <name>HTT50</name>
+      <type>HTT</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.5000000000000000E+00</threshold>
+      <threshold>+5.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMuBeamHalo</name>
-    <expression>MU0p5[MU-QLTY_HALO]</expression>
-    <index>39</index>
+    <name>L1_HTT100</name>
+    <expression>HTT100</expression>
+    <index>15</index>
     <module_id>0</module_id>
-    <module_index>38</module_index>
+    <module_index>14</module_index>
+    <object_requirement>
+      <name>HTT100</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT1000</name>
+    <expression>HTT1000</expression>
+    <index>16</index>
+    <module_id>0</module_id>
+    <module_index>15</module_index>
+    <object_requirement>
+      <name>HTT1000</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+03</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM25</name>
+    <expression>ETM25</expression>
+    <index>17</index>
+    <module_id>0</module_id>
+    <module_index>16</module_index>
+    <object_requirement>
+      <name>ETM25</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM50</name>
+    <expression>ETM50</expression>
+    <index>18</index>
+    <module_id>0</module_id>
+    <module_index>17</module_index>
+    <object_requirement>
+      <name>ETM50</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM500</name>
+    <expression>ETM500</expression>
+    <index>19</index>
+    <module_id>0</module_id>
+    <module_index>18</module_index>
+    <object_requirement>
+      <name>ETM500</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTM25</name>
+    <expression>HTM25</expression>
+    <index>20</index>
+    <module_id>0</module_id>
+    <module_index>19</module_index>
+    <object_requirement>
+      <name>HTM25</name>
+      <type>HTM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTM50</name>
+    <expression>HTM50</expression>
+    <index>21</index>
+    <module_id>0</module_id>
+    <module_index>20</module_index>
+    <object_requirement>
+      <name>HTM50</name>
+      <type>HTM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTM500</name>
+    <expression>HTM500</expression>
+    <index>22</index>
+    <module_id>0</module_id>
+    <module_index>21</module_index>
+    <object_requirement>
+      <name>HTM500</name>
+      <type>HTM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_CEN</name>
+    <expression>JET16[JET-ETA_CEN]</expression>
+    <index>23</index>
+    <module_id>0</module_id>
+    <module_index>22</module_index>
     <cut>
-      <name>MU-QLTY_HALO</name>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_FWD</name>
+    <expression>JET16[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]</expression>
+    <index>24</index>
+    <module_id>0</module_id>
+    <module_index>23</module_index>
+    <cut>
+      <name>JET-ETA_FWD_NEG</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-5.0000000000000000E+00</minimum>
+      <maximum>-3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-ETA_FWD_POS</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>+3.0014999999999996E+00</minimum>
+      <maximum>+5.0000000000000000E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_Phi_1stQuad</name>
+    <expression>JET16[JET-PHI_1stQUAD]</expression>
+    <index>25</index>
+    <module_id>0</module_id>
+    <module_index>24</module_index>
+    <cut>
+      <name>JET-PHI_1stQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG10_Phi_Upper</name>
+    <expression>EG10[EG-PHI_UPPER]</expression>
+    <index>26</index>
+    <module_id>0</module_id>
+    <module_index>25</module_index>
+    <cut>
+      <name>EG-PHI_UPPER</name>
+      <object>EG</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+3.1415926535897931E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG10_CEN</name>
+    <expression>EG10[EG-ETA_CEN]</expression>
+    <index>27</index>
+    <module_id>0</module_id>
+    <module_index>26</module_index>
+    <cut>
+      <name>EG-ETA_CEN</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-1.0004999999999999E+00</minimum>
+      <maximum>+1.0004999999999999E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG10_FWD</name>
+    <expression>EG10[EG-ETA_FWD_NEG,EG-ETA_FWD_POS]</expression>
+    <index>28</index>
+    <module_id>0</module_id>
+    <module_index>27</module_index>
+    <cut>
+      <name>EG-ETA_FWD_NEG</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-5.0000000000000000E+00</minimum>
+      <maximum>-1.0004999999999999E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>EG-ETA_FWD_POS</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>+1.0004999999999999E+00</minimum>
+      <maximum>+5.0000000000000000E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MU10_CEN</name>
+    <expression>MU10[MU-QLTY_High,MU-ETA_CEN]</expression>
+    <index>29</index>
+    <module_id>0</module_id>
+    <module_index>28</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
-      <data>0,1,2,3</data>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_CEN</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-1.0059374999999999E+00</minimum>
+      <maximum>+1.0059374999999999E+00</maximum>
+      <data/>
     </cut>
     <object_requirement>
-      <name>MU0p5</name>
+      <name>MU10</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E-01</threshold>
+      <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMuOpen_NotBptxOR</name>
-    <expression>MU0p5 AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0))</expression>
+    <name>L1_MU10_FWD</name>
+    <expression>MU10[MU-QLTY_High,MU-ETA_FWD_NEG,MU-ETA_FWD_POS]</expression>
+    <index>30</index>
+    <module_id>0</module_id>
+    <module_index>29</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_FWD_NEG</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.4500000000000002E+00</minimum>
+      <maximum>-1.0059374999999999E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>MU-ETA_FWD_POS</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>+1.0059374999999999E+00</minimum>
+      <maximum>+2.4500000000000002E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MU10_Upper</name>
+    <expression>MU10[MU-QLTY_High,MU-PHI_UPPER]</expression>
+    <index>31</index>
+    <module_id>0</module_id>
+    <module_index>30</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-PHI_UPPER</name>
+      <object>MU</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+3.1415926535897931E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MU10_Phi_1stQUAD</name>
+    <expression>MU10[MU-QLTY_High,MU-PHI_1stQUAD]</expression>
+    <index>32</index>
+    <module_id>0</module_id>
+    <module_index>31</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-PHI_1stQUAD</name>
+      <object>MU</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MU10_Phi_3rdQUAD</name>
+    <expression>MU10[MU-QLTY_High,MU-PHI_3rdQUAD]</expression>
+    <index>33</index>
+    <module_id>0</module_id>
+    <module_index>32</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-PHI_3rdQUAD</name>
+      <object>MU</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MU10_Phi_1stQUAD_3rdQUAD</name>
+    <expression>MU10[MU-QLTY_High,MU-PHI_1stQUAD,MU-PHI_3rdQUAD]</expression>
+    <index>34</index>
+    <module_id>0</module_id>
+    <module_index>33</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-PHI_1stQUAD</name>
+      <object>MU</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>MU-PHI_3rdQUAD</name>
+      <object>MU</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_Phi_3rdQUAD</name>
+    <expression>JET16[JET-PHI_3rdQUAD]</expression>
+    <index>35</index>
+    <module_id>0</module_id>
+    <module_index>34</module_index>
+    <cut>
+      <name>JET-PHI_3rdQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_Phi_1stQUAD_3rdQUAD</name>
+    <expression>JET16[JET-PHI_1stQUAD,JET-PHI_3rdQUAD]</expression>
+    <index>36</index>
+    <module_id>0</module_id>
+    <module_index>35</module_index>
+    <cut>
+      <name>JET-PHI_1stQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_3rdQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_JET16_Phi_2ndQUAD_4thQUAD</name>
+    <expression>JET16[JET-PHI_2ndQUAD,JET-PHI_4thQUAD]</expression>
+    <index>37</index>
+    <module_id>0</module_id>
+    <module_index>36</module_index>
+    <cut>
+      <name>JET-PHI_2ndQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+1.5707963267948966E+00</minimum>
+      <maximum>+3.1415926535897931E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_4thQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+4.7123889803846897E+00</minimum>
+      <maximum>+6.2831853071795862E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJet16_B2B</name>
+    <expression>comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_3rdQUAD]} OR comb{JET16[JET-PHI_2ndQUAD],JET16[JET-PHI_4thQUAD]} </expression>
+    <index>38</index>
+    <module_id>0</module_id>
+    <module_index>37</module_index>
+    <cut>
+      <name>JET-PHI_1stQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_2ndQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+1.5707963267948966E+00</minimum>
+      <maximum>+3.1415926535897931E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_3rdQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_4thQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+4.7123889803846897E+00</minimum>
+      <maximum>+6.2831853071795862E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJet16_nonB2B</name>
+    <expression>comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_2ndQUAD]} OR comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_4thQUAD]}  OR comb{JET16[JET-PHI_2ndQUAD],JET16[JET-PHI_3rdQUAD]} OR comb{JET16[JET-PHI_3rdQUAD],JET16[JET-PHI_4thQUAD]}</expression>
+    <index>39</index>
+    <module_id>0</module_id>
+    <module_index>38</module_index>
+    <cut>
+      <name>JET-PHI_1stQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+1.5707963267948966E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_2ndQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+1.5707963267948966E+00</minimum>
+      <maximum>+3.1415926535897931E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_3rdQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+3.1415926535897931E+00</minimum>
+      <maximum>+4.7123889803846897E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>JET-PHI_4thQUAD</name>
+      <object>JET</object>
+      <type>PHI</type>
+      <minimum>+4.7123889803846897E+00</minimum>
+      <maximum>+6.2831853071795862E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ZeroBias</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
     <index>40</index>
     <module_id>0</module_id>
     <module_index>39</module_index>
-    <object_requirement>
-      <name>MU0p5</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E-01</threshold>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
-    </object_requirement>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MinimumBiasHF1_OR_NotInUse</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>41</index>
+    <module_id>0</module_id>
+    <module_index>40</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MinimumBiasHF2_OR</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>42</index>
+    <module_id>0</module_id>
+    <module_index>41</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MinimumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>43</index>
+    <module_id>0</module_id>
+    <module_index>42</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MinimumBiasHF2_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>44</index>
+    <module_id>0</module_id>
+    <module_index>43</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MinimumBiasHF1_XOR</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>45</index>
+    <module_id>0</module_id>
+    <module_index>44</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_NotMinimumBiasHF2_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>46</index>
+    <module_id>0</module_id>
+    <module_index>45</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_NotMinimumBiasHF1_OR</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>47</index>
+    <module_id>0</module_id>
+    <module_index>46</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HFplusANDminusTH0</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>48</index>
+    <module_id>0</module_id>
+    <module_index>47</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HFplusANDminusTH1</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>49</index>
+    <module_id>0</module_id>
+    <module_index>48</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HFplusORminusTH0</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>50</index>
+    <module_id>0</module_id>
+    <module_index>49</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HFplusORminusTH1</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>51</index>
+    <module_id>0</module_id>
+    <module_index>50</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HF_2reg_plusANDminusTH0</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>52</index>
+    <module_id>0</module_id>
+    <module_index>51</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HF_2reg_plusANDminusTH1</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>53</index>
+    <module_id>0</module_id>
+    <module_index>52</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_BptxPlusORMinus</name>
+    <expression>EXT_BPTX_plus_OR_minus.v0</expression>
+    <index>54</index>
+    <module_id>0</module_id>
+    <module_index>53</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_OR_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_BptxPlus_NotBptxMinus</name>
+    <expression>EXT_BPTX_plus.v0 AND NOT EXT_BPTX_minus.v0</expression>
+    <index>55</index>
+    <module_id>0</module_id>
+    <module_index>54</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus.v0</name>
       <bx_offset>0</bx_offset>
@@ -760,18 +1234,27 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMuOpen_BptxAND</name>
-    <expression>MU0p5 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>41</index>
+    <name>L1_BptxMinus_NotBptxPlus</name>
+    <expression>EXT_BPTX_minus.v0 AND NOT EXT_BPTX_plus.v0</expression>
+    <index>56</index>
     <module_id>0</module_id>
-    <module_index>40</module_index>
-    <object_requirement>
-      <name>MU0p5</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E-01</threshold>
+    <module_index>55</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0</name>
       <bx_offset>0</bx_offset>
-    </object_requirement>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Centrality_ext0_100_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>57</index>
+    <module_id>0</module_id>
+    <module_index>56</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -779,18 +1262,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu3_BptxAND</name>
-    <expression>MU3 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>42</index>
+    <name>L1_Centrality_ext0_100_HFplusORminusTH0</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>58</index>
     <module_id>0</module_id>
-    <module_index>41</module_index>
-    <object_requirement>
-      <name>MU3</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>57</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -798,18 +1274,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu5_BptxAND</name>
-    <expression>MU5 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>43</index>
+    <name>L1_Centrality_ext0_5_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>59</index>
     <module_id>0</module_id>
-    <module_index>42</module_index>
-    <object_requirement>
-      <name>MU5</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>58</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -817,18 +1286,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu7_BptxAND</name>
-    <expression>MU7 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>44</index>
+    <name>L1_Centrality_ext0_10_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>60</index>
     <module_id>0</module_id>
-    <module_index>43</module_index>
-    <object_requirement>
-      <name>MU7</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+7.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>59</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -836,18 +1298,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu12_BptxAND</name>
-    <expression>MU12 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>45</index>
+    <name>L1_Centrality_ext30_50_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>61</index>
     <module_id>0</module_id>
-    <module_index>44</module_index>
-    <object_requirement>
-      <name>MU12</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>60</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -855,18 +1310,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu16_BptxAND</name>
-    <expression>MU16 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>46</index>
+    <name>L1_Centrality_ext30_100_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>62</index>
     <module_id>0</module_id>
-    <module_index>45</module_index>
-    <object_requirement>
-      <name>MU16</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>61</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -874,18 +1322,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleMu0_BptxAND</name>
-    <expression>comb{MU0p5,MU0p5} AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>47</index>
+    <name>L1_Centrality_ext50_100_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>63</index>
     <module_id>0</module_id>
-    <module_index>46</module_index>
-    <object_requirement>
-      <name>MU0p5</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E-01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>62</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -893,18 +1334,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleMu3_BptxAND</name>
-    <expression>MU3 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>48</index>
+    <name>L1_Centrality_ext70_100_MinimumumBiasHF1_AND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>64</index>
     <module_id>0</module_id>
-    <module_index>47</module_index>
-    <object_requirement>
-      <name>MU3</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>63</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -912,18 +1346,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet24_BptxAND</name>
-    <expression>JET24 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>49</index>
+    <name>L1_MinimumBiasHF1_OR</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>65</index>
     <module_id>0</module_id>
-    <module_index>48</module_index>
-    <object_requirement>
-      <name>JET24</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.4000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
+    <module_index>64</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
@@ -931,30 +1358,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet28_BptxAND</name>
-    <expression>JET28 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>50</index>
-    <module_id>0</module_id>
-    <module_index>49</module_index>
-    <object_requirement>
-      <name>JET28</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet32_BptxAND</name>
+    <name>L1_SingleS1Jet32_BptxAND</name>
     <expression>JET32 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>51</index>
+    <index>66</index>
     <module_id>0</module_id>
-    <module_index>50</module_index>
+    <module_index>65</module_index>
     <object_requirement>
       <name>JET32</name>
       <type>JET</type>
@@ -969,11 +1377,87 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet40_BptxAND</name>
-    <expression>JET40 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>52</index>
+    <name>L1_SingleS1Jet16_BptxAND</name>
+    <expression>JET16 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>67</index>
     <module_id>0</module_id>
-    <module_index>51</module_index>
+    <module_index>66</module_index>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet48_BptxAND</name>
+    <expression>JET48 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>68</index>
+    <module_id>0</module_id>
+    <module_index>67</module_index>
+    <object_requirement>
+      <name>JET48</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet28_BptxAND</name>
+    <expression>JET28 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>69</index>
+    <module_id>0</module_id>
+    <module_index>68</module_index>
+    <object_requirement>
+      <name>JET28</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet36_BptxAND</name>
+    <expression>JET36 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>70</index>
+    <module_id>0</module_id>
+    <module_index>69</module_index>
+    <object_requirement>
+      <name>JET36</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet40_BptxAND</name>
+    <expression>JET40 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>71</index>
+    <module_id>0</module_id>
+    <module_index>70</module_index>
     <object_requirement>
       <name>JET40</name>
       <type>JET</type>
@@ -990,9 +1474,9 @@
   <algorithm>
     <name>L1_SingleJet44_BptxAND</name>
     <expression>JET44 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>53</index>
+    <index>72</index>
     <module_id>0</module_id>
-    <module_index>52</module_index>
+    <module_index>71</module_index>
     <object_requirement>
       <name>JET44</name>
       <type>JET</type>
@@ -1007,16 +1491,16 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet48_BptxAND</name>
-    <expression>JET48 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>54</index>
+    <name>L1_SingleS1Jet56_BptxAND</name>
+    <expression>JET56 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>73</index>
     <module_id>0</module_id>
-    <module_index>53</module_index>
+    <module_index>72</module_index>
     <object_requirement>
-      <name>JET48</name>
+      <name>JET56</name>
       <type>JET</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.8000000000000000E+01</threshold>
+      <threshold>+5.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
     <external_requirement>
@@ -1026,11 +1510,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet52_BptxAND</name>
+    <name>L1_SingleS1Jet52_BptxAND</name>
     <expression>JET52 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>55</index>
+    <index>74</index>
     <module_id>0</module_id>
-    <module_index>54</module_index>
+    <module_index>73</module_index>
     <object_requirement>
       <name>JET52</name>
       <type>JET</type>
@@ -1045,16 +1529,16 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet60_BptxAND</name>
-    <expression>JET60 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>56</index>
+    <name>L1_SingleS1Jet64_BptxAND</name>
+    <expression>JET64 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>75</index>
     <module_id>0</module_id>
-    <module_index>55</module_index>
+    <module_index>74</module_index>
     <object_requirement>
-      <name>JET60</name>
+      <name>JET64</name>
       <type>JET</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+6.0000000000000000E+01</threshold>
+      <threshold>+6.4000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
     <external_requirement>
@@ -1064,11 +1548,453 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleJet32</name>
-    <expression>comb{JET32,JET32}</expression>
-    <index>57</index>
+    <name>L1_SingleS1Jet16_Centrality_ext30_100_BptxAND</name>
+    <expression>JET16 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>76</index>
     <module_id>0</module_id>
-    <module_index>56</module_index>
+    <module_index>75</module_index>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet16_Centrality_ext50_100_BptxAND</name>
+    <expression>JET16 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>77</index>
+    <module_id>0</module_id>
+    <module_index>76</module_index>
+    <object_requirement>
+      <name>JET16</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet28_Centrality_ext30_100_BptxAND</name>
+    <expression>JET28 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>78</index>
+    <module_id>0</module_id>
+    <module_index>77</module_index>
+    <object_requirement>
+      <name>JET28</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet28_Centrality_ext50_100_BptxAND</name>
+    <expression>JET28 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>79</index>
+    <module_id>0</module_id>
+    <module_index>78</module_index>
+    <object_requirement>
+      <name>JET28</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet44_Centrality_ext50_100_BptxAND</name>
+    <expression>JET44 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>80</index>
+    <module_id>0</module_id>
+    <module_index>79</module_index>
+    <object_requirement>
+      <name>JET44</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet44_Centrality_ext30_100_BptxAND</name>
+    <expression>JET44 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>81</index>
+    <module_id>0</module_id>
+    <module_index>80</module_index>
+    <object_requirement>
+      <name>JET44</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG3_BptxAND</name>
+    <expression>EG3 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>82</index>
+    <module_id>0</module_id>
+    <module_index>81</module_index>
+    <object_requirement>
+      <name>EG3</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG5_BptxAND</name>
+    <expression>EG5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>83</index>
+    <module_id>0</module_id>
+    <module_index>82</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG7_BptxAND</name>
+    <expression>EG7 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>84</index>
+    <module_id>0</module_id>
+    <module_index>83</module_index>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG12_BptxAND</name>
+    <expression>EG12 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>85</index>
+    <module_id>0</module_id>
+    <module_index>84</module_index>
+    <object_requirement>
+      <name>EG12</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG15_BptxAND</name>
+    <expression>EG15 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>86</index>
+    <module_id>0</module_id>
+    <module_index>85</module_index>
+    <object_requirement>
+      <name>EG15</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG21_BptxAND</name>
+    <expression>EG21 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>87</index>
+    <module_id>0</module_id>
+    <module_index>86</module_index>
+    <object_requirement>
+      <name>EG21</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.1000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG30_BptxAND</name>
+    <expression>EG30 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>88</index>
+    <module_id>0</module_id>
+    <module_index>87</module_index>
+    <object_requirement>
+      <name>EG30</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG3_Centrality_ext30_100_BptxAND</name>
+    <expression>EG3 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>89</index>
+    <module_id>0</module_id>
+    <module_index>88</module_index>
+    <object_requirement>
+      <name>EG3</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG3_Centrality_ext50_100_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>90</index>
+    <module_id>0</module_id>
+    <module_index>89</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG7_Centrality_ext30_100_BptxAND</name>
+    <expression>EG7 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>91</index>
+    <module_id>0</module_id>
+    <module_index>90</module_index>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG7_Centrality_ext50_100_BptxAND</name>
+    <expression>EG7 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>92</index>
+    <module_id>0</module_id>
+    <module_index>91</module_index>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG21_Centrality_ext30_100_BptxAND</name>
+    <expression>EG21 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>93</index>
+    <module_id>0</module_id>
+    <module_index>92</module_index>
+    <object_requirement>
+      <name>EG21</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.1000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG21_Centrality_ext50_100_BptxAND</name>
+    <expression>EG21 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>94</index>
+    <module_id>0</module_id>
+    <module_index>93</module_index>
+    <object_requirement>
+      <name>EG21</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.1000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG3_BptxAND</name>
+    <expression>EG3[EG-ISO_0xE] AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>95</index>
+    <module_id>0</module_id>
+    <module_index>94</module_index>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG3</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG7_BptxAND</name>
+    <expression>EG7[EG-ISO_0xE] AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>96</index>
+    <module_id>0</module_id>
+    <module_index>95</module_index>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuOpen</name>
+    <expression>MU0p5</expression>
+    <index>97</index>
+    <module_id>0</module_id>
+    <module_index>96</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG2_BptxAND</name>
+    <expression>comb{EG2,EG2} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>98</index>
+    <module_id>0</module_id>
+    <module_index>97</module_index>
+    <object_requirement>
+      <name>EG2</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet32_Centrality_ext50_100_BptxAND</name>
+    <expression>JET32 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>99</index>
+    <module_id>0</module_id>
+    <module_index>98</module_index>
     <object_requirement>
       <name>JET32</name>
       <type>JET</type>
@@ -1076,14 +2002,449 @@
       <threshold>+3.2000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleMuOpen_BptxAND</name>
-    <expression>comb{MU0p5,MU0p5} AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>58</index>
+    <name>L1_DoubleEG5_BptxAND</name>
+    <expression>comb{EG5,EG5} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>100</index>
     <module_id>0</module_id>
-    <module_index>57</module_index>
+    <module_index>99</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG8_BptxAND</name>
+    <expression>comb{EG8,EG8} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>101</index>
+    <module_id>0</module_id>
+    <module_index>100</module_index>
+    <object_requirement>
+      <name>EG8</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_MinimumBiasHF1_AND</name>
+    <expression>MU3 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>102</index>
+    <module_id>0</module_id>
+    <module_index>101</module_index>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu5_MinimumBiasHF1_AND</name>
+    <expression>MU5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>103</index>
+    <module_id>0</module_id>
+    <module_index>102</module_index>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu7_MinimumBiasHF1_AND</name>
+    <expression>MU7 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>104</index>
+    <module_id>0</module_id>
+    <module_index>103</module_index>
+    <object_requirement>
+      <name>MU7</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu12_BptxAND</name>
+    <expression>MU12[MU-QLTY_High] AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>105</index>
+    <module_id>0</module_id>
+    <module_index>104</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu12_MinimumBiasHF1_AND_BptxAND</name>
+    <expression>MU12 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>106</index>
+    <module_id>0</module_id>
+    <module_index>105</module_index>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu16_BptxAND</name>
+    <expression>MU16[MU-QLTY_High] AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>107</index>
+    <module_id>0</module_id>
+    <module_index>106</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu16_MinimumBiasHF1_AND_BptxAND</name>
+    <expression>MU16 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>108</index>
+    <module_id>0</module_id>
+    <module_index>107</module_index>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu3_HFplusANDminusTH0_BptxAND</name>
+    <expression>MU3 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>109</index>
+    <module_id>0</module_id>
+    <module_index>108</module_index>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu5_HFplusANDminusTH0_BptxAND</name>
+    <expression>MU5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>110</index>
+    <module_id>0</module_id>
+    <module_index>109</module_index>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu7_HFplusANDminusTH0_BptxAND</name>
+    <expression>MU7 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>111</index>
+    <module_id>0</module_id>
+    <module_index>110</module_index>
+    <object_requirement>
+      <name>MU7</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu12_HFplusANDminusTH0_BptxAND</name>
+    <expression>MU12 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>112</index>
+    <module_id>0</module_id>
+    <module_index>111</module_index>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu16_HFplusANDminusTH0_BptxAND</name>
+    <expression>MU16 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>113</index>
+    <module_id>0</module_id>
+    <module_index>112</module_index>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_BptxAND</name>
+    <expression>comb{MU0[MU-QLTY_High],MU0[MU-QLTY_High]} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>114</index>
+    <module_id>0</module_id>
+    <module_index>113</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_MinimumBiasHF1_AND</name>
+    <expression>comb{MU0,MU0} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>115</index>
+    <module_id>0</module_id>
+    <module_index>114</module_index>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_MinimumBiasHF1_AND_Centrality_ext0_30_BptxAND</name>
+    <expression>comb{MU0,MU0} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>116</index>
+    <module_id>0</module_id>
+    <module_index>115</module_index>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_MinimumBiasHF1_AND_Centrality_ext30_100_BptxAND</name>
+    <expression>comb{MU0,MU0} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>117</index>
+    <module_id>0</module_id>
+    <module_index>116</module_index>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_HFplusANDminusTH0_BptxAND</name>
+    <expression>comb{MU0,MU0} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>118</index>
+    <module_id>0</module_id>
+    <module_index>117</module_index>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_HFplusANDminusTH0_Centrliatiy_ext30_100_BptxAND</name>
+    <expression>comb{MU0,MU0} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>119</index>
+    <module_id>0</module_id>
+    <module_index>118</module_index>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu10_BptxAND</name>
+    <expression>comb{MU10[MU-QLTY_High],MU10[MU-QLTY_High]} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>120</index>
+    <module_id>0</module_id>
+    <module_index>119</module_index>
+    <cut>
+      <name>MU-QLTY_High</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuOpen_BptxAND</name>
+    <expression>MU0p5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>121</index>
+    <module_id>0</module_id>
+    <module_index>120</module_index>
     <object_requirement>
       <name>MU0p5</name>
       <type>MU</type>
@@ -1098,59 +2459,413 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_TOTEM_0</name>
-    <expression>EXT_TOTEM_0</expression>
-    <index>59</index>
+    <name>L1_DoubleMuOpen_BptxAND</name>
+    <expression>comb{MU0[MU-QLTY_Open],MU0[MU-QLTY_Open]} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>122</index>
     <module_id>0</module_id>
-    <module_index>58</module_index>
+    <module_index>121</module_index>
+    <cut>
+      <name>MU-QLTY_Open</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+0.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
     <external_requirement>
-      <name>EXT_TOTEM_0</name>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MuOpen_NotMinimumBiasHF2_AND</name>
+    <expression>MU0p5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>123</index>
+    <module_id>0</module_id>
+    <module_index>122</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG2_NotMinimumBiasHF2_AND</name>
+    <expression>EG2 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>124</index>
+    <module_id>0</module_id>
+    <module_index>123</module_index>
+    <object_requirement>
+      <name>EG2</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMuOpen_NotMinimumBiasHF2_AND</name>
+    <expression>comb{MU0p5,MU0p5} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>125</index>
+    <module_id>0</module_id>
+    <module_index>124</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG2_NotMinimumBiasHF2_AND</name>
+    <expression>comb{EG2,EG2} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>126</index>
+    <module_id>0</module_id>
+    <module_index>125</module_index>
+    <object_requirement>
+      <name>EG2</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG5_NotMinimumBiasHF2_AND</name>
+    <expression>EG5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>127</index>
+    <module_id>0</module_id>
+    <module_index>126</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMuOpen_NotMinimumBiasHF1_AND</name>
+    <expression>comb{MU0p5,MU0p5} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>128</index>
+    <module_id>0</module_id>
+    <module_index>127</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MuOpen_NotMinimumBiasHF1_AND</name>
+    <expression>MU0p5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>129</index>
+    <module_id>0</module_id>
+    <module_index>128</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ZdcOR_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>130</index>
+    <module_id>0</module_id>
+    <module_index>129</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_NotZdcOR_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>131</index>
+    <module_id>0</module_id>
+    <module_index>130</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ZdcXOR_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>132</index>
+    <module_id>0</module_id>
+    <module_index>131</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_NotHFplusANDminusTH0_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>133</index>
+    <module_id>0</module_id>
+    <module_index>132</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMuOpenNotHFplusANDminusTH0_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>134</index>
+    <module_id>0</module_id>
+    <module_index>133</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG5_NotZdc_AND_BptxAND</name>
+    <expression>EG5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>135</index>
+    <module_id>0</module_id>
+    <module_index>134</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG2_NotZdc_AND_BptxAND</name>
+    <expression>comb{EG2,EG2} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>136</index>
+    <module_id>0</module_id>
+    <module_index>135</module_index>
+    <object_requirement>
+      <name>EG2</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMuOpen_NotZdc_AND_BptxAND</name>
+    <expression>comb{MU0p5,MU0p5} AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>137</index>
+    <module_id>0</module_id>
+    <module_index>136</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG2_NotZDC_AND_BptxAND</name>
+    <expression>EG2 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>138</index>
+    <module_id>0</module_id>
+    <module_index>137</module_index>
+    <object_requirement>
+      <name>EG2</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_MuOpen_NotZdc_AND_BptxAND</name>
+    <expression>MU0p5 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>139</index>
+    <module_id>0</module_id>
+    <module_index>138</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_CastorMuon_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>140</index>
+    <module_id>0</module_id>
+    <module_index>139</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_CastorMediumJet_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>141</index>
+    <module_id>0</module_id>
+    <module_index>140</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_CastorHighJet_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>142</index>
+    <module_id>0</module_id>
+    <module_index>141</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleS1Jet32_Centrality_ext30_100_BptxAND</name>
+    <expression>JET32 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>143</index>
+    <module_id>0</module_id>
+    <module_index>142</module_index>
+    <object_requirement>
+      <name>JET32</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
   </algorithm>
 
   <algorithm>
     <name>L1_TOTEM_1</name>
-    <expression>EXT_TOTEM_1</expression>
-    <index>60</index>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>144</index>
     <module_id>0</module_id>
-    <module_index>59</module_index>
+    <module_index>143</module_index>
     <external_requirement>
-      <name>EXT_TOTEM_1</name>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
   </algorithm>
 
   <algorithm>
     <name>L1_TOTEM_2</name>
-    <expression>EXT_TOTEM_2</expression>
-    <index>61</index>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>145</index>
     <module_id>0</module_id>
-    <module_index>60</module_index>
+    <module_index>144</module_index>
     <external_requirement>
-      <name>EXT_TOTEM_2</name>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_TOTEM_3</name>
-    <expression>EXT_TOTEM_3</expression>
-    <index>62</index>
+    <name>L1_SingleS1JetC20_NotBptxOR</name>
+    <expression>JET20[JET-ETA_CEN] AND (NOT ( EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0 ))</expression>
+    <index>146</index>
     <module_id>0</module_id>
-    <module_index>61</module_index>
-    <external_requirement>
-      <name>EXT_TOTEM_3</name>
-      <bx_offset>0</bx_offset>
-    </external_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleJet20</name>
-    <expression>comb{JET20,JET20}</expression>
-    <index>63</index>
-    <module_id>0</module_id>
-    <module_index>62</module_index>
+    <module_index>145</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
     <object_requirement>
       <name>JET20</name>
       <type>JET</type>
@@ -1158,36 +2873,151 @@
       <threshold>+2.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_CastorMediumJet_BptxAND</name>
-    <expression>EXT_CASTOR_MediumJet.v0 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>64</index>
-    <module_id>0</module_id>
-    <module_index>63</module_index>
     <external_requirement>
-      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <name>EXT_BPTX_plus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
     <external_requirement>
-      <name>EXT_CASTOR_MediumJet.v0</name>
+      <name>EXT_BPTX_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_CastorHighJet_BptxAND</name>
-    <expression>EXT_CASTOR_HighJet.v0 AND EXT_BPTX_plus_AND_minus.v0</expression>
-    <index>65</index>
+    <name>L1_SingleS1JetC32_NotBptxOR</name>
+    <expression>JET32[JET-ETA_CEN] AND (NOT ( EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0 ))</expression>
+    <index>147</index>
     <module_id>0</module_id>
-    <module_index>64</module_index>
+    <module_index>146</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET32</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack12_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>148</index>
+    <module_id>0</module_id>
+    <module_index>147</module_index>
     <external_requirement>
       <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack12_Centrality_ext30_100_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>149</index>
+    <module_id>0</module_id>
+    <module_index>148</module_index>
     <external_requirement>
-      <name>EXT_CASTOR_HighJet.v0</name>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack16_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>150</index>
+    <module_id>0</module_id>
+    <module_index>149</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack16_Centrality_ext30_100_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>151</index>
+    <module_id>0</module_id>
+    <module_index>150</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack20_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>152</index>
+    <module_id>0</module_id>
+    <module_index>151</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack20_Centrality_ext30_100_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>153</index>
+    <module_id>0</module_id>
+    <module_index>152</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack24_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>154</index>
+    <module_id>0</module_id>
+    <module_index>153</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack24_Centrality_ext30_100_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>155</index>
+    <module_id>0</module_id>
+    <module_index>154</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleTrack28_BptxAND</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>156</index>
+    <module_id>0</module_id>
+    <module_index>155</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
     </external_requirement>
   </algorithm>
