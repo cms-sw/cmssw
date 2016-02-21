@@ -234,10 +234,10 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
     LogTrace("GsfTrackFitters")
       << "predTsos !" << "\n"
-      << predTsos 
+      << predTsos << " size " << predTsos.components().size() 
       <<" with local position " << predTsos.localPosition()
-      <<"currTsos !" << "\n"
-      << currTsos
+      <<"\ncurrTsos !" << "\n"
+      << currTsos << " size " << currTsos.components().size()
       <<" with local position " << currTsos.localPosition();
   }
   return myTraj;
