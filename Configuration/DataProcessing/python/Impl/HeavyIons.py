@@ -52,11 +52,10 @@ class HeavyIons(Reco):
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
 
-        customsFunction = self.promptCustoms
         if not 'customs' in args:
-            args['customs']=[ customsFunction ]
-        else:
-            args['customs'].append(customsFunction)
+            args['customs']=[ ]
+
+        args['customs'].append(self.promptCustoms)
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -76,11 +75,10 @@ class HeavyIons(Reco):
         if not 'skims' in args:
             args['skims']=['@allForExpress']
 
-        customsFunction = self.expressCustoms
         if not 'customs' in args:
-            args['customs']=[ customsFunction ]
-        else:
-            args['customs'].append( customsFunction )
+            args['customs']=[ ]
+
+        args['customs'].append( self.expressCustoms )
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -96,11 +94,10 @@ class HeavyIons(Reco):
         self._checkMINIAOD(**args)
         self._setRepackedFlag(args)
 
-        customsFunction = self.visCustoms
         if not 'customs' in args:
-            args['customs']=[ customsFunction ]
-        else:
-            args['customs'].append( customsFunction )
+            args['customs']=[ ]
+
+        args['customs'].append( self.visCustoms )
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
