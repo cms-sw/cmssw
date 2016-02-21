@@ -42,13 +42,15 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   //
   // loop over components
   //
-  //   edm::LogDebug("GsfMaterialEffectsUpdator") << "found " << Ws.size() << " components\n"
-  // 					     << "  input state has weight " << TSoS.weight();
+  LogDebug("GsfMaterialEffectsUpdator") << "found " << size() << " components "
+   					     << "  input state has weight " << TSoS.weight();
   for ( auto const & effect : effects ) {
-    //      edm::LogDebug("GsfMaterialEffectsUpdator") << "w, dp, sigp = "
-    //  	 << Ws[ic] << ", "
-    //  	 << dPs[ic] << ", "
-    //  	 << sqrt((deltaErrors[ic])[0][0]);
+#ifdef DEBUG_DETAIL
+          LogDebug("GsfMaterialEffectsUpdator") << "w, dp, sigp = "
+      	 << effect.weight << ", "
+      	 << effect.deltaP << ", "
+      	 << std::sqrt(effect.deltaCov[materialEffect::elos]);
+#endif
     //
     // Update momentum. In case of failure: return invalid state.
     // Use deltaP method to ensure update of cache, if necessary!
@@ -68,9 +70,10 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
 					       surface,
 					       &(TSoS.globalParameters().magneticField()),
 					       side));
-
-      //       edm::LogDebug("GsfMaterialEffectsUpdator") 
-      // 	<< "adding state with weight " << weight*Ws[ic];
+#ifdef DEBUG_DETAIL
+           LogDebug("GsfMaterialEffectsUpdator") 
+         	<< "adding state with weight " << weight*effect.weight;
+#endif
     }
     else {
       result.addState(TrajectoryStateOnSurface(lp,surface,
@@ -78,8 +81,8 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
 					       side));
     }
   }
-  //   edm::LogDebug("GsfMaterialEffectsUpdator") 
-  //     << "  output state has weight " << result.combinedState().weight();
+  LogDebug("GsfMaterialEffectsUpdator") 
+       << "  output state has weight " << result.combinedState().weight();
   return result.combinedState();
 }
 
