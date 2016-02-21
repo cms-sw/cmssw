@@ -1,16 +1,7 @@
+// L1TGlobalUtil:  Utility class for parsing the L1 Trigger Menu 
+
 #ifndef L1TGlobalUtil_h
 #define L1TGlobalUtil_h
-
-/**
- * \class L1TGlobalUtil
- *
- *
- * Description: Accessor Class for uGT Result
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- */
 
 // system include files
 #include <vector>
@@ -35,30 +26,27 @@
 
 namespace l1t {
 
-class L1TGlobalUtil
-{
+  class L1TGlobalUtil{
 
-public:
+  public:
+    L1TGlobalUtil();
+    ~L1TGlobalUtil();  
 
-    // constructors
-  L1TGlobalUtil(std::string preScaleFileName, unsigned int psColumn);
 
-    // destructor
-    virtual ~L1TGlobalUtil();
-
-public:
+    // OverridePrescalesAndMasks
+    // The ability to override the prescale/mask file will not be part of the permanent interface of this class.
+    // It is provided only until prescales and masks are available as CondFormats...
+    // Most users should simply ignore this method and use the default ctor only!
+    // Will look for prescale csv file in L1Trigger/L1TGlobal/data/Luminosity/startup/<filename>
+    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn=1);
 
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                     edm::EDGetToken gtAlgToken);
 
-
-public:
-
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;
     }
-
  
     inline bool getFinalOR() {return m_finalOR;} 
     
@@ -130,8 +118,6 @@ private:
     //const AlgorithmMap* m_algorithmMap;
     const std::map<std::string, L1TUtmAlgorithm>* m_algorithmMap;
     
-private:
-
     // Number of physics triggers
     unsigned int m_numberPhysTriggers;
     
@@ -163,7 +149,6 @@ private:
     /// verbosity level
     int m_verbosity;
     
-
 };
 
 }
