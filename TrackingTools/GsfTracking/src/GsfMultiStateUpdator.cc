@@ -28,22 +28,20 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
   MultiTrajectoryStateAssembler result;
 
   int i = 0;
-  for (std::vector<TrajectoryStateOnSurface>::const_iterator iter = predictedComponents.begin();
-       iter != predictedComponents.end(); iter++) {
-    TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(*iter, aRecHit);
+  for (auto const & tsosI : predictedComponents) {
+    TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(tsosI, aRecHit);
     if (updatedTSOS.isValid()){
       result.addState(TrajectoryStateOnSurface(weights[i], 
                                                updatedTSOS.localParameters(),
 					       updatedTSOS.localError(), updatedTSOS.surface(), 
 					       &(tsos.globalParameters().magneticField()),
-					       (*iter).surfaceSide()
+					       tsosI.surfaceSide()
                                               ));
-    i++;
     }
     else{
-      edm::LogError("GsfMultiStateUpdator") << "one of the KF updated state is invalid. skipping.";
+      edm::LogError("GsfMultiStateUpdator") << "KF updated state " << i << " is invalid. skipping.";
     }
-
+    ++i;
   }
 
   return result.combinedState();

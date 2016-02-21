@@ -17,22 +17,9 @@ MultiTrajectoryStateAssembler::MultiTrajectoryStateAssembler () :
   sortStates = false;
   minValidFraction = 0.01;
   minFractionalWeight = 1.e-6;
-  //   //
-  //   // Timers
-  //   //
-  //   if ( theTimerAdd==0 ) {
-  //     theTimerAdd = 
-  //       &(*TimingReport::current())[string("MultiTrajectoryStateAssembler::addState")]; 
-  //     theTimerAdd->switchCPU(false);
-  //     theTimerComb = 
-  //       &(*TimingReport::current())[string("MultiTrajectoryStateAssembler::combinedState")]; 
-  //     theTimerComb->switchCPU(false);
-  //   }
 }  
 
 void MultiTrajectoryStateAssembler::addState (const TrajectoryStateOnSurface tsos) {
-  //   // Timer
-  //   TimeMe t(*theTimerAdd,false);
   //
   // refuse to add states after combination has been done
   //
@@ -92,8 +79,6 @@ void MultiTrajectoryStateAssembler::addInvalidState (const double weight) {
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
-  //   // Timer
-  //   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   //
@@ -110,8 +95,6 @@ TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState (const float newWeight) {
-  //   // Timer
-  //   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   //
@@ -215,11 +198,11 @@ MultiTrajectoryStateAssembler::removeSmallWeights()
 
 void
 MultiTrajectoryStateAssembler::removeWrongPz () {
-  //   edm::LogDebug("MultiTrajectoryStateAssembler") 
-  //     << "MultiTrajectoryStateAssembler: found at least one state with inconsistent pz\n"
-  //     << "  #state / weights before cleaning = " << theStates.size()
-  //     << " / " << theValidWeightSum
-  //     << " / " << theInvalidWeightSum;
+   LogDebug("GsfTrackFitters") 
+       << "MultiTrajectoryStateAssembler: found at least one state with inconsistent pz\n"
+       << "  #state / weights before cleaning = " << theStates.size()
+       << " / " << theValidWeightSum
+       << " / " << theInvalidWeightSum;
   //
   // Calculate average pz
   //
@@ -227,7 +210,7 @@ MultiTrajectoryStateAssembler::removeWrongPz () {
   for ( MultiTSOS::const_iterator is=theStates.begin();
 	is!=theStates.end(); is++ ) {
     meanPz += is->weight()*is->localParameters().pzSign();
-    //     edm::LogDebug("MultiTrajectoryStateAssembler") 
+    //     LogDebug("GsfTrackFitters") 
     //       << "  weight / pz / global position = " << is->weight() 
     //       << " " << is->localParameters().pzSign() 
     //       << " " << is->globalPosition();
@@ -248,13 +231,15 @@ MultiTrajectoryStateAssembler::removeWrongPz () {
     }
     else {
       theInvalidWeightSum += is->weight();
+        LogDebug("GsfTrackFitters")
+          << "removing  weight / pz / global position = " << is->weight()
+          << " " << is->localParameters().pzSign()
+          << " " << is->globalPosition();
+
     }
   }
-  //   edm::LogDebug("MultiTrajectoryStateAssembler") 
-  //     << "  #state / weights after cleaning = " << theStates.size()
-  //     << " / " << theValidWeightSum
-  //     << " / " << theInvalidWeightSum;
+  LogDebug("GsfTrackFitters") 
+       << "  #state / weights after cleaning = " << theStates.size()
+       << " / " << theValidWeightSum
+       << " / " << theInvalidWeightSum;
 }
-
-// TimingReport::Item * MultiTrajectoryStateAssembler::theTimerAdd(0);
-// TimingReport::Item * MultiTrajectoryStateAssembler::theTimerComb(0);
