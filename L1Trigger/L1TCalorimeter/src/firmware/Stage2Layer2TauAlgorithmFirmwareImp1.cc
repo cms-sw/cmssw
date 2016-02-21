@@ -810,7 +810,7 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     // NB: these also must MATCH the values in the LUT --> fix when new compression scheme is used
     // ultimately, the same compresison LUT as calibration will be used
     // etaCmprBits = 2;
-    // EtCmprBits  = 3;
+    // EtCmprBits  = 4;//changed from 3, transparent to user
     // nTTCmprBits = 3;
     int etaCmpr = params_->tauIsolationLUT()->data(aeta);
     int etCmpr  = params_->tauIsolationLUT()->data(Et+64);
