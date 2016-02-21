@@ -18,7 +18,13 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+
+// legacy/stage-1 L1T:
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+// stage-2 L1T:
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -86,7 +92,8 @@ private:
 
   /// GT payload, to extract the prescale column index
   edm::InputTag                                  gtDigiTag_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigiToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigi1Token_;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection>     gtDigi2Token_;
 
   /// "seed" used to initialize the prescale counter
   static const
