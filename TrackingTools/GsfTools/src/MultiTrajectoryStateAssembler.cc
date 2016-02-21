@@ -198,7 +198,7 @@ MultiTrajectoryStateAssembler::removeSmallWeights()
 
 void
 MultiTrajectoryStateAssembler::removeWrongPz () {
-   LogDebug("GsfTrackFitters") 
+   LogDebug("GsfTrackFitters")
        << "MultiTrajectoryStateAssembler: found at least one state with inconsistent pz\n"
        << "  #state / weights before cleaning = " << theStates.size()
        << " / " << theValidWeightSum
