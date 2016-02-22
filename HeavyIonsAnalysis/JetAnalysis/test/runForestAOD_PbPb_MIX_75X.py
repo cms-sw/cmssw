@@ -77,7 +77,7 @@ process.TFileService = cms.Service("TFileService",
 # signal-only genjets
 process.load('HeavyIonsAnalysis.JetAnalysis.GenJetSequence')
 # replace above with this one for including background:
-process.load('HeavyIonsAnalysis.JetAnalysis.GenJetSequence_withBkg')
+#process.load('HeavyIonsAnalysis.JetAnalysis.GenJetSequence_withBkg')
 
 # nominal jet reco sequence
 process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPbPb')
