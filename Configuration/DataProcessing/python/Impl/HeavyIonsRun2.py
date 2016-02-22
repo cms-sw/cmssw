@@ -14,11 +14,12 @@ import FWCore.ParameterSet.Config as cms
 
 class HeavyIonsRun2(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
-        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2PromptHI'
-        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
-        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2ExpressHI'
+        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedPromptHI'
+        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedExpressHI'
+        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseRun2DeprecatedExpressHI'
     """
     _HeavyIonsRun2_
 
@@ -33,6 +34,11 @@ class HeavyIonsRun2(Reco):
                 if a['dataTier'] == 'MINIAOD':
                     raise RuntimeError("MINIAOD is not supported in HeavyIonsRun2")
 
+                
+    def _setRepackedFlag(self,args):
+        if not 'repacked' in args:
+            args['repacked']= True
+
     def promptReco(self, globalTag, **args):
         """
         _promptReco_
@@ -41,6 +47,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(args)
 
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
@@ -64,6 +71,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(args)
 
         if not 'skims' in args:
             args['skims']=['@allForExpress']
@@ -86,6 +94,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(args)
 
         customsFunction = self.visCustoms
         if not 'customs' in args:

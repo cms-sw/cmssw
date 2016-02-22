@@ -14,6 +14,7 @@ import FWCore.ParameterSet.Config as cms
 
 class ppRun2at50ns(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
     """
@@ -36,9 +37,9 @@ class ppRun2at50ns(Reco):
             args['skims']=['@allForPrompt']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2_50ns']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated_50ns']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2_50ns')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated_50ns')
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -56,9 +57,9 @@ class ppRun2at50ns(Reco):
             args['skims']=['@allForExpress']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2_50ns']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated_50ns']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2_50ns')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated_50ns')
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -72,9 +73,9 @@ class ppRun2at50ns(Reco):
 
         """
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2_50ns']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated_50ns']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2_50ns')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2Deprecated_50ns')
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
