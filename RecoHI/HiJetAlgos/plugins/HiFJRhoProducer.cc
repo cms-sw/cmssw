@@ -19,29 +19,18 @@
 #include <memory>
 #include <string>
 
-#include "TLorentzVector.h"
 #include "TMath.h"
-#include "TString.h"
-#include "TTree.h"
 
-#include "HiJetBackground/HiFJRhoProducer/plugins/HiFJRhoProducer.h"
+#include "RecoHI/HiJetAlgos/plugins/HiFJRhoProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-
-#include "CommonTools/Utils/interface/PtComparator.h"
-
-//#include <boost/icl/interval_map.hpp>
 
 using namespace edm;
 using namespace pat;
@@ -68,30 +57,9 @@ HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
   jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
 
   //register your products
-  // produces<double>("rho");  //pt-density
-  // produces<double>("rhom"); //m-density
-
-  //  std::string alias;
-  //produces<boost::icl::interval_map<double, unsigned int> >("mapToIndex");//.setBranchAlias( alias );
-  
-  //produces<std::map<unsigned int, double > >("mapEtaEdges");//.setBranchAlias("mapEtaEdges");
-  // produces<std::map<unsigned int, double > >("mapToRho").setBranchAlias( alias );
-  // produces<std::map<unsigned int, double > >("mapToRhoM").setBranchAlias( alias );
-  produces<std::vector<double > >("mapEtaEdges");//.setBranchAlias("mapEtaEdges");
-  produces<std::vector<double > >("mapToRho");//.setBranchAlias( alias );
-  produces<std::vector<double > >("mapToRhoM");//.setBranchAlias( alias );
-  
-
-  // //make settable from config later
-  // mapEtaRanges_[1] = -5.;
-  // mapEtaRanges_[2] = -3.;
-  // mapEtaRanges_[3] = -2.1;
-  // mapEtaRanges_[4] = -1.3;
-  // mapEtaRanges_[5] =  1.3;
-  // mapEtaRanges_[6] =  2.1;
-  // mapEtaRanges_[7] =  3.;
-  // mapEtaRanges_[8] =  5.;
-  
+  produces<std::vector<double > >("mapEtaEdges");
+  produces<std::vector<double > >("mapToRho");
+  produces<std::vector<double > >("mapToRhoM");
 }
 
 
@@ -112,7 +80,6 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetsToken_, jets);
 
-  // std::auto_ptr<std::map<int,double>> mapEtaRangesOut ( new std::map<int,double>);
   std::auto_ptr<std::vector<double>> mapEtaRangesOut ( new std::vector<double>(8,-999.));
   //make settable from config later
   mapEtaRangesOut->at(0) = -5.;
@@ -127,11 +94,10 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double>> mapToRhoOut ( new std::vector<double>(7,1e-6));
   std::auto_ptr<std::vector<double>> mapToRhoMOut ( new std::vector<double>(7,1e-6));
   
-  //Printf("nExcl: %d",nExcl_);
   static double rhoVec[999];
   static double rhomVec[999];
   static double etaVec[999];
-  //int neta = (int)mapEtaRanges_.size();
+
   int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
   unsigned int njetsEx = 0;
@@ -143,31 +109,24 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float pt = jet->pt();
     float area = jet->jetArea();
     float eta = jet->eta();
-    //Printf("minEta: %f maxEta: %f",mapEtaRanges_.at(1), mapEtaRanges_.at(neta));
-    //if(eta<mapEtaRanges_.at(1) || eta>mapEtaRanges_.at(neta)) continue;
+
     if(eta<mapEtaRangesOut->at(0) || eta>mapEtaRangesOut->at(neta-1)) continue;
     if(area>0.) {
-      //Printf("pt: %f area: %f  eta: %f",pt,area,eta);
       rhoVec[nacc] = pt/area;
       rhomVec[nacc] = calcMd(&*jet)/area;
       etaVec[nacc] = eta;
       ++nacc;
-      //Printf("pt: %f eta: %f phi: %f",pt,eta,jet->phi());
     }
   }
 
   //calculate rho and rhom in eta ranges
-  double radius = 0.2;
-  //Printf("neta: %d",neta);
+  double radius = 0.2; //distance kt clusters needs to be from edge
   for(int ieta = 0; ieta<(neta-1); ieta++) {
     static double rhoVecCur[999] = {0.};
     static double rhomVecCur[999]= {0.};
 
-    //     double etaMin = mapEtaRanges_.at(ieta)+radius;
-    // double etaMax = mapEtaRanges_.at(ieta+1)-radius;
     double etaMin = mapEtaRangesOut->at(ieta)+radius;
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
-    //Printf("ieta: %d minEta: %f maxEta: %f",ieta,etaMin,etaMax);
      
     int    naccCur    = 0 ;
     double rhoCurSum  = 0.;
@@ -178,20 +137,15 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         rhomVecCur[naccCur] = rhomVec[i];
         rhoCurSum += rhoVec[i];
         rhomCurSum += rhomVec[i];
-        //if(ieta==3) Printf("rhojet: %f",rhoVec[i]);
         ++naccCur;
       }//eta selection
     }//accepted jet loop
-     //Printf("ieta: %d naccCur: %d",ieta,naccCur);
+
     if(naccCur>0) {
       double rhoCur = TMath::Median(naccCur, rhoVecCur);
       double rhomCur = TMath::Median(naccCur, rhomVecCur);
-      // mapToRho_[ieta] = rhoCur;
-      // mapToRhoM_[ieta] = rhomCur;
       mapToRhoOut->at(ieta) = rhoCur;
       mapToRhoMOut->at(ieta) = rhomCur;
-      //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,rhoCur,rhomCur);
-      // Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,mapToRhoOut->at(ieta),mapToRhoMOut->at(ieta));
     }
   }//eta ranges
   
@@ -208,17 +162,13 @@ double HiFJRhoProducer::calcMd(const reco::Jet *jet) {
   //Loop over the jet constituents
   double sum = 0.;
   for(auto daughter : jet->getJetConstituentsQuick()){
-    //double m = -1.; double pt = -1.; double eta = -999.;
     if(isPackedCandidate(daughter)){     //packed candidate situation
       auto part = static_cast<const pat::PackedCandidate*>(daughter);
-      sum += TMath::Sqrt(part->mass()*part->mass() + part->pt()*part->pt()) - part->pt();
-      //m = part->mass(); pt = part->pt(); eta = part->eta();
+      sum += sqrt(part->mass()*part->mass() + part->pt()*part->pt()) - part->pt();
     } else {
       auto part = static_cast<const reco::PFCandidate*>(daughter);
-      sum += TMath::Sqrt(part->mass()*part->mass() + part->pt()*part->pt()) - part->pt();
-      //m = part->mass(); pt = part->pt(); eta = part->eta();
+      sum += sqrt(part->mass()*part->mass() + part->pt()*part->pt()) - part->pt();
     }
-    // Printf("constituent m = %f  pt = %f  eta: %f",m,pt,eta);
   }
 
   return sum;
