@@ -60,11 +60,13 @@ bool UCTRegion::process() {
     regionET += towers[twr]->et();
   }
   if(regionET > RegionETMask) {
+    /*
     std::cerr << std::dec;
     std::cerr << "towers.size() = " << towers.size() << std::endl;
     for(uint32_t twr = 0; twr < towers.size(); twr++) {
       std::cerr << "towers[twr]->et() = " << towers[twr]->et() << std::endl;
     }
+    */
     std::cerr << "Pegging RegionET" << std::endl;
     regionET = RegionETMask;
   }
