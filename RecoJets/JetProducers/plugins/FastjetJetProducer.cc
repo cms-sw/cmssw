@@ -539,8 +539,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
   }
 
   if ( useConstituentSubtractionHi_ ) {
-    fjJets_.clear();
-    //Printf("Doing HI style constituent subtraction"); 
+    fjJets_.clear(); 
     edm::Handle<std::vector<double>> etaRanges;
     edm::Handle<std::vector<double>> rhoRanges;
     edm::Handle<std::vector<double>> rhomRanges;
@@ -555,7 +554,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       //Get rho and rhoM for eta regio
       double rho = rhoRanges->at(ie);
       double rhom = rhomRanges->at(ie);
-      //Printf("ie: %d rho: %f rhom: %f",ie,rho,rhom); 
+ 
       //initialize constituent subtraction
       fastjet::contrib::ConstituentSubtractor *subtractor;
       subtractor     = new fastjet::contrib::ConstituentSubtractor(rho,rhom,csAlpha_,-1.);
@@ -571,7 +570,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       }
       if(subtractor) { delete subtractor; subtractor = 0;} 
     }
-  } //else Printf("HI style constituent subtraction not activated");
+  }
   
 
 }

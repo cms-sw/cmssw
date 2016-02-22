@@ -951,7 +951,7 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
   // put constituents into event record
   constituentHandleAfterPut = iEvent.put( constituentCollection, jetCollInstanceName_ );
   
-  // Now create the jets with ptr's to the subjets as constituents
+  // Now create the jets with ptr's to the constituents
   std::vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_Jets.begin(),
     ip4Begin = p4_Jets.begin(),
     ip4End = p4_Jets.end();
