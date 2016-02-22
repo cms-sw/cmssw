@@ -14,6 +14,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 class relvalmc(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _relvalmc_
 
@@ -41,7 +43,7 @@ class relvalmc(Scenario):
         options.evt_type = ""
         options.filein = []
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()

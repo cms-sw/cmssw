@@ -27,7 +27,7 @@ class Scenario(object):
 
     """
     def __init__(self):
-        pass
+        self.eras=cms.Modifier()
 
 
     def promptReco(self, globalTag, **options):

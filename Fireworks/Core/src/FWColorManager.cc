@@ -218,7 +218,7 @@ void FWColorManager::initialize()
   m_startColorIndex = s_defaultStartColorIndex;
   m_numColorIndices = s_size;
 
-  unsigned int index = m_startColorIndex;
+  int index = m_startColorIndex;
   //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
    
   const float(* itEnd)[3] = s_forBlack+s_size;
@@ -227,7 +227,9 @@ void FWColorManager::initialize()
       ++it) {
     //NOTE: this constructor automatically places this color into the gROOT color list
     //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
-    new TColor(static_cast<Int_t>(index++),(*it)[0],(*it)[1],(*it)[2]);
+    if ( index <= gROOT->GetListOfColors()->GetLast())
+      gROOT->GetListOfColors()->RemoveAt(index);
+    new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
 }
 
