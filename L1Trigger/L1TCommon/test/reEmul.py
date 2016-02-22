@@ -110,6 +110,25 @@ if (eras.stage2L1Trigger.isChosen()):
                  ),
         )
 
+    # stuff for HF 1x1 TPs
+    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/HcalCommonData/data/Phase0/hcalRecNumbering.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/HcalCommonData/data/Phase0/hcalRecNumberingRun2.xml')
+
+    process.es_pool = cms.ESSource(
+        "PoolDBESSource",
+#        process.CondDBSetup,
+        timetype = cms.string('runnumber'),
+        toGet = cms.VPSet(
+            cms.PSet(record = cms.string("HcalLutMetadataRcd"),
+                     tag = cms.string("HcalLutMetadata_HFTP_1x1")
+                     )
+            ),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+        authenticationMethod = cms.untracked.uint32(0)
+        )
+    process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
+
+
 #### Sim L1 Emulator Sequence:
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')

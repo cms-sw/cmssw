@@ -82,8 +82,6 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       
     }
 
-    //std::cout << "HT : " << ht << std::endl;
-    
     math::XYZTLorentzVector p4;
     
     l1t::EtSum htSumHt(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
