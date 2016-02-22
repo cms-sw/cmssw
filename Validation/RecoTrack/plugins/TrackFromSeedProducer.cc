@@ -57,7 +57,7 @@ private:
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
-  edm::EDGetTokenT<std::vector<TrajectorySeed> > seedsToken;
+  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   std::string tTRHBuilderName;
 };
@@ -88,7 +88,7 @@ TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
   tTRHBuilderName = iConfig.getParameter<std::string>("TTRHBuilder");
   
   //consumes
-  seedsToken = consumes<std::vector<TrajectorySeed> >(seedsTag);
+  seedsToken = consumes<edm::View<TrajectorySeed> >(seedsTag);
   beamSpotToken = consumes<reco::BeamSpot>(beamSpotTag);
 }
 
@@ -114,8 +114,9 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    TrackingRecHitRefProd ref_rechits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
 
    // input collection
-   Handle<vector<TrajectorySeed> > seeds;
-   iEvent.getByToken(seedsToken,seeds);
+   Handle<edm::View<TrajectorySeed> > hseeds;
+   iEvent.getByToken(seedsToken,hseeds);
+   const auto& seeds = *hseeds;
 
    // beam spot
    edm::Handle<reco::BeamSpot> beamSpot;
@@ -136,7 +137,8 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
 
    // create tracks from seeds
    int nfailed  = 0;
-   for (auto const & seed : *seeds.product()){
+   for(size_t iSeed=0; iSeed < seeds.size(); ++iSeed) {
+     auto const& seed = seeds[iSeed];
      // try to create a track
      TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().second-1));
      TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed.startingState(), lastRecHit->surface(), theMF.product());
@@ -166,12 +168,13 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
      // create a trackextra, just to store the hit range
      trackextras->push_back(TrackExtra());
      trackextras->back().setHits(ref_rechits,firsthitindex,rechits->size() - firsthitindex);
+     trackextras->back().setSeedRef(edm::RefToBase<TrajectorySeed>(hseeds, iSeed));
      // create link between track and trackextra
      tracks->back().setExtra( TrackExtraRef( ref_trackextras, trackextras->size() - 1) );
    }
    
    if (nfailed > 0) {
-     edm::LogInfo("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds->size() << " seeds ";
+     edm::LogInfo("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds.size() << " seeds ";
    }
    iEvent.put(tracks);
    iEvent.put(seedToTrack);
