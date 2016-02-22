@@ -36,6 +36,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 
 //#define DebugLog
 
@@ -717,10 +718,10 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const ed
     }
 	
 	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      int qieType = qieTypes.getValues(*detItr)->getValue();
-      if(qieType == HcalQIEType::QIE8) {
+      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
+      if(qieType == QIE8) {
         theHFQIE8DetIds.push_back(*detItr);
-      } else if(qieType == HcalQIEType::QIE10) {
+      } else if(qieType == QIE10) {
         theHFQIE10DetIds.push_back(*detItr);
       } else { //default is QIE8
         theHFQIE8DetIds.push_back(*detItr);
