@@ -33,8 +33,6 @@ namespace XERCES_CPP_NAMESPACE{
   class DOMImplementation;
 }
 
-typedef std::vector< std::pair<unsigned int, std::vector<AlgoMuon> > > AlgoMuonResults;
-
 class OMTFReconstruction {
   public:
     OMTFReconstruction();
@@ -49,18 +47,26 @@ class OMTFReconstruction {
 
     void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);  
 
-    void algoBeginJob();
-
-    // not working
-    AlgoMuonResults algoReconstruct(const edm::Event&, const edm::EventSetup&);
-
     std::auto_ptr<l1t::RegionalMuonCandBxCollection > reconstruct(const edm::Event&, const edm::EventSetup&);
 
-    // std::auto_ptr<l1t::RegionalMuonCandBxCollection > getAlgoMuonResults();
-
-  // private:
+  private:
 
     edm::ParameterSet m_Config;
+
+    edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
+    edm::Handle<L1MuDTChambThContainer> dtThDigis;
+    edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
+    edm::Handle<RPCDigiCollection> rpcDigis;
+
+    void loadAndFilterDigis(const edm::Event&);    
+
+    void getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
+            l1t::RegionalMuonCandBxCollection & myCandidates);
+  
+    void writeResultToXML(unsigned int iProcessor, const OMTFinput &myInput, 
+      const std::vector<OMTFProcessor::resultsMap> & myResults);
+
+
     bool dumpResultToXML, dumpDetailedResultToXML;
 
   ///OMTF objects
@@ -68,9 +74,7 @@ class OMTFReconstruction {
     OMTFinputMaker       m_InputMaker;
     OMTFSorter           m_Sorter;
     OMTFGhostBuster      m_GhostBuster;
-    OMTFProcessor       *m_OMTF;
-    OMTFProcessor       *m_AlgoOMTF;
-    AlgoMuonResults      m_AlgoMuonResults;
+    OMTFProcessor       *m_OMTF;    
   ///
     xercesc::DOMElement *aTopElement;
     OMTFConfigMaker     *m_OMTFConfigMaker;
