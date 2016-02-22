@@ -629,19 +629,28 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   size = backtrace (array, 10);
   strings = backtrace_symbols (array, size);
 
-  if ((size > 4)
-      &&s_rxtrace.match(strings[4], 0, 0, &m))
-  {
-    char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
+  size_t level = 2;
+  char * demangled = nullptr; 
+  while (size > level
+      && s_rxtrace.match(strings[level], 0, 0, &m)
+      && (demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), 0, 0, &r))
+      && strncmp(demangled, "DQMStore", 8) == 0) {
+    free(demangled);
+    demangled = nullptr;
+    level++;
+  }
+
+  if (demangled != nullptr) {
     *stream_ << "\"" << dir << "/"
            << name << "\" "
-           << (r ? m.matchString(strings[4], 2) : demangled) << " "
-           << m.matchString(strings[4], 1) << "\n";
+           << (r ? m.matchString(strings[level], 2) : demangled) << " "
+           << m.matchString(strings[level], 1) << "\n";
     free(demangled);
-  }
-  else
+  } else {
     *stream_ << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
+  }
+
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
   if (verbose_ > 4)
@@ -781,7 +790,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                HISTO *h, COLLATE collate)
 {
   assert(name.find('/') == std::string::npos);
-  if (verbose_ > 3)
+  //if (verbose_ > 3)
     print_trace(dir, name);
   std::string path;
   mergePath(path, dir, name);
@@ -850,7 +859,7 @@ DQMStore::book(const std::string &dir,
                const char *context)
 {
   assert(name.find('/') == std::string::npos);
-  if (verbose_ > 3)
+  //if (verbose_ > 3)
     print_trace(dir, name);
 
   // Check if the request monitor element already exists.
