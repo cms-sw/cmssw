@@ -51,8 +51,6 @@ void BaseHadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::Hep
     std::discrete_distribution<int> randdist(randomInitWeights_.begin(),randomInitWeights_.end());
     
     randomIndex_ = randdist(randgen);
-
-    printf("selected random index = %i\n",randomIndex_);
     
   }
 }
