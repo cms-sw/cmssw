@@ -31,9 +31,10 @@ class JSONAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JSONAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
         if not cfg_comp.isMC:
-            if self.cfg_comp.json is None:
+            if self.cfg_comp.json is None and hasattr(self.cfg_ana,"json") == False :
                 raise ValueError('component {cname} is not MC, and contains no JSON file. Either remove the JSONAnalyzer for your path or set the "json" attribute of this component'.format(cname=cfg_comp.name))
-            self.lumiList = LumiList(os.path.expandvars(self.cfg_comp.json))
+	    #use json from this analyzer if given, otherwise use the component json 
+            self.lumiList = LumiList(os.path.expandvars(getattr(self.cfg_ana,"json",self.cfg_comp.json)))
         else:
             self.lumiList = None
         
@@ -75,7 +76,9 @@ class JSONAnalyzer( Analyzer ):
             return True
 
         self.count.inc('All Events')
-        if self.lumiList.contains(run,lumi):
+        sel = self.lumiList.contains(run,lumi)
+        setattr(event,"json"+getattr(self.cfg_ana,"suffix",""), sel)
+        if sel :
             self.count.inc('Passed Events')
             if not self.useLumiBlocks:
                 self.rltInfo.add('dummy', run, lumi)
