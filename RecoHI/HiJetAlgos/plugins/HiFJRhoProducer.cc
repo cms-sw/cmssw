@@ -51,6 +51,8 @@ using namespace pat;
 //
 HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) : 
   nExcl_(iConfig.getUntrackedParameter<unsigned int>("nExcl",0)),
+  etaMaxExcl_(iConfig.getUntrackedParameter<double>("etaMaxExcl",2.)),
+  ptMinExcl_(iConfig.getUntrackedParameter<double>("ptMinExcl",20.)),
   checkJetCand(true),
   usingPackedCand(false)
 {
@@ -102,7 +104,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int nacc = 0;
   unsigned int njetsEx = 0;
   for(auto jet = jets->begin(); jet != jets->end(); ++jet) {
-    if(njetsEx<nExcl_ && fabs(jet->eta())<2. && jet->pt()>20.) {
+    if(njetsEx<nExcl_ && fabs(jet->eta())<etaMaxExcl_ && jet->pt()>ptMinExcl_) {
       njetsEx++;
       continue;
     }

@@ -37,7 +37,9 @@ class HiFJRhoProducer : public edm::EDProducer {
       edm::EDGetTokenT<edm::View<reco::Jet>>    jetsToken_;
       
       //members
-      unsigned int   nExcl_;              ///Number of leading jets to exclude
+      unsigned int   nExcl_;              //Number of leading jets to exclude
+      double         etaMaxExcl_;         //max eta for jets to exclude
+      double         ptMinExcl_;          //min pt for excluded jets
       bool           checkJetCand, usingPackedCand;
 };
 
