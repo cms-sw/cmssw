@@ -37,7 +37,8 @@ def customiseFor13753(process):
         if producer.CleanerPSet.ComponentName.value() == "PixelTrackCleanerBySharedHits" and not hasattr(producer.CleanerPSet, "useQuadrupletAlgo"):
             producer.CleanerPSet.useQuadrupletAlgo = cms.bool(False)
     return process
-def customiseForXXXXX(process):
+
+def customiseFor13421(process):
     for pset in process._Process__psets.values():
         if hasattr(pset,'ComponentType'):
             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
@@ -71,7 +72,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if cmsswVersion >= "CMSSW_8_0":
         process = customiseFor14282(process)
 #       process = customiseFor12718(process)
-        process = customiseForXXXXX(process)
+        process = customiseFor13421(process)
         pass
 
 #   stage-2 changes only if needed
