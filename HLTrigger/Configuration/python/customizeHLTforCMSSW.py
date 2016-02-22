@@ -20,7 +20,7 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-def customiseForXXXXX(process):
+def customiseFor13421(process):
     for pset in process._Process__psets.values():
         if hasattr(pset,'ComponentType'):
             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
@@ -52,7 +52,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
-        process = customiseForXXXXX(process)
+        process = customiseFor13421(process)
         pass
 
     return process
