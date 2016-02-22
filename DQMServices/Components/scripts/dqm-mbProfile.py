@@ -74,11 +74,11 @@ def get_children(ppid):
     for pid in list(pid_dct.keys()):
         parent_pid = pid_dct[pid]["parent_pid"]
 
-        if pid_dct.has_key(parent_pid):
+        if parent_pid in pid_dct:
             pid_dct[parent_pid]["_children"].append(pid)
 
     # now just walk down the tree
-    if ppid is None or not pid_dct.has_key(ppid):
+    if ppid is None or ppid not in pid_dct:
         # process has quit, we exit
         return []
 
