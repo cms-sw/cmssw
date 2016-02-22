@@ -316,6 +316,46 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
   }
   
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
+
+    if(fJetMatchingHook.get() || fEmissionVetoHook1.get())
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible are : jetMatching, emissionVeto1 \n";
+
+    fEmissionVetoHook.reset(new PowhegHooks());
+
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
+    fMultiUserHook->addHook(fEmissionVetoHook.get());
+  }
+  
+  //adapted from main89.cc in pythia8 examples
+  bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  
+  if (internalMatching && internalMerging) {
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Only one jet matching/merging scheme can be used at a time. \n";
+  }
+  
+  if (internalMatching) {
+    fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
+    fMultiUserHook->addHook(fJetMatchingPy8InternalHook.get());
+  }
+  
+  if (internalMerging) {
+    int scheme = ( fMasterGen->settings.flag("Merging:doUMEPSTree")
+                || fMasterGen->settings.flag("Merging:doUMEPSSubt")) ?
+                1 :
+                 ( ( fMasterGen->settings.flag("Merging:doUNLOPSTree")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubt")
+                || fMasterGen->settings.flag("Merging:doUNLOPSLoop")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO")) ?
+                2 :
+                0 );
+    fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
+    fMultiUserHook->addHook(fMergingHook.get());
+  }
+  
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook.reset(new ResonanceDecayFilterHook);
