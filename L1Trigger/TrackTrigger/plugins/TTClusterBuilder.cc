@@ -54,7 +54,6 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       /// Create TTCluster objects and store them                                                                                                          
       /// Use the FastFiller with edmNew::DetSetVector                                                                                                       
       { 
-if (lowerHits.size()) std::cerr << "Found in lower sensor: " << lowerHits.size() << " in " << lowerDetid.rawId() << std::endl;
 	edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *TTClusterDSVForOutput, lowerDetid ); 
       for ( unsigned int i = 0; i < lowerHits.size(); i++ )
 	{
@@ -65,7 +64,6 @@ if (lowerHits.size()) std::cerr << "Found in lower sensor: " << lowerHits.size()
         lowerOutputFiller.abort();
      }
      {  
-if (upperHits.size()) std::cerr << "Found in upper sensor: " << upperHits.size() << " in " << upperDetid.rawId() << std::endl;
        edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *TTClusterDSVForOutput, upperDetid );
      for ( unsigned int i = 0; i < upperHits.size(); i++ )
        {

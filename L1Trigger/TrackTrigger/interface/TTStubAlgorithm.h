@@ -17,6 +17,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <sstream>
@@ -30,11 +31,13 @@ class TTStubAlgorithm
   protected:
     /// Data members
     const TrackerGeometry* const theTrackerGeom_;
+    const TrackerTopology* const theTrackerTopo_;
     std::string                  className_;
 
   public:
     /// Constructors
-    TTStubAlgorithm( const TrackerGeometry* const theTrackerGeom, std::string fName ): theTrackerGeom_(theTrackerGeom)
+    TTStubAlgorithm( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, std::string fName ): 
+         theTrackerGeom_(theTrackerGeom), theTrackerTopo_(theTrackerTopo)
     {
       className_ = classNameFinder< T >( fName );
     }

@@ -40,9 +40,9 @@ class TTStubAlgorithm_globalgeometry : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_globalgeometry( const TrackerGeometry* const theTrackerGeom,
+    TTStubAlgorithm_globalgeometry( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, 
                                     double aCompatibilityScalingFactor,
-                                    double aIPWidth ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
+                                    double aIPWidth ) : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       mCompatibilityScalingFactor = aCompatibilityScalingFactor;
       mIPWidth = aIPWidth;
@@ -116,8 +116,11 @@ class  ES_TTStubAlgorithm_globalgeometry : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_globalgeometry< T >( theTrackerGeom, mCompatibilityScalingFactor, mIPWidth );
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_globalgeometry< T >( theTrackerGeom, theTrackerTopo, mCompatibilityScalingFactor, mIPWidth );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }

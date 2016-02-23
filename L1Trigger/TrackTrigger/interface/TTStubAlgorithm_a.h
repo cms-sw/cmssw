@@ -33,7 +33,8 @@ class TTStubAlgorithm_a : public TTStubAlgorithm< T >
 {
   public:
     /// Constructor
-    TTStubAlgorithm_a( const TrackerGeometry* const theTrackerGeom ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ ){}
+    TTStubAlgorithm_a( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo): 
+             TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ ){}
 
     /// Destructor
     ~TTStubAlgorithm_a(){}
@@ -79,8 +80,11 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get( tTopoHandle );
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_a< T > (theTrackerGeom);
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_a< T > (theTrackerGeom, theTrackerTopo);
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }

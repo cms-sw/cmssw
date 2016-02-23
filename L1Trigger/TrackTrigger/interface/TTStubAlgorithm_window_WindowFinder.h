@@ -4,6 +4,7 @@
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <memory>
 
 /*! \class   StackedTrackerWindow

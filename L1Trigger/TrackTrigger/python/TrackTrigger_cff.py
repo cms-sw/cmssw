@@ -10,7 +10,7 @@ from L1Trigger.TrackTrigger.TTStub_cfi import *
 
 #prefered algos
 TTClusterAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer('TTClusterAlgorithm_2d2013_Phase2TrackerDigi_')
-TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer('TTStubAlgorithm_window2013_Phase2TrackerDigi_')
+TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer('TTStubAlgorithm_tab2013_Phase2TrackerDigi_')
 
 #sequence
 TrackTriggerClustersStubs = cms.Sequence(TTClustersFromPhase2TrackerDigis*TTStubsFromPhase2TrackerDigis)
