@@ -134,9 +134,13 @@
 
 	<!-- GenLumiInfoProduct -->
 
-	<class name="GenLumiInfoProduct" ClassVersion="10">
+	<class name="GenLumiInfoProduct" ClassVersion="11">
+          <version ClassVersion="11" checksum="401919850"/>
 	  <version ClassVersion="10" checksum="2365797689"/> 
 	</class>
+        <ioread sourceClass = "GenLumiInfoProduct" version="[-10]" targetClass="GenLumiInfoProduct" source = "" target="randomConfigIndex_">
+            <![CDATA[randomConfigIndex_ = -1;]]>
+        </ioread> 
 	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
 	  <version ClassVersion="10" checksum="1937303025"/>  
 	</class>
@@ -151,10 +155,14 @@
 
 	<!-- GenEventInfoProduct -->
 
- <class name="GenEventInfoProduct" ClassVersion="11">
+ <class name="GenEventInfoProduct" ClassVersion="12">
+  <version ClassVersion="12" checksum="3539671596"/>
   <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "" target="randomConfigIndex_">
+    <![CDATA[randomConfigIndex_ = -1;]]>
+ </ioread> 
  <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
     <![CDATA[nMEPartons_ = -1;]]>
  </ioread> 

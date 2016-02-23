@@ -27,6 +27,10 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
 
 // foward declarations
 namespace edm {
@@ -66,6 +70,13 @@ namespace gen {
     void setRandomEngine(CLHEP::HepRandomEngine* v) { doSetRandomEngine(v); }
 
     std::vector<std::string> const& sharedResources() const { return doSharedResources(); }
+    
+    int randomIndex() const { return randomIndex_; }
+    const std::string &randomInitConfigDescription() { return randomInitConfigDescriptions_[randomIndex_]; }
+    
+    void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    
+    
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
@@ -74,6 +85,7 @@ namespace gen {
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
+    int randomIndex_;
 
   private:
 
@@ -91,6 +103,10 @@ namespace gen {
     edm::Event                          *edmEvent_;
 
     static const std::vector<std::string> theSharedResources;
+
+    std::vector<double> randomInitWeights_;
+    std::vector<std::string> randomInitConfigDescriptions_;
+    
   };
 
 } // namespace gen

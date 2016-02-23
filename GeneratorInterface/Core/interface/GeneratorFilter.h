@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -99,6 +100,7 @@ namespace edm
          usesResource(resource);
        }
     }
+    
     // This handles the case where there are no shared resources, because you
     // have to declare something when the SharedResources template parameter was used.
     if(sharedResources.empty() && (!decayer_ || decayer_->sharedResources().empty())) {
@@ -186,6 +188,13 @@ namespace edm
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
 	genEventInfo.reset(new GenEventInfoProduct(event.get()));
       }
+      
+    //fill information on randomized configs for parameter scans
+    genEventInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genEventInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
+      
     ev.put(genEventInfo);
    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
@@ -220,6 +229,8 @@ namespace edm
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
+    
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
@@ -279,6 +290,13 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo( GenLumiProcess );
+    
+    //fill information on randomized configs for parameter scans
+    genLumiInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genLumiInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }    
+    
     lumi.put(genLumiInfo);
 
     nEventsInLumiBlock_ = 0;

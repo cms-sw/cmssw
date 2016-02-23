@@ -28,6 +28,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -269,6 +270,11 @@ namespace edm
       finalEvent->weights()[0] *= multihadweight;
     }
     
+    //fill information on randomized configs for parameter scans
+    finalGenEventInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      finalGenEventInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
     
     ev.put(finalGenEventInfo);
 
@@ -347,7 +353,9 @@ namespace edm
 
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
-
+    
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
+    
     if ( !hadronizer_.readSettings(1) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
@@ -413,6 +421,13 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     genLumiInfo->setProcessInfo( GenLumiProcess );
+    
+    //fill information on randomized configs for parameter scans
+    genLumiInfo->setRandomConfigIndex(hadronizer_.randomIndex());
+    if (hadronizer_.randomIndex()>=0) {
+      genLumiInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
+    }
+    
     lumi.put(genLumiInfo);
 
 
