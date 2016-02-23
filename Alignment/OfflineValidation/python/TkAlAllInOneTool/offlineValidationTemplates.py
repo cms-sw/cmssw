@@ -175,6 +175,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRef
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
 .oO[offlineValidationFileOutput]Oo.
 
  ##
