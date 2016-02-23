@@ -49,8 +49,8 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
 
   // Force ROOT to use scientific notation even with smaller datasets
   TGaxis::SetMaxDigits(4);
-  // (This sets a static variable: correct in .eps-images but must be set
-  // again manually when viewing the .root-files)
+  // (This sets a static variable: correct in .eps images but must be set
+  // again manually when viewing the .root files)
 
   // Make ROOT calculate histogram statistics using all data,
   // regardless of displayed range
@@ -162,8 +162,13 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
   }
   //hstack->Draw("nostack");
   char PlotName[1000];
+  sprintf( PlotName, "%s/%s.png", outputDir.c_str(), histoName.Data() );
+  c->Print(PlotName);
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histoName.Data() );
-  
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.pdf", outputDir.c_str(), histoName.Data() );
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.root", outputDir.c_str(), histoName.Data() );
   c->Print(PlotName);
   //delete c;
   //c=0;
@@ -195,8 +200,13 @@ void PlotAlignmentValidation::plotHitMaps()
   tree->Draw("entries:posR:posPhi","","COLZ2Prof");
   
   char PlotName[1000];
+  sprintf( PlotName, "%s/%s.png", outputDir.c_str(), histName_.c_str() );
+  c->Print(PlotName);
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histName_.c_str() );
-  
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.pdf", outputDir.c_str(), histName_.c_str() );
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.root", outputDir.c_str(), histName_.c_str() );
   c->Print(PlotName);
   //   //c->Update();
   c->Close();  
@@ -526,11 +536,13 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	if (isTEC && iTEC>0)
 	  plotName << "_" << "R5-7";
 
-	// EPS-file
+	// PNG,EPS,PDF files
 	c.Update();
+	c.Print((plotName.str() + ".png").c_str());
 	c.Print((plotName.str() + ".eps").c_str());
+	c.Print((plotName.str() + ".pdf").c_str());
 
-	// ROOT-file
+	// ROOT file
 	TFile f((plotName.str() + ".root").c_str(), "recreate");
 	c.Write();
 	f.Close();
@@ -799,11 +811,13 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       plotName << plotLayerN;
     }
 
-    // EPS-file
+    // PNG,EPS,PDF files
     c.Update(); 
+    c.Print((plotName.str() + ".png").c_str());
     c.Print((plotName.str() + ".eps").c_str());
+    c.Print((plotName.str() + ".pdf").c_str());
 
-    // ROOT-file
+    // ROOT file
     TFile f((plotName.str() + ".root").c_str(), "recreate");
     c.Write();
     f.Close();
@@ -887,11 +901,15 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   chiprob->Draw();
   normchi->Draw();
 
-  // EPS-files
+  // PNG,EPS,PDF files
+  normchi->Print((outputDir + "/h_normchi2.png").c_str());
+  chiprob->Print((outputDir + "/h_chi2Prob.png").c_str());
   normchi->Print((outputDir + "/h_normchi2.eps").c_str());
   chiprob->Print((outputDir + "/h_chi2Prob.eps").c_str());
+  normchi->Print((outputDir + "/h_normchi2.pdf").c_str());
+  chiprob->Print((outputDir + "/h_chi2Prob.pdf").c_str());
 
-  // ROOT-files
+  // ROOT files
   TFile fi2((outputDir + "/h_normchi2.root").c_str(), "recreate");
   normchi->Write();
   fi2.Close();
@@ -906,7 +924,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
 }
 
 //------------------------------------------------------------------------------
-THStack* PlotAlignmentValidation::addHists(const char *selection, const TString &residType,
+THStack* PlotAlignmentValidation::addHists(const TString& selection, const TString &residType,
 					   TLegend **myLegend, bool printModuleIds)
 {
   enum ResidType {
@@ -943,75 +961,182 @@ THStack* PlotAlignmentValidation::addHists(const char *selection, const TString 
   for(std::vector<TkOfflineVariables*>::iterator itSourceFile = sourceList.begin();
       itSourceFile != sourceList.end(); ++itSourceFile) {
 
-    //  TFile *f = (*sourceList.begin())->getFile();
+    std::vector<TString> histnames;
+
     TFile *f = (*itSourceFile)->getFile();
-    //  TTree *tree= (*sourceList.begin())->getTree();
     TTree *tree= (*itSourceFile)->getTree();
     int myLineColor = (*itSourceFile)->getLineColor();
     int myLineStyle = (*itSourceFile)->getLineStyle();
     TString myLegendName = (*itSourceFile)->getName();
+    TH1 *h = 0;       // becomes result
+    UInt_t nEmpty = 0;// selected, but empty hists
+    Long64_t nentries =  tree->GetEntriesFast();
     if (!f || !tree) {
       std::cout << "PlotAlignmentValidation::addHists: no tree or no file" << std::endl;
       return 0;
     }
 
-  
-    // first loop on tree to find out which entries (i.e. modules) fulfill the selection
-    // 'Entry$' gives the entry number in the tree
-    Long64_t nSel = tree->Draw("Entry$", selection, "goff");
-    if (nSel == -1) return 0; // error in selection
-    if (nSel == 0) {
-      std::cout << "PlotAlignmentValidation::addHists: no selected module." << std::endl;
-      return 0;
+    bool histnamesfilled = false;
+    if (residType.Contains("Res") && residType.Contains("Profile"))
+    {
+      TString basename = TString(residType).ReplaceAll("Res","p_res")
+                                           .ReplaceAll("vs","")
+                                           .ReplaceAll("Profile","_");   //gives e.g.: p_resXX_
+      if (selection == "subDetId==1") {
+        histnames.push_back(TString(basename) += "TPBBarrel_1");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==2") {
+        histnames.push_back(TString(basename) += "TPEEndcap_2");
+        histnames.push_back(TString(basename) += "TPEEndcap_3");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==3") {
+        histnames.push_back(TString(basename) += "TIBBarrel_1");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==4") {
+        histnames.push_back(TString(basename) += "TIDEndcap_2");
+        histnames.push_back(TString(basename) += "TIDEndcap_3");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==5") {
+        histnames.push_back(TString(basename) += "TOBBarrel_4");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==6") { //whole TEC - doesn't happen by default but easy enough to account for
+        histnames.push_back(TString(basename) += "TECEndcap_5");
+        histnames.push_back(TString(basename) += "TECEndcap_6");
+        histnamesfilled = true;
+      } else if (selection == "subDetId==6 && ring <= 4") {
+        //There are multiple with the same name and all are needed, so give the full path.  For these TFile::Get is used later instead of FindKeyAny.
+        for (int iEndcap = 5; iEndcap <= 6; iEndcap++)
+          for (int iDisk = 1; iDisk <= 9; iDisk++)
+            for (int iSide = 1; iSide <= 2; iSide++)
+              for (int iPetal = 1; iPetal <= 8; iPetal++)
+                for (int iRing = 1; iRing <= 4 - (iDisk>=4) - (iDisk>=7) - (iDisk>=9); iRing++)
+                //in the higher disks, the inner rings go away.  But the numbering in the file structure removes the higher numbers
+                // so the numbers there do not correspond to the actual ring numbers
+                {
+                  stringstream s;
+                  s << "TrackerOfflineValidationStandalone/Strip/TECEndcap_" << iEndcap
+                                                            << "/TECDisk_"   << iDisk
+                                                            << "/TECSide_"   << iSide
+                                                            << "/TECPetal_"  << iPetal
+                                         << "/" << basename <<  "TECRing_"   << iRing;
+                  histnames.push_back(TString(s.str()));
+                }
+        histnamesfilled = true;
+      } else if (selection == "subDetId==6 && ring > 4") {
+        //There are multiple with the same name and all are needed, so give the full path.  For these TFile::Get is used later instead of FindKeyAny.
+        for (int iEndcap = 5; iEndcap <= 6; iEndcap++)
+          for (int iDisk = 1; iDisk <= 9; iDisk++)
+            for (int iSide = 1; iSide <= 2; iSide++)
+              for (int iPetal = 1; iPetal <= 8; iPetal++)
+                for (int iRing = 5 - (iDisk>=4) - (iDisk>=7) - (iDisk>=9); iRing <= 7 - (iDisk>=4) - (iDisk>=7) - (iDisk>=9); iRing++)
+                //in the higher disks, the inner rings go away.  But the numbering in the file structure removes the higher numbers
+                // so the numbers there do not correspond to the actual ring numbers
+                {
+                  stringstream s;
+                  s << "TrackerOfflineValidationStandalone/Strip/TECEndcap_" << iEndcap
+                                                            << "/TECDisk_"   << iDisk
+                                                            << "/TECSide_"   << iSide
+                                                            << "/TECPetal_"  << iPetal
+                                         << "/" << basename <<  "TECRing_"   << iRing;
+                  histnames.push_back(TString(s.str()));
+                }
+        histnamesfilled = true;
+      }
     }
-    // copy entry numbers that fulfil the selection
-    const std::vector<double> selected(tree->GetV1(), tree->GetV1() + nSel);
 
-    TH1 *h = 0;       // becomes result
-    UInt_t nEmpty = 0;// selected, but empty hists
-    Long64_t nentries =  tree->GetEntriesFast();
-    std::vector<double>::const_iterator iterEnt = selected.begin();
 
-    // second loop on tree:
-    // for each selected entry get the hist from the file and merge
-    TkOffTreeVariables *treeMem = 0; // ROOT will initialise
-    tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
-    for (Long64_t i = 0; i < nentries; i++){
-      if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
-	  || iterEnt == selected.end()) { // at the end: skip 
-	continue;
-      } else if (TMath::Abs(i - *iterEnt) < 0.11) {
-	++iterEnt; // take this entry!
-      } else std::cout << "Must not happen: " << i << " " << *iterEnt << std::endl;
+    Long64_t nSel = 0;
+    if (histnamesfilled && histnames.size() > 0) {
+      nSel = (Long64_t)histnames.size();
 
-      tree->GetEntry(i);
-      if (printModuleIds) {
-	std::cout << treeMem->moduleId << ": " << treeMem->entries << " entries" << std::endl;
+      //============================================================
+      //for compatibility - please remove this at some point
+      //it's now the end of August 2015
+      TH1 *firstHist = 0;
+      if (histnames[0].Contains("/")) {
+        firstHist = (TH1*)f->Get(histnames[0]);
+      } else {
+        TKey *histKey = f->FindKeyAny(histnames[0]);
+        if (histKey)
+          firstHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
       }
-      if (treeMem->entries <= 0) {  // little speed up: skip empty hists
-	++nEmpty;
-	continue;
+      if (!firstHist)             //then the validation was done with an older version of TrackerOfflineValidation
+      {                           // ==> have to make the plots the old (long) way
+        histnamesfilled = false;
+        histnames.clear();
       }
-      TString hName;
-      switch(rType) {
-      case xPrimeRes:     hName = treeMem->histNameX.c_str();          break;
-      case yPrimeRes:     hName = treeMem->histNameY.c_str();          break;
-      case xPrimeNormRes: hName = treeMem->histNameNormX.c_str();      break;
-      case yPrimeNormRes: hName = treeMem->histNameNormY.c_str();      break;
-      case xRes:          hName = treeMem->histNameLocalX.c_str();     break;
-      case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
-      case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
-	/*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
-      case ResXvsXProfile: hName = treeMem->profileNameResXvsX.c_str();    break;
-      case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
-      case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
-      case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
+      //============================================================
+
+    }
+    if (!histnamesfilled) {
+      // first loop on tree to find out which entries (i.e. modules) fulfill the selection
+      // 'Entry$' gives the entry number in the tree
+      nSel = tree->Draw("Entry$", selection, "goff");
+      if (nSel == -1) return 0; // error in selection
+      if (nSel == 0) {
+        std::cout << "PlotAlignmentValidation::addHists: no selected module." << std::endl;
+        return 0;
       }
-      TKey *histKey = f->FindKeyAny(hName);
-      TH1 *newHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
+      // copy entry numbers that fulfil the selection
+      const std::vector<double> selected(tree->GetV1(), tree->GetV1() + nSel);
+
+      std::vector<double>::const_iterator iterEnt = selected.begin();
+
+      // second loop on tree:
+      // for each selected entry get the hist from the file and merge
+      TkOffTreeVariables *treeMem = 0; // ROOT will initialise
+      tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
+      for (Long64_t i = 0; i < nentries; i++){
+        if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
+	    || iterEnt == selected.end()) { // at the end: skip 
+	  continue;
+        } else if (TMath::Abs(i - *iterEnt) < 0.11) {
+	  ++iterEnt; // take this entry!
+        } else std::cout << "Must not happen: " << i << " " << *iterEnt << std::endl;
+
+        tree->GetEntry(i);
+        if (printModuleIds) {
+	  std::cout << treeMem->moduleId << ": " << treeMem->entries << " entries" << std::endl;
+        }
+        if (treeMem->entries <= 0) {  // little speed up: skip empty hists
+	  ++nEmpty;
+	  continue;
+        }
+        TString hName;
+        switch(rType) {
+        case xPrimeRes:     hName = treeMem->histNameX.c_str();          break;
+        case yPrimeRes:     hName = treeMem->histNameY.c_str();          break;
+        case xPrimeNormRes: hName = treeMem->histNameNormX.c_str();      break;
+        case yPrimeNormRes: hName = treeMem->histNameNormY.c_str();      break;
+        case xRes:          hName = treeMem->histNameLocalX.c_str();     break;
+        case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
+        case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
+	  /*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
+        case ResXvsXProfile: hName = treeMem->profileNameResXvsX.c_str();    break;
+        case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
+        case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
+        case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
+        }
+        histnames.push_back(hName);
+      }
+    }
+
+    for (std::vector<TString>::iterator ithistname = histnames.begin();
+      ithistname != histnames.end(); ++ithistname) {
+      TH1 *newHist;
+      if (ithistname->Contains("/")) {
+        newHist = (TH1*)f->Get(*ithistname);
+      } else {
+        TKey *histKey = f->FindKeyAny(*ithistname);
+        newHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
+      }
       if (!newHist) {
-	std::cout << "Hist " << hName << " not found in file, break loop." << std::endl;
+	std::cout << "Hist " << *ithistname << " not found in file, break loop." << std::endl;
 	break;
+      }
+      if (newHist->GetEntries() == 0) {
+        nEmpty++;
+        continue;
       }
       newHist->SetLineColor(myLineColor);
       newHist->SetLineStyle(myLineStyle);
@@ -1030,7 +1155,7 @@ THStack* PlotAlignmentValidation::addHists(const char *selection, const TString 
     }
 
     std::cout << "PlotAlignmentValidation::addHists" << "Result is merged from " << nSel-nEmpty
-	      << " modules, " << nEmpty << " hists were empty." << std::endl;
+	      << " hists, " << nEmpty << " hists were empty." << std::endl;
 
     if (nSel-nEmpty == 0) continue;
 

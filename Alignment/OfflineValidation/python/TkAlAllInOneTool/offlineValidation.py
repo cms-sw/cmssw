@@ -15,9 +15,10 @@ class OfflineValidation(GenericValidationData):
             "DMRMinimum":"30",
             "DMROptions":"",
             "offlineModuleLevelHistsTransient":"False",
-            "offlineModuleLevelProfiles":"False",
+            "offlineModuleLevelProfiles":"True",
             "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"none"
+            "SurfaceShapes":"coarse",
+            "stripYResiduals":"False",
             }
         mandatories = [ "trackcollection" ]
         defaults.update(addDefaults)

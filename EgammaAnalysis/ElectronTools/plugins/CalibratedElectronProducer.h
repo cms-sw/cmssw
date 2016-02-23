@@ -51,6 +51,7 @@ class CalibratedElectronProducer: public edm::EDProducer
         bool verbose ;
         bool synchronization ;
         double lumiRatio;
+	bool applyExtraHighEnergyProtection;
 
         const CaloTopology * ecalTopology_;
         const CaloGeometry * caloGeometry_;
