@@ -30,6 +30,14 @@ class Eras (object):
         self.phase2dev_tracker = cms.Modifier()
         self.phase2dev_hgc = cms.Modifier()
         self.phase2dev_muon = cms.Modifier()
+
+        # These eras are used to specify the tracking configuration
+        # when it should differ from the default (which is Run2). This
+        # way the tracking configuration is decoupled from the
+        # detector geometry to allow e.g. running Run2 tracking on
+        # phase1Pixel detector.
+        self.trackingPhase1 = cms.Modifier()
+        self.trackingPhase1PU70 = cms.Modifier()
         
         # This era should not be set by the user with the "--era" command, it's
         # activated automatically if the "--fast" command is used.
@@ -47,12 +55,17 @@ class Eras (object):
         self.Run2_HI = cms.ModifierChain( self.run2_common, self.run2_HI_specific, self.stage1L1Trigger )
         # Future Run 2 scenarios.
         self.Run2_2016 = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage2L1Trigger )
-        self.Run2_2017 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel )
+        self.Run2_2017 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.trackingPhase1 )
         # Scenarios further afield.
         # Phase2 is everything for the 2023 (2026?) detector that works so far in this release.
         self.Phase2 = cms.ModifierChain( self.phase2_common, self.phase2_tracker, self.phase2_hgc, self.phase2_muon )
         # Phase2dev is everything for the 2023 (2026?) detector that is still in development.
         self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgc, self.phase2dev_muon )
+
+        # 2017 scenarios with customized tracking for expert use
+        # Will be used as reference points for 2017 tracking development
+        self.Run2_2017_trackingPhase1PU70 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.trackingPhase1PU70 )
+        self.Run2_2017_trackingRun2 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel ) # no tracking-era = Run2 tracking
         
         # The only thing this collection is used for is for cmsDriver to
         # warn the user if they specify an era that is discouraged from being
@@ -64,7 +77,8 @@ class Eras (object):
                                 self.phase2_common, self.phase2_tracker,
                                 self.phase2_hgc, self.phase2_muon,
                                 self.phase2dev_common, self.phase2dev_tracker,
-                                self.phase2dev_hgc, self.phase2dev_muon
+                                self.phase2dev_hgc, self.phase2dev_muon,
+                                self.trackingPhase1, self.trackingPhase1PU70,
                                ]
 
 eras=Eras()
