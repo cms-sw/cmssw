@@ -5,5 +5,6 @@
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/TauReco"/>
   <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/PatCandidates"/>
   <use   name="PhysicsTools/IsolationAlgos"/>
 </library>
