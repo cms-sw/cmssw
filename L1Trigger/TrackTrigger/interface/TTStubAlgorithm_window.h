@@ -45,17 +45,10 @@ class TTStubAlgorithm_window : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-     TTStubAlgorithm_window(const TrackerGeometry* const theTrackerGeom,
-                            double aPtScalingFactor,
-                            double aIPwidth,
-                            double aRowResolution,
-                            double aColResolution )
-      : TTStubAlgorithm< T >( theTrackerGeom, __func__ ),
-        mWindowFinder( new WindowFinder( theTrackerGeom,
-                                         aPtScalingFactor,
-                                         aIPwidth,
-                                         aRowResolution,
-                                         aColResolution ) ){}
+    TTStubAlgorithm_window( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
+                            double aPtScalingFactor, double aIPwidth, double aRowResolution, double aColResolution ):
+        TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ ),
+        mWindowFinder( new WindowFinder( theTrackerGeom, aPtScalingFactor, aIPwidth, aRowResolution, aColResolution ) ){}
 
     /// Destructor
     ~TTStubAlgorithm_window(){}
@@ -129,13 +122,13 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window< T >( theTrackerGeom,
-                                         mPtScalingFactor,
-                                         mIPWidth,
-                                         mRowResolution,
-                                         mColResolution );
+        new TTStubAlgorithm_window< T >( theTrackerGeom, theTrackerTopo, 
+                                         mPtScalingFactor, mIPWidth, mRowResolution, mColResolution );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;

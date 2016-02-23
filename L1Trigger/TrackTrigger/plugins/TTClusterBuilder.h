@@ -24,14 +24,11 @@
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-
-//added                                                                                         
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -95,11 +92,6 @@ TTClusterBuilder< T >::~TTClusterBuilder(){}
 template< typename T >
 void TTClusterBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
-  /// Get the geometry
-  //  edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-  //  iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  //  theStackedTrackers = StackedTrackerGeomHandle.product();
-
   /// Get the clustering algorithm 
   iSetup.get< TTClusterAlgorithmRecord >().get( theClusterFindingAlgoHandle );
 

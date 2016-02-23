@@ -47,11 +47,9 @@ class TTStubAlgorithm_window2013 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window2013( const TrackerGeometry* const theTrackerGeom,
-                                double aPtScalingFactor,
-                                bool aPerformZMatchingPS,
-                                bool aPerformZMatching2S )
-      : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
+    TTStubAlgorithm_window2013( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, 
+                                double aPtScalingFactor, bool aPerformZMatchingPS, bool aPerformZMatching2S ):
+                 TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       mPtScalingFactor = aPtScalingFactor;
       mPerformZMatchingPS = aPerformZMatchingPS;
@@ -129,12 +127,13 @@ class ES_TTStubAlgorithm_window2013 : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window2013< T >( theTrackerGeom,
-                                             mPtScalingFactor,
-                                             mPerformZMatchingPS,
-                                             mPerformZMatching2S );
+        new TTStubAlgorithm_window2013< T >( theTrackerGeom, theTrackerTopo,
+                                             mPtScalingFactor, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;

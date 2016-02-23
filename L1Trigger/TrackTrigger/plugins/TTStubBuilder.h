@@ -142,7 +142,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     if ( TTClusterHandle->find( lowerDetid ) == TTClusterHandle->end() ||
          TTClusterHandle->find( upperDetid ) == TTClusterHandle->end() )
       continue;
-std::cerr << "Will look for a stub in " << stackDetid.rawId() << " : " << lowerDetid.rawId() << " " << upperDetid.rawId() << std::endl;
 
     /// Get the DetSets of the Clusters
     edmNew::DetSet< TTCluster< T > > lowerClusters = (*TTClusterHandle)[ lowerDetid ];
@@ -155,7 +154,6 @@ std::cerr << "Will look for a stub in " << stackDetid.rawId() << " : " << lowerD
     /// This is ~redundant
     if ( lowerClusters.size() == 0 || upperClusters.size() == 0 )
       continue;
-std::cerr << "Confirmed" << std::endl;
 
     /// Create the vectors of objects to be passed to the FastFillers
     std::vector< TTCluster< T > > tempInner; 
@@ -196,7 +194,6 @@ std::cerr << "Confirmed" << std::endl;
         /// If the Stub is above threshold
         if ( thisConfirmation )
         {
-std::cerr << "the Stub is above threshold" << std::endl;
           tempTTStub.setTriggerDisplacement( thisDisplacement );
           tempTTStub.setTriggerOffset( thisOffset );
 
@@ -269,7 +266,6 @@ std::cerr << "the Stub is above threshold" << std::endl;
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
-std::cerr << "Result: " << tempInner.size() << " " << tempOuter.size() << std::endl;
     /// Create the FastFillers
     if ( tempInner.size() > 0 )
     {

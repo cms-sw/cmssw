@@ -46,9 +46,9 @@ class TTStubAlgorithm_window2012 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window2012( const TrackerGeometry* const theTrackerGeom,
+    TTStubAlgorithm_window2012( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                                 double aPtScalingFactor )
-      : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
+      : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       mPtScalingFactor = aPtScalingFactor;
     }
@@ -117,11 +117,14 @@ class ES_TTStubAlgorithm_window2012 : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
 
-       edm::ESHandle< TrackerGeometry > tGeomHandle;
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
  
-      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_window2012< T >(theTrackerGeom, mPtScalingFactor );
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_window2012< T >(theTrackerGeom, theTrackerTopo, mPtScalingFactor );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 

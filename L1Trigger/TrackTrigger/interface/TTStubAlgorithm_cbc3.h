@@ -38,7 +38,8 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_cbc3( const TrackerGeometry* const theTrackerGeom, bool aPerformZMatching2S ) : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
+    TTStubAlgorithm_cbc3( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, bool aPerformZMatching2S ): 
+                     TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       mPerformZMatching2S = aPerformZMatching2S;
     }
@@ -103,8 +104,11 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_cbc3< T >( theTrackerGeom, mPerformZMatching2S );
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_cbc3< T >( theTrackerGeom, theTrackerTopo, mPerformZMatching2S );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 

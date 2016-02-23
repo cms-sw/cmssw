@@ -49,11 +49,11 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_tab2013( const TrackerGeometry* const theTrackerGeom,
+    TTStubAlgorithm_tab2013( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                              std::vector< double > setBarrelCut,
                              std::vector< std::vector< double > > setRingCut,
                              bool aPerformZMatchingPS, bool aPerformZMatching2S )
-      : TTStubAlgorithm< T >( theTrackerGeom, __func__ )
+      : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       barrelCut = setBarrelCut;
       ringCut = setRingCut;
@@ -137,10 +137,12 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_tab2013< T >( theTrackerGeom, setBarrelCut, setRingCut,
-                                          mPerformZMatchingPS, mPerformZMatching2S );
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_tab2013< T >( theTrackerGeom, theTrackerTopo, 
+	                                       setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
