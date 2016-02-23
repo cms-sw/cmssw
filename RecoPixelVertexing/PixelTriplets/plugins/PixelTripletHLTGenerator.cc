@@ -100,7 +100,7 @@ void PixelTripletHLTGenerator::hitTriplets(
   std::vector<unsigned int> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
 
-  declareDynArray(KDTreeLinkerAlgo<unsigned int>,nThridLayers, hitTree);
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>,nThirdLayers, hitTree);
   float rzError[nThirdLayers]; //save maximum errors
 
   const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config?? 
