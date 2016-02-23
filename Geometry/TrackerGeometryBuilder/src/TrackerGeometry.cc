@@ -45,34 +45,6 @@ public:
 };
 }
 
-enum class TrackerGeometry::ModuleType {
-  UNKNOWN, 
-  PXB, 
-  PXF, 
-  IB1, 
-  IB2, 
-  OB1, 
-  OB2, 
-  W1A, 
-  W2A, 
-  W3A, 
-  W1B, 
-  W2B, 
-  W3B, 
-  W4, 
-  W5, 
-  W6, 
-  W7, 
-  Ph1PXB, 
-  Ph1PXF, 
-  Ph2PXB, 
-  Ph2PXF, 
-  Ph2PSP, 
-  Ph2PSS, 
-  Ph2SS
-};
- 
-
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
 {
   for(unsigned int i=0;i<6;++i) {

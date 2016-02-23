@@ -33,8 +33,8 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       if(detid.subdetId()==1 || detid.subdetId()==2 ) continue; // only run on OT
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
       DetId lowerDetid = detid;
-      DetId upperDetid = tTopo->PartnerDetId(detid);
-      DetId stackDetid = tTopo->Stack(detid);
+      DetId upperDetid = tTopo->partnerDetId(detid);
+      DetId stackDetid = tTopo->stack(detid);
 
       /// Temp vectors containing the vectors of the                                                                                                        
       /// hits used to build each cluster                                                                                                                  
@@ -47,7 +47,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       /// If there are hits, cluster them                                                                                                                    
       /// It is the TTClusterAlgorithm::Cluster method which                                                                                                
       /// calls the constructor to the Cluster class!                                                                                                        
-      bool isPSP = (theTrackerGeom->getDetectorType(lowerDetid)==TrackerGeometry::Ph2PSP);
+      bool isPSP = (theTrackerGeom->getDetectorType(lowerDetid)==TrackerGeometry::ModuleType::Ph2PSP);
       if ( lowerHitFind != rawHits.end() ) theClusterFindingAlgoHandle->Cluster( lowerHits, lowerHitFind->second, isPSP );  
       if ( upperHitFind != rawHits.end() ) theClusterFindingAlgoHandle->Cluster( upperHits, upperHitFind->second, false ); 
       

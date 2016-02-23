@@ -24,7 +24,7 @@ void TTStubAlgorithm_window2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation
   MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
-  bool isPS = (theTrackerGeom_->getDetectorType(aTTStub.getDetId())==TrackerGeometry::Ph2PSP);
+  bool isPS = (theTrackerGeom_->getDetectorType(aTTStub.getDetId())==TrackerGeometry::ModuleType::Ph2PSP);
   // TODO temporary: should use a method from the topology
   // note that this will mean to store the topology as well in the Stub algorithm.
   DetId stDetId( aTTStub.getDetId() );

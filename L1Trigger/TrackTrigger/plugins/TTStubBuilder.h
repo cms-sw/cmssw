@@ -135,8 +135,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       if(detid.subdetId()==1 || detid.subdetId()==2 ) continue; // only run on OT
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
       DetId lowerDetid = detid;
-      DetId upperDetid = tTopo->PartnerDetId(detid);
-      DetId stackDetid = tTopo->Stack(detid);
+      DetId upperDetid = tTopo->partnerDetId(detid);
+      DetId stackDetid = tTopo->stack(detid);
 
     /// Go on only if both detectors have Clusters
     if ( TTClusterHandle->find( lowerDetid ) == TTClusterHandle->end() ||
