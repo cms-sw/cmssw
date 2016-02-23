@@ -212,9 +212,6 @@ FWColorManager::~FWColorManager()
 
 void FWColorManager::initialize()
 {
-  // Save default ROOT colors.
-  TEveUtil::SetColorBrightness(0, kFALSE);
-
   m_startColorIndex = s_defaultStartColorIndex;
   m_numColorIndices = s_size;
 
@@ -231,6 +228,9 @@ void FWColorManager::initialize()
       gROOT->GetListOfColors()->RemoveAt(index);
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
+
+  // Save default ROOT colors.
+  TEveUtil::SetColorBrightness(0, kFALSE);
 }
 
 void FWColorManager::updateColors()
