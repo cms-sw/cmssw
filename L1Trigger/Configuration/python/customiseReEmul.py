@@ -1,6 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+def L1TEventSetupForHF1x1TPs(process):
+    process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/HcalCommonData/data/Phase0/hcalRecNumberingRun2.xml')
+    process.es_pool = cms.ESSource(
+        "PoolDBESSource",
+        # process.CondDBSetup,                                                                                                                                          
+        timetype = cms.string('runnumber'),
+        toGet = cms.VPSet(
+            cms.PSet(record = cms.string("HcalLutMetadataRcd"),
+                     tag = cms.string("HcalLutMetadata_HFTP_1x1")
+                     )
+            ),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+        authenticationMethod = cms.untracked.uint32(0)
+        )
+    process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
+    return process
+
 def L1TReEmulFromRAW(process):
     process.load('L1Trigger.Configuration.SimL1Emulator_cff')
     process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
