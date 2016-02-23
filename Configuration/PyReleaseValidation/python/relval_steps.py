@@ -274,7 +274,13 @@ baseDataSetRelease=[
     'CMSSW_7_6_0_pre7-PU50ns_76X_mcRun2_startup_v5-v1',            # 6 - fullSim PU 50ns premix
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v6_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_6_0_pre5-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
-    'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1' 	           # 9 - Run2 HI GEN-SIM
+    'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
+    'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                 # 10 - 13 TeV High Stats GEN-SIM [keep consistent with 80x, not used here in 76x]
+    'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',      # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM [keep consistent with 80x, not used here in 76x]
+    'CMSSW_7_6_2-76X_mcRun2_asymptotic_v12-v1',                # 12 - fullSim noPU REMINIAOD RECO input 
+    'CMSSW_7_6_2-PU50ns_76X_mcRun2_startup_v11-v1',            # 13 - fullSim PU50ns REMINIAOD RECO input
+    'CMSSW_7_6_2-PU25ns_76X_mcRun2_asymptotic_v12-v1',         # 14 - fullSim PU25ns REMINIAOD RECO input
+    'CMSSW_7_6_2-76X_dataRun2_v15_rerecoGT_RelVal_DATASETSTRING-v1',    # 15 - data REMINIAOD RECO input [please change the tag to "DATASETSTRING" by hand]
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -375,6 +381,123 @@ steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_
 steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
+
+# re-miniAOD reco input for production tests
+steps['ProdMinBias_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdMinBias_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+steps['ProdTTbar_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+steps['ProdQCD_Pt_3000_3500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+
+
+# re-miniAOD reco input for fullSim noPU
+steps['SingleElectronPt10_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleElectronPt1000_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt1000_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleElectronPt35_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleGammaPt10_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleGammaPt35_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleMuPt1_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleMuPt10_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleMuPt100_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SingleMuPt1000_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['NuGun_UP15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['TTbarLepton_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbarLepton_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['Wjet_Pt_80_120_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['Wjet_Pt_3000_3500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')} 
+steps['QCD_FlatPt_15_3000HS_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['Higgs200ChargedTaus_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['QCD_Pt_3000_3500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['QCD_Pt_600_800_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_600_800_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['Upsilon1SToMuMu_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToMuMu_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['BsToMuMu_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['JpsiMuMu_Pt-15_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['TTbar_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['WE_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZEE_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZTT_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['H125GGgluonfusion_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['PhotonJets_Pt_10_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['QQH1352T_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['QCD_Pt_80_120_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['WM_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZMM_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ADDMonoJet_d3MD3_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZpMM_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZpMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['WpM_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['PhiToMuMu_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValPhiToMuMu_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['RSKKGluon_m3000GeV_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZpMM_2250_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZpMM_2250_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZpEE_2250_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZpTT_1500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['EtaBToJpsiJpsi_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValEtaBToJpsiJpsi_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['BuMixing_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValBuMixing_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['HSCPstop_M_200_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValHSCPstop_M_200_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['RSGravitonToGaGa_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValRSGravitonToGaGa_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['WpToENu_M-2000_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValWpToENu_M-2000_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+
+
+# re-miniAOD reco input for fullSim PU 50ns
+steps['ZEE_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['TTbar_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['H125GGgluonfusion_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['QQH1352T_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['ZTT_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['ZMM_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['NuGun_UP15_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13_PU50_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+
+# re-miniAOD reco input for fullSim PU 25ns
+steps['ZEE_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['TTbar_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['H125GGgluonfusion_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['QQH1352T_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['ZTT_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['ZMM_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['NuGun_UP15_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13_PU25_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')} 
+
+
+# re-miniAOD reco input for data run2
+# 2015b
+steps['RunHLTPhy2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015B'),),label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015B'),),label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleMuon2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015B'),),label='doubMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunJetHT2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015B'),),label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMET2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015B'),),label='met2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMuonEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015B'),),label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSingleEl2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015B'),),label='sigEl2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSingleMu2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015B'),),label='sigMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSinglePh2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015B'),),label='sigPh2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunZeroBias2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015B'),),label='zb2015B',events=100000,location='STD', ls=Run2015B)}
+
+# 2015c
+steps['RunHLTPhy2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015C'),),label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015C'),),label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuon2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015C'),),label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunJetHT2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015C'),),label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMET2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015C'),),label='met2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuonEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015C'),),label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEGPrpt2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','dbEGPrpt2015C'),),label='dbEGPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleMuPrpt2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sgMuPrpt2015C'),),label='sgMuPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleEl2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015C'),),label='sigEl2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSingleMu2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015C'),),label='sigMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSinglePh2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015C'),),label='sigPh2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015C'),),label='zb2015C',events=100000,location='STD', ls=Run2015C)}
+
+# 2015d
+steps['RunHLTPhy2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015D'),),label='hltPhy2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015D'),),label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleMuon2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015D'),),label='doubMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunJetHT2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015D'),),label='jetHT2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMET2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015D'),),label='met2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMuonEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015D'),),label='muEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEGPrpt2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','dbEGPrpt2015D'),),label='dbEGPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMuPrpt2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sgMuPrpt2015D'),),label='sgMuPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleEl2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015D'),),label='sigEl2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMu2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015D'),),label='sigMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSinglePh2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015D'),),label='sigPh2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunZeroBias2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015D'),),label='zb2015D',events=100000,location='STD',ib_block='38d4cab6-5d5f-11e5-824b-001e67ac06a0',ls=Run2015D)}
 
 #input for fast sim workflows to be added - TODO
 
@@ -1268,6 +1391,33 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
+steps['HARVESTREMINIAOD']={
+    '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+    '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+    '--mc':'',
+    '--era' : 'Run2_25ns',
+    '--filetype':'DQM',
+    }
+
+steps['HARVESTREMINIAOD_PU25']=steps['HARVESTREMINIAOD']
+steps['HARVESTREMINIAOD_PU50']=merge([{'--conditions':'auto:run2_data_'+menuR2_50ns, '--era' : 'Run2_50ns'},steps['HARVESTREMINIAOD']])
+
+steps['HARVESTREMINIAODPROD']=merge([{
+                                '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+                                #'-s':'HARVESTING:@miniAODDQM',
+                               }, steps['HARVESTREMINIAOD']])
+
+
+steps['HARVESTREMINIAODDR2']={'-s':'HARVESTING:@miniAODDQM',
+                   '--conditions':'auto:run2_data_'+menuR2_25ns,
+                   '--data':'',
+                   '--filetype':'DQM',
+                   '--scenario':'pp'}
+
+steps['HARVESTREMINIAODDR2_50ns'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_50ns,}, steps['HARVESTREMINIAODDR2'] ])
+steps['HARVESTREMINIAODDR2_25ns'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_25ns,}, steps['HARVESTREMINIAODDR2'] ])
+
+
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
@@ -1353,6 +1503,42 @@ steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
 #steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon','--era':'Run2_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},steps['MINIAODMCUP15FS']])
+
+## re-miniAOD for Prod tests
+steps['REMINIAOD'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+                                   '--runUnscheduled':'',
+                                   '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
+                                   '--datatier' : 'MINIAODSIM,DQMIO',
+                                   '--eventcontent':'MINIAODSIM,DQM',},stepMiniAODMC])
+
+
+steps['REMINIAOD_PU25'] = steps['REMINIAOD']
+steps['REMINIAOD_PU50'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval50ns'],'--era':'Run2_50ns'},steps['REMINIAOD']])
+
+
+## re-miniAOD for Prod tests
+steps['REMINIAODPROD']=merge([{
+                    '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
+                    #'-s':'PAT,DQM:@miniAODDQM',
+                    '--datatier':'MINIAODSIM,DQMIO',
+                    '--eventcontent':'MINIAODSIM,DQM'
+                    },step3Up2015Defaults])
+
+
+### re-miniAOD for data 2015
+
+REMINIAODDR2={ '--runUnscheduled':'',
+          '--conditions':'auto:run2_data_'+menuR2_25ns,
+          '-s':'PAT,DQM:@miniAODDQM',
+          '--datatier':'MINIAOD,DQMIO',
+          '--eventcontent':'MINIAOD,DQM',
+          '--data':'',
+          '--scenario':'pp',
+          }
+
+steps['REMINIAODDR2_25ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--era':'Run2_25ns',},REMINIAODDR2])
+
+steps['REMINIAODDR2_50ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_50ns,'--era':'Run2_50ns',},REMINIAODDR2])
 
 
 #################################################################################

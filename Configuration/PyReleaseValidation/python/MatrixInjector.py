@@ -179,9 +179,15 @@ class MatrixInjector(object):
             wmsplit['TTbarFS_ID']=1
             wmsplit['RECODR2_50nsreHLT']=1
             wmsplit['RECODR2_25nsreHLT']=1
-            wmsplit['HLTDR2_50ns']=3
-            wmsplit['HLTDR2_25ns']=3
+            wmsplit['HLTDR2_50ns']=1
+            wmsplit['HLTDR2_25ns']=1
             wmsplit['Hadronizer']=1
+            wmsplit['REMINIAODPROD']=1
+            wmsplit['REMINIAOD']=1
+            wmsplit['REMINIAOD_PU50']=1
+            wmsplit['REMINIAOD_PU25']=1
+            wmsplit['REMINIAODDR2_50ns']=1
+            wmsplit['REMINIAODDR2_25ns']=1
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -207,6 +213,9 @@ class MatrixInjector(object):
                     if len( [step for step in s[3] if "HARVESTGEN" in step] )>0:
                         chainDict['TimePerEvent']=0.01
                         thisLabel=thisLabel+"_gen"
+                    # for re-miniAOD test
+                    if len( [step for step in s[3] if "REMINIAOD" in step] )>0:
+                        thisLabel=thisLabel+"_ReMiniAOD"
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:
