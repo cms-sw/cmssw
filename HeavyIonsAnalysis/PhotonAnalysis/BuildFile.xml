@@ -1,0 +1,15 @@
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<export>
+  <lib   name="1"/>
+</export>
