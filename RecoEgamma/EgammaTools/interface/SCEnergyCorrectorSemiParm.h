@@ -70,6 +70,6 @@ class SCEnergyCorrectorSemiParm {
  private:
   bool isHLT_;
   int nHitsAboveThreshold_;
-  float etThreshold_;
+  float eThreshold_;
 };
 #endif
