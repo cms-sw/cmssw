@@ -247,8 +247,8 @@ def find_and_write_html(p, args):
         os.makedirs(p)
 
     html_paths = [
-        os.path.join(os.getenv("CMSSW_RELEASE_BASE"), "src/DQMServices/Components/data/html"),
         os.path.join(os.getenv("CMSSW_BASE"),"src/DQMServices/Components/data/html"),
+        os.path.join(os.getenv("CMSSW_RELEASE_BASE"), "src/DQMServices/Components/data/html"),
     ]
 
     def find_file(f):
@@ -268,6 +268,23 @@ def find_and_write_html(p, args):
         if source_fn:
             log.info("Copying %s to %s", source_fn, target_fn)
             shutil.copyfile(source_fn, target_fn)
+
+    # create json file
+    target_fn = os.path.join(p, "mbGraph.json")
+    log.info("Creating %s", target_fn)
+    with open(target_fn, "w") as fp:
+        dct = {
+            "file": os.path.basename(args.file),
+            "interval": args.i,
+            "env": {
+                "CMSSW_GIT_HASH": os.getenv("CMSSW_GIT_HASH"),
+                "CMSSW_RELEASE_BASE": os.getenv("CMSSW_RELEASE_BASE"),
+                "SCRAM_ARCH": os.getenv("SCRAM_ARCH"),
+            },
+        }
+
+        json.dump(dct, fp, indent=2)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Profile child processes and produce data for rss and such graphs.")
