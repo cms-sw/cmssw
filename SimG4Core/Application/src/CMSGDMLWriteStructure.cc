@@ -11,7 +11,6 @@
 #include "G4SystemOfUnits.hh"
 
 CMSGDMLWriteStructure::CMSGDMLWriteStructure()
-  : ifirst(true)
 {
   converter[0] = new G4RToEConvForGamma();
   converter[1] = new G4RToEConvForElectron();

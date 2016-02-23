@@ -22,7 +22,6 @@ public:
  private:
 
   G4VRangeToEnergyConverter *converter[4];
-  G4bool ifirst;
 };
 
 #endif
