@@ -38,10 +38,11 @@ namespace l1t {
     //they are private to stop people using them as they will change (naming is invalid for a start)
     static const int kHBHEEnd=28;
     static const int kHFBegin=29;
-    static const int kHFEnd=40;
-    static const int kHFPhiSeg=1;
-    static const int kHFNrPhi=72/kHFPhiSeg;
-    static const int kHBHENrPhi=72;
+    static const int kHFEnd=41;
+    static const int kHFPhiSeg=1;  // to be deprecated!
+    static const int kHFNrPhi=72/kHFPhiSeg;  // to be deprecated!
+    static const int kHBHENrPhi=72;  // to be deprecated!
+    static const int kNPhi=72;
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
     static const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi*2;
 
@@ -81,6 +82,11 @@ namespace l1t {
     static float towerEtaSize(int ieta);
     static float towerPhiSize(int ieta);
 
+    // conversion to other index systems
+    static int regionEta(int ieta);  // RCT region
+    static int gtEta(int ieta);      // GT eta scale
+    static int gtPhi(int ieta, int iphi);      // GT phi scale
+
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
     static l1t::EGamma egP4Demux(l1t::EGamma&);
@@ -101,6 +107,11 @@ namespace l1t {
 
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
     static const l1t::CaloCluster nullCluster_; //to return when we need to return a cluster which was not found/invalid rather than throwing an exception
+
+    static const float kGTEtaLSB;
+    static const float kGTPhiLSB;
+    static const float kGTEtLSB;
+
   };
 
 }
