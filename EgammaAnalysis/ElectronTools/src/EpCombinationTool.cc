@@ -51,7 +51,7 @@ bool EpCombinationTool::init(const string& regressionFileName, const string& bdt
 
 
 /*****************************************************************/
-void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
+void EpCombinationTool::combine(SimpleElectron & mySimpleElectron, bool applyExtraHighEnergyProtection)
 /*****************************************************************/
 {
     if(!m_forest)
@@ -99,6 +99,7 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     float weight = 0.;
     if(eOverP>0.025 
        &&fabs(momentum-energy)<15.*sqrt(momentumError*momentumError + energyError*energyError)
+       &&(!applyExtraHighEnergyProtection || ((momentumError < 10.*momentum) || (energy < 200.)))
            ) // protection against crazy track measurement
    {
         weight = m_forest->GetResponse(regressionInputs);
