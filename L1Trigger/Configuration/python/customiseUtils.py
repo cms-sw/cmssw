@@ -11,6 +11,13 @@ import os
 ##############################################################################
 
 # Unpack Stage-2 GT and GMT
+def L1TTurnOffGtAndGmtEmulation(process):
+    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis','simTwinMuxDigis','simBmtfDigis','simEmtfDigis','simOmtfDigis','simGmtCaloSumDigis','simMuonQualityAdjusterDigis','simGmtStage2Digis','simGtStage2Digis']
+    for b in cutlist:
+        process.SimL1Emulator.remove(getattr(process,b))
+    return process
+
+# Unpack Stage-2 GT and GMT
 def L1TTurnOffUnpackStage2GtAndGmt(process):
     cutlist=['gtStage2Digis','gmtStage2Digis']
     for b in cutlist:

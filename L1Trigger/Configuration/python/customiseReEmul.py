@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+def L1TCaloStage2ParamsForHW(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi")
+    return process
+
 def L1TEventSetupForHF1x1TPs(process):
     process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/HcalCommonData/data/Phase0/hcalRecNumberingRun2.xml')
     process.es_pool = cms.ESSource(
