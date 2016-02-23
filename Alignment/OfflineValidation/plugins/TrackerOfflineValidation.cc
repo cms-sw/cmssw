@@ -1438,11 +1438,13 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
   if ( moduleLevelProfiles_ ) {
     this->getBinning(aliDetId.subdetId(), XResidualProfile, nbins, xmin, xmax);
     sumContainer.sumResXvsXProfile_ = tfd.make<TProfile>(Form("p_resXX_%s_%d",aliTypeName,i), 
-							 sumTitle + xTitHists.ResXvsXProfile->GetXaxis()->GetTitle(),
+							 sumTitle + xTitHists.ResXvsXProfile->GetXaxis()->GetTitle()
+                                                            + ";" + xTitHists.ResXvsXProfile->GetYaxis()->GetTitle(),
 							 nbins, xmin, xmax);
     sumContainer.sumResXvsXProfile_->Sumw2();
     sumContainer.sumResXvsYProfile_ = tfd.make<TProfile>(Form("p_resXY_%s_%d",aliTypeName,i), 
-							 sumTitle + xTitHists.ResXvsYProfile->GetXaxis()->GetTitle(),
+							 sumTitle + xTitHists.ResXvsYProfile->GetXaxis()->GetTitle()
+                                                            + ";" + xTitHists.ResXvsYProfile->GetYaxis()->GetTitle(),
 							 nbins, xmin, xmax);
     sumContainer.sumResXvsYProfile_->Sumw2();
   }
@@ -1461,11 +1463,13 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
     if ( moduleLevelProfiles_ ) {
       this->getBinning(aliDetId.subdetId(), YResidualProfile, nbins, xmin, xmax);
       sumContainer.sumResYvsXProfile_ = tfd.make<TProfile>(Form("p_resYX_%s_%d",aliTypeName,i), 
-							   sumTitle + xTitHists.ResYvsXProfile->GetXaxis()->GetTitle(),
+							   sumTitle + xTitHists.ResYvsXProfile->GetXaxis()->GetTitle()
+                                                              + ";" + xTitHists.ResYvsXProfile->GetYaxis()->GetTitle(),
 							   nbins, xmin, xmax);
       sumContainer.sumResYvsXProfile_->Sumw2();
       sumContainer.sumResYvsYProfile_ = tfd.make<TProfile>(Form("p_resYY_%s_%d",aliTypeName,i), 
-							   sumTitle + xTitHists.ResYvsYProfile->GetXaxis()->GetTitle(),
+							   sumTitle + xTitHists.ResYvsYProfile->GetXaxis()->GetTitle()
+                                                              + ";" + xTitHists.ResYvsYProfile->GetYaxis()->GetTitle(),
 							   nbins, xmin, xmax);
       sumContainer.sumResYvsYProfile_->Sumw2();
     }
