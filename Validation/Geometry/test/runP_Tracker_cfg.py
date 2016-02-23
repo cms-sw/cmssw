@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended_cff")
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 
 #Magnetic Field
 #
@@ -60,7 +62,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         TreeFile = cms.string('None'), ## is NOT requested
 
         StopAfterProcess = cms.string('None'),
-        # string TextFile = "matbdg_Tracker.txt"
+#        TextFile = cms.string("matbdg_Tracker.txt")
         TextFile = cms.string('None')
     )
 ))
