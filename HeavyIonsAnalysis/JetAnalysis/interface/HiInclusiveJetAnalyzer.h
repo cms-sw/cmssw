@@ -98,6 +98,8 @@ private:
   // edm::InputTag EESrc_;
   // edm::InputTag genParticleSrc_;
 
+  std::string jetName_; //used as prefix for jet structures
+  
   // towers
   edm::EDGetTokenT<CaloTowerCollection> TowerSrc_;
 
@@ -194,6 +196,10 @@ private:
     float jtm[MAXJETS];
     float jtarea[MAXJETS];
 
+    float jttau1[MAXJETS];
+    float jttau2[MAXJETS];
+    float jttau3[MAXJETS];
+    
     float trackMax[MAXJETS];
     float trackSum[MAXJETS];
     int trackN[MAXJETS];
