@@ -42,16 +42,14 @@ AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
   const std::string cfgStrTypeOfConstraints(config.getParameter<std::string>("TypeOfConstraints"));
   if( cfgStrTypeOfConstraints == "hierarchy" ) {
     theTypeOfConstraints = HIERARCHY_CONSTRAINTS;
-    edm::LogWarning("Alignment") << "@SUB=AlignmentParameterStore"
-				 << "\n\n\n******* WARNING ******************************************\n"
-				 << "Using hierarchy constraints that have a not-understood bug.\n"
-				 << "It is strongly recommended to use averaging constraints for\n"
-				 << "the time being!\n\n\n";
-    
   } else if( cfgStrTypeOfConstraints == "approximate_averaging" ) {
     theTypeOfConstraints = APPROX_AVERAGING_CONSTRAINTS;
     edm::LogWarning("Alignment") << "@SUB=AlignmentParameterStore"
-				 << "Using approximate implementation of averaging constraints";
+				 << "\n\n\n******* WARNING ******************************************\n"
+				 << "Using approximate implementation of averaging constraints."
+				 << "This is not recommended."
+				 << "Consider to use 'hierarchy' constraints:"
+				 << "  AlignmentProducer.ParameterStore.TypeOfConstraints = cms.string('hierarchy')\n\n\n";
   } else {
     edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore"
 				 << "Unknown type of hierarchy constraints '" << cfgStrTypeOfConstraints << "'"; 
