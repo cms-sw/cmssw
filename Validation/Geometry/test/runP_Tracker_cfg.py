@@ -5,7 +5,7 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi")
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
@@ -43,7 +43,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5)
 )
 
 process.p1 = cms.Path(process.g4SimHits)
