@@ -128,3 +128,5 @@ ElectronSeedTrackRefFix::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.addDefault(desc);
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ElectronSeedTrackRefFix);
