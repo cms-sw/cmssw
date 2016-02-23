@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-#!/usr/bin/python
-
 import ROOT
 import sys,os,string,errno,shutil
 import code
