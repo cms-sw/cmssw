@@ -45,6 +45,11 @@ validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          *globalValidation
                          *hltvalidation)
 
+_validation_fastsim = validation.copy()
+for _entry in [globaldigisanalyze,globalhitsanalyze,globalrechitsanalyze]:
+    _validation_fastsim.remove(_entry)
+eras.fastSim.toReplaceWith(validation,_validation_fastsim)
+
 validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
