@@ -73,68 +73,17 @@ int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card,
     exit(1);
   }
   int caloPhiIndex = 0xDEADBEEF;
-  if(region < CaloHFRegionStart) {
-    if(crate == 0) {
-      caloPhiIndex = 11 + card * 4 + iPhi;
-    }
-    else if(crate == 1) {
-      caloPhiIndex = 59 + card * 4 + iPhi;
-    }
-    else if(crate == 2) {
-      caloPhiIndex = 35 + card * 4 + iPhi;
-    }
-    if(caloPhiIndex > 72) caloPhiIndex -= 72;
-  }
-  else if(region < CaloVHFRegionStart) {
-    if(crate == 0) {
-      caloPhiIndex = 6 + card * 2 + iPhi;
-    }
-    else if(crate == 1) {
-      caloPhiIndex = 30 + card * 2 + iPhi;
-    }
-    else if(crate == 2) {
-      caloPhiIndex = 18 + card * 2 + iPhi;
-    }
-    if(caloPhiIndex > 36) caloPhiIndex -= 36;
-  }
-  else {
-    if(crate == 0) {
-      caloPhiIndex = 3 + card;
-    }
-    else if(crate == 1) {
-      caloPhiIndex = 15 + card;
-    }
-    else if(crate == 2) {
-      caloPhiIndex = 9 + card;
-    }
-    if(caloPhiIndex > 18) caloPhiIndex -= 18;
-  }
-  return caloPhiIndex;
-}
-
-int UCTGeometry::getUCTPhiIndex(uint32_t crate, uint32_t card, uint32_t iPhi) {
-  // UCT uses fictitious 72 divisions in phi even at the highest etas where towers
-  // are double or quadruple the size.  The energy is equally split in all towers
-  if(checkCrate(crate)) {
-    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
-    exit(1);
-  }
-  if(checkCard(card)) {
-    std::cerr << "Invalid card number: card = " << card << std::endl;
-    exit(1);
-  }
-  int uctPhiIndex = 0xDEADBEEF;
   if(crate == 0) {
-    uctPhiIndex = 11 + card * 4 + iPhi;
+    caloPhiIndex = 11 + card * 4 + iPhi;
   }
   else if(crate == 1) {
-    uctPhiIndex = 59 + card * 4 + iPhi;
+    caloPhiIndex = 59 + card * 4 + iPhi;
   }
   else if(crate == 2) {
-    uctPhiIndex = 35 + card * 4 + iPhi;
+    caloPhiIndex = 35 + card * 4 + iPhi;
   }
-  if(uctPhiIndex > 72) uctPhiIndex -= 72;
-  return uctPhiIndex;
+  if(caloPhiIndex > 72) caloPhiIndex -= 72;
+  return caloPhiIndex;
 }
 
 uint32_t UCTGeometry::getUCTRegionPhiIndex(uint32_t crate, uint32_t card) {
@@ -166,43 +115,27 @@ uint32_t UCTGeometry::getUCTRegionPhiIndex(uint32_t crate, uint32_t card) {
 
 uint32_t UCTGeometry::getCrate(int caloEta, int caloPhi) {
   uint32_t crate = 0xDEADBEEF;
-  uint32_t region = getRegion(caloEta, caloPhi);
-  uint32_t cPhi = caloPhi;
-  if(region >= CaloVHFRegionStart) {
-    cPhi = caloPhi * 4;
-  }
-  else if(region >= CaloHFRegionStart) {
-    cPhi = caloPhi * 2;
-  }
-  if(cPhi >= 11 && cPhi <= 34) crate = 0;
-  else if(cPhi >= 35 && cPhi <= 58) crate = 2;
-  else if(cPhi >= 59 && cPhi <= 72) crate = 1;
-  else if(cPhi >= 1 && cPhi <= 10) crate = 1;  
+  if(caloPhi >= 11 && caloPhi <= 34) crate = 0;
+  else if(caloPhi >= 35 && caloPhi <= 58) crate = 2;
+  else if(caloPhi >= 59 && caloPhi <= 72) crate = 1;
+  else if(caloPhi >= 1 && caloPhi <= 10) crate = 1;  
   return crate;
 }
 
 uint32_t UCTGeometry::getCard(int caloEta, int caloPhi) {
   uint32_t crate = getCrate(caloEta, caloPhi);
-  uint32_t region = getRegion(caloEta, caloPhi);
   uint32_t card = 0xDEADBEEF;
-  uint32_t cPhi = caloPhi;
-  if(region >= CaloVHFRegionStart) {
-    cPhi = caloPhi * 4;
-  }
-  else if(region >= CaloHFRegionStart) {
-    cPhi = caloPhi * 2;
-  }
   if(crate == 0) {
-    card = (cPhi - 11) / 4;
+    card = (caloPhi - 11) / 4;
   }
   else if(crate == 2) {
-    card = (cPhi - 35) / 4;
+    card = (caloPhi - 35) / 4;
   }
-  else if(crate == 1 && cPhi > 58) {
-    card = (cPhi - 59) / 4;
+  else if(crate == 1 && caloPhi > 58) {
+    card = (caloPhi - 59) / 4;
   }
-  else if(crate == 1 && cPhi <= 10) {
-    card = (cPhi + 13) / 4;
+  else if(crate == 1 && caloPhi <= 10) {
+    card = (caloPhi + 13) / 4;
   }    
   return card;
 }
@@ -224,18 +157,7 @@ uint32_t UCTGeometry::getiEta(int caloEta, int caloPhi) {
 }
 
 uint32_t UCTGeometry::getiPhi(int caloEta, int caloPhi) {
-  uint32_t region = getRegion(caloEta, caloPhi);
-  uint32_t iPhi = 0xDEADBEEF;
-  if(region < CaloHFRegionStart && caloPhi <= MaxCaloPhi) {
-    iPhi = (caloPhi + 1) % NPhiInCard;
-  }
-  else if(region < CaloVHFRegionStart && caloPhi <= MaxCaloPhiInHF) {
-    iPhi = caloPhi % NHFPhiInCard;
-  }
-  else {
-    iPhi = (caloPhi + 1) % NVHFPhiInCard;
-  }
-  return iPhi;
+  return (caloPhi + 1) % NPhiInCard;
 }
 
 uint32_t UCTGeometry::getNEta(uint32_t region) {
@@ -302,10 +224,6 @@ double UCTGeometry::getUCTTowerEta(int caloEta) {
 
 double UCTGeometry::getUCTTowerPhi(int caloPhi, int caloEta) {
   if(caloPhi < 0) return -999.;
-  uint32_t absCaloEta = abs(caloEta) - 1;
   uint32_t absCaloPhi = abs(caloPhi) - 1;
-  if(absCaloEta < 28 && absCaloPhi < 72) return (((double) absCaloPhi + 0.5) * 0.0872);
-  else if(absCaloEta < 41 && absCaloPhi < 36) return (((double) absCaloPhi + 0.5) * 0.0872 * 2);
-  else if(absCaloEta < 41 && absCaloPhi < 18) return (((double) absCaloPhi + 0.5) * 0.0872 * 4);
-  else return -999.;
+  return (((double) absCaloPhi + 0.5) * 0.0872);
 }

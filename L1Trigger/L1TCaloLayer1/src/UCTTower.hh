@@ -122,13 +122,6 @@ public:
     return g.getCaloPhiIndex(crate, card, region, iPhi);
   }
 
-  const int uctEta() const {return caloEta();}
-
-  const int uctPhi() const {
-    UCTGeometry g;
-    return g.getUCTPhiIndex(crate, card, iPhi);
-  }
-
   const UCTTowerIndex towerIndex() const {
     return UCTTowerIndex(caloEta(), caloPhi());
   }

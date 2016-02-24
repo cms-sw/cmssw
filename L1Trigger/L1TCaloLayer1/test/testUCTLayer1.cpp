@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
       int caloPhi = ((random()+1) % 72); // Distribute uniformly in all phi
       while(caloPhi < 1 || caloPhi > 72) caloPhi = ((random()+1) % 72);
       UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-      if(!uctLayer1.setHCALData(t, et, fb)) {
+      if(!uctLayer1.setHCALData(t, fb, et)) {
 	std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
 	exit(1);
       }
