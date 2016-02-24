@@ -81,9 +81,18 @@ namespace edm {
     std::pair<ProductList::iterator, bool> ret =
          productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if(!ret.second) {
-      throw Exception(errors::Configuration, "Duplicate Process")
-        << "The process name " << productDesc.processName() << " was previously used on these products.\n"
-        << "Please modify the configuration file to use a distinct process name.\n";
+      auto const& previous = *productList_.find(BranchKey(productDesc));
+      if(previous.second.produced()) {
+        // Duplicate registration in current process
+        throw Exception(errors::LogicError , "Duplicate Product")
+          << "The produced product " << previous.second << " is registered more than once.\n"
+          << "Please remove the redundant 'produces' call(s).\n";
+      } else {
+        // Duplicate registration in previous process
+        throw Exception(errors::Configuration, "Duplicate Process")
+          << "The process name " << productDesc.processName() << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n";
+      }
     }
     addCalled(productDesc, fromListener);
   }
