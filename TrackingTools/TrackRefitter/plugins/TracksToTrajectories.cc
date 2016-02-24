@@ -121,7 +121,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   theTrackTransformer->setServices(setup);
   
   // Collection of Trajectory
-  auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
+  unique<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
   
   // Get the reference
   RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
@@ -132,7 +132,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   event.getByToken(theTracksToken, tracks);
   
   // Association map between Trajectory and Track
-  auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(trajectoryCollectionRefProd, tracks));
+  unique_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(trajectoryCollectionRefProd, tracks));
   
   Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
   reco::TrackRef::key_type trackIndex = 0;
@@ -159,8 +159,8 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
     }
   }
   LogTrace(metname)<<"Load the Trajectory Collection";
-  event.put(trajectoryCollection,"Refitted");
-  event.put(trajTrackMap,"Refitted");
+  event.put(move(trajectoryCollection),"Refitted");
+  event.put(move(trajTrackMap),"Refitted");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
