@@ -106,7 +106,8 @@ def convertToUnscheduled(proc):
 
 def cleanUnscheduled(proc):
   import FWCore.ParameterSet.Config as cms
-  l = proc.paths
+  l = dict(proc.paths)
+  l.update( dict(proc.endpaths) )
   droppedPaths =[]
   #have to get them now since switching them after the
   # paths have been changed gives null labels
@@ -215,10 +216,10 @@ def cleanUnscheduled(proc):
       p = getQualifiedModule(remaining[0],proc)
       for m in remaining[1:]:
         p+=getQualifiedModule(m,proc)
-      setattr(proc,pName,cms.Path(p))
+      setattr(proc,pName,type(getattr(proc,pName))(p))
     # drop empty paths
     else:
-      setattr(proc,pName,cms.Path())
+      setattr(proc,pName,type(getattr(proc,pName))())
 
   # If there is a schedule then it needs to point at
   # the new Path objects
