@@ -31,12 +31,14 @@
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm
 {
   template <class HAD, class DEC> class GeneratorFilter : public one::EDFilter<EndRunProducer,
+                                                                               BeginLuminosityBlockProducer,
 									       EndLuminosityBlockProducer,
                                                                                one::WatchLuminosityBlocks,
                                                                                one::SharedResources>
@@ -54,6 +56,7 @@ namespace edm
     virtual bool filter(Event& e, EventSetup const& es) override;
     virtual void endRunProduce(Run &, EventSetup const&) override;
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    virtual void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
     virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
@@ -109,6 +112,7 @@ namespace edm
 
     produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
+    produces<GenLumiInfoHeader, edm::InLumi>();
     produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
  
@@ -189,12 +193,6 @@ namespace edm
 	genEventInfo.reset(new GenEventInfoProduct(event.get()));
       }
       
-    //fill information on randomized configs for parameter scans
-    genEventInfo->setRandomConfigIndex(hadronizer_.randomIndex());
-    if (hadronizer_.randomIndex()>=0) {
-      genEventInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
-    }
-      
     ev.put(genEventInfo);
    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
@@ -224,6 +222,11 @@ namespace edm
   template <class HAD, class DEC>
   void
   GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock const& lumi, EventSetup const& es )
+  {}
+  
+  template <class HAD, class DEC>
+  void
+  GeneratorFilter<HAD, DEC>::beginLuminosityBlockProduce( LuminosityBlock &lumi, EventSetup const& es )
   {
     nEventsInLumiBlock_ = 0;
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
@@ -257,6 +260,10 @@ namespace edm
 	 << "Failed to initialize hadronizer "
 	 << hadronizer_.classname()
 	 << " for internal parton generation\n";
+         
+    std::auto_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
+    lumi.put(genLumiInfoHeader);
+
   }
 
   template <class HAD, class DEC>
@@ -293,13 +300,7 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo( GenLumiProcess );
-    
-    //fill information on randomized configs for parameter scans
-    genLumiInfo->setRandomConfigIndex(hadronizer_.randomIndex());
-    if (hadronizer_.randomIndex()>=0) {
-      genLumiInfo->setConfigDescription(hadronizer_.randomInitConfigDescription());      
-    }    
-    
+        
     lumi.put(genLumiInfo);
 
     nEventsInLumiBlock_ = 0;
