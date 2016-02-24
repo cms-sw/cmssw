@@ -50,7 +50,7 @@ private:
   double trials;
   double passes;
   bool runControl_;
-  unsigned int runControlNumber_;
+  std::vector<unsigned int> runControlNumbers_;
   std::map<unsigned int,std::pair<int,int>> eventsInRun_;
 
   reco::TrackBase::TrackQuality _trackQuality;
