@@ -2,10 +2,10 @@
 #in the SLHA table
 
 #since the randomization occurs only at lumi section boundaries, test with command like
-#cmsDriver.py randomizedParametersSLHAwmLHE.py -s LHE,GEN --conditions auto:run2_mc -n 1000 --eventcontent LHE,RAWSIM --datatier LHE,GEN-SIM --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"
+#cmsDriver.py randomizedParametersSLHA.py -s GEN --conditions auto:mc -n 1000 --eventcontent AODSIM --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"
 
 #or for full chain with fastsim
-#cmsDriver.py randomizedParametersSLHAwmLHE.py -s LHE,GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns --datamix PreMix --conditions auto:run2_mc --pileup_input dbs:/RelValFS_PREMIXUP15_PU25/CMSSW_8_0_0_pre2-PU25ns_76X_mcRun2_asymptotic_v12_FastSim-v1/GEN-SIM-DIGI-RAW --fast --era Run2_25ns --eventcontent AODSIM,LHE --datatier AODSIM,LHE --beamspot Realistic50ns13TeVCollision --customise SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"  -n 1000
+#cmsDriver.py randomizedParametersSLHAwmLHE.py -s GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns --datamix PreMix --conditions auto:run2_mc --pileup_input dbs:/RelValFS_PREMIXUP15_PU25/CMSSW_8_0_0_pre2-PU25ns_76X_mcRun2_asymptotic_v12_FastSim-v1/GEN-SIM-DIGI-RAW --fast --era Run2_25ns --eventcontent AODSIM --datatier AODSIM --beamspot Realistic50ns13TeVCollision --customise SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"  -n 1000
 
 
 import FWCore.ParameterSet.Config as cms
@@ -542,15 +542,7 @@ BLOCK AD Q= 1.000000e+00 #
       2 2 0.000000e+00 # A_s(Q) DRbar
 """
 
-externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
-    args = cms.vstring('/afs/cern.ch/user/b/bendavid/work/cmspublic/gridpackexample/T2bH-Hgg-sbm470-sbw1-chi2m230-chi2w0p1-chi1m100_tarball.tar.xz'),
-    nEvents = cms.untracked.uint32(5000),
-    numberOfParameters = cms.uint32(1),
-    outputFile = cms.string('cmsgrid_final.lhe'),
-    scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh')
-)
-
-generator = cms.EDFilter("Pythia8HadronizerFilter",
+generator = cms.EDFilter("Pythia8GeneratorFilter",
   maxEventsToPrint = cms.untracked.int32(1),
   pythiaPylistVerbosity = cms.untracked.int32(1),
   filterEfficiency = cms.untracked.double(1.0),
@@ -559,18 +551,22 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
   RandomizedParameters = cms.VPSet(),
 )
 
-for i in range(10):
-  mlsp = 100. + i*5.0
-  mnlsp = 230. + i*10.0
+sbottomMasses = [250, 300, 350, 470]
+
+for sbottomMass in sbottomMasses:
+  for i in range(10):
+    mlsp = 100. + i*5.0
+    mnlsp = 230. + i*10.0
+      
+    slhatable = baseSLHATable.replace('%MLSP%','%e' % mlsp)
+    slhatable = slhatable.replace('%MNLSP%','%e' % mnlsp)
     
-  slhatable = baseSLHATable.replace('%MLSP%','%e' % mlsp)
-  slhatable = slhatable.replace('%MNLSP%','%e' % mnlsp)
-  
-  generator.RandomizedParameters.append(
-    cms.PSet(
-      ConfigWeight = cms.double(1.0),
-      ConfigDescription = cms.string('MLSP = %e, MNLSP = %e' % (mlsp,mnlsp)),
-      SLHATableForPythia8 = cms.string('%s' % slhatable),
-      PythiaParameters = basePythiaParameters,
-    ),
-  )
+    generator.RandomizedParameters.append(
+      cms.PSet(
+        ConfigWeight = cms.double(1.0),
+        GridpackPath = cms.string('/afs/cern.ch/user/b/bendavid/work/cmspublic/gridpackexample/T2bH-Hgg-sbm%i-sbw1-chi2m230-chi2w0p1-chi1m100_tarball.tar.xz' % sbottomMass),
+        ConfigDescription = cms.string('MLSP = %e, MNLSP = %e' % (mlsp,mnlsp)),
+        SLHATableForPythia8 = cms.string('%s' % slhatable),
+        PythiaParameters = basePythiaParameters,
+      ),
+    )
