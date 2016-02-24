@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_hcalnzsRun2_
+_trackingRun2noCCC_
 
 Scenario supporting proton collisions
 
