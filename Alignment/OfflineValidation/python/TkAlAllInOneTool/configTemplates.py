@@ -1,11 +1,11 @@
 from alternateValidationTemplates import *
 from offlineValidationTemplates import *
+from primaryVertexValidationTemplates import *
 from geometryComparisonTemplates import *
 from monteCarloValidationTemplates import *
 from trackSplittingValidationTemplates import *
 from zMuMuValidationTemplates import *
 from TkAlExceptions import AllInOneError
-
 
 ######################################################################
 ######################################################################

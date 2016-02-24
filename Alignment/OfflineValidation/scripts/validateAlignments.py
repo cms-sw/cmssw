@@ -30,6 +30,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation \
     import TrackSplittingValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation \
+    import PrimaryVertexValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
     import *
 from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
@@ -140,6 +142,9 @@ class ValidationJob:
             validation = PreexistingTrackSplittingValidation(name, self.__config)
         elif valType == "zmumu":
             validation = ZMuMuValidation( name, 
+                Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "primaryvertex":
+            validation = PrimaryVertexValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
