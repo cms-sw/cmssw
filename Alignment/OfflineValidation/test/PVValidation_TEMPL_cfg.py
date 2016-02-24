@@ -165,7 +165,7 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 thresh = cms.untracked.int32(1),
                                 ptmin  = cms.untracked.double(PTCUTTEMPLATE),
                                 runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                runControlNumber = cms.untracked.uint32(int(runboundary))
+                                runControlNumber = cms.untracked.vuint32(int(runboundary))
                                 )
 
 if isMC:
@@ -215,7 +215,7 @@ if isDA:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
@@ -251,7 +251,7 @@ else:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
