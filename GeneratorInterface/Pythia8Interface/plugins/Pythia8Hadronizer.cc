@@ -283,26 +283,33 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   
   bool status = false, status1 = false;
   
-  if ( fInitialState == PP ) // default
-  {
-    fMasterGen->settings.mode("Beams:idA", 2212);
-    fMasterGen->settings.mode("Beams:idB", 2212);
+  if (lheFile_.empty()) {
+    if ( fInitialState == PP ) // default
+    {
+      fMasterGen->settings.mode("Beams:idA", 2212);
+      fMasterGen->settings.mode("Beams:idB", 2212);
+    }
+    else if ( fInitialState == PPbar )
+    {
+      fMasterGen->settings.mode("Beams:idA", 2212);
+      fMasterGen->settings.mode("Beams:idB", -2212);
+    }
+    else if ( fInitialState == ElectronPositron )
+    {
+      fMasterGen->settings.mode("Beams:idA", 11);
+      fMasterGen->settings.mode("Beams:idB", -11);
+    }    
+    else 
+    {
+      // throw on unknown initial state !
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+        <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+    }
+    fMasterGen->settings.parm("Beams:eCM", comEnergy);
   }
-  else if ( fInitialState == PPbar )
-  {
-    fMasterGen->settings.mode("Beams:idA", 2212);
-    fMasterGen->settings.mode("Beams:idB", -2212);
-  }
-  else if ( fInitialState == ElectronPositron )
-  {
-    fMasterGen->settings.mode("Beams:idA", 11);
-    fMasterGen->settings.mode("Beams:idB", -11);
-  }    
-  else 
-  {
-    // throw on unknown initial state !
-    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+  else {
+    fMasterGen->settings.mode("Beams:frameType", 4);
+    fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
   
   fMultiUserHook.reset(new MultiUserHook);
@@ -366,7 +373,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMasterGen->setUserHooksPtr(fMultiUserHook.get());
   }
 
-  fMasterGen->settings.parm("Beams:eCM", comEnergy);
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   status = fMasterGen->init();
   
