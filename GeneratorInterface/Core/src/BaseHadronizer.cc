@@ -25,7 +25,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
           randomInitConfigDescriptions_[irand] = randomizedParameters[irand].getParameter<std::string>("ConfigDescription");
         }
         if (randomizedParameters[irand].exists("GridpackPath")) {
-          randomInitConfigDescriptions_[irand] = randomizedParameters[irand].getParameter<std::string>("ConfigDescription");
+          gridpackPaths_[irand] = randomizedParameters[irand].getParameter<std::string>("GridpackPath");
         }
       }
     }
@@ -43,6 +43,20 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
         GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSectionNLO", -1.)) );
 
   }
+  
+  GenLumiInfoHeader *BaseHadronizer::getGenLumiInfoHeader() {
+    
+    GenLumiInfoHeader *genLumiInfoHeader = new GenLumiInfoHeader();
+    
+    //fill information on randomized configs for parameter scans
+    genLumiInfoHeader->setRandomConfigIndex(randomIndex_);
+    if (randomIndex_>=0) {
+      genLumiInfoHeader->setConfigDescription(randomInitConfigDescription());      
+    }
+    
+    return genLumiInfoHeader;
+    
+  }
 
   void BaseHadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {
     if (randomInitWeights_.size()>0) {
@@ -58,6 +72,8 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
       std::discrete_distribution<int> randdist(randomInitWeights_.begin(),randomInitWeights_.end());
       
       randomIndex_ = randdist(randgen);
+      
+      printf("selected random index = %i\n",randomIndex_);
       
     }
   }

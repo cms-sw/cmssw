@@ -20,6 +20,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
@@ -52,7 +53,8 @@ namespace gen {
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
     HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
     GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
-
+    GenLumiInfoHeader *getGenLumiInfoHeader();
+    
     void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
     void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }
 
