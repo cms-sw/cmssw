@@ -126,13 +126,13 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   // Get the reference
   RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
     = event.getRefBeforePut<vector<Trajectory> >("Refitted");
-  
-  // Association map between Trajectory and Track
-  auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection);
  
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> tracks;
   event.getByToken(theTracksToken, tracks);
+  
+  // Association map between Trajectory and Track
+  auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(trajectoryCollectionRefProd, tracks));
   
   Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
   reco::TrackRef::key_type trackIndex = 0;
