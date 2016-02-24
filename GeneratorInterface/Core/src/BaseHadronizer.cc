@@ -1,5 +1,6 @@
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <random>
 #include <sys/wait.h>
@@ -62,9 +63,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
   }
   
   void BaseHadronizer::generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {
-    
-    const char *outfilename = "cmsgrid_final.lhe";
-    
+        
     if (gridpackPath().empty()) {
       return;
     }
@@ -78,13 +77,16 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     std::array<unsigned int,1> lheseed;
     seedseq.generate(lheseed.begin(),lheseed.end());
 
+    unsigned int nevents = edm::pset::Registry::instance()->getMapped(lumi.processHistory().rbegin()->parameterSetID())->getParameter<edm::ParameterSet>("@main_input").getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock");
+    
     std::ostringstream nevStream;
-    nevStream << 20;
+    nevStream << nevents;
     
     std::ostringstream randomStream;
     randomStream << lheseed[0];
    
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
+    const char *outfilename = "cmsgrid_final.lhe";
     
     char *args[5];
     args[0] = strdup(script.fullPath().c_str());
