@@ -121,7 +121,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   theTrackTransformer->setServices(setup);
   
   // Collection of Trajectory
-  unique<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
+  unique_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
   
   // Get the reference
   RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
