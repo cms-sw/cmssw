@@ -83,7 +83,8 @@ namespace edm
     bool configureEventSelector(edm::ParameterSet const& iPSet,
                                 std::string const& iProcessName,
                                 std::vector<std::string> const& iAllTriggerNames,
-                                edm::detail::TriggerResultsBasedEventSelector& oSelector) {
+                                edm::detail::TriggerResultsBasedEventSelector& oSelector,
+                                edm::ConsumesCollector&& iC) {
       // If selectevents is an emtpy ParameterSet, then we are to write
       // all events, or one which contains a vstrig 'SelectEvents' that
       // is empty, we are to write all events. We have no need for any
@@ -107,7 +108,7 @@ namespace edm
       for(size_t i = 0; i < path_specs.size(); ++i) {
         parse_path_spec(path_specs[i], parsed_paths[i]);
       }
-      oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName);
+      oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName, std::move(iC));
 
       return false;
     }
@@ -120,8 +121,9 @@ namespace edm
 
     void
     TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& triggernames) {
-
       // Set up one NamedEventSelector, with default configuration
+      // Since wantAllEvents will be true, wantEvent() will not be called,
+      // and therefore TriggerResults will not be consumed.
       std::vector<std::string> paths;
       EventSelector es(paths, triggernames);
       selectors_.emplace_back("", es);
@@ -131,7 +133,8 @@ namespace edm
     void
     TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
                           std::vector<std::string> const& triggernames,
-                          const std::string& process_name) {
+                          std::string const& process_name,
+                          ConsumesCollector&& iC) {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
       std::map<std::string, std::vector<std::string> > paths_for_process;
@@ -156,6 +159,9 @@ namespace edm
           // names yet.
           selectors_.emplace_back(path.first, EventSelector(path.second));
         }
+      }
+      for(auto const& selector : selectors_) {
+        iC.consumes<TriggerResults>(selector.inputTag());
       }
     }
 
