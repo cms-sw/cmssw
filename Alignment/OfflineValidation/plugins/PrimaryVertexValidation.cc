@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    PrimaryVertexValidation
+// Package:    Alignment/OfflineValidation
 // Class:      PrimaryVertexValidation
 // 
 /**\class PrimaryVertexValidation PrimaryVertexValidation.cc Alignment/OfflineValidation/plugins/PrimaryVertexValidation.cc
@@ -17,6 +17,7 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "Alignment/OfflineValidation/plugins/PrimaryVertexValidation.h"
@@ -47,6 +48,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -79,7 +81,6 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   ptOfProbe_(iConfig.getUntrackedParameter<double>("probePt",0.)),
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
-  runControlNumber_(iConfig.getUntrackedParameter<unsigned int>("runControlNumber",0)),
   debug_(iConfig.getParameter<bool>("Debug")),
   runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
 {
@@ -87,6 +88,10 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   // now do what ever initialization is needed
   // initialize phase space boundaries
   
+  std::vector<unsigned int> defaultRuns;
+  defaultRuns.push_back(0);
+  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
+
   phiSect_ = (2*TMath::Pi())/nBins_;
   etaSect_ = 5./nBins_;
 
@@ -133,10 +138,32 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace reco;
   using namespace IPTools;
 
+  if(nBins_!=24){ 
+    edm::LogInfo("PrimaryVertexValidation")<<"Using: "<<nBins_<<" bins plots";
+  }
+  
+  /*
+    if(runControl_){
+    if (debug_){edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_;}
+    //std::cout<<" run number:" <<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_<<std::endl;}
+    if(iEvent.eventAuxiliary().run() != runControlNumber_) return;
+    }
+  */
+
+  bool passesRunControl = false;
 
   if(runControl_){
-    if (debug_){std::cout<<" run number:" <<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_<<std::endl;}
-    if(iEvent.eventAuxiliary().run() != runControlNumber_) return;
+    for(unsigned int j=0;j<runControlNumbers_.size();j++){
+      if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
+	if (debug_){
+	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumbers_[j];
+	  //std::cout<<" run number:" <<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_<<std::endl;}
+	}
+	passesRunControl = true;
+	break;
+      }
+    }
+    if (!passesRunControl) return;
   }
 
   Nevt_++;  
@@ -186,8 +213,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   try {
     iEvent.getByToken(theVertexCollectionToken, vertices);
   } catch (...) {
-    if(debug_)
-      cout << "No offlinePrimaryVertices found!" << endl;
+    edm::LogError("PrimaryVertexValidation")<<"No offlinePrimaryVertices found!";
+    // if(debug_) {cout << "No offlinePrimaryVertices found!" << endl;}
   }
 
   std::vector<Vertex> vsorted = *(vertices);
@@ -331,8 +358,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     wxy2_=TMath::Power(BeamWidthX_,2)+TMath::Power(BeamWidthY_,2);
 
   } else {
-    if(debug_)
-      cout << "No BeamSpot found!" << endl;
+    // if(debug_){std::cout<<"No BeamSpot found!"<<std::endl;}
+    edm::LogWarning("PrimaryVertexValidation")<<"No BeamSpot found!";
   }
 
   h_BSx0->Fill(BSx0_);      
@@ -343,8 +370,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   h_BeamWidthY->Fill(BeamWidthY_);
 
   if(debug_)
-    std::cout<<"Beamspot x:"<<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_<<std::endl; 
-  
+    //std::cout<<"Beamspot x:"<<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_<<std::endl; 
+    edm::LogInfo("PrimaryVertexValidation")<<"Beamspot x:" <<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_;
+   
   //=======================================================
   // Starts here ananlysis
   //=======================================================
@@ -355,7 +383,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   EventNumber_=iEvent.eventAuxiliary().id().event();
     
   if(debug_)
-    std::cout<<"PrimaryVertexValidation::analyze() looping over "<<trackCollectionHandle->size()<< "tracks." <<std::endl;       
+    //std::cout<<"PrimaryVertexValidation::analyze() looping over "<<trackCollectionHandle->size()<< "tracks." <<std::endl;       
+    edm::LogInfo("PrimaryVertexValidation")<<" looping over "<<trackCollectionHandle->size()<< "tracks";
 
   h_nTracks->Fill(trackCollectionHandle->size()); 
 
@@ -373,8 +402,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   }
   
-  if(debug_) {cout << "PrimaryVertexValidation"
-		  << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+  if(debug_) {
+    //cout << "PrimaryVertexValidation" << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+    edm::LogInfo("PrimaryVertexValidation") << "Found: " << t_tks.size() << " reconstructed tracks";
   }
   
   //======================================================
@@ -390,7 +420,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   vector< vector<TransientTrack> > clusters = theTrackClusterizer_->clusterize(seltks);
   
   if (debug_){
-    cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << t_tks.size() << " selected tracks" <<endl;
+    // cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << t_tks.size() << " selected tracks" <<endl;
+    edm::LogInfo("PrimaryVertexValidation")<<" looping over: "<< clusters.size() << " clusters  from " << t_tks.size() << " selected tracks";
   }
   
   nClus_=clusters.size();  
@@ -408,7 +439,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     for(vector<TransientTrack>::const_iterator theTTrack = iclus->begin(); theTTrack!= iclus->end(); ++theTTrack, ++i)
       {
 	if ( nTracks_ >= nMaxtracks_ ) {
-	  std::cout << " PrimaryVertexValidation::analyze() : Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_ << std::endl;
+	  //std::cout << " PrimaryVertexValidation::analyze() : Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_ << std::endl;
+	  edm::LogError("PrimaryVertexValidation")<<" Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_;
 	  continue;
 	}
 	
@@ -508,8 +540,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(theFinalTracks.size() > 1){
 	    
 	  if(debug_)
-	    std::cout <<"PrimaryVertexValidation::analyze() :Transient Track Collection size: "<<theFinalTracks.size()<<std::endl;
-	  
+	    // std::cout <<"PrimaryVertexValidation::analyze() :Transient Track Collection size: "<<theFinalTracks.size()<<std::endl;
+	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
 	  try{
 	      
 	    VertexFitter<5>* theFitter = new AdaptiveVertexFitter;
@@ -520,6 +552,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	    double totalTrackWeights=0;
 	    if(theFittedVertex.isValid ()){
+
 	      
 	      if(theFittedVertex.hasTrackWeight()){
 		for(size_t rtracks= 0; rtracks < theFinalTracks.size(); rtracks++){
@@ -560,27 +593,37 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
           
 	      double dz_err = hypot(theTrack.dzError(),theFittedVertex.positionError().czz());
 
-	      // PD 
+	      // PV2D 
 	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(*theTTrack,
 										       GlobalVector(theTrack.px(),
 												    theTrack.py(),
 												    theTrack.pz()),
-										       theFittedVertex); 
+										       theFittedVertex);            
 	      
 	      double s_ip2dpv_corr = s_ip2dpv.second.value();
 	      double s_ip2dpv_err  = s_ip2dpv.second.error();
 	      
 	      // PV3D
+	      std::pair<bool, Measurement1D> s_ip3dpv = signedImpactParameter3D(*theTTrack,		    
+										GlobalVector(theTrack.px(),  
+											     theTrack.py(),  
+											     theTrack.pz()), 
+										theFittedVertex);            
+	      
+	      double s_ip3dpv_corr = s_ip3dpv.second.value();
+	      double s_ip3dpv_err  = s_ip3dpv.second.error();
+
+	      // PV3D absolute
 	      std::pair<bool,Measurement1D> ip3dpv = absoluteImpactParameter3D(*theTTrack,theFittedVertex);
 	      double ip3d_corr = ip3dpv.second.value(); 
 	      double ip3d_err  = ip3dpv.second.error(); 
-
 	      
 	      // with respect to any specified vertex, such as primary vertex
 	      GlobalPoint vert(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 	      TrajectoryStateClosestToPoint traj = (*theTTrack).trajectoryStateClosestToPoint(vert);
-	      // double d0 = traj.perigeeParameters().transverseImpactParameter();
-	      // double d0_error = traj.perigeeError().transverseImpactParameterError();
+
+	      double d0 = traj.perigeeParameters().transverseImpactParameter();
+	      //double d0_error = traj.perigeeError().transverseImpactParameterError();
 	      double z0 = traj.perigeeParameters().longitudinalImpactParameter();
 	      double z0_error = traj.perigeeError().longitudinalImpactParameterError();
 
@@ -644,11 +687,16 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		double restrkz   = zTrack-zVertex;
 		double pulltrkz  = (zTrack-zVertex)/TMath::Sqrt(dz2);
 
-		h_probedzRecoV_->Fill(dzRecoV);
 		h_probedxyRecoV_->Fill(dxyRecoV);
+		h_probedzRecoV_->Fill(dzRecoV);
+	
 		h_probedzRefitV_->Fill(dxyFromMyVertex);
-		h_probesignIP2DRefitV_->Fill(s_ip2dpv_corr);
 		h_probedxyRefitV_->Fill(dzFromMyVertex);
+
+		h_probed0RefitV_->Fill(d0);
+		h_probez0RefitV_->Fill(z0);
+
+		h_probesignIP2DRefitV_->Fill(s_ip2dpv_corr);
 		h_probed3DRefitV_->Fill(ip3d_corr);
 		h_probereszRefitV_->Fill(restrkz);
 
@@ -659,7 +707,17 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		h_probeRefitVSig3D_->Fill(ip3d_corr/ip3d_err);
 		h_probeRefitVLogSig3D_->Fill(log10(ip3d_corr/ip3d_err));
 		h_probeRefitVSigResZ_->Fill(pulltrkz);
-
+		
+		a_dxyVsPhi->Fill(trackphi,dxyFromMyVertex*cmToum);
+		a_dzVsPhi->Fill(trackphi,z0*cmToum);  
+		n_dxyVsPhi->Fill(trackphi,dxyFromMyVertex/s_ip2dpv_err); 
+		n_dzVsPhi->Fill(trackphi,z0/z0_error);
+  
+		a_dxyVsEta->Fill(tracketa,dxyFromMyVertex*cmToum); 
+		a_dzVsEta->Fill(tracketa,z0*cmToum);  
+		n_dxyVsEta->Fill(tracketa,dxyFromMyVertex/s_ip2dpv_err); 
+		n_dzVsEta->Fill(tracketa,z0/z0_error); 
+ 
 		// filling the binned distributions
 		for(int i=0; i<nBins_; i++){
 		  
@@ -670,25 +728,35 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  float etaL=-2.5+(i+1)*etaSect_;
 
 		  if(tracketa >= etaF && tracketa < etaL ){
+
 		    a_dxyEtaResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dzEtaResiduals[i]->Fill(z0*cmToum); 
+		    a_dzEtaResiduals[i]->Fill(dzFromMyVertex*cmToum);   
 		    n_dxyEtaResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzEtaResiduals[i]->Fill(z0/z0_error);	    
+		    n_dzEtaResiduals[i]->Fill(dzFromMyVertex/dz_err);	    
 		    a_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
 		    n_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err);
 		    a_reszEtaResiduals[i]->Fill(restrkz*cmToum);
 		    n_reszEtaResiduals[i]->Fill(pulltrkz);
+		    a_d3DEtaResiduals[i]->Fill(ip3d_corr*cmToum);   
+		    n_d3DEtaResiduals[i]->Fill(ip3d_corr/ip3d_err);
+		    a_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
+		    n_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
+
 		  }
 		  	  
 		  if(trackphi >= phiF && trackphi < phiL ){
 		    a_dxyPhiResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dzPhiResiduals[i]->Fill(z0*cmToum); 
+		    a_dzPhiResiduals[i]->Fill(dzFromMyVertex*cmToum); 
 		    n_dxyPhiResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzPhiResiduals[i]->Fill(z0/z0_error); 
+		    n_dzPhiResiduals[i]->Fill(dzFromMyVertex/dz_err); 
 		    a_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
 		    n_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err); 
 		    a_reszPhiResiduals[i]->Fill(restrkz*cmToum);
 		    n_reszPhiResiduals[i]->Fill(pulltrkz);
+		    a_d3DPhiResiduals[i]->Fill(ip3d_corr*cmToum);   
+		    n_d3DPhiResiduals[i]->Fill(ip3d_corr/ip3d_err);
+		    a_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
+		    n_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
 
 		    for(int j=0; j<nBins_; j++){
 
@@ -697,9 +765,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		      if(tracketa >= etaJ && tracketa < etaK ){
 			a_dxyResidualsMap[i][j]->Fill(dxyFromMyVertex*cmToum); 
-			a_dzResidualsMap[i][j]->Fill(z0*cmToum);   		
+			a_dzResidualsMap[i][j]->Fill(dzFromMyVertex*cmToum);   		
 			n_dxyResidualsMap[i][j]->Fill(dxyFromMyVertex/s_ip2dpv_err); 
-			n_dzResidualsMap[i][j]->Fill(z0/z0_error);  
+			n_dzResidualsMap[i][j]->Fill(dzFromMyVertex/dz_err);  
+			a_d3DResidualsMap[i][j]->Fill(ip3d_corr*cmToum);   
+			n_d3DResidualsMap[i][j]->Fill(ip3d_corr/ip3d_err); 
+
 		      }
 		    }
 		  }		
@@ -707,34 +778,43 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
   	          
 	      if(debug_){
-		std::cout<<"PrimaryVertexValidation::analyze() : myVertex.x()= "<<myVertex.x()
-			 <<" myVertex.y()= "<<myVertex.y()
-			 <<" theFittedVertex.z()= "<<myVertex.z()
-			 <<std::endl;	  
-		std::cout<<"PrimaryVertexValidation::analyze() : theTrack.dz(myVertex)= "<<theTrack.dz(myVertex)<<std::endl;
-		std::cout<<"PrimaryVertexValidation::analyze() : zPCA -myVertex.z() = "<<(theTrack.vertex().z() -myVertex.z() )<<std::endl; 
+		// std::cout<<"PrimaryVertexValidation::analyze() : myVertex.x()= "<<myVertex.x()
+		// 	 <<" myVertex.y()= "<<myVertex.y()
+		// 	 <<" theFittedVertex.z()= "<<myVertex.z()
+		// 	 <<std::endl;	  
+		// std::cout<<"PrimaryVertexValidation::analyze() : theTrack.dz(myVertex)= "<<theTrack.dz(myVertex)<<std::endl;
+		// std::cout<<"PrimaryVertexValidation::analyze() : zPCA -myVertex.z() = "<<(theTrack.vertex().z() -myVertex.z() )<<std::endl;
+ 
+		edm::LogInfo("PrimaryVertexValidation")<<" myVertex.x()= "<<myVertex.x()<<"\n"
+						       <<" myVertex.y()= "<<myVertex.y()<<" \n"
+						       <<" myVertex.z()= "<<myVertex.z()<<" \n"
+						       <<" theTrack.dz(myVertex)= "<<theTrack.dz(myVertex)<<" \n"
+						       <<" zPCA -myVertex.z() = "<<(theTrack.vertex().z() -myVertex.z());
+		
 	      }// ends if debug_
 	    } // ends if the fitted vertex is Valid
 
 	    delete theFitter;
 
 	  }  catch ( cms::Exception& er ) {
-	    LogTrace("PrimaryVertexValidation::analyze RECO")<<"caught std::exception "<<er.what()<<std::endl;
+	    LogTrace("PrimaryVertexValidation")<<"caught std::exception "<<er.what()<<std::endl;
 	  }
 		
 	} //ends if theFinalTracks.size() > 2
 	
 	else {
 	  if(debug_)
-	      std::cout << "PrimaryVertexValidation::analyze() :Not enough tracks to make a vertex.  Returns no vertex info" << std::endl;
+	    //	      std::cout << "PrimaryVertexValidation::analyze() :Not enough tracks to make a vertex.  Returns no vertex info" << std::endl;
+	    edm::LogInfo("PrimaryVertexValidation")<<"Not enough tracks to make a vertex.  Returns no vertex info";
 	}
 	  
 	++nTracks_;  
 	++nTracksPerClus_;
 
 	if(debug_)
-	  cout<< "Track "<<i<<" : pT = "<<theTrack.pt()<<endl;
-	
+	  //cout<< "Track "<<i<<" : pT = "<<theTrack.pt()<<endl;
+	  edm::LogInfo("PrimaryVertexValidation")<<"Track "<<i<<" : pT = "<<theTrack.pt();
+	  
       }// for loop on tracks
   } // for loop on track clusters
   
@@ -798,7 +878,11 @@ bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack 
 // ------------ method called once each job before begining the event loop  ------------
 void PrimaryVertexValidation::beginJob()
 {
-  edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+  edm::LogInfo("PrimaryVertexValidation") 
+    <<"######################################\n"
+    <<"Begin Job \n" 
+    <<"######################################";
+
   // Define TTree for output
   Nevt_    = 0;
   
@@ -929,6 +1013,10 @@ void PrimaryVertexValidation::beginJob()
   h_probedzRefitV_   = ProbeFeatures.make<TH1F>("h_probedzRefitV","d_{z}(V_{refit}) of probe track;track d_{z}(V_{fit}) (cm);tracks",200,-1.,1.);
   h_probesignIP2DRefitV_ = ProbeFeatures.make<TH1F>("h_probesignIPRefitV","ip_{2D}(V_{refit}) of probe track;track ip_{2D}(V_{fit}) (cm);tracks",200,-1.,1.);
   h_probedxyRefitV_  = ProbeFeatures.make<TH1F>("h_probedxyRefitV","d_{xy}(V_{refit}) of probe track;track d_{xy}(V_{fit}) (cm);tracks",200,-1.,1.); 
+
+  h_probez0RefitV_   = ProbeFeatures.make<TH1F>("h_probez0RefitV","z_{0}(V_{refit}) of probe track;track z_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
+  h_probed0RefitV_   = ProbeFeatures.make<TH1F>("h_probed0RefitV","d_{0}(V_{refit}) of probe track;track d_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
+
   h_probed3DRefitV_  = ProbeFeatures.make<TH1F>("h_probed3DRefitV","d_{3D}(V_{refit}) of probe track;track d_{3D}(V_{fit}) (cm);tracks",200,0.,1.); 
   h_probereszRefitV_ = ProbeFeatures.make<TH1F>("h_probeReszRefitV","z_{track} -z_{V_{refit}};track res_{z}(V_{refit}) (cm);tracks",200,-1.,1.); 
 
@@ -986,6 +1074,9 @@ void PrimaryVertexValidation::beginJob()
   float dxymax_eta = 3000; 
   float dzmax_eta  = 3000;
 
+  float d3Dmax_phi = hypot(dxymax_phi,dzmax_phi);
+  float d3Dmax_eta = hypot(dxymax_eta,dzmax_eta);
+
   const int mybins_ = 500;
 
   ///////////////////////////////////////////////////////////////////
@@ -1001,11 +1092,17 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory AbsLongPhiRes   = fs->mkdir("Abs_Long_Phi_Residuals");
   TFileDirectory AbsLongEtaRes   = fs->mkdir("Abs_Long_Eta_Residuals");
 		 		  
+  TFileDirectory Abs3DPhiRes     = fs->mkdir("Abs_3D_Phi_Residuals");
+  TFileDirectory Abs3DEtaRes     = fs->mkdir("Abs_3D_Eta_Residuals");
+
   TFileDirectory NormTransPhiRes = fs->mkdir("Norm_Transv_Phi_Residuals");
   TFileDirectory NormTransEtaRes = fs->mkdir("Norm_Transv_Eta_Residuals");
 		 					  
   TFileDirectory NormLongPhiRes  = fs->mkdir("Norm_Long_Phi_Residuals");
   TFileDirectory NormLongEtaRes  = fs->mkdir("Norm_Long_Eta_Residuals");
+
+  TFileDirectory Norm3DPhiRes    = fs->mkdir("Norm_3D_Phi_Residuals");
+  TFileDirectory Norm3DEtaRes    = fs->mkdir("Norm_3D_Eta_Residuals");
 
   TFileDirectory AbsDoubleDiffRes   = fs->mkdir("Abs_DoubleDiffResiduals");
   TFileDirectory NormDoubleDiffRes  = fs->mkdir("Norm_DoubleDiffResiduals");
@@ -1038,6 +1135,16 @@ void PrimaryVertexValidation::beginJob()
 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D} [#mum];tracks",etaF,etaL),
 						     mybins_,-dxymax_eta,dxymax_eta);
 
+    // IP3D vs phi and eta
+
+    a_IP3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_IP3D_phi_plot%i",i),
+						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D} [#mum];tracks",phiF,phiL),
+						   mybins_,-dxymax_phi,dxymax_phi);
+    
+    a_IP3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_IP3D_eta_plot%i",i),
+						   Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D} [#mum];tracks",etaF,etaL),
+						   mybins_,-dxymax_eta,dxymax_eta);
+
     // dz vs phi and eta
 
     a_dzPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
@@ -1059,6 +1166,16 @@ void PrimaryVertexValidation::beginJob()
 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;z_{trk} - z_{vtx} [#mum];tracks",etaF,etaL),
 						    mybins_,-dzmax_eta,dzmax_eta);
 
+    // d3D vs phi and eta
+
+    a_d3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_d3D_phi_plot%i",i),
+						  Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D} [#mum];tracks",phiF,phiL),
+						  mybins_,0.,d3Dmax_phi);
+    
+    a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
+						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
+						  mybins_,0.,d3Dmax_eta);
+    
     // normalized dxy vs eta and phi
    				
     n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
@@ -1079,6 +1196,16 @@ void PrimaryVertexValidation::beginJob()
 						       Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D}/#sigma_{IP_{2D}};tracks",etaF,etaL),
 						       mybins_,-dxymax_eta/100.,dxymax_eta/100.);
     
+    // normalized IP3d vs eta and phi
+    
+    n_IP3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_IP3D_phi_plot%i",i),
+						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D}/#sigma_{IP_{3D}};tracks",phiF,phiL),
+						    mybins_,-dxymax_phi/100.,dxymax_phi/100.);
+    
+    n_IP3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_IP3D_eta_plot%i",i),
+						    Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D}/#sigma_{IP_{3D}};tracks",etaF,etaL),
+						    mybins_,-dxymax_eta/100.,dxymax_eta/100.);
+
     // normalized dz vs phi and eta
 
     n_dzPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
@@ -1099,6 +1226,15 @@ void PrimaryVertexValidation::beginJob()
 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",etaF,etaL),
 						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
 
+    // normalized d3D vs phi and eta
+
+    n_d3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_d3D_phi_plot%i",i),
+						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",phiF,phiL),
+						   mybins_,0.,d3Dmax_phi/100.);
+    
+    n_d3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i",i),
+						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
+						   mybins_,0.,d3Dmax_eta/100.);
 
     for ( int j=0; j<nBins_; ++j ) {
  
@@ -1110,6 +1246,10 @@ void PrimaryVertexValidation::beginJob()
 							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z};tracks",etaF,etaL,phiF,phiL),
 							    mybins_,-dzmax_eta,dzmax_eta);
       
+      a_d3DResidualsMap[i][j] = AbsDoubleDiffRes.make<TH1F>(Form("histo_d3D_eta_plot%i_phi_plot%i",i,j),
+							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{3D};tracks",etaF,etaL,phiF,phiL),
+							    mybins_,0.,d3Dmax_eta);
+      
       n_dxyResidualsMap[i][j] = NormDoubleDiffRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i_phi_plot%i",i,j),
 							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL,phiF,phiL),
 							     mybins_,-dzmax_eta/100,dzmax_eta/100);
@@ -1118,10 +1258,40 @@ void PrimaryVertexValidation::beginJob()
 							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL,phiF,phiL),
 							     mybins_,-dzmax_eta/100,dzmax_eta/100);
 
+      n_d3DResidualsMap[i][j] = NormDoubleDiffRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i_phi_plot%i",i,j),
+							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL,phiF,phiL),
+							     mybins_,0.,d3Dmax_eta);
+
     }
   }
 
   // declaration of the directories
+  
+  TFileDirectory BiasVsParameter = fs->mkdir("BiasVsParameter");
+
+  a_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_dxy_vs_phi","d_{xy} vs track #phi;track #phi [rad];track d_{xy}(PV) [#mum]",
+					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi,dxymax_phi); 
+ 
+  a_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_dz_vs_phi","d_{z} vs track #phi;track #phi [rad];track d_{z}(PV) [#mum]",
+					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi,dzmax_phi);   
+               
+  n_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_phi","d_{xy}/#sigma_{d_{xy}} vs track #phi;track #phi [rad];track d_{xy}(PV)/#sigma_{d_{xy}}",
+					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi/100.,dxymax_phi/100.); 
+  
+  n_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_phi","d_{z}/#sigma_{d_{z}} vs track #phi;track #phi [rad];track d_{z}(PV)/#sigma_{d_{z}}",
+					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi/100.,dzmax_phi/100.);   
+               
+  a_dxyVsEta = BiasVsParameter.make<TH2F>("h2_dxy_vs_eta","d_{xy} vs track #eta;track #eta;track d_{xy}(PV) [#mum]",
+					  48,-2.5,2.5,mybins_,-dxymax_eta,dzmax_eta);
+  
+  a_dzVsEta  = BiasVsParameter.make<TH2F>("h2_dz_vs_eta","d_{z} vs track #eta;track #eta;track d_{z}(PV) [#mum]",
+					  48,-2.5,2.5,mybins_,-dzmax_eta,dzmax_eta);   
+               
+  n_dxyVsEta = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_eta","d_{xy}/#sigma_{d_{xy}} vs track #eta;track #eta;track d_{xy}(PV)/#sigma_{d_{xy}}",
+					  48,-2.5,2.5,mybins_,-dxymax_eta/100.,dxymax_eta/100.);  
+
+  n_dzVsEta  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_eta","d_{z}/#sigma_{d_{z}} vs track #eta;track #eta;track d_{z}(PV)/#sigma_{d_{z}}",
+					  48,-2.5,2.5,mybins_,-dzmax_eta/100.,dzmax_eta/100.);   
 
   TFileDirectory MeanTrendsDir   = fs->mkdir("MeanTrends");
   TFileDirectory WidthTrendsDir  = fs->mkdir("WidthTrends");
@@ -1566,10 +1736,18 @@ void PrimaryVertexValidation::beginJob()
 void PrimaryVertexValidation::endJob() 
 {
 
-  std::cout<<"######################################"<<std::endl;
-  std::cout<<"# PrimaryVertexValidation::endJob()"<<std::endl; 
-  std::cout<<"# Number of analyzed events: "<<Nevt_<<std::endl;
-  std::cout<<"######################################"<<std::endl;
+  /*
+    std::cout<<"######################################"<<std::endl;
+    std::cout<<"# PrimaryVertexValidation::endJob()"<<std::endl; 
+    std::cout<<"# Number of analyzed events: "<<Nevt_<<std::endl;
+    std::cout<<"######################################"<<std::endl;
+  */
+
+  edm::LogInfo("PrimaryVertexValidation")
+    <<"######################################\n"
+    <<"# PrimaryVertexValidation::endJob()\n" 
+    <<"# Number of analyzed events: "<<Nevt_<<"\n"
+    <<"######################################";
 
   if(useTracksFromRecoVtx_){
 

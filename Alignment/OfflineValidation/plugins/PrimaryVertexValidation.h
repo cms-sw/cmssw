@@ -124,7 +124,7 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   double  ptOfProbe_;
   double  etaOfProbe_; 
   int nBins_;                 // actual number of histograms     
-  unsigned int runControlNumber_;
+  std::vector<unsigned int> runControlNumbers_;
 
   bool debug_;
   bool runControl_;
@@ -234,9 +234,15 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   
   TH1F* a_IP2DPhiResiduals[nMaxBins_];
   TH1F* a_IP2DEtaResiduals[nMaxBins_];
+  
+  TH1F* a_IP3DPhiResiduals[nMaxBins_];
+  TH1F* a_IP3DEtaResiduals[nMaxBins_];
 
   TH1F* a_reszPhiResiduals[nMaxBins_];
   TH1F* a_reszEtaResiduals[nMaxBins_];
+
+  TH1F* a_d3DPhiResiduals[nMaxBins_];
+  TH1F* a_d3DEtaResiduals[nMaxBins_];
 
   // normalized residuals
 
@@ -249,17 +255,25 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* n_IP2DPhiResiduals[nMaxBins_];
   TH1F* n_IP2DEtaResiduals[nMaxBins_];
   
+  TH1F* n_IP3DPhiResiduals[nMaxBins_];
+  TH1F* n_IP3DEtaResiduals[nMaxBins_];
+
   TH1F* n_reszPhiResiduals[nMaxBins_];
   TH1F* n_reszEtaResiduals[nMaxBins_];
+
+  TH1F* n_d3DPhiResiduals[nMaxBins_];
+  TH1F* n_d3DEtaResiduals[nMaxBins_];
 
   // for the maps
 
   TH1F* a_dxyResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* a_dzResidualsMap[nMaxBins_][nMaxBins_];
-        				 				    
+  TH1F* a_d3DResidualsMap[nMaxBins_][nMaxBins_];
+      				 				    
   TH1F* n_dxyResidualsMap[nMaxBins_][nMaxBins_];  				 
   TH1F* n_dzResidualsMap[nMaxBins_][nMaxBins_];
-
+  TH1F* n_d3DResidualsMap[nMaxBins_][nMaxBins_];
+  
   // ---- trends as function of phi
   
   TH1F* a_dxyPhiMeanTrend;
@@ -303,6 +317,20 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* n_dxyEtaMADTrend;
   TH1F* n_dzEtaMedianTrend;
   TH1F* n_dzEtaMADTrend;
+
+  // 2D residuals
+  
+  TH2F* a_dxyVsPhi;
+  TH2F* a_dzVsPhi;
+
+  TH2F* n_dxyVsPhi;
+  TH2F* n_dzVsPhi;
+
+  TH2F* a_dxyVsEta;
+  TH2F* a_dzVsEta;
+
+  TH2F* n_dxyVsEta;
+  TH2F* n_dzVsEta;
 
   // 2D maps
 
@@ -436,8 +464,13 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   
   TH1F* h_probedzRecoV_;
   TH1F* h_probedxyRecoV_;
+
   TH1F* h_probedzRefitV_;
   TH1F* h_probedxyRefitV_;
+
+  TH1F* h_probed0RefitV_;
+  TH1F* h_probez0RefitV_;
+
   TH1F* h_probesignIP2DRefitV_;
   TH1F* h_probed3DRefitV_;
   TH1F* h_probereszRefitV_;
