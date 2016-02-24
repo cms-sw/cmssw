@@ -23,9 +23,11 @@
 namespace magfieldparam {
   template<typename T>
   struct BCylParam {
+    //  constexpr BCylParam(std::initializer_list<T> init) :
     template<typename ... Args>
     constexpr BCylParam(Args... init) :
       prm{std::forward<Args>(init)...},
+    //prm(std::forward<Args>(init)...), 
       ap2(4*prm[0]*prm[0]/(prm[1]*prm[1])), 
       hb0(0.5*prm[2]*std::sqrt(1.0+ap2)),
       hlova(1/std::sqrt(ap2)),
@@ -46,12 +48,11 @@ namespace magfieldparam {
     template<typename T>
     inline void ffunkti(T u, T * __restrict__ ff) {
       // Function and its 3 derivatives
-      auto u2=u*u; 
-      // a=T(1)/(T(1)+u2);
-      // b=std::sqrt(a);
-      auto b=T(1)/std::sqrt(T(1)+u2);
-      auto a=b*b;
-      auto a2=-T(3)*a*a;
+      T a,b,a2,u2;
+      u2=u*u; 
+      a=T(1)/(T(1)+u2);
+      a2=-T(3)*a*a;
+      b=std::sqrt(a);
       ff[0]=u*b;
       ff[1]=a*b;
       ff[2]=a2*ff[0];

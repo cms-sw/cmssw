@@ -1,4 +1,3 @@
-<flags   CXXFLAGS="-Ofast"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
