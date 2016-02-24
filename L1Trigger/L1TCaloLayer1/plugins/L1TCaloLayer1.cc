@@ -185,22 +185,30 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     else if(hcalTp.id().version() == 0 && absCaloEta > 29) {
       continue;
     }
-    else {
+    else if(absCaloEta <= 41) {
       int caloPhi = hcalTp.id().iphi();
-      int et = hcalTp.SOI_compressedEt();
-      bool fg = hcalTp.SOI_fineGrain();
-      if(et != 0) {
-	UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-	uint32_t featureBits = 0;
-	if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
-	if(!layer1->setHCALData(t, featureBits, et)) {
-	  std::cerr << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
-	  std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
-	  return;
-	  
+      if(caloPhi <= 72) {
+	int et = hcalTp.SOI_compressedEt();
+	bool fg = hcalTp.SOI_fineGrain();
+	if(et != 0) {
+	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+	  uint32_t featureBits = 0;
+	  if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
+	  if(!layer1->setHCALData(t, featureBits, et)) {
+	    std::cerr << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
+	    std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
+	    return;
+	    
+	  }
+	  expectedTotalET += et;
 	}
-	expectedTotalET += et;
       }
+      else {
+	std::cerr << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+      }
+    }
+    else {
+      std::cerr << "Illegal Tower: caloEta = " << caloEta << std::endl;
     }
   }
   
@@ -235,8 +243,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  caloTower.setHwPt(towers[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
 	  caloTower.setHwEtRatio(towers[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
 	  caloTower.setHwQual(towers[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEta(towers[twr]->uctEta());          // Same as caloEta = 1-28 and 30-41
-	  caloTower.setHwPhi(towers[twr]->uctPhi());          // Same as caloPhi = 1-72 for caloEta = 1-28, but also 1-72 for caloEta = 30-41!
+	  caloTower.setHwEta(towers[twr]->caloEta());         // caloEta = 1-28 and 30-41
+	  caloTower.setHwPhi(towers[twr]->caloPhi());         // caloPhi = 1-72
 	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
 	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
 	  towersColl->push_back(theBX, caloTower);

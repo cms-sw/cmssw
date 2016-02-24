@@ -74,7 +74,7 @@ void print(UCTLayer1& uct) {
 
 int main(int argc, char** argv) {
 
-  int nEvents = 1;
+  int nEvents = 10000;
   if(argc == 1) std::cout << "Running on " << nEvents << std::endl;
   else if(argc == 2) nEvents = atoi(argv[1]);
   else {std::cout << "Command syntax: testUCTLayer1 [nEvents]" << std::endl; return 1;}
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 
   // Event loop for test
   for(int event = 0; event < nEvents; event++) {
-    std::cout << "Event " << std::dec << event << "; ";
+
     if(!uctLayer1.clearEvent()) {
       std::cerr << "UCT: Failed to clear event" << std::endl;
       exit(1);
@@ -99,16 +99,10 @@ int main(int argc, char** argv) {
       int caloEta = (30 + random() % 12); // Distribute uniformly in +/- eta within acceptance
       while(caloEta < 30 || caloEta > 41) caloEta = (30 + random() % 12);
       int caloPhi;
-      if(caloEta == 40 || caloEta == 41) {
-	caloPhi = (1 + random() % 18); // Distribute uniformly in all phi
-	while(caloPhi < 1 || caloPhi > 18) caloPhi = (1 + random() % 18);
-      }
-      else {
-	caloPhi = (1 + random() % 36); // Distribute uniformly in all phi
-	while(caloPhi < 1 || caloPhi > 36) caloPhi = (1 + random() % 36);
-      }
+      caloPhi = (1 + random() % 72); // Distribute uniformly in all phi
+      while(caloPhi < 1 || caloPhi > 72) caloPhi = (1 + random() % 72);
+      caloPhi = caloPhi - ((caloPhi - 1) % 4);
       if((random() & 0x1) != 0) caloEta = -caloEta;
-      std::cout << "caloEta = " << caloEta << "; caloPhi = " << caloPhi << "; et = " << et << std::endl;
       UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
       if(!uctLayer1.setHCALData(t, fg, et)) {
 	std::cerr << "UCT: Failed loading an HF tower" << std::endl;
@@ -128,7 +122,9 @@ int main(int argc, char** argv) {
     // 10% is good enough
     int diff = uctLayer1.et() - expectedTotalET;
     if(diff < 0) diff = diff * -1;
-    if(diff > (0.10 * expectedTotalET) ) {
+    double fraction = 0.10;
+    if(expectedTotalET < 32) fraction = 0.20;
+    if(diff > (fraction * expectedTotalET) ) {
       std::cout << std::dec << std::endl;
       print(uctLayer1);
       std::cout << std::endl

@@ -11,8 +11,6 @@ int main(int argc, char** argv) {
   for(int caloPhi = 1; caloPhi <= MaxCaloPhi; caloPhi++) {
     for(int caloEta = -MaxCaloEta; caloEta <= MaxCaloEta; caloEta++) {
       if(caloEta == 0 || abs(caloEta) == 29) continue;
-      else if(abs(caloEta) > 39 && caloPhi > MaxCaloPhiInVHF) continue;
-      else if(abs(caloEta) > 29 && caloPhi > MaxCaloPhiInHF) continue;
       uint32_t crt = g.getCrate(caloEta, caloPhi);
       uint32_t crd = g.getCard(caloEta, caloPhi);
       uint32_t rgn = g.getRegion(caloEta, caloPhi);

@@ -41,20 +41,17 @@
 #define NRegionsInCard 7
 #define NEtaInRegion 4
 #define NPhiInRegion 4
-#define NPhiInCard NPhiInRegion
+#define NPhiInCard NPhiInRegion // For convenience of Layer-2 we always have the same number of phi divisions
 
 #define HFEtaOffset NRegionsInCard * NEtaInRegion + 1
 #define NHFRegionsInCard 6
 #define NHFEtaInRegion 2
-#define NHFPhiInRegion NPhiInRegion // For convenience of Layer-2 we always have the same number of phit divisions
-#define NHFPhiInCard NHFPhiInRegion
-#define NVHFPhiInCard 1
 
 #define NSides 2  // Positive and Negative Eta sides
 #define NEta NRegionsInCard * NEtaInRegion
 #define NPhi NCrates * NCardsInCrate * NPhiInRegion
 #define NHFEta NHFRegionsInCard * NHFEtaInRegion
-#define NHFPhi NCrates * NCardsInCrate * NHFPhiInRegion
+#define NHFPhi NCrates * NCardsInCrate * NPhiInRegion
 
 #define MaxCrateNumber (NCrates - 1)
 #define MaxCardNumber (NCardsInCrate - 1)
@@ -66,9 +63,6 @@
 #define MaxCaloPhi 72
 #define CaloHFRegionStart 7
 #define CaloVHFRegionStart 12
-
-#define MaxCaloPhiInHF MaxCaloPhi/2
-#define MaxCaloPhiInVHF MaxCaloPhi/4
 
 #define MaxUCTRegionsPhi MaxCaloPhi / NPhiInRegion
 #define MaxUCTRegionsEta 2 * (NRegionsInCard + NHFRegionsInCard)
@@ -90,9 +84,6 @@ public:
 
   int getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iEta);
   int getCaloPhiIndex(uint32_t crate, uint32_t card, uint32_t region, uint32_t iPhi);
-  // Unlike caloPhi which is 1-72, 1-36 or 1-18 depending on caloEta, 
-  // uctPhi is always 1-72 to account for fictitious divisions used for convenience in UCT
-  int getUCTPhiIndex(uint32_t crate, uint32_t card, uint32_t iPhi);
 
   uint32_t getLinkNumber(bool negativeSide, uint32_t region, uint32_t iEta, uint32_t iPhi);
   uint32_t getChannelNumber(bool negativeSide, uint32_t iEta, uint32_t iPhi);
@@ -119,10 +110,7 @@ public:
       return !(iEta < NHFEtaInRegion);
   }
   bool checkPhiIndex(uint32_t region, uint32_t iPhi) {
-    if(region < NRegionsInCard)
-      return !(iPhi < NPhiInRegion);
-    else
-      return !(iPhi < NHFPhiInRegion);
+    return !(iPhi < NPhiInRegion);
   }
 
   // For summary card, we label regions by phi and eta indices
