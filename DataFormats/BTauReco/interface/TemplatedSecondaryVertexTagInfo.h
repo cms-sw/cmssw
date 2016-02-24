@@ -62,7 +62,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
                 GlobalVector                    direction;
 		
 		// Used by ROOT storage
-		CMS_CLASS_VERSION(11)
+		CMS_CLASS_VERSION(12)
         };
 
         struct TrackFinder {
