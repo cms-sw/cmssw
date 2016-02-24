@@ -230,6 +230,7 @@ namespace edm
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
     hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
+    hadronizer_.generateLHE(lumi,randomEngineSentry.randomEngine());
     
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
@@ -261,7 +262,9 @@ namespace edm
   template <class HAD, class DEC>
   void
   GeneratorFilter<HAD, DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
-  {}
+  {
+    hadronizer_.cleanLHE();
+  }
 
   template <class HAD, class DEC>
   void

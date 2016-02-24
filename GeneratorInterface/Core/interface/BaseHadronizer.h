@@ -72,11 +72,12 @@ namespace gen {
     std::vector<std::string> const& sharedResources() const { return doSharedResources(); }
     
     int randomIndex() const { return randomIndex_; }
-    const std::string &randomInitConfigDescription() { return randomInitConfigDescriptions_[randomIndex_]; }
+    const std::string &randomInitConfigDescription() const { return randomInitConfigDescriptions_[randomIndex_]; }
+    const std::string &gridpackPath() const { return gridpackPaths_[std::max(randomIndex_,0)]; }
     
     void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
-    
-    
+    void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    void cleanLHE();
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
@@ -86,6 +87,7 @@ namespace gen {
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
     int randomIndex_;
+    std::string lheFile_;
 
   private:
 
@@ -106,7 +108,8 @@ namespace gen {
 
     std::vector<double> randomInitWeights_;
     std::vector<std::string> randomInitConfigDescriptions_;
-    
+    std::vector<std::string> gridpackPaths_;
+        
   };
 
 } // namespace gen
