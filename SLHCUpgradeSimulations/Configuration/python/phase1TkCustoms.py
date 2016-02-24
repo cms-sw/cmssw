@@ -471,13 +471,6 @@ def customise_Reco(process,pileup):
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-    # PixelCPEGeneric #
-    process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
-    process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
-    process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
-    process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
-    process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
-    process.PixelCPEGenericESProducer.DoCosmics = False
     # CPE for other steps
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
     # Turn of template use in tracking (iterative steps handled inside their configs)
