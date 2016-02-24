@@ -3,6 +3,8 @@
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
+#include "G4RotationMatrix.hh"
+
 #include <map>
 #include <vector>
 
@@ -44,8 +46,11 @@ private:
     static const std::vector<double>* par_;
     std::map<DDSolidShape,FNPTR> convDispatch_;
 
+    static G4RotationMatrix* rot;
+
     friend class testTruncTubs;
     friend class testPseudoTrap;
+
 };
 
 #endif
