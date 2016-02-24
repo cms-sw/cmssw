@@ -137,7 +137,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
   // -- set the saveIovTime as that
   // -- set the payload stats to empty
   // Successivamente:
-  // - loop su tutti gli elementi del detidV, che è stato letto dal pvss (questi elementi sono pair<vettore di detid, time>)
+  // - loop su tutti gli elementi del detidV, che stato letto dal pvss (questi elementi sono pair<vettore di detid, time>)
   // -- setta il tempo dell'IOV:
   // --- LASTVALUE -> iovtime settato a latestTime
   // --- altrimenti iovtime = tempo associato al detId vector del loop
@@ -257,11 +257,14 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
       SiStripDetVOff * testV = 0;
       if (!modulesOff.empty()) {testV = modulesOff.back().first;}
       if (modulesOff.empty() ||  !(*modV == *testV) ) {
-      	modulesOff.push_back( std::make_pair(modV,iovtime) );
-	// save the time of the object
-	saveIovTime = iovtime;
-	// save stats
-	setPayloadStats(afterV.size(), numAdded, numRemoved);
+        modulesOff.push_back( std::make_pair(modV,iovtime) );
+        // save the time of the object
+        saveIovTime = iovtime;
+        // save stats
+        setPayloadStats(afterV.size(), numAdded, numRemoved);
+      } else {
+        // modV will not be used anymore, DELETE it to avoid memory leak!
+        delete modV;
       }
     } else {
       (payloadStats.back())[0] = afterV.size();

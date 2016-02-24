@@ -584,6 +584,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
               
     for ( ; ipair != conns.end(); ++ipair ){
       // Check if the ApvPair is connected
+      if ( !(*ipair) ) continue;
       if ((*ipair)->fedId()!=sistrip::invalid_ && (*ipair)->apvPairNumber()<3){
         // (*ipair)->print(ssMessage);
 	// ssMessage<< std::endl;
@@ -606,11 +607,13 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  << "\n "
 	  << " Unable to find FED connection for detid : " << std::dec << *det_id << " APV pair number " << apvPair
 	  << " Writing default values" << std::endl;
-	(*ipair)->print(ssMessage);
+//	(*ipair)->print(ssMessage); // this will crash!
 	//If no connection was found, add 100 to apvpair
 	apvPair+=100;
 	std::cout << " Put apvPair+100:" << apvPair << " into vector!" << std::endl;
-	p_apvpcon=std::make_pair(apvPair,**ipair);
+	// use dummy FedChannelConnection since it's not used in this case
+	FedChannelConnection dummy;
+	p_apvpcon=std::make_pair(apvPair,dummy);
 	v_apvpcon.push_back(p_apvpcon);
 	apvPair=apvPair-100;
 	continue;
