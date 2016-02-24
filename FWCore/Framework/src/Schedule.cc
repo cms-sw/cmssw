@@ -1,10 +1,13 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/TriggerTimingReport.h"
@@ -20,6 +23,8 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "boost/graph/graph_traits.hpp"
 #include "boost/graph/adjacency_list.hpp"
@@ -34,6 +39,7 @@
 #include <iomanip>
 #include <list>
 #include <map>
+#include <set>
 #include <exception>
 #include <sstream>
 
@@ -352,6 +358,19 @@ namespace edm {
       ParameterSet const& opts = pset.getUntrackedParameterSet("options", defopts);
       return opts.getUntrackedParameter("printDependencies", false);
     }
+
+    class RngEDConsumer : public EDConsumerBase {
+    public:
+      explicit RngEDConsumer(std::set<TypeID>& typesConsumed) {
+        Service<RandomNumberGenerator> rng;
+        if(rng.isAvailable()) {
+          rng->consumes(consumesCollector());
+          for (auto const& consumesInfo : this->consumesInfo()) {
+            typesConsumed.emplace(consumesInfo.type()); 
+          }
+        }
+      }
+    };
   }
   // -----------------------------
 
@@ -459,18 +478,41 @@ namespace edm {
 
     branchIDListHelper.updateFromRegistry(preg);
 
-    preg.setFrozen();
-
     for(auto const& worker : streamSchedules_[0]->allWorkers()) {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
     thinnedAssociationsHelper.sort();
 
+    // The output modules consume products in kept branches.
+    // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
       c->selectProducts(preg, thinnedAssociationsHelper);
     }
-    
+
+    {
+      // We now get a collection of types that may be consumed.
+      std::set<TypeID> typesConsumed; 
+      // Loop over all modules
+      for (auto const& worker : allWorkers()) {
+        for (auto const& consumesInfo : worker->consumesInfo()) {
+          typesConsumed.emplace(consumesInfo.type()); 
+        }
+      }
+      // The SubProcess class is not a module, yet it may consume.
+      if(hasSubprocesses) {
+        typesConsumed.emplace(typeid(TriggerResults)); 
+      }
+      // The RandomNumberGeneratorService is not a module, yet it consumes.
+      {
+         RngEDConsumer rngConsumer = RngEDConsumer(typesConsumed);
+      }
+      preg.setFrozen(typesConsumed);
+    }
+
+    for (auto& c : all_output_communicators_) {
+      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+    }
+
     if(wantSummary_) {
       std::vector<const ModuleDescription*> modDesc;
       const auto& workers = allWorkers();

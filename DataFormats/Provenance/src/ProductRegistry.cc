@@ -81,9 +81,18 @@ namespace edm {
     std::pair<ProductList::iterator, bool> ret =
          productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if(!ret.second) {
-      throw Exception(errors::Configuration, "Duplicate Process")
-        << "The process name " << productDesc.processName() << " was previously used on these products.\n"
-        << "Please modify the configuration file to use a distinct process name.\n";
+      auto const& previous = *productList_.find(BranchKey(productDesc));
+      if(previous.second.produced()) {
+        // Duplicate registration in current process
+        throw Exception(errors::LogicError , "Duplicate Product")
+          << "The produced product " << previous.second << " is registered more than once.\n"
+          << "Please remove the redundant 'produces' call(s).\n";
+      } else {
+        // Duplicate registration in previous process
+        throw Exception(errors::Configuration, "Duplicate Process")
+          << "The process name " << productDesc.processName() << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n";
+      }
     }
     addCalled(productDesc, fromListener);
   }
@@ -149,8 +158,16 @@ namespace edm {
     if(frozen()) return;
     freezeIt();
     if(initializeLookupInfo) {
-      initializeLookupTables();
+      initializeLookupTables(nullptr);
     }
+    sort_all(transient_.aliasToOriginal_);
+  }
+
+  void
+  ProductRegistry::setFrozen(std::set<TypeID> const& typesConsumed) {
+    if(frozen()) return;
+    freezeIt();
+    initializeLookupTables(&typesConsumed);
     sort_all(transient_.aliasToOriginal_);
   }
 
@@ -256,7 +273,7 @@ namespace edm {
     return differences.str();
   }
 
-  void ProductRegistry::initializeLookupTables() {
+  void ProductRegistry::initializeLookupTables(std::set<TypeID> const* typesConsumed) {
 
     std::map<TypeID, TypeID> containedTypeMap;
     TypeSet missingDicts;
@@ -286,6 +303,39 @@ namespace edm {
           } else {
              containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
              containedTypeMap.emplace(typeID, containedTypeID);
+          }
+          if(typesConsumed != nullptr && !desc.produced()) {
+            bool mainTypeConsumed = (typesConsumed->find(typeID) != typesConsumed->end());
+            bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+            bool containedTypeConsumed = hasContainedType && (typesConsumed->find(containedTypeID) != typesConsumed->end());
+            if(hasContainedType && !containedTypeConsumed) {
+              TypeWithDict containedType(containedTypeID.typeInfo());
+              std::vector<TypeWithDict> baseTypes;
+              public_base_classes(containedType, baseTypes);
+              for(TypeWithDict const& baseType : baseTypes) {
+                 if(typesConsumed->find(TypeID(baseType.typeInfo())) != typesConsumed->end()) {
+                   containedTypeConsumed = true;
+                   break;
+                 }
+              }
+            }
+            if(!containedTypeConsumed) {
+              if(mainTypeConsumed) {
+                // The main type is consumed, but either
+                // there is no contained type, or if there is,
+                // neither it nor any of its base classes are consumed.
+                // Set the contained type, if there is one, to void,
+                if(hasContainedType) {
+		  containedTypeID = TypeID(typeid(void)); 
+                }
+              } else {
+                // The main type is not consumed, and either
+                // there is no contained type, or if there is,
+                // neither it nor any of its base classes are consumed.
+                // Don't insert anything in the lookup tables.
+                continue;
+              } 
+            }
           }
           ProductHolderIndex index =
             productLookup(desc.branchType())->insert(typeID,

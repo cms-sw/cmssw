@@ -53,6 +53,14 @@ namespace edm {
     EDConsumerBase() : frozen_(false) {}
     virtual ~EDConsumerBase();
     
+    // disallow copying
+    EDConsumerBase(EDConsumerBase const&) = delete;
+    EDConsumerBase const& operator=(EDConsumerBase const&) = delete;
+    
+    // allow moving
+    EDConsumerBase(EDConsumerBase&&) = default;
+    EDConsumerBase& operator=(EDConsumerBase&&) = default;
+
     // ---------- const member functions ---------------------
     ProductHolderIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
 
@@ -139,10 +147,6 @@ namespace edm {
     }
 
   private:
-    EDConsumerBase(const EDConsumerBase&) = delete;
-    
-    const EDConsumerBase& operator=(const EDConsumerBase&) = delete;
-    
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
 
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;

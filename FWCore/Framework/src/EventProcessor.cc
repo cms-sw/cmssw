@@ -548,7 +548,7 @@ namespace edm {
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
     }
-    // initialize the subprocess, if there is one
+    // initialize the subprocesses, if there are any
     if(hasSubProcesses) {
       if(subProcesses_ == nullptr) {
         subProcesses_ = std::make_unique<std::vector<SubProcess> >();

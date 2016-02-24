@@ -3,6 +3,7 @@
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
@@ -36,7 +37,7 @@ namespace edm {
   namespace eventsetup {
     class EventSetupsController;
   }
-  class SubProcess {
+  class SubProcess : public EDConsumerBase {
   public:
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
@@ -291,7 +292,7 @@ namespace edm {
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
-    
+
     std::shared_ptr<ActivityRegistry>             actReg_; // We do not use propagate_const because the registry itself is mutable.
     ServiceToken                                  serviceToken_;
     std::shared_ptr<ProductRegistry const>        parentPreg_;
@@ -322,7 +323,6 @@ namespace edm {
     SelectedProductsForBranchType keptProducts_;
     ProductSelectorRules productSelectorRules_;
     ProductSelector productSelector_;
-
 
     //EventSelection
     bool wantAllEvents_;
