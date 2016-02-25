@@ -12,6 +12,8 @@
  *
  */
 
+#include "CommonTools/Utils/interface/PtComparator.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -260,6 +262,9 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                 smearedJets->push_back(smearedJet);
             }
 
+            // Sort jets by pt
+            std::sort(smearedJets->begin(), smearedJets->end(), jetPtComparator);
+
             event.put(std::move(smearedJets));
         }
 
@@ -278,5 +283,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
         std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
 
         std::mt19937 m_random_generator;
+
+        GreaterByPt<T> jetPtComparator;
 };
 #endif
