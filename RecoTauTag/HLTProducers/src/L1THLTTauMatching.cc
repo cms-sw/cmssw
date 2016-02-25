@@ -69,5 +69,5 @@ void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("JetSrc"      , edm::InputTag("hltSelectedPFTausTrackPt1MediumIsolationReg"))->setComment("Input collection of PFTaus");
   desc.add<double>       ("EtMin",0.0)->setComment("Minimal pT of PFTau to match");
   descriptions.setComment("This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter (Only p4 and vertex of returned PFTaus are set).");
-  descriptions.add       ("L1HLTJetsMatching",desc);
+  descriptions.add       ("L1THLTTauMatching",desc);
 }

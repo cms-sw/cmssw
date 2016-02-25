@@ -101,7 +101,7 @@ void CaloTowerFromL1TCreatorForTauHLT::fillDescriptions( edm::ConfigurationDescr
   aDesc.addUntracked<int> ("verbose"        , 0                               )->setComment("Verbosity level; 0=silent"                                    );
   aDesc.addUntracked<int> ("BX"             , 0                               )->setComment("Set bunch crossing; 0 = in time, -1 = previous, 1 = following");
 
-  desc.add                ("caloTowerMakerHLT", aDesc);
+  desc.add                ("CaloTowerFromL1TCreatorForTauHLT", aDesc);
   desc.setComment         ("Produce tower collection around L1 particle seed.");
 
 }
