@@ -114,14 +114,18 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	
 	// Loop over input jets
+	bool ispat = true;
 	for ( unsigned int i=0; i<jets.size(); ++i ) {
 		// Pick the first algo to compute the input variables
 		vector<pair<string,PileupJetIdAlgo *> >::iterator algoi = algos_.begin();
 		PileupJetIdAlgo * ialgo = algoi->second;
 		
 		const Jet & jet = jets.at(i);
-		//const pat::Jet * patjet =  dynamic_cast<const pat::Jet *>(&jet);
-		//bool ispat = patjet != 0;
+		const pat::Jet * patjet = 0;
+		if(ispat) {
+		    patjet=dynamic_cast<const pat::Jet *>(&jet);
+		    ispat = patjet != 0;
+		}
 		
 		// Get jet energy correction
 		float jec = 0.;
@@ -135,27 +139,27 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			if( jecCor_ == 0 ) {
 				initJetEnergyCorrector( iSetup, iEvent.isRealData() );
 			}
-			//if( ispat ) {
-			//	jecCor_->setJetPt(patjet->correctedJet(0).pt());
-			//} else {
-			jecCor_->setJetPt(jet.pt());
-			//}
+			if( ispat ) {
+				jecCor_->setJetPt(patjet->correctedJet(0).pt());
+			} else {
+			        jecCor_->setJetPt(jet.pt());
+			}
 			jecCor_->setJetEta(jet.eta());
 			jecCor_->setJetA(jet.jetArea());
 			jecCor_->setRho(rho);
 			jec = jecCor_->getCorrection();
 		}
 		// If it was requested AND the input is an uncorrected jet apply the JEC
-		bool applyJec = applyJec_ && !inputIsCorrected_;  //( ! ispat && ! inputIsCorrected_ );
+		bool applyJec = applyJec_ && ( ispat || !inputIsCorrected_ );
 		reco::Jet * corrJet = 0;
 		
 		if( applyJec ) {
 			float scale = jec;
-			//if( ispat ) {
-			//	corrJet = new pat::Jet(patjet->correctedJet(0)) ;
-			//} else {
-			corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
-			//}
+			if( ispat ) {
+				corrJet = new pat::Jet(patjet->correctedJet(0)) ;
+			} else {
+			        corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
+			}
 			corrJet->scaleEnergy(scale);
 		}
 		const reco::Jet * theJet = ( applyJec ? corrJet : &jet );
