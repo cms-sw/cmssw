@@ -39,7 +39,7 @@ iterTracking = cms.Sequence(InitialStepPreSplitting*
                             )
 
 from Configuration.StandardSequences.Eras import eras
-eras.trackingPhase1.toReplaceWith(iterTracking, cms.Sequence(
+eras.trackingPhase1PU70.toReplaceWith(iterTracking, cms.Sequence(
     InitialStepPreSplitting +
     InitialStep +
     HighPtTripletStep +

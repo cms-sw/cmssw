@@ -157,8 +157,8 @@ InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
 # one place (within Reconstruction_cff) where siPixelClusters
 # module is defined.
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
-eras.trackingPhase1.toReplaceWith(siPixelClusters, _siPixelClusters)
-eras.trackingPhase1.toReplaceWith(InitialStepPreSplitting, cms.Sequence(
+eras.trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
+eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
     MeasurementTrackerEvent +

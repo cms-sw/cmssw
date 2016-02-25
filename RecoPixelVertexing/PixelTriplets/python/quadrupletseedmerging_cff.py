@@ -42,7 +42,7 @@ PixelSeedMergerQuadruplets = cms.PSet(
 # InitialStepPreSplitting). The quadruplet merger does not use these
 # hit collections (it uses the hits of the triplets), so this is only
 # to make framework's circular dependency checker happy.
-eras.trackingPhase1.toModify(PixelSeedMergerQuadruplets,
+eras.trackingPhase1PU70.toModify(PixelSeedMergerQuadruplets,
     BPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
     FPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
 )

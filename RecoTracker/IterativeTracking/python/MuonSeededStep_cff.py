@@ -39,7 +39,7 @@ _muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
 muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxSagitta = cms.double(-1.)
 )
-eras.trackingPhase1.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxChi2 = 400
 ))
 _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
@@ -50,7 +50,7 @@ _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
 muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
     MaxSagitta = cms.double(-1.) 
 )
-eras.trackingPhase1.toReplaceWith(muonSeededMeasurementEstimatorForOutIn, _muonSeededMeasurementEstimatorForOutInBase)
+eras.trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForOutIn, _muonSeededMeasurementEstimatorForOutInBase)
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -236,14 +236,14 @@ muonSeededStepCore = cms.Sequence(
 muonSeededStepExtraInOut = cms.Sequence(
     muonSeededTracksInOutClassifier
 )
-eras.trackingPhase1.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
+eras.trackingPhase1PU70.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
     muonSeededTracksInOutSelector
 ))
 muonSeededStepExtra = cms.Sequence(
     muonSeededStepExtraInOut +
     muonSeededTracksOutInClassifier
 )
-eras.trackingPhase1.toReplaceWith(muonSeededStepExtra, cms.Sequence(
+eras.trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
     muonSeededStepExtraInOut +
     muonSeededTracksOutInSelector
 ))

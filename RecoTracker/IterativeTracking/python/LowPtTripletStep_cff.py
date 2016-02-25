@@ -15,7 +15,7 @@ _lowPtTripletStepClustersBase = _trackClusterRemover.clone(
 lowPtTripletStepClusters = _lowPtTripletStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks"),
 )
-eras.trackingPhase1.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
     trajectories                             = "lowPtQuadStepTracks",
     oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
     overrideTrkQuals                         = "lowPtQuadStepSelector:lowPtQuadStep",
@@ -26,7 +26,7 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 lowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 lowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
 lowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
-eras.trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = [
+eras.trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = [
     'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
     'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
     'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
@@ -54,7 +54,7 @@ lowPtTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
     )
     )
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtTripletStepSeedLayers'
-eras.trackingPhase1.toModify(lowPtTripletStepSeeds,
+eras.trackingPhase1PU70.toModify(lowPtTripletStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
             ptMin = 0.35,
@@ -78,7 +78,7 @@ lowPtTripletStepStandardTrajectoryFilter = _lowPtTripletStepStandardTrajectoryFi
     maxCCCLostHits = 1,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
-eras.trackingPhase1.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
+eras.trackingPhase1PU70.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -87,7 +87,7 @@ lowPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilt
                  # cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))
                 ]
     )
-eras.trackingPhase1.toModify(lowPtTripletStepTrajectoryFilter,
+eras.trackingPhase1PU70.toModify(lowPtTripletStepTrajectoryFilter,
     filters = lowPtTripletStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
@@ -98,7 +98,7 @@ lowPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     MaxChi2 = cms.double(9.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
 )
-eras.trackingPhase1.toModify(lowPtTripletStepChi2Est,
+eras.trackingPhase1PU70.toModify(lowPtTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
 
@@ -144,7 +144,7 @@ lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
             allowSharedFirstHit = cms.bool(True)
             )
 lowPtTripletStepTrackCandidates.TrajectoryCleaner = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
-eras.trackingPhase1.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
+eras.trackingPhase1PU70.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 # Final selection
 
@@ -212,4 +212,4 @@ LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStep)
 _LowPtTripletStep_Phase1PU70 = LowPtTripletStep.copy()
 _LowPtTripletStep_Phase1PU70.replace(lowPtTripletStep, lowPtTripletStepSelector)
-eras.trackingPhase1.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_Phase1PU70)

@@ -25,7 +25,7 @@ earlyGeneralTracks.inputClassifiers =["initialStep",
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
-eras.trackingPhase1.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+eras.trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers = ['initialStepTracks',
                       'highPtTripletStepTracks',
                       'lowPtQuadStepTracks',

@@ -19,7 +19,7 @@ PixelLayerTriplets.FPix = cms.PSet(
 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.trackingPhase1.toModify(PixelLayerTriplets, layerList=[
+eras.trackingPhase1PU70.toModify(PixelLayerTriplets, layerList=[
     'BPix1+BPix2+BPix3',
     'BPix2+BPix3+BPix4',
     'BPix1+BPix3+BPix4',
