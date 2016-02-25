@@ -37,7 +37,7 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
   iEvent.getByToken(tauTrigger,l1TriggeredTaus);
                 
   l1t::TauVectorRef tauCandRefVec;
-  l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
+  l1TriggeredTaus->getObjects( trigger::TriggerL1Tau,tauCandRefVec);
 
   math::XYZPoint a(0.,0.,0.);
         
