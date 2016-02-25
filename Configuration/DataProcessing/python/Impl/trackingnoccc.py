@@ -10,10 +10,6 @@ import os
 import sys
 
 from Configuration.DataProcessing.Impl.pp import pp
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-
-def esproducers_by_type(process, *types):
-    return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
 
 class trackingnoccc(pp):
     def __init__(self):
