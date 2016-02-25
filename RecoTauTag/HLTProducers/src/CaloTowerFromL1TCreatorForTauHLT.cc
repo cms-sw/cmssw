@@ -19,7 +19,7 @@ using namespace std ;
 
 CaloTowerFromL1TCreatorForTauHLT::CaloTowerFromL1TCreatorForTauHLT( const ParameterSet & p ) 
   :
-  mBX                                                 (p.getUntrackedParameter<int> ("BX"             , 0) ),
+  mBX                                                 (p.getParameter         <int> ("BX"                ) ),
   mVerbose                                            (p.getUntrackedParameter<int> ("verbose"        , 0) ),
   mtowers_token     (consumes<CaloTowerCollection>    (p.getParameter<InputTag>     ("towers"            ))),
   mCone                                               (p.getParameter<double>       ("UseTowersInCone"   ) ),
@@ -98,8 +98,8 @@ void CaloTowerFromL1TCreatorForTauHLT::fillDescriptions( edm::ConfigurationDescr
   aDesc.add<double>       ("UseTowersInCone", 0.8                             )->setComment("Radius of cone around seed"                                   );
   aDesc.add<double>       ("minimumE"       , 0.8                             )->setComment("Minimum tower energy"                                         );
   aDesc.add<double>       ("minimumEt"      , 0.5                             )->setComment("Minimum tower ET"                                             );
+  aDesc.add<int>          ("BX"             , 0                               )->setComment("Set bunch crossing; 0 = in time, -1 = previous, 1 = following");
   aDesc.addUntracked<int> ("verbose"        , 0                               )->setComment("Verbosity level; 0=silent"                                    );
-  aDesc.addUntracked<int> ("BX"             , 0                               )->setComment("Set bunch crossing; 0 = in time, -1 = previous, 1 = following");
 
   desc.add                ("CaloTowerFromL1TCreatorForTauHLT", aDesc);
   desc.setComment         ("Produce tower collection around L1 particle seed.");
