@@ -791,7 +791,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                HISTO *h, COLLATE collate)
 {
   assert(name.find('/') == std::string::npos);
-  //if (verbose_ > 3)
+  if (verbose_ > 3)
     print_trace(dir, name);
   std::string path;
   mergePath(path, dir, name);
@@ -860,7 +860,7 @@ DQMStore::book(const std::string &dir,
                const char *context)
 {
   assert(name.find('/') == std::string::npos);
-  //if (verbose_ > 3)
+  if (verbose_ > 3)
     print_trace(dir, name);
 
   // Check if the request monitor element already exists.
