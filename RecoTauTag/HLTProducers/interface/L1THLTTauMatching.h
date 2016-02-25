@@ -11,7 +11,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
