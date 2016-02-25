@@ -471,8 +471,7 @@ def customise_Reco(process,pileup):
         
         # End of new tracking configuration which can be removed if new Reconstruction is used.
 
-    # Needed to make the loading of recoFromSimDigis_cff below to work
-    process.InitialStepPreSplitting.remove(siPixelClusters)
+        process.InitialStepPreSplitting.remove(siPixelClusters)
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
@@ -483,7 +482,8 @@ def customise_Reco(process,pileup):
     process.reconstruction.remove(process.ak7CastorJetID)
 
     # Need these until pixel templates are used
-    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+    if not eras.phase1Pixel.isChosen():
+        process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
     # CPE for other steps
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 
@@ -518,20 +518,19 @@ def customise_Reco(process,pileup):
         process.globalSETMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
-    # End of pixel template needed section
 
-    # Remove, for now, the pre-cluster-splitting clustering step
-    # To be enabled later together with or after the jet core step is enabled
-    # This snippet must be after the loading of recoFromSimDigis_cff
-    process.pixeltrackerlocalreco = cms.Sequence(
-        process.siPixelClusters +
-        process.siPixelRecHits
-    )
-    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    if not eras.phase1Pixel.isChosen():
+        # Remove the pre-cluster-splitting clustering step
+        # To be enabled later together with or after the jet core step is enabled
+        # This snippet must be after the loading of recoFromSimDigis_cff
+        process.pixeltrackerlocalreco = cms.Sequence(
+            process.siPixelClusters +
+            process.siPixelRecHits
+        )
+        process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+        process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+        process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+
         # Enable, for now, pixel tracks and vertices
         # To be removed later together with the cluster splitting
         process.globalreco_tracking.replace(process.standalonemuontracking,

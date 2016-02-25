@@ -1,5 +1,6 @@
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 # creating quadruplet SeedingLayerSets for the merger;
 PixelSeedMergerQuadruplets = cms.PSet(
@@ -36,3 +37,12 @@ PixelSeedMergerQuadruplets = cms.PSet(
   TEC = cms.PSet(  )
 )
 
+# Needed to have pixelTracks to not to look like depending
+# siPixelRecHits (that is inserted in reco sequences in
+# InitialStepPreSplitting). The quadruplet merger does not use these
+# hit collections (it uses the hits of the triplets), so this is only
+# to make framework's circular dependency checker happy.
+eras.trackingPhase1.toModify(PixelSeedMergerQuadruplets,
+    BPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
+    FPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
+)
