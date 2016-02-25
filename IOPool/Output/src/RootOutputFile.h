@@ -89,10 +89,10 @@ namespace edm {
                       ModuleCallingContext const*);
 
      void insertAncestors(ProductProvenance const& iGetParents,
-                          EventPrincipal const& principal,
+                          ProductProvenanceRetriever const* iMapper,
                           bool produced,
-                          std::set<StoredProductProvenance>& oToFill,
-                          ModuleCallingContext const*);
+                          std::set<BranchID> const& producedBranches,
+                          std::set<StoredProductProvenance>& oToFill);
 
     bool insertProductProvenance(const ProductProvenance&,
                                  std::set<StoredProductProvenance>& oToInsert);

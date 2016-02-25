@@ -658,24 +658,22 @@ namespace edm {
 
   void
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
-                                  EventPrincipal const& principal,
+                                  ProductProvenanceRetriever const* iMapper,
                                   bool produced,
-                                  std::set<StoredProductProvenance>& oToFill,
-                                  ModuleCallingContext const* mcc) {
+                                  std::set<BranchID> const &iProducedIDs,
+                                  std::set<StoredProductProvenance>& oToFill) {
     assert(om_->dropMetaData() != PoolOutputModule::DropAll);
     assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
-    ProductProvenanceRetriever const& iMapper = *principal.productProvenanceRetrieverPtr();
     std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(auto const& parentID : parentIDs) {
       branchesWithStoredHistory_.insert(parentID);
-      ProductProvenance const* info = iMapper.branchIDToProvenance(parentID);
+      ProductProvenance const* info = iMapper->branchIDToProvenance(parentID);
       if(info) {
-        if(om_->dropMetaData() == PoolOutputModule::DropNone ||
-           principal.getProvenance(info->branchID(), mcc).product().produced()) {
+        if(om_->dropMetaData() == PoolOutputModule::DropNone || (iProducedIDs.end() != iProducedIDs.find(info->branchID()) ) ) {
           if(insertProductProvenance(*info,oToFill) ) {
             //haven't seen this one yet
-            insertAncestors(*info, principal, produced, oToFill, mcc);
+            insertAncestors(*info, iMapper, produced, iProducedIDs, oToFill);
           }
         }
       }
@@ -696,6 +694,27 @@ namespace edm {
 
     std::set<StoredProductProvenance> provenanceToKeep;
 
+    ProductProvenanceRetriever const* provRetriever = nullptr;
+    {
+      EventPrincipal const* eventPrincipal = dynamic_cast<EventPrincipal const*>(&principal);
+      if (eventPrincipal) {
+        provRetriever =eventPrincipal->productProvenanceRetrieverPtr();
+        assert(provRetriever);
+      }
+    }
+    
+    //If we are dropping some of the meta data we need to know
+    // which BranchIDs were produced in this process because
+    // we may be storing meta data for only those products
+    std::set<BranchID> producedBranches;
+    if(om_->dropMetaData() != PoolOutputModule::DropNone) {
+      for (auto bd: principal.productRegistry().allBranchDescriptions()) {
+        if(bd->produced()) {
+          producedBranches.insert(bd->branchID());
+        }
+      }
+    }
+
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for(auto const& item : items) {
 
@@ -711,15 +730,21 @@ namespace edm {
          treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
 
       WrapperBase const* product = nullptr;
-      OutputHandle const oh = principal.getForOutput(id, getProd, mcc);
-      if(keepProvenance && oh.productProvenance()) {
-        insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
-        //provenanceToKeep.insert(*oh.productProvenance());
-        EventPrincipal const& eventPrincipal = dynamic_cast<EventPrincipal const&>(principal);
-        assert(eventPrincipal.productProvenanceRetrieverPtr());
-        insertAncestors(*oh.productProvenance(), eventPrincipal, produced, provenanceToKeep, mcc);
+      ProductProvenance const* productProvenance = nullptr;
+      if(getProd) {
+        OutputHandle const oh = principal.getForOutput(id, mcc);
+        product = oh.wrapper();
+        productProvenance = oh.productProvenance();
+      } else {
+        if(keepProvenance) {
+          productProvenance = provRetriever->branchIDToProvenance(id);
+        }
       }
-      product = oh.wrapper();
+      if(keepProvenance && productProvenance) {
+        insertProductProvenance(*productProvenance,provenanceToKeep);
+        //provenanceToKeep.insert(*oh.productProvenance());
+        insertAncestors(*productProvenance, provRetriever, produced, producedBranches, provenanceToKeep);
+      }
       if(getProd) {
         if(product == nullptr) {
           // No product with this ID is in the event.
