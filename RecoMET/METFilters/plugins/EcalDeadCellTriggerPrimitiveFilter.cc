@@ -162,9 +162,6 @@ private:
 
   bool useTPmethod_, useHITmethod_;
 
-  bool exclusivelykTPSaturated_;
-  bool considerkTPSaturated_;
-
   void loadEventInfoForFilter(const edm::Event& iEvent);
 
 // Only for EB since the dead front-end has one-to-one map to TT
