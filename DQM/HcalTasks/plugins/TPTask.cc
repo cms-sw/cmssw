@@ -233,7 +233,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		//	NOTE: skip1x1 should've done that - in the emap it's depth10
 		//	in data in 80X it's 0 for some reason!!!
 		//	skip using version number
-		if (tid.version()>1)
+		if (tid.version()>0)
 			continue;
 
 		//	tmp
