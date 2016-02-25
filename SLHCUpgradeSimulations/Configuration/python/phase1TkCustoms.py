@@ -484,10 +484,7 @@ def customise_Reco(process,pileup):
     # Need these until pixel templates are used
     if not eras.phase1Pixel.isChosen():
         process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-    # CPE for other steps
-    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 
-    if not eras.phase1Pixel.isChosen():
         # Turn of template use in tracking
         # Iterations and the following ones are treated in the configs    
         process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
@@ -562,11 +559,6 @@ def customise_Reco(process,pileup):
         process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
         process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
         process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
-
-    # use defaults d.k. 2/16
-    #process.templates.DoLorentz=False
-    #process.templates.LoadTemplatesFromDB = cms.bool(False)
-    #process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
 
         # This probably breaks badly the "displaced muon" reconstruction,
         # but let's do it for now, until the upgrade tracking sequences
