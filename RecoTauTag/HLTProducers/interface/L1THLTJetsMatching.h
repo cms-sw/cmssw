@@ -1,5 +1,5 @@
-#ifndef L1HLTJETSMATCHING_H
-#define L1HLTJETSMATCHING_H
+#ifndef L1THLTJETSMATCHING_H
+#define L1THLTJETSMATCHING_H
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,18 +17,18 @@
 #include <map>
 #include <vector>
 
-class L1HLTJetsMatching: public edm::EDProducer {
+class L1THLTJetsMatching: public edm::EDProducer {
  public:
-  explicit L1HLTJetsMatching(const edm::ParameterSet&);
-  ~L1HLTJetsMatching();
+  explicit L1THLTJetsMatching(const edm::ParameterSet&);
+  ~L1THLTJetsMatching();
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
-  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
-  std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
-  l1extra::L1JetParticleRef tauCandRef;
-    
+  l1t::JetVectorRef tauCandRefVec;
+  l1t::JetVectorRef jetCandRefVec;
+  l1t::JetVectorRef objL1CandRefVec;
+  l1t::JetRef tauCandRef;
+
   edm::EDGetTokenT<edm::View<reco::Candidate> > jetSrc;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   double mEt_Min;
