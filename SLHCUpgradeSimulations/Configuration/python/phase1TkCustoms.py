@@ -7,6 +7,28 @@ from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_pixe
 from Configuration.StandardSequences.Eras import eras
 
 def customise(process):
+    if not eras.phase1Pixel.isChosen():
+        import sys
+        sys.stderr.write("""
+########################################
+#
+# -- Warning! You are using a deprecated customisation function. --
+#
+# It will probably run fine (for now), but the customisations you are getting may be out of date
+# (and will be removed after a short while)
+# You should update your configuration file by
+#   If using cmsDriver:
+#       1) add the option "--era Run2_2017" 
+#   If using a pre-made configuration file:
+#       1) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+#          the process declaration).
+#       2) add "eras.Run2_2017" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_2017)" 
+#
+# There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+#
+########################################
+""")
+
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
