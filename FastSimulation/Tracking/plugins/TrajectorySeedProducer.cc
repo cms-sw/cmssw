@@ -82,7 +82,7 @@ private:
 
     bool skipSeedFinderSelector;
 
-    static std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
+    std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
 public:
   //static  int TripletReq=0;
     TrajectorySeedProducer(const edm::ParameterSet& conf);
@@ -183,10 +183,13 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     
     // pointer to selected region
     TrackingRegion * selectedTrackingRegion = 0;
+    
+    // pointer to triplet generator
+    auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
        
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) -> bool
+    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr](const std::vector<const FastTrackerRecHit*>& hits) -> bool
       {
 	// criteria for hit pairs
 	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
@@ -211,14 +214,14 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	  if(doubletCompatible==false)
 	    return false;
 	  
-	  if(pixelTripletGenerator&&hits.size()==3&&doubletCompatible==true){
+	  if(pixelTripletGeneratorPtr && hits.size()==3 && doubletCompatible==true){
 	    OrderedHitTriplets Tripletresult;
 	    const FastTrackerRecHit * thirdHit = hits[2];
 	    const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
 	    std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
 	    std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
 	    const RecHitsSortedInPhi* thm=new RecHitsSortedInPhi (thirdHits, selectedTrackingRegion->origin(), thirdLayer);
-	    pixelTripletGenerator->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thm,thirdLayerDetLayer,1);
+	    pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thm,thirdLayerDetLayer,1);
 	    if(Tripletresult.size()!=0)return true;
 	    return false;
 	  }
