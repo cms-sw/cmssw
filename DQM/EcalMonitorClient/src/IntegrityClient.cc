@@ -4,6 +4,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 namespace ecaldqm
 {
   IntegrityClient::IntegrityClient() :
@@ -20,6 +24,14 @@ namespace ecaldqm
     errFractionThreshold_ = _params.getUntrackedParameter<double>("errFractionThreshold");
   }
 
+  // Check Channel Status Record at every endLumi
+  // Used to fill Channel Status Map MEs
+  void
+  IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es)
+  {
+    _es.get<EcalChannelStatusRcd>().get( chStatus );
+  }
+
   void
   IntegrityClient::producePlots(ProcessType)
   {
@@ -31,6 +43,7 @@ namespace ecaldqm
 
     MESet& meQuality(MEs_.at("Quality"));
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
+    MESet& meChStatus( MEs_.at("ChStatus") );
 
     MESet const& sOccupancy(sources_.at("Occupancy"));
     MESet const& sGain(sources_.at("Gain"));
@@ -38,6 +51,33 @@ namespace ecaldqm
     MESet const& sGainSwitch(sources_.at("GainSwitch"));
     MESet const& sTowerId(sources_.at("TowerId"));
     MESet const& sBlockSize(sources_.at("BlockSize"));
+
+    // Fill Channel Status Map MEs
+    // Record is checked for updates at every endLumi and filled here
+    MESet::iterator chSEnd( meChStatus.end() );
+    for( MESet::iterator chSItr(meChStatus.beginChannel()); chSItr != chSEnd; chSItr.toNextChannel() ){
+
+      DetId id( chSItr->getId() );
+
+      EcalChannelStatusMap::const_iterator chIt(0);
+
+      // Set appropriate channel map (EB or EE)
+      if( id.subdetId() == EcalBarrel ){
+        EBDetId ebid(id);
+        chIt = chStatus->find( ebid );
+      }
+      else {
+        EEDetId eeid(id);
+        chIt = chStatus->find( eeid );
+      }
+
+      // Get status code and fill ME
+      if ( chIt != chStatus->end() ){
+        uint16_t code( chIt->getEncodedStatusCode() );
+        chSItr->setBinContent( code );
+      }
+
+    } // Channel Status Map
 
     MESet::iterator qEnd(meQuality.end());
     MESet::const_iterator occItr(sOccupancy);
@@ -75,7 +115,8 @@ namespace ecaldqm
         meQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
       }
     }
-  }
+
+  } // producePlots()
 
   DEFINE_ECALDQM_WORKER(IntegrityClient);
 }
