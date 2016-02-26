@@ -92,7 +92,7 @@ BasicMultiTrajectoryState::combine()  {
     mean += weight * param;
     covarPart1 += weight * it1->localError().matrix();
     for (auto it2 = it1 + 1; it2 != tsos.end(); it2++) {
-      auto diff = param - it2->localParameters().vector();
+      AlgebraicVector5 diff = param - it2->localParameters().vector();
       ROOT::Math::AssignSym::Evaluate(covtmp,ROOT::Math::TensorProd(diff,diff));
       covarPart2 += (weight * it2->weight()) * covtmp;
     }   
