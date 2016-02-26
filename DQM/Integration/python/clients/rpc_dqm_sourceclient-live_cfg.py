@@ -26,15 +26,14 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 ################ Condition ######################
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-############# DQM Cetral Modules ################
-#process.load("DQMServices.Core.DQM_cfg")
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+
+############# DQM Cetral Modules ################
+#process.load("DQMServices.Core.DQM_cfg")
 
 ############## DQM Enviroment ###################
 process.load("DQM.Integration.config.environment_cfi")
