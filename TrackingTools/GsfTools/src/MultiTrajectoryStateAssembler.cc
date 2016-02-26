@@ -16,7 +16,7 @@ MultiTrajectoryStateAssembler::MultiTrajectoryStateAssembler () :
   //
   sortStates = false;
   minValidFraction = 0.01;
-  minFractionalWeight = 1.e-6;
+  minFractionalWeight = 1.e-4; // 6;
 }  
 
 void MultiTrajectoryStateAssembler::addState (const TrajectoryStateOnSurface tsos) {
