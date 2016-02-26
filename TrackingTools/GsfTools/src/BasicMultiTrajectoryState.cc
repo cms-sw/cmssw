@@ -46,9 +46,7 @@ void BasicMultiTrajectoryState::rescaleError(double factor) {
     return;
   }
   
-  for (std::vector<TSOS>::iterator it = theStates.begin(); it != theStates.end(); it++) {
-    it->rescaleError(factor);
-  }
+  for (auto & is : theStates) is.rescaleError(factor);
   combine();
 }
 
@@ -88,13 +86,13 @@ BasicMultiTrajectoryState::combine()  {
   AlgebraicVector5 mean;
   AlgebraicSymMatrix55 covarPart1, covarPart2, covtmp;
   for (auto it1 = tsos.begin(); it1 != tsos.end(); it1++) {
-    double weight = it1->weight();
-    AlgebraicVector5 param = it1->localParameters().vector();
+    auto weight = it1->weight();
+    auto const & param = it1->localParameters().vector();
     sumw += weight;
     mean += weight * param;
     covarPart1 += weight * it1->localError().matrix();
     for (auto it2 = it1 + 1; it2 != tsos.end(); it2++) {
-      AlgebraicVector5 diff = param - it2->localParameters().vector();
+      auto diff = param - it2->localParameters().vector();
       ROOT::Math::AssignSym::Evaluate(covtmp,ROOT::Math::TensorProd(diff,diff));
       covarPart2 += (weight * it2->weight()) * covtmp;
     }   

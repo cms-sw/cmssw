@@ -85,9 +85,22 @@ namespace {
     }
    }
 }
+#include <sstream>
+   inline void dump(TrajectoryStateOnSurface const & tsos, const char * header) {
+     std::ostringstream ss; ss<< " weights ";
+     for (auto const & c : tsos.components()) ss << c.weight() << '/';
+     ss << "\nmomentums ";
+     for (auto const & c : tsos.components()) ss << c.globalMomentum().mag() << '/';
+     LogTrace("GsfTrackFitters")
+      << header  << "! size " << tsos.components().size() << ss.str() << "\n"
+      <<" with local position " << tsos.localPosition() << "\n"
+      << tsos;
+   }
+
 #else
 namespace {
    inline void dump(TrackingRecHit const &, int) {}
+   inline void dump(TrajectoryStateOnSurface const &, const char *){}
 }
 #endif
 
@@ -171,7 +184,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       edm::LogError("InvalidState")<<"first invalid hit";
       return Trajectory();
     }
-    myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
+    myTraj.push(TM(predTsos, hits.front(),0., theGeometry->idToLayer((hits.front())->geographicalId()) ));
   }
   
   int hitcounter = 1;
@@ -183,7 +196,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     // temporary protection copied from KFTrajectoryFitter.
     //
     if ((**ihit).isValid() == false && (**ihit).det() == 0) {
-      LogDebug("GsfTrajectoryFitter") << " Error: invalid hit with no GeomDet attached .... skipping";
+      LogDebug("GsfTrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
 
@@ -194,13 +207,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
     if(!predTsos.isValid()) {
       if ( myTraj.foundHits()>=3 ) {
-	edm::LogInfo("GsfTrackFitter") 
+	edm::LogInfo("GsfTrackFitters") 
 	  << "GsfTrajectoryFitter: predicted tsos not valid! \n"
 	  << "Returning trajectory with " << myTraj.foundHits() << " found hits.";
 	return myTraj;
       }
       else {
-      edm::LogInfo("GsfTrackFitter") 
+      edm::LogInfo("GsfTrackFitters") 
 	<< "GsfTrajectoryFitter: predicted tsos not valid after " << myTraj.foundHits()
 	<< " hits, discarding candidate!";
 	return Trajectory();
@@ -210,35 +223,30 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     
     if((**ihit).isValid()) {
       //update
-       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
-       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
-       auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
-       dump(*preciseHit,hitcounter);
-      {
-	currTsos = updator()->update(predTsos, *preciseHit);
-      }
+      assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+      assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+      auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
+      dump(*preciseHit,hitcounter);
+      currTsos = updator()->update(predTsos, *preciseHit);     
       if (!predTsos.isValid() || !currTsos.isValid()){
 	edm::LogError("InvalidState")<<"inside hit";
 	return Trajectory();
       }
+      auto chi2=estimator()->estimate(predTsos, *preciseHit).second;
       myTraj.push(TM(predTsos, currTsos, preciseHit,
-		     estimator()->estimate(predTsos, *preciseHit).second,
+		     chi2,
 		     theGeometry->idToLayer(preciseHit->geographicalId() )));
+      LogDebug("GsfTrackFitters") << "added measurement with chi2 " << chi2;
     } else {
       currTsos = predTsos;
       if (!predTsos.isValid()){
-      edm::LogError("InvalidState")<<"inside invalid hit";
-      return Trajectory();
+        edm::LogError("InvalidState")<<"inside invalid hit";
+        return Trajectory();
       }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
-    LogTrace("GsfTrackFitters")
-      << "predTsos !" << "\n"
-      << predTsos << " size " << predTsos.components().size() 
-      <<" with local position " << predTsos.localPosition()
-      <<"\ncurrTsos !" << "\n"
-      << currTsos << " size " << currTsos.components().size()
-      <<" with local position " << currTsos.localPosition();
+    dump(predTsos,"predTsos");
+    dump(currTsos,"currTsos");
   }
   return myTraj;
 }

@@ -13,13 +13,13 @@
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
 						      const TrackingRecHit& aRecHit) const {
   
-  std::vector<TrajectoryStateOnSurface> && predictedComponents = tsos.components();
+  auto && predictedComponents = tsos.components();
   if (predictedComponents.empty()) {
     edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! " ;
     return TrajectoryStateOnSurface();
   }
 
-  std::vector<double> && weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
+  auto && weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
   if ( weights.empty() ) {
     edm::LogError("GsfMultiStateUpdator") << " no weights could be retreived. invalid updated state !.";
     return TrajectoryStateOnSurface();
