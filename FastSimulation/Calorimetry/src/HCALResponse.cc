@@ -211,9 +211,27 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   maxEta   = pset.getParameter<int>("maxEta");
   maxEne   = pset.getParameter<int>("maxEne");
   energyHF = pset.getParameter<vec1>("energyHF");
-  corrHFg  = pset.getParameter<vec1>("corrHFg");
-  corrHFh  = pset.getParameter<vec1>("corrHFh");
-  corrHF   = vec1(maxEta,0);
+  vec1 _corrHFgEm  = pset.getParameter<vec1>("corrHFgEm");
+  vec1 _corrHFgHad = pset.getParameter<vec1>("corrHFgHad");
+  vec1 _corrHFhEm  = pset.getParameter<vec1>("corrHFhEm");
+  vec1 _corrHFhHad = pset.getParameter<vec1>("corrHFhHad");
+  corrHFem   = vec1(maxEta,0);
+  corrHFhad  = vec1(maxEta,0);
+
+// initialize 2D vector corrHFgEm[energy][eta]
+  corrHFgEm  = vec2(maxEne,vec1(maxEta,0));  
+  corrHFgHad = vec2(maxEne,vec1(maxEta,0));  
+  corrHFhEm  = vec2(maxEne,vec1(maxEta,0));  
+  corrHFhHad = vec2(maxEne,vec1(maxEta,0));
+// Fill
+  for(int i = 0; i < maxEne; i++){  
+     for(int j = 0; j < maxEta; j++){
+        corrHFgEm[i][j]  = _corrHFgEm[i*maxEta + j];     
+        corrHFgHad[i][j] = _corrHFgHad[i*maxEta + j];     
+        corrHFhEm[i][j]  = _corrHFhEm[i*maxEta + j];     
+        corrHFhHad[i][j] = _corrHFhHad[i*maxEta + j];     
+     }
+  }
 }
 
 double HCALResponse::getMIPfraction(double energy, double eta){
@@ -580,25 +598,42 @@ void HCALResponse::correctHF(double ee, int type) {
     if(ee >= energyHF[i]) jmin = i;
   }
 
-  double x1, x2, y1, y2;
+  double x1, x2;
+  double y1em, y2em;
+  double y1had, y2had;
   for(int i=0; i<maxEta; ++i) {
     if(ee < energyHF[0]) {
-      if(abs(type)==11 || abs(type)==22) corrHF[i] = corrHFg[i];
-      else corrHF[i] = corrHFh[i];
+      if(abs(type)==11 || abs(type)==22) { 
+        corrHFem[i]  = corrHFgEm[0][i];
+        corrHFhad[i] = corrHFgHad[0][i];
+      } else {
+        corrHFem[i]  = corrHFhEm[0][i];
+        corrHFhad[i] = corrHFhHad[0][i];
+      }
     } else if(jmin >= maxEne-1) {
-      if(abs(type)==11 || abs(type)==22) corrHF[i] = corrHFg[maxEta*jmin+i];
-      else corrHF[i] = corrHFh[maxEta*jmin+i];
+      if(abs(type)==11 || abs(type)==22) {
+        corrHFem[i]  = corrHFgEm[maxEta][i];
+        corrHFhad[i] = corrHFgHad[maxEta][i];
+      } else { 
+        corrHFem[i]  = corrHFhEm[maxEta][i];
+        corrHFhad[i] = corrHFhHad[maxEta][i];
+      }
     } else {    
       x1 = energyHF[jmin];
       x2 = energyHF[jmin+1];
       if(abs(type)==11 || abs(type)==22) {
-	y1 = corrHFg[maxEta*jmin+i];
-	y2 = corrHFg[maxEta*(jmin+1)+i];
+	y1em  = corrHFgEm[jmin][i];
+	y2em  = corrHFgEm[jmin+1][i];
+	y1had = corrHFgHad[jmin][i];
+	y2had = corrHFgHad[jmin+1][i];
       } else {
-	y1 = corrHFh[maxEta*jmin+i];
-	y2 = corrHFh[maxEta*(jmin+1)+i];
+	y1em  = corrHFhEm[jmin][i];
+	y2em  = corrHFhEm[jmin+1][i];
+	y1had = corrHFhHad[jmin][i];
+	y2had = corrHFhHad[jmin+1][i];
       }  
-      corrHF[i] = y1 + (ee-x1)*((y2-y1)/(x2-x1));
+      corrHFem[i]  = y1em  + (ee-x1)*((y2em-y1em)/(x2-x1));
+      corrHFhad[i] = y1had + (ee-x1)*((y2had-y1had)/(x2-x1));
     } 
   }
 

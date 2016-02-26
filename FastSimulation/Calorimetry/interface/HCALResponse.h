@@ -45,7 +45,8 @@ class HCALResponse
 
   // correct HF response for SL
   void correctHF(double e, int type);
-  vec1 & getCorrHF() {return corrHF;}   
+  vec1 & getCorrHFem()  {return corrHFem;}   
+  vec1 & getCorrHFhad() {return corrHFhad;}   
   
  private:
 
@@ -118,8 +119,9 @@ class HCALResponse
   // HF correction for SL
   int maxEta, maxEne;
   vec1 energyHF;
-  vec1 corrHFg, corrHFh;
-  vec1 corrHF;
+  vec2 corrHFgEm, corrHFgHad;
+  vec2 corrHFhEm, corrHFhHad;
+  vec1 corrHFem, corrHFhad;
 };
 #endif
 
