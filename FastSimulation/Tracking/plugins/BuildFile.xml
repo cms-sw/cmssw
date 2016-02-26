@@ -25,6 +25,7 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name="RecoPixelVertexing/PixelTriplets"/>
 <library   name="FastSimulationTrackingPlugins" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>

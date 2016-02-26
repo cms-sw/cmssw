@@ -14,7 +14,8 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     minLayersCrossed = 3,
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet,
-    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet,
+    hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
 
 ###
@@ -23,7 +24,8 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     minLayersCrossed = 3,
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet,
-    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet,
+    hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
 
 mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone()
