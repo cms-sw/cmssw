@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry, dtorder, cscorder
 import sys, getopt
