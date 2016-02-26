@@ -14,6 +14,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdio.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -36,46 +37,52 @@ void usage(std::ostream & out) {
   out << "\
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-p|--prescales] [-q|--quiet] [-v|--verbose] [-h|--help]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
+               [-q|--quiet] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
-      input file(s) with the old (reference) trigger results.\n\
+      input file(s) with the old (reference) trigger results\n\
 \n\
   -O|--old-process PROCESS\n\
-      process name of the collection with the old (reference) trigger results;\n\
-      the default is to take the 'TriggerResults' from the last process.\n\
+      process name of the collection with the old (reference) trigger results\n\
+      default: take the 'TriggerResults' from the last process\n\
 \n\
   -n|--new-files FILE1.ROOT [FILE2.ROOT ...]\n\
-      input file(s) with the new trigger results to be compared with the reference;\n\
+      input file(s) with the new trigger results to be compared with the reference\n\
       to read these from a different collection in the same files as\n\
-      the reference, use '-n -' and specify the collection with -N (see below).\n\
+      the reference, use '-n -' and specify the collection with -N (see below)\n\
 \n\
   -N|--new-process PROCESS\n\
-      process name of the collection with the new (reference) trigger results;\n\
-      the default is to take the 'TriggerResults' from the last process.\n\
+      process name of the collection with the new (reference) trigger results\n\
+      default: take the 'TriggerResults' from the last process\n\
 \n\
   -m|--max-events MAXEVENTS\n\
-      compare only the first MAXEVENTS events;\n\
-      the default is to compare all the events in the original (reference) files.\n\
+      compare only the first MAXEVENTS events\n\
+      default: compare all the events in the original (reference) files\n\
 \n\
   -p|--prescales\n\
-      do not ignore differences caused by HLTPrescaler modules.\n\
+      do not ignore differences caused by HLTPrescaler modules\n\
+\n\
+  -j|--json-output OUTPUT_FILE.JSON\n\
+      produce comparison results in a JSON format and store it to the specified file\n\
+      default filename: 'hltDiff_output.json'\n\
 \n\
   -q|--quiet\n\
-      suppress messages about missing events and collectiions.\n\
+      suppress messages about missing events and collectiions\n\
 \n\
-  -v|--verbose\n\
-      be (more) verbose:\n\
-      use once to print event-by-event comparison results;\n\
-      use twice to print the trigger candidates of the affected filters;\n\
-      use three times to print all the trigger candidates for the affected events.\n\
+  -v|--verbose LEVEL\n\
+      set verbosity level:\n\
+      1: event-by-event comparison results\n\
+      2: + print the trigger candidates of the affected filters\n\
+      3: + print all the trigger candidates for the affected events\n\
+      default: 1\n\
 \n\
   -h|--help\n\
-      print this help message, and exit." << std::endl;
+      print this help message, and exit" << std::endl;
 }
 
 void error(std::ostream & out) {
-    out << "Try 'hltDiff --help' for more information." << std::endl;
+    out << "Try 'hltDiff --help' for more information" << std::endl;
 }
 
 void error(std::ostream & out, const char * message) {
@@ -477,6 +484,48 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 }
 
 
+// List of structs for serilisation to JSON format
+struct JsonConfigurationBlock {
+  std::string file_base; // common part at the beginning of all files
+  std::vector<std::string> files;
+  std::string process;
+};
+
+struct JsonConfiguration {
+  JsonConfigurationBlock o; // old
+  JsonConfigurationBlock n; // new
+  bool prescales;
+};
+
+struct JsonVars {
+  std::vector<std::string> s; // state
+  std::vector<std::string> tr; // trigger name
+  std::vector<std::string> l; // module label
+  std::vector<std::string> t; // module type
+};
+
+struct JsonEventState {
+  State s; // state
+  unsigned int m; // module id
+  unsigned int l; // module label id
+  unsigned int t; // module type id
+};
+
+struct JsonTriggerState {
+  unsigned int tr; // trigger id
+  JsonEventState o; // old
+  JsonEventState n; // new
+};
+
+struct JsonEvents {
+  unsigned int run;
+  unsigned int lumi;
+  unsigned int event;
+  std::vector<JsonTriggerState> triggerStates;
+};
+
+
+
 bool check_file(std::string const & file) {
   std::unique_ptr<TFile> f(TFile::Open(file.c_str()));
   return (f and not f->IsZombie());
@@ -496,7 +545,8 @@ bool check_files(std::vector<std::string> const & files) {
 
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
-             unsigned int max_events, bool ignore_prescales, int verbose, int quiet) {
+             unsigned int max_events, bool ignore_prescales, std::string const & json_out,
+             unsigned int verbose, bool quiet) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
@@ -512,6 +562,18 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     new_events = std::make_shared<fwlite::ChainEvent>(new_files);
   else
     return;
+
+  // Opening the output json file if requested
+  FILE* json_out_file;
+  if (json_out != "") {
+    json_out_file = fopen(json_out.c_str(), "w");
+
+    fprintf(json_out_file, "Checking the following old files with verbosity %d:\n", (int)verbose);
+    for (auto const &file: old_files) {
+      fprintf(json_out_file, " %s\n", file.c_str());
+    }
+    fclose(json_out_file);
+  }
 
   std::unique_ptr<HLTConfigDataEx> old_config_data;
   std::unique_ptr<HLTConfigDataEx> new_config_data;
@@ -699,7 +761,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "o:O:n:N:m:pqvh";
+  const char optstring[] = "o:O:n:N:m:pj::qv::h";
   const option longopts[] = {
     option{ "old-files",    required_argument,  nullptr, 'o' },
     option{ "old-process",  required_argument,  nullptr, 'O' },
@@ -707,8 +769,9 @@ int main(int argc, char ** argv) {
     option{ "new-process",  required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
-    option{ "quet",         no_argument,        nullptr, 'q' },
-    option{ "verbose",      no_argument,        nullptr, 'v' },
+    option{ "json-output",  optional_argument,  nullptr, 'j' },
+    option{ "quiet",        no_argument,        nullptr, 'q' },
+    option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
 
@@ -719,6 +782,7 @@ int main(int argc, char ** argv) {
   std::string               new_process("");
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
+  std::string               json_out("");
   bool                      quiet = false;
   unsigned int              verbose = 0;
 
@@ -762,12 +826,31 @@ int main(int argc, char ** argv) {
         ignore_prescales = false;
         break;
 
+      case 'j':
+        if (optarg) {
+          json_out = optarg;
+	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+	  // workaround for a bug in getopt which doesn't allow space before optional arguments
+	  const char *tmp_optarg = argv[optind++];
+	  json_out = tmp_optarg;
+        } else {
+          json_out = "hltDiff_output.json";
+        }
+        break;
+
       case 'q':
         quiet = true;
         break;
 
       case 'v':
-        ++verbose;
+        verbose = 1;
+	if (optarg) {
+          verbose = std::max(1, atoi(optarg));
+	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+	  // workaround for a bug in getopt which doesn't allow space before optional arguments
+	  const char *tmp_optarg = argv[optind++];
+          verbose = std::max(1, atoi(tmp_optarg));
+        }
         break;
 
       case 'h':
@@ -791,7 +874,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, verbose, quiet);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, verbose, quiet);
 
   return 0;
 }
