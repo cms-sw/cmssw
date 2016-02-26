@@ -163,8 +163,8 @@ def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
     firstName = mylist[0][0]
     match = alphaRE.match (firstName)
     if not match:
-        raise RuntimeError, "firstName doesn't parse correctly. (%s)" \
-              % firstName
+        raise RuntimeError("firstName doesn't parse correctly. (%s)" \
+              % firstName)
     genName = match.group (1)
     genDef =  " ## GenObject %s Definition ##\n[%s]\n" % \
              (genName, genName)
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     from Validation.Tools.GenObject import GenObject
     options.type = GenObject.decodeNonAlphanumerics (options.type)
     if len (args) < 1:
-        raise RuntimeError, "Need to provide object name."
+        raise RuntimeError("Need to provide object name.")
     #
     objectName = GenObject.decodeNonAlphanumerics (args[0])
     goName     = options.goName or colonRE.sub ('', objectName)
