@@ -19,6 +19,7 @@ TrackerCounters::TrackerCounters()
   theCounters[TPBLadder]       = tpb::      ladderNumber;
   theCounters[TPBLayer]        = tpb::       layerNumber;
   theCounters[TPBHalfBarrel]   = tpb::  halfBarrelNumber;
+  theCounters[TPBBarrel]       = tpb::      barrelNumber;
 
   // Forward Pixel
   theCounters[TPEModule]       = tpe::      moduleNumber;
@@ -35,8 +36,9 @@ TrackerCounters::TrackerCounters()
   theCounters[TIBHalfShell]    = tib::   halfShellNumber;
   theCounters[TIBLayer]        = tib::       layerNumber;
   theCounters[TIBHalfBarrel]   = tib::  halfBarrelNumber;
+  theCounters[TIBBarrel]       = tib::      barrelNumber;
 
-  // Tracker Inner Barrel
+  // Tracker Inner Disk
   theCounters[TIDModule]       = tid::      moduleNumber;
   theCounters[TIDSide]         = tid::        sideNumber;
   theCounters[TIDRing]         = tid::        ringNumber;
@@ -48,6 +50,7 @@ TrackerCounters::TrackerCounters()
   theCounters[TOBRod]          = tob::         rodNumber;
   theCounters[TOBLayer]        = tob::       layerNumber;
   theCounters[TOBHalfBarrel]   = tob::  halfBarrelNumber;
+  theCounters[TOBBarrel]       = tob::      barrelNumber;
 
   // Tracker Endcaps
   theCounters[TECModule]       = tec::      moduleNumber;
