@@ -35,6 +35,22 @@ _algos = [
     "muonSeededStepOutIn",
     "duplicateMerge",
 ]
+_algosForTrackingPhase1 = [
+    "generalTracks",
+    "initialStep",
+    "highPtTripletStep",
+    "detachedQuadStep",
+    #"detachedTripletStep",
+    "lowPtQuadStep",
+    "lowPtTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "jetCoreRegionalStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+    "duplicateMerge",
+]
 _algosForTrackingPhase1PU70 = [
     "generalTracks",
     "initialStep",
@@ -47,7 +63,7 @@ _algosForTrackingPhase1PU70 = [
     "tobTecStep",
     "muonSeededStepInOut",
     "muonSeededStepOutIn",
-    ]
+]
 
 _seedProducers = [
     "initialStepSeedsPreSplitting",
@@ -71,20 +87,36 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "muonSeededSeedsOutIn"]
 _seedProducersForFastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
-
+_seedProducersForTrackingPhase1 = [
+    "initialStepSeedsPreSplitting",
+    "initialStepSeeds",
+    "highPtTripletStepSeeds",
+    "detachedQuadStepSeeds",
+    #"detachedTripletStepSeeds",
+    "lowPtQuadStepSeeds",
+    "lowPtTripletStepSeeds",
+    "mixedTripletStepSeedsA",
+    "mixedTripletStepSeedsB",
+    "pixelLessStepSeeds",
+    "tobTecStepSeedsPair",
+    "tobTecStepSeedsTripl",
+    "jetCoreRegionalStepSeeds",
+    "muonSeededSeedsInOut",
+    "muonSeededSeedsOutIn",
+]
 _seedProducersForTrackingPhase1PU70 = [
-        "initialStepSeeds",
-        "highPtTripletStepSeeds",
-        "lowPtQuadStepSeeds",
-        "lowPtTripletStepSeeds",
-        "detachedQuadStepSeeds",
-        "mixedTripletStepSeedsA",
-        "mixedTripletStepSeedsB",
-        "pixelPairStepSeeds",
-        "tobTecStepSeeds",
-        "muonSeededSeedsInOut",
-        "muonSeededSeedsOutIn",
-    ]
+    "initialStepSeeds",
+    "highPtTripletStepSeeds",
+    "lowPtQuadStepSeeds",
+    "lowPtTripletStepSeeds",
+    "detachedQuadStepSeeds",
+    "mixedTripletStepSeedsA",
+    "mixedTripletStepSeedsB",
+    "pixelPairStepSeeds",
+    "tobTecStepSeeds",
+    "muonSeededSeedsInOut",
+    "muonSeededSeedsOutIn",
+]
 
 
 _trackProducers = [
@@ -106,6 +138,21 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksOutIn"]
 _trackProducersForFastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
 
+_trackProducersForTrackingPhase1 = [
+    "initialStepTracksPreSplitting",
+    "initialStepTracks",
+    "highPtTripletStepTracks",
+    "detachedQuadStepTracks",
+#    "detachedTripletStepTracks",
+    "lowPtQuadStepTracks",
+    "lowPtTripletStepTracks",
+    "mixedTripletStepTracks",
+    "pixelLessStepTracks",
+    "tobTecStepTracks",
+    "jetCoreRegionalStepTracks",
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutIn",
+]
 _trackProducersForTrackingPhase1PU70 = [
     "initialStepTracks",
     "highPtTripletStepTracks",
@@ -204,17 +251,23 @@ def _addSeedToTrackProducers(seedProducers,modDict):
 
 # Validation iterative steps
 (_selectorsByAlgo, tracksValidationSelectorsByAlgo) = _addSelectorsByAlgo(_algos, globals())
+(_selectorsByAlgo_trackingPhase1, _tracksValidationSelectorsByAlgo_trackingPhase1) = _addSelectorsByAlgo(_algosForTrackingPhase1, globals())
 (_selectorsByAlgo_trackingPhase1PU70, _tracksValidationSelectorsByAlgo_trackingPhase1PU70) = _addSelectorsByAlgo(_algosForTrackingPhase1PU70, globals())
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsByAlgo, _tracksValidationSelectorsByAlgo_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsByAlgo, _tracksValidationSelectorsByAlgo_trackingPhase1PU70)
 
 # high purity
 (_selectorsByAlgoHp, tracksValidationSelectorsByAlgoHp) = _addSelectorsByHp(_algos,globals())
+(_selectorsByAlgoHp_trackingPhase1, _tracksValidationSelectorsByAlgoHp_trackingPhase1) = _addSelectorsByHp(_algosForTrackingPhase1, globals())
 (_selectorsByAlgoHp_trackingPhase1PU70, _tracksValidationSelectorsByAlgoHp_trackingPhase1PU70) = _addSelectorsByHp(_algosForTrackingPhase1PU70, globals())
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsByAlgoHp, _tracksValidationSelectorsByAlgoHp_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsByAlgoHp, _tracksValidationSelectorsByAlgoHp_trackingPhase1PU70)
 
 _generalTracksHp = _selectorsByAlgoHp[0]
+_generalTracksHp_trackingPhase1 = _selectorsByAlgoHp_trackingPhase1[0]
 _generalTracksHp_trackingPhase1PU70 = _selectorsByAlgoHp_trackingPhase1PU70[0]
 _selectorsByAlgoHp = _selectorsByAlgoHp[1:]
+_selectorsByAlgoHp_trackingPhase1 = _selectorsByAlgoHp_trackingPhase1[1:]
 _selectorsByAlgoHp_trackingPhase1PU70 = _selectorsByAlgoHp_trackingPhase1PU70[1:]
 
 # BTV-like selection
@@ -262,9 +315,12 @@ generalTracksFromPV = _trackWithVertexRefSelector.clone(
 )
 # and then the selectors
 (_selectorsFromPV, tracksValidationSelectorsFromPV) = _addSelectorsBySrc([_generalTracksHp], "FromPV", "generalTracksFromPV", globals())
-tracksValidationSelectorsFromPV.insert(0, generalTracksFromPV)
+(_selectorsFromPV_trackingPhase1, _tracksValidationSelectorsFromPV_trackingPhase1) = _addSelectorsBySrc([_generalTracksHp_trackingPhase1], "FromPV", "generalTracksFromPV", globals())
 (_selectorsFromPV_trackingPhase1PU70, _tracksValidationSelectorsFromPV_trackingPhase1PU70) = _addSelectorsBySrc([_generalTracksHp_trackingPhase1PU70], "FromPV", "generalTracksFromPV", globals())
+tracksValidationSelectorsFromPV.insert(0, generalTracksFromPV)
+_tracksValidationSelectorsFromPV_trackingPhase1.insert(0, generalTracksFromPV)
 _tracksValidationSelectorsFromPV_trackingPhase1PU70.insert(0, generalTracksFromPV)
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsFromPV, _tracksValidationSelectorsFromPV_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsFromPV, _tracksValidationSelectorsFromPV_trackingPhase1PU70)
 
 ## Select conversion TrackingParticles, and define the corresponding associator
@@ -295,6 +351,12 @@ trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidato
 )
 eras.fastSim.toModify(trackValidator, 
                       dodEdxPlots = False)
+eras.trackingPhase1.toModify(trackValidator,
+    label = ["generalTracks", _generalTracksHp_trackingPhase1] + _selectorsByAlgo_trackingPhase1 + _selectorsByAlgoHp_trackingPhase1 +  [
+        "cutsRecoTracksBtvLike",
+        "cutsRecoTracksAK4PFJets"
+    ]
+)
 eras.trackingPhase1PU70.toModify(trackValidator,
     label = ["generalTracks", _generalTracksHp_trackingPhase1PU70] + _selectorsByAlgo_trackingPhase1PU70 + _selectorsByAlgoHp_trackingPhase1PU70 +  [
         "cutsRecoTracksBtvLike",
@@ -315,6 +377,7 @@ trackValidatorFromPV = trackValidator.clone(
     doPlotsOnlyForTruePV = True,
     doPVAssociationPlots = False,
 )
+eras.trackingPhase1.toModify(trackValidatorFromPV, label = ["generalTracksFromPV"]+_selectorsFromPV_trackingPhase1)
 eras.trackingPhase1PU70.toModify(trackValidatorFromPV, label = ["generalTracksFromPV"]+_selectorsFromPV_trackingPhase1PU70)
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
@@ -347,6 +410,7 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPhi.sig
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPt.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.signalOnly = False
+eras.trackingPhase1.toModify(trackValidatorAllTPEffic, label = ["generalTracks", _generalTracksHp_trackingPhase1])
 eras.trackingPhase1PU70.toModify(trackValidatorAllTPEffic, label = ["generalTracks", _generalTracksHp_trackingPhase1PU70])
 
 # For conversions
@@ -426,25 +490,34 @@ eras.fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([tr
 
 # Select by originalAlgo and algoMask
 _selectorsByAlgoAndHp = _selectorsByAlgo+_selectorsByAlgoHp
+_selectorsByAlgoAndHp_trackingPhase1 = _selectorsByAlgo_trackingPhase1+_selectorsByAlgoHp_trackingPhase1
 _selectorsByAlgoAndHp_trackingPhase1PU70 = _selectorsByAlgo_trackingPhase1PU70+_selectorsByAlgoHp_trackingPhase1PU70
 (_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByOriginalAlgo", "originalAlgorithm",globals())
+(_selectorsByOriginalAlgo_trackingPhase1, _tracksValidationSelectorsByOriginalAlgoStandalone_trackingPhase1) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_trackingPhase1, "ByOriginalAlgo", "originalAlgorithm",globals())
 (_selectorsByOriginalAlgo_trackingPhase1PU70, _tracksValidationSelectorsByOriginalAlgoStandalone_trackingPhase1PU70) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_trackingPhase1PU70, "ByOriginalAlgo", "originalAlgorithm",globals())
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsByOriginalAlgoStandalone, _tracksValidationSelectorsByOriginalAlgoStandalone_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsByOriginalAlgoStandalone, _tracksValidationSelectorsByOriginalAlgoStandalone_trackingPhase1PU70)
 
 (_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByAlgoMask", "algorithmMaskContains",globals())
+(_selectorsByAlgoMask_trackingPhase1, _tracksValidationSelectorsByAlgoMaskStandalone_trackingPhase1) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_trackingPhase1, "ByAlgoMask", "algorithmMaskContains",globals())
 (_selectorsByAlgoMask_trackingPhase1PU70, _tracksValidationSelectorsByAlgoMaskStandalone_trackingPhase1PU70) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_trackingPhase1PU70, "ByAlgoMask", "algorithmMaskContains",globals())
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsByAlgoMaskStandalone, _tracksValidationSelectorsByAlgoMaskStandalone_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsByAlgoMaskStandalone, _tracksValidationSelectorsByAlgoMaskStandalone_trackingPhase1PU70)
 
 # Select fromPV by iteration
 (_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgoAndHp, "FromPV", "generalTracksFromPV",globals())
+(_selectorsFromPVStandalone_trackingPhase1, _tracksValidationSelectorsFromPVStandalone_trackingPhase1) = _addSelectorsBySrc(_selectorsByAlgoAndHp_trackingPhase1, "FromPV", "generalTracksFromPV",globals())
 (_selectorsFromPVStandalone_trackingPhase1PU70, _tracksValidationSelectorsFromPVStandalone_trackingPhase1PU70) = _addSelectorsBySrc(_selectorsByAlgoAndHp_trackingPhase1PU70, "FromPV", "generalTracksFromPV",globals())
+eras.trackingPhase1.toReplaceWith(tracksValidationSelectorsFromPVStandalone, _tracksValidationSelectorsFromPVStandalone_trackingPhase1)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSelectorsFromPVStandalone, _tracksValidationSelectorsFromPVStandalone_trackingPhase1PU70)
 
 # MTV instances
 trackValidatorStandalone = trackValidator.clone( label = trackValidator.label+ _selectorsByOriginalAlgo + _selectorsByAlgoMask)
+eras.trackingPhase1.toModify(trackValidatorStandalone, label = trackValidator.label+ _selectorsByOriginalAlgo_trackingPhase1 + _selectorsByAlgoMask_trackingPhase1)
 eras.trackingPhase1PU70.toModify(trackValidatorStandalone, label = trackValidator.label+ _selectorsByOriginalAlgo_trackingPhase1PU70 + _selectorsByAlgoMask_trackingPhase1PU70)
 
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone( label = trackValidatorFromPV.label+_selectorsFromPVStandalone)
+eras.trackingPhase1.toModify(trackValidatorFromPVStandalone, label = trackValidatorFromPV.label+_selectorsFromPVStandalone_trackingPhase1)
 eras.trackingPhase1PU70.toModify(trackValidatorFromPVStandalone, label = trackValidatorFromPV.label+_selectorsFromPVStandalone_trackingPhase1PU70)
 
 trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
@@ -489,8 +562,10 @@ tracksValidationStandalone = cms.Sequence(
 tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude([ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets]) # selectors using track information only (i.e. no PF)
 (_seedSelectors, tracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducers, globals())
 (_fastSimSeedSelectors, _fastSimTracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForFastSim, globals())
+(_trackingPhase1SeedSelectors, _trackingPhase1TracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForTrackingPhase1, globals())
 (_trackingPhase1PU70SeedSelectors, _trackingPhase1PU70TracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForTrackingPhase1PU70, globals())
 eras.fastSim.toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, _fastSimTracksValidationSeedSelectorsTrackingOnly)
+eras.trackingPhase1.toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, _trackingPhase1TracksValidationSeedSelectorsTrackingOnly)
 eras.trackingPhase1PU70.toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, _trackingPhase1PU70TracksValidationSeedSelectorsTrackingOnly)
 
 # MTV instances
@@ -507,6 +582,7 @@ trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
 )
 
 eras.fastSim.toModify(trackValidatorBuildingTrackingOnly, label =  _trackProducersForFastSim )
+eras.trackingPhase1.toModify(trackValidatorBuildingTrackingOnly, label = _trackProducersForTrackingPhase1)
 eras.trackingPhase1PU70.toModify(trackValidatorBuildingTrackingOnly, label = _trackProducersForTrackingPhase1PU70)
 
 trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
@@ -515,6 +591,7 @@ trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
     doSeedPlots = True,
 )
 eras.fastSim.toModify(trackValidatorSeedingTrackingOnly, label= _fastSimSeedSelectors)
+eras.trackingPhase1.toModify(trackValidatorSeedingTrackingOnly, label= _trackingPhase1SeedSelectors)
 eras.trackingPhase1PU70.toModify(trackValidatorSeedingTrackingOnly, label= _trackingPhase1PU70SeedSelectors)
 
 
