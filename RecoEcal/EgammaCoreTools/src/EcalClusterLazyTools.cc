@@ -265,6 +265,8 @@ float EcalClusterLazyToolsBase::eseffsirir(const reco::SuperCluster &cluster)
   float phoESShapeIXIX = getESShape(phoESHitsIXIX);
   float phoESShapeIYIY = getESShape(phoESHitsIYIY);
 
+  delete topology_p;
+
   return sqrt(phoESShapeIXIX*phoESShapeIXIX + phoESShapeIYIY*phoESShapeIYIY);
 }
 
