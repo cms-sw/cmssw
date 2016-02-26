@@ -17,6 +17,17 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
 
 }
 
+template<>
+inline bool invertPosDefMatrix<double,1>(ROOT::Math::SMatrix<double,1,1,ROOT::Math::MatRepSym<double,1> > & m) {
+  m(0,0) = 1./m(0,0); 
+  return true;
+}
+template<>
+inline bool invertPosDefMatrix<float,1>(ROOT::Math::SMatrix<float,1,1,ROOT::Math::MatRepSym<float,1> > & m) {
+  m(0,0) = 1.f/m(0,0);
+  return true;
+}
+
 template<typename T,unsigned int N>
 inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & mIn,
 			ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & mOut) {
