@@ -79,54 +79,37 @@ namespace edm {
 //
 // member functions
 //
-   static void check(Principal const& p, std::string const& id, edm::ModuleCallingContext const* mcc) {
-      for(Principal::const_iterator it = p.begin(), itEnd = p.end();
-          it != itEnd;
-          ++it) {
-         if(*it) {
-           if (!(*it)->singleProduct()) continue;
-
-            BranchID branchID = (*it)->branchDescription().branchID();
-            OutputHandle const oh = p.getForOutput(branchID, false, mcc);
-            
-            if(0 != oh.desc() && oh.desc()->branchID() != branchID) {
-               throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " request for BranchID " << branchID << " returned BranchID " << oh.desc()->branchID() << "\n";
-            }
-           
-            TypeID const& tid((*it)->branchDescription().unwrappedTypeID());
+   static void check(Principal const& p, std::string const& id, SelectedProducts const& iProducts, edm::ModuleCallingContext const* mcc) {
+     for(auto const& branchDescription : iProducts) {
+            TypeID const& tid(branchDescription->unwrappedTypeID());
             BasicHandle bh = p.getByLabel(PRODUCT_TYPE, tid,
-            (*it)->branchDescription().moduleLabel(),
-            (*it)->branchDescription().productInstanceName(),
-            (*it)->branchDescription().processName(),
+                                          branchDescription->moduleLabel(),
+                                          branchDescription->productInstanceName(),
+                                          branchDescription->processName(),
                                           nullptr, nullptr, mcc);
             
-            /*This doesn't appear to be an error, it just means the Product isn't available, which can be legitimate
-            if(!bh.product()) {
-               throw cms::Exception("GetByLabelFailure") << "While processing " << id << " getByLabel request for " << (*it)->productDescription().moduleLabel()
-                  << " '" << (*it)->productDescription().productInstanceName() << "' " << (*it)->productDescription().processName() << " failed\n.";
-            }*/
-            if(0 != bh.provenance() && bh.provenance()->branchDescription().branchID() != branchID) {
-               throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " getByLabel request for " << (*it)->branchDescription().moduleLabel()
-                  << " '" << (*it)->branchDescription().productInstanceName() << "' " << (*it)->branchDescription().processName()
-                  << "\n should have returned BranchID " << branchID << " but returned BranchID " << bh.provenance()->branchDescription().branchID() << "\n";
-            }
-         }
+        if(0 != bh.provenance() && bh.provenance()->branchDescription().branchID() != branchDescription->branchID()) {
+           throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " getByLabel request for " << branchDescription->moduleLabel()
+              << " '" << branchDescription->productInstanceName() << "' " << branchDescription->processName()
+              << "\n should have returned BranchID " << branchDescription->branchID() << " but returned BranchID " << bh.provenance()->branchDescription().branchID() << "\n";
+        }
+       
       }
    }
    void GetProductCheckerOutputModule::write(EventPrincipal const& e, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << e.id();
-      check(e, str.str(), mcc);
+      check(e, str.str(), keptProducts()[InEvent], mcc);
    }
    void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& l, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << l.id();
-      check(l, str.str(), mcc);
+      check(l, str.str(), keptProducts()[InLumi], mcc);
    }
    void GetProductCheckerOutputModule::writeRun(RunPrincipal const& r, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << r.id();
-      check(r, str.str(), mcc);
+      check(r, str.str(), keptProducts()[InRun], mcc);
    }
 
 //

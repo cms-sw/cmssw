@@ -112,32 +112,33 @@ namespace edm {
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
-      std::map<BranchID, std::shared_ptr<ProductHolderBase const>> idToProductHolder;
-      for(auto const& product : e) {
-        if(product && product->singleProduct()) {
-            BranchID branchID = product->branchDescription().branchID();
-            idToProductHolder[branchID] = get_underlying_safe(product);
-            if(product->productUnavailable()) {
-               //This call seems to have a side effect of filling the 'ProductProvenance' in the ProductHolder
-              OutputHandle const oh = e.getForOutput(branchID, false, mcc);
+      std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
+      for(auto const branchDescription : keptProducts()[InEvent]) {
+        BranchID branchID = branchDescription->branchID();
+        idToBranchDescriptions[branchID] = branchDescription;
 
-               bool cannotFindProductProvenance=false;
-               if(!product->productProvenancePtr()) {
-                  missingProductProvenance.insert(branchID);
-                  cannotFindProductProvenance=true;
-               }
-               ProductProvenance const* pInfo = mapperPtr->branchIDToProvenance(branchID);
-               if(!pInfo) {
-                  missingFromMapper.insert(branchID);
-                  continue;
-               }
-               if(cannotFindProductProvenance) {
-                  continue;
-               }
-               markAncestors(*(product->productProvenancePtr()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
-            }
+        TypeID const& tid(branchDescription->unwrappedTypeID());
+        BasicHandle bh = e.getByLabel(PRODUCT_TYPE, tid,
+                                      branchDescription->moduleLabel(),
+                                      branchDescription->productInstanceName(),
+                                      branchDescription->processName(),
+                                      nullptr, nullptr, mcc);
+
+             bool cannotFindProductProvenance=false;
+             if(!(bh.provenance() and bh.provenance()->productProvenance())) {
+                missingProductProvenance.insert(branchID);
+                cannotFindProductProvenance=true;
+             }
+             ProductProvenance const* pInfo = mapperPtr->branchIDToProvenance(branchID);
+             if(!pInfo) {
+                missingFromMapper.insert(branchID);
+                continue;
+             }
+             if(cannotFindProductProvenance) {
+                continue;
+             }
+             markAncestors(*(bh.provenance()->productProvenance()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
             seenParentInPrincipal[branchID] = true;
-         }
       }
 
       //Determine what BranchIDs are in the product registry
@@ -148,16 +149,13 @@ namespace edm {
           it != itEnd;
           ++it) {
          branchesInReg.insert(it->second.branchID());
+         idToBranchDescriptions[it->second.branchID()] = &(it->second);
       }
 
-      std::set<BranchID> missingFromPrincipal;
       std::set<BranchID> missingFromReg;
       for(std::map<BranchID, bool>::iterator it = seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
           it != itEnd;
           ++it) {
-         if(!it->second) {
-            missingFromPrincipal.insert(it->first);
-         }
          if(branchesInReg.find(it->first) == branchesInReg.end()) {
             missingFromReg.insert(it->first);
          }
@@ -168,15 +166,7 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it<<" "<<idToProductHolder[*it]->branchDescription();
-         }
-      }
-      if(missingFromPrincipal.size()) {
-         LogError("ProvenanceChecker") << "Missing the following BranchIDs from EventPrincipal\n";
-         for(std::set<BranchID>::iterator it = missingFromPrincipal.begin(), itEnd = missingFromPrincipal.end();
-             it != itEnd;
-             ++it) {
-            LogProblem("ProvenanceChecker") << *it;
+            LogProblem("ProvenanceChecker") << *it<<" "<<*(idToBranchDescriptions[*it]);
          }
       }
 
@@ -185,7 +175,7 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it<<" "<<idToProductHolder[*it]->branchDescription();
+            LogProblem("ProvenanceChecker") << *it<<" "<<*(idToBranchDescriptions[*it]);
          }
       }
 
@@ -194,17 +184,13 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingFromReg.begin(), itEnd = missingFromReg.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it;
+            LogProblem("ProvenanceChecker") << *it<<" "<<*(idToBranchDescriptions[*it]);
          }
       }
 
-      if(missingFromMapper.size() || missingFromPrincipal.size() || missingProductProvenance.size() || missingFromReg.size()) {
+      if(missingFromMapper.size() || missingProductProvenance.size() || missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
-         << (missingFromMapper.size() || missingFromPrincipal.size() ? "Having missing ancestors" : "")
-         << (missingFromMapper.size() ? " from ProductProvenanceRetriever" : "")
-         << (missingFromMapper.size() && missingFromPrincipal.size() ? " and" : "")
-         << (missingFromPrincipal.size() ? " from EventPrincipal" : "")
-         << (missingFromMapper.size() || missingFromPrincipal.size() ? ".\n" : "")
+         << (missingFromMapper.size() ? "Having missing ancestors from ProductProvenanceRetriever.\n" : "")
          << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductHolder in EventPrincipal.\n" : "")
          << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
       }
