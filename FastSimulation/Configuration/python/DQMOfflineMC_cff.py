@@ -8,11 +8,9 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
-from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOfflinePrePOG = cms.Sequence(
-    bTagPlotsDATA *	
     pvMonitor *
     dqmPhysics *
     produceDenoms *
