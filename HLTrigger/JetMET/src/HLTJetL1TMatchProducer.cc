@@ -68,13 +68,11 @@ void HLTJetL1TMatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetu
       for (int ibx = l1Jets->getFirstBX(); ibx <= l1Jets->getLastBX(); ++ibx) {
 	if (trigger_bx_only && (ibx != 0)) continue;  
 	for (auto it=l1Jets->begin(ibx); it!=l1Jets->end(ibx); it++){
+	  if (it->et() == 0) continue; // if you don't care about L1T candidates with zero ET.
 	  const double deltaeta=jet_iter->eta()-it->eta();
 	  const double deltaphi=deltaPhi(jet_iter->phi(),it->phi());
 	  if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
-
-	  
-	  if (it->et() == 0) continue; // if you don't care about L1T candidates with zero ET.
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  //cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
       if (isMatched==true) result->push_back(*jet_iter);
