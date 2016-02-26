@@ -13,7 +13,7 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
     minLayersCrossed = 3,
     layerList = _detachedTripletStep.detachedTripletStepSeedLayers.layerList.value(),
     RegionFactoryPSet = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet,
-    pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet,
+    pixelTripletGeneratorFactory = _detachedTripletStep.detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet,
     hitMasks = cms.InputTag("detachedTripletStepMasks")
     )
 

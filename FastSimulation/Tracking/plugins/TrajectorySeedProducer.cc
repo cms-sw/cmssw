@@ -84,7 +84,6 @@ private:
 
     std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
 public:
-  //static  int TripletReq=0;
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
@@ -209,7 +208,8 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,*fhm,*shm,es,0,*hitDoublets);
 	    return hitDoublets->size()!=0;
 	}
-	else if(pixelTripletGeneratorPtr && hits.size())
+	
+	else if(pixelTripletGeneratorPtr && hits.size()==3)
 	{
 	    OrderedHitTriplets Tripletresult;
 	    const FastTrackerRecHit * thirdHit = hits[2];
@@ -220,6 +220,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
 	    return Tripletresult.size()!=0;
 	}
+	
 	return true;
     };
     
