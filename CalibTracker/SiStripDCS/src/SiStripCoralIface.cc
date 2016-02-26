@@ -63,7 +63,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
     query->addToTableList("FWCAENCHANNEL");
     query->addToTableList("DP_NAME2ID");
-    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   } else if (queryType == "LASTVALUE") {
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE","CHANGE_DATE");
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.ACTUAL_VMON","ACTUAL_VMON");
@@ -71,7 +71,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE");
     query->addToTableList("DCSLASTVALUE_VOLTAGE");
     query->addToTableList("DP_NAME2ID");
-    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.ID AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.ID AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   }
 
   coral::AttributeList conditionData;
@@ -126,7 +126,7 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
   query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
   query->addToTableList("FWCAENCHANNEL");
   query->addToTableList("DP_NAME2ID");
-  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
 
   coral::AttributeList conditionData;
   conditionData.extend<coral::TimeStamp>( "tmax" );
