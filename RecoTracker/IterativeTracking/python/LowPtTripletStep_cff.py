@@ -15,6 +15,11 @@ _lowPtTripletStepClustersBase = _trackClusterRemover.clone(
 lowPtTripletStepClusters = _lowPtTripletStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks"),
 )
+eras.trackingPhase1.toModify(lowPtTripletStepClusters,
+    trajectories                             = "lowPtQuadStepTracks",
+    oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
+    trackClassifier                          = "lowPtQuadStep:QualityMasks",
+)
 eras.trackingPhase1PU70.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
     trajectories                             = "lowPtQuadStepTracks",
     oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
@@ -26,7 +31,7 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 lowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 lowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
 lowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
-eras.trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = [
+_layerListForPhase1 = [
     'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
     'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
     'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
@@ -38,7 +43,9 @@ eras.trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = [
     'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
     'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
     'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
-])
+]
+eras.trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
+eras.trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
@@ -54,6 +61,9 @@ lowPtTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
     )
     )
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtTripletStepSeedLayers'
+eras.trackingPhase1.toModify(lowPtTripletStepSeeds, # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
+    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.35)),
+)
 eras.trackingPhase1PU70.toModify(lowPtTripletStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
@@ -155,6 +165,33 @@ lowPtTripletStep =  TrackMVAClassifierPrompt.clone()
 lowPtTripletStep.src = 'lowPtTripletStepTracks'
 lowPtTripletStep.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
+
+# For Phase1
+# MVA selection to be enabled after re-training, for time being we go with cut-based selector
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import TrackCutClassifier as _TrackCutClassifier
+eras.trackingPhase1.toReplaceWith(lowPtTripletStep, _TrackCutClassifier.clone(
+    src = "lowPtTripletStepTracks",
+    vertices = "firstStepPrimaryVertices",
+    mva = dict (
+        minPixelHits = [1,1,1],
+        maxChi2 = [9999.,9999.,9999.],
+        maxChi2n = [2.0,0.9,0.5],
+        minLayers = [3,3,3],
+        min3DLayers = [3,3,3],
+        maxLostLayers = [2,2,2],
+        dz_par = dict(
+            dz_par1 = [0.7,0.6,0.45],
+            dz_par2 = [0.5,0.4,0.4],
+            dz_exp = [4,4,4],
+        ),
+        dr_par = dict(
+            dr_par1 = [0.8,0.7,0.6],
+            dr_par2 = [0.5,0.4,0.3],
+            dr_exp = [4,4,4],
+            d0err_par = [0.002,0.002,0.001],
+        ),
+    )
+))
 
 # For Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

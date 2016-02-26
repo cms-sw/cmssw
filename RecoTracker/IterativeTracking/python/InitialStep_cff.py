@@ -26,15 +26,16 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
     )
     )
 initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
-eras.trackingPhase1PU70.toModify(
-    initialStepSeeds,
+_SeedMergerPSet = cms.PSet(
+    layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
+    addRemainingTriplets = cms.bool(False),
+    mergeTriplets = cms.bool(True),
+    ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+)
+eras.trackingPhase1.toModify(initialStepSeeds, SeedMergerPSet = _SeedMergerPSet)
+eras.trackingPhase1PU70.toModify(initialStepSeeds,
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)),
-    SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-    )
+    SeedMergerPSet = _SeedMergerPSet
 )
 
 

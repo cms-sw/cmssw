@@ -27,6 +27,14 @@ initialStepSeedsPreSplitting = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriple
     )
     )
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayersPreSplitting'
+eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
+    SeedMergerPSet = cms.PSet(
+        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
+	addRemainingTriplets = cms.bool(False),
+	mergeTriplets = cms.bool(True),
+	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+    )
+)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi

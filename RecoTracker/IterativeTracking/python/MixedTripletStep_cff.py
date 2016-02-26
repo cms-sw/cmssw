@@ -12,6 +12,7 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
     stripClusters = cms.InputTag("siStripClusters"),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
+eras.trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = "lowPtTripletStepClusters")
 
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
 _mixedTripletStepClustersBase = _trackClusterRemover.clone(
@@ -26,6 +27,10 @@ _mixedTripletStepClustersBase = _trackClusterRemover.clone(
 )
 mixedTripletStepClusters = _mixedTripletStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('pixelPairStep',"QualityMasks"),
+)
+eras.trackingPhase1.toModify(mixedTripletStepClusters,
+    trajectories                             = "lowPtTripletStepTracks",
+    trackClassifier                          = "lowPtTripletStep:QualityMasks",
 )
 eras.trackingPhase1PU70.toReplaceWith(mixedTripletStepClusters, _mixedTripletStepClustersBase.clone(
     trajectories                             = "detachedQuadStepTracks",
@@ -125,6 +130,7 @@ mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     )
 )
+eras.trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
     layerList = [
         'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4','BPix1+BPix2+BPix4', 'BPix1+BPix3+BPix4'
