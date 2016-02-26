@@ -164,7 +164,6 @@ class SeedingTree
 {
     public:
         typedef std::unordered_set<DATA,typename DATA:: hashfct, typename DATA:: eqfct> SingleSet;
-         //typedef std::set<DATA> SingleSet;
     protected:
         std::vector<SeedingNode<DATA>*> _roots;
         std::vector<SeedingNode<DATA>*> _allNodes;
@@ -255,7 +254,7 @@ class SeedingTree
             }
         }
         
-        void print()
+        void print() const
         {
             std::cout<<"SeedingTree: n="<<_allNodes.size()<<std::endl;
             for (unsigned int inode=0; inode<_allNodes.size();++inode)
