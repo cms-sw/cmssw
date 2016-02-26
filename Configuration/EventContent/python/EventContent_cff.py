@@ -359,6 +359,7 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep HBHEDataFramesSorted_hcalDigis_*_*',
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
                                                'keep HODataFramesSorted_hcalDigis_*_*',
+                                               'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_*_*',
                                                'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                'keep CastorDataFramesSorted_castorDigis_*_*',
                                                'keep EBDigiCollection_ecalDigis_*_*',
