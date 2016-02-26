@@ -33,8 +33,11 @@ class TTClusterAlgorithm_a : public TTClusterAlgorithm< T >
 {
   public:
     /// Constructor
-    TTClusterAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
-      : TTClusterAlgorithm< T >( aStackedTracker, __func__ ){}
+  //    TTClusterAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
+  //      : TTClusterAlgorithm< T >( aStackedTracker, __func__ ){}
+
+    TTClusterAlgorithm_a( )
+      : TTClusterAlgorithm< T >( __func__ ){}
 
     /// Destructor
     ~TTClusterAlgorithm_a(){}
@@ -106,11 +109,14 @@ class ES_TTClusterAlgorithm_a : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
  
+      //      TTClusterAlgorithm< T >* TTClusterAlgo =
+      //        new TTClusterAlgorithm_a< T >( &(*StackedTrackerGeomHandle) );
+
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_a< T >( &(*StackedTrackerGeomHandle) );
+        new TTClusterAlgorithm_a< T >( );
 
       _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

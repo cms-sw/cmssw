@@ -170,7 +170,7 @@ private:
 L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config(iConfig)
 {
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
+  produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
 
   geometry_ = iConfig.getUntrackedParameter<string>("geometry","");
   phiWindowSF_ = iConfig.getUntrackedParameter<double>("phiWindowSF",1.0);
@@ -216,10 +216,10 @@ void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  typedef std::map< L1TStub, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ >  >, L1TStubCompare > stubMapType;
+  typedef std::map< L1TStub, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ >  >, L1TStubCompare > stubMapType;
 
   /// Prepare output
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > L1TkTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > L1TkTracksForOutput( new std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > );
 
   stubMapType stubMap;
 
@@ -277,8 +277,8 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ////////////////////////
   // GET THE PRIMITIVES //
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", TTStubHandle );
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
+  iEvent.getByLabel( "TTStubsFromPhase2TrackerDigis", "StubAccepted", TTStubHandle );
 
 
   //cout << "Will loop over simtracks" <<endl;
@@ -314,17 +314,17 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //cout << "Will loop over stubs" << endl;
 
   /// Loop over TTStubs
-  edmNew::DetSetVector<TTStub<Ref_PixelDigi_> >::const_iterator iterStubDet;
+  edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >::const_iterator iterStubDet;
   for ( iterStubDet = TTStubHandle->begin();
 	iterStubDet != TTStubHandle->end();
 	++iterStubDet ) {
 
-    edmNew::DetSet<TTStub<Ref_PixelDigi_> >::const_iterator iterTTStub;
+    edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> >::const_iterator iterTTStub;
     for ( iterTTStub = iterStubDet->begin();
 	  iterTTStub != iterStubDet->end();
 	  iterTTStub++ ) {
 
-      const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
+      const TTStub<Ref_Phase2TrackerDigi_>* stub=iterTTStub;
 
       double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
       
@@ -355,11 +355,11 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
       /// Get the Inner and Outer TTCluster
-      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > >  clusters = stub->getClusterRefs();
+      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > >  clusters = stub->getClusterRefs();
 
       assert(clusters.size()==2);
 
-      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > innerClusters=clusters[0];
+      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > innerClusters=clusters[0];
 
       const DetId innerDetId = innerClusters->getDetId();
 
@@ -384,7 +384,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}    
       }
 
-      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > outerClusters=clusters[1];
+      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_Phase2TrackerDigi_> >, TTCluster<Ref_Phase2TrackerDigi_> > outerClusters=clusters[1];
 
       const DetId outerDetId =outerClusters->getDetId();
 
@@ -424,7 +424,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	 stubPosition.x(),stubPosition.y(),stubPosition.z(),
 	//	     innerStack,irphi,iz,iladder,imodule)) {
 
-	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( TTStubHandle, iterTTStub);
+	edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( TTStubHandle, iterTTStub);
 
 
 	L1TStub lastStub=ev.lastStub();
@@ -477,7 +477,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
     L1TTrack track=purgedTracks.get(itrack);
 
-    TTTrack<Ref_PixelDigi_> aTrack;
+    TTTrack<Ref_Phase2TrackerDigi_> aTrack;
 
     aTrack.setSector(999); //this is currently not retrained by the algorithm
     aTrack.setWedge(999); //not used by the tracklet implementations

@@ -10,10 +10,10 @@
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_neighbor.h"
 
 /// Clustering operations
-/// Specialize template for PixelDigis
+/// Specialize template for Phase2TrackerDigis
 template< >
-void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                             const std::vector< Ref_PixelDigi_ > &input ) const
+void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                             const std::vector< Ref_Phase2TrackerDigi_ > &input ) const
 {
   /// Prepare output
   output.clear();
@@ -27,7 +27,7 @@ void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::Cluster( std::vector< std::v
     if ( used[i] )
       continue;
 
-    std::vector< Ref_PixelDigi_ > cluster;
+    std::vector< Ref_Phase2TrackerDigi_ > cluster;
     cluster.push_back(input[i]);
     used[i] = true;
     if ( i < input.size()-1 )
@@ -39,10 +39,10 @@ void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::Cluster( std::vector< std::v
 } /// End of Clustering Operations
 
 /// Check if the hit is a neighbour
-/// Specialize template for PixelDigis
+/// Specialize template for Phase2TrackerDigis
 template< >
-bool TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::isANeighbor( const Ref_PixelDigi_& center,
-                                                                 const Ref_PixelDigi_& mayNeigh ) const
+bool TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::isANeighbor( const Ref_Phase2TrackerDigi_& center,
+                                                                 const Ref_Phase2TrackerDigi_& mayNeigh ) const
 {
   unsigned int rowdist = abs(center->row() - mayNeigh->row());
   unsigned int coldist = abs(center->column() - mayNeigh->column());
@@ -50,18 +50,18 @@ bool TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::isANeighbor( const Ref_Pixel
 }
 
 /// Add neighbours to the cluster
-/// Specialize template for PixelDigis
+/// Specialize template for Phase2TrackerDigis
 template< >
-void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::addNeighbors( std::vector< Ref_PixelDigi_ >& cluster,
-                                                                  const std::vector< Ref_PixelDigi_ >& input,
+void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::vector< Ref_Phase2TrackerDigi_ >& cluster,
+                                                                  const std::vector< Ref_Phase2TrackerDigi_ >& input,
                                                                   unsigned int startVal,
                                                                   std::vector< bool >& used) const
 {
   /// This following line is necessary to ensure the
   /// iterators afterward remain valid.
   cluster.reserve( input.size() );
-  typename std::vector< Ref_PixelDigi_ >::iterator clusIter;
-  typename std::vector< Ref_PixelDigi_ >::iterator inIter;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::iterator clusIter;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inIter;
 
   /// Loop over hits
   for ( clusIter = cluster.begin();

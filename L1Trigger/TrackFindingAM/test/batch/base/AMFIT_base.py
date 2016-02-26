@@ -38,8 +38,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'MYGLOBALTAG', '')
 # The name of the stub container over which the association is done, please note that the filtered cluster container is
 # not associated due to the lack of simPixelDigis in official samples
 
-#process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
-#process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
+#process.TTStubAssociatorFromPhase2TrackerDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
+#process.TTStubAssociatorFromPhase2TrackerDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis","ClusterAccepted"))
 
 
 process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
@@ -63,7 +63,7 @@ process.MIBextraction.doL1TRK          = True
 
 process.MIBextraction.L1pattern_tag    = cms.InputTag( "MergePROutput", "AML1Patterns")
 process.MIBextraction.L1track_tag      = cms.InputTag( "MergeFITOutput", "AML1Tracks")
-process.MIBextraction.CLUS_container   = cms.string( "TTStubsFromPixelDigis")
+process.MIBextraction.CLUS_container   = cms.string( "TTStubsFromPhase2TrackerDigis")
 process.MIBextraction.CLUS_name        = cms.string( "ClusterAccepted" )
 process.MIBextraction.extractedRootFile= cms.string('EXTRFILENAME')
 

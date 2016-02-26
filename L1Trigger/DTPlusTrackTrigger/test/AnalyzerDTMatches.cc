@@ -669,16 +669,16 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingVertexHandle );
 
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", TTStubHandle );
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTrackHandle;
-  iEvent.getByLabel( "TTTracksFromPixelDigis", "Level1TTTracks", TTTrackHandle );
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
+  iEvent.getByLabel( "TTStubsFromPhase2TrackerDigis", "StubAccepted", TTStubHandle );
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
+  iEvent.getByLabel( "TTTracksFromPhase2TrackerDigis", "Level1TTTracks", TTTrackHandle );
 
   /// Track Trigger MC Truth
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > > MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted", MCTruthTTStubHandle );
-  edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > > MCTruthTTTrackHandle;
-  iEvent.getByLabel( "TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle );
+  edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTStubHandle;
+  iEvent.getByLabel( "TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted", MCTruthTTStubHandle );
+  edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTTrackHandle;
+  iEvent.getByLabel( "TTTrackAssociatorFromPhase2TrackerDigis", "Level1TTTracks", MCTruthTTTrackHandle );
 
   /// DT Trigger
 #ifdef DEBUG
@@ -1471,13 +1471,13 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       }
 
       /// Get the L1 tracks associated with the current muon
-      std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > theseTracks = MCTruthTTTrackHandle->findTTTrackPtrs( theFiringMuon );
+      std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > theseTracks = MCTruthTTTrackHandle->findTTTrackPtrs( theFiringMuon );
 
       if ( theseTracks.size() > 0 )
       {
         for ( unsigned int iTk = 0; iTk < theseTracks.size(); iTk++ )
         {
-          edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr = theseTracks.at( iTk );
+          edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr = theseTracks.at( iTk );
           bool genuineTrack = MCTruthTTTrackHandle->isGenuine( tempTrackPtr );
 
           if ( !genuineTrack ) continue;
@@ -1549,13 +1549,13 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       }
 
       /// Get also the stubs associated with the current muon
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( theFiringMuon );
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( theFiringMuon );
 
       if ( theseStubs.size() > 0 )
       {
         for ( unsigned int iStub = 0; iStub < theseStubs.size(); iStub++ )
         {
-          edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = theseStubs.at( iStub );
+          edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = theseStubs.at( iStub );
 
           StackedTrackerDetId tkDetId( tempStubRef->getDetId() );
           if ( tkDetId.isBarrel() == false )

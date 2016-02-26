@@ -49,7 +49,7 @@ using namespace l1extra ;
 class DummyL1TkTauFromCaloProducer : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit DummyL1TkTauFromCaloProducer(const edm::ParameterSet&);
@@ -157,7 +157,7 @@ DummyL1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup&
            float chi2 = trackIter->getChi2();
            if (chi2 > CHI2MAX) continue;
 
-	   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+	   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
 
       	   int tmp_trk_nstub = (int) theStubs.size();
       	   if ( tmp_trk_nstub < nStubsmin) continue;

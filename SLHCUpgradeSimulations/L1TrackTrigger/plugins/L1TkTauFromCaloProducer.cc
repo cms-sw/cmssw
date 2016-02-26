@@ -45,11 +45,11 @@ using namespace l1extra ;
 class L1TkTauFromCaloProducer : public edm::EDProducer {
 public:
   
-  typedef TTTrack< Ref_PixelDigi_ > L1TkTrackType;
+  typedef TTTrack< Ref_Phase2TrackerDigi_ > L1TkTrackType;
   typedef edm::Ptr< L1TkTrackType > L1TkTrackRefPtr;
   typedef std::vector< L1TkTrackType >   L1TkTrack_Collection;
   typedef std::vector< L1TkTrackRefPtr > L1TkTrackRefPtr_Collection; 
-  typedef edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > L1TkStubRef;
+  typedef edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > L1TkStubRef;
 
   explicit L1TkTauFromCaloProducer(const edm::ParameterSet&);
   ~L1TkTauFromCaloProducer();
@@ -186,18 +186,18 @@ void L1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   } // endif
 
   // ------------ L1TkTracks  ------------ //
-  edm::Handle< L1TkTrack_Collection > h_PixelDigi_L1TkTrack;
-  iEvent.getByLabel( cfg_L1TkTracks_InputTag, h_PixelDigi_L1TkTrack );
+  edm::Handle< L1TkTrack_Collection > h_Phase2TrackerDigi_L1TkTrack;
+  iEvent.getByLabel( cfg_L1TkTracks_InputTag, h_Phase2TrackerDigi_L1TkTrack );
 
   L1TkTrackRefPtr_Collection c_L1TkTracks;
   std::vector< L1TkTrackRefPtr > L1TkTau_TkPtrs;
 							
   unsigned int track_counter = 0;
   /// For-loop: L1TkTracks
-  for ( L1TkTrack_Collection::const_iterator track = h_PixelDigi_L1TkTrack->begin(); track != h_PixelDigi_L1TkTrack->end(); track++){
+  for ( L1TkTrack_Collection::const_iterator track = h_Phase2TrackerDigi_L1TkTrack->begin(); track != h_Phase2TrackerDigi_L1TkTrack->end(); track++){
   
     /// Make a pointer to the L1TkTracks
-    L1TkTrackRefPtr track_RefPtr( h_PixelDigi_L1TkTrack, track_counter++);
+    L1TkTrackRefPtr track_RefPtr( h_Phase2TrackerDigi_L1TkTrack, track_counter++);
     
     /// Declare for-loop variables
     std::vector< L1TkStubRef > track_Stubs = track -> getStubRefs();

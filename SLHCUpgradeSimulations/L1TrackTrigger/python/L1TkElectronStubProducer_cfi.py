@@ -18,8 +18,8 @@ L1TkStubElectrons = cms.EDProducer("L1TkElectronStubsProducer",
                                                 #     ("SLHCL1ExtraParticlesNewClustering","EGamma").
         ETmin = cms.double( -1.0 ),             # Only the L1EG objects that have ET > ETmin in GeV
                                                 # are considered. ETmin < 0 means that no cut is applied.
-        L1StubInputTag  = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
-        MCTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),                                   
+        L1StubInputTag  = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
+        MCTruthInputTag = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),                                   
         StubMinPt          = cms.double(5.0), # minimum Pt to select Stubs
         StubEGammaDeltaPhi = cms.double(0.05),     # delta Phi of stub and EG
         StubEGammaDeltaZ   = cms.double(15.0),     # Z-intercept o
@@ -27,7 +27,7 @@ L1TkStubElectrons = cms.EDProducer("L1TkElectronStubsProducer",
         StubEGammaZMiss    = cms.double(0.7),     # Z difference between a stub-pair and EG                    
         BeamSpotInputTag   = cms.InputTag("BeamSpotFromSim", "BeamSpot"), # beam spot InputTag                                            
         
-        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+        L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
 	RelativeIsolation = cms.bool( True ),	# default = True. The isolation variable is relative if True,
 						# else absolute.
         IsoCut = cms.double( -0.15 ), 		# Cut on the (Trk-based) isolation: only the L1TkEmParticle for which

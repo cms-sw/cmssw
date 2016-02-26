@@ -41,7 +41,7 @@ class L1TrackDegrader : public edm::EDProducer
 { 
 public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >   L1TkTrackCollectionType;
 
   /// Constructor/destructor
@@ -80,7 +80,7 @@ L1TrackDegrader::L1TrackDegrader(edm::ParameterSet const& iConfig) // :   config
 
    ran.SetSeed(0);
 
-produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
+produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
 
 }
 

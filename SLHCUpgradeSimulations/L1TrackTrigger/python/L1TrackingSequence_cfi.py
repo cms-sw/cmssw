@@ -28,13 +28,13 @@ DefaultTrackingSequence = cms.Sequence( TrackTriggerTTTracks + TrackTriggerAssoc
 # --- Rerun the L1Tracking, but now in the "electron configuration"
 #
 
-TTTracksFromPixelDigisLargerPhi = TTTracksFromPixelDigis.clone()
-TTTracksFromPixelDigisLargerPhi.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
-TrackTriggerTTTracksLargerPhi = cms.Sequence(BeamSpotFromSim*TTTracksFromPixelDigisLargerPhi)
+TTTracksFromPhase2TrackerDigisLargerPhi = TTTracksFromPhase2TrackerDigis.clone()
+TTTracksFromPhase2TrackerDigisLargerPhi.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+TrackTriggerTTTracksLargerPhi = cms.Sequence(BeamSpotFromSim*TTTracksFromPhase2TrackerDigisLargerPhi)
 
-TTTrackAssociatorFromPixelDigisLargerPhi = TTTrackAssociatorFromPixelDigis.clone()
-TTTrackAssociatorFromPixelDigisLargerPhi.TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPixelDigisLargerPhi", "Level1TTTracks") )
-TrackTriggerAssociatorTracksLargerPhi = cms.Sequence( TTTrackAssociatorFromPixelDigisLargerPhi )
+TTTrackAssociatorFromPhase2TrackerDigisLargerPhi = TTTrackAssociatorFromPhase2TrackerDigis.clone()
+TTTrackAssociatorFromPhase2TrackerDigisLargerPhi.TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPhase2TrackerDigisLargerPhi", "Level1TTTracks") )
+TrackTriggerAssociatorTracksLargerPhi = cms.Sequence( TTTrackAssociatorFromPhase2TrackerDigisLargerPhi )
 
 ElectronTrackingSequence = cms.Sequence( TrackTriggerTTTracksLargerPhi + TrackTriggerAssociatorTracksLargerPhi )
 

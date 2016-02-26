@@ -48,7 +48,7 @@ process.BeamSpotFromSim =cms.EDProducer("BeamSpotFromSimProducer")
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
 # if one wants to change the extrapolation window :
-#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+#process.TTTracksFromPhase2TrackerDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
 
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
@@ -60,7 +60,7 @@ process.L1TkJetsL1 = process.L1TkJets.clone()
 # Analyzer
 #################################################################################################
 #process.L1PixelTrigger = cms.EDAnalyzer('L1PixelTrigger',
-#      L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+#      L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
 #      L1TkJetInputTag = cms.InputTag("L1TkJetsL1","Central")
 #      #L1TkJetInputTag = cms.InputTag("L1TkJets","Central")
 #      #L1TkJetInputTag = cms.InputTag("L1CalibFilterTowerJetProducer","CalibratedTowerJets")

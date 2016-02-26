@@ -65,8 +65,8 @@ OuterTrackerMonitorCluster::~OuterTrackerMonitorCluster()
 void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	/// Track Trigger Clusters
-	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  iEvent.getByLabel( tagTTClusters_, PixelDigiTTClusterHandle );
+	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
+  iEvent.getByLabel( tagTTClusters_, Phase2TrackerDigiTTClusterHandle );
   
   /// Geometry
   edm::ESHandle< StackedTrackerGeometry > StackedGeometryHandle;
@@ -75,15 +75,15 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
   theStackedGeometry = StackedGeometryHandle.product();
   
   /// Loop over the input Clusters
-  typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
-  typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-  for ( inputIter = PixelDigiTTClusterHandle->begin();
-       inputIter != PixelDigiTTClusterHandle->end();
+  typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator contentIter;
+  for ( inputIter = Phase2TrackerDigiTTClusterHandle->begin();
+       inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter )
   {
     for(contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter)
     {
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
       StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       unsigned int memberClu = tempCluRef->getStackMember();
       unsigned int widClu = tempCluRef->findWidth();

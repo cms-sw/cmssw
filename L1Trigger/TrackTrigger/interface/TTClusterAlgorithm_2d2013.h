@@ -41,8 +41,11 @@ class TTClusterAlgorithm_2d2013 : public TTClusterAlgorithm< T >
 
   public:
     /// Constructor
-    TTClusterAlgorithm_2d2013( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
-      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+    //    TTClusterAlgorithm_2d2013( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
+    //      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+
+    TTClusterAlgorithm_2d2013( int aWidthCut )
+      : TTClusterAlgorithm< T >( __func__ )
     {
       mWidthCut = aWidthCut;
     }
@@ -66,12 +69,12 @@ class TTClusterAlgorithm_2d2013 : public TTClusterAlgorithm< T >
 
 /// Function to compare clusters and sort them by row
 template< >
-bool TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::CompareClusters( const Ref_PixelDigi_& a, const Ref_PixelDigi_& b );
+bool TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b );
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                           const std::vector< Ref_PixelDigi_ > &input,
+void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                           const std::vector< Ref_Phase2TrackerDigi_ > &input,
                                                            bool isPS ) const;
 
 
@@ -108,11 +111,14 @@ class  ES_TTClusterAlgorithm_2d2013: public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
+      //      TTClusterAlgorithm< T >* TTClusterAlgo =
+      //        new TTClusterAlgorithm_2d2013< T >( &(*StackedTrackerGeomHandle), mWidthCut );
+
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_2d2013< T >( &(*StackedTrackerGeomHandle), mWidthCut );
+        new TTClusterAlgorithm_2d2013< T >( mWidthCut );
 
       _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

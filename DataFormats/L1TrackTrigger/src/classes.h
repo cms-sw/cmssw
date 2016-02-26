@@ -45,45 +45,45 @@ namespace
   namespace
   {
     /// Main template type
-    Ref_PixelDigi_  PD;
+    Ref_Phase2TrackerDigi_  PD;
 
     /// TTCluster and containers
-    TTCluster< Ref_PixelDigi_ >                                               C_PD;
-    std::vector< TTCluster< Ref_PixelDigi_ > >                              V_C_PD;
-    edm::Wrapper< std::vector< TTCluster< Ref_PixelDigi_ > > >            W_V_C_PD;
-    edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >                   SDV_C_PD;
-    edm::Wrapper< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > W_SDV_C_PD;
+    TTCluster< Ref_Phase2TrackerDigi_ >                                               C_PD;
+    std::vector< TTCluster< Ref_Phase2TrackerDigi_ > >                              V_C_PD;
+    edm::Wrapper< std::vector< TTCluster< Ref_Phase2TrackerDigi_ > > >            W_V_C_PD;
+    edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >                   SDV_C_PD;
+    edm::Wrapper< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > W_SDV_C_PD;
 
     /// edm::Ref to TTCluster in edmNew::DetSetVector and containers
-    edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > >                                    R_C_PD;
-    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > >                  W_R_C_PD;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > >                   V_R_C_PD;
-    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > > > W_V_R_C_PD;
+    edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >                                    R_C_PD;
+    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                  W_R_C_PD;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > >                   V_R_C_PD;
+    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > > W_V_R_C_PD;
 
     /// TTStub and containers
-    TTStub< Ref_PixelDigi_ >                                               S_PD;
-    std::vector< TTStub< Ref_PixelDigi_ > >                              V_S_PD;
-    edm::Wrapper< std::vector< TTStub< Ref_PixelDigi_ > > >            W_V_S_PD;
-    edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >                   SDV_S_PD;
-    edm::Wrapper< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > W_SDV_S_PD;
+    TTStub< Ref_Phase2TrackerDigi_ >                                               S_PD;
+    std::vector< TTStub< Ref_Phase2TrackerDigi_ > >                              V_S_PD;
+    edm::Wrapper< std::vector< TTStub< Ref_Phase2TrackerDigi_ > > >            W_V_S_PD;
+    edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >                   SDV_S_PD;
+    edm::Wrapper< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > W_SDV_S_PD;
 
     /// edm::Ref to TTStub in edmNew::DetSetVector and containers
-    edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > >                                    R_S_PD;
-    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >                  W_R_S_PD;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >                   V_R_S_PD;
-    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > > W_V_R_S_PD;
+    edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > >                                    R_S_PD;
+    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                  W_R_S_PD;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                   V_R_S_PD;
+    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > > W_V_R_S_PD;
 
     /// TTTrack and containers
-    TTTrack< Ref_PixelDigi_ >                                    T_PD;
-    std::vector< TTTrack< Ref_PixelDigi_ > >                   V_T_PD;
-    edm::Wrapper< std::vector< TTTrack< Ref_PixelDigi_ > > > W_V_T_PD;
+    TTTrack< Ref_Phase2TrackerDigi_ >                                    T_PD;
+    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >                   V_T_PD;
+    edm::Wrapper< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > W_V_T_PD;
 
     /// edm::Ptr to TTTrack and containers
-    edm::Ptr< TTTrack< Ref_PixelDigi_ > >                                    P_T_PD;
-    edm::Wrapper< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >                  W_P_T_PD;
-    std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >                   V_P_T_PD;
-    edm::Ref< std::vector < TTTrack< Ref_PixelDigi_ > > >                   R_V_T_PD;
-    edm::Wrapper< std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > > W_V_P_T_PD;
+    edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >                                    P_T_PD;
+    edm::Wrapper< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > >                  W_P_T_PD;
+    std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > >                   V_P_T_PD;
+    edm::Ref< std::vector < TTTrack< Ref_Phase2TrackerDigi_ > > >                   R_V_T_PD;
+    edm::Wrapper< std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > > W_V_P_T_PD;
 
     /// TTPixelTrack and containers
     TTPixelTrack                                                TT_PT;

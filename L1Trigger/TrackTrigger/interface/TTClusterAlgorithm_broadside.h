@@ -37,8 +37,10 @@ class TTClusterAlgorithm_broadside : public TTClusterAlgorithm< T >
 
   public:
     /// Constructor
-    TTClusterAlgorithm_broadside( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
-      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+    //    TTClusterAlgorithm_broadside( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
+    //      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+    TTClusterAlgorithm_broadside(int aWidthCut )
+      : TTClusterAlgorithm< T >( __func__ )
     {
       mWidthCut = aWidthCut;
     }
@@ -61,8 +63,8 @@ class TTClusterAlgorithm_broadside : public TTClusterAlgorithm< T >
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_broadside< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                              const std::vector< Ref_PixelDigi_ > &input ) const;
+void TTClusterAlgorithm_broadside< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                              const std::vector< Ref_Phase2TrackerDigi_ > &input ) const;
 
 
 
@@ -98,11 +100,14 @@ class  ES_TTClusterAlgorithm_broadside: public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
+      //      TTClusterAlgorithm< T >* TTClusterAlgo =
+      //        new TTClusterAlgorithm_broadside< T >( &(*StackedTrackerGeomHandle), mWidthCut );
+
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_broadside< T >( &(*StackedTrackerGeomHandle), mWidthCut );
+        new TTClusterAlgorithm_broadside< T >( mWidthCut );
 
       _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

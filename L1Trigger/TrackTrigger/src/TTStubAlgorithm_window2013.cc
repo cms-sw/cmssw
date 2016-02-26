@@ -8,13 +8,15 @@
  */
 
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_window2013.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                           int &aDisplacement,
                                                                           int &anOffset,
-                                                                          const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                          const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
@@ -22,12 +24,12 @@ void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
   MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
-  StackedTrackerDetId stDetId( aTTStub.getDetId() );
-
-  bool isPS = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( stDetId );
-
-  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
-  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
+  bool isPS = (theTrackerGeom_->getDetectorType(aTTStub.getDetId())==TrackerGeometry::Ph2PSP);
+  // TODO temporary: should use a method from the topology
+  // note that this will mean to store the topology as well in the Stub algorithm.
+  DetId stDetId( aTTStub.getDetId() );
+  const GeomDetUnit* det0 = theTrackerGeom_->idToDetUnit( stDetId+1 );
+  const GeomDetUnit* det1 = theTrackerGeom_->idToDetUnit( stDetId+2 );
 
   /// Find pixel pitch and topology related information
   const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
@@ -43,7 +45,6 @@ void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
   int ratio = cols0/cols1; /// This assumes the ratio is integer!
   int segment0 = floor( mp0.y() / ratio );
 
-//  if ( ratio == 1 ) /// 2S Modules
   if (!isPS)
   {
     if ( mPerformZMatching2S && ( segment0 != floor( mp1.y() ) ) )
@@ -70,7 +71,7 @@ void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
   /// displacement < Delta * 1 / sqrt( ( 1/(mPtScalingFactor*R) )** 2 - 1 )
   double denominator = sqrt( 1/( mPtScalingFactor*mPtScalingFactor*R0*R0 ) - 1 );
 
-  if (stDetId.isBarrel())
+  if (stDetId.subdetId()==StripSubdetector::TOB)
   {
     /// All of these are calculated in terms of pixels in outer sensor
     /// 0) Calculate window in terms of multiples of outer sensor pitch
@@ -103,7 +104,7 @@ void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
       anOffset = offsetI; /// In HALF-STRIP units!
     } /// End of stub is accepted
   }
-  else if (stDetId.isEndcap())
+  else if (stDetId.subdetId()==StripSubdetector::TID)
   {
     /// All of these are calculated in terms of pixels in outer sensor
     /// 0) Calculate window in terms of multiples of outer sensor pitch

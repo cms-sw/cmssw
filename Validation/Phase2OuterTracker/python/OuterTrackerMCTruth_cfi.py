@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     
     TopFolderName    = cms.string('Phase2OuterTrackerV'),
-    TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
-    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"),
-    TTStubs          = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
-    TTStubMCTruth    = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-    TTTracks         = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
-    TTTrackMCTruth   = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),    
+    TTClusters       = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterInclusive"),
+    TTStubs          = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
+    TTStubMCTruth    = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),
+    TTTracks         = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
+    TTTrackMCTruth   = cms.InputTag("TTTrackAssociatorFromPhase2TrackerDigis", "Level1TTTracks"),    
     HQDelim          = cms.int32(4),
     verbosePlots     = cms.untracked.bool(False),
 

@@ -4,7 +4,7 @@
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <memory>
 
 /*! \class   StackedTrackerWindow
@@ -48,7 +48,7 @@ class WindowFinder
 {
   public:
     /// Constructor
-    explicit WindowFinder( const StackedTrackerGeometry *aGeometry,
+    explicit WindowFinder( const TrackerGeometry* const theTrackerGeom,
                            double aPtScalingFactor,
                            double aIPwidth,
                            double aRowResolution,
@@ -58,18 +58,18 @@ class WindowFinder
     virtual ~WindowFinder();
 
     /// Other methods
-    void dumphit( const StackedTrackerDetId & anId,
+    void dumphit( const DetId & anId,
                   unsigned int hitIdentifier,
                   const double & aInnerRow,
                   const double & aInnerColumn );
 
-    StackedTrackerWindow getWindow( const StackedTrackerDetId & anId,
-                                    const double & aInnerRow,
-                                    const double & aInnerColumn );
+    void getWindow( const DetId & anId,
+                    const double & aInnerRow,
+                    const double & aInnerColumn );
   
   private:
     /// Data members
-    const StackedTrackerGeometry *mGeometry;
+    const TrackerGeometry* const mTrackerGeom;
     double mPtScalingFactor;
     double mIPwidth;
     double mRowResolution;
@@ -80,7 +80,7 @@ class WindowFinder
 
     /// As all hits in the same stack are tested sequentially,
     /// then cache the sensor parameters for speed!
-    StackedTrackerDetId mLastId;
+    DetId mLastId;
     PixelGeomDetUnit *mInnerDet, *mOuterDet;
     double mSeparation;
     double mHalfPixelLength;

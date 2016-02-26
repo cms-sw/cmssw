@@ -71,7 +71,7 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 # if you want to change the extrapolation window 
 # ----------------------------------------------------------------------------------
 
-#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+#process.TTTracksFromPhase2TrackerDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
 
 
 # ----------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 # tracklet simulation and emulation code
 # ----------------------------------------------------------------------------------
 
-#process.TTTracksFromPixelDigis.asciiFileName = cms.untracked.string("evlist.txt")   
+#process.TTTracksFromPhase2TrackerDigis.asciiFileName = cms.untracked.string("evlist.txt")   
 
 
 # ----------------------------------------------------------------------------------
@@ -94,13 +94,13 @@ process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 # Uncomment lines below if you want to produce the integer-version of tracklet L1 tracks
 # ----------------------------------------------------------------------------------
 
-#process.TTTracksFromPixelDigisInteger = cms.EDProducer("L1FPGATrackProducer",
+#process.TTTracksFromPhase2TrackerDigisInteger = cms.EDProducer("L1FPGATrackProducer",
 #                                                       fitPatternFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/fitpattern.txt'),
 #                                                       memoryModulesFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/memorymodules_full.dat'),
 #                                                       processingModulesFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/processingmodules_full.dat'),
 #                                                       wiresFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/wires_full.dat')
 #                                                )
-#process.TrackTriggerTTTracksInteger = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPixelDigisInteger)
+#process.TrackTriggerTTTracksInteger = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPhase2TrackerDigisInteger)
 #process.TT_step_Integer = cms.Path(process.TrackTriggerTTTracksInteger)
 
 
@@ -112,13 +112,13 @@ process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 	#    To use these L1Tracks later, one should use :
 	#    L1TrackInputTag = cms.InputTag("TrackTriggerTTTracksLargerPhi","Level1TTTracks")
 
-#process.TTTracksFromPixelDigisLargerPhi = process.TTTracksFromPixelDigis.clone()
-#process.TTTracksFromPixelDigisLargerPhi.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
-#process.TrackTriggerTTTracksLargerPhi = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPixelDigisLargerPhi)
+#process.TTTracksFromPhase2TrackerDigisLargerPhi = process.TTTracksFromPhase2TrackerDigis.clone()
+#process.TTTracksFromPhase2TrackerDigisLargerPhi.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+#process.TrackTriggerTTTracksLargerPhi = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPhase2TrackerDigisLargerPhi)
 
-#process.TTTrackAssociatorFromPixelDigisLargerPhi = process.TTTrackAssociatorFromPixelDigis.clone()
-#process.TTTrackAssociatorFromPixelDigisLargerPhi.TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPixelDigisLargerPhi", "Level1TTTracks") )
-#process.TrackTriggerAssociatorTracksLargerPhi = cms.Sequence( process.TTTrackAssociatorFromPixelDigisLargerPhi )
+#process.TTTrackAssociatorFromPhase2TrackerDigisLargerPhi = process.TTTrackAssociatorFromPhase2TrackerDigis.clone()
+#process.TTTrackAssociatorFromPhase2TrackerDigisLargerPhi.TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPhase2TrackerDigisLargerPhi", "Level1TTTracks") )
+#process.TrackTriggerAssociatorTracksLargerPhi = cms.Sequence( process.TTTrackAssociatorFromPhase2TrackerDigisLargerPhi )
 
 #process.TT_step = cms.Path( process.TrackTriggerTTTracksLargerPhi )
 #process.TTAssociator_step = cms.Path( process.TrackTriggerAssociatorTracksLargerPhi)
@@ -143,14 +143,14 @@ process.Out.outputCommands.append('keep *_*gen*_*_*')
 process.Out.outputCommands.append('keep *_*Gen*_*_*')
 process.Out.outputCommands.append('keep *_rawDataCollector_*_*')
 
-process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
+process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterAccepted_*')
 
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
-process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_StubAccepted_*')
+process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
 
-process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis*_Level1TTTracks_*')
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis*_Level1TTTracks_*')
+process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis*_Level1TTTracks_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis*_Level1TTTracks_*')
 
 process.FEVToutput_step = cms.EndPath(process.Out)
 

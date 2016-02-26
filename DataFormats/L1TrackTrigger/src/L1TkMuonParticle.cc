@@ -19,7 +19,7 @@ L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
 {
 	// for DTMatch'es matched to a L1Track: set the reference
   	// to this L1Tracks and its zvertex
-  const edm::Ptr< TTTrack< Ref_PixelDigi_ > >&  trkref = theDTMatch -> DTMatchBase::getPtMatchedTrackPtr();
+  const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >&  trkref = theDTMatch -> DTMatchBase::getPtMatchedTrackPtr();
   setTrkPtr( trkref );
   if ( trkPtr_.isNonnull() ) {
      float z = getTrkPtr() -> getPOCA().z();

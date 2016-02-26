@@ -2,7 +2,7 @@
  *  \brief   Class to store the L1 Track Trigger tracks
  *  \details After moving from SimDataFormats to DataFormats,
  *           the template structure of the class was maintained
- *           in order to accomodate any types other than PixelDigis
+ *           in order to accomodate any types other than Phase2TrackerDigis
  *           in case there is such a need in the future.
  *
  *  \author Nicola Pozzobon

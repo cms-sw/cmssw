@@ -99,13 +99,13 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 process.TrackFindingTracklet_step = cms.Path(process.TrackTriggerTTTracks)
 
 #process.load('L1Trigger.TrackFindingAM.L1AMTrack_cfi')
-#process.TrackFindingAM_step = cms.Path(process.TTTracksFromPixelDigisAM)
+#process.TrackFindingAM_step = cms.Path(process.TTTracksFromPhase2TrackerDigisAM)
 
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
-process.TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_PixelDigi_",
-    TTTracks = cms.VInputTag(cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks")),
-    TTStubTruth = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
-    TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted")
+process.TTTrackAssociatorFromPhase2TrackerDigis = cms.EDProducer("TTTrackAssociator_Phase2TrackerDigi_",
+    TTTracks = cms.VInputTag(cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks")),
+    TTStubTruth = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis","StubAccepted"),
+    TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis","ClusterAccepted")
 )
 process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 

@@ -11,11 +11,12 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                     int &aDisplacement, 
                                                                     int &anOffset, 
-                                                                    const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                    const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
+  /*
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
   MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
@@ -24,10 +25,10 @@ void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfi
   /// Get the module ID
   StackedTrackerDetId stDetId( aTTStub.getDetId() );
 
-  //bool isPS = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( stDetId );
+  //bool isPS = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->isPSModule( stDetId );
 
   /// Assumption: both sensors have the same pitch (as per CBC3 design...)
-  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
+  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
 
   /// Find pixel pitch and topology related information
   const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
@@ -39,11 +40,11 @@ void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfi
   /// Get ROC information
   int chipSize = top0->rowsperroc();
   int asicNumber = myPosition / chipSize; /// ASIC in module
-  int partitionSize = ceil( float(chipSize) / float( TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->getPartitionsPerRoc() ) );
+  int partitionSize = ceil( float(chipSize) / float( TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->getPartitionsPerRoc() ) );
   int partitionNumber = (myPosition % chipSize) / partitionSize; /// Partition in ASIC
 
   /// Assign the offset
-  anOffset = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->getASICOffset( stDetId, asicNumber, partitionNumber );
+  anOffset = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->getASICOffset( stDetId, asicNumber, partitionNumber );
 
   /// Find position and bend in HALF-STRIP units
   int aPosition = 2 * mp0.x();
@@ -53,7 +54,7 @@ void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfi
   aDisplacement = (2 * mp1.x()) - aPosition;
 
   /// Cluster difference less predefined offset for this ASIC partition in half-strip units
-  aConfirmation =  ( (abs(4 * aBend - 1)) <= (2 * TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->getDetUnitWindow(stDetId) ) );
+  aConfirmation =  ( (abs(4 * aBend - 1)) <= (2 * TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->getDetUnitWindow(stDetId) ) );
 
   /// Stop here if no z-matching is required  
   if ( !mPerformZMatching2S ) // && !isPS
@@ -63,7 +64,7 @@ void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfi
   //  return;
 
   /// Check if the clusters are in the same z-segment
-  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
+  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
   const PixelGeomDetUnit* pix1 = dynamic_cast< const PixelGeomDetUnit* >( det1 );
   const PixelTopology* top1 = dynamic_cast< const PixelTopology* >( &(pix1->specificTopology()) );
   int cols0 = top0->ncolumns();
@@ -72,6 +73,6 @@ void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfi
   int segment0 = floor( mp0.y() / ratio );
   if ( segment0 != floor( mp1.y() ) )
     aConfirmation = false;
-
+  */
 }
 

@@ -55,8 +55,10 @@ class TTClusterAlgorithm_2d : public TTClusterAlgorithm< T >
 
   public:
     /// Constructor
-    TTClusterAlgorithm_2d( const StackedTrackerGeometry *aStackedTracker, bool aDoubleCountingTest )
-      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+    //    TTClusterAlgorithm_2d( const StackedTrackerGeometry *aStackedTracker, bool aDoubleCountingTest )
+    //      : TTClusterAlgorithm< T >( aStackedTracker, __func__ )
+    TTClusterAlgorithm_2d( bool aDoubleCountingTest )
+      : TTClusterAlgorithm< T >( __func__ )
     { 
       mDoubleCountingTest = aDoubleCountingTest;
     }
@@ -79,8 +81,8 @@ class TTClusterAlgorithm_2d : public TTClusterAlgorithm< T >
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                       const std::vector< Ref_PixelDigi_ > &input ) const;
+void TTClusterAlgorithm_2d< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                       const std::vector< Ref_Phase2TrackerDigi_ > &input ) const;
 
 
 
@@ -116,11 +118,14 @@ class ES_TTClusterAlgorithm_2d : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     {
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+
+      //      TTClusterAlgorithm< T >* TTClusterAlgo =
+      //        new TTClusterAlgorithm_2d< T >( &(*StackedTrackerGeomHandle), mDoubleCountingTest );
 
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_2d< T >( &(*StackedTrackerGeomHandle), mDoubleCountingTest );
+        new TTClusterAlgorithm_2d< T >( mDoubleCountingTest );
 
       _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

@@ -16,7 +16,7 @@
 
 
 namespace L1TkElectronStubMatchAlgo {
-  typedef edm::Ref<edmNew::DetSetVector<TTStub<Ref_PixelDigi_ > >, TTStub<Ref_PixelDigi_> > stubRef;
+  typedef edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_ > >, TTStub<Ref_Phase2TrackerDigi_> > stubRef;
   typedef std::vector< stubRef >  stubRefCollection;
 
   unsigned int doMatch(l1extra::L1EmParticleCollection::const_iterator egIter, const edm::ParameterSet& conf, 

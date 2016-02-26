@@ -31,7 +31,7 @@ namespace l1extra
   {
     public:
 
-      typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+      typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
       typedef std::vector< L1TkTrackType >   L1TkTrackCollectionType;
 
       L1TkMuonParticle() : theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}

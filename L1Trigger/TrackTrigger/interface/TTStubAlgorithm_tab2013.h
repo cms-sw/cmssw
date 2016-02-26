@@ -49,11 +49,11 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_tab2013( const StackedTrackerGeometry *aStackedTracker,
+    TTStubAlgorithm_tab2013( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                              std::vector< double > setBarrelCut,
                              std::vector< std::vector< double > > setRingCut,
                              bool aPerformZMatchingPS, bool aPerformZMatching2S )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+      : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       barrelCut = setBarrelCut;
       ringCut = setRingCut;
@@ -81,14 +81,10 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_tab2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_tab2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement,
                                                                        int &anOffset,
-                                                                       const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
-
-
-
-
+                                                                       const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 /*! \class   ES_TTStubAlgorithm_tab2013
  *  \brief   Class to declare the algorithm to the framework
@@ -137,13 +133,16 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_tab2013< T >( &(*StackedTrackerGeomHandle),
-                                          setBarrelCut, setRingCut,
-                                          mPerformZMatchingPS, mPerformZMatching2S );
+
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
+
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_tab2013< T >( theTrackerGeom, theTrackerTopo, 
+	                                       setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;

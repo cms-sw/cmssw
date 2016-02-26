@@ -40,6 +40,7 @@
     <use   name="CondFormats/DataRecord"/>
     <use   name="RecoTauTag/TauTagTools"/>
     <use   name="RecoTracker/TkSeedGenerator"/>
+    <use   name="DataFormats/Phase2TrackerDigi"/>
     <flags   CXXFLAGS="-g -O0"/>
   </library>
 </environment>

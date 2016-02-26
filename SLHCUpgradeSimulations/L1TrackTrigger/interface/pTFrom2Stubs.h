@@ -7,7 +7,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 namespace pTFrom2Stubs{
-	float rInvFrom2(std::vector< TTTrack< Ref_PixelDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry);
-	float pTFrom2(std::vector< TTTrack< Ref_PixelDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry);
+	float rInvFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry);
+	float pTFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry);
 }
 #endif

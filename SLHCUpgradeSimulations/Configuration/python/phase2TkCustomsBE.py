@@ -210,13 +210,13 @@ def l1EventContent(process):
         b=a+'output'
         if hasattr(process,b):
 
-            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClustersFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_*_*')
 
-            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
 
             getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
             getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')
@@ -314,7 +314,7 @@ def customise_TrackTrigger(process):
         # always starts from 1 to N, with increasing r
     )
 
-    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet = cms.VPSet(
+    process.TTStubAlgorithm_tab2013_Phase2TrackerDigi_.EndcapCutSet = cms.VPSet(
         cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
         cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.5, 3.0, 3.0, 3.5, 2.5, 3.0, 3.0, 4.5, 5.5, 5.5 ) ), #D1
         cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0, 3.5, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0 ) ), #D2 ...
@@ -330,7 +330,7 @@ def customise_TrackTrigger(process):
     
 #    process.StackedTrackerGeometryESModule.EndcapCutSet.append(process.StackedTrackerGeometryESModule.EndcapCutSet[5])
 #    process.StackedTrackerGeometryESModule.EndcapCutSet.append(process.StackedTrackerGeometryESModule.EndcapCutSet[5])
-#    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet[5])
-#    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet[5])
+#    process.TTStubAlgorithm_tab2013_Phase2TrackerDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_Phase2TrackerDigi_.EndcapCutSet[5])
+#    process.TTStubAlgorithm_tab2013_Phase2TrackerDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_Phase2TrackerDigi_.EndcapCutSet[5])
     
     return process
