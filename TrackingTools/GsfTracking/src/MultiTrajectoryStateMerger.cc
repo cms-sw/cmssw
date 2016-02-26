@@ -1,5 +1,4 @@
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
-
 #include "TrackingTools/GsfTracking/interface/TsosGaussianStateConversions.h"
 
 TrajectoryStateOnSurface
