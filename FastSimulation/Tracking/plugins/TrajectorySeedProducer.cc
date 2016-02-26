@@ -181,53 +181,47 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	return;
     }
     
-    // pointer to selected region
+    // pointers for selector function
     TrackingRegion * selectedTrackingRegion = 0;
-    
-    // pointer to triplet generator
     auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
+    std::unique_ptr<HitDoublets> hitDoublets;
        
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr](const std::vector<const FastTrackerRecHit*>& hits) -> bool
-      {
+    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&hitDoublets](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
+    {
 	// criteria for hit pairs
 	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
-      bool doubletCompatible=false;
-      if(hits.size()>=2){
-	  const FastTrackerRecHit * firstHit = hits[0];
-	  const FastTrackerRecHit * secondHit = hits[1];
+	if(hits.size()==2)
+	{
+	    const FastTrackerRecHit * firstHit = hits[0];
+	    const FastTrackerRecHit * secondHit = hits[1];
+	    
+	    const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
+	    const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
+	    
+	    std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
+	    std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
 
-	  const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
-	  const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
-
-	  std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
-	  std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
-
-	  const RecHitsSortedInPhi* fhm=new RecHitsSortedInPhi (firstHits, selectedTrackingRegion->origin(), firstLayer);
-	  const RecHitsSortedInPhi* shm=new RecHitsSortedInPhi (secondHits, selectedTrackingRegion->origin(), secondLayer);
-	  HitDoublets result(*fhm,*shm);
-	  HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,*fhm,*shm,es,0,result);
-	  
-	  if(result.size()!=0)
-	    doubletCompatible=true;
-	  if(doubletCompatible==false)
-	    return false;
-	  
-	  if(pixelTripletGeneratorPtr && hits.size()==3 && doubletCompatible==true){
+	    const RecHitsSortedInPhi* fhm=new RecHitsSortedInPhi (firstHits, selectedTrackingRegion->origin(), firstLayer);
+	    const RecHitsSortedInPhi* shm=new RecHitsSortedInPhi (secondHits, selectedTrackingRegion->origin(), secondLayer);
+	    hitDoublets.reset(new HitDoublets(*fhm,*shm));
+	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,*fhm,*shm,es,0,*hitDoublets);
+	    return hitDoublets->size()!=0;
+	}
+	else if(pixelTripletGeneratorPtr && hits.size())
+	{
 	    OrderedHitTriplets Tripletresult;
 	    const FastTrackerRecHit * thirdHit = hits[2];
 	    const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
 	    std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
 	    std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
 	    const RecHitsSortedInPhi* thm=new RecHitsSortedInPhi (thirdHits, selectedTrackingRegion->origin(), thirdLayer);
-	    pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thm,thirdLayerDetLayer,1);
-	    if(Tripletresult.size()!=0)return true;
-	    return false;
-	  }
-      }
+	    pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
+	    return Tripletresult.size()!=0;
+	}
 	return true;
-      };
+    };
     
     if(skipSeedFinderSelector)
       {
