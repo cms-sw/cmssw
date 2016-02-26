@@ -3,11 +3,11 @@
 
   <ancestor_id>0</ancestor_id>
 
-  <name>L1Menu_CollisionsHeavyIons2015_v4_uGT_v2</name>
+  <name>L1Menu_Collisions2015_25nsStage1_v7_uGT_v3</name>
 
-  <uuid_menu>34419dfb-f65d-598e-bdbf-e739576fc4e9</uuid_menu>
+  <uuid_menu>73a7390d-4677-586c-a45c-fcd1bc65bc7e</uuid_menu>
 
-  <uuid_firmware>28504e50-9454-11e5-8155-002590e74788</uuid_firmware>
+  <uuid_firmware>63c166fc-d812-11e5-9bab-001c4289f194</uuid_firmware>
 
   <global_tag/>
 
@@ -19,197 +19,56 @@
 
   <is_obsolete>false</is_obsolete>
 
-  <comment>subset of L1Menu_CollisionsHeavyIons2015_v5 + uGT test algorithms</comment>
+  <comment>Implementation of L1Menu_Collisions2015_25nsStage1_v7 for uGT. Correlation conditions are implemented as placeholders.</comment>
 
   <algorithm>
-    <name>L1_SingleJet16</name>
-    <expression>JET16</expression>
+    <name>L1_ZeroBias</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
     <index>1</index>
     <module_id>0</module_id>
     <module_index>0</module_index>
-    <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
       <bx_offset>0</bx_offset>
-    </object_requirement>
+    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet28</name>
-    <expression>JET28</expression>
+    <name>L1_SingleEG2_BptxAND</name>
+    <expression>EG2 AND EXT_BPTX_plus_AND_minus.v0</expression>
     <index>2</index>
     <module_id>0</module_id>
     <module_index>1</module_index>
     <object_requirement>
-      <name>JET28</name>
-      <type>JET</type>
+      <name>EG2</name>
+      <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.8000000000000000E+01</threshold>
+      <threshold>+2.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleJet32</name>
-    <expression>JET32</expression>
+    <name>L1_SingleMu7</name>
+    <expression>MU7[MU-QLTY_HIGH]</expression>
     <index>3</index>
     <module_id>0</module_id>
     <module_index>2</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
     <object_requirement>
-      <name>JET32</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet36</name>
-    <expression>JET36</expression>
-    <index>4</index>
-    <module_id>0</module_id>
-    <module_index>3</module_index>
-    <object_requirement>
-      <name>JET36</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet40</name>
-    <expression>JET40</expression>
-    <index>5</index>
-    <module_id>0</module_id>
-    <module_index>4</module_index>
-    <object_requirement>
-      <name>JET40</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet44</name>
-    <expression>JET44</expression>
-    <index>6</index>
-    <module_id>0</module_id>
-    <module_index>5</module_index>
-    <object_requirement>
-      <name>JET44</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.4000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet48</name>
-    <expression>JET48</expression>
-    <index>7</index>
-    <module_id>0</module_id>
-    <module_index>6</module_index>
-    <object_requirement>
-      <name>JET48</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet52</name>
-    <expression>JET52</expression>
-    <index>8</index>
-    <module_id>0</module_id>
-    <module_index>7</module_index>
-    <object_requirement>
-      <name>JET52</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet56</name>
-    <expression>JET56</expression>
-    <index>9</index>
-    <module_id>0</module_id>
-    <module_index>8</module_index>
-    <object_requirement>
-      <name>JET56</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleJet64</name>
-    <expression>JET64</expression>
-    <index>10</index>
-    <module_id>0</module_id>
-    <module_index>9</module_index>
-    <object_requirement>
-      <name>JET64</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+6.4000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG3</name>
-    <expression>EG3</expression>
-    <index>11</index>
-    <module_id>0</module_id>
-    <module_index>10</module_index>
-    <object_requirement>
-      <name>EG3</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG5</name>
-    <expression>EG5</expression>
-    <index>12</index>
-    <module_id>0</module_id>
-    <module_index>11</module_index>
-    <object_requirement>
-      <name>EG5</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleEG7</name>
-    <expression>EG7</expression>
-    <index>13</index>
-    <module_id>0</module_id>
-    <module_index>12</module_index>
-    <object_requirement>
-      <name>EG7</name>
-      <type>EG</type>
+      <name>MU7</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
       <threshold>+7.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
@@ -217,26 +76,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleEG12</name>
-    <expression>EG12</expression>
-    <index>14</index>
-    <module_id>0</module_id>
-    <module_index>13</module_index>
-    <object_requirement>
-      <name>EG12</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
     <name>L1_SingleEG15</name>
     <expression>EG15</expression>
-    <index>15</index>
+    <index>4</index>
     <module_id>0</module_id>
-    <module_index>14</module_index>
+    <module_index>3</module_index>
     <object_requirement>
       <name>EG15</name>
       <type>EG</type>
@@ -247,26 +91,518 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleEG21</name>
-    <expression>EG21</expression>
-    <index>16</index>
+    <name>L1_ETT15_BptxAND</name>
+    <expression>ETT15 AND EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>5</index>
     <module_id>0</module_id>
-    <module_index>15</module_index>
+    <module_index>4</module_index>
     <object_requirement>
-      <name>EG21</name>
-      <type>EG</type>
+      <name>ETT15</name>
+      <type>ETT</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.1000000000000000E+01</threshold>
+      <threshold>+1.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETT40</name>
+    <expression>ETT40</expression>
+    <index>6</index>
+    <module_id>0</module_id>
+    <module_index>5</module_index>
+    <object_requirement>
+      <name>ETT40</name>
+      <type>ETT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleEG30</name>
-    <expression>EG30</expression>
+    <name>L1_ETT60</name>
+    <expression>ETT60</expression>
+    <index>7</index>
+    <module_id>0</module_id>
+    <module_index>6</module_index>
+    <object_requirement>
+      <name>ETT60</name>
+      <type>ETT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT75</name>
+    <expression>HTT75</expression>
+    <index>8</index>
+    <module_id>0</module_id>
+    <module_index>7</module_index>
+    <object_requirement>
+      <name>HTT75</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu12_EG10</name>
+    <expression>MU12[MU-QLTY_HIGH] AND EG10</expression>
+    <index>9</index>
+    <module_id>0</module_id>
+    <module_index>8</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5_EG15</name>
+    <expression>MU5[MU-QLTY_HIGH] AND EG15</expression>
+    <index>10</index>
+    <module_id>0</module_id>
+    <module_index>9</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>EG15</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleTauJet40er</name>
+    <expression>comb{TAU40[TAU-ETA_2p17],TAU40[TAU-ETA_2p17]}</expression>
+    <index>11</index>
+    <module_id>0</module_id>
+    <module_index>10</module_index>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>TAU40</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu16er_TauJet20er</name>
+    <expression>MU16[MU-QLTY_HIGH,MU-ETA_2p1] AND TAU20[TAU-ETA_2p17]</expression>
+    <index>12</index>
+    <module_id>0</module_id>
+    <module_index>11</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>TAU20</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT100</name>
+    <expression>HTT100</expression>
+    <index>13</index>
+    <module_id>0</module_id>
+    <module_index>12</module_index>
+    <object_requirement>
+      <name>HTT100</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG20</name>
+    <expression>EG20[EG-ISO_0xE]</expression>
+    <index>14</index>
+    <module_id>0</module_id>
+    <module_index>13</module_index>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG20</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJet52</name>
+    <expression>JET52</expression>
+    <index>15</index>
+    <module_id>0</module_id>
+    <module_index>14</module_index>
+    <object_requirement>
+      <name>JET52</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJet68</name>
+    <expression>JET68</expression>
+    <index>16</index>
+    <module_id>0</module_id>
+    <module_index>15</module_index>
+    <object_requirement>
+      <name>JET68</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJet128</name>
+    <expression>JET128</expression>
     <index>17</index>
     <module_id>0</module_id>
     <module_index>16</module_index>
+    <object_requirement>
+      <name>JET128</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2800000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleIsoTau32er</name>
+    <expression>comb{TAU32[TAU-ISO_0xE,TAU-ETA_2p17],TAU32[TAU-ISO_0xE,TAU-ETA_2p17]}</expression>
+    <index>18</index>
+    <module_id>0</module_id>
+    <module_index>17</module_index>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU32</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu16er_IsoTau32er</name>
+    <expression>MU16[MU-QLTY_HIGH,MU-ETA_2p1] AND TAU32[TAU-ISO_0xE,TAU-ETA_2p17]</expression>
+    <index>19</index>
+    <module_id>0</module_id>
+    <module_index>18</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU32</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0</name>
+    <expression>comb{MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH]}</expression>
+    <index>20</index>
+    <module_id>0</module_id>
+    <module_index>19</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_EG25er_HTT100</name>
+    <expression>EG25[EG-ETA_2p17] AND HTT100</expression>
+    <index>21</index>
+    <module_id>0</module_id>
+    <module_index>20</module_index>
+    <cut>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>EG25</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>HTT100</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMuOpen</name>
+    <expression>comb{MU0p5[MU-QLTY_OPEN],MU0p5[MU-QLTY_OPEN]}</expression>
+    <index>22</index>
+    <module_id>0</module_id>
+    <module_index>21</module_index>
+    <cut>
+      <name>MU-QLTY_OPEN</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG25er</name>
+    <expression>EG25[EG-ISO_0xE,EG-ETA_2p17]</expression>
+    <index>23</index>
+    <module_id>0</module_id>
+    <module_index>22</module_index>
+    <cut>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG25</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG25</name>
+    <expression>EG25[EG-ISO_0xE]</expression>
+    <index>24</index>
+    <module_id>0</module_id>
+    <module_index>23</module_index>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG25</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG30er</name>
+    <expression>EG30[EG-ISO_0xE,EG-ETA_2p17]</expression>
+    <index>25</index>
+    <module_id>0</module_id>
+    <module_index>24</module_index>
+    <cut>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
     <object_requirement>
       <name>EG30</name>
       <type>EG</type>
@@ -277,102 +613,11 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleIsoEG3</name>
-    <expression>EG3[EG-ISO_0xE]</expression>
-    <index>18</index>
+    <name>L1_SingleEG10</name>
+    <expression>EG10</expression>
+    <index>26</index>
     <module_id>0</module_id>
-    <module_index>17</module_index>
-    <cut>
-      <name>EG-ISO_0xE</name>
-      <object>EG</object>
-      <type>ISO</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>1,2,3</data>
-    </cut>
-    <object_requirement>
-      <name>EG3</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleIsoEG7</name>
-    <expression>EG7[EG-ISO_0xE]</expression>
-    <index>19</index>
-    <module_id>0</module_id>
-    <module_index>18</module_index>
-    <cut>
-      <name>EG-ISO_0xE</name>
-      <object>EG</object>
-      <type>ISO</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>1,2,3</data>
-    </cut>
-    <object_requirement>
-      <name>EG7</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+7.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleEG2</name>
-    <expression>comb{EG2,EG2}</expression>
-    <index>20</index>
-    <module_id>0</module_id>
-    <module_index>19</module_index>
-    <object_requirement>
-      <name>EG2</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleEG5</name>
-    <expression>comb{EG5,EG5}</expression>
-    <index>21</index>
-    <module_id>0</module_id>
-    <module_index>20</module_index>
-    <object_requirement>
-      <name>EG5</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleEG8</name>
-    <expression>comb{EG8,EG8}</expression>
-    <index>22</index>
-    <module_id>0</module_id>
-    <module_index>21</module_index>
-    <object_requirement>
-      <name>EG8</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+8.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleEG10</name>
-    <expression>comb{EG10,EG10}</expression>
-    <index>23</index>
-    <module_id>0</module_id>
-    <module_index>22</module_index>
+    <module_index>25</module_index>
     <object_requirement>
       <name>EG10</name>
       <type>EG</type>
@@ -383,104 +628,159 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleEG_13_7</name>
-    <expression>comb{EG13,EG7}</expression>
-    <index>24</index>
-    <module_id>0</module_id>
-    <module_index>23</module_index>
-    <object_requirement>
-      <name>EG7</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+7.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <object_requirement>
-      <name>EG13</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.3000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleMuOpen</name>
-    <expression>MU0[MU-QLTY_Open]</expression>
-    <index>25</index>
-    <module_id>0</module_id>
-    <module_index>24</module_index>
-    <cut>
-      <name>MU-QLTY_Open</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
-    </cut>
-    <object_requirement>
-      <name>MU0</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+0.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleMuOpen</name>
-    <expression>comb{MU0[MU-QLTY_Open],MU0[MU-QLTY_Open]}</expression>
-    <index>26</index>
-    <module_id>0</module_id>
-    <module_index>25</module_index>
-    <cut>
-      <name>MU-QLTY_Open</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
-    </cut>
-    <object_requirement>
-      <name>MU0</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+0.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_DoubleMu0</name>
-    <expression>comb{MU0[MU-QLTY_High],MU0[MU-QLTY_High]}</expression>
+    <name>L1_SingleIsoEG22er</name>
+    <expression>EG22[EG-ISO_0xE,EG-ETA_2p17]</expression>
     <index>27</index>
     <module_id>0</module_id>
     <module_index>26</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG22</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJetC52</name>
+    <expression>comb{JET52[JET-ETA_CEN],JET52[JET-ETA_CEN]}</expression>
+    <index>28</index>
+    <module_id>0</module_id>
+    <module_index>27</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET52</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJetC84</name>
+    <expression>comb{JET84[JET-ETA_CEN],JET84[JET-ETA_CEN]}</expression>
+    <index>29</index>
+    <module_id>0</module_id>
+    <module_index>28</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET84</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu14er</name>
+    <expression>MU14[MU-QLTY_HIGH,MU-ETA_2p1]</expression>
+    <index>30</index>
+    <module_id>0</module_id>
+    <module_index>29</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
       <data>12,13,14,15</data>
     </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
     <object_requirement>
-      <name>MU0</name>
+      <name>MU14</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+0.0000000000000000E+00</threshold>
+      <threshold>+1.4000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleMu10</name>
-    <expression>comb{MU10[MU-QLTY_High],MU10[MU-QLTY_High]}</expression>
-    <index>28</index>
+    <name>L1_DoubleMu_10_Open</name>
+    <expression>comb{MU10[MU-QLTY_HIGH],MU0p5[MU-QLTY_OPEN]}</expression>
+    <index>31</index>
     <module_id>0</module_id>
-    <module_index>27</module_index>
+    <module_index>30</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-QLTY_OPEN</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu_10_3p5</name>
+    <expression>comb{MU10[MU-QLTY_HIGH],MU3p5[MU-QLTY_HIGH]}</expression>
+    <index>32</index>
+    <module_id>0</module_id>
+    <module_index>31</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -494,39 +794,213 @@
       <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+    <object_requirement>
+      <name>MU3p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.5000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu12</name>
-    <expression>MU12[MU-QLTY_High]</expression>
-    <index>29</index>
+    <name>L1_QuadJetC40</name>
+    <expression>comb{JET40[JET-ETA_CEN],JET40[JET-ETA_CEN],JET40[JET-ETA_CEN],JET40[JET-ETA_CEN]}</expression>
+    <index>33</index>
     <module_id>0</module_id>
-    <module_index>28</module_index>
+    <module_index>32</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET40</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG5</name>
+    <expression>EG5</expression>
+    <index>34</index>
+    <module_id>0</module_id>
+    <module_index>33</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG25</name>
+    <expression>EG25</expression>
+    <index>35</index>
+    <module_id>0</module_id>
+    <module_index>34</module_index>
+    <object_requirement>
+      <name>EG25</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG40</name>
+    <expression>EG40</expression>
+    <index>36</index>
+    <module_id>0</module_id>
+    <module_index>35</module_index>
+    <object_requirement>
+      <name>EG40</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG18er</name>
+    <expression>EG18[EG-ETA_2p17]</expression>
+    <index>37</index>
+    <module_id>0</module_id>
+    <module_index>36</module_index>
+    <cut>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>EG18</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleIsoEG20er</name>
+    <expression>EG20[EG-ISO_0xE,EG-ETA_2p17]</expression>
+    <index>38</index>
+    <module_id>0</module_id>
+    <module_index>37</module_index>
+    <cut>
+      <name>EG-ETA_2p17</name>
+      <object>EG</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG20</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG20</name>
+    <expression>EG20</expression>
+    <index>39</index>
+    <module_id>0</module_id>
+    <module_index>38</module_index>
+    <object_requirement>
+      <name>EG20</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG30</name>
+    <expression>EG30</expression>
+    <index>40</index>
+    <module_id>0</module_id>
+    <module_index>39</module_index>
+    <object_requirement>
+      <name>EG30</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleEG35</name>
+    <expression>EG35</expression>
+    <index>41</index>
+    <module_id>0</module_id>
+    <module_index>40</module_index>
+    <object_requirement>
+      <name>EG35</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuOpen</name>
+    <expression>MU0p5[MU-QLTY_OPEN]</expression>
+    <index>42</index>
+    <module_id>0</module_id>
+    <module_index>41</module_index>
+    <cut>
+      <name>MU-QLTY_OPEN</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
+      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
     </cut>
     <object_requirement>
-      <name>MU12</name>
+      <name>MU0p5</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
+      <threshold>+5.0000000000000000E-01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
     <name>L1_SingleMu16</name>
-    <expression>MU16[MU-QLTY_High]</expression>
-    <index>30</index>
+    <expression>MU16[MU-QLTY_HIGH]</expression>
+    <index>43</index>
     <module_id>0</module_id>
-    <module_index>29</module_index>
+    <module_index>42</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -543,51 +1017,36 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu3_SingleCenJet28</name>
-    <expression>MU3[MU-QLTY_High] AND JET28[JET-ETA_CEN]</expression>
-    <index>31</index>
+    <name>L1_SingleMu5</name>
+    <expression>MU5[MU-QLTY_HIGH]</expression>
+    <index>44</index>
     <module_id>0</module_id>
-    <module_index>30</module_index>
+    <module_index>43</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
       <data>12,13,14,15</data>
     </cut>
-    <cut>
-      <name>JET-ETA_CEN</name>
-      <object>JET</object>
-      <type>ETA</type>
-      <minimum>-3.0014999999999996E+00</minimum>
-      <maximum>+3.0014999999999996E+00</maximum>
-      <data/>
-    </cut>
     <object_requirement>
-      <name>JET28</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.8000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <object_requirement>
-      <name>MU3</name>
+      <name>MU5</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
+      <threshold>+5.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu3_SingleCenJet32</name>
-    <expression>MU3[MU-QLTY_High] AND JET32[JET-ETA_CEN]</expression>
-    <index>32</index>
+    <name>L1_SingleMu20er</name>
+    <expression>MU20[MU-QLTY_HIGH,MU-ETA_2p1]</expression>
+    <index>45</index>
     <module_id>0</module_id>
-    <module_index>31</module_index>
+    <module_index>44</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -595,105 +1054,30 @@
       <data>12,13,14,15</data>
     </cut>
     <cut>
-      <name>JET-ETA_CEN</name>
-      <object>JET</object>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
       <type>ETA</type>
-      <minimum>-3.0014999999999996E+00</minimum>
-      <maximum>+3.0014999999999996E+00</maximum>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
       <data/>
     </cut>
     <object_requirement>
-      <name>JET32</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <object_requirement>
-      <name>MU3</name>
+      <name>MU20</name>
       <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleMu3_SingleCenJet40</name>
-    <expression>MU3[MU-QLTY_High] AND JET40[JET-ETA_CEN]</expression>
-    <index>33</index>
-    <module_id>0</module_id>
-    <module_index>32</module_index>
-    <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>JET-ETA_CEN</name>
-      <object>JET</object>
-      <type>ETA</type>
-      <minimum>-3.0014999999999996E+00</minimum>
-      <maximum>+3.0014999999999996E+00</maximum>
-      <data/>
-    </cut>
-    <object_requirement>
-      <name>JET40</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+4.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <object_requirement>
-      <name>MU3</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_SingleMu3_SingleEG20</name>
-    <expression>MU3[MU-QLTY_High] AND EG20</expression>
-    <index>34</index>
-    <module_id>0</module_id>
-    <module_index>33</module_index>
-    <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <object_requirement>
-      <name>EG20</name>
-      <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
       <threshold>+2.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-    <object_requirement>
-      <name>MU3</name>
-      <type>MU</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu3_SingleEG12</name>
-    <expression>MU3[MU-QLTY_High] AND EG12</expression>
-    <index>35</index>
+    <name>L1_SingleMu12</name>
+    <expression>MU12[MU-QLTY_HIGH]</expression>
+    <index>46</index>
     <module_id>0</module_id>
-    <module_index>34</module_index>
+    <module_index>45</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -701,29 +1085,271 @@
       <data>12,13,14,15</data>
     </cut>
     <object_requirement>
-      <name>EG12</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-    <object_requirement>
-      <name>MU3</name>
+      <name>MU12</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+3.0000000000000000E+00</threshold>
+      <threshold>+1.2000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu5_SingleEG20</name>
-    <expression>MU5[MU-QLTY_High] AND EG20</expression>
-    <index>36</index>
+    <name>L1_SingleMu20</name>
+    <expression>MU20[MU-QLTY_HIGH]</expression>
+    <index>47</index>
     <module_id>0</module_id>
-    <module_index>35</module_index>
+    <module_index>46</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU20</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu8_HTT50</name>
+    <expression>MU8[MU-QLTY_HIGH] AND HTT50</expression>
+    <index>48</index>
+    <module_id>0</module_id>
+    <module_index>47</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU8</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>HTT50</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu25</name>
+    <expression>MU25[MU-QLTY_HIGH]</expression>
+    <index>49</index>
+    <module_id>0</module_id>
+    <module_index>48</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU25</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu30</name>
+    <expression>MU30[MU-QLTY_HIGH]</expression>
+    <index>50</index>
+    <module_id>0</module_id>
+    <module_index>49</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU30</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM30</name>
+    <expression>ETM30</expression>
+    <index>51</index>
+    <module_id>0</module_id>
+    <module_index>50</module_index>
+    <object_requirement>
+      <name>ETM30</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM50</name>
+    <expression>ETM50</expression>
+    <index>52</index>
+    <module_id>0</module_id>
+    <module_index>51</module_index>
+    <object_requirement>
+      <name>ETM50</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM70</name>
+    <expression>ETM70</expression>
+    <index>53</index>
+    <module_id>0</module_id>
+    <module_index>52</module_index>
+    <object_requirement>
+      <name>ETM70</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM100</name>
+    <expression>ETM100</expression>
+    <index>54</index>
+    <module_id>0</module_id>
+    <module_index>53</module_index>
+    <object_requirement>
+      <name>ETM100</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT125</name>
+    <expression>HTT125</expression>
+    <index>55</index>
+    <module_id>0</module_id>
+    <module_index>54</module_index>
+    <object_requirement>
+      <name>HTT125</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2500000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT150</name>
+    <expression>HTT150</expression>
+    <index>56</index>
+    <module_id>0</module_id>
+    <module_index>55</module_index>
+    <object_requirement>
+      <name>HTT150</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.5000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT175</name>
+    <expression>HTT175</expression>
+    <index>57</index>
+    <module_id>0</module_id>
+    <module_index>56</module_index>
+    <object_requirement>
+      <name>HTT175</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.7500000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT200</name>
+    <expression>HTT200</expression>
+    <index>58</index>
+    <module_id>0</module_id>
+    <module_index>57</module_index>
+    <object_requirement>
+      <name>HTT200</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu20_EG10</name>
+    <expression>MU20[MU-QLTY_HIGH] AND EG10</expression>
+    <index>59</index>
+    <module_id>0</module_id>
+    <module_index>58</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU20</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5_EG20</name>
+    <expression>MU5[MU-QLTY_HIGH] AND EG20</expression>
+    <index>60</index>
+    <module_id>0</module_id>
+    <module_index>59</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -747,13 +1373,51 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu7_SingleEG12</name>
-    <expression>MU7[MU-QLTY_High] AND EG12</expression>
-    <index>37</index>
+    <name>L1_Mu5_IsoEG18</name>
+    <expression>MU5[MU-QLTY_HIGH] AND EG18[EG-ISO_0xE]</expression>
+    <index>61</index>
     <module_id>0</module_id>
-    <module_index>36</module_index>
+    <module_index>60</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>EG18</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu6_DoubleEG10</name>
+    <expression>MU6[MU-QLTY_HIGH] AND comb{EG10,EG10}</expression>
+    <index>62</index>
+    <module_id>0</module_id>
+    <module_index>61</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -761,29 +1425,212 @@
       <data>12,13,14,15</data>
     </cut>
     <object_requirement>
-      <name>EG12</name>
+      <name>EG10</name>
       <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
+      <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
     <object_requirement>
-      <name>MU7</name>
+      <name>MU6</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+7.0000000000000000E+00</threshold>
+      <threshold>+6.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_SingleMu12_SingleEG7</name>
-    <expression>MU12[MU-QLTY_High] AND EG7</expression>
-    <index>38</index>
+    <name>L1_SingleJetC32_NotBptxOR</name>
+    <expression>JET32[JET-ETA_CEN] AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0)) AND (NOT (EXT_BPTX_plus.v0+1 OR EXT_BPTX_minus.v0+1))</expression>
+    <index>63</index>
     <module_id>0</module_id>
-    <module_index>37</module_index>
+    <module_index>62</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET32</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0+1</name>
+      <bx_offset>1</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0+1</name>
+      <bx_offset>1</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM40</name>
+    <expression>ETM40</expression>
+    <index>64</index>
+    <module_id>0</module_id>
+    <module_index>63</module_index>
+    <object_requirement>
+      <name>ETM40</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_HTT250</name>
+    <expression>HTT250</expression>
+    <index>65</index>
+    <module_id>0</module_id>
+    <module_index>64</module_index>
+    <object_requirement>
+      <name>HTT250</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu10er_ETM30</name>
+    <expression>MU10[MU-QLTY_HIGH,MU-ETA_2p1] AND ETM30</expression>
+    <index>66</index>
+    <module_id>0</module_id>
+    <module_index>65</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM30</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu10er_ETM50</name>
+    <expression>MU10[MU-QLTY_HIGH,MU-ETA_2p1] AND ETM50</expression>
+    <index>67</index>
+    <module_id>0</module_id>
+    <module_index>66</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM50</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu14er_ETM30</name>
+    <expression>MU14[MU-QLTY_HIGH,MU-ETA_2p1] AND ETM30</expression>
+    <index>68</index>
+    <module_id>0</module_id>
+    <module_index>67</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU14</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM30</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu7_EG7</name>
+    <expression>comb{MU7[MU-QLTY_HIGH],MU7[MU-QLTY_HIGH]} AND EG7</expression>
+    <index>69</index>
+    <module_id>0</module_id>
+    <module_index>68</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
       <object>MU</object>
       <type>QLTY</type>
       <minimum>+0.0000000000000000E+00</minimum>
@@ -798,80 +1645,66 @@
       <bx_offset>0</bx_offset>
     </object_requirement>
     <object_requirement>
-      <name>MU12</name>
+      <name>MU7</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.2000000000000000E+01</threshold>
+      <threshold>+7.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT50</name>
-    <expression>ETT50</expression>
-    <index>39</index>
+    <name>L1_SingleMu16er</name>
+    <expression>MU16[MU-QLTY_HIGH,MU-ETA_2p1]</expression>
+    <index>70</index>
     <module_id>0</module_id>
-    <module_index>38</module_index>
+    <module_index>69</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
     <object_requirement>
-      <name>ETT50</name>
-      <type>ETT</type>
+      <name>MU16</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+01</threshold>
+      <threshold>+1.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETT100</name>
-    <expression>ETT100</expression>
-    <index>40</index>
+    <name>L1_Mu6_HTT100</name>
+    <expression>MU6[MU-QLTY_HIGH] AND HTT100</expression>
+    <index>71</index>
     <module_id>0</module_id>
-    <module_index>39</module_index>
+    <module_index>70</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
     <object_requirement>
-      <name>ETT100</name>
-      <type>ETT</type>
+      <name>MU6</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+02</threshold>
+      <threshold>+6.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETT1000</name>
-    <expression>ETT1000</expression>
-    <index>41</index>
-    <module_id>0</module_id>
-    <module_index>40</module_index>
-    <object_requirement>
-      <name>ETT1000</name>
-      <type>ETT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+03</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_HTT50</name>
-    <expression>HTT50</expression>
-    <index>42</index>
-    <module_id>0</module_id>
-    <module_index>41</module_index>
-    <object_requirement>
-      <name>HTT50</name>
-      <type>HTT</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_HTT100</name>
-    <expression>HTT100</expression>
-    <index>43</index>
-    <module_id>0</module_id>
-    <module_index>42</module_index>
     <object_requirement>
       <name>HTT100</name>
       <type>HTT</type>
@@ -882,116 +1715,154 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_HTT1000</name>
-    <expression>HTT1000</expression>
-    <index>44</index>
+    <name>L1_Mu4_EG18</name>
+    <expression>MU4[MU-QLTY_HIGH] AND EG18</expression>
+    <index>72</index>
     <module_id>0</module_id>
-    <module_index>43</module_index>
+    <module_index>71</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
     <object_requirement>
-      <name>HTT1000</name>
+      <name>EG18</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU4</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuOpen_NotBptxOR</name>
+    <expression>MU0p5[MU-QLTY_OPEN] AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0))</expression>
+    <index>73</index>
+    <module_id>0</module_id>
+    <module_index>72</module_index>
+    <cut>
+      <name>MU-QLTY_OPEN</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>4,5,6,7,8,9,10,11,12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu6_EG6</name>
+    <expression>comb{MU6[MU-QLTY_HIGH],MU6[MU-QLTY_HIGH]} AND EG6</expression>
+    <index>74</index>
+    <module_id>0</module_id>
+    <module_index>73</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>EG6</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU6</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5_DoubleEG5</name>
+    <expression>MU5[MU-QLTY_HIGH] AND comb{EG5,EG5}</expression>
+    <index>75</index>
+    <module_id>0</module_id>
+    <module_index>74</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG6_HTT150</name>
+    <expression>comb{EG6,EG6} AND HTT150</expression>
+    <index>76</index>
+    <module_id>0</module_id>
+    <module_index>75</module_index>
+    <object_requirement>
+      <name>EG6</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>HTT150</name>
       <type>HTT</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+03</threshold>
+      <threshold>+1.5000000000000000E+02</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_ETM25</name>
-    <expression>ETM25</expression>
-    <index>45</index>
+    <name>L1_QuadJetC36_TauJet52</name>
+    <expression>comb{JET36[JET-ETA_CEN],JET36[JET-ETA_CEN],JET36[JET-ETA_CEN],JET36[JET-ETA_CEN]} AND TAU52</expression>
+    <index>77</index>
     <module_id>0</module_id>
-    <module_index>44</module_index>
-    <object_requirement>
-      <name>ETM25</name>
-      <type>ETM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.5000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETM50</name>
-    <expression>ETM50</expression>
-    <index>46</index>
-    <module_id>0</module_id>
-    <module_index>45</module_index>
-    <object_requirement>
-      <name>ETM50</name>
-      <type>ETM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_ETM500</name>
-    <expression>ETM500</expression>
-    <index>47</index>
-    <module_id>0</module_id>
-    <module_index>46</module_index>
-    <object_requirement>
-      <name>ETM500</name>
-      <type>ETM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+02</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_HTM25</name>
-    <expression>HTM25</expression>
-    <index>48</index>
-    <module_id>0</module_id>
-    <module_index>47</module_index>
-    <object_requirement>
-      <name>HTM25</name>
-      <type>HTM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+2.5000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_HTM50</name>
-    <expression>HTM50</expression>
-    <index>49</index>
-    <module_id>0</module_id>
-    <module_index>48</module_index>
-    <object_requirement>
-      <name>HTM50</name>
-      <type>HTM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_HTM500</name>
-    <expression>HTM500</expression>
-    <index>50</index>
-    <module_id>0</module_id>
-    <module_index>49</module_index>
-    <object_requirement>
-      <name>HTM500</name>
-      <type>HTM</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+5.0000000000000000E+02</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_JET16_CEN</name>
-    <expression>JET16[JET-ETA_CEN]</expression>
-    <index>51</index>
-    <module_id>0</module_id>
-    <module_index>50</module_index>
+    <module_index>76</module_index>
     <cut>
       <name>JET-ETA_CEN</name>
       <object>JET</object>
@@ -1001,8 +1872,107 @@
       <data/>
     </cut>
     <object_requirement>
-      <name>JET16</name>
+      <name>TAU52</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>JET36</name>
       <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu0er_ETM40</name>
+    <expression>MU0p5[MU-QLTY_HIGH,MU-ETA_2p1] AND ETM40</expression>
+    <index>78</index>
+    <module_id>0</module_id>
+    <module_index>77</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM40</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu16er_IsoTau28er</name>
+    <expression>MU16[MU-QLTY_HIGH,MU-ETA_2p1] AND TAU28[TAU-ISO_0xE,TAU-ETA_2p17]</expression>
+    <index>79</index>
+    <module_id>0</module_id>
+    <module_index>78</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU28</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
       <threshold>+1.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
@@ -1010,11 +1980,398 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_JET16_FWD</name>
-    <expression>JET16[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]</expression>
-    <index>52</index>
+    <name>L1_TripleMu0</name>
+    <expression>comb{MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH]}</expression>
+    <index>80</index>
     <module_id>0</module_id>
-    <module_index>51</module_index>
+    <module_index>79</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_TripleMu_5_5_3</name>
+    <expression>comb{MU5[MU-QLTY_HIGH],MU5[MU-QLTY_HIGH],MU3[MU-QLTY_HIGH]}</expression>
+    <index>81</index>
+    <module_id>0</module_id>
+    <module_index>80</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_TripleEG_14_10_8</name>
+    <expression>comb{EG14,EG10,EG8}</expression>
+    <index>82</index>
+    <module_id>0</module_id>
+    <module_index>81</module_index>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG14</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG8</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG_15_10</name>
+    <expression>comb{EG15,EG10}</expression>
+    <index>83</index>
+    <module_id>0</module_id>
+    <module_index>82</module_index>
+    <object_requirement>
+      <name>EG15</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleEG_22_10</name>
+    <expression>comb{EG22,EG10}</expression>
+    <index>84</index>
+    <module_id>0</module_id>
+    <module_index>83</module_index>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>EG22</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu0er_ETM55</name>
+    <expression>MU0p5[MU-ETA_2p1] AND ETM55</expression>
+    <index>85</index>
+    <module_id>0</module_id>
+    <module_index>84</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM55</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_ETM60</name>
+    <expression>ETM60</expression>
+    <index>86</index>
+    <module_id>0</module_id>
+    <module_index>85</module_index>
+    <object_requirement>
+      <name>ETM60</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJetC100</name>
+    <expression>comb{JET100[JET-ETA_CEN],JET100[JET-ETA_CEN]}</expression>
+    <index>87</index>
+    <module_id>0</module_id>
+    <module_index>86</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET100</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_QuadJetC60</name>
+    <expression>comb{JET60[JET-ETA_CEN],JET60[JET-ETA_CEN],JET60[JET-ETA_CEN],JET60[JET-ETA_CEN]}</expression>
+    <index>88</index>
+    <module_id>0</module_id>
+    <module_index>87</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET60</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJetC20_NotBptxOR</name>
+    <expression>JET20[JET-ETA_CEN] AND (NOT (EXT_BPTX_plus.v0 OR EXT_BPTX_minus.v0)) AND (NOT (EXT_BPTX_plus.v0+1 OR EXT_BPTX_minus.v0+1))</expression>
+    <index>89</index>
+    <module_id>0</module_id>
+    <module_index>88</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET20</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_plus.v0+1</name>
+      <bx_offset>1</bx_offset>
+    </external_requirement>
+    <external_requirement>
+      <name>EXT_BPTX_minus.v0+1</name>
+      <bx_offset>1</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJetC56_ETM60</name>
+    <expression>comb{JET56[JET-ETA_CEN],JET56[JET-ETA_CEN]} AND ETM60</expression>
+    <index>90</index>
+    <module_id>0</module_id>
+    <module_index>89</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>JET56</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM60</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleIsoTau28er</name>
+    <expression>comb{TAU28[TAU-ISO_0xE,TAU-ETA_2p17],TAU28[TAU-ISO_0xE,TAU-ETA_2p17]}</expression>
+    <index>91</index>
+    <module_id>0</module_id>
+    <module_index>90</module_index>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU28</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleIsoTau36er</name>
+    <expression>comb{TAU36[TAU-ISO_0xE,TAU-ETA_2p17],TAU36[TAU-ISO_0xE,TAU-ETA_2p17]}</expression>
+    <index>92</index>
+    <module_id>0</module_id>
+    <module_index>91</module_index>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU36</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleIsoTau40er</name>
+    <expression>comb{TAU40[TAU-ISO_0xE,TAU-ETA_2p17],TAU40[TAU-ISO_0xE,TAU-ETA_2p17]}</expression>
+    <index>93</index>
+    <module_id>0</module_id>
+    <module_index>92</module_index>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU40</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_TripleJet_92_76_64_VBF</name>
+    <expression>comb{JET92[JET-ETA_CEN],JET76[JET-ETA_CEN],JET64[JET-ETA_CEN]} OR (comb{JET92[JET-ETA_CEN],JET76[JET-ETA_CEN]} AND JET64[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]) OR (comb{JET92[JET-ETA_CEN],JET64[JET-ETA_CEN]} AND JET76[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]) OR (comb{JET76[JET-ETA_CEN],JET64[JET-ETA_CEN]} AND JET92[JET-ETA_FWD_NEG,JET-ETA_FWD_POS])</expression>
+    <index>94</index>
+    <module_id>0</module_id>
+    <module_index>93</module_index>
+    <cut>
+      <name>JET-ETA_CEN</name>
+      <object>JET</object>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
+      <data/>
+    </cut>
     <cut>
       <name>JET-ETA_FWD_NEG</name>
       <object>JET</object>
@@ -1032,175 +2389,363 @@
       <data/>
     </cut>
     <object_requirement>
-      <name>JET16</name>
+      <name>JET92</name>
       <type>JET</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+9.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>JET64</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>JET76</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_JET16_Phi_1stQuad</name>
-    <expression>JET16[JET-PHI_1stQUAD]</expression>
-    <index>53</index>
+    <name>L1_TripleJet_84_68_48_VBF</name>
+    <expression>comb{JET84[JET-ETA_CEN],JET68[JET-ETA_CEN],JET48[JET-ETA_CEN]} OR (comb{JET84[JET-ETA_CEN],JET68[JET-ETA_CEN]} AND JET48[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]) OR (comb{JET84[JET-ETA_CEN],JET48[JET-ETA_CEN]} AND JET68[JET-ETA_FWD_NEG,JET-ETA_FWD_POS]) OR (comb{JET68[JET-ETA_CEN],JET48[JET-ETA_CEN]} AND JET84[JET-ETA_FWD_NEG,JET-ETA_FWD_POS])</expression>
+    <index>95</index>
     <module_id>0</module_id>
-    <module_index>52</module_index>
+    <module_index>94</module_index>
     <cut>
-      <name>JET-PHI_1stQUAD</name>
+      <name>JET-ETA_CEN</name>
       <object>JET</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
-    </cut>
-    <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_EG10_Phi_Upper</name>
-    <expression>EG10[EG-PHI_UPPER]</expression>
-    <index>54</index>
-    <module_id>0</module_id>
-    <module_index>53</module_index>
-    <cut>
-      <name>EG-PHI_UPPER</name>
-      <object>EG</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+3.1415926535897931E+00</maximum>
-      <data/>
-    </cut>
-    <object_requirement>
-      <name>EG10</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_EG10_CEN</name>
-    <expression>EG10[EG-ETA_CEN]</expression>
-    <index>55</index>
-    <module_id>0</module_id>
-    <module_index>54</module_index>
-    <cut>
-      <name>EG-ETA_CEN</name>
-      <object>EG</object>
       <type>ETA</type>
-      <minimum>-1.0004999999999999E+00</minimum>
-      <maximum>+1.0004999999999999E+00</maximum>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
       <data/>
     </cut>
-    <object_requirement>
-      <name>EG10</name>
-      <type>EG</type>
-      <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
-      <bx_offset>0</bx_offset>
-    </object_requirement>
-  </algorithm>
-
-  <algorithm>
-    <name>L1_EG10_FWD</name>
-    <expression>EG10[EG-ETA_FWD_NEG,EG-ETA_FWD_POS]</expression>
-    <index>56</index>
-    <module_id>0</module_id>
-    <module_index>55</module_index>
     <cut>
-      <name>EG-ETA_FWD_NEG</name>
-      <object>EG</object>
+      <name>JET-ETA_FWD_NEG</name>
+      <object>JET</object>
       <type>ETA</type>
       <minimum>-5.0000000000000000E+00</minimum>
-      <maximum>-1.0004999999999999E+00</maximum>
+      <maximum>-3.0014999999999996E+00</maximum>
       <data/>
     </cut>
     <cut>
-      <name>EG-ETA_FWD_POS</name>
-      <object>EG</object>
+      <name>JET-ETA_FWD_POS</name>
+      <object>JET</object>
       <type>ETA</type>
-      <minimum>+1.0004999999999999E+00</minimum>
+      <minimum>+3.0014999999999996E+00</minimum>
       <maximum>+5.0000000000000000E+00</maximum>
       <data/>
     </cut>
     <object_requirement>
+      <name>JET84</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>JET68</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>JET48</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_QuadMu0</name>
+    <expression>comb{MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH],MU0p5[MU-QLTY_HIGH]}</expression>
+    <index>96</index>
+    <module_id>0</module_id>
+    <module_index>95</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu_12_5</name>
+    <expression>comb{MU12[MU-QLTY_HIGH],MU5[MU-QLTY_HIGH]}</expression>
+    <index>97</index>
+    <module_id>0</module_id>
+    <module_index>96</module_index>
+    <cut>
+      <name>MU-QLTY_HIGH</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>12,13,14,15</data>
+    </cut>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuBeamHalo</name>
+    <expression>MU0p5[MU-QLTY_HALO]</expression>
+    <index>98</index>
+    <module_id>0</module_id>
+    <module_index>97</module_index>
+    <cut>
+      <name>MU-QLTY_HALO</name>
+      <object>MU</object>
+      <type>QLTY</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>0,1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_AlwaysTrue</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0 OR (NOT EXT_BPTX_plus_AND_minus.v0)</expression>
+    <index>99</index>
+    <module_id>0</module_id>
+    <module_index>98</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu7woQcut</name>
+    <expression>MU7</expression>
+    <index>100</index>
+    <module_id>0</module_id>
+    <module_index>99</module_index>
+    <object_requirement>
+      <name>MU7</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu12woQcut_EG10</name>
+    <expression>MU12 AND EG10</expression>
+    <index>101</index>
+    <module_id>0</module_id>
+    <module_index>100</module_index>
+    <object_requirement>
       <name>EG10</name>
       <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
       <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_CEN</name>
-    <expression>MU10[MU-QLTY_High,MU-ETA_CEN]</expression>
-    <index>57</index>
+    <name>L1_Mu5woQcut_EG15</name>
+    <expression>MU5 AND EG15</expression>
+    <index>102</index>
     <module_id>0</module_id>
-    <module_index>56</module_index>
+    <module_index>101</module_index>
+    <object_requirement>
+      <name>EG15</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu16erwoQcut_TauJet20er</name>
+    <expression>MU16[MU-ETA_2p1] AND TAU20[TAU-ETA_2p17]</expression>
+    <index>103</index>
+    <module_id>0</module_id>
+    <module_index>102</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>MU-ETA_CEN</name>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
       <type>ETA</type>
-      <minimum>-1.0059374999999999E+00</minimum>
-      <maximum>+1.0059374999999999E+00</maximum>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
       <data/>
     </cut>
     <object_requirement>
-      <name>MU10</name>
+      <name>TAU20</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
+      <threshold>+1.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_FWD</name>
-    <expression>MU10[MU-QLTY_High,MU-ETA_FWD_NEG,MU-ETA_FWD_POS]</expression>
-    <index>58</index>
+    <name>L1_Mu16erwoQcut_IsoTau32er</name>
+    <expression>MU16[MU-ETA_2p1] AND TAU32[TAU-ISO_0xE,TAU-ETA_2p17]</expression>
+    <index>104</index>
     <module_id>0</module_id>
-    <module_index>57</module_index>
+    <module_index>103</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>MU-ETA_FWD_NEG</name>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
       <type>ETA</type>
-      <minimum>-2.4500000000000002E+00</minimum>
-      <maximum>-1.0059374999999999E+00</maximum>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
       <data/>
     </cut>
     <cut>
-      <name>MU-ETA_FWD_POS</name>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
+      <minimum>+0.0000000000000000E+00</minimum>
+      <maximum>+0.0000000000000000E+00</maximum>
+      <data>1,2,3</data>
+    </cut>
+    <object_requirement>
+      <name>TAU32</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0woQcut</name>
+    <expression>comb{MU0p5,MU0p5}</expression>
+    <index>105</index>
+    <module_id>0</module_id>
+    <module_index>104</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu14woQcut_Eta2p1</name>
+    <expression>MU14[MU-ETA_2p1]</expression>
+    <index>106</index>
+    <module_id>0</module_id>
+    <module_index>105</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
       <type>ETA</type>
-      <minimum>+1.0059374999999999E+00</minimum>
-      <maximum>+2.4500000000000002E+00</maximum>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
       <data/>
     </cut>
+    <object_requirement>
+      <name>MU14</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu_10_Open_woQcut</name>
+    <expression>comb{MU10,MU0p5}</expression>
+    <index>107</index>
+    <module_id>0</module_id>
+    <module_index>106</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
     <object_requirement>
       <name>MU10</name>
       <type>MU</type>
@@ -1211,25 +2756,285 @@
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_Upper</name>
-    <expression>MU10[MU-QLTY_High,MU-PHI_UPPER]</expression>
-    <index>59</index>
+    <name>L1_DoubleMu_10_3p5_woQcut</name>
+    <expression>comb{MU10,MU3p5}</expression>
+    <index>108</index>
     <module_id>0</module_id>
-    <module_index>58</module_index>
+    <module_index>107</module_index>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.5000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMuOpenwoQcut</name>
+    <expression>MU0p5</expression>
+    <index>109</index>
+    <module_id>0</module_id>
+    <module_index>108</module_index>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu16woQcut</name>
+    <expression>MU16</expression>
+    <index>110</index>
+    <module_id>0</module_id>
+    <module_index>109</module_index>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu5woQcut</name>
+    <expression>MU5</expression>
+    <index>111</index>
+    <module_id>0</module_id>
+    <module_index>110</module_index>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu20erwoQcut</name>
+    <expression>MU20[MU-ETA_2p1]</expression>
+    <index>112</index>
+    <module_id>0</module_id>
+    <module_index>111</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
-      <type>QLTY</type>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU20</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu12woQcut</name>
+    <expression>MU12</expression>
+    <index>113</index>
+    <module_id>0</module_id>
+    <module_index>112</module_index>
+    <object_requirement>
+      <name>MU12</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu20woQcut</name>
+    <expression>MU20</expression>
+    <index>114</index>
+    <module_id>0</module_id>
+    <module_index>113</module_index>
+    <object_requirement>
+      <name>MU20</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu8woQcut_HTT50</name>
+    <expression>MU8 AND HTT50</expression>
+    <index>115</index>
+    <module_id>0</module_id>
+    <module_index>114</module_index>
+    <object_requirement>
+      <name>MU8</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+8.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>HTT50</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu25woQcut</name>
+    <expression>MU25</expression>
+    <index>116</index>
+    <module_id>0</module_id>
+    <module_index>115</module_index>
+    <object_requirement>
+      <name>MU25</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.5000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu30woQcut</name>
+    <expression>MU30</expression>
+    <index>117</index>
+    <module_id>0</module_id>
+    <module_index>116</module_index>
+    <object_requirement>
+      <name>MU30</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu20woQcut_EG10</name>
+    <expression>MU20 AND EG10</expression>
+    <index>118</index>
+    <module_id>0</module_id>
+    <module_index>117</module_index>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU20</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5woQcut_EG20</name>
+    <expression>MU5 AND EG20</expression>
+    <index>119</index>
+    <module_id>0</module_id>
+    <module_index>118</module_index>
+    <object_requirement>
+      <name>EG20</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5woQcut_IsoEG18</name>
+    <expression>MU5 AND EG18[EG-ISO_0xE]</expression>
+    <index>120</index>
+    <module_id>0</module_id>
+    <module_index>119</module_index>
+    <cut>
+      <name>EG-ISO_0xE</name>
+      <object>EG</object>
+      <type>ISO</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
+      <data>1,2,3</data>
     </cut>
+    <object_requirement>
+      <name>EG18</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu6woQcut_DoubleEG10</name>
+    <expression>MU6 AND comb{EG10,EG10}</expression>
+    <index>121</index>
+    <module_id>0</module_id>
+    <module_index>120</module_index>
+    <object_requirement>
+      <name>EG10</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU6</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu10erwoQcut_ETM30</name>
+    <expression>MU10[MU-ETA_2p1] AND ETM30</expression>
+    <index>122</index>
+    <module_id>0</module_id>
+    <module_index>121</module_index>
     <cut>
-      <name>MU-PHI_UPPER</name>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+3.1415926535897931E+00</maximum>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
       <data/>
     </cut>
     <object_requirement>
@@ -1239,286 +3044,557 @@
       <threshold>+1.0000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+    <object_requirement>
+      <name>ETM30</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_Phi_1stQUAD</name>
-    <expression>MU10[MU-QLTY_High,MU-PHI_1stQUAD]</expression>
-    <index>60</index>
+    <name>L1_Mu10erwoQcut_ETM50</name>
+    <expression>MU10[MU-ETA_2p1] AND ETM50</expression>
+    <index>123</index>
     <module_id>0</module_id>
-    <module_index>59</module_index>
+    <module_index>122</module_index>
     <cut>
-      <name>MU-QLTY_High</name>
+      <name>MU-ETA_2p1</name>
       <object>MU</object>
-      <type>QLTY</type>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU10</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM50</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu14erwoQcut_ETM30</name>
+    <expression>MU14[MU-ETA_2p1] AND ETM30</expression>
+    <index>124</index>
+    <module_id>0</module_id>
+    <module_index>123</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU14</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.4000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM30</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu7woQcut_EG7</name>
+    <expression>comb{MU7,MU7} AND EG7</expression>
+    <index>125</index>
+    <module_id>0</module_id>
+    <module_index>124</module_index>
+    <object_requirement>
+      <name>EG7</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU7</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+7.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleMu16woQcut_Eta2p1</name>
+    <expression>MU16[MU-ETA_2p1]</expression>
+    <index>126</index>
+    <module_id>0</module_id>
+    <module_index>125</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU16</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu6woQcut_HTT100</name>
+    <expression>MU6 AND HTT100</expression>
+    <index>127</index>
+    <module_id>0</module_id>
+    <module_index>126</module_index>
+    <object_requirement>
+      <name>MU6</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>HTT100</name>
+      <type>HTT</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu4woQcut_EG18</name>
+    <expression>MU4 AND EG18</expression>
+    <index>128</index>
+    <module_id>0</module_id>
+    <module_index>127</module_index>
+    <object_requirement>
+      <name>EG18</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU4</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu6woQcut_EG6</name>
+    <expression>comb{MU6,MU6} AND EG6</expression>
+    <index>129</index>
+    <module_id>0</module_id>
+    <module_index>128</module_index>
+    <object_requirement>
+      <name>EG6</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU6</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+6.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu5woQcut_DoubleEG5</name>
+    <expression>MU5 AND comb{EG5,EG5}</expression>
+    <index>130</index>
+    <module_id>0</module_id>
+    <module_index>129</module_index>
+    <object_requirement>
+      <name>EG5</name>
+      <type>EG</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu0erwoQcut_ETM40</name>
+    <expression>MU0p5[MU-ETA_2p1] AND ETM40</expression>
+    <index>131</index>
+    <module_id>0</module_id>
+    <module_index>130</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>ETM40</name>
+      <type>ETM</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+4.0000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu16erwoQcut_IsoTau28er</name>
+    <expression>MU16[MU-ETA_2p1] AND TAU28[TAU-ISO_0xE,TAU-ETA_2p17]</expression>
+    <index>132</index>
+    <module_id>0</module_id>
+    <module_index>131</module_index>
+    <cut>
+      <name>MU-ETA_2p1</name>
+      <object>MU</object>
+      <type>ETA</type>
+      <minimum>-2.1043125000000003E+00</minimum>
+      <maximum>+2.1043124999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ETA_2p17</name>
+      <object>TAU</object>
+      <type>ETA</type>
+      <minimum>-2.1749999999999998E+00</minimum>
+      <maximum>+2.1749999999999998E+00</maximum>
+      <data/>
+    </cut>
+    <cut>
+      <name>TAU-ISO_0xE</name>
+      <object>TAU</object>
+      <type>ISO</type>
       <minimum>+0.0000000000000000E+00</minimum>
       <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>MU-PHI_1stQUAD</name>
-      <object>MU</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
+      <data>1,2,3</data>
     </cut>
     <object_requirement>
-      <name>MU10</name>
+      <name>TAU28</name>
+      <type>TAU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.8000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU16</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
+      <threshold>+1.6000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_Phi_3rdQUAD</name>
-    <expression>MU10[MU-QLTY_High,MU-PHI_3rdQUAD]</expression>
-    <index>61</index>
+    <name>L1_TripleMu0woQcut</name>
+    <expression>comb{MU0p5,MU0p5,MU0p5}</expression>
+    <index>133</index>
     <module_id>0</module_id>
-    <module_index>60</module_index>
-    <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>MU-PHI_3rdQUAD</name>
-      <object>MU</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>132</module_index>
     <object_requirement>
-      <name>MU10</name>
+      <name>MU0p5</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
+      <threshold>+5.0000000000000000E-01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_MU10_Phi_1stQUAD_3rdQUAD</name>
-    <expression>MU10[MU-QLTY_High,MU-PHI_1stQUAD,MU-PHI_3rdQUAD]</expression>
-    <index>62</index>
+    <name>L1_TripleMu_5_5_3woQcut</name>
+    <expression>comb{MU5,MU5,MU3}</expression>
+    <index>134</index>
     <module_id>0</module_id>
-    <module_index>61</module_index>
-    <cut>
-      <name>MU-QLTY_High</name>
-      <object>MU</object>
-      <type>QLTY</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+0.0000000000000000E+00</maximum>
-      <data>12,13,14,15</data>
-    </cut>
-    <cut>
-      <name>MU-PHI_1stQUAD</name>
-      <object>MU</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>MU-PHI_3rdQUAD</name>
-      <object>MU</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>133</module_index>
     <object_requirement>
-      <name>MU10</name>
+      <name>MU5</name>
       <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.0000000000000000E+01</threshold>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU3</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_JET16_Phi_3rdQUAD</name>
-    <expression>JET16[JET-PHI_3rdQUAD]</expression>
-    <index>63</index>
+    <name>L1_QuadMu0woQcut</name>
+    <expression>comb{MU0p5,MU0p5,MU0p5,MU0p5}</expression>
+    <index>135</index>
     <module_id>0</module_id>
-    <module_index>62</module_index>
-    <cut>
-      <name>JET-PHI_3rdQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>134</module_index>
     <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
+      <name>MU0p5</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+5.0000000000000000E-01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_JET16_Phi_1stQUAD_3rdQUAD</name>
-    <expression>JET16[JET-PHI_1stQUAD,JET-PHI_3rdQUAD]</expression>
-    <index>64</index>
+    <name>L1_DoubleMu_12_5woQcut</name>
+    <expression>comb{MU12,MU5}</expression>
+    <index>136</index>
     <module_id>0</module_id>
-    <module_index>63</module_index>
-    <cut>
-      <name>JET-PHI_1stQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_3rdQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>135</module_index>
     <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
+      <name>MU12</name>
+      <type>MU</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+1.2000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E+00</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_JET16_Phi_2ndQUAD_4thQUAD</name>
-    <expression>JET16[JET-PHI_2ndQUAD,JET-PHI_4thQUAD]</expression>
-    <index>65</index>
+    <name>L1_Mu0p5_SingleEG5</name>
+    <expression>MU0p5 AND EG5</expression>
+    <index>137</index>
     <module_id>0</module_id>
-    <module_index>64</module_index>
-    <cut>
-      <name>JET-PHI_2ndQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+1.5707963267948966E+00</minimum>
-      <maximum>+3.1415926535897931E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_4thQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+4.7123889803846897E+00</minimum>
-      <maximum>+6.2831853071795862E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>136</module_index>
     <object_requirement>
-      <name>JET16</name>
-      <type>JET</type>
+      <name>EG5</name>
+      <type>EG</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+5.0000000000000000E+00</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+    <object_requirement>
+      <name>MU0p5</name>
+      <type>MU</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+5.0000000000000000E-01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleJet16_B2B</name>
-    <expression>comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_3rdQUAD]} OR comb{JET16[JET-PHI_2ndQUAD],JET16[JET-PHI_4thQUAD]} </expression>
-    <index>66</index>
+    <name>L1_SingleJet92</name>
+    <expression>JET92</expression>
+    <index>138</index>
     <module_id>0</module_id>
-    <module_index>65</module_index>
-    <cut>
-      <name>JET-PHI_1stQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_2ndQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+1.5707963267948966E+00</minimum>
-      <maximum>+3.1415926535897931E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_3rdQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_4thQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+4.7123889803846897E+00</minimum>
-      <maximum>+6.2831853071795862E+00</maximum>
-      <data/>
-    </cut>
+    <module_index>137</module_index>
     <object_requirement>
-      <name>JET16</name>
+      <name>JET92</name>
       <type>JET</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+9.2000000000000000E+01</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
   </algorithm>
 
   <algorithm>
-    <name>L1_DoubleJet16_nonB2B</name>
-    <expression>comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_2ndQUAD]} OR comb{JET16[JET-PHI_1stQUAD],JET16[JET-PHI_4thQUAD]}  OR comb{JET16[JET-PHI_2ndQUAD],JET16[JET-PHI_3rdQUAD]} OR comb{JET16[JET-PHI_3rdQUAD],JET16[JET-PHI_4thQUAD]}</expression>
-    <index>67</index>
+    <name>L1_SingleJet176</name>
+    <expression>JET176</expression>
+    <index>139</index>
     <module_id>0</module_id>
-    <module_index>66</module_index>
+    <module_index>138</module_index>
+    <object_requirement>
+      <name>JET176</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+1.7600000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJet200</name>
+    <expression>JET200</expression>
+    <index>140</index>
+    <module_id>0</module_id>
+    <module_index>139</module_index>
+    <object_requirement>
+      <name>JET200</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+2.0000000000000000E+02</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_SingleJet36</name>
+    <expression>JET36</expression>
+    <index>141</index>
+    <module_id>0</module_id>
+    <module_index>140</module_index>
+    <object_requirement>
+      <name>JET36</name>
+      <type>JET</type>
+      <comparison_operator>.ge.</comparison_operator>
+      <threshold>+3.6000000000000000E+01</threshold>
+      <bx_offset>0</bx_offset>
+    </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleJetC112</name>
+    <expression>comb{JET112[JET-ETA_CEN],JET112[JET-ETA_CEN]}</expression>
+    <index>142</index>
+    <module_id>0</module_id>
+    <module_index>141</module_index>
     <cut>
-      <name>JET-PHI_1stQUAD</name>
+      <name>JET-ETA_CEN</name>
       <object>JET</object>
-      <type>PHI</type>
-      <minimum>+0.0000000000000000E+00</minimum>
-      <maximum>+1.5707963267948966E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_2ndQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+1.5707963267948966E+00</minimum>
-      <maximum>+3.1415926535897931E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_3rdQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+3.1415926535897931E+00</minimum>
-      <maximum>+4.7123889803846897E+00</maximum>
-      <data/>
-    </cut>
-    <cut>
-      <name>JET-PHI_4thQUAD</name>
-      <object>JET</object>
-      <type>PHI</type>
-      <minimum>+4.7123889803846897E+00</minimum>
-      <maximum>+6.2831853071795862E+00</maximum>
+      <type>ETA</type>
+      <minimum>-3.0014999999999996E+00</minimum>
+      <maximum>+3.0014999999999996E+00</maximum>
       <data/>
     </cut>
     <object_requirement>
-      <name>JET16</name>
+      <name>JET112</name>
       <type>JET</type>
       <comparison_operator>.ge.</comparison_operator>
-      <threshold>+1.6000000000000000E+01</threshold>
+      <threshold>+1.1200000000000000E+02</threshold>
       <bx_offset>0</bx_offset>
     </object_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_Eta1p6_WdEta18</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>143</index>
+    <module_id>0</module_id>
+    <module_index>142</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu0_Eta1p6_WdEta18_OS</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>144</index>
+    <module_id>0</module_id>
+    <module_index>143</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_DoubleMu_10_0_WdEta18</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>145</index>
+    <module_id>0</module_id>
+    <module_index>144</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_IsoEG20er_TauJet20er_NotWdEta0</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>146</index>
+    <module_id>0</module_id>
+    <module_index>145</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Jet32_DoubleMu_Open_10_MuMuNotWdPhi23_JetMuWdPhi1</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>147</index>
+    <module_id>0</module_id>
+    <module_index>146</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Jet32_MuOpen_EG10_MuEGNotWdPhi3_JetMuWdPhi1</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>148</index>
+    <module_id>0</module_id>
+    <module_index>147</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu3_JetC16_WdEtaPhi2</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>149</index>
+    <module_id>0</module_id>
+    <module_index>148</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
+  </algorithm>
+
+  <algorithm>
+    <name>L1_Mu3_JetC52_WdEtaPhi2</name>
+    <expression>EXT_BPTX_plus_AND_minus.v0</expression>
+    <index>150</index>
+    <module_id>0</module_id>
+    <module_index>149</module_index>
+    <external_requirement>
+      <name>EXT_BPTX_plus_AND_minus.v0</name>
+      <bx_offset>0</bx_offset>
+    </external_requirement>
   </algorithm>
 
   <scale_set>

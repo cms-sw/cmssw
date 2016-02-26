@@ -42,6 +42,8 @@ namespace hcaldqm
 				FlagAxis();
 				FlagAxis(AxisType,  std::string, int);
 				virtual ~FlagAxis() {}
+				virtual FlagAxis* makeCopy()
+				{return new FlagAxis(_type, _title, _nbins);}
 
 				virtual inline int getBin(int v) {return v+1;}
 
