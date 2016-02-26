@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
@@ -58,23 +59,29 @@ void HLTJetL1TMatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<l1t::JetBxCollection> l1Jets;
   iEvent.getByToken(m_theL1JetToken,l1Jets);
+  bool trigger_bx_only = true; // selection of BX not implemented
+  
+  if (l1Jets.isValid()){ 
+    typename TCollection::const_iterator jet_iter;
+    for (jet_iter = jets->begin(); jet_iter != jets->end(); ++jet_iter) {
+      bool isMatched=false;
+      for (int ibx = l1Jets->getFirstBX(); ibx <= l1Jets->getLastBX(); ++ibx) {
+	if (trigger_bx_only && (ibx != 0)) continue;  
+	for (auto it=l1Jets->begin(ibx); it!=l1Jets->end(ibx); it++){
+	  const double deltaeta=jet_iter->eta()-it->eta();
+	  const double deltaphi=deltaPhi(jet_iter->phi(),it->phi());
+	  if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
 
-  typename TCollection::const_iterator jet_iter;
-  for (jet_iter = jets->begin(); jet_iter != jets->end(); ++jet_iter) {
-
-    bool isMatched=false;
-
-    for (unsigned int jetc=0;jetc<l1Jets->size();++jetc)
-    {
-      const double deltaeta=jet_iter->eta()-(*l1Jets)[jetc].eta();
-      const double deltaphi=deltaPhi(jet_iter->phi(),(*l1Jets)[jetc].phi());
-      if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
-    }
-
-
-    if (isMatched==true) result->push_back(*jet_iter);
-
-  } // jet_iter
+	  
+	  if (it->et() == 0) continue; // if you don't care about L1T candidates with zero ET.
+	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	}
+      }
+      if (isMatched==true) result->push_back(*jet_iter);
+    } // jet_iter
+  } else {
+    edm::LogWarning("MissingProduct") << "L1Upgrade l1Jets bx collection not found." << std::endl;
+  }
 
   iEvent.put( result);
 
