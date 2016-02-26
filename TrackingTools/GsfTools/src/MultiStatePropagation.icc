@@ -11,7 +11,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
   double sWeight(0.);
   double sWeightPath(0.);
   // decomposition of input state
-  MultiTSOS input(tsos.components());
+  MultiTSOS const & input = tsos.components();
   // vector of result states
   MultiTrajectoryStateAssembler result;
   //
@@ -31,7 +31,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
       thePropagator.propagateWithPath(iTsos,surface);
     // check validity
     if ( !(newTsosWP.first).isValid() ) {
-      LogDebug("MultiStatePropagation") << "adding invalid state";
+      LogDebug("GsfTrackFitters") << "adding invalid state";
       result.addInvalidState(weight);
       continue;
     }
@@ -44,7 +44,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
     }
     else {
       if ( weightedTsos.surfaceSide()!=firstSide ) {
-	edm::LogInfo("MultiStatePropagation") 
+	edm::LogInfo("GsfTrackFitters") 
 	  << "MultiStatePropagation resulted in states "
 	  << "on different sides of the target surface";
 	return TsosWP(TrajectoryStateOnSurface(),0.);
