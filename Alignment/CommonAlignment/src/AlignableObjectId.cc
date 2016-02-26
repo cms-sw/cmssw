@@ -161,14 +161,14 @@ namespace {
     {TPEHalfCylinder, "P2PXECHalfCylinder"},
     {TPEEndcap      , "P2PXECEndcap"},
 
-    /* TIB doesn't exit in PhaseII
-    {TIBModule      , "TIBModule"},
-    {TIBString      , "TIBString"},
-    {TIBSurface     , "TIBSurface"},
-    {TIBHalfShell   , "TIBHalfShell"},
-    {TIBLayer       , "TIBLayer"},
-    {TIBHalfBarrel  , "TIBHalfBarrel"},
-    {TIBBarrel      , "TIBBarrel"},*/
+    // TIB doesn't exit in PhaseII
+    {TIBModule      , "TIBModule-INVALID"},
+    {TIBString      , "TIBString-INVALID"},
+    {TIBSurface     , "TIBSurface-INVALID"},
+    {TIBHalfShell   , "TIBHalfShell-INVALID"},
+    {TIBLayer       , "TIBLayer-INVALID"},
+    {TIBHalfBarrel  , "TIBHalfBarrel-INVALID"},
+    {TIBBarrel      , "TIBBarrel-INVALID"},
 
     {TIDModule      , "P2OTECModule"},
     {TIDSide        , "P2OTECSide"},
@@ -182,13 +182,13 @@ namespace {
     {TOBHalfBarrel  , "P2OTBHalfBarrel"},
     {TOBBarrel      , "P2OTBBarrel"},
 
-    /* TEC doesn't exit in PhaseII
-    {TECModule      , "TECModule"},
-    {TECRing        , "TECRing"},
-    {TECPetal       , "TECPetal"},
-    {TECSide        , "TECSide"},
-    {TECDisk        , "TECDisk"},
-    {TECEndcap      , "TECEndcap"},*/
+    // TEC doesn't exit in PhaseII
+    {TECModule      , "TECModule-INVALID"},
+    {TECRing        , "TECRing-INVALID"},
+    {TECPetal       , "TECPetal-INVALID"},
+    {TECSide        , "TECSide-INVALID"},
+    {TECDisk        , "TECDisk-INVALID"},
+    {TECEndcap      , "TECEndcap-INVALID"},
 
     {Pixel          , "Pixel"},
     {Strip          , "Strip"},
