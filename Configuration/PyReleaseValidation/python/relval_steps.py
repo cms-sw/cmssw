@@ -1483,7 +1483,7 @@ for k in upgradeKeys:
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
-                                       '--beamspot' : 'Gauss',
+                                       '--beamspot' : 'Realistic50ns13TeVCollision',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
