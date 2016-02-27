@@ -24,4 +24,6 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     makeProfileRoot = cms.untracked.bool( False ),
     profileRootName = cms.untracked.string("deadCellFilterProfile.root" ),
 
+    useTTsum = cms.bool ( True ),
+    usekTPSaturated = cms.bool ( False)
 )
