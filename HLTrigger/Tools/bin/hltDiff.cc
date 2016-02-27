@@ -829,10 +829,10 @@ int main(int argc, char ** argv) {
       case 'j':
         if (optarg) {
           json_out = optarg;
-	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-	  // workaround for a bug in getopt which doesn't allow space before optional arguments
-	  const char *tmp_optarg = argv[optind++];
-	  json_out = tmp_optarg;
+      	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+      	  // workaround for a bug in getopt which doesn't allow space before optional arguments
+      	  const char *tmp_optarg = argv[optind++];
+      	  json_out = tmp_optarg;
         } else {
           json_out = "hltDiff_output.json";
         }
@@ -844,11 +844,11 @@ int main(int argc, char ** argv) {
 
       case 'v':
         verbose = 1;
-	if (optarg) {
+      	if (optarg) {
           verbose = std::max(1, atoi(optarg));
-	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-	  // workaround for a bug in getopt which doesn't allow space before optional arguments
-	  const char *tmp_optarg = argv[optind++];
+      	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+      	  // workaround for a bug in getopt which doesn't allow space before optional arguments
+      	  const char *tmp_optarg = argv[optind++];
           verbose = std::max(1, atoi(tmp_optarg));
         }
         break;
