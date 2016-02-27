@@ -126,6 +126,7 @@ class MatrixInjector(object):
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
+            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -136,6 +137,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
+            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -147,6 +149,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
+            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
 
@@ -188,6 +191,22 @@ class MatrixInjector(object):
             wmsplit['RECOUP15']=5
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
+
+            # predefined ncores settings, please don't use -t ncores option in the matrix command
+            wmthread={}
+            wmthread['RECODreHLT']=4
+            wmthread['RECOUP15']=4
+            wmthread['RECO']=4
+            wmthread['HLTDR2_50ns']=4
+            wmthread['HLTDR2_25ns']=4
+            wmthread['RECODR2_50nsreHLT']=4
+            wmthread['RECODR2_25nsreHLT']=4
+            wmthread['DIGIUP15']=4
+            wmthread['DIGI']=4
+            wmthread['DIGIUP15_PU50']=4
+            wmthread['DIGIUP15_PU25']=4
+            wmthread['RECOUP15_PU50']=4
+            wmthread['RECOUP15_PU25']=4
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -326,15 +345,21 @@ class MatrixInjector(object):
                             if ('DBLMINIAODMCUP15NODQM' in step): 
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
-                            # modify memory settings for Multicore processing
-                            # implemented with reference to franzoni:multithread-CMSSW_7_4_3
-                            if(chainDict['Multicore']>1):
+                            # ==> set the multithread here 
+                            print "++ chainDict['nowmTasklist'][step]['TaskName']  "
+                            print chainDict['nowmTasklist'][-1]['TaskName']
+                            print "this is the BEFORE: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
+                            if chainDict['nowmTasklist'][-1]['TaskName'] in wmthread.keys() :
+                                print "we want to modify the numOfThreads of this one"
+                                chainDict['nowmTasklist'][-1]['Multicore'] = wmthread[ chainDict['nowmTasklist'][-1]['TaskName'] ]
+                                print "this is the AFTER: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
+                            print "++ multirhead taken care of - be happy ++ \n\n"
+
+                            if( chainDict['nowmTasklist'][-1]['Multicore'] ):
                                 # the scaling factor of 1.2GB / thread is empirical and measured on a SECOND round of tests with PU samples
-                                # the number of threads is assumed to be the same for all tasks
+                                # the number of threads is NO LONGER assumed to be the same for all tasks
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3509/1/1/1.html
-                                chainDict['nowmTasklist'][-1]['Memory']= 3000 + int(  chainDict['Multicore']  -1)*1200
-                                # set also the overall memory to the same value; the agreement (in the phasing in) is that 
-                                chainDict['Memory'] = 3000 + int(  chainDict['Multicore']  -1)*1200
+                                chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1200
 
                         index+=1
                     #end of loop through steps

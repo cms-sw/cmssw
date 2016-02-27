@@ -42,14 +42,14 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
                   'SingleElectronPt35_cfi','SingleElectronPt1000_cfi',
                   'SingleGammaPt10_cfi','SingleGammaPt35_cfi','SingleMuPt1_cfi','SingleMuPt10_cfi',
                   'SingleMuPt100_cfi','SingleMuPt1000_cfi','TTbarLepton_Tauola_8TeV_cfi','Wjet_Pt_80_120_8TeV_cfi',
-                  'Wjet_Pt_3000_3500_8TeV_cfi','LM1_sfts_8TeV_cfi','QCD_Pt_3000_3500_8TeV_cfi','QCD_Pt_600_800_8TeV_cfi',
+                  'Wjet_Pt_3000_3500_8TeV_cfi','LM1_sfts_8TeV_cfi','QCD_Pt_3000_3500_8TeV_cfi','QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_80_120_8TeV_cfi','H200ChargedTaus_Tauola_8TeV_cfi','JpsiMM_8TeV_cfi','TTbar_Tauola_8TeV_cfi',
                   'WE_8TeV_cfi','ZEE_8TeV_cfi','ZTT_Tauola_All_hadronic_8TeV_cfi','H130GGgluonfusion_8TeV_cfi',
                   'PhotonJet_Pt_10_8TeV_cfi','QQH1352T_Tauola_8TeV_cfi','MinBias_TuneZ2star_8TeV_pythia6_cff','WM_8TeV_cfi',
                   'ZMM_8TeV_cfi','ADDMonoJet_8TeV_d3MD3_cfi','ZpMM_8TeV_cfi','WpM_8TeV_cfi',
                   'Wjet_Pt_80_120_14TeV_cfi','Wjet_Pt_3000_3500_14TeV_cfi','LM1_sfts_14TeV_cfi','QCD_Pt_3000_3500_14TeV_cfi',
                   'QCD_Pt_80_120_14TeV_cfi','H200ChargedTaus_Tauola_14TeV_cfi','JpsiMM_14TeV_cfi','TTbar_Tauola_14TeV_cfi',
-                  'WE_14TeV_cfi','ZEE_14TeV_cfi','ZTT_Tauola_All_hadronic_14TeV_cfi','H130GGgluonfusion_14TeV_cfi',
+                  'WE_14TeV_cfi','ZEE_13TeV_TuneCUETP8M1_cfi','ZTT_Tauola_All_hadronic_14TeV_cfi','H130GGgluonfusion_14TeV_cfi',
                   'PhotonJet_Pt_10_14TeV_cfi','QQH1352T_Tauola_14TeV_cfi',
                   'MinBias_TuneZ2star_14TeV_pythia6_cff','WM_14TeV_cfi','ZMM_14TeV_cfi',
                   'FourMuExtendedPt_1_200_pythia8_cfi',
@@ -68,8 +68,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 		  'QCDForPF_14TeV_cfi',
 		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
 		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
-		  'TTbar_14TeV_TuneCUETP8M1_cfi',
-		  'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi'		  ]
+		  'TTbar_13TeV_TuneCUETP8M1_cfi',
+		  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'		  ]
 
 
 
@@ -85,7 +85,9 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 # step7 is fastsim harvesting
 upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
-upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+upgradeScenToRun={ 
+                   '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
 		   '2023dev':['GenSimFull','DigiFull','RecoFull'],#dev scenario
@@ -124,7 +126,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'Wjet_Pt_3000_3500_8TeV_cfi':Kby(9,50),
            'LM1_sfts_8TeV_cfi':Kby(9,100),
            'QCD_Pt_3000_3500_8TeV_cfi':Kby(9,50),
-           'QCD_Pt_600_800_8TeV_cfi':Kby(9,50),
+           'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'QCD_Pt_80_120_8TeV_cfi':Kby(9,100),
            'H200ChargedTaus_Tauola_8TeV_cfi':Kby(9,100),
            'JpsiMM_8TeV_cfi':Kby(66,100),
@@ -150,7 +152,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'JpsiMM_14TeV_cfi':Kby(66,100),
            'TTbar_Tauola_14TeV_cfi':Kby(9,100),
            'WE_14TeV_cfi':Kby(9,100),
-           'ZEE_14TeV_cfi':Kby(9,100),
+           'ZEE_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'ZTT_Tauola_All_hadronic_14TeV_cfi':Kby(9,100),
            'H130GGgluonfusion_14TeV_cfi':Kby(9,100),
            'PhotonJet_Pt_10_14TeV_cfi':Kby(9,100),
@@ -161,8 +163,8 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
 	   'QCDForPF_14TeV_cfi':Kby(9,50),
 	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
 	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100),
-           'TTbar_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-	   'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100)
+           'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+	   'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -193,7 +195,7 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'Wjet_Pt_3000_3500_8TeV_cfi' : 'Wjet_Pt_3000_3500_8TeV',
                             'LM1_sfts_8TeV_cfi' : 'LM1_sfts_8TeV',
                             'QCD_Pt_3000_3500_8TeV_cfi' : 'QCD_Pt_3000_3500_8TeV',
-                            'QCD_Pt_600_800_8TeV_cfi' : 'QCD_Pt_600_800_8TeV',
+                            'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_600_800_13',
                             'QCD_Pt_80_120_8TeV_cfi' : 'QCD_Pt_80_120_8TeV',
                             'H200ChargedTaus_Tauola_8TeV_cfi' : 'Higgs200ChargedTaus_8TeV',
                             'JpsiMM_8TeV_cfi' : 'JpsiMM_8TeV',
@@ -219,7 +221,7 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'JpsiMM_14TeV_cfi' : 'JpsiMM_14TeV',
                             'TTbar_Tauola_14TeV_cfi' : 'TTbar_14TeV',
                             'WE_14TeV_cfi' : 'WE_14TeV',
-                            'ZEE_14TeV_cfi' : 'ZEE_14TeV',
+                            'ZEE_13TeV_TuneCUETP8M1_cfi' : 'ZEE_13',
                             'ZTT_Tauola_All_hadronic_14TeV_cfi' : 'ZTT_14TeV',
                             'H130GGgluonfusion_14TeV_cfi' : 'H130GGgluonfusion_14TeV',
                             'PhotonJet_Pt_10_14TeV_cfi' : 'PhotonJets_Pt_10_14TeV',
@@ -230,8 +232,8 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
 			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
 			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
 			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
-			    'TTbar_14TeV_TuneCUETP8M1_cfi' : 'TTbar_pythia8_14TeV',
-			    'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_pythia8_14TeV'
+			    'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
+			    'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13'
                             }
 
 
