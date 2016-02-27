@@ -104,7 +104,7 @@ class MatrixInjector(object):
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
-            "Multicore" : opt.nThreads,
+            "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 0.1
@@ -113,7 +113,8 @@ class MatrixInjector(object):
         self.defaultHarvest={
             "EnableHarvesting" : "True",
             "DQMUploadUrl" : self.dqmgui,
-            "DQMConfigCacheID" : None
+            "DQMConfigCacheID" : None,
+            "Multicore" : 1              # hardcode Multicore to be 1 for Harvest
             }
         
         self.defaultScratch={
@@ -126,7 +127,7 @@ class MatrixInjector(object):
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
-            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -137,7 +138,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
-            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -149,7 +150,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
-            "Multicore" : 1,                                 # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
 
@@ -193,20 +194,20 @@ class MatrixInjector(object):
             wmsplit['DBLMINIAODMCUP15NODQM']=5
 
             # predefined ncores settings, please don't use -t ncores option in the matrix command
-            wmthread={}
-            wmthread['RECODreHLT']=4
-            wmthread['RECOUP15']=4
-            wmthread['RECO']=4
-            wmthread['HLTDR2_50ns']=4
-            wmthread['HLTDR2_25ns']=4
-            wmthread['RECODR2_50nsreHLT']=4
-            wmthread['RECODR2_25nsreHLT']=4
-            wmthread['DIGIUP15']=4
-            wmthread['DIGI']=4
-            wmthread['DIGIUP15_PU50']=4
-            wmthread['DIGIUP15_PU25']=4
-            wmthread['RECOUP15_PU50']=4
-            wmthread['RECOUP15_PU25']=4
+            #wmthread={}
+            #wmthread['RECODreHLT']=4
+            #wmthread['RECOUP15']=4
+            #wmthread['RECO']=4
+            #wmthread['HLTDR2_50ns']=4
+            #wmthread['HLTDR2_25ns']=4
+            #wmthread['RECODR2_50nsreHLT']=4
+            #wmthread['RECODR2_25nsreHLT']=4
+            #wmthread['DIGIUP15']=4
+            #wmthread['DIGI']=4
+            #wmthread['DIGIUP15_PU50']=4
+            #wmthread['DIGIUP15_PU25']=4
+            #wmthread['RECOUP15_PU50']=4
+            #wmthread['RECOUP15_PU25']=4
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -349,9 +350,11 @@ class MatrixInjector(object):
                             print "++ chainDict['nowmTasklist'][step]['TaskName']  "
                             print chainDict['nowmTasklist'][-1]['TaskName']
                             print "this is the BEFORE: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
-                            if chainDict['nowmTasklist'][-1]['TaskName'] in wmthread.keys() :
+                            #if chainDict['nowmTasklist'][-1]['TaskName'] in wmthread.keys() :
+                            if '--nThreads' in s[2][index]:
                                 print "we want to modify the numOfThreads of this one"
-                                chainDict['nowmTasklist'][-1]['Multicore'] = wmthread[ chainDict['nowmTasklist'][-1]['TaskName'] ]
+                                #chainDict['nowmTasklist'][-1]['Multicore'] = wmthread[ chainDict['nowmTasklist'][-1]['TaskName'] ]
+                                chainDict['nowmTasklist'][-1]['Multicore'] = int(s[2][index].split()[ s[2][index].split().index('--nThreads')+1  ])
                                 print "this is the AFTER: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
                             print "++ multirhead taken care of - be happy ++ \n\n"
 
