@@ -50,22 +50,7 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  Trajectory() : 
-    theSeed(),
-    seedRef_(),
-    theChiSquared(0),
-    theChiSquaredBad(0),
-    theNumberOfFoundHits(0),
-    theNumberOfLostHits(0),
-    theNumberOfCCCBadHits_(0),
-    theDirection(anyDirection),
-    theDirectionValidity(false),
-    theValid(false),
-    theDPhiCache(0),
-    theCCCThreshold_(std::numeric_limits<float>::max()),
-    theNLoops(0),
-    stopReason_(StopReason::UNINITIALIZED)
-    {}
+  Trajectory() {}
 
 
   /** Constructor of an empty trajectory with undefined direction.
@@ -76,19 +61,7 @@ public:
     
   explicit Trajectory( const TrajectorySeed& seed) : 
     theSeed( new TrajectorySeed(seed) ),
-    seedRef_(),
-    theChiSquared(0),
-    theChiSquaredBad(0),
-    theNumberOfFoundHits(0),
-    theNumberOfLostHits(0),
-    theNumberOfCCCBadHits_(0),
-    theDirection(anyDirection),
-    theDirectionValidity(false),
-    theValid(true),
-    theDPhiCache(0),
-    theCCCThreshold_(std::numeric_limits<float>::max()),
-    theNLoops(0),
-    stopReason_(StopReason::UNINITIALIZED)
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -97,19 +70,9 @@ public:
    */
   Trajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
     theSeed( new TrajectorySeed(seed) ),
-    seedRef_(),
-    theChiSquared(0),
-    theChiSquaredBad(0),
-    theNumberOfFoundHits(0),
-    theNumberOfLostHits(0),
-    theNumberOfCCCBadHits_(0),
     theDirection(dir),
     theDirectionValidity(true),
-    theValid(true),
-    theDPhiCache(0),
-    theCCCThreshold_(std::numeric_limits<float>::max()),
-    theNLoops(0),
-    stopReason_(StopReason::UNINITIALIZED)
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -118,19 +81,9 @@ public:
    */
   Trajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
     theSeed( seed ),
-    seedRef_(),
-    theChiSquared(0),
-    theChiSquaredBad(0),
-    theNumberOfFoundHits(0),
-    theNumberOfLostHits(0),
-    theNumberOfCCCBadHits_(0),
     theDirection(dir),
     theDirectionValidity(true),
-    theValid(true),
-    theDPhiCache(0),
-    theCCCThreshold_(std::numeric_limits<float>::max()),
-    theNLoops(0),
-    stopReason_(StopReason::UNINITIALIZED)
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -138,20 +91,9 @@ public:
    *  added in the correct direction.
    */
   explicit Trajectory(PropagationDirection dir) : 
-    theSeed(),
-    seedRef_(),
-    theChiSquared(0),
-    theChiSquaredBad(0),
-    theNumberOfFoundHits(0),
-    theNumberOfLostHits(0),
-    theNumberOfCCCBadHits_(0),
     theDirection(dir),
     theDirectionValidity(true),
-    theValid(true),
-    theDPhiCache(0),
-    theCCCThreshold_(std::numeric_limits<float>::max()),
-    theNLoops(0),
-    stopReason_(StopReason::UNINITIALIZED)
+    theValid(true)
   {}
 
 
@@ -166,6 +108,7 @@ public:
     theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits),
     theNumberOfLostHits(rh.theNumberOfLostHits),
+    theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
     theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
     theDirection(rh.theDirection),
     theDirectionValidity(rh.theDirectionValidity),
@@ -187,6 +130,7 @@ public:
     theNLoops=rh.theNLoops;  
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
+    theNumberOfTrailingFoundHits=rh.theNumberOfTrailingFoundHits;
     theNumberOfCCCBadHits_=rh.theNumberOfCCCBadHits_;
     theDirection=rh.theDirection; 
     theDirectionValidity=rh.theDirectionValidity;
@@ -284,6 +228,11 @@ public:
    */
 
   int lostHits() const { return theNumberOfLostHits;}
+
+  /** Number of valid RecHits at the end of the trajectory after last lost hit.
+   */
+   int trailingFoundHits() const { return theNumberOfTrailingFoundHits;}
+
 
   /** Number of hits that are not compatible with the CCC used during
    *  patter recognition. Used mainly as a criteria for abandoning a
@@ -404,21 +353,22 @@ private:
   edm::RefToBase<TrajectorySeed> seedRef_;
 
   DataContainer theData;
-  float theChiSquared;
-  float theChiSquaredBad;
+  float theChiSquared=0;
+  float theChiSquaredBad=0;
 
-  signed short theNumberOfFoundHits;
-  signed short theNumberOfLostHits;
-  signed short theNumberOfCCCBadHits_;
+  signed short theNumberOfFoundHits=0;
+  signed short theNumberOfLostHits=0;
+  signed short theNumberOfTrailingFoundHits=0;
+  signed short theNumberOfCCCBadHits_=0;
 
-  PropagationDirection theDirection;
-  bool                 theDirectionValidity;
-  bool theValid;
+  PropagationDirection theDirection=anyDirection;
+  bool                 theDirectionValidity=false;
+  bool theValid=false;
 
-  float theDPhiCache;
-  float theCCCThreshold_;
-  signed char theNLoops;
-  StopReason stopReason_;
+  float theDPhiCache=0;
+  float theCCCThreshold_=std::numeric_limits<float>::max();
+  signed char theNLoops=0;
+  StopReason stopReason_ = StopReason::UNINITIALIZED;
 
   void check() const;
 };
