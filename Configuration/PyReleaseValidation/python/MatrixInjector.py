@@ -193,21 +193,6 @@ class MatrixInjector(object):
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
 
-            # predefined ncores settings, please don't use -t ncores option in the matrix command
-            #wmthread={}
-            #wmthread['RECODreHLT']=4
-            #wmthread['RECOUP15']=4
-            #wmthread['RECO']=4
-            #wmthread['HLTDR2_50ns']=4
-            #wmthread['HLTDR2_25ns']=4
-            #wmthread['RECODR2_50nsreHLT']=4
-            #wmthread['RECODR2_25nsreHLT']=4
-            #wmthread['DIGIUP15']=4
-            #wmthread['DIGI']=4
-            #wmthread['DIGIUP15_PU50']=4
-            #wmthread['DIGIUP15_PU25']=4
-            #wmthread['RECOUP15_PU50']=4
-            #wmthread['RECOUP15_PU25']=4
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -347,16 +332,8 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
                             # ==> set the multithread here 
-                            print "++ chainDict['nowmTasklist'][step]['TaskName']  "
-                            print chainDict['nowmTasklist'][-1]['TaskName']
-                            print "this is the BEFORE: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
-                            #if chainDict['nowmTasklist'][-1]['TaskName'] in wmthread.keys() :
                             if '--nThreads' in s[2][index]:
-                                print "we want to modify the numOfThreads of this one"
-                                #chainDict['nowmTasklist'][-1]['Multicore'] = wmthread[ chainDict['nowmTasklist'][-1]['TaskName'] ]
                                 chainDict['nowmTasklist'][-1]['Multicore'] = int(s[2][index].split()[ s[2][index].split().index('--nThreads')+1  ])
-                                print "this is the AFTER: %d"%(chainDict['nowmTasklist'][-1]['Multicore'])
-                            print "++ multirhead taken care of - be happy ++ \n\n"
 
                             if( chainDict['nowmTasklist'][-1]['Multicore'] ):
                                 # the scaling factor of 1.2GB / thread is empirical and measured on a SECOND round of tests with PU samples
