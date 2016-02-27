@@ -481,9 +481,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (!uGtAlgoBlocks.isValid()) {
 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: GlobalAlgBlkBxCollection with input tag "
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
       << m_l1GlobalTag
-      << "\nrequested in configuration, but not found in the event." << std::endl;
+      << " requested in configuration, but not found in the event." << std::endl;
 
       return false;
     }
@@ -492,7 +492,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if(uGtAlgoBlocks->size() == 0) {
 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: GlobalAlgBlkBxCollection with input tag "
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
       << m_l1GlobalTag
       << " is empty." << std::endl;
 
@@ -506,9 +506,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (!gtObjectMapRecord.isValid()) {
 
         edm::LogWarning("HLTL1TSeed")
-        << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+        << " Warning: L1GlobalTriggerObjectMapRecord with input tag "
         << m_l1GtObjectMapTag
-        << "\nrequested in configuration, but not found in the event." << std::endl;
+        << " requested in configuration, but not found in the event." << std::endl;
 
         return false;
     }
