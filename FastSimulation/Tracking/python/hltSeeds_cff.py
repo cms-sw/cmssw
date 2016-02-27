@@ -13,17 +13,9 @@ hltPixelTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
 # pixel pair seeds
 # todo: import layerlist 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+import RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi
 hltPixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = cms.vstring(
-        'BPix1+BPix2'
-        'BPix1+FPix1_pos',
-        'BPix1+FPix1_neg',
-        'BPix2+FPix1_pos',
-        'BPix2+FPix1_neg',
-        
-        'FPix1_pos+FPix2_pos',
-        'FPix1_neg+FPix2_neg',
-        ),
+    layerList = RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi.MixedLayerPairs.layerList,
     skipSeedFinderSelector = cms.untracked.bool(True),
     RegionFactoryPSet = FastSimulation.Tracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.clone()
     )
