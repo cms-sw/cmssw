@@ -131,7 +131,7 @@ namespace edm
 
       produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
       produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
-
+      produces<QIE10DigiCollection>("HFQIE10DigiCollection");
 
       if(MergeHcalDigisProd_) {
 	//        edm::ConsumesCollector iC(consumesCollector());

@@ -6,6 +6,7 @@
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
+#include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 
 HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
@@ -561,6 +562,28 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
     }
   }
 
+  return result;
+}
+
+HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId, bool testHFQIE10) {
+  HcalQIENum qieType = QIE8; //default
+  if (testHFQIE10){ //2016 test
+    if(fId.genericSubdet() == HcalGenericDetId::HcalGenForward && fId.isHcalDetId()) {
+        HcalDetId hid(fId);
+        if(hid.depth()>=3) qieType = QIE10;
+    }
+  }
+  else { //generic upgrade case: QIE8 for HO, QIE10 for HF, QIE11 for HBHE
+    if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel || fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+      qieType = QIE11;
+    } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+      qieType = QIE8;
+    } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
+      qieType = QIE10;
+    }
+  }
+  
+  HcalQIEType result(fId.rawId(),qieType);
   return result;
 }
 
