@@ -1,4 +1,4 @@
-#ifndef DataMixingPileupCopy_h
+#ifndef SimDataMixingPileupCopy_h
 #define SimDataMixingPileupCopy_h
 
 /** \class DataMixingPileupCopy
@@ -76,4 +76,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingPileupCopy_h
