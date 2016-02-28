@@ -255,6 +255,10 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       LogDebug("PixelCPETemplateReco::localPosition") <<
 	"reconstruction failed with error " << theClusterParam.ierr << "\n";
 
+      std::cout << "PixelCPETemplateReco::localPosition" << 
+        "reconstruction failed with error " << theClusterParam.ierr << std::endl;
+
+
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
       // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
