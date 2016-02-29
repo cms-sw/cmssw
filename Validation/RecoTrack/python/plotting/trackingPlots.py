@@ -848,6 +848,7 @@ _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBa
 _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
 _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
 _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, rawSummary=True)
+_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, rawSummary=True)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
