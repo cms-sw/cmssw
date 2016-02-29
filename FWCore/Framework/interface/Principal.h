@@ -95,7 +95,7 @@ namespace edm {
     
     EDProductGetter const* prodGetter() const {return this;}
 
-    OutputHandle getForOutput(BranchID const& bid, bool getProd, ModuleCallingContext const* mcc) const;
+    OutputHandle getForOutput(BranchID const& bid, ModuleCallingContext const* mcc) const;
 
     // Return a BasicHandle to the product which:
     //   1. matches the given label, instance, and process
