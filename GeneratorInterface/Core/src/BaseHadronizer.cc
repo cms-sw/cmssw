@@ -148,7 +148,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
       return;
     }
     
-//     std::remove(lheFile_.c_str());
+    std::remove(lheFile_.c_str());
   }
 
 }
