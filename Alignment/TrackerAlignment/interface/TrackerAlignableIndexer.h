@@ -1,9 +1,9 @@
 #ifndef Alignment_TrackerAlignment_TrackerCounters_H
 #define Alignment_TrackerAlignment_TrackerCounters_H
 
-/** \class TrackerCounters
+/** \class TrackerAlignableIndexer
  *
- *  Concrete implementation of counters for the tracker
+ *  Concrete implementation of AlignableIndexer for the tracker-alignables.
  *
  *  Allows to set an id to each alignable. 
  *  Actual counter definitions are in separate header files.
@@ -11,20 +11,23 @@
  *  $Date: 2007/10/08 13:36:11 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
+ *
+ *  Last Update: Max Stark
+ *         Date: Wed, 17 Feb 2016 15:39:06 CET
  */
 
 #include <map>
 
-#include "Alignment/CommonAlignment/interface/Counters.h"
+#include "Alignment/CommonAlignment/interface/AlignableIndexer.h"
 
-class TrackerCounters : public Counters
+class TrackerAlignableIndexer : public AlignableIndexer
 {
 
 public:
   /// Build the counters map.
-  TrackerCounters();
+  TrackerAlignableIndexer();
 
-  ~TrackerCounters() {}
+  virtual ~TrackerAlignableIndexer() {}
 
 };
 
