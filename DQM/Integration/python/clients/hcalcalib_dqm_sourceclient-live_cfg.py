@@ -46,6 +46,7 @@ process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
+process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -53,9 +54,6 @@ process = customise(process)
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
-process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 
@@ -70,35 +68,14 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 #	-> L1 GT setting
 #	-> Rename the hbheprereco to hbhereco
 #-------------------------------------
-runType			= process.runType.getRunType()
-runTypeName		= process.runType.getRunTypeName()
-isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
-isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("hltHcalCalibrationRaw")
 rawTagUntracked	= cms.InputTag("hltHcalCalibrationRaw")
-process.essourceSev = cms.ESSource(
-		"EmptyESSource",
-		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
-		firstValid		= cms.vuint32(1),
-		iovIsRunNotTime	= cms.bool(True)
-)
-process.emulTPDigis = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-process.emulTPDigis.inputLabel = \
-		cms.VInputTag("hcalDigis", 'hcalDigis')
-process.emulTPDigis.FrontEndFormatError = \
-		cms.bool(True)
-process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.emulTPDigis.FG_threshold = cms.uint32(2)
-process.emulTPDigis.InputTagFEDRaw = rawTag
 process.l1GtUnpack.DaqGtInputTag = rawTag
-process.hbhereco = process.hbheprereco.clone()
 
 #-------------------------------------
 #	Hcal DQM Tasks and Clients import
 #-------------------------------------
-process.load("DQM.HcalTasks.LEDTask")
 process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.PedestalTask")
 process.load('DQM.HcalTasks.RadDamTask')
@@ -108,29 +85,14 @@ process.load('DQM.HcalTasks.RadDamTask')
 #	Absent for Online Running
 #-------------------------------------
 if useMap:
-	process.es_pool = cms.ESSource("PoolDBESSource",
-			process.CondDBSetup,
-			timetype = cms.string('runnumber'),
-			toGet = cms.VPSet(
-				cms.PSet(
-					record = cms.string(
-						"HcalElectronicsMapRcd"
-					),
-					tag = cms.string(
-						"HcalElectronicsMap_v7.05_hlt"
-					)
-				)
-			),
-			connect = cms.string(
-				'frontier://FrontierProd/CMS_CONDITIONS'),
-			authenticationMethod = cms.untracked.uint32(0)
-	)	
-	process.es_prefer_es_pool = cms.ESPrefer('PoolDBESSource', 'es_pool')
+    process.GlobalTag.toGet.append(cms.PSet(record = cms.string("HcalElectronicsMapRcd"),
+                                            tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+                                            )
+                                   )
 
 #-------------------------------------
 #	For Debugginb
 #-------------------------------------
-#process.hcalTPTask.moduleParameters.debug = 0
 
 #-------------------------------------
 #	Some Settings before Finishing up
@@ -141,8 +103,7 @@ process.hcalDigis.InputLabel = rawTag
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
 process.tasksSequence = cms.Sequence(
-		process.ledTask
-		*process.laserTask
+		process.laserTask
 		*process.pedestalTask
 		*process.raddamTask
 )
