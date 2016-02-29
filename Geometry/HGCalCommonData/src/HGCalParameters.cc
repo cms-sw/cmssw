@@ -67,8 +67,17 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   indx          |= ((mytr.lay & kMaskLayer) << kShiftLayer);
   indx          |= ((mytr.sec & kMaskSector) << kShiftSector);
   indx          |= ((mytr.subsec & kMaskSubSec) << kShiftSubSec);
-//  std::cout << "ZP " << zp << ":" << kMaskZside << ":" << kShiftZside << ((zp & kMaskZside) << kShiftZside) << " Lay " << mytr.lay << ":" << kMaskLayer << ":" << kShiftLayer << ":" << ((mytr.lay & kMaskLayer) << kShiftLayer) << " Sector " << mytr.sec << ":" << kMaskSector << ":" << kShiftSector << ":" << ((mytr.sec & kMaskSector) << kShiftSector) << " SubSec " << mytr.subsec << ":" << kMaskSubSec << ":" << kShiftSubSec << ":" << ((mytr.subsec & kMaskSubSec) << kShiftSubSec) << " Index " << std::hex << indx << std::dec << std::endl;
-
+#ifdef DebugLog
+  std::cout << "ZP " << zp << ":" << kMaskZside << ":" << kShiftZside 
+	    << ((zp & kMaskZside) << kShiftZside) << " Lay " << mytr.lay 
+	    << ":" << kMaskLayer << ":" << kShiftLayer << ":" 
+	    << ((mytr.lay & kMaskLayer) << kShiftLayer) << " Sector " 
+	    << mytr.sec << ":" << kMaskSector << ":" << kShiftSector << ":" 
+	    << ((mytr.sec & kMaskSector) << kShiftSector) << " SubSec " 
+	    << mytr.subsec << ":" << kMaskSubSec << ":" << kShiftSubSec << ":"
+	    << ((mytr.subsec & kMaskSubSec) << kShiftSubSec) << " Index " 
+	    << std::hex << indx << std::dec << std::endl;
+#endif
   trformIndex_.push_back(indx);
   trformTranX_.push_back(mytr.h3v.x());
   trformTranY_.push_back(mytr.h3v.y());
