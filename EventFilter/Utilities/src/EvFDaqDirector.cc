@@ -52,6 +52,7 @@ namespace evf {
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
     emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false)),
+    microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",false)),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -101,17 +102,23 @@ namespace evf {
     if (fuLockPollIntervalPtr) {
       try {
         fuLockPollInterval_=boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
-        edm::LogInfo("Setting fu lock poll interval by environment string: ") << fuLockPollInterval_ << " us";
+        edm::LogInfo("EvFDaqDirector") << "Setting fu lock poll interval by environment string: " << fuLockPollInterval_ << " us";
       }
       catch( boost::bad_lexical_cast const& ) {
-        edm::LogWarning("Bad lexical cast in parsing: ") << std::string(fuLockPollIntervalPtr); 
+        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fuLockPollIntervalPtr);
       }
     }
 
     char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
     if (emptyLumiModePtr) {
         emptyLumisectionMode_ = true;
-        edm::LogInfo("Setting empty lumisection mode");
+        edm::LogInfo("EvFDaqDirector") << "Setting empty lumisection mode";
+    }
+
+    char * microMergeDisabledPtr = getenv("FFF_MICROMERGEDISABLED");
+    if (microMergeDisabledPtr) {
+        microMergeDisabled_ = true;
+        edm::LogInfo("EvFDaqDirector") << "Disabling dat file micro-merge by the HLT process (delegated to the hlt daemon)";
     }
   }
 
@@ -374,6 +381,10 @@ namespace evf {
 
   std::string EvFDaqDirector::getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
+  }
+
+  std::string EvFDaqDirector::getDatFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
   }
 
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {

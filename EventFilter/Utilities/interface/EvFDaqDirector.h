@@ -75,6 +75,7 @@ namespace evf{
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
+      std::string getDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
@@ -123,6 +124,7 @@ namespace evf{
       void checkTransferSystemPSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
+      bool microMergeDisabled() const {return microMergeDisabled_;}
 
 
     private:
@@ -148,6 +150,7 @@ namespace evf{
       std::string hltSourceDirectory_;
       unsigned int fuLockPollInterval_;
       bool emptyLumisectionMode_;
+      bool microMergeDisabled_;
 
       std::string hostname_;
       std::string run_string_;
