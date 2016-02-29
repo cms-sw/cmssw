@@ -196,7 +196,7 @@ class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
-                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None):
+                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
         Arguments:
@@ -211,6 +211,7 @@ class Sample:
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
+        appendGlobalTag -- String to append to GlobalTag (intended for one-time hacks; default "")
         """
         self._sample = sample
         self._append = append
@@ -222,6 +223,7 @@ class Sample:
         self._dqmVersion = dqmVersion
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
+        self._appendGlobalTag = appendGlobalTag
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -335,9 +337,9 @@ class Sample:
             
         globalTag = _getGlobalTag(self, newRelease)
 
-        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
+        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
             sample=sample, midfix=midfix, newrelease=_stripRelease(newRelease),
-            pileup=pileup, globaltag=globalTag, scenario=scenario, fastsim=fastsim,
+            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, scenario=scenario, fastsim=fastsim,
             version=self.version(newRelease), dqmVersion=self._dqmVersion
         )
 
