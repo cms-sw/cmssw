@@ -422,14 +422,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
   
   for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
-    printf("weight string: %s\n",wgt.first.c_str());
     fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
   }
   
   std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
   
   for (const auto &wgt : fWeightKeysTmp) {
-    printf("sorted weight string: %s\n",wgt.second.c_str());
     fSortedWeightKeys.push_back(wgt.second);
   }
 
@@ -822,10 +820,41 @@ void Pythia8Hadronizer::finalizeEvent()
 GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
   
-//   //fill additional weights for systematic uncertainties
-//   for (const auto &attrib : fMasterGen->info.weights->attributes) {
-//     std::cout << "first: " << attrib.first << " second: " << attrib.second << std::endl;
-//   }
+  //fill lhe headers
+  //*FIXME* initrwgt header is corrupt due to pythia bug
+  for (const std::string &key : fMasterGen->info.headerKeys()) {
+    genLumiInfoHeader->lheHeaders().emplace_back(key,fMasterGen->info.header(key));
+  }
+  
+  //fill weight names
+  //*FIXME* to be improved with future pythia version to avoid need
+  //for re-sorting weights
+  //Note that weight group names are not available in all cases currently
+  //due to an issue in the weightgroup handling in pythia
+  genLumiInfoHeader->weightNames().reserve(fSortedWeightKeys.size() + 1);
+  genLumiInfoHeader->weightNames().push_back("nominal");
+  for (const std::string &key : fSortedWeightKeys) {
+    std::string weightgroupname;
+    for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
+      if (wgtgrp.second.weights.count(key)) {
+        if (!wgtgrp.first.empty()) {
+          weightgroupname = wgtgrp.first;
+        }
+        else if (wgtgrp.second.attributes.count("type")) {
+          weightgroupname = wgtgrp.second.attributes.find("type")->second;
+        }
+        break;
+      }
+    }
+    
+    std::ostringstream weightname;
+    weightname << "LHE, id = " << key << ", ";
+    if (!weightgroupname.empty()) {
+      weightname << weightgroupname << ", ";
+    }
+    weightname<< fMasterGen->info.initrwgt->weights[key].contents;
+    genLumiInfoHeader->weightNames().push_back(weightname.str());
+  }
 
   return genLumiInfoHeader;
 }
