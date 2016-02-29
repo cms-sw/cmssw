@@ -83,6 +83,8 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     const char *classname() const override { return "Pythia8Hadronizer"; }
     
+    GenLumiInfoHeader *getGenLumiInfoHeader() const override;
+    
   private:
 
     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
@@ -140,6 +142,8 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     int nISRveto;
     int nFSRveto;
+    
+    std::vector<std::string> fSortedWeightKeys;
 
 };
 
@@ -406,6 +410,28 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     }
 
   }
+  
+  //keep track of lhe weights
+  //*FIXME* Sort them numerically since pythia does not preserve the original order
+  //This will fail if weight names are not parseable as integers/
+  //To be improved with future pythia release
+  fSortedWeightKeys.clear();
+  fSortedWeightKeys.reserve(fMasterGen->info.initrwgt->weights.size());
+  
+  std::vector<std::pair<int,std::string> > fWeightKeysTmp;
+  fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
+  
+  for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
+    printf("weight string: %s\n",wgt.first.c_str());
+    fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
+  }
+  
+  std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
+  
+  for (const auto &wgt : fWeightKeysTmp) {
+    printf("sorted weight string: %s\n",wgt.second.c_str());
+    fSortedWeightKeys.push_back(wgt.second);
+  }
 
   return (status&&status1);
 }
@@ -563,13 +589,71 @@ void Pythia8Hadronizer::statistics()
 bool Pythia8Hadronizer::generatePartonsAndHadronize()
 {
 
+  DJR.resize(0);
+  nME = -1;
+  nMEFiltered = -1;
+  
+  if ( fJetMatchingHook.get() ) 
+  {
+    fJetMatchingHook->resetMatchingStatus(); 
+    fJetMatchingHook->beforeHadronization( lheEvent() );
+  }
+  
   if (!fMasterGen->next()) return false;
 
+  double mergeweight = fMasterGen.get()->info.mergingWeightNLO();
+  if (fMergingHook.get()) {
+    mergeweight *= fMergingHook->getNormFactor();
+  }
+  
+  //protect against 0-weight from ckkw or similar
+  if (std::abs(mergeweight)==0.)
+  {
+    event().reset();
+    return false;
+  }
+  
+  if (fJetMatchingPy8InternalHook.get()) {
+    const std::vector<double> djrmatch = fJetMatchingPy8InternalHook->getDJR();
+    //cap size of djr vector to save storage space (keep only up to first 6 elements)
+    unsigned int ndjr = std::min(djrmatch.size(), std::vector<double>::size_type(6));
+    for (unsigned int idjr=0; idjr<ndjr; ++idjr) {
+      DJR.push_back(djrmatch[idjr]);
+    }
+    
+    nME=fJetMatchingPy8InternalHook->nMEpartons().first;
+    nMEFiltered=fJetMatchingPy8InternalHook->nMEpartons().second;
+  }
+  
   if (evtgenDecays.get()) evtgenDecays->decay();
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
 
+  if (!py8hepmc) {
+    return false;
+  }
+  
+  //add ckkw/umeps/unlops merging weight
+  if (mergeweight!=1.) {
+    event()->weights()[0] *= mergeweight;
+  }
+  
+  if (fEmissionVetoHook.get()) {
+    nISRveto += fEmissionVetoHook->getNISRveto();
+    nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+  
+  //fill additional weights for systematic uncertainties
+  //this is a hack because pythia does not currently provide ordered access to the weights
+  //*FIXME* to be improved with future pythia version
+  for (const string &key : fSortedWeightKeys) {
+    double wgt = (*fMasterGen->info.weights_detailed)[key];
+    event()->weights().push_back(wgt);
+  }
+
+  return true;
+  
 }
 
 
@@ -630,7 +714,7 @@ bool Pythia8Hadronizer::hadronize()
   if (mergeweight!=1.) {
     event()->weights()[0] *= mergeweight;
   }
-  
+
   if (fEmissionVetoHook.get()) {
     nISRveto += fEmissionVetoHook->getNISRveto();
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
@@ -733,6 +817,17 @@ void Pythia8Hadronizer::finalizeEvent()
       ascii_io->write_event(event().get());
     }
   }
+}
+
+GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
+  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+  
+//   //fill additional weights for systematic uncertainties
+//   for (const auto &attrib : fMasterGen->info.weights->attributes) {
+//     std::cout << "first: " << attrib.first << " second: " << attrib.second << std::endl;
+//   }
+
+  return genLumiInfoHeader;
 }
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
