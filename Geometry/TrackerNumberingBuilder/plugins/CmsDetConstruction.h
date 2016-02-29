@@ -1,5 +1,5 @@
 #ifndef Geometry_TrackerNumberingBuilder_CmsDetConstruction_H
-#define Geometry_TrackerNumberingBuilderCmsDetConstruction_H
+#define Geometry_TrackerNumberingBuilder_CmsDetConstruction_H
 #include<string>
 #include<vector>
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
@@ -15,6 +15,4 @@ class CmsDetConstruction : public CmsTrackerLevelBuilder {
   void buildSmallDetsforStack(DDFilteredView& , GeometricDet* , std::string);
 };
 
-
-
-#endif
+#endif // Geometry_TrackerNumberingBuilder_CmsDetConstruction_H
