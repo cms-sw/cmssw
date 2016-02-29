@@ -1,5 +1,5 @@
 #ifndef RecoLocalTracker_ESProducers_MultiRecHitCollectorESProducer_h
-#define RecoLocalTracker_ESProducers_ESProducers_MultiRecHitCollectorESProducer_h
+#define RecoLocalTracker_ESProducers_MultiRecHitCollectorESProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,8 +32,4 @@ class  MultiRecHitCollectorESProducer: public edm::ESProducer{
 };
 
 
-#endif
-
-
-
-
+#endif // RecoLocalTracker_ESProducers_MultiRecHitCollectorESProducer_h

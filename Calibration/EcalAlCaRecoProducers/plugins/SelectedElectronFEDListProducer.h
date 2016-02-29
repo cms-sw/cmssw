@@ -1,5 +1,5 @@
 #ifndef SelectedElectronFEDListProducer_h
-#define SelectedFEDListProducer_h
+#define SelectedElectronFEDListProducer_h
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 // egamma objects
@@ -167,4 +167,4 @@ template<typename TEle, typename TCand>
 
 };
 
-#endif
+#endif // SelectedElectronFEDListProducer_h
