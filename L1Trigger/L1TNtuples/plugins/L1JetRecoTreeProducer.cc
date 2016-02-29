@@ -312,7 +312,7 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
     nJets++;
 
-    if (it->pt()*corrFactor > jetptThreshold_ && jetId(*it) && fabs(it->eta())<jetetaMax_) {
+    if (it->pt()*corrFactor > jetptThreshold_ && fabs(it->eta())<jetetaMax_) {
       mHx += -1.*it->px()*corrFactor;
       mHy += -1.*it->py()*corrFactor;
       met_data->Ht  += it->pt()*corrFactor;
