@@ -138,7 +138,7 @@
 	  <version ClassVersion="10" checksum="2365797689"/> 
 	</class>
 	<class name="GenLumiInfoHeader" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1188406267"/> 
+	  <version ClassVersion="10" checksum="1270500179"/> 
 	</class>
 	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
 	  <version ClassVersion="10" checksum="1937303025"/>  
