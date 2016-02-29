@@ -78,6 +78,39 @@ for tracks in selectedTracks :
     locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
     locals()[label].setLabel(label)
 
+    label = 'TrackerCollisionSelectedTrackMonIsoBunches' + str(tracks)
+    locals()[label] = TrackerCollisionTrackMonIsoBunches.clone()
+    locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].FolderName       = cms.string(mainfolderName[tracks]+'/IsolatedBunches')
+    locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks]+'/IsolatedBunches')
+    locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
+    locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
+    locals()[label].TrackPMin        = trackPtMin[tracks]
+    locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].doDCAPlots       = doPlotsPCA[tracks]
+    locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
+    locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
+    locals()[label].doSIPPlots       = doPlotsPCA[tracks]
+    locals()[label].numCut           = numCutString[tracks]
+    locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
+    locals()[label].setLabel(label)
+
 
 #-------------------------------------------------
 # Tracking Monitor 
@@ -133,6 +166,13 @@ for module in selectedModules :
     locals()[label].categories     = categories[module]
     locals()[label].setLabel(label)
 
+    label = str(module)+'LogMessageMonIsoBunches'
+    locals()[label] = LogMessageMonIsoBunches.clone()
+    locals()[label].pluginsMonName = pluginsMonName[module]
+    locals()[label].modules        = modulesLabel[module]
+    locals()[label].categories     = categories[module]
+    locals()[label].setLabel(label)
+
 
 # dEdx monitor ####
 ### load which dedx
@@ -168,6 +208,9 @@ for tracks in selectedTracks :
         TrackingDQMSourceTier0 += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+#    # IsolatedBunches
+#    label = 'TrackerCollisionSelectedTrackMonIsoBunches' + str(tracks)
+    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
@@ -175,6 +218,9 @@ for step in selectedIterTrackingStep :
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
+    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+#    # IsolatedBunches
+#    label = str(module)+'LogMessageMonIsoBunches'
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0 += dqmInfoTracking
 
@@ -188,6 +234,9 @@ for tracks in selectedTracks :
         TrackingDQMSourceTier0Common+=sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+#    # IsolatedBunches
+#    label = 'TrackerCollisionSelectedTrackMonIsoBunches' + str(tracks)
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
@@ -195,6 +244,9 @@ for step in selectedIterTrackingStep :
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+#    # IsolatedBunches
+#    label = str(module)+'LogMessageMonIsoBunches'
     TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
@@ -209,6 +261,9 @@ for tracks in selectedTracks :
         TrackingDQMSourceTier0MinBias += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
     TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    # IsolatedBunches
+    label = 'TrackerCollisionSelectedTrackMonIsoBunches' + str(tracks)
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
@@ -216,6 +271,9 @@ for step in selectedIterTrackingStep :
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    # IsolatedBunches
+    label = str(module)+'LogMessageMonIsoBunches'
     TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 
