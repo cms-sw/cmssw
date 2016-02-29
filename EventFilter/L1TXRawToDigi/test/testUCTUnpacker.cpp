@@ -7,9 +7,9 @@
 
 using namespace std;
 
-#include "../plugins/UCTDAQRawData.hh"
-#include "../plugins/UCTAMCRawData.hh"
-#include "../plugins/UCTCTP7RawData.hh"
+#include "../plugins/UCTDAQRawData.h"
+#include "../plugins/UCTAMCRawData.h"
+#include "../plugins/UCTCTP7RawData.h"
 
 int main(int argc, char **argv) {
   uint32_t index = 0;
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
       if(index < 694) {
 	char* fToken = strtok(NULL, "\n");
 	if(fToken == 0) continue;
-	if(sscanf(fToken, "%llX", &fedRawDataArray[index]) != 1) {
+	if(sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
 	  cerr << "oops! format error :(" << endl;
 	  continue;
 	}

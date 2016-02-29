@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import EventFilter.L1TCaloLayer1RawToDigi.util as util
+import EventFilter.L1TXRawToDigi.util as util
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -33,9 +33,9 @@ print 'Ok, time to analyze'
 process = cms.Process("L1TCaloLayer1Test")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('EventFilter.L1TCaloLayer1RawToDigi.l1tCaloLayer1Digis_cfi')
+process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1900) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
