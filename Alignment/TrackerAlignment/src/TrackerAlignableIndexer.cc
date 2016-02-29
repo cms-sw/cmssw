@@ -1,3 +1,4 @@
+#include "../interface/TrackerAlignableIndexer.h"
 #include "Alignment/TrackerAlignment/interface/TECNameSpace.h"
 #include "Alignment/TrackerAlignment/interface/TIBNameSpace.h"
 #include "Alignment/TrackerAlignment/interface/TIDNameSpace.h"
@@ -5,12 +6,11 @@
 #include "Alignment/TrackerAlignment/interface/TPBNameSpace.h"
 #include "Alignment/TrackerAlignment/interface/TPENameSpace.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerCounters.h"
 
 using namespace align;
 
 //__________________________________________________________________________________________________
-TrackerCounters::TrackerCounters()
+TrackerAlignableIndexer::TrackerAlignableIndexer()
 {
   theCounters.clear();
 
