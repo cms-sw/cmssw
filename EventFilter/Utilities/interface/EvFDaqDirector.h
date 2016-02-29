@@ -56,6 +56,7 @@ namespace evf{
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
+      void initRun();
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
@@ -64,6 +65,7 @@ namespace evf{
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
       void preSourceEvent(edm::StreamID const& streamID);
       //std::string &baseDir(){return base_dir_;}
+      void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}

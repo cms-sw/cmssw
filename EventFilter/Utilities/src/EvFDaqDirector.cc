@@ -92,11 +92,6 @@ namespace evf {
     reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
     reg.watchPreGlobalEndLumi(this,&EvFDaqDirector::preGlobalEndLumi);
 
-    std::stringstream ss;
-    ss << "run" << std::setfill('0') << std::setw(6) << run_;
-    run_string_ = ss.str();
-    run_dir_ = base_dir_+"/"+run_string_;
-
     //save hostname for later
     char hostname[33];
     gethostname(hostname,32);
@@ -118,7 +113,15 @@ namespace evf {
         emptyLumisectionMode_ = true;
         edm::LogInfo("Setting empty lumisection mode");
     }
- 
+  }
+
+  void EvFDaqDirector::initRun()
+  {
+    std::stringstream ss;
+    ss << "run" << std::setfill('0') << std::setw(6) << run_;
+    run_string_ = ss.str();
+    run_dir_ = base_dir_+"/"+run_string_;
+
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -253,6 +256,18 @@ namespace evf {
 
   }
 
+
+  void EvFDaqDirector::preallocate(edm::service::SystemBounds const& bounds) {
+
+    initRun();
+
+    for (unsigned int i=0;i<bounds.maxNumberOfStreams();i++){
+      streamFileTracker_.push_back(-1);
+    }
+    nThreads_=bounds.maxNumberOfStreams();
+    nStreams_=bounds.maxNumberOfThreads();
+  }
+
   void EvFDaqDirector::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   {
     edm::ParameterSetDescription desc;
@@ -269,24 +284,6 @@ namespace evf {
     descriptions.add("EvFDaqDirector", desc);
   }
 
-  void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
-    close(bu_readlock_fd_);
-    close(bu_writelock_fd_);
-    if (directorBu_) {
-      std::string filename = bu_run_dir_ + "/bu.lock";
-      removeFile(filename);
-    }
-  }
-
-  void EvFDaqDirector::preallocate(edm::service::SystemBounds const& bounds) {
-
-    for (unsigned int i=0;i<bounds.maxNumberOfStreams();i++){
-      streamFileTracker_.push_back(-1);
-    }
-    nThreads_=bounds.maxNumberOfStreams();
-    nStreams_=bounds.maxNumberOfThreads();
-  }
-
   void EvFDaqDirector::preBeginJob(edm::PathsAndConsumesOfModulesBase const&,
                                    edm::ProcessContext const& pc) {
     checkTransferSystemPSet(pc);
@@ -301,6 +298,15 @@ namespace evf {
       edm::LogWarning("EvFDaqDirector") << "WARNING - checking run dir -: "
 					<< run_dir_ << ". This is not the highest run "
 					<< dirManager_.findHighestRunDir();
+    }
+  }
+
+  void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
+    close(bu_readlock_fd_);
+    close(bu_writelock_fd_);
+    if (directorBu_) {
+      std::string filename = bu_run_dir_ + "/bu.lock";
+      removeFile(filename);
     }
   }
 

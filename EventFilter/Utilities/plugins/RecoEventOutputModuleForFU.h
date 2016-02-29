@@ -38,6 +38,7 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
+    void initRun();
     virtual void start() override;
     virtual void stop() override;
     virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
@@ -89,12 +90,6 @@ namespace evf {
     hltErrorEvents_(0),
     outBuf_(new unsigned char[1024*1024])
   {
-    std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
-    readAdler32Check_ =  edm::Service<evf::EvFDaqDirector>()->outputAdler32Recheck();
-    LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
-    // create open dir if not already there
-    edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
-
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix="hltOutput";
     if (stream_label_.find(testPrefix)==0) 
@@ -105,7 +100,6 @@ namespace evf {
         << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << stream_label_;
     }
 
-
     std::string stream_label_lo = stream_label_;
     boost::algorithm::to_lower(stream_label_lo);
     auto streampos = stream_label_lo.rfind("stream");
@@ -114,7 +108,17 @@ namespace evf {
         << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for names in FFF based HLT, but was detected in stream name";
 
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-    
+  }
+
+  template<typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::initRun()
+  {
+    std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
+    readAdler32Check_ =  edm::Service<evf::EvFDaqDirector>()->outputAdler32Recheck();
+    LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
+    // create open dir if not already there
+    edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
+
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     errorEvents_.setName("ErrorEvents");
@@ -177,6 +181,7 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::start()
   {
+    initRun();
     const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
     edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
 	                                       << openInitFileName;

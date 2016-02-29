@@ -79,7 +79,7 @@ private:
   //monitoring
   void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
-  int initFileList(); 
+  long initFileList(); 
   evf::EvFDaqDirector::FileStatus getFile(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
 
   //variables
@@ -107,9 +107,8 @@ private:
   const bool fileListMode_;
   unsigned int fileListIndex_ = 0;
 
-  const edm::RunNumber_t runNumber_;
-
-  const std::string fuOutputDir_;
+  edm::RunNumber_t runNumber_;
+  std::string fuOutputDir_;
 
   const edm::DaqProvenanceHelper daqProvenanceHelper_;
 
