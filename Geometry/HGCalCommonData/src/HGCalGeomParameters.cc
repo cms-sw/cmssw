@@ -351,8 +351,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   // Finally the cells
   std::map<int,int>         wafertype;
   std::map<int,HGCalGeomParameters::cellParameters> cellsf, cellsc;
-  double                    xmf(0), ymf(0), xmc(0), ymc(0);
-  int                       ntf(0), ntc(0);
   DDValue val2(attribute, sdTag3, 0.0);
   DDSpecificsFilter filter2;
   filter2.setCriteria(val2, DDCompOp::equals);
@@ -400,10 +398,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	    HGCalGeomParameters::cellParameters cp(half,wafer,GlobalPoint(xx,yy,0));
 	    if (type == 1) {
 	      cellsf[cell] = cp;
-	      xmf += xx; ymf += yy; ntf++;
 	    } else {
 	      cellsc[cell] = cp;
-	      xmc += xx; ymc += yy; ntc++;
 	    }
 	  }
 	}
@@ -423,10 +419,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       << cellsf.size() << ":" << cellsc.size() << " wafers " << wafers.size()
       << " layers " << layers.size();
   }
-  if (ntf > 0) { xmf /= ntf; ymf /= ntf;}
-  if (ntc > 0) { xmc /= ntc; ymc /= ntc;}
-  std::cout << "Fine   " << ntf << " x " << xmf << " y " << ymf << std::endl;
-  std::cout << "Coarse " << ntc << " x " << xmc << " y " << ymc << std::endl;
 
   for (unsigned int i=0; i<layers.size(); ++i) {
     for (std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.begin();
