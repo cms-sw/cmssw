@@ -287,6 +287,7 @@ namespace evf {
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<bool>("emptyLumisectionMode",false)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
+    desc.addUntracked<bool>("microMergeDisabled",false)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
   }
