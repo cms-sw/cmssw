@@ -161,10 +161,10 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1MuonToken, muons);
     if (!muons.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: L1MuonBxCollection with input tag "
+      << " Warning: L1MuonBxCollection with input tag "
       << m_l1MuonTag
-      << "\nrequested in configuration, but not found in the event."
-      << "\nNo muons added to filterproduct."
+      << " requested in configuration, but not found in the event."
+      << " No muons added to filterproduct."
       << endl;	
     } else {
 
@@ -184,10 +184,10 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1EGammaToken, egammas);
     if (!egammas.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: L1EGammaBxCollection with input tag "
+      << " Warning: L1EGammaBxCollection with input tag "
       << m_l1EGammaTag
-      << "\nrequested in configuration, but not found in the event."
-      << "\nNo egammas added to filterproduct."
+      << " requested in configuration, but not found in the event."
+      << " No egammas added to filterproduct."
       << endl;	
     } else {
 
@@ -207,10 +207,10 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1JetToken, jets);
     if (!jets.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: L1JetBxCollection with input tag "
+      << " Warning: L1JetBxCollection with input tag "
       << m_l1JetTag
-      << "\nrequested in configuration, but not found in the event."
-      << "\nNo jets added to filterproduct."
+      << " requested in configuration, but not found in the event."
+      << " No jets added to filterproduct."
       << endl;	
     } else {
 
@@ -230,10 +230,10 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1TauToken, taus);
     if (!taus.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: L1TauBxCollection with input tag "
+      << " Warning: L1TauBxCollection with input tag "
       << m_l1TauTag
-      << "\nrequested in configuration, but not found in the event."
-      << "\nNo taus added to filterproduct."
+      << " requested in configuration, but not found in the event."
+      << " No taus added to filterproduct."
       << endl;	
     } else {
 
@@ -253,10 +253,10 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     iEvent.getByToken(m_l1EtSumToken, etsums);
     if (!etsums.isValid()){ 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: L1EtSumBxCollection with input tag "
+      << " Warning: L1EtSumBxCollection with input tag "
       << m_l1EtSumTag
-      << "\nrequested in configuration, but not found in the event."
-      << "\nNo etsums added to filterproduct."
+      << " requested in configuration, but not found in the event."
+      << " No etsums added to filterproduct."
       << endl;	
     } else {
 
@@ -481,11 +481,22 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (!uGtAlgoBlocks.isValid()) {
 
       edm::LogWarning("HLTL1TSeed")
-      << "\nWarning: GlobalAlgBlkBxCollection with input tag "
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
       << m_l1GlobalTag
-      << "\nrequested in configuration, but not found in the event." << std::endl;
+      << " requested in configuration, but not found in the event." << std::endl;
 
-        return false;
+      return false;
+    }
+
+    // check size
+    if(uGtAlgoBlocks->size() == 0) {
+
+      edm::LogWarning("HLTL1TSeed")
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
+      << m_l1GlobalTag
+      << " is empty." << std::endl;
+
+      return false;
     }
 
     // get handle to object maps (one object map per algorithm)
@@ -495,9 +506,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (!gtObjectMapRecord.isValid()) {
 
         edm::LogWarning("HLTL1TSeed")
-        << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+        << " Warning: L1GlobalTriggerObjectMapRecord with input tag "
         << m_l1GtObjectMapTag
-        << "\nrequested in configuration, but not found in the event." << std::endl;
+        << " requested in configuration, but not found in the event." << std::endl;
 
         return false;
     }
@@ -566,7 +577,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         if(objMap == 0) {
 
           edm::LogWarning("HLTL1TSeed") 
-          << "\nWarning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
+          << " Warning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
           return false;
 
         }
@@ -612,7 +623,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           // Should not get here
           //
           edm::LogWarning("HLTL1TSeed")
-          << "\nWarning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
+          << " Warning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
           return false;
 
       }
