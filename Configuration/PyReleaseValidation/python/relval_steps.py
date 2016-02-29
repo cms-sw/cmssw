@@ -684,6 +684,21 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          },
                         step1Defaults])
 
+# transfer extendedgen step1 LHE to be used in a normal workflow
+step1LHENormal = {'--relval'     : '9000,50', 
+                 '--conditions'  : 'auto:run2_mc',
+                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 }
+
+# transfer extendedgen step1 GEN to GEN-SIM to be used in a normal workflow
+step1GENNormal = {'--relval'     : '9000,50',
+                 '-s'            : 'GEN,SIM',
+                 '--conditions'  : 'auto:run2_mc',
+                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--eventcontent': 'FEVTDEBUG',
+                 '--datatier'    : 'GEN-SIM',
+                 '--era'         : 'Run2_25ns',
+                 } 
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -761,6 +776,14 @@ steps['GGToHtaupinu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_T
 steps['WToLNutaurhonu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_taurhonu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu_cff',step1HadronizerDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
+
+# normal fullSim workflows wrapping ext-gen workflows
+# LHE step
+steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=merge([{'--relval':'29000,100'},step1LHENormal,steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']])
+
+# GEN-SIM step
+steps['GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt'] = merge([step1GENNormal,steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']])
+
 
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
