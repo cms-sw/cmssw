@@ -14,6 +14,7 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::E
   mixMod.produces<ZDCDigiCollection>();
   mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
   mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+  mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
 
 }
 

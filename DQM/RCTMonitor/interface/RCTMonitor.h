@@ -1,6 +1,5 @@
-
 #ifndef RCTMonitor_RCTMonitor_H
-#define RCTMOnitor_RCTMonitor_H
+#define RCTMonitor_RCTMonitor_H
 
 // -*- C++ -*-
 //
@@ -154,4 +153,4 @@ class RCTMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
-#endif
+#endif // RCTMonitor_RCTMonitor_H

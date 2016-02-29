@@ -29,6 +29,8 @@ CPPUNIT_TEST_SUITE(testEsproducer);
 CPPUNIT_TEST(registerTest);
 CPPUNIT_TEST(getFromTest);
 CPPUNIT_TEST(getfromShareTest);
+CPPUNIT_TEST(getfromUniqueTest);
+CPPUNIT_TEST(getfromAutoTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
@@ -43,6 +45,8 @@ public:
   void registerTest();
   void getFromTest();
   void getfromShareTest();
+  void getfromUniqueTest();
+  void getfromAutoTest();
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
@@ -58,7 +62,6 @@ public:
    }
    const DummyData* produce(const DummyRecord& /*iRecord*/) {
       ++data_.value_;
-      std::cout <<"produce called "<<data_.value_<<std::endl;
       return &data_;
    }
 private:
@@ -78,7 +81,6 @@ private:
    DummyData data_;
 };
 
-
 class ShareProducer : public ESProducer {
 public:
    ShareProducer(): ptr_(new DummyData){
@@ -87,11 +89,38 @@ public:
    }
    std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
-      std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
    }
 private:
    std::shared_ptr<DummyData> ptr_;
+};
+
+class UniqueProducer : public ESProducer {
+public:
+   UniqueProducer() {
+      setWhatProduced(this);
+   }
+   std::unique_ptr<DummyData> produce(const DummyRecord&) {
+      ++data_.value_;
+      std::unique_ptr<DummyData> ptr(new DummyData(data_));
+      return std::move(ptr);
+   }
+private:
+   DummyData data_;
+};
+
+class AutoProducer : public ESProducer {
+public:
+   AutoProducer() {
+      setWhatProduced(this);
+   }
+   std::auto_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+      ++data_.value_;
+      std::auto_ptr<DummyData> ptr(new DummyData(data_));
+      return ptr;
+   }
+private:
+   DummyData data_;
 };
 
 class LabelledProducer : public ESProducer {
@@ -107,7 +136,6 @@ public:
    
    std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
-      std::cout <<"\"foo\" produce called "<<ptr_->value_<<std::endl;
       return ptr_;
    }
    
@@ -161,7 +189,6 @@ void testEsproducer::getFromTest()
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
 }
@@ -183,7 +210,48 @@ void testEsproducer::getfromShareTest()
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
+      CPPUNIT_ASSERT(iTime == pDummy->value_);
+   }
+}
+
+void testEsproducer::getfromUniqueTest()
+{
+   EventSetupProvider provider;
+   
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
+   provider.add(pProxyProv);
+   
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   
+   for(int iTime=1; iTime != 6; ++iTime) {
+      const edm::Timestamp time(iTime);
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+      edm::ESHandle<DummyData> pDummy;
+      eventSetup.get<DummyRecord>().get(pDummy);
+      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(iTime == pDummy->value_);
+   }
+}
+
+void testEsproducer::getfromAutoTest()
+{
+   EventSetupProvider provider;
+   
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<AutoProducer>();
+   provider.add(pProxyProv);
+   
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   
+   for(int iTime=1; iTime != 6; ++iTime) {
+      const edm::Timestamp time(iTime);
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+      edm::ESHandle<DummyData> pDummy;
+      eventSetup.get<DummyRecord>().get(pDummy);
+      CPPUNIT_ASSERT(0 != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
 }
@@ -206,17 +274,14 @@ void testEsproducer::labelTest()
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo",pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
       
       eventSetup.get<DummyRecord>().get("fi",pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
       
       eventSetup.get<DummyRecord>().get("fum",pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
    } catch(const cms::Exception& iException) {
@@ -249,7 +314,6 @@ public:
    }
    std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
-      std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
    }
 private:
@@ -276,7 +340,6 @@ void testEsproducer::decoratorTest()
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_post);
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<"pre "<<TestDecorator::s_pre << " post " << TestDecorator::s_post << std::endl;
       CPPUNIT_ASSERT(iTime == TestDecorator::s_pre);
       CPPUNIT_ASSERT(iTime == TestDecorator::s_post);
       CPPUNIT_ASSERT(iTime == pDummy->value_);
@@ -296,15 +359,12 @@ public:
    }
    void callWhenDummyChanges(const DummyRecord&) {
       ++ptr_->value_;
-      std::cout <<"callWhenDummyChanges called "<<ptr_->value_<<std::endl;
    }
    void callWhenDummyChanges2(const DummyRecord&) {
       ++ptr_->value_;
-      std::cout <<"callWhenDummyChanges2 called "<<ptr_->value_<<std::endl;
    }
    void callWhenDummyChanges3(const DummyRecord&) {
       ++ptr_->value_;
-      std::cout <<"callWhenDummyChanges3 called "<<ptr_->value_<<std::endl;
    }
    
 private:
@@ -355,7 +415,6 @@ void testEsproducer::forceCacheClearTest()
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(1 == pDummy->value_);
    }
    provider.forceCacheClear();
@@ -363,7 +422,6 @@ void testEsproducer::forceCacheClearTest()
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
-      std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(2 == pDummy->value_);
    }
 }

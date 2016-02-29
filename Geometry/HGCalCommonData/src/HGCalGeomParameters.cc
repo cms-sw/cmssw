@@ -197,7 +197,7 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
     std::cout << "Matrix[" << k << "] (" << std::hex << php.trformIndex_[k]
 	      << std::dec << ") Trnaslation (" << php.trformTranX_[k] << ", "
 	      << php.trformTranY_[k] << ", " << php.trformTranZ_[k]
-	      << " Rotation (" << php.trformRotXX_[k] << ", "
+	      << ") Rotation (" << php.trformRotXX_[k] << ", "
 	      << php.trformRotYX_[k] << ", " << php.trformRotZX_[k] << ", "
 	      << php.trformRotXY_[k] << ", " << php.trformRotYY_[k] << ", "
 	      << php.trformRotZY_[k] << ", " << php.trformRotXZ_[k] << ", "
@@ -230,7 +230,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int nsiz = (int)(copy.size());
       int lay  = (nsiz > 0) ? copy[nsiz-1] : 0;
       int zp   = (nsiz > 2) ? copy[nsiz-3] : -1;
-      if (zp !=1 ) zp = -1;
+      if (zp != 1) zp = -1;
       if (lay == 0) {
 	edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp "
 				   << zp << " in " << nsiz << " components";
@@ -304,8 +304,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	std::vector<int> copy = fv1.copyNumbers();
 	int nsiz  = (int)(copy.size());
 	int wafer = (nsiz > 0) ? copy[nsiz-1] : 0;
-        int layer = (nsiz > 0) ? copy[nsiz-2] : 0;
-	if (wafer == 0 ) {
+        int layer = (nsiz > 1) ? copy[nsiz-2] : 0;
+	if (nsiz < 2) {
 	  edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in "
 				     << nsiz << " components";
 	  throw cms::Exception("DDException") << "Funny wafer # " << wafer;
@@ -409,7 +409,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     }
   }
   
-  if ((cellsf.size()==0) || (cellsc.size()==0) || (wafers.size()==0) || 
+  if (((cellsf.size()+cellsc.size())==0) || (wafers.size()==0) || 
       (layers.size()==0)) {
     edm::LogError("HGCalGeom") << "HGCalGeomParameters : number of cells "
 			       << cellsf.size() << ":" << cellsc.size()

@@ -45,6 +45,7 @@ namespace edm {
                          serviceregistry::ServiceLegacy iLegacy,
                          PreallocationConfiguration const& preallocConfig,
                          ProcessContext const* parentProcessContext) :
+      EDConsumerBase(),
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
@@ -75,7 +76,8 @@ namespace edm {
     wantAllEvents_ = detail::configureEventSelector(selectevents,
                                                     tns->getProcessName(),
                                                     getAllTriggerNames(),
-                                                    selectors_);
+                                                    selectors_,
+                                                    consumesCollector());
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     selector_config_id_ = detail::registerProperSelectionInfo(selectevents,
                                                               "",

@@ -21,6 +21,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -51,6 +52,8 @@ namespace edm {
     void copyProduct(BranchDescription const& productdesc);
 
     void setFrozen(bool initializeLookupInfo = true);
+
+    void setFrozen(std::set<TypeID> const& typesConsumed);
 
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
@@ -165,7 +168,7 @@ namespace edm {
 
     void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
-    void initializeLookupTables();
+    void initializeLookupTables(std::set<TypeID> const* typesConsumed);
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;

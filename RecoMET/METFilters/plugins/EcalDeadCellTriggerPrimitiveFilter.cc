@@ -140,6 +140,10 @@ private:
 
   const bool makeProfileRoot_;
   const std::string profileRootName_;
+
+  const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
+  const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
+
   TFile *profFile;
   TTree *profTree;
 
@@ -194,6 +198,8 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_))
   , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot") )
   , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName") )
+  , useTTsum_ (iConfig.getParameter<bool>("useTTsum") )
+  , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
 {
   getEventInfoForFilterOnce_ = false;
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
@@ -408,6 +414,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
   int isPassCut =0;
 
   EBRecHitCollection::const_iterator ebrechit;
+
   for (ebrechit = HitecalEB.begin(); ebrechit != HitecalEB.end(); ebrechit++) {
 
      EBDetId det = ebrechit->id();
@@ -433,7 +440,12 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      if( !ebrechit->isRecovered() ) toDo = false;
 //     if( !ebrechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
 
+
+
      if( toDo ){
+
+	//If we considerkTPSaturated and a recHit has a flag set, we can immediately flag the event.
+        if(ebrechit->checkFlag(EcalRecHit::kTPSaturated) && usekTPSaturated_) return 1;
 
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
@@ -496,6 +508,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 
      if( toDo ){
 
+	//If we considerkTPSaturated and a recHit has a flag set, we can immediately flag the event.
+        if(eerechit->checkFlag(EcalRecHit::kTPSaturated) && usekTPSaturated_) return 1;
+
 // vvvv= Only for debuging or testing purpose =vvvv
         EcalTrigTowerDetId ttDetId = ttItor->second;
 //        int ttzside = ttDetId.zside();
@@ -532,6 +547,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
         }
      }
   } // loop over EE
+
+  //If we are not using the TT sum, then at this point we need not do anything further, we'll pass the event
+  if(!useTTsum_) return 0;
 
 // Checking for EB
   std::map<EcalTrigTowerDetId, double>::iterator ttetItor;

@@ -11,6 +11,19 @@
 
 #include <algorithm>
 
+namespace {
+  template<typename DataContainer>
+  unsigned short countTrailingValidHits(DataContainer const & meas) { 
+    unsigned short n=0;
+    for(auto it=meas.rbegin(); it!=meas.rend(); ++it) {
+      if (Trajectory::lost(*(*it).recHit())) break;
+      if((*it).recHit()->isValid()) ++n;
+    }
+    return n;
+  }
+
+}
+
 using namespace std;
 
 void Trajectory::pop() {
@@ -18,6 +31,7 @@ void Trajectory::pop() {
     if(theData.back().recHit()->isValid()) {
       theNumberOfFoundHits--;
       theChiSquared -= theData.back().estimate();
+      if(badForCCC(theData.back())) theNumberOfCCCBadHits_--; 
     }
     else if(lost(* (theData.back().recHit()) )) {
       theNumberOfLostHits--;
@@ -25,9 +39,9 @@ void Trajectory::pop() {
     else if(isBad(* (theData.back().recHit()) ) && theData.back().recHit()->geographicalId().det()==DetId::Muon ) {
       theChiSquaredBad -= theData.back().estimate();
     }
-    else if(badForCCC(theData.back())) theNumberOfCCCBadHits_--;
 
     theData.pop_back();
+    theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
   }
 }
 
@@ -57,17 +71,18 @@ void Trajectory::pushAux(double chi2Increment) {
   if ( tm.recHit()->isValid()) {
     theChiSquared += chi2Increment;
     theNumberOfFoundHits++;
+    theNumberOfTrailingFoundHits++;
+    if (badForCCC(tm)) theNumberOfCCCBadHits_++;
   }
   // else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) ) {
     theNumberOfLostHits++;
+    theNumberOfTrailingFoundHits=0;
   }
  
   else if (isBad( *(tm.recHit()) ) && tm.recHit()->geographicalId().det()==DetId::Muon ) {
     theChiSquaredBad += chi2Increment;
   }
- 
-  else if (badForCCC(tm)) theNumberOfCCCBadHits_++;
 
   // in case of a Trajectory constructed without direction, 
   // determine direction from the radii of the first two measurements
@@ -88,12 +103,11 @@ int Trajectory::ndof(bool bon) const {
   int dof = 0;
   int dofBad = 0;
   
-  for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
-      rechit != transRecHits.end(); ++rechit) {
-    if((*rechit)->isValid())
-      dof += (*rechit)->dimension();
-    else if( isBad(**rechit) && (*rechit)->geographicalId().det()==DetId::Muon )
-      dofBad += (*rechit)->dimension();
+  for(auto & rechit : transRecHits) {
+    if((rechit)->isValid())
+      dof += (rechit)->dimension();
+    else if( isBad(*rechit) && (rechit)->geographicalId().det()==DetId::Muon )
+      dofBad += (rechit)->dimension();
   }
 
   // If dof!=0 (there is at least 1 valid hit),
@@ -116,9 +130,8 @@ int Trajectory::ndof(bool bon) const {
 
 void Trajectory::validRecHits(ConstRecHitContainer & hits) const {
   hits.reserve(foundHits());
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++)
-    if ((*itm).recHit()->isValid()) hits.push_back((*itm).recHit());
+  for (auto const & tm : theData) 
+    if (tm.recHit()->isValid()) hits.push_back(tm.recHit());
 }
 
 
@@ -160,11 +173,11 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
 }
 
 bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  auto const * thit = dynamic_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
-  if (!thit)
-    return false;
-  if (thit->isPixel())
-    return false;
+  if (trackerHitRTTI::isUndef(*tm.recHit()) |
+      trackerHitRTTI::isFast(*tm.recHit())
+     ) return false;
+  auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
+  if (thit->isPixel()) return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
                                           thit->firstClusterRef().stripCluster(),
                                           tm.updatedState().localParameters()) < theCCCThreshold_;

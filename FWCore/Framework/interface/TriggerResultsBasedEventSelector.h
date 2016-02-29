@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -55,7 +56,8 @@ namespace edm {
 
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
 		 std::vector<std::string> const& triggernames,
-                 const std::string& process_name);
+                 std::string const& process_name,
+                 ConsumesCollector&& iC);
 
       bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
 
@@ -69,7 +71,8 @@ namespace edm {
     bool configureEventSelector(edm::ParameterSet const& iPSet,
                                 std::string const& iProcessName,
                                 std::vector<std::string> const& iAllTriggerNames,
-                                edm::detail::TriggerResultsBasedEventSelector& oSelector);
+                                edm::detail::TriggerResultsBasedEventSelector& oSelector,
+                                edm::ConsumesCollector&& iC);
     /** Takes the user specified SelectEvents PSet and creates a new one
      which conforms to the canonical format required for provenance
      */

@@ -40,8 +40,8 @@ namespace edm {
          setWhatProduced(this);
       }
       
-      std::auto_ptr<DummyEventSetupData> produce(const DummyEventSetupRecord&) {
-         std::auto_ptr<DummyEventSetupData> data(new DummyEventSetupData(1));
+      std::unique_ptr<DummyEventSetupData> produce(const DummyEventSetupRecord&) {
+         std::unique_ptr<DummyEventSetupData> data(new DummyEventSetupData(1));
          return data;
       }
    protected:

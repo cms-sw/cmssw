@@ -103,6 +103,28 @@ bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int start, int finish, 
   return keepIt;
 }
 
+bool HcalZSAlgoRealistic::keepMe(const QIE10DataFrame& inp, int start, int finish, int threshold, uint32_t hfzsmask) const{
+  
+  bool keepIt=false;
+  //  int mask = 999;
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
+    threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
+  }
+  
+  //determine the sum of 2 timeslices
+  for (int i = start; i < finish && !keepIt; i++) {
+    int sum=0;
+    
+    for (int j = i; j < (i+2); j++){
+      sum+=inp[j].adc();
+      //pedsum+=pedave;
+    }
+    if ((hfzsmask&(1<<i)) !=0) continue; 
+    else if (sum>=threshold) keepIt=true;
+  }
+  return keepIt;
+}
+
 bool HcalZSAlgoRealistic::keepMe(const HcalUpgradeDataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
   
   bool keepIt=false;
@@ -154,6 +176,13 @@ bool HcalZSAlgoRealistic::shouldKeep(const HFDataFrame& digi) const{
 
   int start  = std::max(0,HFsearchTS_.first);
   int finish = std::min(digi.size()-1,HFsearchTS_.second);
+  return keepMe(digi,start,finish,thresholdHF_,digi.zsCrossingMask());
+}
+
+bool HcalZSAlgoRealistic::shouldKeep(const QIE10DataFrame& digi) const{
+
+  int start  = std::max(0,HFsearchTS_.first);
+  int finish = std::min((int)digi.size()-1,HFsearchTS_.second);
   return keepMe(digi,start,finish,thresholdHF_,digi.zsCrossingMask());
 }
 
