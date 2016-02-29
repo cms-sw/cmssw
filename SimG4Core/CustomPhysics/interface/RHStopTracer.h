@@ -1,16 +1,17 @@
+#ifndef SimG4Core_RHStopTracer_H
+#define SimG4Core_RHStopTracer_H
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
-
-
-#include <boost/regex.hpp>
 
 class BeginOfRun;
 class BeginOfEvent;
 class BeginOfTrack;
 class EndOfTrack;
 class G4Step;
+class G4ParticleDefinition;
 
 class RHStopTracer :  public SimProducer,
 		      public Observer<const BeginOfRun *>, 
@@ -42,7 +43,9 @@ class RHStopTracer :  public SimProducer,
   };
   bool mStopRegular;
   double mTraceEnergy;
-  boost::regex mTraceParticleNameRegex;
+  std::string mTraceParticleName;
+  const G4ParticleDefinition* mParticle;
   std::vector <StopPoint> mStopPoints;
-  bool matched (const std::string& fName) const;
 };
+
+#endif

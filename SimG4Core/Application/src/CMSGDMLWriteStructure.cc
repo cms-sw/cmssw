@@ -11,7 +11,12 @@
 #include "G4SystemOfUnits.hh"
 
 CMSGDMLWriteStructure::CMSGDMLWriteStructure()
-{}
+{
+  converter[0] = new G4RToEConvForGamma();
+  converter[1] = new G4RToEConvForElectron();
+  converter[2] = new G4RToEConvForPositron();
+  converter[3] = new G4RToEConvForProton();
+}
   
 CMSGDMLWriteStructure::~CMSGDMLWriteStructure()
 {}
@@ -23,15 +28,6 @@ CMSGDMLWriteStructure::AddExtension(xercesc::DOMElement* volumeElement,
   xercesc::DOMElement* auxiliaryElement = 0;
   std::stringstream ss;
   const char* cutnames[4] = {"pcutg","pcutem","pcutep","pcutp"};
-  static G4VRangeToEnergyConverter *converter[4];
-  static G4bool ifirst = true;
-  if(ifirst) {
-    converter[0] = new G4RToEConvForGamma();
-    converter[1] = new G4RToEConvForElectron();
-    converter[2] = new G4RToEConvForPositron();
-    converter[3] = new G4RToEConvForProton();
-    ifirst = false;
-  }
  
   auxiliaryElement = NewElement("auxiliary");
   auxiliaryElement->setAttributeNode(NewAttribute("auxtype","G4Region"));
