@@ -488,26 +488,9 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 class JsonOutputProducer
 {
 private:
-  std::ostringstream _json;
   std::string out_file_name;
   std::ofstream out_file;
   static size_t tab_spaces;
-
-  void serialise() {
-    _json.str("");
-    _json.clear();
-
-    _json << '{';
-    // writing the configuration block
-    _json << configuration.serialise(1);
-    _json << "\n},";
-    // writing block for each event
-    _json << indent(1) << key("events") << '{'; // line open
-    for (std::vector<JsonEvent>::iterator it = events.begin(); it != events.end(); ++it) {
-      _json << (*it).serialise(2);
-    }
-    _json << indent(1) << '}'; // line close
-  }
 
   // static variables and methods for printing specific JSON elements
   static std::string indent(size_t _nTabs) {
@@ -571,6 +554,7 @@ private:
   }
 
 public:
+  bool isActive;
   // structs holding particular JSON objects
   struct JsonConfigurationBlock {
     std::string file_base; // common part at the beginning of all files
@@ -637,66 +621,71 @@ public:
     JsonConfiguration() : o(), n() {}
   };
 
-  struct JsonVarsTrigger {
-    std::string name;
-    std::vector<std::string> type; // module types
-    std::vector<std::string> label; // module labels
-
-    std::string serialise(size_t _indent=0) {
-      std::ostringstream json;
-      json << indent(_indent) << '{';   // line open
-      json << indent(_indent+1) << key_string("name", name) << ',';   // line
-      json << indent(_indent+1) << key("type") << list_string(type) << ',';   // line
-      json << indent(_indent+1) << key("label") << list_string(label);   // line
-      json << indent(_indent) << "}";   // line close
-
-      return json.str();
-    }
-
-    JsonVarsTrigger() : name(""), type(0), label(0) {}
-    JsonVarsTrigger(const std::string& _name ) : name(_name), type(0), label(0) {}
-  };
-
   struct JsonVars {
     std::vector<std::string> state;
-    std::vector<JsonVarsTrigger> trigger;
+    std::vector<std::string> trigger;
+    std::vector<std::string> label;
+    std::vector<std::string> type;
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << indent(_indent) << key("s") << list_string(state) << ',';   // line
-      json << indent(_indent) << key("tr") << '[';   // line open
-      for (std::vector<JsonVarsTrigger>::iterator it = trigger.begin(); it != trigger.end(); ++it) {
-        json << indent(_indent+1) << '{';   // line open
-        json << (*it).serialise(_indent+2);   // block
-        json << indent(_indent+1) << '}';   // line close
-        if (it != --trigger.end()) json << ',';
-      }
-      json << indent(_indent) << ']';   // line close
+      json << indent(_indent) << key("vars") << '{';   // line open
+      json << indent(_indent+1) << key("state") << list_string(state) << ',';   // line
+      json << indent(_indent+1) << key("trigger") << indent(_indent+2) << list_string(trigger) << ',';   // line
+      json << indent(_indent+1) << key("label") << indent(_indent+2) << list_string(label) << ',';   // line
+      json << indent(_indent+1) << key("type") << indent(_indent+2) << list_string(type);   // line
+      json << indent(_indent) << '}';   // line close
 
       return json.str();
     }
 
-    JsonVars() : state(0), trigger(0) {}
+    JsonVars() : state(0), trigger(0), label(0), type(0) {}
   };
 
+  // class members
+  JsonConfiguration configuration;
+  JsonVars vars;
+
+private:
+    unsigned int labelId(std::string labelName) {
+      unsigned int id = std::find(vars.label.begin(), vars.label.end(), labelName) - vars.label.begin();
+      if (id < vars.label.size()) 
+        return id;
+      vars.label.push_back(labelName);
+      return vars.label.size();
+    }
+    
+    unsigned int typeId(std::string typeName) {
+      unsigned int id = std::find(vars.type.begin(), vars.type.end(), typeName) - vars.type.begin();
+      if (id < vars.type.size()) 
+        return id;
+      vars.type.push_back(typeName);
+      return vars.type.size();
+    }
+
+public:
   struct JsonEventState {
     State s; // state
-    unsigned int m; // module id
+    int m; // module id
+    int l; // label id
+    int t; // type id
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << key_int("s", s) << ',';   // line
-      json << key_int("m", m);
+      json << key_int("s", int(s)) << ',';   // line
+      json << key_int("m", m) << ',';
+      json << key_int("l", l) << ',';
+      json << key_int("t", t);
 
       return json.str();
     }
 
-    JsonEventState() : s(State::Ready), m(0) {}
-    JsonEventState(State _s, unsigned int _m): s(_s), m(_m) { }
+    JsonEventState() : s(State::Ready), m(-1), l(-1), t(-1) {}
+    JsonEventState(State _s, int _m, int _l, int _t): s(_s), m(_m), l(_l), t(_t) { }
   };
 
-  struct JsonTriggerState {
-    unsigned int tr; // trigger id
+  struct JsonTriggerEventState {
+    int tr; // trigger id
     JsonEventState o; // old
     JsonEventState n; // new
 
@@ -709,21 +698,21 @@ public:
       return json.str();
     }
 
-    JsonTriggerState() : tr(), o(), n() {}
-    JsonTriggerState(unsigned int _tr, const JsonEventState& _o, const JsonEventState& _n) : tr(_tr), o(_o), n(_n) {}
+    JsonTriggerEventState() : tr(-1), o(), n() {}
+    JsonTriggerEventState(int _tr) : tr(_tr), o(), n() {}
   };
 
   struct JsonEvent {
-    unsigned int run;
-    unsigned int lumi;
-    unsigned int event;
-    std::vector<JsonTriggerState> triggerStates;
+    int run;
+    int lumi;
+    int event;
+    std::vector<JsonTriggerEventState> triggerStates;
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
       json << indent(_indent) << '"' << run << ':' << lumi << ':' << event << "\":[";   // line open
-      for (std::vector<JsonTriggerState>::iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
-        json << indent(_indent+1) << '{';   // line open
+      for (std::vector<JsonTriggerEventState>::iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
+        json << '{';   // line open
         json << (*it).serialise(_indent+2);   // block
         json << indent(_indent+1) << '}';   // line close
         if (it != --triggerStates.end()) json << ',';
@@ -733,34 +722,60 @@ public:
       return json.str();
     }
 
-    JsonEvent(unsigned int _run, unsigned int _lumi, unsigned int _event) :
+    JsonEvent(int _run, int _lumi, int _event) :
      run(_run), lumi(_lumi), event(_event), triggerStates(0) { }
     
-    void addTriggerState(unsigned int _tr, JsonEventState &_o, JsonEventState &_n) {
-      JsonTriggerState state(_tr, _o, _n);
-      triggerStates.push_back(state);
+    JsonTriggerEventState& pushTrigger(int _tr) {
+      // check whether the last trigger is the one
+      if (triggerStates.size() > 0) {
+        JsonTriggerEventState& lastTrigger = triggerStates.back();
+        if (lastTrigger.tr == _tr)
+          return lastTrigger;
+      }
+      triggerStates.push_back(JsonTriggerEventState(_tr));
+      return triggerStates.back();
     }
 
   };
 
   // class members
-  JsonConfiguration configuration;
-  JsonVars vars;
   std::vector<JsonEvent> events;
 
   // methods
   JsonOutputProducer(std::string _file_name) {
     out_file_name = _file_name;
+    isActive = out_file_name.length() > 0;
   }
+
+  JsonEvent& pushEvent(int _run, int _lumi, int _event) {
+    // check whether the last event is the one
+    if (events.size() > 0) {
+      JsonEvent& lastEvent = events.back();
+      if (lastEvent.run == _run && lastEvent.lumi == _lumi && lastEvent.event == _event)
+        return lastEvent;
+    }
+    events.push_back(JsonEvent(_run, _lumi, _event));
+    return events.back();
+  }
+
+  JsonEventState eventState(State _s, int _m, const std::string& _l, const std::string& _t) {
+    return JsonEventState(_s, _m, this->labelId(_l), this->typeId(_t));
+    }
 
   void write() {
-
-    this->serialise();
-    std::cout << _json.str() << std::endl;
-  }
-
-  bool isActive() {
-    return out_file_name.length() > 0;
+    out_file.open(out_file_name, std::ofstream::out);
+    out_file << '{'; // line open
+    out_file << configuration.serialise(1) << ',';
+    out_file << vars.serialise(1) << ',';
+    // writing block for each event
+    out_file << indent(1) << key("events") << '{'; // line open
+    for (std::vector<JsonEvent>::iterator it = events.begin(); it != events.end(); ++it) {
+      out_file << (*it).serialise(2);
+      if (it != --events.end()) out_file << ',';
+    }
+    out_file << indent(1) << '}'; // line close
+    out_file << indent(0) << "}"; // line close
+    out_file.close();
   }
 };
 size_t JsonOutputProducer::tab_spaces = 1;
@@ -807,7 +822,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   // creating the structure holding data for JSON output
   JsonOutputProducer json(json_out);
 
-  if (json.isActive()) {
+  if (json.isActive) {
     json.configuration.prescales = ignore_prescales;
     // setting the old configuration
     json.configuration.o.process = old_process;
@@ -901,6 +916,15 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
       differences.clear();
       differences.resize(old_config->size());
+
+      // adding the list of selected triggers to JSON output
+      if (json.isActive) {
+        std::vector<std::string> states_str;
+        for (int i = State::Ready; i != State::Invalid; i++) states_str.push_back(std::string(path_state(static_cast<State>(i))));
+        json.vars.state = states_str;
+        for (size_t triggerId = 0; triggerId < old_config->size(); ++triggerId)
+          json.vars.trigger.push_back(old_config->triggerName(triggerId));
+      }
     }
 
     // compare the TriggerResults
@@ -933,6 +957,17 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       if (flag) {
         affected_event = true;
 
+        const unsigned int old_moduleIndex = old_results->index(old_index);
+        const unsigned int new_moduleIndex = new_results->index(new_index);
+        // storing the event to JSON
+        if (json.isActive) {
+          JsonOutputProducer::JsonEvent& event = json.pushEvent(id.run(), id.luminosityBlock(), id.event());
+          JsonOutputProducer::JsonTriggerEventState& state = event.pushTrigger(p);
+          state.o = json.eventState(old_state, old_moduleIndex, old_config->moduleLabel(p, old_moduleIndex), old_config->moduleType(p, old_moduleIndex));
+          state.n = json.eventState(new_state, new_moduleIndex, new_config->moduleLabel(p, new_moduleIndex), new_config->moduleType(p, new_moduleIndex));
+        }
+        // json.write();
+
         if (verbose > 0) {
           if (needs_header) {
             needs_header = false;
@@ -944,15 +979,15 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
           // print the Trigger path and filter responsible for the discrepancy
           std::cout << "    Path " << old_config->triggerName(p) << ":\n"
                     << "        old state is ";
-          print_detailed_path_state(std::cout, old_state, p, old_results->index(old_index), * old_config);
+          print_detailed_path_state(std::cout, old_state, p, old_moduleIndex, * old_config);
           std::cout << ",\n"
                     << "        new state is ";
-          print_detailed_path_state(std::cout, new_state, p, new_results->index(new_index), * new_config);
+          print_detailed_path_state(std::cout, new_state, p, new_moduleIndex, * new_config);
           std::cout << std::endl;
         }
         if (verbose > 1 and old_summary and new_summary) {
           // print TriggerObjects for the filter responsible for the discrepancy
-          unsigned int module = std::min(old_results->index(old_index), new_results->index(new_index));
+          unsigned int module = std::min(old_moduleIndex, new_moduleIndex);
           std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
           std::cout << "        old trigger candidates:\n";
           print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
@@ -1000,6 +1035,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     for (unsigned int p = 0; p < old_config->size(); ++p)
       std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
   }
+
+  // writing the JSON output to file
+  if (json.isActive) json.write();
 }
 
 
