@@ -17,7 +17,7 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet,
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-
+#del mixedTripletStepSeedsA.pixelTripletGeneratorFactory.SeedComparitorPSet
 ###
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
@@ -27,7 +27,7 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet,
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-
+#del mixedTripletStepSeedsB.pixelTripletGeneratorFactory.SeedComparitorPSet
 mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone()
 
 #track candidates

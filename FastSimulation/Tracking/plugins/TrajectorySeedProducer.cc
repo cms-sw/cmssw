@@ -209,7 +209,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    return hitDoublets->size()!=0;
 	}
 	
-	else if(pixelTripletGeneratorPtr && hits.size()==3)
+	else if(pixelTripletGeneratorPtr && hits.size()==3 && hitDoublets->size()!=0)
 	{
 	    OrderedHitTriplets Tripletresult;
 	    const FastTrackerRecHit * thirdHit = hits[2];
