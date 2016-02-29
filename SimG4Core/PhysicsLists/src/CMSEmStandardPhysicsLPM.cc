@@ -135,7 +135,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
   G4hBremsstrahlung* pb = nullptr;
   G4hPairProduction* pp = nullptr;
 
-  G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
+  G4hMultipleScattering* hmsc = nullptr;
 
   // This EM builder takes default models of Geant4 10 EMV.
   // Multiple scattering by Urban for all particles
@@ -205,6 +205,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
                particleName == "He3" ||
                particleName == "GenericIon") {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       pmanager->AddProcess(hmsc,                -1, 1, 1);
       pmanager->AddProcess(new G4ionIonisation, -1, 2, 2);
 
@@ -271,6 +274,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       pmanager->AddProcess(hmsc,              -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation, -1, 2, 2);
     }
