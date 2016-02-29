@@ -53,7 +53,7 @@ namespace gen {
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
     HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
     GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
-    GenLumiInfoHeader *getGenLumiInfoHeader();
+    virtual GenLumiInfoHeader *getGenLumiInfoHeader() const;
     
     void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
     void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }

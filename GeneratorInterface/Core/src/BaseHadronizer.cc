@@ -44,7 +44,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
 
   }
   
-  GenLumiInfoHeader *BaseHadronizer::getGenLumiInfoHeader() {
+  GenLumiInfoHeader *BaseHadronizer::getGenLumiInfoHeader() const {
     
     GenLumiInfoHeader *genLumiInfoHeader = new GenLumiInfoHeader();
     
@@ -148,7 +148,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
       return;
     }
     
-    std::remove(lheFile_.c_str());
+//     std::remove(lheFile_.c_str());
   }
 
 }
