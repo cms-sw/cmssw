@@ -17,6 +17,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <memory>
+#include <atomic>
 
 #include <string>
 
@@ -59,7 +60,7 @@ namespace edm {
     virtual void swap_(ProductHolderBase& rhs) override {
       auto& other = dynamic_cast<DataManagingProductHolder&>(rhs);
       edm::swap(productData_, other.productData_);
-      std::swap(theStatus_, other.theStatus_);
+      theStatus_.store(other.theStatus_.exchange(theStatus_.load()));
     }
 
     virtual void checkType_(WrapperBase const& prod) const override {
@@ -79,7 +80,7 @@ namespace edm {
     virtual bool singleProduct_() const override final;
 
     ProductData productData_;
-    mutable ProductStatus theStatus_;
+    mutable std::atomic<ProductStatus> theStatus_;
     ProductStatus const defaultStatus_;
   };
 
