@@ -79,6 +79,10 @@ private:
    boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 
    TGeoMedium* m_dummyMedium;
+
+   bool m_tracker;
+   bool m_muon;
+   bool m_calo;
 };
 
 #endif // GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H
