@@ -25,7 +25,7 @@ scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 
 # DT digitization and reconstruction
 # Switched to TwinMux
-from EventFilter.TwinMuxRawToDigi.dttmunpacker_cfi import *
+from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
 twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
