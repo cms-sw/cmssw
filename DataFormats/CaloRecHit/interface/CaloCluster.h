@@ -60,7 +60,7 @@ namespace reco {
      /// constructor from values 
      CaloCluster( double energy,  
  		 const math::XYZPoint& position ) : 
-       energy_ (energy), correctedEnergy_(-1.0), position_ (position),algoID_( undefined ), flags_(0) {} 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position),algoID_( undefined ), flags_(0) {} 
 
 
     CaloCluster( double energy,
@@ -68,7 +68,7 @@ namespace reco {
 		 const CaloID& caloID,
                  const AlgoID& algoID,
                  uint32_t flags = 0) :
-      energy_ (energy), correctedEnergy_(-1.0), position_ (position), 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position), 
       caloID_(caloID), algoID_(algoID) {
       flags_=flags&flagsMask_;
     }
@@ -80,7 +80,7 @@ namespace reco {
                  const AlgoId algoId,
 		 const DetId seedId = DetId(0),
                  uint32_t flags = 0) :
-      energy_ (energy), correctedEnergy_(-1.0), position_ (position), caloID_(caloID), 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position), caloID_(caloID), 
       hitsAndFractions_(usedHitsAndFractions), algoID_(algoId),seedId_(seedId){
       flags_=flags&flagsMask_;
     }
@@ -93,7 +93,7 @@ namespace reco {
                  const std::vector<DetId > &usedHits,
                  const AlgoId algoId,
                  uint32_t flags = 0) :
-      energy_(energy), correctedEnergy_(-1.0), position_ (position),  algoID_(algoId)
+    energy_(energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position),  algoID_(algoId)
        {
           hitsAndFractions_.reserve(usedHits.size());
           for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
