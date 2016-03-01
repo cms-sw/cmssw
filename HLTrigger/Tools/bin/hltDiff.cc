@@ -560,6 +560,7 @@ public:
     std::string file_base; // common part at the beginning of all files
     std::vector<std::string> files;
     std::string process;
+    std::vector<std::string> skipped_triggers;
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
@@ -568,7 +569,9 @@ public:
       json << indent(_indent); // line
       json << key("files") << list_string(files) << ',';
       json << indent(_indent); // line
-      json << key_string("process", process);
+      json << key_string("process", process) << ',';
+      json << indent(_indent); // line
+      json << key("skipped_triggers") << list_string(skipped_triggers);
 
       return json.str();
     }
@@ -595,7 +598,7 @@ public:
       }
     }
 
-    JsonConfigurationBlock() : file_base(""), files(0), process("") {}
+    JsonConfigurationBlock() : file_base(""), files(0), process(""), skipped_triggers(0) {}
   };
 
   struct JsonConfiguration {
@@ -612,7 +615,8 @@ public:
       json << indent(_indent+1) << key("n") << '{';   // line open
       json << n.serialise(_indent+2);   // line block
       json << indent(_indent+1) << "},";   // line close
-      json << indent(_indent+1) << key("prescales") << prescales;   // line
+      std::string prescales_str = prescales ? "true" : "false";
+      json << indent(_indent+1) << key("prescales") << prescales_str;   // line
       json << indent(_indent) << "}";   // line close
 
       return json.str();
@@ -631,9 +635,9 @@ public:
       std::ostringstream json;
       json << indent(_indent) << key("vars") << '{';   // line open
       json << indent(_indent+1) << key("state") << list_string(state) << ',';   // line
-      json << indent(_indent+1) << key("trigger") << indent(_indent+2) << list_string(trigger) << ',';   // line
-      json << indent(_indent+1) << key("label") << indent(_indent+2) << list_string(label) << ',';   // line
-      json << indent(_indent+1) << key("type") << indent(_indent+2) << list_string(type);   // line
+      json << indent(_indent+1) << key("trigger") << list_string(trigger) << ',';   // line
+      json << indent(_indent+1) << key("label") << list_string(label) << ',';   // line
+      json << indent(_indent+1) << key("type") << list_string(type);   // line
       json << indent(_indent) << '}';   // line close
 
       return json.str();
@@ -920,10 +924,21 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       // adding the list of selected triggers to JSON output
       if (json.isActive) {
         std::vector<std::string> states_str;
-        for (int i = State::Ready; i != State::Invalid; i++) states_str.push_back(std::string(path_state(static_cast<State>(i))));
+        for (int i = State::Ready; i != State::Invalid; i++)
+          states_str.push_back(std::string(path_state(static_cast<State>(i))));
         json.vars.state = states_str;
         for (size_t triggerId = 0; triggerId < old_config->size(); ++triggerId)
           json.vars.trigger.push_back(old_config->triggerName(triggerId));
+        // getting names of triggers existing only in the old configuration
+        for (std::vector<std::string>::const_iterator it = old_config_data->triggerNames().begin(); it != old_config_data->triggerNames().end(); ++it) {
+          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), *it) != json.vars.trigger.end()) continue;
+          json.configuration.o.skipped_triggers.push_back(*it);
+        }
+        // getting names of triggers existing only in the new configuration
+        for (std::vector<std::string>::const_iterator it = new_config_data->triggerNames().begin(); it != new_config_data->triggerNames().end(); ++it) {
+          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), *it) != json.vars.trigger.end()) continue;
+          json.configuration.n.skipped_triggers.push_back(*it);
+        }
       }
     }
 
@@ -966,7 +981,6 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
           state.o = json.eventState(old_state, old_moduleIndex, old_config->moduleLabel(p, old_moduleIndex), old_config->moduleType(p, old_moduleIndex));
           state.n = json.eventState(new_state, new_moduleIndex, new_config->moduleLabel(p, new_moduleIndex), new_config->moduleType(p, new_moduleIndex));
         }
-        // json.write();
 
         if (verbose > 0) {
           if (needs_header) {
