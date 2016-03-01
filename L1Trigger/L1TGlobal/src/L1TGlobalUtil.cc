@@ -58,10 +58,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
+        m_l1GtMenu =  l1GtMenu.product();
 
         //std::cout << "Attempting to fill the map " << std::endl;
-        m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
+        m_algorithmMap = &(m_l1GtMenu->getAlgorithmMap());
 
 	//reset vectors since we have new menu
 	resetDecisionVectors();

@@ -6,7 +6,7 @@
 // system include files
 #include <vector>
 
-#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -98,7 +98,12 @@ namespace l1t {
     // Access Masks (see note) above
     inline const std::vector<std::pair<std::string, bool> >& masks()              { return m_masks; }
     inline const std::vector<std::pair<std::string, bool> >& vetoMasks()          { return m_vetoMasks; }
-    
+
+    // Menu names
+    inline const std::string& gtTriggerMenuName()    const {return m_l1GtMenu->getName();}
+    inline const std::string& gtTriggerMenuVersion() const {return m_l1GtMenu->getVersion();}
+    inline const std::string& gtTriggerMenuComment() const {return m_l1GtMenu->getComment();}
+
 private:
 
     /// clear decision vectors on a menu change
@@ -108,7 +113,7 @@ private:
     void loadPrescalesAndMasks();
 
     // trigger menu
-    const TriggerMenu* m_l1GtMenu;
+    const L1TUtmTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     // prescales and masks

@@ -6,11 +6,10 @@
 #include <fstream>
 #include <iomanip>
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,7 +22,6 @@
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 using namespace edm;
 using namespace std;
@@ -31,13 +29,13 @@ using namespace l1t;
 
 
 // class declaration
-class L1TGlobalSummary : public edm::EDAnalyzer {
+class L1TGlobalSummary : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1TGlobalSummary(const edm::ParameterSet&);
   virtual ~L1TGlobalSummary(){};
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);  
-  virtual void beginRun(Run const&, EventSetup const&);
-  virtual void endRun(Run const&, EventSetup const&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(Run const&, EventSetup const&) override;
+  virtual void endRun(Run const&, EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:    
@@ -62,7 +60,7 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig){
   extToken_ = consumes<BXVector<GlobalExtBlk>>(iConfig.getParameter<InputTag>("ExtInputTag"));
   dumpRecord_       = iConfig.getParameter<bool>("DumpRecord");
   dumpTriggerResults_ = iConfig.getParameter<bool>("DumpTrigResults");
-  dumpTriggerSummary_ = iConfig.getParameter<bool>("DumpTrigResults");
+  dumpTriggerSummary_ = iConfig.getParameter<bool>("DumpTrigSummary");
   minBx_              = iConfig.getParameter<int>("MinBx");
   maxBx_              = iConfig.getParameter<int>("MaxBx");     
   gtUtil_             = new L1TGlobalUtil();
@@ -102,8 +100,13 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
     const std::vector<std::pair<std::string, bool> > vetoMasks = gtUtil_->vetoMasks();
     
     // Dump the results
-    cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;
-    cout << "============================================================================================================" << endl;
+    LogVerbatim("L1TGlobalSummary") << " " << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Name   : " << gtUtil_->gtTriggerMenuName() << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Version: " << gtUtil_->gtTriggerMenuVersion() << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Comment: " << gtUtil_->gtTriggerMenuComment() << endl;
+    LogVerbatim("L1TGlobalSummary") << " " << endl;
+    LogVerbatim("L1TGlobalSummary") << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;
+    LogVerbatim("L1TGlobalSummary") << "============================================================================================================" << endl;
     for(unsigned int i=0; i<prescales.size(); i++) {
 
 
@@ -117,10 +120,10 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
       bool mask    = (masks.at(i)).second;
       bool veto    = (vetoMasks.at(i)).second;
             
-      if(name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+      if(name != "NULL") LogVerbatim("L1TGlobalSummary") << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
     }
-    cout << "                                                      Final OR Count = " << finalOrCount <<endl;
-    cout << "===========================================================================================================" << endl;
+    LogVerbatim("L1TGlobalSummary") << "                                                      Final OR Count = " << finalOrCount <<endl;
+    LogVerbatim("L1TGlobalSummary") << "===========================================================================================================" << endl;
   }
 
 }
@@ -242,5 +245,6 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1TGlobalSummary);
 
