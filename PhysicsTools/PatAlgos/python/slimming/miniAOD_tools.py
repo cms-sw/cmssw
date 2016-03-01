@@ -249,13 +249,28 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
     makePuppies( process );
 
-    runMetCorAndUncFromMiniAOD(process,
-                               isData=runOnData,
-                               pfCandColl=cms.InputTag("puppiForMET"),
-                               reclusterJets=False,
-                               recoMetFromPFCs=False,
-                               postfix="Puppi"
-                           )
+    runMetCorAndUncForMiniAODProduction(process, metType="PF",
+                                        pfCandColl=cms.InputTag("puppiForMET"),
+                                        jetCollUnskimmed="slimmedJetsPuppi",
+                                        recoMetFromPFCs=True,
+                                        postfix="Puppi"
+                                        )
+    
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsPuppi = process.slimmedMETs.clone()
+    process.slimmedMETsPuppi.src = cms.InputTag("patMETsPuppi")
+    process.slimmedMETsPuppi.rawVariation =  cms.InputTag("patPFMetPuppi")
+    process.slimmedMETsPuppi.t1Uncertainties = cms.InputTag("patPFMetT1%sPuppi")
+    process.slimmedMETsPuppi.t01Variation = cms.InputTag("patPFMetT0pcT1Puppi")
+    process.slimmedMETsPuppi.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sPuppi")
+    process.slimmedMETsPuppi.tXYUncForRaw = cms.InputTag("patPFMetTxyPuppi")
+    process.slimmedMETsPuppi.tXYUncForT1 = cms.InputTag("patPFMetT1TxyPuppi")
+    process.slimmedMETsPuppi.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyPuppi")
+    process.slimmedMETsPuppi.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyPuppi")
+    process.slimmedMETsPuppi.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyPuppi")
+    del process.slimmedMETsPuppi.caloMET
+
+
 
 def miniAOD_customizeMC(process):
     #slimmed pileup information

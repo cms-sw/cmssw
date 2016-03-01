@@ -226,7 +226,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.jetConfiguration()
         
         #met reprocessing and jet reclustering
-        if recoMetFromPFCs: 
+        #ZD: puppi jet reclustering breaks the puppi jets
+        if recoMetFromPFCs and postfix != 'Puppi': 
             self.setParameter('reclusterJets',True)
         
         #jet collection overloading for automatic jet reclustering or JEC application
@@ -277,7 +278,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                          onMiniAOD,
                                          patMetModuleSequence,
                                          postfix)
-            reclusterJets = True
+            #ZD:puppi jet reclustering breaks puppi jets
+            if postfix != 'Puppi':
+                reclusterJets = True
         elif onMiniAOD: #raw MET extraction if running on miniAODs
             self.extractMET(process, "raw", patMetModuleSequence, postfix)
 
@@ -322,11 +325,18 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #fix the default jets for the type1 computation to those used to compute the uncertainties
         #in order to be consistent with what is done in the correction and uncertainty step
         #particularly true for miniAODs
+        #ZD:puppi currently doesn't have the L1 corrections in the GT
         if "T1" in metModName:
             getattr(process,"patPFMetT1T2Corr"+postfix).src = cms.InputTag(jetCollection.value()+postfix)
             getattr(process,"patPFMetT2Corr"+postfix).src = cms.InputTag(jetCollection.value()+postfix)
+            if 'Puppi' in postfix:
+                getattr(process,"patPFMetT1T2Corr"+postfix).offsetCorrLabel = cms.InputTag("")
+                getattr(process,"patPFMetT2Corr"+postfix).offsetCorrLabel = cms.InputTag("")
         if "Smear" in metModName:
             getattr(process,"patSmearedJets"+postfix).src = cms.InputTag(jetCollection.value()+postfix)
+            if 'Puppi' in postfix:
+                getattr(process,"patPFMetT1T2SmearCorr"+postfix).offsetCorrLabel = cms.InputTag("")
+
  
         #compute the uncertainty on the MET
         patMetUncertaintySequence = cms.Sequence()
@@ -472,7 +482,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
-           
+
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
             setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
@@ -1173,6 +1183,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
     def updateJECs(self,process,jetCollection, patMetModuleSequence, postfix):
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
+        
         patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
             src = cms.InputTag("slimmedJets"),
             levels = ['L1FastJet', 
@@ -1266,7 +1277,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, jetColName).doAreaFastjet = True
             
             patMetModuleSequence += getattr(process, jetColName)
-            
+
             corLevels=['L1FastJet', 'L2Relative', 'L3Absolute']
             if self._parameters["runOnData"].value:
                 corLevels.append("L2L3Residual")

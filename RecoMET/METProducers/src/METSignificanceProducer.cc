@@ -39,6 +39,11 @@ namespace cms
    
   }
 
+  METSignificanceProducer::~METSignificanceProducer()
+  {
+     delete metSigAlgo_;
+  }
+
 //____________________________________________________________________________||
   void METSignificanceProducer::produce(edm::Event& event, const edm::EventSetup& setup)
   {

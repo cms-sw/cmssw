@@ -138,7 +138,7 @@ template <typename T, typename Textractor>
       }
 
       if ( evt.isRealData() && addResidualJES_ ) {
-	const static pat::RawJetExtractorT<T> rawJetExtractor;
+    const static pat::RawJetExtractorT<T> rawJetExtractor{};
 	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
 	if ( rawJetP4.E() > 1.e-1 ) {
 	  reco::Candidate::LorentzVector corrJetP4upToL3 =

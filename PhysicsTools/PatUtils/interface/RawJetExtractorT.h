@@ -8,6 +8,7 @@ namespace pat {
     template <typename T>
     class RawJetExtractorT  {
         public:
+        RawJetExtractorT(){}
             reco::Candidate::LorentzVector operator()(const T& jet) const {
                 return jet.p4();
             }
@@ -21,5 +22,6 @@ namespace pat {
                 else return jet.p4();
             }
     };
+    
 }
 #endif
