@@ -752,8 +752,7 @@ namespace edm {
   }
 
   OutputHandle
-  Principal::getForOutput(BranchID const& bid, bool getProd,
-                          ModuleCallingContext const* mcc) const {
+  Principal::getForOutput(BranchID const& bid, ModuleCallingContext const* mcc) const {
     ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       throwProductNotFoundException("getForOutput", errors::LogicError, bid);
@@ -764,14 +763,15 @@ namespace edm {
                                    phb->productInstanceName(),
                                    phb->processName());
     }
-    if(getProd) {
-      ProductHolderBase::ResolveStatus status;
-      phb->resolveProduct(status,*this,false,nullptr, mcc);
-    }
-    if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
+    ProductHolderBase::ResolveStatus status;
+    auto productData = phb->resolveProduct(status,*this,false,nullptr, mcc);
+    
+    if(!productData || !productData->wrapper()) {
       return OutputHandle();
     }
-    return OutputHandle(phb->product(), &phb->branchDescription(), phb->productProvenancePtr());
+    return OutputHandle(productData->wrapper(),
+                        &productData->provenance().branchDescription(),
+                        productData->provenance().productProvenance());
   }
 
   Provenance

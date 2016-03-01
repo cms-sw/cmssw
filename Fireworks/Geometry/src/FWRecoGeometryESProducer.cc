@@ -4,6 +4,7 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -71,9 +72,12 @@ namespace {
                                                                  "HGCalHEScintillatorSensitive" } };
 }
 									  
-FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
+FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pset )
   : m_current( -1 )
 {
+  m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
+  m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
+  m_calo = pset.getUntrackedParameter<bool>( "Calo", true );
   setWhatProduced( this );
 }
 
@@ -92,29 +96,38 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   DetId detId( DetId::Tracker, 0 );
   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
-  record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
-  edm::ESHandle<HGCalGeometry> test;
-  for( const auto& name : hgcal_geom_names ) {
-    const auto& calogr = record.getRecord<CaloGeometryRecord>();
-    calogr.getRecord<IdealGeometryRecord>().get( name , test );
-    if( test.isValid() ) {
-      m_hgcalGeoms.push_back(test);
+  if( m_tracker )
+  {
+    addPixelBarrelGeometry( );
+    addPixelForwardGeometry();
+    addTIBGeometry();
+    addTIDGeometry();
+    addTOBGeometry();
+    addTECGeometry();
+  }
+  if( m_muon )
+  {
+    addDTGeometry();
+    addCSCGeometry();
+    addRPCGeometry();
+    addGEMGeometry();
+    addME0Geometry();
+  }
+  if( m_calo )
+  {
+    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+    edm::ESHandle<HGCalGeometry> test;
+    for( const auto& name : hgcal_geom_names ) {
+      const auto& calogr = record.getRecord<CaloGeometryRecord>();
+      calogr.getRecord<IdealGeometryRecord>().get( name , test );
+      if( test.isValid() ) {
+	m_hgcalGeoms.push_back(test);
+      }
     }
+
+    addCaloGeometry();
   }
   
-  addPixelBarrelGeometry( );
-  addPixelForwardGeometry();
-  addTIBGeometry();
-  addTIDGeometry();
-  addTOBGeometry();
-  addTECGeometry();
-  addDTGeometry();
-  addCSCGeometry();
-  addRPCGeometry();
-  addGEMGeometry();
-  addME0Geometry();
-  addCaloGeometry();
-
   m_fwGeometry->idToName.resize( m_current + 1 );
   std::vector<FWRecoGeom::Info>( m_fwGeometry->idToName ).swap( m_fwGeometry->idToName );
   std::sort( m_fwGeometry->idToName.begin(), m_fwGeometry->idToName.end());
