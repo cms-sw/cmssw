@@ -10,7 +10,6 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
 layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-
     pixelTripletGeneratorFactory = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet,
     )
 initialStepSeeds.pixelTripletGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
