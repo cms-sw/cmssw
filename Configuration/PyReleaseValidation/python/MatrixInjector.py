@@ -331,10 +331,6 @@ class MatrixInjector(object):
                             if ('DBLMINIAODMCUP15NODQM' in step): 
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
-                            # ==> set the multithread here 
-                            if '--nThreads' in s[2][index]:
-                                chainDict['nowmTasklist'][-1]['Multicore'] = int(s[2][index].split()[ s[2][index].split().index('--nThreads')+1  ])
-
                             if( chainDict['nowmTasklist'][-1]['Multicore'] ):
                                 # the scaling factor of 1.2GB / thread is empirical and measured on a SECOND round of tests with PU samples
                                 # the number of threads is NO LONGER assumed to be the same for all tasks
