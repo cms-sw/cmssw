@@ -117,6 +117,8 @@ namespace hcaldqm
 					int n, double min, double max, std::string title, 
 					bool log=false);
 				virtual ~CoordinateAxis() {}
+				virtual CoordinateAxis* makeCopy()
+				{return new CoordinateAxis(_type, _ctype, _log);}
 
 				virtual int get(HcalDetId const&);
 				virtual int get(HcalElectronicsId const&);
