@@ -492,6 +492,7 @@ int HcalDDDSimConstants::unitPhi(double dphi) const {
 
   const double fiveDegInRad = 2*M_PI/72;
   int units = int(dphi/fiveDegInRad+0.5);
+  if (units < 1) units = 1;
   return units;
 }
 
