@@ -16,6 +16,7 @@ from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpres
 
 class Reco(Scenario):
     def __init__(self):
+        Scenario.__init__(self)
         self.recoSeq=''
         self.cbSc=self.__class__.__name__
     """
@@ -25,6 +26,16 @@ class Reco(Scenario):
     collision data taking
 
     """
+
+
+    def _checkRepackedFlag(self, options, **args):
+        if 'repacked' in args:
+            if args['repacked'] == True:
+                options.isRepacked = True
+            else:
+                options.isRepacked = False
+                
+
 
     def promptReco(self, globalTag, **args):
         """
@@ -55,6 +66,7 @@ class Reco(Scenario):
         """
         options.runUnscheduled=True
                     
+        self._checkRepackedFlag(options, **args)
 
         if 'customs' in args:
             options.customisation_file=args['customs']
@@ -69,7 +81,7 @@ class Reco(Scenario):
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
-        process = cms.Process('RECO')
+        process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
@@ -112,10 +124,12 @@ class Reco(Scenario):
         options.filein = 'tobeoverwritten.xyz'
         if 'inputSource' in args:
             options.filetype = args['inputSource']
-        process = cms.Process('RECO')
+        process = cms.Process('RECO', self.eras)
 
         if 'customs' in args:
             options.customisation_file=args['customs']
+
+        self._checkRepackedFlag(options,**args)
 
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
@@ -161,10 +175,12 @@ class Reco(Scenario):
 
         print "Using %s source"%options.filetype            
 
-        process = cms.Process('RECO')
+        process = cms.Process('RECO', self.eras)
 
         if 'customs' in args:
             options.customisation_file=args['customs']
+
+        self._checkRepackedFlag(options, **args)
 
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
@@ -214,7 +230,7 @@ class Reco(Scenario):
         if 'customs' in args:
             options.customisation_file=args['customs']
         
-        process = cms.Process('ALCA')
+        process = cms.Process('ALCA', self.eras)
         cb = ConfigBuilder(options, process = process)
 
         # Input source
@@ -247,7 +263,7 @@ class Reco(Scenario):
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
 
         if 'customs' in args:
@@ -282,7 +298,7 @@ class Reco(Scenario):
         options.name = "ALCAHARVEST"
         options.conditions = gtNameAndConnect(globalTag, args)
  
-        process = cms.Process("ALCAHARVEST")
+        process = cms.Process("ALCAHARVEST", self.eras)
         process.source = cms.Source("PoolSource")
 
         if 'customs' in args:
@@ -313,7 +329,7 @@ class Reco(Scenario):
         options.step = "SKIM:"+('+'.join(skims))
         options.name = "SKIM"
         options.conditions = gtNameAndConnect(globalTag, args)
-        process = cms.Process("SKIM")
+        process = cms.Process("SKIM", self.eras)
         process.source = cms.Source("PoolSource")
 
         if 'customs' in args:
@@ -331,7 +347,7 @@ class Reco(Scenario):
         options.filein='file.dat'
         options.filetype='DAT'
         options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
-        process = cms.Process('REPACK')
+        process = cms.Process('REPACK', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True,with_input=True)
         cb.prepare()
         print cb.pythonCfgCode

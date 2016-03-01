@@ -43,6 +43,8 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
  
   if (not isHLT_)
     tokenVertices_     = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
+  else
+    eThreshold_       = iConfig.getParameter<double>("eRecHitThreshold");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
   es.get<GBRDWrapperRcd>().get(uncertaintyKeyEB_, readerebvar);
   es.get<GBRDWrapperRcd>().get(regressionKeyEE_,  readeree);
   es.get<GBRDWrapperRcd>().get(uncertaintyKeyEE_, readereevar);
-  
+
   foresteb_      = readereb.product();
   forestsigmaeb_ = readerebvar.product();
   forestee_      = readeree.product();
@@ -91,17 +93,13 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
     const EcalRecHitCollection *recHitsEE = rechitsEE_.product();
     
     for (EcalRecHitCollection::const_iterator it=recHitsEB->begin(); it!=recHitsEB->end(); ++it) {
-      for (int i=0; i<10; i++) {
-	if (it->energy() > etThreshold_)
-	  nHitsAboveThreshold_++;
-      }
+      if (it->energy() > eThreshold_)
+    	nHitsAboveThreshold_++;
     }
     
     for (EcalRecHitCollection::const_iterator it=recHitsEE->begin(); it!=recHitsEE->end(); ++it) {
-      for (int i=0; i<10; i++) {
-	if (it->energy() > etThreshold_)
-	  nHitsAboveThreshold_++;
-      }
+      if (it->energy() > eThreshold_)
+	nHitsAboveThreshold_++;
     }
   }
 }
@@ -121,7 +119,6 @@ void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topo) ;
   
   if (not isHLT_) {
-  
     std::array<float, 29> eval;  
     
     const float eLeft = EcalClusterTools::eLeft(seedCluster,recHits,topo);
@@ -254,8 +251,8 @@ void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
   } else {
 
     std::array<float, 7> eval;  
-    
-    float clusterMaxDR     = 999.;
+    float clusterMaxDR = 999.;
+
     size_t iclus = 0;
     float maxDR = 0;
     edm::Ptr<reco::CaloCluster> pclus;
@@ -294,30 +291,17 @@ void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
     constexpr double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
     constexpr double meanscale   = 0.5*(meanlimhigh-meanlimlow);
     
-    constexpr double sigmalimlow  = 0.0002;
-    constexpr double sigmalimhigh = 0.5;
-    constexpr double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-    constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
-    
     const GBRForestD *forestmean = iseb ? foresteb_ : forestee_;
-    const GBRForestD *forestsigma = iseb ? forestsigmaeb_ : forestsigmaee_;
-    
-    //these are the actual BDT responses
+
     double rawmean = forestmean->GetResponse(eval.data());
-    double rawsigma = forestsigma->GetResponse(eval.data());
-    
-    //apply transformation to limited output range (matching the training)
     double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
-    double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
 
     double ecor = mean*eval[6];
     if (!iseb)  
-      ecor = mean*(eval[6]+sc.preshowerEnergy());
-    const double sigmacor = sigma*ecor;
+      ecor = mean*eval[6]+sc.preshowerEnergy();
    
     sc.setEnergy(ecor);
     sc.setCorrectedEnergy(ecor);
-    sc.setCorrectedEnergyUncertainty(sigmacor);
   }  
 }
 

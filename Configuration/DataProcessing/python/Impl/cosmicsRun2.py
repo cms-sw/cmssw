@@ -13,6 +13,7 @@ from Configuration.DataProcessing.Reco import Reco
 
 class cosmicsRun2(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='cosmics'
     """
@@ -34,9 +35,9 @@ class cosmicsRun2(Reco):
         if not 'skims' in args:
             args['skims']= ['@allForPromptCosmics']
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated')
         process = Reco.promptReco(self,globalTag, **args)
 
         return process
@@ -53,9 +54,9 @@ class cosmicsRun2(Reco):
         if not 'skims' in args:
             args['skims']= ['@allForExpressCosmics']
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated')
         process = Reco.expressProcessing(self,globalTag, **args)
 
         return process
@@ -69,9 +70,9 @@ class cosmicsRun2(Reco):
         """
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicDataRun2Deprecated')
         process = Reco.visualizationProcessing(self,globalTag, **args)
 
         process.reconstructionCosmics.remove(process.lumiProducer)

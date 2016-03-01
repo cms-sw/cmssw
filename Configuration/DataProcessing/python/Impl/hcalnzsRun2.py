@@ -13,6 +13,7 @@ from Configuration.DataProcessing.Impl.pp import pp
 
 class hcalnzsRun2(pp):
     def __init__(self):
+        pp.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
     """
@@ -33,9 +34,9 @@ class hcalnzsRun2(pp):
             args['skims']=['HcalCalMinBias']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2Deprecated')
 
         process = pp.promptReco(self,globalTag,**args)
         

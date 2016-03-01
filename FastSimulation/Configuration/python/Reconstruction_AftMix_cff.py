@@ -98,10 +98,10 @@ _reco.trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenEle
 _reco.trackerDrivenElectronSeeds.idCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
 
 # replace the ECAL driven electron track candidates with the FastSim emulated ones
-import FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff
-_reco.electronGSGsfTrackCandidates = FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff.electronGSGsfTrackCandidates
-_reco.electronGsfTracking.replace(_reco.electronCkfTrackCandidates,_reco.electronGSGsfTrackCandidates)
-_reco.electronGsfTracks.src = "electronGSGsfTrackCandidates"
+import FastSimulation.Tracking.electronCkfTrackCandidates_cff
+_reco.fastElectronCkfTrackCandidates = FastSimulation.Tracking.electronCkfTrackCandidates_cff.electronCkfTrackCandidates.clone()
+_reco.electronGsfTracking.replace(_reco.electronCkfTrackCandidates,_reco.fastElectronCkfTrackCandidates)
+_reco.electronGsfTracks.src = "fastElectronCkfTrackCandidates"
 
 # FastSim has no template fit on tracker hits
 _reco.electronGsfTracks.TTRHBuilder = "WithoutRefit"

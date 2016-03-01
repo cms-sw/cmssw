@@ -62,6 +62,7 @@ private:
   void print(std::ostream& os,const DetLayer* dl);
   void print(std::ostream&os, const NavigationSchool::StateType & layers);
   void print(std::ostream&os, const NavigationSchool *nav);
+  void printUsingGeom(std::ostream&os, const NavigationSchool & nav);
 
 };
 
@@ -155,20 +156,20 @@ void NavigationSchoolAnalyzer::print(std::ostream&os, const NavigationSchool *na
 
 
 
-void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
+void NavigationSchoolAnalyzer::printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
   auto dls = nav.allLayersInSystem(); // ok let's' keep it for debug
   for ( auto dl : dls) {
      os<<"####################\n"	 
-	<< "Layer: \n"
-       << (dl);
-      
+       << "Layer: \n";
+     print(os,dl);
+
      auto displayThose=  nav.nextLayers(*dl,insideOut);
       if (displayThose.empty())
         {os<<"*** no INsideOUT connection ***\n";}
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+          {print(os,*nl); os<<"-----------------\n";}}
 
       displayThose = nav.nextLayers(*dl,outsideIn);
       if (displayThose.empty())
@@ -176,7 +177,7 @@ void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+          {print(os,*nl); os<<"-----------------\n";}}
   }
   os<<"\n";
 

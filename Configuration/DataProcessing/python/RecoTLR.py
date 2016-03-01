@@ -21,9 +21,29 @@ def _addLumiProducer(process):
 
     return process
 
-#gone with the fact that there is no difference between production and development sequence
-#def customiseCommon(process):
-#    return (process)
+def _overridesFor50ns(process):
+    process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(50)
+    process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+    
+    return process
+
+##############################################################################
+# post-era customizations
+# these are here instead of generating Data-specific eras
+##############################################################################
+def _hcalCustoms25ns(process):
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    return process
+
+def customisePostEra_Run2_25ns(process):
+    _hcalCustoms25ns(process)
+    return process
+
+def customisePostEra_Run2_2016(process):
+    _hcalCustoms25ns(process)
+    return process
 
 
 ##############################################################################
@@ -42,11 +62,64 @@ def customisePPMC(process):
 
 ##############################################################################
 def customiseCosmicData(process):
-
     return process
 
 
 
+##############################################################################
+def customiseCosmicMC(process):
+    return process
+        
+##############################################################################
+def customiseVALSKIM(process):
+    print "WARNING"
+    print "this method is outdated, please use RecoTLR.customisePPData"
+    process= customisePPData(process)
+    return process
+
+                
+##############################################################################
+def customiseExpress(process):
+    process= customisePPData(process)
+    process = _swapOfflineBSwithOnline(process)
+    
+    return process
+
+##############################################################################
+def customisePrompt(process):
+    process= customisePPData(process)
+    process = _addLumiProducer(process)
+
+    return process
+
+##############################################################################
+# Heavy Ions
+##############################################################################
+# keep it in case modification is needed
+def customiseCommonHI(process):
+    return process
+
+##############################################################################
+def customiseExpressHI(process):
+    process = customiseCommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
+    
+    return process
+
+##############################################################################
+def customisePromptHI(process):
+    process = customiseCommonHI(process)
+
+    process = _addLumiProducer(process)
+
+    return process
+
+##############################################################################
+##############################################################################
+##
+##  ALL FUNCTIONS BELOW ARE GOING TO BE REMOVED IN 81X
+##
+##############################################################################
 ##############################################################################
 # this is supposed to be added on top of other (Run1) data customs
 def customiseDataRun2Common(process):
@@ -84,9 +157,7 @@ def customiseDataRun2Common_withStage1(process):
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
 
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    _hcalCustoms25ns(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):
@@ -97,102 +168,7 @@ def customiseDataRun2Common_25ns(process):
 def customiseDataRun2Common_50nsRunsAfter253000(process):
     process = customiseDataRun2Common_withStage1(process)
 
-    if hasattr(process,'particleFlowClusterECAL'):
-        process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
-        process.particleFlowClusterECAL.energyCorrector.bunchSpacing = cms.int32(50)
-    if hasattr(process,'ecalMultiFitUncalibRecHit'):
-        process.ecalMultiFitUncalibRecHit.algoPSet.useLumiInfoRunHeader = False
-        process.ecalMultiFitUncalibRecHit.algoPSet.bunchSpacing = cms.int32(50)
-
-    return process
-
-##############################################################################
-def customiseCosmicDataRun2(process):
-    process = customiseCosmicData(process)
-    process = customiseDataRun2Common_25ns(process)
-    return process
-
-
-##############################################################################
-def customiseCosmicMC(process):
-    
-    return process
-        
-##############################################################################
-def customiseVALSKIM(process):
-    print "WARNING"
-    print "this method is outdated, please use RecoTLR.customisePPData"
-    process= customisePPData(process)
-    return process
-
-                
-##############################################################################
-def customiseExpress(process):
-    process= customisePPData(process)
-    process = _swapOfflineBSwithOnline(process)
-    
-    return process
-
-##############################################################################
-def customiseExpressRun2(process):
-    process = customiseExpress(process)
-    process = customiseDataRun2Common_25ns(process)
-    return process
-
-def customiseExpressRun2_50ns(process):
-    process = customiseExpress(process)
-    process = customiseDataRun2Common_50nsRunsAfter253000(process)
-    return process
-
-def customiseExpressRun2B0T(process):
-    process=customiseForRunI(process)
-    process=customiseExpressRun2(process)
-    return process
-
-##############################################################################
-def customisePrompt(process):
-    process= customisePPData(process)
-    process = _addLumiProducer(process)
-
-    return process
-
-##############################################################################
-def customisePromptRun2(process):
-    process = customisePrompt(process)
-    process = customiseDataRun2Common_25ns(process)
-    return process
-
-def customisePromptRun2_50ns(process):
-    process = customisePrompt(process)
-    process = customiseDataRun2Common_50nsRunsAfter253000(process)
-    return process
-
-def customisePromptRun2B0T(process):
-    process=customiseForRunI(process)
-    process=customisePromptRun2(process)
-    return process
-
-
-##############################################################################
-# Heavy Ions
-##############################################################################
-# keep it in case modification is needed
-def customiseCommonHI(process):
-    return process
-
-##############################################################################
-def customiseExpressHI(process):
-    process = customiseCommonHI(process)
-    process = _swapOfflineBSwithOnline(process)
-    
-    return process
-
-##############################################################################
-def customisePromptHI(process):
-    process = customiseCommonHI(process)
-    process = _swapOfflineBSwithOnline(process)
-
-    process = _addLumiProducer(process)
+    process = _overridesFor50ns(process)
 
     return process
 
@@ -201,6 +177,7 @@ def customisePromptHI(process):
 def customiseRun2CommonHI(process):
     process = customiseDataRun2Common_withStage1(process)
     
+    process = _overridesFor50ns(process)
     # HI Specific additional customizations:
     # from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
     # process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
@@ -208,16 +185,53 @@ def customiseRun2CommonHI(process):
     return process
 
 ##############################################################################
-def customiseRun2ExpressHI(process):
+def customiseCosmicDataRun2Deprecated(process):
+    process = customiseCosmicData(process)
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+##############################################################################
+def customiseExpressRun2Deprecated(process):
+    process = customiseExpress(process)
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customiseExpressRun2Deprecated_50ns(process):
+    process = customiseExpress(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
+    return process
+
+def customiseExpressRun2DeprecatedB0T(process):
+    process=customiseForRunI(process)
+    process=customiseExpressRun2Deprecated(process)
+    return process
+
+##############################################################################
+def customisePromptRun2Deprecated(process):
+    process = customisePrompt(process)
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customisePromptRun2Deprecated_50ns(process):
+    process = customisePrompt(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
+    return process
+
+def customisePromptRun2DeprecatedB0T(process):
+    process=customiseForRunI(process)
+    process=customisePromptRun2Deprecated(process)
+    return process
+
+##############################################################################
+def customiseRun2DeprecatedExpressHI(process):
     process = customiseRun2CommonHI(process)
     process = _swapOfflineBSwithOnline(process)
     
     return process
 
 ##############################################################################
-def customiseRun2PromptHI(process):
+def customiseRun2DeprecatedPromptHI(process):
     process = customiseRun2CommonHI(process)
-    process = _swapOfflineBSwithOnline(process)
 
     process = _addLumiProducer(process)
 
