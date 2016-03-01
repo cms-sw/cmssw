@@ -24,9 +24,13 @@
     40.60*cm, 48.30*cm, 57.60*cm, 68.60*cm, 81.80*cm, 97.50*cm,
     116.20*cm, 130.00*cm
   </Vector>
-  <Vector name="phibin" type="numeric" nEntries="101">
+  <Vector name="phibin" type="numeric" nEntries="100">
     5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
-    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 1.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
     1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
     1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
     1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
