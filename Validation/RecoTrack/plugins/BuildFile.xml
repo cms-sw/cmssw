@@ -29,6 +29,7 @@
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="Validation/RecoTrack"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
+<use   name="DataFormats/VertexReco"/>
 <lib   name="MathMore"/>
 <library   file="*.cc" name="ValidationRecoTrackPlugins">
   <flags   EDM_PLUGIN="1"/>
