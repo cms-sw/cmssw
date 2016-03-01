@@ -174,7 +174,12 @@ def loadTriggerDigiAliases():
                 cms.VPSet(
                 cms.PSet(type = cms.string("L1GlobalTriggerEvmReadoutRecord")),
                 cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord")),
-                cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")))})
+                cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord"))),
+            "simGmtDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1MuGMTReadoutCollection")),
+                cms.PSet(type = cms.string("L1MuGMTCands")))
+            })
     
 
     gmtDigis = cms.EDAlias (
