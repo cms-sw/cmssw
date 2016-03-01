@@ -1937,7 +1937,8 @@ class ConfigBuilder(object):
 			self.renameHLTprocessInSequence(sequence)
 
 		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-		if 'HLT' in self.stepMap.keys():
+	        # not for fastsim
+		if 'HLT' in self.stepMap.keys() and not self._options.fast:
 			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
 			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
 		else:
