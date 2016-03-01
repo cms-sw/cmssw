@@ -99,7 +99,7 @@ namespace edm {
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual bool onDemand_() const override final {return false;}
+      virtual bool onDemandWasNotRun_() const override final {return false;}
       virtual bool productUnavailable_() const override;
 
   };
@@ -129,7 +129,7 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const override;
-    virtual bool onDemand_() const override {return false;}
+    virtual bool onDemandWasNotRun_() const override {return false;}
   };
   
   class UnscheduledProductHolder : public ProducedProductHolder {
@@ -142,7 +142,7 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual bool onDemand_() const override {return status() == ProductStatus::UnscheduledNotRun;}
+      virtual bool onDemandWasNotRun_() const override {return status() == ProductStatus::UnscheduledNotRun;}
   };
 
   // Free swap function
@@ -170,7 +170,7 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
-      virtual bool onDemand_() const override {return realProduct_.onDemand();}
+      virtual bool onDemandWasNotRun_() const override {return realProduct_.onDemandWasNotRun();}
       virtual void resetStatus_() override {realProduct_.resetStatus();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
@@ -215,7 +215,7 @@ namespace edm {
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void swap_(ProductHolderBase& rhs) override;
-      virtual bool onDemand_() const override;
+      virtual bool onDemandWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;

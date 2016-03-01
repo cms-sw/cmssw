@@ -246,7 +246,7 @@ namespace edm {
     for(auto const& prod : *this) {
       if(prod->singleProduct() && // Not a NoProcessProductHolder
          !prod->productUnavailable() &&
-         !prod->onDemand() &&
+         !prod->onDemandWasNotRun() &&
          !prod->branchDescription().dropped()) {
         ++size;
       }
@@ -748,7 +748,7 @@ namespace edm {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
-    if(phb->onDemand()) {
+    if(phb->onDemandWasNotRun()) {
       ProductHolderBase::ResolveStatus status;
       if(not phb->resolveProduct(status,*this,false, nullptr, mcc) ) {
         throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);

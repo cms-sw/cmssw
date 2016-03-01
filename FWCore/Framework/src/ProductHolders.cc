@@ -113,7 +113,6 @@ namespace edm {
 
   void
   InputProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    assert(!product());
     setProduct(std::move(edp));
   }
 
@@ -147,7 +146,7 @@ namespace edm {
   bool
   DataManagingProductHolder::productUnavailable_() const {
     // If unscheduled production, the product is potentially available.
-    if(onDemand()) return false;
+    if(onDemandWasNotRun()) return false;
     // The product is available if and only if a product has been put.
     bool unavailable = !(product() && product()->isPresent());
     return unavailable;
@@ -269,9 +268,9 @@ namespace edm {
     return false;
   }
 
-  bool NoProcessProductHolder::onDemand_() const {
+  bool NoProcessProductHolder::onDemandWasNotRun_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::onDemand_() not implemented and should never be called.\n"
+      << "NoProcessProductHolder::onDemandWasNotRun_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

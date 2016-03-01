@@ -72,8 +72,9 @@ namespace edm {
     // provenance is currently available
     bool provenanceAvailable() const;
 
-    // Scheduled for on demand production
-    bool onDemand() const {return onDemand_();}
+    // Only returns true if the module is unscheduled and was not run
+    //   all other cases return false
+    bool onDemandWasNotRun() const {return onDemandWasNotRun_();}
     
     // Product was deleted early in order to save memory
     bool productWasDeleted() const {return productWasDeleted_();}
@@ -169,7 +170,7 @@ namespace edm {
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const = 0;
     virtual void swap_(ProductHolderBase& rhs) = 0;
-    virtual bool onDemand_() const = 0;
+    virtual bool onDemandWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productWasDeleted_() const = 0;
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
