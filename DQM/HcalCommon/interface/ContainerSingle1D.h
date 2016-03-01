@@ -26,6 +26,7 @@ namespace hcaldqm
 				std::string const& nametitle, 
 				axis::Axis *xaxis,
 				axis::Axis *yaxis = new ValueAxis(fYaxis, axis::fEntries));
+			ContainerSingle1D(ContainerSingle1D const&);
 			virtual ~ContainerSingle1D();
 			
 			virtual void initialize(std::string const& folder, 
