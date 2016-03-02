@@ -6,7 +6,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   muonCollection = cms.InputTag('muons'),
                                                   pfMetCollection = cms.InputTag('pfMet'),
                                                   pfJetCollection = cms.InputTag('ak4PFJets'),
-                                                  jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexBJetTags'),
+                                                  jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexV2BJetTags'),
 
                                                   vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
                                                   conversionCollection = cms.InputTag(''),

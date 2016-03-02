@@ -4,7 +4,7 @@ from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
 #denominator trigger
 hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-      "HLT_PFMET120_* OR HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_* OR HLT_QuadPFJet_VBF* OR HLT_Ele32_eta2p1_* OR HLT_IsoMu24_eta2p1_*"),
+      "HLT_PFMET120_* OR HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_* OR HLT_QuadPFJet_VBF* OR HLT_Ele32_eta2p1_*"),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
     l1tResults = cms.InputTag( "gtDigis" ),
