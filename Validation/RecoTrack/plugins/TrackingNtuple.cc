@@ -75,6 +75,7 @@
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 
 #include <set>
+#include <map>
 
 #include "TTree.h"
 
@@ -111,6 +112,27 @@ namespace {
     const std::set<edm::ProductID>& set_;
   };
   std::ostream& operator<<(std::ostream& os, const ProductIDSetPrinter& o) {
+    o.print(os);
+    return os;
+  }
+  template <typename T>
+  struct ProductIDMapPrinter {
+    ProductIDMapPrinter(const std::map<edm::ProductID, T>& map): map_(map) {}
+
+    void print(std::ostream& os) const {
+      for(const auto& item: map_) {
+        os << item.first << " ";
+      }
+    }
+
+    const std::map<edm::ProductID, T>& map_;
+  };
+  template <typename T>
+  auto make_ProductIDMapPrinter(const std::map<edm::ProductID, T>& map) {
+    return ProductIDMapPrinter<T>(map);
+  }
+  template <typename T>
+  std::ostream& operator<<(std::ostream& os, const ProductIDMapPrinter<T>& o) {
     o.print(os);
     return os;
   }
@@ -196,7 +218,8 @@ private:
                  const TransientTrackingRecHitBuilder& theTTRHBuilder,
                  const MagneticField *theMF,
                  const std::vector<std::pair<int, int> >& monoStereoClusterList,
-                 const std::set<edm::ProductID>& hitProductIds
+                 const std::set<edm::ProductID>& hitProductIds,
+                 std::map<edm::ProductID, size_t>& seedToCollIndex
                  );
 
   void fillTracks(const edm::Handle<edm::View<reco::Track> >& tracks,
@@ -205,7 +228,8 @@ private:
                   const reco::TrackToTrackingParticleAssociator& associatorByHits,
                   const TransientTrackingRecHitBuilder& theTTRHBuilder,
                   const TrackerTopology& tTopo,
-                  const std::set<edm::ProductID>& hitProductIds
+                  const std::set<edm::ProductID>& hitProductIds,
+                  const std::map<edm::ProductID, size_t>& seedToCollIndex
                   );
 
   void fillTrackingParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -426,8 +450,7 @@ private:
   std::vector<std::vector<int> > see_gluedIdx;
   std::vector<std::vector<int> > see_stripIdx;
   //seed algo offset
-  static constexpr unsigned int algo_offset_max = 20;
-  std::vector<int> algo_offset  ;
+  std::vector<unsigned int> see_offset  ;
 
 
   // Vertices
@@ -474,11 +497,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
   includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits"))
 {
-
-  if(seedTokens_.size() > algo_offset_max) {
-    throw cms::Exception("Configuration") << "TrackingNtuple has a hard-coded maximum of " << algo_offset_max << " seed collections, got " << seedTokens_.size() << ". Please increase TrackingNtuple::algo_offset_max";
-  }
-
   edm::Service<TFileService> fs;
   t = fs->make<TTree>("tree","tree");
 
@@ -656,7 +674,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
       t->Branch("see_stripIdx" , &see_stripIdx);
     }
     //seed algo offset
-    t->Branch("algo_offset"  , &algo_offset );
+    t->Branch("see_offset"  , &see_offset );
   }
 
   //vertices
@@ -856,8 +874,7 @@ void TrackingNtuple::clearVariables() {
   see_gluedIdx.clear();
   see_stripIdx.clear();
   //seed algo offset
-  algo_offset .clear();
-  for (unsigned int i=0; i<algo_offset_max; ++i) algo_offset.push_back(-1);
+  see_offset.clear();
 
   // vertices
   vtx_x.clear();
@@ -915,6 +932,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   vector<pair<int, int> > tpStereoList;
 
   std::set<edm::ProductID> hitProductIds;
+  std::map<edm::ProductID, size_t> seedCollToOffset;
 
   ev_run = iEvent.id().run();
   ev_lumi = iEvent.id().luminosityBlock();
@@ -942,13 +960,13 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //seeds
   if(includeSeeds_) {
-    fillSeeds(iEvent, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds);
+    fillSeeds(iEvent, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds, seedCollToOffset);
   }
 
   //tracks
   edm::Handle<edm::View<reco::Track> > tracks;
   iEvent.getByToken(trackToken_, tracks);
-  fillTracks(tracks, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds);
+  fillTracks(tracks, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset);
 
   //tracking particles
   //sort association maps with clusters
@@ -1250,16 +1268,18 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const MagneticField *theMF,
                                const std::vector<std::pair<int, int> >& monoStereoClusterList,
-                               const std::set<edm::ProductID>& hitProductIds
+                               const std::set<edm::ProductID>& hitProductIds,
+                               std::map<edm::ProductID, size_t>& seedCollToOffset
                                ) {
-  int offset = 0;
   TSCBLBuilderNoMaterial tscblBuilder;
   for(const auto& seedToken: seedTokens_) {
     edm::Handle<edm::View<reco::Track> > seedTracks;
     iEvent.getByToken(seedToken, seedTracks);
 
-    reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTracks, TPCollectionH);
+    if(seedTracks->empty())
+      continue;
 
+    reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTracks, TPCollectionH);
 
     edm::EDConsumerBase::Labels labels;
     labelsForToken(seedToken, labels);
@@ -1269,14 +1289,24 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     label.ReplaceAll("Seeds","");
     label.ReplaceAll("muonSeeded","muonSeededStep");
     int algo = reco::TrackBase::algoByName(label.Data());
-    LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks->size() << " algo=" << algo;
-    algo_offset[algo] = offset;
-    int seedCount = 0;
-    for(unsigned int i=0; i<seedTracks->size(); ++i) {
-      auto seedTrackRef = seedTracks->refAt(i);
+
+    edm::ProductID id = (*seedTracks)[0].seedRef().id();
+    auto inserted = seedCollToOffset.emplace(id, see_fitok.size());
+    if(!inserted.second)
+      throw cms::Exception("Configuration") << "Trying to add seeds with ProductID " << id << " for a second time from collection " << labels.module << ", seed algo " << label << ". Typically this is caused by a configuration problem.";
+    see_offset.push_back(see_fitok.size());
+
+    LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks->size() << " algo=" << algo
+                               << " ProductID " << id;
+
+    for(unsigned int iSeed=0; iSeed<seedTracks->size(); ++iSeed) {
+      auto seedTrackRef = seedTracks->refAt(iSeed);
       const auto& seedTrack = *seedTrackRef;
       const auto& seedRef = seedTrack.seedRef();
       const auto& seed = *seedRef;
+
+      if(seedRef.id() != id)
+        throw cms::Exception("LogicError") << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the element 0 had ProductID " << id << " while the element " << iSeed << " had " << seedTrackRef.id() << ". The source collection is " << labels.module << ".";
 
       std::vector<float> sharedFraction;
       std::vector<int> tpIdx;
@@ -1379,7 +1409,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	ge[0] = recHit0->globalPositionError();
 	gp[1] = recHit1->globalPosition();
 	ge[1] = recHit1->globalPositionError();
-        LogTrace("TrackingNtuple") << "seed " << seedCount
+        LogTrace("TrackingNtuple") << "seed " << iSeed
                                    << " pt=" << pt << " eta=" << eta << " phi=" << phi << " q=" << charge
                                    << " - PAIR - ids: " << recHit0->geographicalId().rawId() << " " << recHit1->geographicalId().rawId()
                                    << " hitpos: " << gp[0] << " " << gp[1]
@@ -1413,7 +1443,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	float seed_chi2 = rzLine.chi2(cottheta, intercept);
 	//float seed_pt = state.globalParameters().momentum().perp();
         float seed_pt = pt;
-	LogTrace("TrackingNtuple") << "seed " << seedCount
+	LogTrace("TrackingNtuple") << "seed " << iSeed
                                    << " pt=" << pt << " eta=" << eta << " phi=" << phi << " q=" << charge
                                    << " - TRIPLET - ids: " << recHit0->geographicalId().rawId() << " " << recHit1->geographicalId().rawId() << " " << recHit2->geographicalId().rawId()
                                    << " hitpos: " << gp[0] << " " << gp[1] << " " << gp[2]
@@ -1430,7 +1460,6 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	chi2 = seed_chi2;
       }
       see_chi2   .push_back( chi2 );
-      offset++;
     }
   }
 }
@@ -1441,7 +1470,8 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
                                 const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                 const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                 const TrackerTopology& tTopo,
-                                const std::set<edm::ProductID>& hitProductIds
+                                const std::set<edm::ProductID>& hitProductIds,
+                                const std::map<edm::ProductID, size_t>& seedCollToOffset
                                 ) {
   reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(tracks,TPCollectionH);
   edm::EDConsumerBase::Labels labels;
@@ -1500,7 +1530,15 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
     trk_stopReason.push_back(itTrack->stopReason());
     trk_isHP     .push_back(itTrack->quality(reco::TrackBase::highPurity));
     if(includeSeeds_) {
-      trk_seedIdx  .push_back( algo_offset[itTrack->algo()] + itTrack->seedRef().key() );
+      auto offset = seedCollToOffset.find(itTrack->seedRef().id());
+      if(offset == seedCollToOffset.end()) {
+        throw cms::Exception("Configuration") << "Track algo '" << reco::TrackBase::algoName(itTrack->algo())
+                                              << "' originalAlgo '" << reco::TrackBase::algoName(itTrack->originalAlgo())
+                                              << "' refers to seed collection " << itTrack->seedRef().id()
+                                              << ", but that seed collection is not given as an input. The following collections were given as an input " << make_ProductIDMapPrinter(seedCollToOffset);
+      }
+
+      trk_seedIdx  .push_back( offset->second + itTrack->seedRef().key() );
     }
     trk_simIdx   .push_back(tpIdx);
     LogTrace("TrackingNtuple") << "Track #" << i << " with q=" << charge
