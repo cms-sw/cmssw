@@ -782,8 +782,7 @@ public:
     out_file.close();
   }
 };
-size_t JsonOutputProducer::tab_spaces = 1;
-
+size_t JsonOutputProducer::tab_spaces = 0;
 
 
 bool check_file(std::string const & file) {
