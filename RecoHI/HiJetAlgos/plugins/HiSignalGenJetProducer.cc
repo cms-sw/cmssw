@@ -56,10 +56,6 @@ public:
       // ----------member data ---------------------------
 
    edm::EDGetTokenT<edm::View<reco::GenJet> > jetSrc_;
-   double deltaR_;
-   double ptCut_;
-   bool makeNew_;
-   bool fillDummy_;
 
 };
 
@@ -77,11 +73,7 @@ public:
 //
 
 HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig) :
-  jetSrc_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
-  deltaR_(iConfig.getParameter<double>("deltaR")),
-  ptCut_(iConfig.getParameter<double>("ptCut")),
-  makeNew_(iConfig.getUntrackedParameter<bool>("createNewCollection",true)),
-  fillDummy_(iConfig.getUntrackedParameter<bool>("fillDummyEntries",true))
+  jetSrc_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src")))
 {
   std::string alias = (iConfig.getParameter<InputTag>( "src")).label();
   produces<reco::GenJetCollection>().setBranchAlias (alias);

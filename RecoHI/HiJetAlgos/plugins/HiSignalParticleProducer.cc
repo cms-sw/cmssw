@@ -4,9 +4,7 @@
 // Class:      HiSignalParticleProducer
 // 
 /**\class HiSignalParticleProducer HiSignalParticleProducer.cc yetkin/HiSignalParticleProducer/src/HiSignalParticleProducer.cc
-
  Description: <one line class summary>
-
  Implementation:
      <Notes on implementation>
 */
@@ -49,18 +47,14 @@ using namespace edm;
 
 class HiSignalParticleProducer : public edm::EDProducer {
 public:
-      explicit HiSignalParticleProducer(const edm::ParameterSet&);
-      ~HiSignalParticleProducer();
+  explicit HiSignalParticleProducer(const edm::ParameterSet&);
+  ~HiSignalParticleProducer();
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      // ----------member data ---------------------------
+private:
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  // ----------member data ---------------------------
 
-   edm::EDGetTokenT<edm::View<reco::GenParticle> > jetSrc_;
-   double deltaR_;
-   double ptCut_;
-   bool makeNew_;
-   bool fillDummy_;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticleSrc_;
 
 };
 
@@ -78,11 +72,7 @@ public:
 //
 
 HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iConfig) :
-  jetSrc_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src"))),
-  deltaR_(iConfig.getParameter<double>("deltaR")),
-  ptCut_(iConfig.getParameter<double>("ptCut")),
-  makeNew_(iConfig.getUntrackedParameter<bool>("createNewCollection",true)),
-  fillDummy_(iConfig.getUntrackedParameter<bool>("fillDummyEntries",true))
+  genParticleSrc_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src")))
 {
   std::string alias = (iConfig.getParameter<InputTag>( "src")).label();
   produces<reco::GenParticleCollection>().setBranchAlias (alias);
@@ -90,8 +80,8 @@ HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iCon
 
 HiSignalParticleProducer::~HiSignalParticleProducer()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -104,41 +94,39 @@ HiSignalParticleProducer::~HiSignalParticleProducer()
 void
 HiSignalParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   using namespace reco;
+  using namespace edm;
+  using namespace reco;
 
-   auto_ptr<GenParticleCollection> jets;
-   jets = auto_ptr<GenParticleCollection>(new GenParticleCollection);
+  auto_ptr<GenParticleCollection> signalGenParticles;
+  signalGenParticles = auto_ptr<GenParticleCollection>(new GenParticleCollection);
    
-   edm::Handle<edm::View<GenParticle> > genjets;
-   iEvent.getByToken(jetSrc_,genjets);
+  edm::Handle<edm::View<GenParticle> > genParticles;
+  iEvent.getByToken(genParticleSrc_,genParticles);
 
-   int jetsize = genjets->size();
+  int genParticleSize = genParticles->size();
 
-   vector<int> selection;
-   for(int ijet = 0; ijet < jetsize; ++ijet){
-      selection.push_back(-1);
-   }
+  vector<int> selection;
+  for(int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle){
+    selection.push_back(-1);
+  }
 
-   vector<int> selectedIndices;
-   vector<int> removedIndices;
+  vector<int> selectedIndices;
+  vector<int> removedIndices;
 
-   for(int ijet = 0; ijet < jetsize; ++ijet){
+  for(int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle){
 
-     const GenParticle* jet1 = &((*genjets)[ijet]);
-     if(jet1->collisionId() == 0){
-       jets->push_back(*jet1);
-       selection[ijet] = 1;
-     }else{
-       selection[ijet] = 0;
-       removedIndices.push_back(ijet);
-     }
-   }
+    const GenParticle* genParticle = &((*genParticles)[igenParticle]);
+    if(genParticle->collisionId() == 0){
+      signalGenParticles->push_back(*genParticle);
+      selection[igenParticle] = 1;
+    }else{
+      selection[igenParticle] = 0;
+      removedIndices.push_back(igenParticle);
+    }
+  }
 
-   iEvent.put(jets);
+  iEvent.put(signalGenParticles);
 
 }
 
 DEFINE_FWK_MODULE(HiSignalParticleProducer);
-
-
