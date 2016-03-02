@@ -69,6 +69,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         'EDAnalyzer' : { },
         'EDFilter'   : {
             'HLTMuonL1Filter' : 'HLTMuonL1TFilter',
+            'HLTEgammaL1MatchFilterRegional' : 'HLTEgammaL1TMatchFilterRegional',
             },
         'EDProducer' : {
             'CaloTowerCreatorForTauHLT' : 'CaloTowerFromL1TCreatorForTauHLT',
@@ -119,14 +120,14 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
 #   replace remaining l1extra modules with filter returning 'false'
     badTypes = (
-                'HLTEgammaL1MatchFilterRegional',
+#               'HLTEgammaL1MatchFilterRegional',
 #               'HLTEcalRecHitInAllL1RegionsProducer',
 #               'EgammaHLTCaloTowerProducer',
-                'HLTMuonL1Filter',
+#               'HLTMuonL1Filter',
                 'HLTL1MuonSelector',
                 'L2MuonSeedGenerator',
-                'CaloTowerCreatorForTauHLT',
-                'HLTPFJetL1MatchProducer',
+#               'CaloTowerCreatorForTauHLT',
+#               'HLTPFJetL1MatchProducer',
                 'IsolatedPixelTrackCandidateProducer',
                 'HLTPixelIsolTrackFilter',
                 'HLTLevel1Activity',
@@ -136,11 +137,11 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
         label = module._Labelable__label
         setattr(getattr(process,label).l1InputRegions[0],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
-        setattr(getattr(process,label).l1InputRegions[0],'type',cms.string("L1T::EGamma"))
+        setattr(getattr(process,label).l1InputRegions[0],'type',cms.string("EGamma"))
         setattr(getattr(process,label).l1InputRegions[1],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
-        setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("L1T::EGamma"))
+        setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("EGamma"))
         setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis:Jet'))
-        setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("L1T::Jet"))
+        setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("Jet"))
 
 #
 #   One of the EgammaHLTCaloTowerProducer instances need InputTag fixes
