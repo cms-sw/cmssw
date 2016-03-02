@@ -264,6 +264,8 @@ float EcalClusterLazyToolsBase::eseffsirir(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
+  if (!ecalPS_topology_) return 0.;
+
   std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 1);
   std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 2);
   float phoESShapeIXIX = getESShape(phoESHitsIXIX);
@@ -277,6 +279,8 @@ float EcalClusterLazyToolsBase::eseffsixix(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
+  if (!ecalPS_topology_) return 0.;
+
   std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 1);
   float phoESShapeIXIX = getESShape(phoESHitsIXIX);
 
@@ -287,6 +291,8 @@ float EcalClusterLazyToolsBase::eseffsixix(const reco::SuperCluster &cluster)
 float EcalClusterLazyToolsBase::eseffsiyiy(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
+
+  if (!ecalPS_topology_) return 0.;
 
   std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 2);
   float phoESShapeIYIY = getESShape(phoESHitsIYIY);
