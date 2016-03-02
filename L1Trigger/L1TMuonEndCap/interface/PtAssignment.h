@@ -1023,7 +1023,7 @@ float CalculatePt(L1TMuon::InternalTrack track , const edm::EventSetup& es){///a
       int coord[5] = {586,686,815,924,1013};///add this bobby
       for(int i=0;i<5;i++){///add this bobby
 
-        if((glc.z() < (coord[i] + 7)) && (glc.z() > (coord[i] - 7)))///add this bobby
+        if((fabs(glc.z()) < (coord[i] + 7)) && (fabs(glc.z()) > (coord[i] - 7)))///add this bobby
           FR_ = 1;///add this bobby
                 
         FR[s-8] = FR_;
