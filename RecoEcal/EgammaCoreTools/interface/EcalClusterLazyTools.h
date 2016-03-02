@@ -78,7 +78,7 @@ class EcalClusterLazyToolsBase {
   
   edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_, esRHToken_;
 
-  std::unique_ptr<CaloSubdetectorTopology> ecalPS_topology_;
+  std::shared_ptr<CaloSubdetectorTopology> ecalPS_topology_;
 
   //const EcalIntercalibConstantMap& icalMap;
   edm::ESHandle<EcalIntercalibConstants> ical;
