@@ -26,32 +26,15 @@ namespace hcaldqm
 	/* virtual */ void DQTask::analyze(edm::Event const& e,
 		edm::EventSetup const& es)
 	{
-		try
-		{
-			this->_resetMonitors(fEvent);
-			_logger.debug(_name+" processing");
-			if (!this->_isApplicable(e))
-				return;
+		this->_resetMonitors(fEvent);
+		_logger.debug(_name+" processing");
+		if (!this->_isApplicable(e))
+			return;
 
-			_evsTotal++; _cEvsTotal.fill(_evsTotal);
-			_evsPerLS++; _cEvsPerLS.fill(_evsPerLS);
-			_currentLS = e.luminosityBlock();
-			this->_process(e, es);
-		}
-		catch (cms::Exception &exc)
-		{
-			_logger.warn("We have cms::Exception Triggered. " +
-				std::string(exc.what()));
-		}
-		catch (std::exception &exc)
-		{
-			_logger.warn("we have STD Exception Triggered. " +
-				std::string(exc.what()));
-		}
-		catch (...)
-		{
-			_logger.warn("Unknown Exception Triggered");
-		}
+		_evsTotal++; _cEvsTotal.fill(_evsTotal);
+		_evsPerLS++; _cEvsPerLS.fill(_evsPerLS);
+		_currentLS = e.luminosityBlock();
+		this->_process(e, es);
 	}
 
 	/* virtual */ void DQTask::bookHistograms(DQMStore::IBooker &ib,
