@@ -504,7 +504,7 @@ def customizeHLTforMC(process,_fastSim=False):
 # muon seeds
     import FastSimulation.HighLevelTrigger.full2fast as full2fast
     if hasattr(fastsim,"hltL3TrajSeedOIHit"):
-    full2fast.modify_hltL3TrajSeedOIHit(fastsim.hltL3TrajSeedOIHit)
+      full2fast.modify_hltL3TrajSeedOIHit(fastsim.hltL3TrajSeedOIHit)
     if hasattr(fastsim,"hltL3NoFiltersTrajSeedOIHit"):
       full2fast.modify_hltL3TrajSeedOIHit(fastsim.hltL3NoFiltersTrajSeedOIHit)
     if hasattr(fastsim,"hltL3TrajSeedIOHit"):
