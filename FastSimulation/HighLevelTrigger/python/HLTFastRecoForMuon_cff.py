@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # TODO: clean this up, move to FastSimulation/Muons
 
-# L3 regional reconstruction
-from FastSimulation.Muons.L3Muons_cff import *
-
 import FastSimulation.Muons.TSGFromL2_cfi as TSG
 from FastSimulation.Muons.TSGFromL2_cfi import OIHitPropagators as OIHProp
 hltL3TrajSeedOIHit = TSG.l3seeds("OIHitCascade")
