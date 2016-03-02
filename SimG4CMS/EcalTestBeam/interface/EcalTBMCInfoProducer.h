@@ -7,7 +7,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,12 +26,12 @@
 #include <fstream>
 #include <vector>
 
-class EcalTBMCInfoProducer: public edm::EDProducer{
+class EcalTBMCInfoProducer: public edm::stream::EDProducer{
   
  public:
   
   /// Constructor
-  EcalTBMCInfoProducer(const edm::ParameterSet& ps);
+  explicit EcalTBMCInfoProducer(const edm::ParameterSet& ps);
   
   /// Destructor
   virtual ~EcalTBMCInfoProducer();
@@ -39,13 +39,6 @@ class EcalTBMCInfoProducer: public edm::EDProducer{
   /// Produce digis out of raw data
   void produce(edm::Event & event, const edm::EventSetup& eventSetup);
   
-  // BeginJob
-  //void beginJob();
-  
-  // EndJob
-  //void endJob(void);
-  
-
 private:
 
   double beamEta;

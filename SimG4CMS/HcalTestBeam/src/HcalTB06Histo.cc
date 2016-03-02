@@ -22,12 +22,13 @@
  
 //
 // constructors and destructor
-HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) :
-  iniE(0),  iEta(0), iPhi(0), edepS(0), edecS(0), edhcS(0), edehS(0) {
+HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) 
+{
 
   verbose    = ps.getUntrackedParameter<bool>("Verbose", false);
   double em1 = ps.getUntrackedParameter<double>("ETtotMax", 400.);
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
+  ebeam = 50.;
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -41,6 +42,9 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) :
   edepS= tfile->make<TH1D>("edepS", "Energy deposit == Total",4000, 0., em1);
   edecS= tfile->make<TH1D>("edecS", "Energy deposit == ECal ",4000, 0., em1);
   edhcS= tfile->make<TH1D>("edhcS", "Energy deposit == HCal ",4000, 0., em2);
+  edepN= tfile->make<TH1D>("edepN", "Etot/Ebeam   ", 200, -2.5, 2.5);
+  edecN= tfile->make<TH1D>("edecN", "Eecal/Ebeam  ", 200, -2.5, 2.5);
+  edhcN= tfile->make<TH1D>("edhcN", "Ehcal/Ebeam  ", 200, -2.5, 2.5);
   edehS= tfile->make<TH2D>("edehS", "Hcal vs Ecal", 100,0.,em1, 100, 0.,em2);
 }
  
@@ -54,6 +58,7 @@ void HcalTB06Histo::fillPrimary(double energy, double eta, double phi) {
 
   LogDebug("HcalTBSim") << "HcalTB06Histo::fillPrimary: Energy " 
 			<< energy << " Eta " << eta << " Phi " << phi;
+  ebeam = energy;
   iniE->Fill(energy);
   iEta->Fill(eta);
   iPhi->Fill(phi);
@@ -66,5 +71,8 @@ void HcalTB06Histo::fillEdep(double etots, double eecals, double ehcals) {
   edepS->Fill(etots);
   edecS->Fill(eecals);
   edhcS->Fill(ehcals);
+  edepN->Fill(etots/ebeam);
+  edecN->Fill(eecals/ebeam);
+  edhcN->Fill(ehcals/ebeam);
   edehS->Fill(eecals, ehcals);
 }
