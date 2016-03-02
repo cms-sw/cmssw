@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V18 (CMSSW_8_0_0)
+# /dev/CMSSW_8_0_0/HIon/V19 (CMSSW_8_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V19')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -11929,6 +11929,15 @@ process.hltPreAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
+process.hltL1TGlobalSummary = cms.EDAnalyzer( "L1TGlobalSummary",
+    ExtInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    MaxBx = cms.int32( 0 ),
+    DumpRecord = cms.bool( False ),
+    AlgInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    MinBx = cms.int32( 0 ),
+    DumpTrigResults = cms.bool( False ),
+    DumpTrigSummary = cms.bool( True )
+)
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
     ReferenceRate = cms.untracked.double( 100.0 ),
@@ -13163,7 +13172,7 @@ process.AlCa_RPCMuonNormalisationForHI_v1 = cms.Path( process.HLTBeginSequence +
 process.AlCa_LumiPixels_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreAlCaLumiPixelsRandom + process.hltFEDSelectorLumiPixels + process.HLTEndSequence )
 process.AlCa_LumiPixels_ZeroBias_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreAlCaLumiPixelsZeroBias + process.hltFEDSelectorLumiPixels + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreAnalyzerEndpath + process.hltTrigReport )
+process.HLTAnalyzerEndpath = cms.EndPath( process.HLTL1UnpackerSequence + process.hltPreAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.HIPhysicsMuonsOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreHIPhysicsMuonsOutput + process.hltOutputHIPhysicsMuons )
 process.HIPhysicsHardProbesOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreHIPhysicsHardProbesOutput + process.hltOutputHIPhysicsHardProbes )
 process.HIPhysicsMinBiasUPCOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreHIPhysicsMinBiasUPCOutput + process.hltOutputHIPhysicsMinBiasUPC )
@@ -13256,6 +13265,7 @@ if 'GlobalTag' in process.__dict__:
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('L1TGlobalSummary')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
 

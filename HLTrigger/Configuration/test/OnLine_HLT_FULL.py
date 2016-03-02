@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V32 (CMSSW_8_0_0)
+# /dev/CMSSW_8_0_0/HLT/V35 (CMSSW_8_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V32')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V35')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -73083,6 +73083,15 @@ process.hltPreAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
+process.hltL1TGlobalSummary = cms.EDAnalyzer( "L1TGlobalSummary",
+    ExtInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    MaxBx = cms.int32( 0 ),
+    DumpRecord = cms.bool( False ),
+    AlgInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    MinBx = cms.int32( 0 ),
+    DumpTrigResults = cms.bool( False ),
+    DumpTrigSummary = cms.bool( True )
+)
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
     ReferenceRate = cms.untracked.double( 100.0 ),
@@ -78602,7 +78611,7 @@ process.AlCa_EcalPi0EBonly_v3 = cms.Path( process.HLTBeginSequence + process.hlt
 process.AlCa_EcalEtaEBonly_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0Eta + process.hltPreAlCaEcalEtaEBonly + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaEtaRecHitsFilterEBonlyRegional + process.hltAlCaEtaEBUncalibrator + process.hltAlCaEtaEBRechitsToDigis + process.HLTEndSequence )
 process.AlCa_EcalEtaEEonly_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0Eta + process.hltPreAlCaEcalEtaEEonly + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaEtaRecHitsFilterEEonlyRegional + process.hltAlCaEtaEEUncalibrator + process.hltAlCaEtaEERechitsToDigis + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreAnalyzerEndpath + process.hltTrigReport )
+process.HLTAnalyzerEndpath = cms.EndPath( process.HLTL1UnpackerSequence + process.hltPreAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.RatesMonitoring = cms.EndPath( process.hltGtStage2Digis + process.hltPreRatesMonitoring + process.hltTriggerRatesMonitor + process.hltTriggerJSONMonitoring )
 process.PhysicsEGammaCommissioningOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsEGammaCommissioningOutput + process.hltOutputPhysicsEGammaCommissioning )
 process.PhysicsEndOfFillOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsEndOfFillOutput + process.hltOutputPhysicsEndOfFill )
@@ -78712,6 +78721,7 @@ if 'GlobalTag' in process.__dict__:
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('L1TGlobalSummary')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
 
