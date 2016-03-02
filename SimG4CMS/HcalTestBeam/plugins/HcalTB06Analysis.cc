@@ -111,7 +111,6 @@ void HcalTB06Analysis::endJob()
 
 void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 {
-  G4cout << "New Event# " << count << G4endl;
   ++count;
 
   //Beam Information
@@ -139,12 +138,6 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     ne = EcalHits->size();
     for (unsigned int i=0; i<ne; ++i) {
       EBDetId ecalid((*EcalHits)[i].id());
-      G4cout << "Ecal hit E= " << (*EcalHits)[i].energy()
-	     << "  id= " << (*EcalHits)[i].id()
-	     << "  time= " << (*EcalHits)[i].time()
-	     << "  ieta= " << ecalid.ieta() 
-	     << "  iphi= " << ecalid.iphi()
-	     << G4endl;
       if(std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 &&
       	 std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
 	 (*EcalHits)[i].time() < m_timeLimit) {
@@ -160,13 +153,6 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     nh = HcalHits->size();
     for (unsigned int i=0; i<nh; ++i) {
       HcalDetId hcalid((*HcalHits)[i].id());
-      G4cout << "Hcal hit E= " << (*HcalHits)[i].energy()
-	     << "  id= " << (*HcalHits)[i].id()
-	     << "  depth= " << (*HcalHits)[i].depth()
-	     << "  time= " << (*HcalHits)[i].time() 
-	     << "  ieta= " << hcalid.ieta() 
-	     << "  iphi= " << hcalid.iphi()
-	     << G4endl;
       if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
       	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
 	 (*HcalHits)[i].time() < m_timeLimit) {
@@ -179,11 +165,6 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     ehcals *= m_factHcal;
   }
   double etots = eecals + ehcals;
-  std::cout  << "HcalTB06Analysis:: Etot(MeV)= " << etots 
-	     << "   E(Ecal)= " << eecals 
-	     << "   E(Hcal)= " << ehcals
-	     << "  Nhits(ECAL)= " << ne 
-	     << "  Nhits(HCAL)= " << nh << std::endl;
   LogDebug("HcalTBSim") << "HcalTB06Analysis:: Etot(MeV)= " << etots 
 			<< "   E(Ecal)= " << eecals 
 			<< "   E(Hcal)= " << ehcals
