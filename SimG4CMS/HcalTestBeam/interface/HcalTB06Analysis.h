@@ -23,7 +23,7 @@
   
 class HcalTB06Histo;
 
-class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class HcalTB06Analysis : public edm::one::EDAnalyzer<>
 {
 public:
 

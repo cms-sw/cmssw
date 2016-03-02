@@ -138,6 +138,7 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     ne = EcalHits->size();
     for (unsigned int i=0; i<ne; ++i) {
       EBDetId ecalid((*EcalHits)[i].id());
+      // 7x7 crystal selection
       if(std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 &&
       	 std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
 	 (*EcalHits)[i].time() < m_timeLimit) {
@@ -153,6 +154,7 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     nh = HcalHits->size();
     for (unsigned int i=0; i<nh; ++i) {
       HcalDetId hcalid((*HcalHits)[i].id());
+      // 3x3 towers selection
       if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
       	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
 	 (*HcalHits)[i].time() < m_timeLimit) {
