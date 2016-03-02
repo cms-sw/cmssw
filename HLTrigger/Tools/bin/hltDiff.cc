@@ -39,7 +39,7 @@ void usage(std::ostream & out) {
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
                [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-q|--quiet] [-v|--verbose] [-h|--help]\n\
+               [-d|--debug] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
@@ -68,8 +68,8 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
       produce comparison results in a JSON format and store it to the specified file\n\
       default filename: 'hltDiff_output.json'\n\
 \n\
-  -q|--quiet\n\
-      suppress messages about missing events and collectiions\n\
+  -d|--debug\n\
+      display messages about missing events and collectiions\n\
 \n\
   -v|--verbose LEVEL\n\
       set verbosity level:\n\
@@ -805,7 +805,7 @@ bool check_files(std::vector<std::string> const & files) {
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
              unsigned int max_events, bool ignore_prescales, std::string const & json_out,
-             unsigned int verbose, bool quiet) {
+             unsigned int verbose, bool debug) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
@@ -855,7 +855,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     // seek the same event in the "new" files
     edm::EventID const& id = old_events->id();
     if (new_events != old_events and not new_events->to(id)) {
-      if (not quiet)
+      if (debug)
         std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
       ++skipped;
       continue;
@@ -868,7 +868,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     if (old_results_h.isValid())
       old_results = old_results_h.product();
     else {
-      if (not quiet)
+      if (debug)
         std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'old' TriggerResults not found, skipping." << std::endl;
       continue;
     }
@@ -885,7 +885,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     if (new_results_h.isValid())
       new_results = new_results_h.product();
     else {
-      if (not quiet)
+      if (debug)
         std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'new' TriggerResults not found, skipping." << std::endl;
       continue;
     }
@@ -1053,8 +1053,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "o:O:n:N:m:pj::qv::h";
+  const char optstring[] = "do:O:n:N:m:pj::v::h";
   const option longopts[] = {
+    option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "old-files",    required_argument,  nullptr, 'o' },
     option{ "old-process",  required_argument,  nullptr, 'O' },
     option{ "new-files",    required_argument,  nullptr, 'n' },
@@ -1062,7 +1063,6 @@ int main(int argc, char ** argv) {
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
     option{ "json-output",  optional_argument,  nullptr, 'j' },
-    option{ "quiet",        no_argument,        nullptr, 'q' },
     option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
@@ -1075,13 +1075,17 @@ int main(int argc, char ** argv) {
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
   std::string               json_out("");
-  bool                      quiet = false;
+  bool                      debug = false;
   unsigned int              verbose = 0;
 
   // parse the command line options
   int c = -1;
   while ((c = getopt_long(argc, argv, optstring, longopts, nullptr)) != -1) {
     switch (c) {
+      case 'd':
+        debug = true;
+        break;
+
       case 'o':
         old_files.emplace_back(optarg);
         while (optind < argc) {
@@ -1121,17 +1125,13 @@ int main(int argc, char ** argv) {
       case 'j':
         if (optarg) {
           json_out = optarg;
-      	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-      	  // workaround for a bug in getopt which doesn't allow space before optional arguments
-      	  const char *tmp_optarg = argv[optind++];
-      	  json_out = tmp_optarg;
+        } else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+          // workaround for a bug in getopt which doesn't allow space before optional arguments
+          const char *tmp_optarg = argv[optind++];
+          json_out = tmp_optarg;
         } else {
           json_out = "hltDiff_output.json";
         }
-        break;
-
-      case 'q':
-        quiet = true;
         break;
 
       case 'v':
@@ -1166,7 +1166,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, verbose, quiet);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, verbose, debug);
 
   return 0;
 }
