@@ -50,6 +50,20 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         from HLTrigger.Configuration.CustomConfigs import L1TGRun
         process = L1TGRun(process)
 
+#
+# special treatment
+    for module in producers_by_type(process,'L1TGlobalProducer'):
+        label = module._Labelable__label
+        if hasattr(getattr(process,label),'CaloInputTag'):
+            delattr(getattr(process,label),'CaloInputTag')
+        if hasattr(getattr(process,label),'GmtInputTag'):
+            delattr(getattr(process,label),'GmtInputTag')
+        setattr(getattr(process,label),'MuonInputTag',cms.InputTag("hltGmtStage2Digis","Muon"))
+        setattr(getattr(process,label),'EtSumInputTag',cms.InputTag("hltCaloStage2Digis","EtSum"))
+        setattr(getattr(process,label),'EGammaInputTag',cms.InputTag("hltCaloStage2Digis","EGamma"))
+        setattr(getattr(process,label),'TauInputTag',cms.InputTag("hltCaloStage2Digis","Tau"))
+        setattr(getattr(process,label),'JetInputTag',cms.InputTag("hltCaloStage2Digis","Jet"))
+#
 #   replace converted l1extra=>l1t plugins which are not yet in ConfDB
     replaceList = {
         'EDAnalyzer' : { },
@@ -91,9 +105,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
                     print '# Instance: ',label
                     setattr(process,label,cms.EDProducer(new,**module.parameters_()))
                     if (new == 'CaloTowerFromL1TCreatorForTauHLT'):
-                        setattr(getattr(process,label),'TauTrigger',cms.InputTag('hltCaloStage2Digis'))
+                        setattr(getattr(process,label),'TauTrigger',cms.InputTag('hltCaloStage2Digis:Tau'))
                     if ((new == 'HLTCaloJetL1TMatchProducer') or (new == 'HLTPFJetL1TMatchProducer')):
-                        setattr(getattr(process,label),'L1Jets',cms.InputTag('hltCaloStage2Digis'))
+                        setattr(getattr(process,label),'L1Jets',cms.InputTag('hltCaloStage2Digis:Jet'))
                         if hasattr(getattr(process,label),'L1CenJets'):
                             delattr(getattr(process,label),'L1CenJets')
                         if hasattr(getattr(process,label),'L1ForJets'):
@@ -106,26 +120,33 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #   replace remaining l1extra modules with filter returning 'false'
     badTypes = (
                 'HLTEgammaL1MatchFilterRegional',
-                'HLTEcalRecHitInAllL1RegionsProducer',
-                'EgammaHLTCaloTowerProducer',
+#               'HLTEcalRecHitInAllL1RegionsProducer',
+#               'EgammaHLTCaloTowerProducer',
                 'HLTMuonL1Filter',
                 'HLTL1MuonSelector',
                 'L2MuonSeedGenerator',
                 'CaloTowerCreatorForTauHLT',
                 'HLTPFJetL1MatchProducer',
                 'IsolatedPixelTrackCandidateProducer',
+                'HLTPixelIsolTrackFilter',
                 'HLTLevel1Activity',
                 )
+#
 #   Both of the HLTEcalRecHitInAllL1RegionsProducer instances need InputTag fixes
-#    for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
-#        label = module._Labelable__label
-#        setattr(getattr(process,label).l1InputRegions[0],'inputColl',cms.InputTag('hltCaloStage2Digis'))
-#        setattr(getattr(process,label).l1InputRegions[1],'inputColl',cms.InputTag('hltCaloStage2Digis'))
-#        setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis'))
+    for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
+        label = module._Labelable__label
+        setattr(getattr(process,label).l1InputRegions[0],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
+        setattr(getattr(process,label).l1InputRegions[0],'type',cms.string("L1T::EGamma"))
+        setattr(getattr(process,label).l1InputRegions[1],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
+        setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("L1T::EGamma"))
+        setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis:Jet'))
+        setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("L1T::Jet"))
+
+#
 #   One of the EgammaHLTCaloTowerProducer instances need InputTag fixes
-#    if hasattr(process,'hltRegionalTowerForEgamma'):
-#        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1NonIsoCand',cms.InputTag('hltCaloStage2Digis'))
-#        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand',cms.InputTag('hltCaloStage2Digis'))
+    if hasattr(process,'hltRegionalTowerForEgamma'):
+        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1NonIsoCand',cms.InputTag('hltCaloStage2Digis:EGamma'))
+        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand'   ,cms.InputTag('hltCaloStage2Digis:EGamma'))
 
     print " "
     print "# Unconverted module types: ",badTypes

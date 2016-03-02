@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V17 (CMSSW_8_0_0)
+# /dev/CMSSW_8_0_0/GRun/V18 (CMSSW_8_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V17')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V18')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -9475,7 +9475,7 @@ process.hltL1fL1sL1DoubleMu10MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -14550,7 +14550,7 @@ process.hltL1fDimuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2MuonCandidatesNoVtx = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( "hltL2Muons" )
@@ -15462,7 +15462,7 @@ process.hltL1fL1sL1DoubleMu0er16ORL1DoubleMu10MuOpenL1Filtered0 = cms.EDFilter( 
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1DoubleMu0er16ORL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -17654,7 +17654,7 @@ process.hltL1fL1DoubleMu0L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fDoubleMu2L2PreFiltered2 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -17762,7 +17762,7 @@ process.hltL1fMu7p5TrackFiltered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fMu7p5TrackL2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -18644,7 +18644,7 @@ process.hltL1fL1sL1DoubleMu0er16NoOSL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1DoubleMu0er16NoOSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -18715,7 +18715,7 @@ process.hltL1fL1sL1DoubleMu0er16OSL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter"
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1DoubleMu0er16OSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -23627,7 +23627,7 @@ process.hltL1fL1sMu14erETM30L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu14erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -23710,7 +23710,7 @@ process.hltL1fL1sMu10erETM30L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu10erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -24564,7 +24564,7 @@ process.hltL1fL1sSingleMu16erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu16erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -24674,7 +24674,7 @@ process.hltL1fL1sMu16erTauJet20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16erTauJet20erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -24873,7 +24873,7 @@ process.hltL1fL1sMu16erIsoTau36erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16erIsoTau36erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -25152,7 +25152,7 @@ process.hltL1fL1sDoubleMu125L1Filtered16er = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 16.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.1 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sDoubleMu125L1f16erL2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -25275,7 +25275,7 @@ process.hltL1fL1sMu16L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -25579,7 +25579,7 @@ process.hltL1fL1sMu16erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -25709,7 +25709,7 @@ process.hltL1fL1sMu20L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu20L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -25869,7 +25869,7 @@ process.hltL1fL1sMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu25L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -28501,7 +28501,7 @@ process.hltL1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltPreL1SingleMuOpenDT = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28513,7 +28513,7 @@ process.hltL1MuOpenL1FilteredDT = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.25 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL1sL1TechDTGlobalOR = cms.EDFilter( "HLTL1TSeed",
     SaveTags = cms.bool( False ),
@@ -28541,7 +28541,7 @@ process.hltL1fL1sDoubleMu103p5ORDoubleMu125L1Filtered0 = cms.EDFilter( "HLTMuonL
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -28687,7 +28687,7 @@ process.hltL1fL1sMuOpenNotBptxORL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltDt4DSegmentsMeanTimer = cms.EDProducer( "DTRecSegment4DProducer",
     debug = cms.untracked.bool( False ),
@@ -29261,7 +29261,7 @@ process.hltL1fL1sDoubleMu103p5L1OneMuFiltered0 = cms.EDFilter( "HLTMuonL1TFilter
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sDoubleMu103p5L1f0OneMuL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -30541,7 +30541,7 @@ process.hltL1fL1sMu16orMu20erorMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16orMu20erorMu25L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -30641,7 +30641,7 @@ process.hltL1fL1sMu16orMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16orMu25L1f0L2Filtered25 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -30801,7 +30801,7 @@ process.hltL1fL1sMu16erorMu20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu16erorMu20erL1f0L2Filtered16Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -30985,7 +30985,7 @@ process.hltL1fL1sMu20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu20Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -31161,7 +31161,7 @@ process.hltL1fL1sMu5EG20L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu5EG20L1f5L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -33838,7 +33838,7 @@ process.hltPFMET120Mu5L1MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltPFMET120Mu5L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -37075,7 +37075,7 @@ process.hltL1fL1sMu5L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu5L1f0L2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -37149,7 +37149,7 @@ process.hltL1fL1sMu12L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu12L1f0L2Filtered12 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -39502,7 +39502,7 @@ process.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -39772,7 +39772,7 @@ process.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -40042,7 +40042,7 @@ process.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilt
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -40312,7 +40312,7 @@ process.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilt
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -40716,7 +40716,7 @@ process.hltMu8DiEle12CaloIdLTrackIdLMuonlegL1Filtered0 = cms.EDFilter( "HLTMuonL
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu8DiEle12CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -40924,7 +40924,7 @@ process.hltL1fL1sMu5EG20ORL1Mu20EG10L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilte
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1Mu5EG20ORL1Mu20EG10L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41052,7 +41052,7 @@ process.hltL1fL1sMu5IsoEG18L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sL1Mu5IsoEG18L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41424,7 +41424,7 @@ process.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL1Filtered0 = cms.EDFilter( "HLTMuonL1
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41632,7 +41632,7 @@ process.hltL1TripleMu553L1TriMuFiltered3 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 3.0 ),
     MinN = cms.int32( 3 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL1TripleMu553L2TriMuFiltered3 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41739,7 +41739,7 @@ process.hltMu3erPFHT140PFMET125MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu3erPFHT140PFMET125L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41828,7 +41828,7 @@ process.hltMu6PFHT200PFMET100MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu6PFHT200PFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -41903,7 +41903,7 @@ process.hltMu14erPFMET100MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMu14erPFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -44564,7 +44564,7 @@ process.hltTripleMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 3 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltTripleMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -44732,7 +44732,7 @@ process.hltQuadMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 4 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltQuadMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -46942,7 +46942,7 @@ process.hltDimuon8L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltDimuon8L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -47001,7 +47001,7 @@ process.hltMuon8L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltMuon8L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( False ),
@@ -47469,7 +47469,7 @@ process.hltL1fL1sMu0L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu0L1f0L2Filtered3Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -48023,7 +48023,7 @@ process.hltL1fL1sSingleMu6L1Filtered6 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 6.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu6L1f6L2Filtered6Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -48124,7 +48124,7 @@ process.hltL1fL1sSingleMuOpenCandidateL1Filtered0 = cms.EDFilter( "HLTMuonL1TFil
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMuOpenCandidateL1f0L2Filtered0Q = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -48565,7 +48565,7 @@ process.hltL1fL1sMu14erorMu16L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2fL1sMu14erorMu16L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -50772,7 +50772,7 @@ process.hltDimuon3L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltDimuon3L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -51221,7 +51221,7 @@ process.hltHIL1DoubleMuOpenFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltPreHIL2Mu3BPTX = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -51233,7 +51233,7 @@ process.hltHIL1SingleMuOpenFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltHIL2Mu3BPTXL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -53940,7 +53940,7 @@ process.hltRPCMuonNoTriggersL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.6 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltPreAlCaRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53978,7 +53978,7 @@ process.hltRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.6 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltPreAlCaLumiPixelsRandom = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -55520,7 +55520,7 @@ process.hltL1fL1sDoubleMu0HighQL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltL2pfL1sDoubleMu0L1f0L2doubleMu = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),

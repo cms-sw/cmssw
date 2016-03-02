@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V17 (CMSSW_8_0_0)
+# /dev/CMSSW_8_0_0/PIon/V18 (CMSSW_8_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V17')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V18')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -4864,7 +4864,7 @@ fragment.hltL1fL1sMu16orMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     useStandardFEDid = cms.bool( True ),

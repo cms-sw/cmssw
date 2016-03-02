@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V17 (CMSSW_8_0_0)
+# /dev/CMSSW_8_0_0/PRef/V18 (CMSSW_8_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V17')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V18')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -8059,7 +8059,7 @@ fragment.hltHIL1SingleMu3 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltHIL2Mu3N10HitQForPPRefL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -8165,7 +8165,7 @@ fragment.hltHIDoubleMu0L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltL1sL1DoubleMu3BptxAND = cms.EDFilter( "HLTL1TSeed",
     SaveTags = cms.bool( False ),
@@ -8189,7 +8189,7 @@ fragment.hltHIDoubleMu10MinBiasL1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 10.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreHIL2DoubleMu0NHitQForPPRef = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -8937,7 +8937,7 @@ fragment.hltHIL1SingleMu5Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltHIL2Mu5N10HitQL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -9007,7 +9007,7 @@ fragment.hltHIL1SingleMu7Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltHIL2Mu7N10HitQL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -9077,7 +9077,7 @@ fragment.hltHIL1SingleMu12Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltHIL2Mu15L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -9167,7 +9167,7 @@ fragment.hltHIL1SingleMu16Filtered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltHIL2Mu20L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     saveTags = cms.bool( True ),
@@ -11034,7 +11034,7 @@ fragment.hltL1MuOpenNotHF2L1Filtered2 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreHIUPCDoubleMuNotHF2PixelSingleTrackForPPRef = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -11147,7 +11147,7 @@ fragment.hltL1MuOpenNotHF2L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreHIUPCMuOpenNotMinimumBiasHF2ANDPixelSingleTrackForPPRef = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -11259,7 +11259,7 @@ fragment.hltL1MuOpenL1Filtered0UPC = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
-    CandTag = cms.InputTag( "hltGmtStage2Digis" )
+    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreDmesonPPTrackingGlobalDpt8ForPPRef = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
