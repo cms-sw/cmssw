@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
-        file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/EmptyPixelSkimmedGeometry_phase1.txt')
-        )
-es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
+# I do not know why this is here, comment-out d.k. 2/16
+#siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
+#        file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/Empt#yPixelSkimmedGeometry_phase1.txt')
+#        )
+#es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
 
 # from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import * Double check this later
 # TrackerDigiGeometryESModule.applyAlignment = False
