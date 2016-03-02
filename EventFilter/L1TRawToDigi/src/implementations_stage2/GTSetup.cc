@@ -40,11 +40,11 @@ namespace l1t {
 
             virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
 	      
-	       prod.produces<MuonBxCollection>("GT");
-	       prod.produces<EGammaBxCollection>("GT");
-	       prod.produces<EtSumBxCollection>("GT");
-	       prod.produces<JetBxCollection>("GT");
-	       prod.produces<TauBxCollection>("GT");
+	       prod.produces<MuonBxCollection>("Muon");
+	       prod.produces<EGammaBxCollection>("EGamma");
+	       prod.produces<EtSumBxCollection>("EtSum");
+	       prod.produces<JetBxCollection>("Jet");
+	       prod.produces<TauBxCollection>("Tau");
                prod.produces<GlobalAlgBlkBxCollection>();
                prod.produces<GlobalExtBlkBxCollection>();
 

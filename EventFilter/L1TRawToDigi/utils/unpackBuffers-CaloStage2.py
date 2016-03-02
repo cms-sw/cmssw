@@ -261,7 +261,6 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 # object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 
 

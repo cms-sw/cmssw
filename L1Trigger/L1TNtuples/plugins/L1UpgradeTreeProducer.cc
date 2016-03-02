@@ -87,11 +87,11 @@ private:
 L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig)
 {
 
-  egToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getUntrackedParameter("egToken",edm::InputTag("caloStage2Digis")));
-  //tauToken_ = consumes<l1t::TauBxCollection>(iConfig.getUntrackedParameter("tauToken",edm::InputTag("caloStage2Digis")));
-  jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter("jetToken",edm::InputTag("caloStage2Digis")));
-  sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter("sumToken",edm::InputTag("caloStage2Digis")));
-  muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter("muonToken",edm::InputTag("")));
+  egToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("egToken"));
+  //tauToken_ = consumes<l1t::TauBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tauToken"));
+  jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"));
+  sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"));
+  muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"));
 
   const auto& taus = iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("tauTokens");
   for (const auto& tau: taus) {
