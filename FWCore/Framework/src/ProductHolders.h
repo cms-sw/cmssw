@@ -55,6 +55,8 @@ namespace edm {
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_;}
     
+    void setFailedStatus() const { theStatus_ = ProductStatus::NotCompleted; }
+    
     
   private:
     virtual void swap_(ProductHolderBase& rhs) override {
