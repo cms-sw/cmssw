@@ -63,9 +63,12 @@ process.hltGmtStage2Digis = cms.EDProducer(
 )
 
 process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
-    GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
+    MuonInputTag = cms.InputTag("hltGmtStage2Digis", "Muon"),
     ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
-    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    EtSumInputTag = cms.InputTag("hltCaloStage2Digis", "EtSum"),
+    EGammaInputTag = cms.InputTag("hltCaloStage2Digis", "EGamma"),
+    TauInputTag = cms.InputTag("hltCaloStage2Digis", "Tau"),
+    JetInputTag = cms.InputTag("hltCaloStage2Digis", "Jet"),
     AlgorithmTriggersUnprescaled = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(True),
 )
@@ -91,11 +94,11 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     SaveTags             = cms.bool( True ),
     L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
     L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
-    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
-    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
-    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
-    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
-    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
+    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis","Muon"),
+    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis","EGamma"),
+    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis","Jet"),
+    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis","Tau"),
+    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis","EtSum"),
 )
 
 # HLT testing sequence
