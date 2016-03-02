@@ -32,11 +32,6 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
-#include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
-
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
@@ -225,14 +220,6 @@ L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionDat
     return new L1RegionData<l1extra::L1JetParticleCollection>(para,consumesColl);
   }else if(type=="L1MuonParticle"){
     return new L1RegionData<l1extra::L1MuonParticleCollection>(para,consumesColl);
-  }else if(type=="L1T::Muon"){
-    return new L1RegionData<l1t::MuonBxCollection>(para,consumesColl);
-  }else if(type=="L1T::EGamma"){
-    return new L1RegionData<l1t::EGammaBxCollection>(para,consumesColl);
-  }else if(type=="L1T::Jet"){
-    return new L1RegionData<l1t::JetBxCollection>(para,consumesColl);
-  }else if(type=="L1T::Tau"){
-    return new L1RegionData<l1t::TauBxCollection>(para,consumesColl);
   }else{
     //this is a major issue and could lead to rather subtle efficiency losses, so if its incorrectly configured, we're aborting the job!
     throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, this means the rec-hit you think you are keeping may not be and you should fix this error as it can lead to hard to find efficiency loses"<<std::endl;
