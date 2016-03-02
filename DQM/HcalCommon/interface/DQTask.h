@@ -20,13 +20,13 @@ namespace hcaldqm
 		f10LS = 2,
 		f50LS = 3,
 		f100LS = 4,
-
 		nUpdateFreq = 5
 	};
-
 	class DQTask : public DQMEDAnalyzer, public DQModule
 	{
 		public:
+
+			//	constructor
 			DQTask(edm::ParameterSet const&);
 			virtual ~DQTask(){}
 

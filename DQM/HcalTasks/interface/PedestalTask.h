@@ -9,13 +9,16 @@
 
 #include "DQM/HcalCommon/interface/DQTask.h"
 #include "DQM/HcalCommon/interface/Utilities.h"
-#include "DQM/HcalCommon/interface/ContainerCompact.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
 #include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "DQM/HcalCommon/interface/ContainerXXX.h"
+#include "DQM/HcalCommon/interface/HashFilter.h"
+#include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::filter;
 class PedestalTask : public DQTask
 {
 	public:
@@ -25,8 +28,7 @@ class PedestalTask : public DQTask
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
-		virtual void endRun(edm::Run const&, edm::EventSetup const&)
-		{this->_dump();}
+		virtual void endRun(edm::Run const&, edm::EventSetup const&);
 
 	protected:
 		//	funcs
@@ -35,7 +37,7 @@ class PedestalTask : public DQTask
 		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
-		//	vars
+		//	tags and tokens
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
@@ -45,15 +47,55 @@ class PedestalTask : public DQTask
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
-		ContainerCompact _cPedestals;
+		//	emap
+		HcalElectronicsMap const*	_emap;
+		electronicsmap::ElectronicsMap _ehashmap;
+		HashFilter _filter_uTCA;
+		HashFilter _filter_VME;
+		HashFilter _filter_C36;
 
-		//	1D
-		Container1D		_cPedestalMeans_SubDet;
-		Container1D		_cPedestalRMSs_SubDet;
+
+		ContainerXXX<double> _xPedSum;
+		ContainerXXX<double> _xPedSum2;
+		ContainerXXX<int>	_xPedEntries;
+		ContainerXXX<double> _xPedRefMean;
+		ContainerXXX<double> _xPedRefRMS;
+
+		//	1D Means/RMSs
+		Container1D		_cMean_Subdet;
+		Container1D		_cRMS_Subdet;
+
+		//	1D Means/RMSs Conditions DB comparison
+		Container1D		_cMeanDBRef_Subdet;
+		Container1D		_cRMSDBRef_Subdet;
 
 		//	2D
-		Container2D		_cPedestalMeans_depth;
-		Container2D		_cPedestalRMSs_depth;
+		ContainerProf2D		_cMean_depth;
+		ContainerProf2D		_cRMS_depth;
+		ContainerProf2D		_cMean_FEDVME;
+		ContainerProf2D		_cMean_FEDuTCA;
+		ContainerProf2D		_cRMS_FEDVME;
+		ContainerProf2D		_cRMS_FEDuTCA;
+		
+		//	with DB Conditions comparison
+		ContainerProf2D		_cMeanDBRef_depth;
+		ContainerProf2D		_cRMSDBRef_depth;
+		ContainerProf2D		_cMeanDBRef_FEDVME;
+		ContainerProf2D		_cMeanDBRef_FEDuTCA;
+		ContainerProf2D		_cRMSDBRef_FEDVME;
+		ContainerProf2D		_cRMSDBRef_FEDuTCA;
+
+		//	Missing + Bad Quality
+		Container2D		_cMissing_depth;
+		Container2D		_cMeanBad_depth;
+		Container2D		_cRMSBad_depth;
+
+		Container2D		_cMissing_FEDVME;
+		Container2D		_cMissing_FEDuTCA;
+		Container2D		_cMeanBad_FEDVME;
+		Container2D		_cRMSBad_FEDuTCA;
+		Container2D		_cRMSBad_FEDVME;
+		Container2D		_cMeanBad_FEDuTCA;
 };
 
 #endif

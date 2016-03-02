@@ -7,7 +7,7 @@ namespace hcaldqm
 	DQTask::DQTask(edm::ParameterSet const& ps):
 		DQModule(ps),
 		_cEvsTotal(_name, "EventsTotal"),
-		_cEvsPerLS(_name, "EventssPerLS"),
+		_cEvsPerLS(_name, "EventsPerLS"),
 		_cRunKeyVal(_name, "RunKeyValue"),
 		_cRunKeyName(_name, "RunKeyName"),
 		_cProcessingTypeName(_name, "ProcessingType"),
@@ -41,11 +41,11 @@ namespace hcaldqm
 		edm::Run const& r,
 		edm::EventSetup const& es)
 	{
-		_cEvsTotal.book(ib);
-		_cEvsPerLS.book(ib);
-		_cRunKeyVal.book(ib);
-		_cRunKeyName.book(ib);
-		_cProcessingTypeName.book(ib);
+		_cEvsTotal.book(ib, _subsystem);
+		_cEvsPerLS.book(ib, _subsystem);
+		_cRunKeyVal.book(ib, _subsystem);
+		_cRunKeyName.book(ib, _subsystem);
+		_cProcessingTypeName.book(ib, _subsystem);
 
 		//	fill what you can now
 		_cRunKeyVal.fill(_runkeyVal);
@@ -68,12 +68,14 @@ namespace hcaldqm
 		edm::EventSetup const& es)
 	{
 		this->_resetMonitors(fLS);
+		
 		if (_procLSs%10==0)
 			this->_resetMonitors(f10LS);
 		if (_procLSs%50==0)
 			this->_resetMonitors(f50LS);
 		if (_procLSs%100==0)
 			this->_resetMonitors(f100LS);
+			
 	}
 
 	/* virtual */ void DQTask::endLuminosityBlock(

@@ -21,8 +21,8 @@ namespace hcaldqm
 				std::string const& name, int debug=0)
 			{
 				_folder = folder;
-				_name = name;
-				_logger.set(_name, debug);
+				_qname = name;
+				_logger.set(_qname, debug);
 			}
 
 			virtual void fill(int x)
@@ -34,7 +34,7 @@ namespace hcaldqm
 				std::string subsystem="Hcal", std::string aux="")
 			{
 				ib.setCurrentFolder(subsystem+"/"+_folder +aux);
-				_me = ib.bookInt(_name);
+				_me = ib.bookInt(_qname);
 			}
 
 		protected:

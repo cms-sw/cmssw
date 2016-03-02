@@ -51,13 +51,10 @@ process.DQMStore.verbose = 0
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-#process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
-process.load("L1Trigger.Configuration.L1DummyConfig_cff")
-process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings
@@ -96,7 +93,6 @@ process.emulTPDigis.FrontEndFormatError = \
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 process.emulTPDigis.FG_threshold = cms.uint32(2)
 process.emulTPDigis.InputTagFEDRaw = rawTag
-process.l1GtUnpack.DaqGtInputTag = rawTag
 process.hbhereco = process.hbheprereco.clone()
 process.hcalDigis.InputLabel = rawTag
 
@@ -108,6 +104,7 @@ process.load("DQM.HcalTasks.RecHitTask")
 process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
+process.load('DQM.HcalHarvesting.HcalHarvesting')
 
 #-------------------------------------
 #	To force using uTCA
@@ -149,6 +146,10 @@ process.tasksSequence = cms.Sequence(
 		+process.tpTask
 )
 
+process.harvestingSequence = cms.Sequence(
+	process.hcalHarvesting
+)
+
 #-------------------------------------
 #	Quality Tester. May be in the future
 #-------------------------------------
@@ -167,7 +168,6 @@ process.tasksSequence = cms.Sequence(
 #-------------------------------------
 process.preRecoSequence = cms.Sequence(
 		process.hcalDigis
-		*process.l1GtUnpack
 )
 
 process.recoSequence = cms.Sequence(
@@ -186,10 +186,9 @@ process.p = cms.Path(
 		process.preRecoSequence
 		*process.recoSequence
 		*process.tasksSequence
+		*process.harvestingSequence
 		*process.dqmSequence
 )
-
-#process.schedule = cms.Schedule(process.p)
 
 #-------------------------------------
 #	Scheduling and Process Customizations
