@@ -911,10 +911,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         common_config = std::unique_ptr<HLTCommonConfig>(new HLTCommonConfig(*old_config_data, *new_config_data));
         old_config = & common_config->getView(HLTCommonConfig::Index::First);
         new_config = & common_config->getView(HLTCommonConfig::Index::Second);
-        std::cerr << "Warning: old and new TriggerResults come from different HLT menus. Only the common triggers will be compared:" << std::endl;
-        for (unsigned int i = 0; i < old_config->size(); ++i)
-          std::cerr << "    " << old_config->triggerName(i) << std::endl;
-        std::cerr << std::endl;
+        std::cout << "Warning: old and new TriggerResults come from different HLT menus. Only the common " << old_config->size() << " triggers are compared.\n" << std::endl;
       }
 
       differences.clear();
@@ -1040,7 +1037,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       std::cout << ", " << skipped << " events were skipped";
     std::cout <<  "." << std::endl;
   } else {
-    std::cout << "Found " << affected << " events out of " << counter << " with differences";
+    std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
     if (skipped)
       std::cout << ", " << skipped << " events were skipped";
     std::cout << ":\n" << std::endl;
