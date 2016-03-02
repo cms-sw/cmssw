@@ -41,14 +41,13 @@ def Base(process):
 def L1T(process):
 #   modifications when running L1T only
 
-    process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
     labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
     for label in labels:
         if label in process.__dict__:
+            process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
             process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
-
-    process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
-    process.schedule.append(process.L1AnalyzerEndpath)
+            process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
+            process.schedule.append(process.L1AnalyzerEndpath)
 
     process=Base(process)
 
@@ -119,3 +118,18 @@ def L1REPACK(process):
     process=L1T(process)
 
     return process
+
+def L1TGRun(process):
+    if hasattr(process,'TriggerMenu'):
+        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_Collisions2015_25nsStage1_v7_uGT_v3.xml" )
+    return(process)
+
+def L1THIon(process):
+    if hasattr(process,'TriggerMenu'):
+        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_CollisionsHeavyIons2015_v5_uGT.xml" )
+    return(process)
+
+def L1TPRef(process):
+    if hasattr(process,'TriggerMenu'):
+        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc.xml" )
+    return(process)
