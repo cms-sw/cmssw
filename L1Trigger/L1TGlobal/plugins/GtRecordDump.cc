@@ -135,10 +135,8 @@ namespace l1t {
 
       std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
       unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
-
-      edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + preScaleFileName);
-      
-      m_gtUtil = new L1TGlobalUtil(f1.fullPath(),preScColumn);
+      m_gtUtil = new L1TGlobalUtil();
+      m_gtUtil->OverridePrescalesAndMasks(preScaleFileName,preScColumn);
   }
   
   // loop over events
