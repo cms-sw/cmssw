@@ -940,7 +940,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
     // compare the TriggerResults
     bool needs_header = true;
-    bool affected_event = false;
+    bool event_affected = false;
     for (unsigned int p = 0; p < old_config->size(); ++p) {
       // FIXME explicitly converting the indices is a hack, it should be properly encapsulated instead
       unsigned int old_index = old_config->triggerIndex(p);
@@ -951,68 +951,67 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       if (old_state == Pass)
         ++differences[p].count;
 
-      bool flag = false;
+      bool trigger_affected = false;
       if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
         if (old_state == Pass and new_state != Pass) {
           ++differences[p].lost;
-          flag = true;
+          trigger_affected = true;
         } else if (old_state != Pass and new_state == Pass) {
           ++differences[p].gained;
-          flag = true;
+          trigger_affected = true;
         } else if (old_results->index(old_index) != new_results->index(new_index)) {
           ++differences[p].internal;
-          flag = true;
+          trigger_affected = true;
         }
       }
 
-      if (flag) {
-        affected_event = true;
-
-        const unsigned int old_moduleIndex = old_results->index(old_index);
-        const unsigned int new_moduleIndex = new_results->index(new_index);
-        // storing the event to JSON
-        if (json.isActive) {
-          JsonOutputProducer::JsonEvent& event = json.pushEvent(id.run(), id.luminosityBlock(), id.event());
-          JsonOutputProducer::JsonTriggerEventState& state = event.pushTrigger(p);
-          state.o = json.eventState(old_state, old_moduleIndex, old_config->moduleLabel(p, old_moduleIndex), old_config->moduleType(p, old_moduleIndex));
-          state.n = json.eventState(new_state, new_moduleIndex, new_config->moduleLabel(p, new_moduleIndex), new_config->moduleType(p, new_moduleIndex));
-        }
-
-        if (verbose > 0) {
-          if (needs_header) {
-            needs_header = false;
-            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
-                      << "old result is '" << event_state(old_results->accept()) << "', "
-                      << "new result is '" << event_state(new_results->accept()) << "'"
-                      << std::endl;
-          }
-          // print the Trigger path and filter responsible for the discrepancy
-          std::cout << "    Path " << old_config->triggerName(p) << ":\n"
-                    << "        old state is ";
-          print_detailed_path_state(std::cout, old_state, p, old_moduleIndex, * old_config);
-          std::cout << ",\n"
-                    << "        new state is ";
-          print_detailed_path_state(std::cout, new_state, p, new_moduleIndex, * new_config);
-          std::cout << std::endl;
-        }
-        if (verbose > 1 and old_summary and new_summary) {
-          // print TriggerObjects for the filter responsible for the discrepancy
-          unsigned int module = std::min(old_moduleIndex, new_moduleIndex);
-          std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
-          std::cout << "        old trigger candidates:\n";
-          print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
-          std::cout << "        new trigger candidates:\n";
-          print_trigger_candidates(std::cout, * new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
-        }
-        if (verbose > 0)
-          std::cout << std::endl;
+      if (not trigger_affected) continue;
+      
+      event_affected = true;
+      const unsigned int old_moduleIndex = old_results->index(old_index);
+      const unsigned int new_moduleIndex = new_results->index(new_index);
+      // storing the event to JSON
+      if (json.isActive) {
+        JsonOutputProducer::JsonEvent& event = json.pushEvent(id.run(), id.luminosityBlock(), id.event());
+        JsonOutputProducer::JsonTriggerEventState& state = event.pushTrigger(p);
+        state.o = json.eventState(old_state, old_moduleIndex, old_config->moduleLabel(p, old_moduleIndex), old_config->moduleType(p, old_moduleIndex));
+        state.n = json.eventState(new_state, new_moduleIndex, new_config->moduleLabel(p, new_moduleIndex), new_config->moduleType(p, new_moduleIndex));
       }
+
+      if (verbose > 0) {
+        if (needs_header) {
+          needs_header = false;
+          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
+                    << "old result is '" << event_state(old_results->accept()) << "', "
+                    << "new result is '" << event_state(new_results->accept()) << "'"
+                    << std::endl;
+        }
+        // print the Trigger path and filter responsible for the discrepancy
+        std::cout << "    Path " << old_config->triggerName(p) << ":\n"
+                  << "        old state is ";
+        print_detailed_path_state(std::cout, old_state, p, old_moduleIndex, * old_config);
+        std::cout << ",\n"
+                  << "        new state is ";
+        print_detailed_path_state(std::cout, new_state, p, new_moduleIndex, * new_config);
+        std::cout << std::endl;
+      }
+      if (verbose > 1 and old_summary and new_summary) {
+        // print TriggerObjects for the filter responsible for the discrepancy
+        unsigned int module = std::min(old_moduleIndex, new_moduleIndex);
+        std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
+        std::cout << "        old trigger candidates:\n";
+        print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
+        std::cout << "        new trigger candidates:\n";
+        print_trigger_candidates(std::cout, * new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
+      }
+      if (verbose > 0)
+        std::cout << std::endl;
     }
-    if (affected_event)
+    if (event_affected)
       ++affected;
 
     // compare the TriggerEvent
-    if (affected_event and verbose > 2 and old_summary and new_summary) {
+    if (event_affected and verbose > 2 and old_summary and new_summary) {
       std::set<std::string> names;
       names.insert(old_summary->collectionTags().begin(), old_summary->collectionTags().end());
       names.insert(new_summary->collectionTags().begin(), new_summary->collectionTags().end());
