@@ -12,6 +12,10 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+
 using namespace std;
 using namespace cms;
 
@@ -20,7 +24,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   produces<PEcalTBInfo>();
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
-  GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","source");
+  GenVtxToken = consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx","source"));
   double fMinEta = ps.getParameter<double>("MinEta");
   double fMaxEta = ps.getParameter<double>("MaxEta");
   double fMinPhi = ps.getParameter<double>("MinPhi");
@@ -100,7 +104,7 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   delete theTestMap;
 }
 
- void EcalTBMCInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
+void EcalTBMCInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(event.streamID());
@@ -120,7 +124,7 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   partXhodo = partYhodo = 0.;
 
   edm::Handle<edm::HepMCProduct> GenEvt;
-  event.getByLabel(GenVtxLabel,GenEvt);
+  event.getByToken(GenVtxToken,GenEvt);
 
   const HepMC::GenEvent* Evt = GenEvt->GetEvent() ;
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();

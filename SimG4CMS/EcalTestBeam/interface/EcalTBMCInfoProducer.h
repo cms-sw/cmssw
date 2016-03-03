@@ -5,8 +5,6 @@
  *
  *
 */
-
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,13 +20,9 @@
 
 #include "Math/GenVector/Rotation3D.h"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-class EcalTBMCInfoProducer: public edm::stream::EDProducer{
-  
- public:
+class EcalTBMCInfoProducer: public edm::stream::EDProducer<>
+{  
+public:
   
   /// Constructor
   explicit EcalTBMCInfoProducer(const edm::ParameterSet& ps);
@@ -57,7 +51,7 @@ private:
 
   ROOT::Math::Rotation3D * fromCMStoTB;
 
-  std::string GenVtxLabel;
+  edm::EDGetTokenT<edm::HepMCProduct> GenVtxToken;
 };
 
 #endif

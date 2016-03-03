@@ -9,32 +9,28 @@
 using namespace cms;
 using namespace std;
 
-
 FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet& ps) {
   
+  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel","SimEcalTBG4Object"));
   produces<EcalTBHodoscopeRawInfo>();
 
-  ecalTBInfoLabel_ = ps.getUntrackedParameter<string>("EcalTBInfoLabel","SimEcalTBG4Object");
-
   theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
-
 }
 
- 
 FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() {
 
   delete theTBHodoGeom_;
 
 }
 
- void FakeTBHodoscopeRawInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
+void FakeTBHodoscopeRawInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
   auto_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // get the vertex information from the event
 
   edm::Handle<PEcalTBInfo> theEcalTBInfo;
-  event.getByLabel(ecalTBInfoLabel_,theEcalTBInfo);
+  event.getByToken(ecalTBInfo_,theEcalTBInfo);
 
   double partXhodo = theEcalTBInfo->evXbeam();
   double partYhodo = theEcalTBInfo->evYbeam();
