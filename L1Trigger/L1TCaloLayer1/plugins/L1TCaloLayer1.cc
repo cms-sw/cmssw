@@ -218,19 +218,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cerr << "UCT: Failed to process layer 1" << std::endl;
   }
   
-  // Crude check if total ET is approximately OK!
-  // We can't expect exact match as there is region level saturation to 10-bits
-  // 1% is good enough
-  int diff = abs(layer1->et() - expectedTotalET);
-  if(verbose && diff > 0.01 * expectedTotalET ) {
-    //print();
-    //    std::cerr << "Expected " 
-    //	      << std::showbase << std::internal << std::setfill('0') << std::setw(10) << std::hex
-    //	      << expectedTotalET << std::dec << std::endl;
-  }
-
   int theBX = 0; // Currently we only read and process the "hit" BX only
- 
+
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
