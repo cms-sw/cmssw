@@ -3,6 +3,7 @@
 #include "ProductHolders.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -272,6 +273,26 @@ namespace edm {
     return true;
   }
 
+  
+  void ParentProcessProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+    provRetriever_ = provRetriever;
+  }
+  
+  void ParentProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+  }
+  
+  ProductProvenance const* ParentProcessProductHolder::productProvenancePtr_() const {
+    return provRetriever_? provRetriever_->branchIDToProvenance(bd_->branchID()): nullptr;
+  }
+  
+  void ParentProcessProductHolder::resetProductData_(bool deleteEarly) {
+  }
+  
+  bool ParentProcessProductHolder::singleProduct_() const {
+    return true;
+  }
+
+  
   void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
     NoProcessProductHolder& other = dynamic_cast<NoProcessProductHolder&>(rhs);
     ambiguous_.swap(other.ambiguous_);

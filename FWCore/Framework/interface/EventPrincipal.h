@@ -58,7 +58,8 @@ namespace edm {
         std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int streamIndex = 0);
+        unsigned int streamIndex = 0,
+        bool isForPrimaryProcess = true);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,

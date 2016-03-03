@@ -10,8 +10,9 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> reg,
     ProcessConfiguration const& pc,
     HistoryAppender* historyAppender,
-    unsigned int iRunIndex) :
-    Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender),
+    unsigned int iRunIndex,
+    bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess),
       aux_(aux), index_(iRunIndex), complete_(false) {
   }
 

@@ -38,7 +38,8 @@ namespace edm {
         std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int iRunIndex);
+        unsigned int iRunIndex,
+        bool isForPrimaryProcess=true);
     ~RunPrincipal() {}
 
     void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);

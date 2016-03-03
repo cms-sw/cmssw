@@ -34,8 +34,9 @@ namespace edm {
         std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int streamIndex) :
-    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
+        unsigned int streamIndex,
+        bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender,isForPrimaryProcess),
           aux_(),
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),

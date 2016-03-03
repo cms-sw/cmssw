@@ -28,12 +28,14 @@ namespace edm {
   class Principal;
   class AliasProductHolder;
   class DataManagingProductHolder;
+  class ParentProcessProductHolder;
 
   class ProductHolderBase {
   public:
 
     friend class AliasProductHolder;
     friend class DataManagingProductHolder;
+    friend class ParentProcessProductHolder;
     
     enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
 

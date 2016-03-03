@@ -68,23 +68,14 @@ namespace edm {
               std::shared_ptr<ProductHolderIndexHelper const> productLookup,
               ProcessConfiguration const& pc,
               BranchType bt,
-              HistoryAppender* historyAppender);
+              HistoryAppender* historyAppender,
+              bool isForPrimaryProcess = true);
 
     virtual ~Principal();
 
     bool adjustToNewProductRegistry(ProductRegistry const& reg);
 
     void adjustIndexesAfterProductRegistryAddition();
-
-    void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
-
-    void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
-
-    void addInputProduct(std::shared_ptr<BranchDescription const> bd);
-
-    void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
-
-    void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
 
     void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
 
@@ -223,6 +214,14 @@ namespace edm {
     void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase>  edp) const;
     
   private:
+
+    void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
+    void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
+    void addInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
+    void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
+    void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
+    
 
     virtual WrapperBase const* getIt(ProductID const&) const override;
     virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;

@@ -132,7 +132,8 @@ namespace edm {
                        std::shared_ptr<ProductHolderIndexHelper const> productLookup,
                        ProcessConfiguration const& pc,
                        BranchType bt,
-                       HistoryAppender* historyAppender) :
+                       HistoryAppender* historyAppender,
+                       bool isForPrimaryProcess) :
     EDProductGetter(),
     processHistoryPtr_(),
     processHistoryID_(),
@@ -158,22 +159,28 @@ namespace edm {
     for(auto const& prod : prodsList) {
       BranchDescription const& bd = prod.second;
       if(bd.branchType() == branchType_) {
-        if(bd.isAlias()) {
-          hasAliases = true;
-        } else {
-          auto cbd = std::make_shared<BranchDescription const>(bd);
-          if(bd.produced()) {
-            if(bd.moduleLabel() == source) {
-              addSourceProduct(cbd);
-            } else if(bd.onDemand()) {
-              assert(branchType_ == InEvent);
-              addUnscheduledProduct(cbd);
-            } else {
-              addScheduledProduct(cbd);
-            }
+        if(isForPrimaryProcess or bd.processName() == pc.processName()) {
+          if(bd.isAlias()) {
+            hasAliases = true;
           } else {
-            addInputProduct(cbd);
+            auto cbd = std::make_shared<BranchDescription const>(bd);
+            if(bd.produced()) {
+              if(bd.moduleLabel() == source) {
+                addSourceProduct(cbd);
+              } else if(bd.onDemand()) {
+                assert(branchType_ == InEvent);
+                addUnscheduledProduct(cbd);
+              } else {
+                addScheduledProduct(cbd);
+              }
+            } else {
+              addInputProduct(cbd);
+            }
           }
+        } else {
+          //We are in a SubProcess and this branch is from the parent
+          auto cbd =std::make_shared<BranchDescription const>(bd);
+          addParentProcessProduct(cbd);
         }
       }
     }
@@ -302,6 +309,12 @@ namespace edm {
     assert(index != ProductHolderIndexInvalid);
 
     std::unique_ptr<ProductHolderBase> phb(new AliasProductHolder(std::move(bd), dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
+    addProductOrThrow(std::move(phb));
+  }
+
+  void
+  Principal::addParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::unique_ptr<ProductHolderBase> phb(new ParentProcessProductHolder(std::move(bd)));
     addProductOrThrow(std::move(phb));
   }
 
