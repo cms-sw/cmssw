@@ -23,4 +23,4 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 
 # end fake calibrations
 
-from CondCore.ESSources.CondDBESSource_cfi import GlobalTag
+from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag

@@ -25,7 +25,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 
 # Conditions (Global Tag is used here):
-process.load("CondCore.ESSources.CondDBESSource_cfi")
+process.load("Configuration.StandardSequences.CondDBESSource_cff")
 process.GlobalTag.globaltag = "GR09_31X_V2P::All"
 
 process.load("HLTrigger.special.hltDTROMonitorFilter_cfi")

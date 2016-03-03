@@ -33,7 +33,7 @@ if DQM:
     process.load('Configuration.EventContent.EventContent_cff')
     process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.load('CondCore.ESSources.CondDBESSource_cfi')
+process.load('Configuration.StandardSequences.CondDBESSource_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['hltonline']
 
