@@ -387,15 +387,14 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 	    if ( (j->flagField(0) != 0) && (j->energy() > 1.) ) {
 	      NPMTHits++;
 	      if (NPMTHits > 1) {
-		std::cout << ">>>> MultiHit: Run = "    << evt.id().run()
+		edm::LogInfo("myFilter") << ">>>> MultiHit: Run = "    << evt.id().run()
 			  << " Event = " << evt.id().event()
 			  << " iEta = " << j->id().ieta()
 			  << " iPhi = " << j->id().iphi()
 			  << " depth = " << j->id().depth()
 			  << " flag = " << j->flagField(0)
 			  << " hits = " << NPMTHits
-			  << " energy = " << j->energy()
-			  <<  std::endl;
+			  << " energy = " << j->energy();
 	      }
 
 	    }

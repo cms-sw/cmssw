@@ -681,7 +681,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   //  evt.getByLabel("TriggerResults::HLT", triggerResults);
 
   if (triggerResults.isValid()) {
-    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger valid " ;
     //    edm::TriggerNames triggerNames;    // TriggerNames class
     //    triggerNames.init(*triggerResults);
     unsigned int n = triggerResults->size();
@@ -717,7 +717,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     //     std::cout << triggerResults << std::endl;
     //     std::cout << triggerResults.isValid() << std::endl;
     
-    if (DEBUG) std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger not valid " << std::endl;
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
 
@@ -895,7 +895,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       break;
     }
 
-  cout << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits << endl;
+  edm::LogInfo("myJetAna") << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits ;
   HFLongShortNHits->Fill(NHFLongShortHits);
   HFDigiTimeNHits->Fill(NHFDigiTimeHits);
 
@@ -1243,9 +1243,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     if (abs(tower->iphi()) < 100) EMF_Phi->Fill(tower->iphi(), emFrac);
     if (abs(tower->ieta()) < 100) EMF_Eta->Fill(tower->ieta(), emFrac);
     if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
-      std::cout << "Bunch Crossing = " << evt.bunchCrossing() 
-		<< " Orbit Number = "  << evt.orbitNumber()
-		<<  std::endl;
+      edm::LogInfo("myJetAna") << "Bunch Crossing = " << evt.bunchCrossing() 
+		<< " Orbit Number = "  << evt.orbitNumber();
 
       if (abs(tower->iphi()) < 100) EMF_PhiX->Fill(tower->iphi(), emFrac);
       if (abs(tower->ieta()) < 100) EMF_EtaX->Fill(tower->ieta(), emFrac);
@@ -1381,10 +1380,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   HPD_N->Fill(nHPD);
   if ( (nHPD == 1) && (nTowers > 6) ) {
     evtType = 2;
-    cout << " nHPD = "   << nHPD 
+    edm::LogInfo("category") << " nHPD = "   << nHPD 
 	 << " Towers = " << nTowers
-	 << " Type = "   << evtType 
-	 << endl; 
+	 << " Type = "   << evtType ;
   }
  
   // **************************************************************
@@ -1398,7 +1396,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   Int_t JetLoPass = 0;
   
   if (triggerResults.isValid()) {
-    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger valid " ;
     //    edm::TriggerNames triggerNames;    // TriggerNames class
     //    triggerNames.init(*triggerResults);
     unsigned int n = triggerResults->size();
@@ -1432,7 +1430,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     //     std::cout << triggerResults << std::endl;
     //     std::cout << triggerResults.isValid() << std::endl;
     
-    if (DEBUG) std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("myJetAna")  << "trigger not valid ";
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
     //return;
@@ -2126,12 +2124,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	      HOHrp2Ene->Fill(j->energy());
 	      if (j->energy() > HOThreshold) HOHrp2Time->Fill(j->time());
 	    } else {
-	      std::cout << "Finding events that are in no ring !?!" << std::endl;
-	      std::cout << "eta = " << j->id().ieta() << std::endl;
+	      edm::LogInfo("myJetAna") << "Finding events that are in no ring !?!" ;
+	      edm::LogInfo("myJetAna") << "eta = " << j->id().ieta() ;
 	      
 	    }
 	  } else {
-	    std::cout << "Finding events that are neither SiPM nor HPD!?" << std::endl;	    
+	    edm::LogInfo("myJetAna") << "Finding events that are neither SiPM nor HPD!?";	    
 	  }
 
 	  
@@ -2240,8 +2238,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   if ( (EBTotalE > 320000)  && (EBTotalE < 330000) && 
        (HBTotalE > 2700000) && (HBTotalE < 2800000) ) {
 
-    std::cout << ">>> Off Axis! " 
-	      << std::endl;
+    edm::LogInfo("myJetAna") << "Off Axis! " ;
     
   }
 
@@ -2757,11 +2754,10 @@ void myJetAna::endJob() {
 
   for (int i=0; i<4000; i++) {
     if (((float)nBNC[i]/(float)totBNC) > 0.05) {
-      std::cout << "+++ " << i << " " 
+      edm::LogInfo("myJetAna") << "+++ " << i << " " 
 		<< ((float)nBNC[i]/(float)totBNC) << " "
 		<< nBNC[i]          << " " 
-		<< totBNC           << " " 
-		<< std::endl;      
+		<< totBNC  ;      
     }
   }
 
