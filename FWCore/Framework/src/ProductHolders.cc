@@ -20,15 +20,29 @@ namespace edm {
     if(productWasDeleted()) {
       throwProductDeletedException();
     }
-    if(!productUnavailable()) {
+    auto presentStatus = status();
+    
+    if(presentStatus == ProductStatus::DelayedReadNotRun) {
+      //if readFromSource fails becuase of exception or not setting product
+      // make sure the status goes to failed
+      auto failedStatusSetter = [this](ProductStatus* presentStatus) {
+        if(this->status() == ProductStatus::DelayedReadNotRun) {
+          this->setFailedStatus();
+        }
+        *presentStatus = this->status();
+      };
+      std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus, failedStatusSetter);
       principal.readFromSource(*this, mcc);
-      // If the product is a dummy filler, product holder will now be marked unavailable.
-      if(product() && !productUnavailable()) {
-        // Found the match
+    }
+    
+    if (presentStatus == ProductStatus::ProductSet) {
+      assert(product());
+      if(!productUnavailable()) {
         resolveStatus = ProductFound;
         return &getProductData();
       }
     }
+
     resolveStatus = ProductNotFound;
     return nullptr;
   }
@@ -43,7 +57,7 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(product() && product()->isPresent()) {
+      if(status() == ProductStatus::ProductSet && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &getProductData();
       }
@@ -62,15 +76,29 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(product() && product()->isPresent()) {
+      auto presentStatus = status();
+
+      if(presentStatus == ProductStatus::UnscheduledNotRun) {
+        
+        //if readFromSource fails becuase of exception or not setting product
+        // make sure the status goes to failed
+        auto failedStatusSetter = [this](ProductStatus* presentStatus) {
+          if(this->status() == ProductStatus::UnscheduledNotRun) {
+            this->setFailedStatus();
+          }
+          *presentStatus = this->status();
+        };
+        
+        std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus, failedStatusSetter);
+
+        principal.unscheduledFill(moduleLabel(), sra, mcc);
+      }
+      
+      if(presentStatus == ProductStatus::ProductSet && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &getProductData();
       }
-      principal.unscheduledFill(moduleLabel(), sra, mcc);
-      if(product() && product()->isPresent()) {
-        resolveStatus = ProductFound;
-        return &getProductData();
-      }
+
     }
     resolveStatus = ProductNotFound;
     return nullptr;
@@ -83,7 +111,7 @@ namespace edm {
 
   void
   ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
-    assert(status() == ProductStatus::Present);
+    assert(status() == ProductStatus::ProductSet);
     mergeTheProduct(std::move(edp));
   }
 
@@ -95,7 +123,7 @@ namespace edm {
     }
     assert(branchDescription().produced());
     assert(edp.get() != nullptr);
-    assert(status() != ProductStatus::Present);
+    assert(status() != ProductStatus::ProductSet);
     assert(status() != ProductStatus::Uninitialized);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
@@ -137,8 +165,12 @@ namespace edm {
 
   void
   DataManagingProductHolder::setProduct(std::unique_ptr<WrapperBase> edp) const {
-    productData_.unsafe_setWrapper(std::move(edp));
-    theStatus_ = ProductStatus::Present;
+    if(edp) {
+      productData_.unsafe_setWrapper(std::move(edp));
+      theStatus_ = ProductStatus::ProductSet;
+    } else {
+      setFailedStatus();
+    }
   }
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
@@ -158,11 +190,6 @@ namespace edm {
     return status() == ProductStatus::ProductDeleted;
   }
   
-  void
-  DataManagingProductHolder::setProductDeleted_() const {
-    theStatus_ = ProductStatus::ProductDeleted;
-  }
-  
   void DataManagingProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData_.setProvenance(provRetriever,ph,pid);
   }
@@ -175,9 +202,13 @@ namespace edm {
     return provenance()->productProvenance();
   }
   
-  void DataManagingProductHolder::resetProductData_() {
+  void DataManagingProductHolder::resetProductData_(bool deleteEarly) {
     productData_.resetProductData();
-    resetStatus();
+    if(deleteEarly) {
+      theStatus_ = ProductStatus::ProductDeleted;
+    } else {
+      resetStatus();
+    }
   }
   
   bool DataManagingProductHolder::singleProduct_() const {
@@ -233,9 +264,8 @@ namespace edm {
     return provenance()->productProvenance();
   }
 
-  void AliasProductHolder::resetProductData_() {
-    realProduct_.resetProductData();
-    resetStatus();
+  void AliasProductHolder::resetProductData_(bool deleteEarly) {
+    realProduct_.resetProductData_(deleteEarly);
   }
 
   bool AliasProductHolder::singleProduct_() const {
@@ -248,9 +278,6 @@ namespace edm {
     matchingHolders_.swap(other.matchingHolders_);
   }
 
-  void NoProcessProductHolder::resetStatus_() {
-  }
-
   void NoProcessProductHolder::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
   }
 
@@ -261,7 +288,7 @@ namespace edm {
     return nullptr;
   }
 
-  void NoProcessProductHolder::resetProductData_() {
+  void NoProcessProductHolder::resetProductData_(bool) {
   }
 
   bool NoProcessProductHolder::singleProduct_() const {
@@ -307,12 +334,6 @@ namespace edm {
   void NoProcessProductHolder::checkType_(WrapperBase const&) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductHolder::setProductDeleted_() const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::setProductDeleted_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

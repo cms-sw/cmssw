@@ -51,19 +51,10 @@ namespace edm {
       return resolveProduct_(resolveStatus, principal, skipCurrentProcess, sra, mcc);
     }
 
-    void resetStatus () {
-      resetStatus_();
-    }
-
-    void setProductDeleted () {
-      setProductDeleted_();
-    }
-
-    void resetProductData() { resetProductData_(); }
+    void resetProductData() { resetProductData_(false); }
 
     void unsafe_deleteProduct() const {
-      const_cast<ProductHolderBase*>(this)->resetProductData_();
-      setProductDeleted_();
+      const_cast<ProductHolderBase*>(this)->resetProductData_(true);
     }
     
     // product is not available (dropped or never created)
@@ -177,15 +168,13 @@ namespace edm {
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
     virtual void checkType_(WrapperBase const& prod) const = 0;
-    virtual void resetStatus_() = 0;
-    virtual void setProductDeleted_() const = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
     virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) = 0;
     virtual void setProcessHistory_(ProcessHistory const& ph) = 0;
     virtual ProductProvenance const* productProvenancePtr_() const = 0;
-    virtual void resetProductData_() = 0;
+    virtual void resetProductData_(bool deleteEarly) = 0;
     virtual bool singleProduct_() const = 0;
   };
 
