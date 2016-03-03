@@ -259,12 +259,20 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     candidate.setHwPhi(phiValue);
     
     candidate.setHwSign(myCand.getCharge()<0 ? 1:0  );
+    //FIXME: Obsolete 
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
-    candidate.setHwQual(bits.count() - bits.test(0) - bits.test(2) - bits.test(4));
+    //candidate.setHwQual(bits.count() - bits.test(0) - bits.test(2) - bits.test(4));
     ///Candidates with bad hit patterns get quality 0.
-    if(!checkHitPatternValidity(myCand.getHits())) candidate.setHwQual(0);
+    //if(!checkHitPatternValidity(myCand.getHits())) candidate.setHwQual(0);
+
+    /// Now quality based on hit pattern  
+    /// 
+    unsigned int quality = checkHitPatternValidity(myCand.getHits()) ? 0 | (1 << 2) | (1 << 3) 
+                                                                     : 0 | (1 << 2);
+    candidate.setHwQual ( quality);
+
     std::map<int, int> trackAddr;
     trackAddr[0] = myCand.getHits();
     trackAddr[1] = myCand.getRefLayer();
