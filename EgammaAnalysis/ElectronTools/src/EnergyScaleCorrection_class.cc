@@ -455,13 +455,13 @@ correctionCategory_class::correctionCategory_class(TString category_)
 #ifdef DEBUG
   std::cout << "[DEBUG] correctionClass defined for category: " << category << std::endl;
 #endif
-  // default values
+  // default values (corresponding to an existing category -- the worst one)
   runmin = 0;
   runmax = 999999;
-  etamin = -1;
-  etamax = 10;
+  etamin = 2;
+  etamax = 7;
   r9min = -1;
-  r9max = 10;
+  r9max = 0.94;
   etmin = -1;
   etmax = 99999.;
   
