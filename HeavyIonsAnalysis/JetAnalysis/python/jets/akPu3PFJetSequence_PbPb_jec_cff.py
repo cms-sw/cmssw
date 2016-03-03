@@ -32,7 +32,7 @@ akPu3PFbTagger = bTaggers("akPu3PF",0.3)
 
 #create objects locally since they dont load properly otherwise
 #akPu3PFmatch = akPu3PFbTagger.match
-akPu3PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu3PFJets"), matched = cms.InputTag("hiSignalGenParticles"))
+akPu3PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu3PFJets"), matched = cms.InputTag("selectedPartons"))
 akPu3PFPatJetFlavourAssociationLegacy = akPu3PFbTagger.PatJetFlavourAssociationLegacy
 akPu3PFPatJetPartons = akPu3PFbTagger.PatJetPartons
 akPu3PFJetTracksAssociatorAtVertex = akPu3PFbTagger.JetTracksAssociatorAtVertex
@@ -186,7 +186,7 @@ akPu3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu3PFpa
                                                              isMC = True,
 							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,7 +234,7 @@ akPu3PFJetSequence_data = cms.Sequence(akPu3PFcorr
                                                     )
 
 akPu3PFJetSequence_jec = cms.Sequence(akPu3PFJetSequence_mc)
-akPu3PFJetSequence_mix = cms.Sequence(akPu3PFJetSequence_mc)
+akPu3PFJetSequence_mb = cms.Sequence(akPu3PFJetSequence_mc)
 
 akPu3PFJetSequence = cms.Sequence(akPu3PFJetSequence_jec)
 akPu3PFJetAnalyzer.genPtMin = cms.untracked.double(1)

@@ -2,8 +2,11 @@
 
 for system in PbPb pp
 do
-    for sample in data jec mc
+    for sample in data jec mc mb
     do
+	if [ $system == "pp" ] && [ $sample == "mb" ]; then
+	    continue
+	fi	
         for algo in ak
         do
             for sub in Vs Pu NONE
@@ -16,12 +19,14 @@ do
                         if [ $sub == "NONE" ]; then
                             subt=""
                         fi
-
-                        genjets="HiSignalGenJets"
+			if [ $sample == "mb" ]; then
+                            genjets="HiCleanedGenJets"
+			else
+			    genjets="HiSignalGenJets"
+			fi
                         ismc="False"
                         corrlabel="_offline"
                         domatch="True"
-                        genparticles="hiSignalGenParticles"
                         tracks="hiGeneralTracks"
 			vertex="offlinePrimaryVertices"
                         pflow="particleFlowTmp"
@@ -44,7 +49,7 @@ do
 			    fi
                         fi
 
-                        if [ $sample == "mc" ] || [ $sample == "jec" ] || [ $sample == "mix" ]; then
+                        if [ $sample == "mc" ] || [ $sample == "jec" ] || [ $sample == "mb" ]; then
                             ismc="True"
                         fi
 
