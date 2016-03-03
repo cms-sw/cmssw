@@ -491,7 +491,7 @@ correctionCategory_class::correctionCategory_class(TString category_)
     p1 = p2;
     p2 = category.find("-", p1);
     etmax = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
-    std::cout << etmin << "\t" << etmax << "\t" << category.substr(p1 + 1, p2 - p1 - 1) << std::endl;
+    //  std::cout << etmin << "\t" << etmax << "\t" << category.substr(p1 + 1, p2 - p1 - 1) << std::endl;
   }
   
   if(category.find("gold")   != std::string::npos || 
