@@ -51,6 +51,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
+
 namespace evf{
 
   class FastMonitoringService : public MicroStateService
@@ -123,6 +124,8 @@ namespace evf{
 
       void preallocate(edm::service::SystemBounds const&);
       void jobFailure();
+      void preBeginJob(edm::PathsAndConsumesOfModulesBase const&,edm::ProcessContext const& pc);
+
       void preModuleBeginJob(edm::ModuleDescription const&);
       void postBeginJob();
       void postEndJob();

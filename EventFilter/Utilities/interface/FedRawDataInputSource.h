@@ -79,6 +79,9 @@ private:
   //monitoring
   void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
+  long initFileList(); 
+  evf::EvFDaqDirector::FileStatus getFile(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
+
   //variables
   evf::FastMonitoringService* fms_=nullptr;
   evf::EvFDaqDirector* daqDirector_=nullptr;
@@ -98,10 +101,14 @@ private:
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
+  std::vector<std::string> fileNames_;
+  //std::vector<std::string> fileNamesSorted_;
 
-  const edm::RunNumber_t runNumber_;
+  const bool fileListMode_;
+  unsigned int fileListIndex_ = 0;
 
-  const std::string fuOutputDir_;
+  edm::RunNumber_t runNumber_;
+  std::string fuOutputDir_;
 
   const edm::DaqProvenanceHelper daqProvenanceHelper_;
 
@@ -207,7 +214,7 @@ struct InputFile {
   std::string fileName_;
   uint32_t fileSize_;
   uint32_t nChunks_;
-  unsigned int nEvents_;
+  int nEvents_;
   unsigned int nProcessed_;
 
   tbb::concurrent_vector<InputChunk*> chunks_;
@@ -217,7 +224,7 @@ struct InputFile {
   unsigned int currentChunk_ = 0;
 
   InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-      uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr):
+      uint32_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
     parent_(parent),
     status_(status),
     lumi_(lumi),
