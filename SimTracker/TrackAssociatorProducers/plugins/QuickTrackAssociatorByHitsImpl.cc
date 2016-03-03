@@ -167,6 +167,8 @@ template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hi
 reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::RecoToSimCollection returnValue(productGetter_);
+        if(::collectionSize(trackingParticleCollection) == 0)
+          return returnValue;
 
         checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
 
@@ -216,6 +218,8 @@ template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hi
 reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::SimToRecoCollection returnValue(productGetter_);
+        if(::collectionSize(trackingParticleCollection) == 0)
+          return returnValue;
 
         checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
 
@@ -615,6 +619,8 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
 	reco::SimToRecoCollectionSeed returnValue(productGetter_);
+        if(trackingParticleCollectionHandle->empty())
+          return returnValue;
 
         if(clusterToTPMap_) {
           checkClusterMapProductID(*clusterToTPMap_, trackingParticleCollectionHandle);
