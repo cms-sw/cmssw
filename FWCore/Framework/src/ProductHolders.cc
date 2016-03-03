@@ -160,7 +160,7 @@ namespace edm {
   
   void
   DataManagingProductHolder::connectTo(ProductHolderBase const& iOther) {
-    productData_.connectTo(iOther.getProductData());
+    assert(false);
   }
   
 
