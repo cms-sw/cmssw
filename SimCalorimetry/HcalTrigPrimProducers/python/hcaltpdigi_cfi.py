@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import hfTPScaleShift
+
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
 Min_Long_Energy= cms.double(10),#makes a cut based on energy deposited in short vrs long
@@ -31,6 +33,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     InputTagFEDRaw = cms.InputTag("rawDataCollector"),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
-    PeakFinderAlgorithm = cms.int32(2)
+    PeakFinderAlgorithm = cms.int32(2),
 
+    HFTPScaleShift = hfTPScaleShift,
 )
