@@ -46,8 +46,11 @@ using namespace l1t;
 void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // These parameters are part of the L1T/HLT interface, avoid changing if possible::
-  desc.add<edm::InputTag> ("GmtInputTag", edm::InputTag(""))->setComment("InputTag for Global Muon Trigger (required parameter:  default value is invalid)");
-  desc.add<edm::InputTag> ("CaloInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("MuonInputTag", edm::InputTag(""))->setComment("InputTag for Global Muon Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("EGammaInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger EGamma (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("TauInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger Tau (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("JetInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger Jet (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag> ("EtSumInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag> ("ExtInputTag", edm::InputTag(""))->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
   desc.add<bool>("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
   desc.add<bool>("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
@@ -67,8 +70,11 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
-            m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
-            m_caloInputTag(parSet.getParameter<edm::InputTag> ("CaloInputTag")),
+            m_muInputTag(parSet.getParameter<edm::InputTag> ("MuonInputTag")),
+            m_egInputTag(parSet.getParameter<edm::InputTag> ("EGammaInputTag")),
+            m_tauInputTag(parSet.getParameter<edm::InputTag> ("TauInputTag")),
+            m_jetInputTag(parSet.getParameter<edm::InputTag> ("JetInputTag")),
+            m_sumInputTag(parSet.getParameter<edm::InputTag> ("EtSumInputTag")),
 	    m_extInputTag(parSet.getParameter<edm::InputTag> ("ExtInputTag")),
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           	    
@@ -84,11 +90,10 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 {
 
 
-  m_egInputToken = consumes <BXVector<EGamma> > (m_caloInputTag);
-  m_tauInputToken = consumes <BXVector<Tau> > (m_caloInputTag);
-  m_jetInputToken = consumes <BXVector<Jet> > (m_caloInputTag);
-  m_sumInputToken = consumes <BXVector<EtSum> > (m_caloInputTag);
-
+  m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
+  m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
+  m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
+  m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
   m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
 
   m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
@@ -99,7 +104,10 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
         LogTrace("l1t|Global")
                 << "\nInput tag for muon collection from GMT:         " << m_muInputTag
-                << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
+                << "\nInput tag for eg collection           :         " << m_egInputTag
+                << "\nInput tag for tau collection          :         " << m_tauInputTag
+                << "\nInput tag for jet collection          :         " << m_jetInputTag
+                << "\nInput tag for sum collection          :         " << m_sumInputTag
 		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
