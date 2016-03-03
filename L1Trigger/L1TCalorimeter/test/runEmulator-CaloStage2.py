@@ -146,16 +146,16 @@ process.l1tStage2CaloAnalyzer.doEvtDisp = options.evtDisp
 process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
 process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
 process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
-process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis","CaloTower")
 process.l1tCaloStage2HwHistos.clusterToken = cms.InputTag("None")
 process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "MP")
 process.l1tCaloStage2HwHistos.mpTauToken = cms.InputTag("caloStage2Digis","MP")
 process.l1tCaloStage2HwHistos.mpJetToken = cms.InputTag("caloStage2Digis", "MP")
 process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("caloStage2Digis", "MP")
-process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis")
-process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis","EGamma")
+process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis","Tau")
+process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis","Jet")
+process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis","EtSum")
 
 # Path and EndPath definitions
 process.path = cms.Path(
@@ -171,7 +171,7 @@ if (not options.doLayer1):
     process.path.remove(process.ecalDigis)
     process.path.remove(process.hcalDigis)
     process.path.remove(process.simCaloStage2Layer1Digis)
-    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis")
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis","CaloTower")
 
 if (not options.doLayer2):
     process.path.remove(process.simCaloStage2Digis)
