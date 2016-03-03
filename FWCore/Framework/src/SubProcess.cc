@@ -621,7 +621,7 @@ namespace edm {
         if(productHolder != nullptr) {
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
-          productHolder->connectTo(*parentProductHolder);
+          productHolder->connectTo(*parentProductHolder, &parentPrincipal);
         }
       }
     }

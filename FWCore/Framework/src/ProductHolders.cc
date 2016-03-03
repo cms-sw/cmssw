@@ -159,7 +159,7 @@ namespace edm {
   }
   
   void
-  DataManagingProductHolder::connectTo(ProductHolderBase const& iOther) {
+  DataManagingProductHolder::connectTo(ProductHolderBase const& iOther, Principal const*) {
     assert(false);
   }
   
@@ -370,7 +370,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
   
-  void NoProcessProductHolder::connectTo(ProductHolderBase const&) {
+  void NoProcessProductHolder::connectTo(ProductHolderBase const&, Principal const*) {
     throw Exception(errors::LogicError)
     << "NoProcessProductHolder::connectTo() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";

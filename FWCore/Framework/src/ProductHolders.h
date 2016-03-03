@@ -49,7 +49,7 @@ namespace edm {
     //Public since needed by Alias
     virtual ProductData const& getProductData() const override final {return productData_;}
 
-    virtual void connectTo(ProductHolderBase const&) override final;
+    virtual void connectTo(ProductHolderBase const&, Principal const*) override final;
 
     void resetStatus() {theStatus_ = defaultStatus_;}
     
@@ -159,8 +159,8 @@ namespace edm {
       typedef ProducedProductHolder::ProductStatus ProductStatus;
       explicit AliasProductHolder(std::shared_ptr<BranchDescription const> bd, ProducedProductHolder& realProduct) : ProductHolderBase(), realProduct_(realProduct), bd_(bd) {}
     
-      virtual void connectTo(ProductHolderBase const& iOther) override final {
-        realProduct_.connectTo(iOther);
+      virtual void connectTo(ProductHolderBase const& iOther, Principal const* iParentPrincipal) override final {
+        realProduct_.connectTo(iOther, iParentPrincipal );
       };
 
     private:
@@ -204,10 +204,11 @@ namespace edm {
   class ParentProcessProductHolder : public ProductHolderBase {
   public:
     typedef ProducedProductHolder::ProductStatus ProductStatus;
-    explicit ParentProcessProductHolder(std::shared_ptr<BranchDescription const> bd) : ProductHolderBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr) {}
+    explicit ParentProcessProductHolder(std::shared_ptr<BranchDescription const> bd) : ProductHolderBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
     
-    virtual void connectTo(ProductHolderBase const& iOther) override final {
+    virtual void connectTo(ProductHolderBase const& iOther, Principal const* iParentPrincipal) override final {
       realProduct_ = &iOther;
+      parentPrincipal_ = iParentPrincipal;
     };
     
   private:
@@ -220,7 +221,7 @@ namespace edm {
                                                Principal const& principal,
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
+                                               ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(resolveStatus, *parentPrincipal_, skipCurrentProcess, sra, mcc);}
     virtual bool onDemandWasNotRun_() const override {return realProduct_->onDemandWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
@@ -247,6 +248,7 @@ namespace edm {
     ProductHolderBase const* realProduct_;
     std::shared_ptr<BranchDescription const> bd_;
     ProductProvenanceRetriever const* provRetriever_;
+    Principal const* parentPrincipal_;
   };
 
   class NoProcessProductHolder : public ProductHolderBase {
@@ -255,7 +257,7 @@ namespace edm {
       NoProcessProductHolder(std::vector<ProductHolderIndex> const& matchingHolders,
                              std::vector<bool> const& ambiguous);
     
-    virtual void connectTo(ProductHolderBase const& iOther) override final ;
+    virtual void connectTo(ProductHolderBase const& iOther, Principal const*) override final ;
 
     private:
       virtual ProductData const& getProductData() const override;

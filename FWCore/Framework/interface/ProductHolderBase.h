@@ -149,7 +149,7 @@ namespace edm {
 
     void throwProductDeletedException() const;
 
-    virtual void connectTo(ProductHolderBase const&) = 0;
+    virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
 
   protected:
     virtual ProductData const& getProductData() const = 0;
