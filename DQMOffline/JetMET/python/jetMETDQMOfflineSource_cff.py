@@ -4,6 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
+from DQMOffline.JetMET.pfCandidateDQMConfig_cfi   import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
 from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
@@ -108,12 +109,14 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       goodOfflinePrimaryVerticesDQM*                                                                            
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM
-                                      *METDQMAnalyzerSequence)
+                                      *METDQMAnalyzerSequence
+                                      *pfCandidateDQMAnalyzer)
 eras.phase1Pixel.toReplaceWith(jetMETDQMOfflineSource, jetMETDQMOfflineSource.copyAndExclude([ # FIXME
     jetDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
     METDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
+    pfCandidateDQMAnalyzer
 ]))
 
 jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD)
 
-jetMETDQMOfflineSourceMiniAOD = cms.Sequence(jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)
+jetMETDQMOfflineSourceMiniAOD = cms.Sequence(jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD*packedCandidateDQMAnalyzerMiniAOD)
