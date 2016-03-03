@@ -29,7 +29,7 @@ defaultHostname = 'cms-conddb-prod.cern.ch'
 defaultDevHostname = 'cms-conddb-dev.cern.ch'
 defaultUrlTemplate = 'https://%s/cmsDbUpload/'
 defaultTemporaryFile = 'upload.tar.bz2'
-defaultNetrcHost = 'Dropbox'
+defaultNetrcHost = 'ConditionUploader'
 defaultWorkflow = 'offline'
 
 # common/http.py start (plus the "# Try to extract..." section bit)
@@ -609,7 +609,8 @@ def authenticateUser(dropBox, options):
 
 def uploadAllFiles(options, arguments):
     
-    results = {}
+    ret = {}
+    ret['status'] = 0
 
     # Check that we can read the data and metadata files
     # If the metadata file does not exist, start the wizard
@@ -626,8 +627,11 @@ def uploadAllFiles(options, arguments):
             with open(dataFilename, 'rb') as dataFile:
                 pass
         except IOError as e:
-            logging.error('Impossible to open SQLite data file %s', dataFilename)
-            return -3
+            errMsg = 'Impossible to open SQLite data file %s' %dataFilename
+            logging.error( errMsg )
+            ret['status'] = -3
+            ret['error'] = errMsg
+            return ret
 
         # Metadata file
         try:
@@ -635,13 +639,18 @@ def uploadAllFiles(options, arguments):
                 pass
         except IOError as e:
             if e.errno != errno.ENOENT:
-                logging.error('Impossible to open file %s (for other reason than not existing)', metadataFilename)
-                return -4
+                errMsg = 'Impossible to open file %s (for other reason than not existing)' %metadataFilename
+                logging.error( errMsg )
+                ret['status'] = -4
+                ret['error'] = errMsg
+                return ret
 
             if getInput('y', '\nIt looks like the metadata file %s does not exist. Do you want me to create it and help you fill it?\nAnswer [y]: ' % metadataFilename).lower() != 'y':
-                logging.error('Metadata file %s does not exist', metadataFilename)
-                return -5
-
+                errMsg = 'Metadata file %s does not exist' %metadataFilename
+                logging.error( errMsg )
+                ret['status'] = -5
+                ret['error'] = errMsg
+                return ret
             # Wizard
             runWizard(basename, dataFilename, metadataFilename)
 
@@ -657,6 +666,7 @@ def uploadAllFiles(options, arguments):
         # At this point we must be authenticated
         dropBox._checkForUpdates()
 
+        results = {}
         for filename in arguments:
             backend = options.backend
             basepath = filename.rsplit('.db', 1)[0].rsplit('.txt', 1)[0]
@@ -679,7 +689,11 @@ def uploadAllFiles(options, arguments):
             else:
                 results[filename] = False
                 logging.error("DestinationDatabase %s is not valid. Skipping the upload." %destDb)
-
+            if not results[filename]:
+                if ret['status']<0:
+                    ret['status'] = 0
+                ret['status'] += 1
+        ret['files'] = results
         logging.debug("all files processed, logging out now.")
 
         dropBox.signOut()
@@ -688,7 +702,7 @@ def uploadAllFiles(options, arguments):
         logging.error('got HTTP error: %s', str(e))
         return { 'status' : -1, 'error' : str(e) }
 
-    return results
+    return ret
 
 def uploadTier0Files(filenames, username, password, cookieFileName = None):
     '''Uploads a bunch of files coming from Tier0.
@@ -789,9 +803,15 @@ def main():
 
     results = uploadAllFiles(options, arguments)
 
-    print "uploadAllFiles returned:"
-    for hash, res in results.items():
-        print "\t %s : %s " % (hash, str(res))
+    if not results.has_key('status'):
+        print 'Unexpected error.'
+        return -1
+    ret = results['status']
+    print results
+    print "upload ended with code: %s" %ret
+    #for hash, res in results.items():
+    #    print "\t %s : %s " % (hash, str(res))
+    return ret
 
 def testTier0Upload():
 
