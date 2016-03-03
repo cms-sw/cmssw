@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ak2PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak2PFJets"),
-    matched = cms.InputTag("ak2HiGenJets"),
+    matched = cms.InputTag("ak2HiSignalGenJets"),
     maxDeltaR = 0.2
     )
 
@@ -26,13 +26,13 @@ ak2PFcorr = patJetCorrFactors.clone(
 
 ak2PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak2CaloJets'))
 
-#ak2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
+#ak2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiSignalGenJets'))
 
 ak2PFbTagger = bTaggers("ak2PF",0.2)
 
 #create objects locally since they dont load properly otherwise
 #ak2PFmatch = ak2PFbTagger.match
-ak2PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak2PFJets"), matched = cms.InputTag("genParticles"))
+ak2PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak2PFJets"), matched = cms.InputTag("hiSignalGenParticles"))
 ak2PFPatJetFlavourAssociationLegacy = ak2PFbTagger.PatJetFlavourAssociationLegacy
 ak2PFPatJetPartons = ak2PFbTagger.PatJetPartons
 ak2PFJetTracksAssociatorAtVertex = ak2PFbTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ ak2PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak2PFJets"),
         )
 
 ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak2HiGenJets',
+                                                             genjetTag = 'ak2HiSignalGenJets',
                                                              rParam = 0.2,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJet
                                                              isMC = True,
 							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("genParticles"),
+							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),

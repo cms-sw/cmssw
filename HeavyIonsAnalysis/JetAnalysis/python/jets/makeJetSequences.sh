@@ -17,11 +17,11 @@ do
                             subt=""
                         fi
 
-                        genjets="HiGenJets"
+                        genjets="HiSignalGenJets"
                         ismc="False"
                         corrlabel="_offline"
                         domatch="True"
-                        genparticles="genParticles"
+                        genparticles="hiSignalGenParticles"
                         tracks="hiGeneralTracks"
 			vertex="offlinePrimaryVertices"
                         pflow="particleFlowTmp"
