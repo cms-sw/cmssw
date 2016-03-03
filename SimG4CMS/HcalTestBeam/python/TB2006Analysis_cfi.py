@@ -66,7 +66,10 @@ def testbeam2006(process):
             Verbose = cms.untracked.bool(False),
             ETtotMax = cms.untracked.double(400.),
             EHCalMax = cms.untracked.double(400.),
-            EcalWidth  = cms.double(0.1),
+            beamEnergy = cms.untracked.double(50.),
+            TimeLimit  = cms.double(500.),
+            EcalWidth  = cms.double(0.362),
+            HcalWidth  = cms.double(0.640),
             EcalFactor = cms.double(1.),
             HcalFactor = cms.double(100.)
         )

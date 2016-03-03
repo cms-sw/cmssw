@@ -13,6 +13,7 @@ using namespace std;
 
 TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet& ps) {
 
+  m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalTBH4BeamHits"));
   produces<EcalTBHodoscopeRawInfo>();
 
   theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
@@ -24,14 +25,14 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
   delete theTBHodoGeom_; 
 }
 
- void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
+void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
   auto_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // caloHit container
   edm::Handle<edm::PCaloHitContainer> pCaloHit;
-  const edm::PCaloHitContainer* caloHits =0;
-  event.getByLabel( "g4SimHits", "EcalTBH4BeamHits", pCaloHit);   
+  const edm::PCaloHitContainer* caloHits = nullptr;
+  event.getByToken(m_EcalToken, pCaloHit); 
   if (pCaloHit.isValid()){ 
     caloHits = pCaloHit.product();                 
     LogDebug("EcalTBHodo") << "total # caloHits: " << caloHits->size() ;
@@ -40,25 +41,19 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
   }  
   if (!caloHits){ return; }
 
-
   // detid - energy_sum map
   std::map<unsigned int, double> energyMap;  
 
-  int myCount = 0;
-  for(edm::PCaloHitContainer::const_iterator itch = caloHits->begin(); itch != caloHits->end(); ++itch) {
-    
-    double thisHitEne = itch->energy();
+  for(auto&& aHit : *caloHits) {
+    double thisHitEne = aHit.energy();
 
-    std::map<unsigned int,double>::iterator itmap = energyMap.find(itch->id());
+    std::map<unsigned int,double>::iterator itmap = energyMap.find(aHit.id());
     if ( itmap == energyMap.end() )
-      energyMap.insert(pair<unsigned int, double>( itch->id(), thisHitEne));  
+      energyMap.insert(pair<unsigned int, double>( aHit.id(), thisHitEne));  
     else{
-      (*itmap).second+=thisHitEne;
+      (*itmap).second += thisHitEne;
     }
-
-    myCount++;
   }
-
   
   // planes and fibers
   int nPlanes=theTBHodoGeom_->getNPlanes();
@@ -66,22 +61,23 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
   product->setPlanes(nPlanes);
 
   bool firedChannels[4][64];
-  for (int iPlane = 0 ; iPlane < nPlanes ; ++iPlane) 
-    for (int iFiber = 0; iFiber < nFibers ; ++iFiber) 
+  for (int iPlane = 0 ; iPlane < nPlanes ; ++iPlane) {
+    for (int iFiber = 0; iFiber < nFibers ; ++iFiber) { 
       firedChannels[iPlane][iFiber] = 0.;
-
-  for(std::map<unsigned int,double>::const_iterator itmap=energyMap.begin();itmap!=energyMap.end();itmap++)
+    }
+  }
+  for(std::map<unsigned int,double>::const_iterator itmap=energyMap.begin();itmap!=energyMap.end();++itmap) {
     if ( (*itmap).second > myThreshold ){
       HodoscopeDetId myHodoDetId = HodoscopeDetId((*itmap).first);   
       firedChannels[myHodoDetId.planeId()][myHodoDetId.fibrId()] = 1;
     }
-
+  }
   for (int iPlane = 0 ; iPlane < nPlanes ; ++iPlane) {
     EcalTBHodoscopePlaneRawHits planeHit(nFibers);
     
-    for (int iFiber = 0; iFiber < nFibers ; ++iFiber) 
+    for (int iFiber = 0; iFiber < nFibers ; ++iFiber) {
       planeHit.setHit(iFiber,firedChannels[iPlane][iFiber]);
-    
+    }
     product->setPlane((unsigned int)iPlane, planeHit);
   }
   
