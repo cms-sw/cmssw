@@ -52,7 +52,9 @@ process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
 process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
-process.stage2UnpackPath = cms.Path(process.caloStage2Digis+process.gmtStage2Digis)
+process.stage2UnpackPath = cms.Path(process.caloStage2Digis +
+                                    process.gmtStage2Digis +
+                                    process.emtfStage2Digis)
 
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
 
