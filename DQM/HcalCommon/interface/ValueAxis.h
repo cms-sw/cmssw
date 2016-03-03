@@ -95,6 +95,8 @@ namespace hcaldqm
 				ValueAxis(AxisType type, ValueType vtype, int n, 
 					double min,	double max, std::string title, bool log=false);
 				virtual ~ValueAxis() {}
+				virtual ValueAxis* makeCopy()
+				{return new ValueAxis(_type, _vtype, _log);}
 
 				virtual int getBin(int);
 				virtual int getBin(double);

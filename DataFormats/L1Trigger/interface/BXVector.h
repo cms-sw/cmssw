@@ -5,6 +5,8 @@
 // designed to store objects corresponding to several time-samples (BX)
 // the time sample is addressed by an integer index, eg. -1 to 1
 
+#include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/traits.h"
 #include <vector>
 
 template < class T >
@@ -103,6 +105,10 @@ class BXVector  {
   T& operator[](std::size_t i) { return data_[i]; }
   const T& operator[](std::size_t i) const { return data_[i]; }
 
+  // edm::View
+  void fillView(edm::ProductID const& id,
+		std::vector<void const*>& pointers,
+		edm::FillViewHelperVector& helpers) const;
 
  private:
 

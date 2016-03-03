@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+hfTPScaleShift =cms.PSet(
+    NCT= cms.int32(1),
+    RCT= cms.int32(3)
+)
+
 CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     hcalLUT1 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_physics.dat'),
     hcalLUT2 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt'),
@@ -10,5 +15,6 @@ CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     ZS = cms.vint32(4,2,1,0),
     LUTfactor = cms.vint32(1,2,5,0),
     nominal_gain = cms.double(0.177),
-    RCTLSB = cms.double(0.25)
+    RCTLSB = cms.double(0.25),
+    HFTPScaleShift = hfTPScaleShift,
 )

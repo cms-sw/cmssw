@@ -41,7 +41,7 @@ namespace l1t {
                prod.produces<RegionalMuonCandBxCollection>("BMTF");
                prod.produces<RegionalMuonCandBxCollection>("OMTF");
                prod.produces<RegionalMuonCandBxCollection>("EMTF");
-               prod.produces<MuonBxCollection>();
+               prod.produces<MuonBxCollection>("Muon");
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override {
