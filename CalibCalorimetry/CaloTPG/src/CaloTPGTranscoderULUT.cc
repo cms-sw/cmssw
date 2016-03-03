@@ -12,16 +12,14 @@
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 
 using namespace std;
-
-constexpr float CaloTPGTranscoderULUT::LSB_HF;
-constexpr float CaloTPGTranscoderULUT::LSB_HBHE;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)
                                                 : theTopology(0),
-                                                  nominal_gain_(0.), rctlsb_factor_(0.),
+                                                  nominal_gain_(0.), rctlsb_factor_(0.), nctlsb_factor_(0),
                                                   compressionFile_(compressionFile),
                                                   decompressionFile_(decompressionFile)
 {
@@ -92,7 +90,9 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	double cosh_ieta   = fabs(cosh((eta_low + eta_high)/2.));
 	double granularity =  meta->getLutGranularity(); 
 
-	double factor = isHBHE ?  (nominal_gain_ / cosh_ieta * granularity) : rctlsb_factor_;
+	double factor = isHBHE ?  
+			(nominal_gain_ / cosh_ieta * granularity) : 
+			(version==0 ? rctlsb_factor_ : nctlsb_factor_);
 
         LUT tpg = outputLUT_[index][0];
         int low = 0;
@@ -207,15 +207,13 @@ const std::vector<unsigned int>& CaloTPGTranscoderULUT::getCompressionLUT(const 
    return outputLUT_[itower];
 }
 
-void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTowerGeometry const& theTrigTowerGeometry)
+void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTowerGeometry const& theTrigTowerGeometry, int nctScaleShift, int rctScaleShift)
 {
-    theTopology = lutMetadata.topo();
-    nominal_gain_ = lutMetadata.getNominalGain();
-    float rctlsb =lutMetadata.getRctLsb();
-    if (rctlsb != LSB_HBHE && rctlsb != LSB_HF)
-	throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be " << LSB_HBHE
-	    << " or " << LSB_HF << ")" << std::endl;
-    rctlsb_factor_ = rctlsb;
+    theTopology	    = lutMetadata.topo();
+    nominal_gain_   = lutMetadata.getNominalGain();
+
+    rctlsb_factor_  = HcaluLUTTPGCoder::lsb_*(1<<rctScaleShift);
+    nctlsb_factor_  = HcaluLUTTPGCoder::lsb_*(1<<nctScaleShift);
 
     if (compressionFile_.empty() && decompressionFile_.empty()) {
 	loadHCALCompress(lutMetadata,theTrigTowerGeometry);
@@ -224,4 +222,3 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
 	throw cms::Exception("Not Implemented") << "setup of CaloTPGTranscoderULUT from text files";
    }
 }
-
