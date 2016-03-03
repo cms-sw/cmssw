@@ -12,9 +12,9 @@ import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
-from PhysicsTools.RecoAlgos.trackingParticleSelector_cfi import trackingParticleSelector as _trackingParticleSelector
-from CommonTools.RecoAlgos.trackingParticleConversionSelector_cfi import trackingParticleConversionSelector as _trackingParticleConversionSelector
-from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import sortedPrimaryVertices as _sortedPrimaryVertices
+from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
+from CommonTools.RecoAlgos.trackingParticleConversionRefSelector_cfi import trackingParticleConversionRefSelector as _trackingParticleConversionRefSelector
+from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
 from Configuration.StandardSequences.Eras import eras
@@ -236,7 +236,7 @@ cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociati
 
 
 ## Select signal TrackingParticles, and do the corresponding associations
-trackingParticlesSignal = _trackingParticleSelector.clone(
+trackingParticlesSignal = _trackingParticleRefSelector.clone(
     signalOnly = True,
     chargedOnly = False,
     tip = 1e5,
@@ -244,16 +244,6 @@ trackingParticlesSignal = _trackingParticleSelector.clone(
     minRapidity = -10,
     maxRapidity = 10,
     ptMin = 0,
-)
-tpClusterProducerSignal = tpClusterProducer.clone(
-    trackingParticleSrc = "trackingParticlesSignal"
-)
-quickTrackAssociatorByHitsSignal = quickTrackAssociatorByHits.clone(
-    cluster2TPSrc = "tpClusterProducerSignal"
-)
-trackingParticleRecoTrackAsssociationSignal = trackingParticleRecoTrackAsssociation.clone(
-    label_tp = "trackingParticlesSignal",
-    associator = "quickTrackAssociatorByHitsSignal"
 )
 
 # select tracks from the PV
@@ -278,15 +268,18 @@ _tracksValidationSelectorsFromPV_phase1Pixel.insert(0, generalTracksFromPV)
 eras.phase1Pixel.toReplaceWith(tracksValidationSelectorsFromPV, _tracksValidationSelectorsFromPV_phase1Pixel)
 
 ## Select conversion TrackingParticles, and define the corresponding associator
-# (do not use associations because the collections of interest are not subsets of each other)
-trackingParticlesConversion = _trackingParticleConversionSelector.clone()
-tpClusterProducerConversion = tpClusterProducer.clone(
-    trackingParticleSrc = "trackingParticlesConversion",
-)
-quickTrackAssociatorByHitsConversion = quickTrackAssociatorByHits.clone(
-    cluster2TPSrc = "tpClusterProducerConversion"
-)
+trackingParticlesConversion = _trackingParticleConversionRefSelector.clone()
 
+## Select electron TPs
+trackingParticlesElectron = _trackingParticleRefSelector.clone(
+    pdgId = [-11, 11],
+    signalOnly = False,
+    tip = 1e5,
+    lip = 1e5,
+    minRapidity = -10,
+    maxRapidity = 10,
+    ptMin = 0,
+)
 
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
@@ -314,7 +307,8 @@ trackValidatorFromPV = trackValidator.clone(
     label = ["generalTracksFromPV"]+_selectorsFromPV,
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
-    associators = ["trackingParticleRecoTrackAsssociationSignal"],
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
     trackCollectionForDrCalculation = "generalTracksFromPV",
     doPlotsOnlyForTruePV = True,
     doPVAssociationPlots = False,
@@ -327,6 +321,8 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     dirName = "Tracking/TrackFromPVAllTP/",
     label_tp_effic = trackValidator.label_tp_effic.value(),
     label_tp_fake = trackValidator.label_tp_fake.value(),
+    label_tp_effic_refvector = False,
+    label_tp_fake_refvector = False,
     associators = trackValidator.associators.value(),
     doSimPlots = False,
     doSimTrackPlots = False,
@@ -361,8 +357,8 @@ trackValidatorConversion = trackValidator.clone(
         "ckfOutInTracksFromConversions",
     ],
     label_tp_effic = "trackingParticlesConversion",
-    label_tp_fake = "trackingParticlesConversion",
-    associators = ["quickTrackAssociatorByHitsConversion"],
+    label_tp_effic_refvector = True,
+    associators = ["quickTrackAssociatorByHits"],
     UseAssociators = True,
     doSimPlots = True,
     dodEdxPlots = False,
@@ -374,6 +370,13 @@ for n in ["Eta", "Phi", "Pt", "VTXR", "VTXZ"]:
     pset = getattr(trackValidatorConversion.histoProducerAlgoBlock, "TpSelectorForEfficiencyVs"+n)
     pset.lip = trackValidatorConversion.lipTP.value()
     pset.tip = trackValidatorConversion.tipTP.value()
+
+# For electrons
+trackValidatorGsfTracks = trackValidatorConversion.clone(
+    dirName = "Tracking/TrackGsf/",
+    label = ["electronGsfTracks"],
+    label_tp_effic = "trackingParticlesElectron",
+)
 
 
 # the track selectors
@@ -388,33 +391,23 @@ tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
     trackingParticleRecoTrackAsssociation +
-    VertexAssociatorByPositionAndTracks
+    VertexAssociatorByPositionAndTracks +
+    trackingParticleNumberOfLayersProducer
 )
 eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
-
-tracksValidationTruthSignal = cms.Sequence(
-    cms.ignore(trackingParticlesSignal) +
-    tpClusterProducerSignal +
-    quickTrackAssociatorByHitsSignal +
-    trackingParticleRecoTrackAsssociationSignal
-)
-eras.fastSim.toModify(tracksValidationTruthSignal, lambda x: x.remove(tpClusterProducerSignal))
-
-
-tracksValidationTruthConversion = cms.Sequence(
-    trackingParticlesConversion +
-    tpClusterProducerConversion +
-    quickTrackAssociatorByHitsConversion
-)
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
     tracksValidationSelectorsFromPV +
     tracksValidationTruth +
-    tracksValidationTruthSignal +
-    tracksValidationTruthConversion
+    cms.ignore(trackingParticlesSignal) +
+    cms.ignore(trackingParticlesElectron) +
+    trackingParticlesConversion
 )
-eras.fastSim.toModify(tracksPreValidation, lambda x: x.remove(tracksValidationTruthConversion))
+eras.fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
+    trackingParticlesElectron,
+    trackingParticlesConversion
+]))
 
 tracksValidation = cms.Sequence(
     tracksPreValidation +
@@ -422,10 +415,10 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPV +
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
-    trackValidatorConversion
+    trackValidatorConversion +
+    trackValidatorGsfTracks
 )
-eras.fastSim.toModify(tracksValidation, lambda x: x.remove(trackValidatorConversion))
-
+eras.fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
@@ -475,7 +468,8 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
-    trackValidatorConversionStandalone
+    trackValidatorConversionStandalone +
+    trackValidatorGsfTracks
 )
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 eras.fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
@@ -535,6 +529,7 @@ trackValidatorsTrackingOnly += (
     trackValidatorBuildingTrackingOnly
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
+trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
 eras.fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
 
 

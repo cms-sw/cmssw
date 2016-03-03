@@ -18,7 +18,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                 PFTaus = cms.untracked.PSet(
                                    PFTauDiscriminators = cms.untracked.VInputTag(
                                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                                    cms.InputTag("hpsPFTauDiscriminationByLooseIsolation")
+                                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits")
                                    ),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(15.0),
