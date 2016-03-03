@@ -97,8 +97,8 @@ public:
   uint32_t getCrate(int caloEta, int caloPhi);
   uint32_t getCard(int caloEta,int caloPhi);
   uint32_t getRegion(int caloEta,int caloPhi);
-  uint32_t getiEta(int caloEta,int caloPhi);
-  uint32_t getiPhi(int caloEta,int caloPhi);
+  uint32_t getiEta(int caloEta);
+  uint32_t getiPhi(int caloPhi);
 
   bool checkCrate(uint32_t crate) {return !(crate < NCrates);}
   bool checkCard(uint32_t card) {return !(card < NCardsInCrate);}
