@@ -44,12 +44,14 @@ using namespace l1t;
 // constructors
 L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& iConfig) : 
   theSource(iConfig.getParameter<InputTag>("InputObjects")),
+  theL1GMTReadoutCollection(iConfig.getParameter<InputTag>("GMTReadoutCollection")), // to be removed
   thePropagatorName(iConfig.getParameter<string>("Propagator")),
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
   theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")),
-  useOfflineSeed(iConfig.getParameter<bool>("UseOfflineSeed")),
-  useUnassociatedL1(iConfig.getParameter<bool>("UseUnassociatedL1")),
+  useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
+  useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
+		    iConfig.getParameter<bool>("UseUnassociatedL1") : true),
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") )
   {
 
@@ -82,14 +84,24 @@ L2MuonSeedGeneratorFromL1T::~L2MuonSeedGeneratorFromL1T(){
 void
 L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("GMTReadoutCollection", edm::InputTag("")); // to be removed
   desc.add<edm::InputTag>("InputObjects",edm::InputTag("hltGmtStage2Digis"));
   desc.add<string>("Propagator", "");
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
-  desc.add<unsigned int>("L1MinQuality",0);
-  desc.add<bool>("UseOfflineSeed",false);
+  desc.add<unsigned int>("L1MinQuality",0);   
+  desc.addUntracked<bool>("UseOfflineSeed",false);
   desc.add<bool>("UseUnassociatedL1", true);
   desc.add<bool>("CentralBxOnly", true);
+  desc.addUntracked<edm::InputTag>("OfflineSeedLabel", edm::InputTag(""));
+
+  edm::ParameterSetDescription psd0;
+  psd0.addUntracked<std::vector<std::string>>("Propagators", {
+	  "SteppingHelixPropagatorAny"
+  });
+  psd0.add<bool>("RPCLayers", true);
+  psd0.addUntracked<bool>("UseMuonNavigation", true);
+  desc.add<edm::ParameterSetDescription>("ServiceParameters", psd0);
   descriptions.add("L2MuonSeedGeneratorFromL1T",desc);
 }
 
