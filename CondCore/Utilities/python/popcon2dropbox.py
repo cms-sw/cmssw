@@ -30,9 +30,6 @@ class CondMetaData(object):
    def logDbFileName( self ):
       return self.md.get('logDbFileName')
 
-   def synchronizeTo( self ):
-      return self.md.get('synchronizeTo')
-
    def records( self ):
       return self.md.get('records')
 
@@ -41,10 +38,7 @@ class CondMetaData(object):
       uploadMd['destinationDatabase'] = self.destinationDatabase()
       tags = {}
       tagInfo = {}
-      tagInfo['dependencies'] = {}
-      tagInfo['synchronizeTo'] = self.synchronizeTo()
       tags[ desttag ] = tagInfo
-      print tags
       uploadMd['destinationTags'] = tags
       uploadMd['inputTag'] = inputtag
       uploadMd['since'] = None
@@ -76,29 +70,36 @@ def runO2O( cmsswdir, releasepath, release, arch, jobfilename, logfilename, *p )
 
 def upload_to_dropbox( backend ):
     md = CondMetaData()
+    # check if the expected input file is there...
+    if not path.exists( dbFileForDropBox ):
+       print 'The input sqlite file has not been produced.'
+       return False
     # first remove any existing metadata file...
     if path.exists( '%s.txt' %fileNameForDropBox ):
        remove( '%s.txt' %fileNameForDropBox )
     try:
-       dropBox = upload_popcon.DropBox(upload_popcon.defaultHostname, upload_popcon.defaultUrlTemplate)
+       dropBox = upload_popcon.ConditionsUploader(upload_popcon.defaultHostname, upload_popcon.defaultUrlTemplate)
        # Try to find the netrc entry
        try:
           (username, account, password) = netrc.netrc().authenticators(upload_popcon.defaultNetrcHost)
        except Exception:
           print 'Netrc entry "DropBox" not found.'
-          return
+          return False
        print 'signing in...'
        dropBox.signIn(username, password)
        print 'signed in'
+       ret = True
        for k,v in  md.records().items():
           destTag = v.get("destinationTag")
           inputTag = v.get("sqliteTag")
           if inputTag == None:
              inputTag = destTag
           comment = v.get("comment")
-          md.dumpMetadataForUpload( inputTag, destTag, comment )
-          dropBox.uploadFile(dbFileForDropBox, backend, upload_popcon.defaultTemporaryFile)
+          metadata = md.dumpMetadataForUpload( inputTag, destTag, comment )
+          ret &= dropBox.uploadFile(dbFileForDropBox, backend, upload_popcon.defaultTemporaryFile)
        dropBox.signOut()
+       return ret
     except upload_popcon.HTTPError as e:
        print e
+       return False
 
