@@ -536,7 +536,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      HcalSubdetector subdet = (HcalSubdetector) 0;
      if      ( abs(ieta) <= 16 )
         subdet = HcalSubdetector::HcalBarrel ;
-     else if ( abs(ieta) <= tp_geometry->firstHFTower(itr->id().version()) ) 
+     else if ( abs(ieta) < tp_geometry->firstHFTower(itr->id().version()) ) 
         subdet = HcalSubdetector::HcalEndcap ;
      else if ( abs(ieta) <= 42 )
         subdet = HcalSubdetector::HcalForward;
