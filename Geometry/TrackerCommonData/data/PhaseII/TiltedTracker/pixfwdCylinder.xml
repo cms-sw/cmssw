@@ -105,7 +105,6 @@ root volume plus an anchor point for positioning.
 
  <Polycone name="PixelForwardServiceCylinder" startPhi="0*deg" deltaPhi="360*deg">
   <ZSection z="[CylindersServiceZ0]"   rMin="[CylindersOuterRmin]"   rMax="[CylindersOuterRmax]"/>
-  <ZSection z="[CylindersServiceZMin]" rMin="[CylindersOuterRmin]"   rMax="[CylindersOuterRmax]"/>
   <ZSection z="[CylindersServiceZMin]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/> <!-- rMin extended to make room for additional disks (was rMin="[CylindersServiceRmin]")-->
   <ZSection z="[CylindersServiceZMax]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/> <!-- same comment as above-->
  </Polycone>
