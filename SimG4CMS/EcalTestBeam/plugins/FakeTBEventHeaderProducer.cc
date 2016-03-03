@@ -10,35 +10,32 @@
 using namespace cms;
 using namespace std;
 
-
 FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet& ps) {
+  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel","SimEcalTBG4Object"));
   produces<EcalTBEventHeader>();
-  ecalTBInfoLabel_ = ps.getUntrackedParameter<string>("EcalTBInfoLabel","SimEcalTBG4Object");
-
 }
-
  
 FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer() 
 {
 }
 
- void FakeTBEventHeaderProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
+void FakeTBEventHeaderProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
   auto_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
 
   // get the vertex information from the event
 
-  const PEcalTBInfo* theEcalTBInfo=0;
+  const PEcalTBInfo* theEcalTBInfo = nullptr;
   edm::Handle<PEcalTBInfo> EcalTBInfo;
-  event.getByLabel(ecalTBInfoLabel_,EcalTBInfo);
+  event.getByToken(ecalTBInfo_,EcalTBInfo);
   if (EcalTBInfo.isValid()){
     theEcalTBInfo = EcalTBInfo.product(); 
   } else {
-    edm::LogError("FakeTBEventHeaderProducer") << "Error! can't get the product " << ecalTBInfoLabel_.c_str() ;
+    edm::LogError("FakeTBEventHeaderProducer") << "Error! can't get the product PEcalTBInfo";
   }
   
   if (!theEcalTBInfo)
-    return;
+    { return; }
   
   // 64 bits event ID in CMSSW converted to EcalTBEventHeader ID
   int evtid = (int)event.id().event();
