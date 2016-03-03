@@ -42,6 +42,8 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
 using namespace l1t;
@@ -217,9 +219,12 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(!layer1->process()) {
     std::cerr << "UCT: Failed to process layer 1" << std::endl;
   }
-  
+
+
   int theBX = 0; // Currently we only read and process the "hit" BX only
 
+  towersColl->resize(theBX, CaloTools::caloTowerHashMax()+1);
+  
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
@@ -236,7 +241,10 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  caloTower.setHwPhi(towers[twr]->caloPhi());         // caloPhi = 1-72
 	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
 	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
+
+	  unsigned hash = CaloTools::caloTowerHash(towers[twr]->caloEta(), towers[twr]->caloPhi());
 	  towersColl->push_back(theBX, caloTower);
+	  towersColl->set(theBX, hash, caloTower);
 	}
       }
     }
