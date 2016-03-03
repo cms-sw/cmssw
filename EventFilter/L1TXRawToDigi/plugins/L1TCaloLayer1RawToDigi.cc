@@ -300,7 +300,7 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
     if(side == 0) negativeEta = true;
     for(uint32_t iEta = 30; iEta <= 40; iEta++) {
       for(uint32_t iPhi = 0; iPhi < 2; iPhi++) {
-	if(iPhi == 2 && iEta == 40) iEta = 41;
+	if(iPhi == 1 && iEta == 40) iEta = 41;
 	int cPhi = 1 + lPhi * 4 + iPhi * 2; // Calorimeter phi index: 1, 3, 5, ... 71
 	int cEta = iEta;
 	if(negativeEta) cEta = -iEta;

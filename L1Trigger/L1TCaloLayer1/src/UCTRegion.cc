@@ -36,10 +36,10 @@ UCTRegion::~UCTRegion() {
 
 const UCTTower* UCTRegion::getTower(uint32_t caloEta, uint32_t caloPhi) const {
   UCTGeometry g;
-  uint32_t nEta = g.getNEta(region);
-  uint32_t iEta = g.getiEta(caloEta, caloPhi);
-  uint32_t iPhi = g.getiPhi(caloEta, caloPhi);
-  UCTTower* tower = towers[iEta*nEta+iPhi];
+  uint32_t nPhi = g.getNPhi(region);
+  uint32_t iEta = g.getiEta(caloEta);
+  uint32_t iPhi = g.getiPhi(caloPhi);
+  UCTTower* tower = towers[iEta*nPhi+iPhi];
   return tower;
 }
 
@@ -60,14 +60,7 @@ bool UCTRegion::process() {
     regionET += towers[twr]->et();
   }
   if(regionET > RegionETMask) {
-    /*
-    std::cerr << std::dec;
-    std::cerr << "towers.size() = " << towers.size() << std::endl;
-    for(uint32_t twr = 0; twr < towers.size(); twr++) {
-      std::cerr << "towers[twr]->et() = " << towers[twr]->et() << std::endl;
-    }
-    */
-    std::cerr << "Pegging RegionET" << std::endl;
+    std::cerr << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
     regionET = RegionETMask;
   }
   regionSummary = (RegionETMask & regionET);
@@ -79,10 +72,10 @@ bool UCTRegion::process() {
     uint32_t highestTowerLocation = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
       for(uint32_t iEta = 0; iEta < nEta; iEta++) {
-	uint32_t towerET = towers[iEta*nEta+iPhi]->et();
+	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
 	if(highestTowerET < towerET ) {
 	  highestTowerET = towerET;
-	  highestTowerLocation = iEta*nEta+iPhi;
+	  highestTowerLocation = iEta*nPhi+iPhi;
 	}
       }
     }
@@ -103,37 +96,41 @@ bool UCTRegion::clearEvent() {
 
 bool UCTRegion::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   UCTGeometry g;
-  uint32_t nEta = g.getNEta(region);
+  uint32_t nPhi = g.getNPhi(region);
   uint32_t absCaloEta = abs(t.first);
   uint32_t absCaloPhi = abs(t.second);
-  uint32_t iEta = g.getiEta(absCaloEta, absCaloPhi);
-  uint32_t iPhi = g.getiPhi(absCaloEta, absCaloPhi);
-  UCTTower* tower = towers[iEta*nEta+iPhi];
+  uint32_t iEta = g.getiEta(absCaloEta);
+  uint32_t iPhi = g.getiPhi(absCaloPhi);
+  UCTTower* tower = towers[iEta*nPhi+iPhi];
   return tower->setECALData(ecalFG, ecalET);
 }
 
 bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
-  uint32_t nEta = g.getNEta(region);
+  uint32_t nPhi = g.getNPhi(region);
   uint32_t absCaloEta = abs(t.first);
   uint32_t absCaloPhi = abs(t.second);
-  uint32_t iEta = g.getiEta(absCaloEta, absCaloPhi);
+  uint32_t iEta = g.getiEta(absCaloEta);
+  uint32_t iPhiStart = g.getiPhi(absCaloPhi);
   if(absCaloEta > 29 && absCaloEta < 40) {
-    uint32_t iPhi = (absCaloPhi % 2) * 2; // iPhi == 0 or 2
-    UCTTower* tower = towers[iEta*nEta + iPhi]; // iPhi == 0 or 2
-    if(!tower->setHFData(hcalFB, (hcalET - hcalET / 2))) return false;
-    tower = towers[iEta*nEta + iPhi + 1]; // iPhi + 1 == 1 or 3
-    if(!tower->setHFData(hcalFB, hcalET / 2)) return false;
+    // Valid data are: 
+    //    absCaloEta = 30-39, 1 < absCaloPhi <= 72 (every second value)
+    for(uint32_t iPhi = iPhiStart; iPhi < iPhiStart + 2; iPhi++) { // For artificial splitting in half
+      UCTTower* tower = towers[iEta*nPhi + iPhi];
+      if(!tower->setHFData(hcalFB, hcalET / 2)) return false;
+    }
   }
   else if(absCaloEta == 40 || absCaloEta == 41) {
-    for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // For artificial splitting in quads
-      UCTTower* tower = towers[iEta*nEta + iPhi];
+    // Valid data are: 
+    //    absCaloEta = 40,41, 1 < absCaloPhi <= 72 (every fourth value)
+    for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // For artificial splitting in quarter
+      UCTTower* tower = towers[iEta * nPhi + iPhi];
       if(!tower->setHFData(hcalFB, hcalET / 4)) return false;
     }
   }
   else {
-    uint32_t iPhi = g.getiPhi(absCaloEta, absCaloPhi);
-    UCTTower* tower = towers[iEta*nEta+iPhi];
+    uint32_t iPhi = g.getiPhi(absCaloPhi);
+    UCTTower* tower = towers[iEta*nPhi+iPhi];
     return tower->setHCALData(hcalFB, hcalET);
   }
   return true;

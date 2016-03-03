@@ -148,7 +148,7 @@ uint32_t UCTGeometry::getRegion(int caloEta, int caloPhi) {
     return NRegionsInCard + ((absCEta - 2 - (NRegionsInCard * NEtaInRegion)) / NHFEtaInRegion);
 }
 
-uint32_t UCTGeometry::getiEta(int caloEta, int caloPhi) {
+uint32_t UCTGeometry::getiEta(int caloEta) {
   uint32_t absCEta = abs(caloEta);
   if((absCEta - 1) < (NRegionsInCard * NEtaInRegion))
     return (absCEta - 1) % NEtaInRegion;
@@ -156,7 +156,7 @@ uint32_t UCTGeometry::getiEta(int caloEta, int caloPhi) {
     return absCEta % NHFEtaInRegion;  // To account for missing tower 29
 }
 
-uint32_t UCTGeometry::getiPhi(int caloEta, int caloPhi) {
+uint32_t UCTGeometry::getiPhi(int caloPhi) {
   return (caloPhi + 1) % NPhiInCard;
 }
 

@@ -174,9 +174,9 @@ std::ostream& operator<<(std::ostream& os, const UCTTower& t) {
      << t.iEta << " "
      << std::showbase << std::internal << std::setfill('0') << std::setw(4) << std::hex
      << t.iPhi << " "
-     << std::setw(4) << std::dec
+     << std::setw(4) << std::setfill(' ') << std::dec
      << g.getCaloEtaIndex(t.negativeEta, t.region, t.iEta) << " "
-     << std::setw(4) << std::dec
+     << std::setw(4) << std::setfill(' ') << std::dec
      << g.getCaloPhiIndex(t.crate, t.card, t.region, t.iPhi) << " "
      << std::showbase << std::internal << std::setfill('0') << std::setw(4) << std::hex
      << t.ecalET << " "
