@@ -138,9 +138,9 @@ sub run_job {
     print "INFO: job $ijob starting...\n";
     my $start_time = time();
     switch ($ijob){
-	case 0 {test_dummy; }
-#	case 0 {test_reemul;}
-#	case 1 {test_mc_prod; }
+#	case 0 {test_dummy; }
+	case 0 {test_reemul;}
+	case 1 {test_mc_prod; }
 	else   {test_dummy; }
     }
     my $job_time = time() - $start_time;
@@ -252,19 +252,19 @@ sub main {
    
     alarm $TIMEOUT;
 
-    
+    #while($NRUNNING > 0){
+#	for ($i=0; $i <= $#PIDS; $i++){
+#	
+#	} 
+ #   }
 
-    while($NRUNNING > 0){
-	for ($i=0; $i <= $#PIDS; $i++){
-
-	} 
-
-        #my $pid = wait;
-	#print "INFO: job with $pid has finished.\n";
-	#my $index = 0;
-	#$index++ until $PIDS[$index] == $pid;
-	#splice(@PIDS, $index, 1);
-    #}
+    while($#PIDS > -1){
+	my $pid = wait;
+	print "INFO: job with $pid has finished.\n";
+	my $index = 0;
+	$index++ until $PIDS[$index] == $pid;
+	splice(@PIDS, $index, 1);
+    }
     alarm 0;
     print "INFO: all jobs have finished.\n";	
 
