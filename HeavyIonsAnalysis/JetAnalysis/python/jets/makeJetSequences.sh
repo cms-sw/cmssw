@@ -20,10 +20,11 @@ do
                             subt=""
                         fi
 			if [ $sample == "mb" ]; then
-                            genjets="HiCleanedGenJets"
+                            matchGenjets="HiCleanedGenJets"
 			else
-			    genjets="HiSignalGenJets"
+			    matchGenjets="HiSignalGenJets"
 			fi
+			genjets="HiGenJets"
                         ismc="False"
                         corrlabel="_offline"
                         domatch="True"
@@ -55,6 +56,7 @@ do
 
                         if [ $system == "pp" ]; then
                             genjets="GenJets"
+                            matchGenjets="GenJets"
                         fi
 
 			if [ $sub == "Pu" ]; then
@@ -72,6 +74,7 @@ do
                             | sed "s/CORRNAME_/$corrname/g" \
                             | sed "s/MATCHED_/$match/g" \
                             | sed "s/ISMC/$ismc/g" \
+                            | sed "s/MATCHGENJETS/$matchGenjets/g" \
                             | sed "s/GENJETS/$genjets/g" \
                             | sed "s/GENPARTICLES/$genparticles/g" \
                             | sed "s/TRACKS/$tracks/g" \

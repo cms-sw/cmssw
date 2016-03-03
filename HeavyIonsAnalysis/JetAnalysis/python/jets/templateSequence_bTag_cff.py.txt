@@ -7,7 +7,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ALGO_SUB_RADIUS_OBJECT_match = patJetGenJetMatch.clone(
     src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
-    matched = cms.InputTag("ALGO_RADIUS_GENJETS"),
+    matched = cms.InputTag("ALGO_RADIUS_MATCHGENJETS"),
     maxDeltaR = 0.RADIUS_
     )
 
@@ -25,7 +25,7 @@ ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
 
 ALGO_SUB_RADIUS_OBJECT_JetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ALGO_SUB_RADIUS_CaloJets'))
 
-#ALGO_SUB_RADIUS_OBJECT_clean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ALGO_RADIUS_GENJETS'))
+#ALGO_SUB_RADIUS_OBJECT_clean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ALGO_RADIUS_MATCHGENJETS'))
 
 ALGO_SUB_RADIUS_OBJECT_bTagger = bTaggers("ALGO_SUB_RADIUS_OBJECT_",0.RADIUS_)
 
