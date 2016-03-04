@@ -1,5 +1,5 @@
-#ifndef RecoMuon_L2MuonSeedGeneratorFromL1T_L2MuonSeedGeneratorFromL1T_H
-#define RecoMuon_L2MuonSeedGeneratorFromL1T_L2MuonSeedGeneratorFromL1T_H
+#ifndef RecoMuon_L2MuonSeedGenerator_L2MuonSeedGeneratorFromL1T_H
+#define RecoMuon_L2MuonSeedGenerator_L2MuonSeedGeneratorFromL1T_H
 
 //-------------------------------------------------
 //
