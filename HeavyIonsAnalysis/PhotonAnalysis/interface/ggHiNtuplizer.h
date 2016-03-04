@@ -115,6 +115,8 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    Int_t          nEle_;
    vector<int>    eleCharge_;
    vector<int>    eleChargeConsistent_;
+   vector<int>    eleSCPixCharge_;
+   vector<int>    eleCtfCharge_;
    vector<float>  eleEn_;
    vector<float>  eleD0_;
    vector<float>  eleDz_;

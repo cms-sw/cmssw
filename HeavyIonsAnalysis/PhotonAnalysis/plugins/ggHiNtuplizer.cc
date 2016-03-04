@@ -96,6 +96,8 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
   tree_->Branch("nEle",                  &nEle_);
   tree_->Branch("eleCharge",             &eleCharge_);
   tree_->Branch("eleChargeConsistent",   &eleChargeConsistent_);
+  tree_->Branch("eleSCPixCharge",	 &eleSCPixCharge_);
+  tree_->Branch("eleCtfCharge",		 &eleCtfCharge_);
   tree_->Branch("eleEn",                 &eleEn_);
   tree_->Branch("eleD0",                 &eleD0_);
   tree_->Branch("eleDz",                 &eleDz_);
@@ -404,6 +406,8 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   eleCharge_            .clear();
   eleChargeConsistent_  .clear();
+  eleSCPixCharge_	.clear();
+  eleCtfCharge_		.clear();
   eleEn_                .clear();
   eleD0_                .clear();
   eleDz_                .clear();
@@ -892,6 +896,8 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   for (edm::View<reco::GsfElectron>::const_iterator ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
     eleCharge_           .push_back(ele->charge());
     eleChargeConsistent_ .push_back((int)ele->isGsfCtfScPixChargeConsistent());
+    eleSCPixCharge_      .push_back(ele->scPixCharge());
+    eleCtfCharge_        .push_back(ele->closestTrack()->charge());
     eleEn_               .push_back(ele->energy());
     eleD0_               .push_back(ele->gsfTrack()->dxy(pv));
     eleDz_               .push_back(ele->gsfTrack()->dz(pv));
