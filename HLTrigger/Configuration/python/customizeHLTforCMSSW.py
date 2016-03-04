@@ -35,20 +35,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #       process = customiseFor12718(process)
         pass
 
-#   stage-2 changes if needed
-    if ( (menuType == "Fake") or (menuType == "FULL") ):
+#   stage-2 changes only if needed
+    if (menuType == "Fake"):
         return process
-
-#   set non-default stage-2 L1T menus (as long as o2o is missing)
-    if (menuType == "HIon"):
-        from HLTrigger.Configuration.CustomConfigs import L1THIon
-        process = L1THIon(process)
-    elif (menuType == "PRef"):
-        from HLTrigger.Configuration.CustomConfigs import L1TPRef
-        process = L1TPRef(process)
-    else:
-        from HLTrigger.Configuration.CustomConfigs import L1TGRun
-        process = L1TGRun(process)
 
 #
 # special treatment
@@ -69,41 +58,47 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         'EDAnalyzer' : { },
         'EDFilter'   : {
             'HLTMuonL1Filter' : 'HLTMuonL1TFilter',
+            'HLTMuonL1RegionalFilter' : 'HLTMuonL1TRegionalFilter',
+            'HLTMuonTrkFilter' : 'HLTMuonTrkL1TFilter',
+            'HLTMuonL1toL3TkPreFilter' : 'HLTMuonL1TtoL3TkPreFilter',
+            'HLTMuonDimuonL2Filter' : 'HLTMuonDimuonL2FromL1TFilter',
             'HLTEgammaL1MatchFilterRegional' : 'HLTEgammaL1TMatchFilterRegional',
+            'HLTMuonL2PreFilter' : 'HLTMuonL2FromL1TPreFilter',
             },
         'EDProducer' : {
             'CaloTowerCreatorForTauHLT' : 'CaloTowerFromL1TCreatorForTauHLT',
             'L1HLTTauMatching' : 'L1THLTTauMatching',
             'HLTCaloJetL1MatchProducer' : 'HLTCaloJetL1TMatchProducer',
             'HLTPFJetL1MatchProducer' : 'HLTPFJetL1TMatchProducer',
+            'HLTL1MuonSelector' : 'HLTL1TMuonSelector',
+            'L2MuonSeedGenerator' : 'L2MuonSeedGeneratorFromL1T',
             }
         }
     print " "
-    print "# Replacing plugins: "
     for type,list in replaceList.iteritems():
         if (type=="EDAnalyzer"):
             print "# Replacing EDAnalyzers:"
             for old,new in list.iteritems():
-                print '# EDAnalyzer plugin type: ',old,' -> ',new
+                print '## EDAnalyzer plugin type: ',old,' -> ',new
                 for module in analyzers_by_type(process,old):
                     label = module._Labelable__label
-                    print '# Instance: ',label
+                    print '### Instance: ',label
                     setattr(process,label,cms.EDAnalyzer(new,**module.parameters_()))
         elif (type=="EDFilter"):
             print "# Replacing EDFilters  :"
             for old,new in list.iteritems():
-                print '# EDFilter plugin type  : ',old,' -> ',new
+                print '## EDFilter plugin type  : ',old,' -> ',new
                 for module in filters_by_type(process,old):
                     label = module._Labelable__label
-                    print '# Instance: ',label
+                    print '### Instance: ',label
                     setattr(process,label,cms.EDFilter(new,**module.parameters_()))
         elif (type=="EDProducer"):
             print "# Replacing EDProducers:"
             for old,new in list.iteritems():
-                print '# EDProducer plugin type: ',old,' -> ',new
+                print '## EDProducer plugin type: ',old,' -> ',new
                 for module in producers_by_type(process,old):
                     label = module._Labelable__label
-                    print '# Instance: ',label
+                    print '### Instance: ',label
                     setattr(process,label,cms.EDProducer(new,**module.parameters_()))
                     if (new == 'CaloTowerFromL1TCreatorForTauHLT'):
                         setattr(getattr(process,label),'TauTrigger',cms.InputTag('hltCaloStage2Digis:Tau'))
@@ -115,23 +110,14 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
                             delattr(getattr(process,label),'L1ForJets')
                         if hasattr(getattr(process,label),'L1TauJets'):
                             delattr(getattr(process,label),'L1TauJets')
+                    if (new == 'HLTL1TMuonSelector'):
+                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
+                    if (new == 'L2MuonSeedGeneratorFromL1T'):
+                        setattr(getattr(process,label),'GMTReadoutCollection',cms.InputTag(''))            
+                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
+
         else:
             print "# Error - Type ',type,' not recognised!"
-
-#   replace remaining l1extra modules with filter returning 'false'
-    badTypes = (
-#               'HLTEgammaL1MatchFilterRegional',
-#               'HLTEcalRecHitInAllL1RegionsProducer',
-#               'EgammaHLTCaloTowerProducer',
-#               'HLTMuonL1Filter',
-                'HLTL1MuonSelector',
-                'L2MuonSeedGenerator',
-#               'CaloTowerCreatorForTauHLT',
-#               'HLTPFJetL1MatchProducer',
-                'IsolatedPixelTrackCandidateProducer',
-                'HLTPixelIsolTrackFilter',
-                'HLTLevel1Activity',
-                )
 #
 #   Both of the HLTEcalRecHitInAllL1RegionsProducer instances need InputTag fixes
     for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
@@ -142,7 +128,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("EGamma"))
         setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis:Jet'))
         setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("Jet"))
-
 #
 #   One of the EgammaHLTCaloTowerProducer instances need InputTag fixes
     if hasattr(process,'hltRegionalTowerForEgamma'):
@@ -150,6 +135,12 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand'   ,cms.InputTag('hltCaloStage2Digis:EGamma'))
 
     print " "
+#   replace remaining l1extra modules with filter returning 'false'
+    badTypes = (
+                'IsolatedPixelTrackCandidateProducer',
+                'HLTPixelIsolTrackFilter',
+                'HLTLevel1Activity',
+                )
     print "# Unconverted module types: ",badTypes
     badModules = [ ]
     for badType in badTypes:

@@ -25,7 +25,6 @@ def Base(process):
     process.MessageLogger.categories.append('L1TGlobalSummary')
     process.MessageLogger.categories.append('HLTrigReport')
 
-#
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
 #    if 'GlobalTag' in process.__dict__:
@@ -53,19 +52,10 @@ def L1T(process):
     labels = ['gtStage2Digis','simGtStage2Digis','newGtStage2Digis','hltGtStage2Digis']
     for label in labels:
         if label in process.__dict__:
-            process.load('L1Trigger.L1TGlobal.L1TGlobalProducer_cfi')
-            process.L1TGlobalProducer.ExtInputTag =    cms.InputTag("simGtStage2Digis")
-            process.L1TGlobalProducer.MuonInputTag =   cms.InputTag("simGmtStage2Digis")  #,"Muon")
-            process.L1TGlobalProducer.EtSumInputTag =  cms.InputTag("simCaloStage2Digis") #,"EtSum")
-            process.L1TGlobalProducer.EGammaInputTag = cms.InputTag("simCaloStage2Digis") #,"EGamma")
-            process.L1TGlobalProducer.TauInputTag =    cms.InputTag("simCaloStage2Digis") #,"Tau")
-            process.L1TGlobalProducer.JetInputTag =    cms.InputTag("simCaloStage2Digis") #,"Jet")
-            process.L1TGlobalProducer.AlgorithmTriggersUnprescaled = cms.bool(True)
-            process.L1TGlobalProducer.AlgorithmTriggersUnmasked    = cms.bool(True)
             process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
-            process.L1TGlobalSummary.AlgInputTag = cms.InputTag("L1TGlobalProducer")
-            process.L1TGlobalSummary.ExtInputTag = cms.InputTag("L1TGlobalProducer")
-            process.L1TAnalyzerEndpath = cms.EndPath( process.L1TGlobalProducer + process.L1TGlobalSummary )
+            process.L1TGlobalSummary.AlgInputTag = cms.InputTag( label )
+            process.L1TGlobalSummary.ExtInputTag = cms.InputTag( label )
+            process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
             process.schedule.append(process.L1TAnalyzerEndpath)
 
     process=Base(process)
@@ -88,7 +78,7 @@ def L1THLT(process):
         if 'hltGtStage2ObjectMap' in process.__dict__:
             process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
             process.hltTrigReport = fragment.hltTrigReport
-            process.HLTAnalyzerEndpath = cms.EndPath(process.HLTL1UnpackerSequence + process.hltL1TGlobalSummary + process.hltTrigReport)
+            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
             process.schedule.append(process.HLTAnalyzerEndpath)
 
     process=Base(process)
@@ -144,18 +134,3 @@ def L1REPACK(process):
     process=L1T(process)
 
     return process
-
-def L1TGRun(process):
-    if hasattr(process,'TriggerMenu'):
-        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_Collisions2015_25nsStage1_v7_uGT_v3.xml" )
-    return(process)
-
-def L1THIon(process):
-    if hasattr(process,'TriggerMenu'):
-        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_CollisionsHeavyIons2015_v5_uGT.xml" )
-    return(process)
-
-def L1TPRef(process):
-    if hasattr(process,'TriggerMenu'):
-        process.TriggerMenu.L1TriggerMenuFile = cms.string( "L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc.xml" )
-    return(process)

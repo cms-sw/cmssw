@@ -100,7 +100,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
-      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
+      set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
@@ -124,7 +124,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
-      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
+      set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimHIon
       set InputLHCRaw = $InputLHCRawHIon
       set Era  = $EraRun2HI
-      set Custom = "HLTrigger/Configuration/CustomConfigs.L1THIon"
+      set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
@@ -148,7 +148,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
       set Era  = $EraRun2pp
-      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
+      set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
@@ -160,7 +160,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
-      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TPRef"
+      set Custom = " "
       set L1REPACK = L1REPACK:Full
     else
       # unsupported
@@ -190,7 +190,7 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating FastSim $name"
-    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
+    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,DIGI2RAW,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                      --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
 
     endif
 
