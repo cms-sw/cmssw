@@ -33,7 +33,12 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::~Stage2Layer2EtSumAlgorithmFirmware
 void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
                                                                std::vector<l1t::EtSum> & etsums) {
 
-  int etaMax=40, etaMin=1, phiMax=72, phiMin=1;
+  
+  int etaMax = etSumEtaMaxEt_ > etSumEtaMaxMet_ ? etSumEtaMaxEt_ : etSumEtaMaxMet_;
+  int etaMin = etSumEtaMinEt_ < etSumEtaMinMet_ ? etSumEtaMinEt_ : etSumEtaMinMet_;
+  int phiMax = CaloTools::kHBHENrPhi;
+  int phiMin = 1;
+
 
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {

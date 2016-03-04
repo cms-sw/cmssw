@@ -27,3 +27,14 @@ l1t::MicroGMTConfiguration::calcGlobalPhi(int locPhi, tftype t, int proc) {
   }
   return globPhi;
 }
+
+int
+l1t::MicroGMTConfiguration::setOutputMuonQuality(int muQual, tftype type, int haloBit) {
+  // use only the two MSBs for the muon to the uGT
+  int outQual = muQual & 0xC;
+  if (haloBit == 1 && (type == tftype::emtf_neg || type == tftype::emtf_pos)) {
+    // set quality to 0xF if the halo bit is set
+    outQual = 0xF;
+  }
+  return outQual;
+}

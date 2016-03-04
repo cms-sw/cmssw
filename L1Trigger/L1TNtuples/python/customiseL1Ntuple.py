@@ -99,3 +99,10 @@ def L1NtupleAODRAWEMU(process):
 
     return process
 
+def L1NtupleAODEMU(process):
+
+    L1NtupleEMU(process)
+    L1NtupleAOD(process)
+
+    return process
+

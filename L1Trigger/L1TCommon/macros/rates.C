@@ -18,9 +18,16 @@ void rates(){
   nevents=1000;
 
   // make trees
-  TFile * file = new TFile("l1t_stage2.root");
+  TFile * file = new TFile("L1Ntuple.root");
+  //TFile * file = new TFile("l1t_stage2.root");
   //TFile * file = new TFile("all/combined.root");
-  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
+  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeEmuTree/L1UpgradeTree");
+  if (! treeL1Up){
+    cout << "ERROR: could not open tree\n";
+    return;
+  }
+
+
   treeL1Up->Print();
 
   // set branch addresses

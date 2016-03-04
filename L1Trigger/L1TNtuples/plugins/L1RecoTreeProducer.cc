@@ -104,7 +104,7 @@ L1RecoTreeProducer::~L1RecoTreeProducer()
 void L1RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  vtxData_->nVtx = 0;
+  vtxData_->Reset();
 
   // get vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -124,7 +124,7 @@ void L1RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
       
     }
-    
+    tree_->Fill();
   }
 
 }

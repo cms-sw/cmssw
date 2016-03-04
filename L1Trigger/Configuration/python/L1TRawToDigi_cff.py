@@ -78,7 +78,7 @@ def unpack_stage2():
 if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
     print "L1TRawToDigi Sequence configured for Run1 (Legacy) trigger. "
     unpack_legacy()
-    L1TRawToDigi = cms.Seqence(L1TRawToDigi_Legacy);
+    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Legacy);
 
 #
 # Stage-1 Trigger
