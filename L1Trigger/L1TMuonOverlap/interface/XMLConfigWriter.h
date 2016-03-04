@@ -12,7 +12,7 @@ class GoldenPattern;
 class OMTFConfiguration;
 class OMTFinput;
 class OMTFResult;
-class InternalObj;
+class AlgoMuon;
 struct Key;
 
 namespace XERCES_CPP_NAMESPACE{
@@ -40,7 +40,7 @@ class XMLConfigWriter{
 
   void writeCandidateData(xercesc::DOMElement *aTopElement,
 			  unsigned int iRefHit,
-			  const InternalObj & aCand);
+			  const AlgoMuon & aCand);
 
   void writeResultsData(xercesc::DOMElement *aTopElement,
 			unsigned int iRegion,
