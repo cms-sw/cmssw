@@ -509,8 +509,6 @@ def customizeHLTforMC(process,_fastSim=False):
 
     if hasattr(fastsim,'hltL1extraParticles'):
       getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
-    if hasattr(fastsim,'TriggerMenu'):
-      delattr(fastsim,'TriggerMenu')
 
     return fastsim
 

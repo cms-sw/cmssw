@@ -58,6 +58,9 @@ def L1T(process):
             process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
             process.schedule.append(process.L1TAnalyzerEndpath)
 
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
+
     process=Base(process)
 
     return(process)
@@ -80,6 +83,9 @@ def L1THLT(process):
             process.hltTrigReport = fragment.hltTrigReport
             process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
             process.schedule.append(process.HLTAnalyzerEndpath)
+
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
 
     process=Base(process)
 
