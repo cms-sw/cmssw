@@ -5,7 +5,7 @@ use Switch;
 $WORK_DIR = "./test_l1t";
 $MAIN_LOG = "MAIN.log";
 $JOB_LOG = "JOB.log";
-$NUM_JOBS = 3;
+$NUM_JOBS = 5;
 $TIMEOUT = 10*60;
 $NUM_EVENTS = 100;
 
@@ -13,6 +13,8 @@ $VERBOSE  = 0;
 $DRYRUN   = 0;
 $DELETE   = 0;
 $FAST     = 0;
+$RECYCLE  = 0;
+$VISUAL   = 0;
 sub main;
 main @ARGV;
 
@@ -25,8 +27,10 @@ sub usage() {
     print "--help             display this message.\n";
     print "--verbose          output lots of information.\n";
     print "--dryrun           don't launch any long jobs, just show what would be done.\n";
-    print "--delete           delete previous job directory.\n";
+    print "--delete           delete previous job directory if it exists.\n";
     print "--fast             limit the number of events for an initial quick test.\n";
+    print "--recycle          recycle previous results, re-running evaluation only (for debugging).\n";
+    print "--visual           run some quick, visual checks.\n";
     exit 0;
 }
 
@@ -45,13 +49,111 @@ sub long_command {
 }
 
 #
+# These are simple visual checks...
+#
+sub visual_sim_pack_unpack {
+    $file = "/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root";
+    $status = long_command("cmsDriver.py L1TEST --conditions auto:run2_mc -s DIGI:pdigi_valid,L1,DIGI2RAW,RAW2DIGI -n 5 --era Run2_2016 --filein=$file --mc --no_output --no_exec  --customise=L1Trigger/Configuration/customiseUtils.L1TStage2SimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput");
+
+    print "INFO: status of cmsDriver call is $status\n";
+    if ($status){
+	print "ERROR: abnormal status returned: $status\n";
+	return;
+    }
+
+    $status = long_command("cmsRun L1TEST_DIGI_L1_DIGI2RAW_RAW2DIGI.py");
+    print "INFO: status of cmsRun call is $status\n";
+    if ($status){
+	print "ERROR: abnormal status returned: $status\n";
+	return;
+    }
+    print "INFO: visual test has finished without abnormal status...\n";
+}
+
+sub visual_unpack {
+    $file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
+    $status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n 100 --data --filein=$file --no_output --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML");
+
+    print "INFO: status of cmsDriver call is $status\n";
+    if ($status){
+	print "ERROR: abnormal status returned: $status\n";
+	return;
+    }
+    $status = long_command("cmsRun L1TEST_RAW2DIGI.py");
+    print "INFO: status of cmsRun call is $status\n";
+    if ($status){
+	print "ERROR: abnormal status returned: $status\n";
+	return;
+    }
+    print "INFO: visual test has finished without abnormal status...\n";
+}
+
+
+
+#
 # This is a dummy test:
 #
 sub test_dummy {
     # for process cleanup to work, make system calls to long processes like this:
-    long_command("sleep 20");
+    if (! $RECYCLE) {
+	long_command("sleep 20");
+    }
     system "touch SUCCESS";
 }
+
+#
+# a simple check that unpackers do not crash on recent RAW data
+#
+sub test_unpackers_dont_crash {
+    $file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
+    $nevt = $NUM_EVENTS * 5;
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n $nevt --data --filein=$file --no_output  >& CMSDRIVER.log");
+
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("cmsRun L1TEST_RAW2DIGI.py >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+    }
+    system "touch SUCCESS";
+}
+
+#
+# check that pack unpack is unity
+#
+sub test_pack_unpack_is_unity {
+    # this one runs a bit slower so scale number of events:
+
+    my $nevt = $NUM_EVENTS * 0.5;
+    if ($nevt < 5) { $nevt = 5; }
+
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST --conditions auto:run2_mc -s DIGI,L1,DIGI2RAW,RAW2DIGI -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root >& CMSDRIVER.log");
+# --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
+
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("cmsRun L1TEST_DIGI_L1_DIGI2RAW_RAW2DIGI.py >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+    }
+    system "touch SUCCESS";
+}
+
+
 
 #
 # Test the re-emulation sequence:
@@ -64,52 +166,78 @@ sub test_reemul {
 #    $file = "/store/data/Run2015D/DoubleEG/RAW-RECO/ZElectron-PromptReco-v4/000/260/627/00000/12455212-1E85-E511-8913-02163E014472.root";
     $file = "/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/4A874FB5-585D-E511-A3D8-02163E0143B5.root";
 
-    $status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $NUM_EVENTS --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs >& CMSDRIVER.log");
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $NUM_EVENTS --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
 
-    print "INFO: status of cmsDriver call is $status\n";
-    if ($status){
-	print "ERROR: abnormal status returned: $status\n";
-	return;
-    }
-    $status = long_command("cmsRun L1TEST_RAW2DIGI.py >& CMSRUN.log");
-    print "INFO: status of cmsRun call is $status\n";
-    if ($status){
-	print "ERROR: abnormal status returned: $status\n";
-	return;
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("cmsRun L1TEST_RAW2DIGI.py >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
     }
 
+    $SUCCESS = 0;
     open INPUT,"root -b -q -x ../../L1Trigger/L1TCommon/macros/CheckL1Ntuple.C |";
     while (<INPUT>){
 	print $_;
-	if (/SUCCESS/){	    
-	    system "touch SUCCESS";
+	if (/SUCCESS/){	$SUCCESS = 1; }    
+    }
+    close INPUT;
+
+    if (! $SUCCESS){ 
+	print "ERROR:  L1Ntuple did not contain sufficient Calo and Muon candidates for success.\n";
+	return;
+    }
+    
+    #print "INFO: parsing the following menu summary:\n";
+    #system "grep 'L1T menu Name' -A 250 CMSRUN.log";
+
+    @TRIGGERS = ("L1_SingleMu5","L1_SingleEG5","L1_SingleJet52");
+    foreach $trig (@TRIGGERS) {	
+	open INPUT,"grep 'L1T menu Name' -A 250 CMSRUN.log | grep $trig |";
+	$FIRED = 0;
+	while (<INPUT>){
+	    #chomp; print "LINE:  $_\n";
+	    /$trig\W+(\w+)/;
+	    print "INFO:  $trig fired $1 times\n";
+	    if ($1 > 0){ $FIRED = 1; }
+	}
+	if (! $FIRED){
+	    print "ERROR:  $trig did not fire.\n";
+	    return;
 	}
     }
-    # not enough muons in fast mode... for now just declare success if we make it this far:
-    #if ($FAST){
-	#system "touch SUCCESS";
-    #}
+    system "touch SUCCESS";
 
 }
 
 sub test_mc_prod {
     # this one runs a bit slower so scale number of events:
+
     my $nevt = $NUM_EVENTS * 0.5;
     if ($nevt < 5) { $nevt = 5; }
 
-    $status = long_command("cmsDriver.py L1TEST --conditions auto:run2_mc -s DIGI,L1 --datatier GEN-SIM-RAW -n $NUM_EVENTS --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST --conditions auto:run2_mc -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
 # --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
-    print "INFO: status of cmsDriver call is $status\n";
-    if ($status){
-	print "ERROR: abnormal status returned: $status\n";
-	return;
-    }
-    $status = long_command("cmsRun L1TEST_DIGI_L1.py >& CMSRUN.log");
-    print "INFO: status of cmsRun call is $status\n";
-    if ($status){
-	print "ERROR: abnormal status returned: $status\n";
-	return;
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("cmsRun L1TEST_DIGI_L1.py >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
     }
     open INPUT,"root -b -q -x ../../L1Trigger/L1TCommon/macros/CheckL1Ntuple.C |";
     while (<INPUT>){
@@ -131,8 +259,17 @@ sub run_job {
 	exit 0; 
     };
     $JOBDIR = "test_$ijob";
-    system "mkdir $JOBDIR";
-    chdir $JOBDIR;
+    if ($RECYCLE){
+	if (! -e $JOBDIR){
+	    print "ERROR:  --recycle specified but $JOBDIR does not exist!\n";
+	    return;
+	}
+	chdir $JOBDIR;
+	if (-e "SUCCESS"){ system "rm SUCCESS"; }
+    } else {
+	system "mkdir $JOBDIR";
+	chdir $JOBDIR;
+    }
     open STDOUT,">",$JOB_LOG or die $!;
     open STDERR,">",$JOB_LOG or die $!;
     print "INFO: job $ijob starting...\n";
@@ -141,6 +278,8 @@ sub run_job {
 #	case 0 {test_dummy; }
 	case 0 {test_reemul;}
 	case 1 {test_mc_prod; }
+	case 2 {test_unpackers_dont_crash; }
+	case 3 {test_pack_unpack_is_unity; }
 	else   {test_dummy; }
     }
     my $job_time = time() - $start_time;
@@ -160,6 +299,8 @@ sub main {
             if ($arg =~ /--dryrun/)    { $DRYRUN    = 1;          }
             if ($arg =~ /--delete/)    { $DELETE    = 1;          }
             if ($arg =~ /--fast/)      { $FAST      = 1;          }
+            if ($arg =~ /--recycle/)   { $RECYCLE   = 1;          }
+            if ($arg =~ /--visual/)    { $VISUAL    = 1;          }
         } else {
             push @args, $arg;
         }
@@ -168,29 +309,47 @@ sub main {
 
     print "INFO: Welcome the L1T offline software integration testing!\n";
 
+    if ($VISUAL){
+	print "INFO: visual mode was specified... note that successful results do not green-light a commit.\n";
+	visual_unpack();
+	visual_sim_pack_unpack();
+	exit(0);
+    }
+
+
+
     if ($FAST){
 	print "INFO: fast mode was specified... note that successful results will not green-light a commit.\n";
 	$NUM_EVENTS = 5;
     }
 
-    if (-e $WORK_DIR){
-	if (!$DELETE){
-	    print "ERROR: cowardly refusing to overwrite existing test directory: $WORK_DIR\n";
-	    print "ERROR: (move or delete it yourself)\n";
-	    return;
-	} else {
-	    system "rm -fr $WORK_DIR";
-	    if (-e $WORK_DIR){
-		print "ERROR: could not delete $WORK_DIR\n";
+
+    if (! $RECYCLE){
+	if (-e $WORK_DIR){
+	    if (!$DELETE){
+		print "ERROR: cowardly refusing to overwrite existing test directory: $WORK_DIR\n";
+		print "ERROR: (move or delete it yourself)\n";
 		return;
+	    } else {
+		system "rm -fr $WORK_DIR";
+		if (-e $WORK_DIR){
+		    print "ERROR: could not delete $WORK_DIR\n";
+		    return;
+		}
 	    }
 	}
+	system "mkdir $WORK_DIR";
+	if (! -e $WORK_DIR){
+	    print "ERROR: could not create $WORK_DIR\n";
+	    return;	    
+	}
+    } else {
+	if (! -e $WORK_DIR){
+	    print "ERROR: --recycle specified but $WORK_DIR does not exist yet....\n";
+	    return;
+	}
     }
-    system "mkdir $WORK_DIR";
-    if (! -e $WORK_DIR){
-	print "ERROR: could not create $WORK_DIR\n";
-	return;	    
-    }
+
 
     $start_time = time();
 
@@ -206,9 +365,16 @@ sub main {
 	print "INFO: Coffee Time!!!\n";
 	print "INFO: You can view progress at:\n";
 	print "$LOG\n";
-	print "INFO: This process will now begin tailing the LOG file, but you do not need to stick around:\n";
-	print "INFO: you may safely exit this process, without disturbing the running jobs, using Ctrl^C.\n";
+        # for some reason, this not true:
+	# print "INFO: This process will now begin tailing the LOG file, but you do not need to stick around:\n";	
+        #print "INFO: you may safely exit this process, without disturbing the running jobs, using Ctrl^C.\n";
+	#my $pid = fork();
+	#die "$0: fork: $!" unless defined $pid;
+	#if ($pid) {
+	#    exit(0);
+	#}
 	exec("tail -f $LOG");
+	#exit(0);
     }
     
     open STDOUT,">",$LOG or die $!;
@@ -289,8 +455,8 @@ sub summary {
     if ($FAIL) { print "STATUS:  testL1T overall status:  FAIL\n"; }
     else       { 
 	print "STATUS:  testL1T overall status:  SUCCESS\n"; 
-	if ($FAST || $DRYRUN){
-	    print "STATUS:  results not sufficient for greenlight to commit due to --fast or --dryrun option\n";
+	if ($FAST || $DRYRUN || $RECYCLE){
+	    print "STATUS:  results not sufficient for greenlight to commit due to --fast, --dryrun, or --recycle option\n";
 	} 
 	else {
 	    print "STATUS:  you have GREEN LIGHT to commit your L1T code!\n";

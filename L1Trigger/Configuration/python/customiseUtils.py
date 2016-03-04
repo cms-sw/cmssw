@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-
+import FWCore.ParameterSet.VarParsing as VarParsing
 import os
-
+import sys
+import commands
 ##############################################################################
 # customisations for L1T utilities
 #
@@ -59,6 +60,47 @@ def L1TStage2SimDigisSummary(process):
     process.schedule.append(process.l1tsimstage2summary)
     return process
 
+def L1TGlobalDigisSummary(process):
+    print "L1T INFO:  will dump a summary of unpacked L1T Global output to screen."    
+    process.l1tGlobalSummary = cms.EDAnalyzer(
+        'L1TGlobalSummary',
+        AlgInputTag = cms.InputTag("gtStage2Digis"),
+        ExtInputTag = cms.InputTag("gtStage2Digis"),
+        DumpTrigResults = cms.bool(True), # per event dump of trig results
+        DumpTrigSummary = cms.bool(True), # pre run dump of trig results
+        )
+    process.l1tglobalsummary = cms.Path(process.l1tGlobalSummary)
+    process.schedule.append(process.l1tglobalsummary)
+    return process
+
+def L1TGlobalMenuXML(process):
+    process.load('L1Trigger.L1TGlobal.StableParameters_cff')
+    process.load('L1Trigger.L1TGlobal.TriggerMenu_cff')
+    process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')    
+    return process
+
+def L1TGlobalSimDigisSummary(process):
+    print "L1T INFO:  will dump a summary of simulated L1T Global output to screen."    
+    process.l1tGlobalSummary = cms.EDAnalyzer(
+        'L1TGlobalSummary',
+        AlgInputTag = cms.InputTag("simGtStage2Digis"),
+        ExtInputTag = cms.InputTag("simGtStage2Digis"),
+        DumpTrigResults = cms.bool(False), # per event dump of trig results
+        DumpTrigSummary = cms.bool(True), # pre run dump of trig results
+        )
+    process.l1tglobalsummary = cms.Path(process.l1tGlobalSummary)
+    process.schedule.append(process.l1tglobalsummary)
+    return process
+
+def L1TAddInfoOutput(process):
+    process.MessageLogger = cms.Service(
+        "MessageLogger",
+        destinations = cms.untracked.vstring('cout','cerr'),                                 
+        cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
+        cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+        )
+    return process
+
 
 def L1TAddDebugOutput(process):
     print "L1T INFO:  sending debugging ouput to file l1tdebug.log"
@@ -84,7 +126,3 @@ def L1TDumpEventSummary(process):
     process.l1tdumpeventsetup = cms.Path(process.dumpES)
     process.schedule.append(process.l1tdumpeventsetup)
     return process
-
-
-
-
