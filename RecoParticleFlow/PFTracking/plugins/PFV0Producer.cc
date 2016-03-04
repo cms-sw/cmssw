@@ -47,7 +47,7 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   for (unsigned int il=0; il<V0list_.size(); il++){
     Handle<VertexCompositeCandidateCollection> V0coll;
     iEvent.getByToken(V0list_[il],V0coll);
-    LogDebug("PFV0Producer")<<V0list_[il]<<" contains "<<V0coll->size()<<" V0 candidates ";
+    LogDebug("PFV0Producer")<< "V0list_[" << il <<"] contains "<<V0coll->size()<<" V0 candidates ";
     for (unsigned int iv=0;iv<V0coll->size();iv++){
       VertexCompositeCandidateRef V0(V0coll, iv);
       vector<TrackRef> Tracks;
