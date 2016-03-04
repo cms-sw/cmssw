@@ -90,10 +90,10 @@ namespace edm {
   protected:
 
     // This function is needed for compatibility with older code. We
-    // need to clean up the use of Event and EventPrincipal, to avoid
-    // creation of multiple Event objects when handling a single
+    // need to clean up the use of EventForOutputand EventPrincipal, to avoid
+    // creation of multiple EventForOutputobjects when handling a single
     // event.
-    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
 
     ModuleDescription const& description() const;
     ModuleDescription const& moduleDescription() const { return moduleDescription_;
@@ -207,15 +207,15 @@ namespace edm {
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) = 0;
+    virtual void write(EventForOutput const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*){}
-    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*){}
-    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual void beginRun(RunForOutput const&){}
+    virtual void endRun(RunForOutput const&){}
+    virtual void writeRun(RunForOutput const&) = 0;
+    virtual void beginLuminosityBlock(LuminosityBlockForOutput const&){}
+    virtual void endLuminosityBlock(LuminosityBlockForOutput const&){}
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}

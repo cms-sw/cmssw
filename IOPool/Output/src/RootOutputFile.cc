@@ -11,12 +11,12 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
@@ -387,10 +387,9 @@ namespace edm {
     return(size >= om_->maxFileSize());
   }
 
-  void RootOutputFile::writeOne(EventPrincipal const& e,
-                                ModuleCallingContext const* mcc) {
+  void RootOutputFile::writeOne(EventForOutput const& e) {
     // Auxiliary branch
-    pEventAux_ = &e.aux();
+    pEventAux_ = &e.eventAuxiliary();
 
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
@@ -408,7 +407,7 @@ namespace edm {
       esids.push_back(om_->selectorConfig());
     }
     pEventSelectionIDs_ = &esids;
-    fillBranches(InEvent, e, pEventEntryInfoVector_, mcc);
+    fillBranches(e, pEventEntryInfoVector_);
 
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
@@ -432,10 +431,10 @@ namespace edm {
     reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
   }
 
-  void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
+  void RootOutputFile::writeLuminosityBlock(LuminosityBlockForOutput const& lb) {
     // Auxiliary branch
     // NOTE: lumiAux_ must be filled before calling fillBranches since it gets written out in that routine.
-    lumiAux_ = lb.aux();
+    lumiAux_ = lb.luminosityBlockAuxiliary();
     // Use the updated process historyID
     lumiAux_.setProcessHistoryID(lb.processHistoryID());
     // Store the process history.
@@ -445,17 +444,17 @@ namespace edm {
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(InLumi, lb, nullptr, mcc);
+    fillBranches(lb);
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
 
     Service<JobReport> reportSvc;
     reportSvc->reportLumiSection(reportToken_, lb.id().run(), lb.id().luminosityBlock());
   }
 
-  void RootOutputFile::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
+  void RootOutputFile::writeRun(RunForOutput const& r) {
     // Auxiliary branch
     // NOTE: runAux_ must be filled before calling fillBranches since it gets written out in that routine.
-    runAux_ = r.aux();
+    runAux_ = r.runAuxiliary();
     // Use the updated process historyID
     runAux_.setProcessHistoryID(r.processHistoryID());
     // Store the process history.
@@ -465,7 +464,7 @@ namespace edm {
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
-    fillBranches(InRun, r, nullptr, mcc);
+    fillBranches(r);
     runTree_.optimizeBaskets(10ULL*1024*1024);
 
     Service<JobReport> reportSvc;
@@ -641,7 +640,7 @@ namespace edm {
   RootOutputFile::setBranchAliases(TTree* tree, SelectedProducts const& branches) const {
     if(tree && tree->GetNbranches() != 0) {
       for(auto const& selection : branches) {
-        BranchDescription const& pd = *selection;
+        BranchDescription const& pd = *selection.first;
         std::string const& full = pd.branchName() + "obj";
         if(pd.branchAliases().empty()) {
           std::string const& alias =
@@ -681,35 +680,28 @@ namespace edm {
   }
 
   void RootOutputFile::fillBranches(
-                BranchType const& branchType,
-                Principal const& principal,
-                StoredProductProvenanceVector* productProvenanceVecPtr,
-                ModuleCallingContext const* mcc) {
+                EventForOutput const& event,
+                StoredProductProvenanceVector* productProvenanceVecPtr) {
 
     std::vector<std::unique_ptr<WrapperBase> > dummies;
 
-    bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
+    bool const fastCloning = (whyNotFastClonable_ == FileBlock::CanFastClone);
 
-    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
+    OutputItemList const& items = om_->selectedOutputItemList()[InEvent];
 
     std::set<StoredProductProvenance> provenanceToKeep;
 
-    ProductProvenanceRetriever const* provRetriever = nullptr;
-    {
-      EventPrincipal const* eventPrincipal = dynamic_cast<EventPrincipal const*>(&principal);
-      if (eventPrincipal) {
-        provRetriever =eventPrincipal->productProvenanceRetrieverPtr();
-        assert(provRetriever);
-      }
-    }
+    ProductProvenanceRetriever const* provRetriever = event.productProvenanceRetrieverPtr();
+    assert(provRetriever);
     
     //If we are dropping some of the meta data we need to know
     // which BranchIDs were produced in this process because
     // we may be storing meta data for only those products
     std::set<BranchID> producedBranches;
     if(om_->dropMetaData() != PoolOutputModule::DropNone) {
-      for (auto bd: principal.productRegistry().allBranchDescriptions()) {
-        if(bd->produced()) {
+      Service<ConstProductRegistry> preg;
+      for(auto bd : preg->allBranchDescriptions()) {
+        if(bd->produced() && bd->branchType() == InEvent) {
           producedBranches.insert(bd->branchID());
         }
       }
@@ -727,14 +719,17 @@ namespace edm {
                              om_->dropMetaData() == PoolOutputModule::DropDroppedPrior ||
                             (om_->dropMetaData() == PoolOutputModule::DropPrior && produced));
       bool getProd = (produced || !fastCloning ||
-         treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
+         treePointers_[InEvent]->uncloned(item.branchDescription_->branchName()));
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
       if(getProd) {
-        OutputHandle const oh = principal.getForOutput(id, mcc);
-        product = oh.wrapper();
-        productProvenance = oh.productProvenance();
+        BasicHandle result;
+        bool found = event.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
+        if(found) {
+          product = result.wrapper();
+          productProvenance = result.provenance()->productProvenance();
+        }
       } else {
         if(keepProvenance) {
           productProvenance = provRetriever->branchIDToProvenance(id);
@@ -761,8 +756,72 @@ namespace edm {
     }
 
     if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
-    treePointers_[branchType]->fillTree();
+    treePointers_[InEvent]->fillTree();
     if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->clear();
+  }
+
+  void RootOutputFile::fillBranches(LuminosityBlockForOutput const& lumi) {
+
+    std::vector<std::unique_ptr<WrapperBase> > dummies;
+
+    OutputItemList const& items = om_->selectedOutputItemList()[InLumi];
+
+    // Loop over EDProduct branches, fill the provenance, and write the branch.
+    for(auto const& item : items) {
+
+      BranchID const& id = item.branchDescription_->branchID();
+      branchesWithStoredHistory_.insert(id);
+
+      BasicHandle result;
+      lumi.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
+      WrapperBase const* product = result.wrapper();
+
+      if(product == nullptr) {
+        // No product with this ID is in the event.
+        // Add a null product.
+        TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
+        int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
+        void* p = cp->New();
+        std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
+        product = dummy.get();
+        dummies.emplace_back(std::move(dummy));
+      }
+      item.product_ = product;
+    }
+
+    treePointers_[InLumi]->fillTree();
+  }
+
+  void RootOutputFile::fillBranches(RunForOutput const& run) {
+
+    std::vector<std::unique_ptr<WrapperBase> > dummies;
+
+    OutputItemList const& items = om_->selectedOutputItemList()[InRun];
+
+    // Loop over EDProduct branches, fill the provenance, and write the branch.
+    for(auto const& item : items) {
+
+      BranchID const& id = item.branchDescription_->branchID();
+      branchesWithStoredHistory_.insert(id);
+
+      BasicHandle result;
+      run.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
+      WrapperBase const* product = result.wrapper();
+
+      if(product == nullptr) {
+        // No product with this ID is in the event.
+        // Add a null product.
+        TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
+        int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
+        void* p = cp->New();
+        std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
+        product = dummy.get();
+        dummies.emplace_back(std::move(dummy));
+      }
+      item.product_ = product;
+    }
+
+    treePointers_[InRun]->fillTree();
   }
 
   bool

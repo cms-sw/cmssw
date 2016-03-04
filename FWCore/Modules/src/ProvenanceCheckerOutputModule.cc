@@ -11,15 +11,17 @@
 //
 
 // system include files
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 // user include files
 
@@ -36,9 +38,9 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
-      virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override {}
+      virtual void write(EventForOutput const& e) override;
+      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
+      virtual void writeRun(RunForOutput const&) override {}
    };
 
 
@@ -80,23 +82,20 @@ namespace edm {
 // }
 
    namespace {
-     void markAncestors(ProductProvenance const& iInfo,
-                             ProductProvenanceRetriever const& iMapper,
+     void markAncestors(EventForOutput const& e,
+                             ProductProvenance const& iInfo,
                              std::map<BranchID, bool>& oMap,
                              std::set<BranchID>& oMapperMissing) {
-       for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
-          itEnd = iInfo.parentage().parents().end();
-          it != itEnd;
-          ++it) {
+       for(BranchID const id : iInfo.parentage().parents()) {
          //Don't look for parents if we've previously looked at the parents
-         if(oMap.find(*it) == oMap.end()) {
+         if(oMap.find(id) == oMap.end()) {
             //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
-            oMap[*it];
-            ProductProvenance const* pInfo = iMapper.branchIDToProvenance(*it);
+            oMap[id];
+            ProductProvenance const* pInfo = e.getProvenance(id).productProvenance();
             if(pInfo) {
-               markAncestors(*pInfo, iMapper, oMap, oMapperMissing);
+               markAncestors(e, *pInfo, oMap, oMapperMissing);
             } else {
-               oMapperMissing.insert(*it);
+               oMapperMissing.insert(id);
             }
          }
        }
@@ -104,32 +103,28 @@ namespace edm {
    }
 
    void
-   ProvenanceCheckerOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+   ProvenanceCheckerOutputModule::write(EventForOutput const& e) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      auto mapperPtr = e.productProvenanceRetrieverPtr();
 
       std::map<BranchID, bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
       std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
-      for(auto const branchDescription : keptProducts()[InEvent]) {
+      for(auto const product : keptProducts()[InEvent]) {
+        BranchDescription const* branchDescription = product.first; 
         BranchID branchID = branchDescription->branchID();
         idToBranchDescriptions[branchID] = branchDescription;
-
         TypeID const& tid(branchDescription->unwrappedTypeID());
-        BasicHandle bh = e.getByLabel(PRODUCT_TYPE, tid,
-                                      branchDescription->moduleLabel(),
-                                      branchDescription->productInstanceName(),
-                                      branchDescription->processName(),
-                                      nullptr, nullptr, mcc);
-
+        EDGetToken const& token = product.second;
+        BasicHandle bh;
+        e.getByToken(token, tid, bh);
              bool cannotFindProductProvenance=false;
              if(!(bh.provenance() and bh.provenance()->productProvenance())) {
                 missingProductProvenance.insert(branchID);
                 cannotFindProductProvenance=true;
              }
-             ProductProvenance const* pInfo = mapperPtr->branchIDToProvenance(branchID);
+             ProductProvenance const* pInfo = e.getProvenance(branchID).productProvenance();
              if(!pInfo) {
                 missingFromMapper.insert(branchID);
                 continue;
@@ -137,27 +132,23 @@ namespace edm {
              if(cannotFindProductProvenance) {
                 continue;
              }
-             markAncestors(*(bh.provenance()->productProvenance()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
+             markAncestors(e, *(bh.provenance()->productProvenance()), seenParentInPrincipal, missingFromMapper);
             seenParentInPrincipal[branchID] = true;
       }
 
       //Determine what BranchIDs are in the product registry
-      ProductRegistry const& reg = e.productRegistry();
-      ProductRegistry::ProductList const prodList = reg.productList();
+      Service<ConstProductRegistry> reg;
+      ProductRegistry::ProductList const& prodList = reg->productList();
       std::set<BranchID> branchesInReg;
-      for(ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-          it != itEnd;
-          ++it) {
-         branchesInReg.insert(it->second.branchID());
-         idToBranchDescriptions[it->second.branchID()] = &(it->second);
+      for(auto const& product : prodList) {
+         branchesInReg.insert(product.second.branchID());
+         idToBranchDescriptions[product.second.branchID()] = &product.second;
       }
 
       std::set<BranchID> missingFromReg;
-      for(std::map<BranchID, bool>::iterator it = seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
-          it != itEnd;
-          ++it) {
-         if(branchesInReg.find(it->first) == branchesInReg.end()) {
-            missingFromReg.insert(it->first);
+      for(auto const& item : seenParentInPrincipal) {
+         if(branchesInReg.find(item.first) == branchesInReg.end()) {
+            missingFromReg.insert(item.first);
          }
       }
 
@@ -181,17 +172,15 @@ namespace edm {
 
       if(missingFromReg.size()) {
          LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
-         for(std::set<BranchID>::iterator it = missingFromReg.begin(), itEnd = missingFromReg.end();
-             it != itEnd;
-             ++it) {
-            LogProblem("ProvenanceChecker") << *it<<" "<<*(idToBranchDescriptions[*it]);
+         for(auto const& item : missingFromReg) {
+            LogProblem("ProvenanceChecker") << item << " " << *(idToBranchDescriptions[item]);
          }
       }
 
       if(missingFromMapper.size() || missingProductProvenance.size() || missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
          << (missingFromMapper.size() ? "Having missing ancestors from ProductProvenanceRetriever.\n" : "")
-         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductHolder in EventPrincipal.\n" : "")
+         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductHolder in Event.\n" : "")
          << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
       }
    }

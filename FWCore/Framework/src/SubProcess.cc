@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/ProductHolder.h"
@@ -209,6 +210,12 @@ namespace edm {
 
   void
   SubProcess::beginJob() {
+    // If event selection is being used, the SubProcess class reads TriggerResults
+    // object(s) in the parent process from the event. This next call is needed for
+    // getByToken to work properly. Normally, this is done by the worker, but since
+    // a SubProcess is not a module, it has no worker.
+    updateLookup(InEvent, *parentPreg_->productLookup(InEvent));
+
     if(!droppedBranchIDToKeptBranchID().empty()) {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
@@ -295,8 +302,13 @@ namespace edm {
         keptProductsInEvent.insert(desc.branchID());
       }
     }
+    EDGetToken token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                     InputTag{desc.moduleLabel(),
+                     desc.productInstanceName(),
+                     desc.processName()});
+
     // Now put it in the list of selected branches.
-    keptProducts_[desc.branchType()].push_back(&desc);
+    keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
   }
 
   void
@@ -323,9 +335,9 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     /* BEGIN relevant bits from OutputModule::doEvent */
     if(!wantAllEvents_) {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      if(!selectors_.wantEvent(ep, nullptr)) {
+      EventForOutput e(ep, ModuleDescription(), nullptr);
+      e.setConsumer(this);
+      if(!selectors_.wantEvent(e)) {
         return;
       }
     }
@@ -600,10 +612,11 @@ namespace edm {
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[type];
     for(auto const& item : keptVector) {
-      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(item->branchID());
+      BranchDescription const& desc = *item.first;
+      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(desc.branchID());
       if(parentProductHolder != nullptr) {
         ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase* productHolder = principal.getModifiableProductHolder(item->branchID());
+        ProductHolderBase* productHolder = principal.getModifiableProductHolder(desc.branchID());
         if(productHolder != nullptr) {
           ProductData& thisData = productHolder->productData();
           //Propagate the per event(run)(lumi) data for this product to the subprocess.

@@ -11,9 +11,11 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
@@ -23,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SharedResourcesRegistry.h"
 
@@ -135,6 +138,7 @@ namespace edm {
     ProductSelector::checkForDuplicateKeptBranch(desc,
                                                  trueBranchIDToKeptBranchDesc);
 
+    EDGetToken token;
     switch (desc.branchType()) {
     case InEvent:
       {
@@ -143,24 +147,24 @@ namespace edm {
         } else {
           keptProductsInEvent.insert(desc.branchID());
         }
-        consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                 InputTag{desc.moduleLabel(),
+        token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                     InputTag{desc.moduleLabel(),
                      desc.productInstanceName(),
                      desc.processName()});
         break;
       }
     case InLumi:
       {
-        consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                         InputTag(desc.moduleLabel(),
+        token = consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                  InputTag(desc.moduleLabel(),
                                   desc.productInstanceName(),
                                   desc.processName()));
         break;
       }
     case InRun:
       {
-        consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                        InputTag(desc.moduleLabel(),
+        token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                 InputTag(desc.moduleLabel(),
                                  desc.productInstanceName(),
                                  desc.processName()));
         break;
@@ -170,7 +174,7 @@ namespace edm {
       break;
     }
     // Now put it in the list of selected branches.
-    keptProducts_[desc.branchType()].push_back(&desc);
+    keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
   }
 
   OutputModule::~OutputModule() { }
@@ -205,20 +209,19 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
-    //This cast is safe since we only call const functions of the EventPrincipal after this point
-    PrincipalGetAdapter adapter(ep, moduleDescription_);
-    adapter.setConsumer(this);
+  Trig OutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const {
+    //This cast is safe since we only call const functions of the EventForOutputafter this point
     Trig result;
-    auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
-    convert_handle(std::move(bh), result);
+    e.getByToken<TriggerResults>(token, result);
     return result;
   }
   
   bool OutputModule::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-    
+    if(wantAllEvents_) return true;
     auto& s = selectors_[id.value()];
-    return wantAllEvents_ or s.wantEvent(ep,mcc);
+    EventForOutput e(ep, moduleDescription_, mcc);
+    e.setConsumer(this);
+    return s.wantEvent(e);
   }
 
   bool
@@ -234,8 +237,10 @@ namespace edm {
       
       {
         std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-        EventSignalsSentry signals(act,mcc);
-        write(ep, mcc);
+        EventForOutput e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
+        EventSignalsSentry sentry(act,mcc);
+        write(e);
       }
     }
     if(remainingEvents_ > 0) {
@@ -244,7 +249,7 @@ namespace edm {
     return true;
   }
 
-//   bool OutputModule::wantEvent(Event const& ev)
+//   bool OutputModule::wantEvent(EventForOutput const& ev)
 //   {
 //     getTriggerResults(ev);
 //     bool eventAccepted = false;
@@ -265,7 +270,9 @@ namespace edm {
                            EventSetup const&,
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginRun called\n";
-    beginRun(rp, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc);
+    r.setConsumer(this);
+    beginRun(r);
     return true;
   }
 
@@ -274,7 +281,9 @@ namespace edm {
                          EventSetup const&,
                          ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endRun called\n";
-    endRun(rp, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc);
+    r.setConsumer(this);
+    endRun(r);
     return true;
   }
 
@@ -282,7 +291,9 @@ namespace edm {
   OutputModule::doWriteRun(RunPrincipal const& rp,
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeRun called\n";
-    writeRun(rp, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc);
+    r.setConsumer(this);
+    writeRun(r);
   }
 
   bool
@@ -290,7 +301,9 @@ namespace edm {
                                        EventSetup const&,
                                        ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginLuminosityBlock called\n";
-    beginLuminosityBlock(lbp, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    lb.setConsumer(this);
+    beginLuminosityBlock(lb);
     return true;
   }
 
@@ -299,14 +312,18 @@ namespace edm {
                                      EventSetup const&,
                                      ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endLuminosityBlock called\n";
-    endLuminosityBlock(lbp, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    lb.setConsumer(this);
+    endLuminosityBlock(lb);
     return true;
   }
 
   void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                             ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeLuminosityBlock called\n";
-    writeLuminosityBlock(lbp, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    lb.setConsumer(this);
+    writeLuminosityBlock(lb);
   }
 
   void OutputModule::doOpenFile(FileBlock const& fb) {

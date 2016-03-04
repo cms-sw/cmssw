@@ -50,10 +50,10 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
-    void writeOne(EventPrincipal const& e, ModuleCallingContext const*);
+    void writeOne(EventForOutput const& e);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*);
-    void writeRun(RunPrincipal const& r, ModuleCallingContext const*);
+    void writeLuminosityBlock(LuminosityBlockForOutput const& lb);
+    void writeRun(RunForOutput const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
@@ -83,10 +83,12 @@ namespace edm {
 
     void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
-    void fillBranches(BranchType const& branchType,
-                      Principal const& principal,
-                      StoredProductProvenanceVector* productProvenanceVecPtr,
-                      ModuleCallingContext const*);
+    void fillBranches(EventForOutput const& event,
+                      StoredProductProvenanceVector* productProvenanceVecPtr);
+
+    void fillBranches(LuminosityBlockForOutput const& lumi);
+
+    void fillBranches(RunForOutput const& run);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           ProductProvenanceRetriever const* iMapper,
