@@ -4,6 +4,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 
 #include "HeavyIonsAnalysis/PhotonAnalysis/src/pfIsoCalculator.h"
 
@@ -146,6 +147,23 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
   tree_->Branch("elePFChIso04",          &elePFChIso04_);
   tree_->Branch("elePFPhoIso04",         &elePFPhoIso04_);
   tree_->Branch("elePFNeuIso04",         &elePFNeuIso04_);
+
+  tree_->Branch("eleR9",		 &eleR9_);
+  tree_->Branch("eleE3x3",		 &eleE3x3_);
+  tree_->Branch("eleE5x5",		 &eleE5x5_);
+  tree_->Branch("eleR9Full5x5",		 &eleR9Full5x5_);
+  tree_->Branch("eleE3x3Full5x5",	 &eleE3x3Full5x5_);
+  tree_->Branch("eleE5x5Full5x5",	 &eleE5x5Full5x5_);
+  tree_->Branch("NClusters",		 &NClusters_);
+  tree_->Branch("NEcalClusters",	 &NEcalClusters_);
+  tree_->Branch("eleSeedEn",		 &eleSeedEn_);
+  tree_->Branch("eleSeedEta",		 &eleSeedEta_);
+  tree_->Branch("eleSeedPhi",		 &eleSeedPhi_);
+  tree_->Branch("eleSeedCryEta",	 &eleSeedCryEta_);
+  tree_->Branch("eleSeedCryPhi",	 &eleSeedCryPhi_);
+  tree_->Branch("eleSeedCryIeta",	 &eleSeedCryIeta_);
+  tree_->Branch("eleSeedCryIphi",	 &eleSeedCryIphi_);
+
   tree_->Branch("eleBC1E",               &eleBC1E_);
   tree_->Branch("eleBC1Eta",             &eleBC1Eta_);
   tree_->Branch("eleBC2E",               &eleBC2E_);
@@ -455,6 +473,21 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   elePFChIso04_         .clear();
   elePFPhoIso04_        .clear();
   elePFNeuIso04_        .clear();
+  eleR9_		.clear();
+  eleE3x3_		.clear();
+  eleE5x5_		.clear();
+  eleR9Full5x5_		.clear();
+  eleE3x3Full5x5_	.clear();
+  eleE5x5Full5x5_	.clear();
+  NClusters_		.clear();
+  NEcalClusters_	.clear();
+  eleSeedEn_		.clear();
+  eleSeedEta_		.clear();
+  eleSeedPhi_		.clear();
+  eleSeedCryEta_	.clear();
+  eleSeedCryPhi_	.clear();
+  eleSeedCryIeta_	.clear();
+  eleSeedCryIphi_	.clear();
   eleBC1E_              .clear();
   eleBC1Eta_            .clear();
   eleBC2E_              .clear();
@@ -966,6 +999,41 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePFNeuIso03_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.3, 0., 0.));
     elePFNeuIso04_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.4, 0., 0.));
 
+    eleR9_               .push_back(ele->r9());
+    eleE3x3_             .push_back(ele->r9()*ele->superCluster()->energy());
+    eleE5x5_             .push_back(ele->e5x5());
+    eleR9Full5x5_        .push_back(ele->full5x5_r9());
+    eleE3x3Full5x5_      .push_back(ele->full5x5_r9()*ele->superCluster()->energy());
+    eleE5x5Full5x5_      .push_back(ele->full5x5_e5x5());
+
+    //seed                                                                                                                               
+    NClusters_            .push_back(ele->superCluster()->clustersSize());
+    const int N_ECAL      = ele->superCluster()->clustersEnd() - ele->superCluster()->clustersBegin();
+    NEcalClusters_        .push_back(std::max(0, N_ECAL-1));
+    eleSeedEn_            .push_back(ele->superCluster()->seed()->energy());
+    eleSeedEta_           .push_back(ele->superCluster()->seed()->eta());
+    eleSeedPhi_           .push_back(ele->superCluster()->seed()->phi());
+    //local coordinates
+    edm::Ptr<reco::CaloCluster> theseed = ele->superCluster()->seed();
+    EcalClusterLocal ecalLocal;
+    if(theseed->hitsAndFractions().at(0).first.subdetId()==EcalBarrel) {
+        float cryPhi, cryEta, thetatilt, phitilt;
+	int ieta, iphi;
+        ecalLocal.localCoordsEB(*(theseed), es, cryEta, cryPhi, ieta, iphi, thetatilt, phitilt);
+        eleSeedCryEta_  .push_back(cryEta);
+        eleSeedCryPhi_  .push_back(cryPhi);
+        eleSeedCryIeta_ .push_back(ieta);
+        eleSeedCryIphi_ .push_back(iphi);
+    }
+    else {
+        float cryX, cryY, thetatilt, phitilt;
+        int ix, iy;
+        ecalLocal.localCoordsEE(*(theseed), es, cryX, cryY, ix, iy, thetatilt, phitilt);
+        eleSeedCryEta_  .push_back(0);
+        eleSeedCryPhi_  .push_back(0);
+        eleSeedCryIeta_ .push_back(0);
+        eleSeedCryIphi_ .push_back(0);
+    }
 
     if(doVID_){
       float rho = -999 ;
