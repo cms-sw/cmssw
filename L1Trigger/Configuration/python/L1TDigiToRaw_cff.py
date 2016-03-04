@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 # Modify the Raw Data Collection Raw collection List to include upgrade collections where appropriate:
-from EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi import *
+from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
@@ -69,5 +69,5 @@ if eras.stage2L1Trigger.isChosen():
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
     L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw)
-    # Missing: muon TFs, calo layer1, 
-    
+    # Missing: muon TFs, calo layer1
+
