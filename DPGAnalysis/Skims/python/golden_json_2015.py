@@ -28,7 +28,7 @@ golden_json_2015_pickEvents = cms.EDFilter(
     RunEventList = cms.untracked.string('DPGAnalysis/Skims/data/listrunev'),
 
     # the format of the json.txt file is the one of the CMS certification ("Compact list" according to LumiList)
-    LuminositySectionsBlockRange = LumiList(findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")).getVLuminosityBlockRange()
+    LuminositySectionsBlockRange = LumiList(findFileInPath("DPGAnalysis/Skims/data/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON.txt")).getVLuminosityBlockRange()
     
     )
 
