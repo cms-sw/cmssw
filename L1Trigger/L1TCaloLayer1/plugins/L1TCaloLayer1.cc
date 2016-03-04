@@ -243,7 +243,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
 
 	  unsigned hash = CaloTools::caloTowerHash(towers[twr]->caloEta(), towers[twr]->caloPhi());
-	  towersColl->push_back(theBX, caloTower);
+	  //	  towersColl->push_back(theBX, caloTower);
 	  towersColl->set(theBX, hash, caloTower);
 	}
       }
