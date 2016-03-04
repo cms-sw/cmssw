@@ -14,7 +14,7 @@ def applySubstructure( process ) :
                                     distMax = cms.double(0.8)
     )
 
-    from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets as patJetsDefault
+    from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets as patJetsDefault
 
     #add AK8
     addJetCollection(process, labelName = 'AK8',
