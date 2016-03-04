@@ -5,7 +5,7 @@
 #include <iostream> // For use in all EMTFBlock files
 #include <iomanip>  // For things like std::setw
 
-/* #include "DataFormats/L1TMuon/interface/EMTFMuonCand.h" */
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/EMTFOutput.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
@@ -16,19 +16,19 @@ namespace l1t {
     public:
     EMTFCollections(edm::Event& e) :
       UnpackerCollections(e), // What are these? - AWB 27.01.16
-	/* EMTFMuonCands_(new EMTFMuonCandBxCollection()), */
+	regionalMuonCands_(new RegionalMuonCandBxCollection()),
 	EMTFOutputs_(new EMTFOutputCollection()) 
 	  {};
       
       virtual ~EMTFCollections();
       
-      /* inline EMTFMuonCandBxCollection* getEMTFMuonCands() { return EMTFMuonCands_.get(); }; */
+      inline RegionalMuonCandBxCollection* getRegionalMuonCands() { return regionalMuonCands_.get(); };
       // How does this work?  I haven't even defined a "get()" function for the EMTFOutputCollection. - AWB 28.01.16
       inline EMTFOutputCollection* getEMTFOutputs() { return EMTFOutputs_.get(); };       
       
     private:
       
-      /* std::auto_ptr<EMTFMuonCandBxCollection> EMTFMuonCands_; */
+      std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCands_;
       std::auto_ptr<EMTFOutputCollection> EMTFOutputs_;
       
     };
