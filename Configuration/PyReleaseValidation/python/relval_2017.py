@@ -15,7 +15,8 @@ workflows = Matrix()
 
 numWFStart=10000
 numWFSkip=200
-numWFIB = [10060.0,10039.0,10046.0] ##2017 WFs to run in IB (TenMuE_0_200, TTbar, MinBias)
+#2017 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU)
+numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0] 
 for i,key in enumerate(upgradeKeys):
     numWF=numWFStart+i*numWFSkip
     for frag in upgradeFragments:
