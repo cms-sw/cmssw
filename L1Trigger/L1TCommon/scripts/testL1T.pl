@@ -72,7 +72,7 @@ sub visual_sim_pack_unpack {
 
 sub visual_unpack {
     $file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
-    $status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n 100 --data --filein=$file --no_output --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML");
+    $status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n 100 --data --filein=$file --no_output --no_exec --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML");
 
     print "INFO: status of cmsDriver call is $status\n";
     if ($status){
@@ -108,8 +108,7 @@ sub test_unpackers_dont_crash {
     $file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
     $nevt = $NUM_EVENTS * 5;
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n $nevt --data --filein=$file --no_output  >& CMSDRIVER.log");
-
+	$status = long_command("cmsDriver.py L1TEST -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n $nevt --data --filein=$file --no_output  --no_exec >& CMSDRIVER.log");
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
 	    print "ERROR: abnormal status returned: $status\n";
