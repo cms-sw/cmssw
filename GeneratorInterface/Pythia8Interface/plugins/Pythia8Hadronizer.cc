@@ -416,19 +416,21 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   //This will fail if weight names are not parseable as integers/
   //To be improved with future pythia release
   fSortedWeightKeys.clear();
-  fSortedWeightKeys.reserve(fMasterGen->info.initrwgt->weights.size());
-  
-  std::vector<std::pair<int,std::string> > fWeightKeysTmp;
-  fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
-  
-  for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
-    fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
-  }
-  
-  std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
-  
-  for (const auto &wgt : fWeightKeysTmp) {
-    fSortedWeightKeys.push_back(wgt.second);
+  if (fMasterGen->info.initrwgt) {
+    fSortedWeightKeys.reserve(fMasterGen->info.initrwgt->weights.size());
+    
+    std::vector<std::pair<int,std::string> > fWeightKeysTmp;
+    fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
+    
+    for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
+      fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
+    }
+    
+    std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
+    
+    for (const auto &wgt : fWeightKeysTmp) {
+      fSortedWeightKeys.push_back(wgt.second);
+    }
   }
 
   return (status&&status1);
