@@ -33,7 +33,7 @@
 #include<sstream>
 
 // #define VI_DEBUG
-#define STAT_TSB
+// #define STAT_TSB
 
 #ifdef VI_DEBUG
 #define DPRINT(x) std::cout << x << ": "
