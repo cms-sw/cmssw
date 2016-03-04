@@ -72,9 +72,6 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
       std::discrete_distribution<int> randdist(randomInitWeights_.begin(),randomInitWeights_.end());
       
       randomIndex_ = randdist(randgen);
-      
-      printf("selected random index = %i\n",randomIndex_);
-      
     }
   }
   
