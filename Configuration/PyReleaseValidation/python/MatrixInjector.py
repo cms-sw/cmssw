@@ -104,7 +104,7 @@ class MatrixInjector(object):
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
-            "Multicore" : opt.nThreads,
+            "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 0.1
@@ -113,7 +113,8 @@ class MatrixInjector(object):
         self.defaultHarvest={
             "EnableHarvesting" : "True",
             "DQMUploadUrl" : self.dqmgui,
-            "DQMConfigCacheID" : None
+            "DQMConfigCacheID" : None,
+            "Multicore" : 1              # hardcode Multicore to be 1 for Harvest
             }
         
         self.defaultScratch={
@@ -126,6 +127,7 @@ class MatrixInjector(object):
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
+            "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -136,6 +138,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
+            "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -147,6 +150,7 @@ class MatrixInjector(object):
             "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
+            "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "KeepOutput" : False
             }
 
@@ -188,6 +192,7 @@ class MatrixInjector(object):
             wmsplit['RECOUP15']=5
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
+
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -326,15 +331,11 @@ class MatrixInjector(object):
                             if ('DBLMINIAODMCUP15NODQM' in step): 
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
-                            # modify memory settings for Multicore processing
-                            # implemented with reference to franzoni:multithread-CMSSW_7_4_3
-                            if(chainDict['Multicore']>1):
+                            if( chainDict['nowmTasklist'][-1]['Multicore'] ):
                                 # the scaling factor of 1.2GB / thread is empirical and measured on a SECOND round of tests with PU samples
-                                # the number of threads is assumed to be the same for all tasks
+                                # the number of threads is NO LONGER assumed to be the same for all tasks
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3509/1/1/1.html
-                                chainDict['nowmTasklist'][-1]['Memory']= 3000 + int(  chainDict['Multicore']  -1)*1200
-                                # set also the overall memory to the same value; the agreement (in the phasing in) is that 
-                                chainDict['Memory'] = 3000 + int(  chainDict['Multicore']  -1)*1200
+                                chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1200
 
                         index+=1
                     #end of loop through steps

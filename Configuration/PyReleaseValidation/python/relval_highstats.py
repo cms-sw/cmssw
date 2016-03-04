@@ -82,3 +82,10 @@ workflows[13992501]=['',['ZMM_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVES
 workflows[13992502]=['',['TTbar_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVESTUP15_PU25']]
 
 
+## 2015HighLumi run High stats
+workflows[134.99601] = ['',['RunJetHT2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[134.99602] = ['',['RunZeroBias2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[134.99603] = ['',['RunSingleMu2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+
+
+
