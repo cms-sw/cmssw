@@ -544,7 +544,7 @@ class AddJetCollection(ConfigToolBase):
         if _algo=='':
             unsupportedJetAlgorithm(self)
         ## add new patJets to process (keep instance for later further modifications)
-        from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
+        from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets as patJets
         if 'patJets'+_labelName+postfix in knownModules :
             _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
             _newPatJets.jetSource=jetSource

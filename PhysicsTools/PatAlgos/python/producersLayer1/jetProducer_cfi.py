@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patJets = cms.EDProducer("PATJetProducer",
+_patJets = cms.EDProducer("PATJetProducer",
     # input
     jetSource = cms.InputTag("ak4PFJetsCHS"),
     # add user data
@@ -89,4 +89,4 @@ patJets = cms.EDProducer("PATJetProducer",
     resolutions     = cms.PSet()
 )
 
-
+patJets = _patJets.clone()
