@@ -7,6 +7,7 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+
 #include<cassert>
 
 namespace {
@@ -19,7 +20,12 @@ namespace {
   /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerVariance (const float rl)
   {
-    constexpr float l3ol2 = std::log(3.)/std::log(2.);
+#if __clang__
+    const
+#else
+    constexpr
+#endif
+    float l3ol2 = std::log(3.)/std::log(2.);
     float mean = BetheHeitlerMean(rl);
     return unsafe_expf<4>(-rl*l3ol2) -  mean*mean;
   }
@@ -36,7 +42,12 @@ namespace {
   /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerVariance (const float rl)
   {
-    constexpr float l3ol2 = std::log(3.)/std::log(2.);
+#if __clang__
+    const
+#else    
+    constexpr
+#endif
+    float l3ol2 = std::log(3.)/std::log(2.);
     return std::exp(-rl*l3ol2) -  std::exp(-2*rl);
   }
 }
