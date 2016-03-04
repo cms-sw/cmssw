@@ -184,7 +184,42 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
 
   return true;
 }
+// -----------------------------------------------------------------------------
+/** */
+std::string SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& typeInfo){
+  // create config line used by fast O2O
 
+  std::stringstream output;
+
+  SiStripDbParams::const_iterator_range partitionsRange = dbParams().partitions();
+  SiStripDbParams::SiStripPartitions::const_iterator ipart = partitionsRange.begin();
+  SiStripDbParams::SiStripPartitions::const_iterator ipartEnd = partitionsRange.end();
+  for ( ; ipart != ipartEnd; ++ipart ) {
+    SiStripPartition partition=ipart->second;
+    output << "%%" << "Partition: " << partition.partitionName();
+
+    if(typeInfo==typeid(SiStripLatency)){
+      // Latency only depends on FecVersion
+      output << " FecVersion: " << partition.fecVersion().first << "." << partition.fecVersion().second;
+    }
+    else{
+      output << " CablingVersion: " << partition.cabVersion().first << "." << partition.cabVersion().second;
+      output << " MaskVersion: " << partition.maskVersion().first << "." << partition.maskVersion().second;
+      // FedCabling only depends on cabVersion and maskVersion
+      if(typeInfo!=typeid(SiStripFedCabling)){
+        // BadStrip, Noises, Pedestals and Thresholds are FED related, but the payloads also depend on cabling
+        output << " FedVersion: " << partition.fedVersion().first << "." << partition.fedVersion().second;
+        if(typeInfo==typeid(SiStripApvGain)){
+          // Not used in O2O.
+          output << " ApvTimingVersion: " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
+        }
+      }
+    }
+  }
+
+  return output.str();
+
+}
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCondObjBuilderFromDb::buildCondObj() {
