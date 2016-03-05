@@ -39,12 +39,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if (menuType == "Fake"):
         return process
 
-#   L1T menu from (customised) GT
-    if hasattr(process,'TriggerMenu'):
-        delattr(process,'TriggerMenu')
-
 #
-# special treatment
+#   special treatment
     for module in producers_by_type(process,'L1TGlobalProducer'):
         label = module._Labelable__label
         if hasattr(getattr(process,label),'CaloInputTag'):
@@ -148,7 +144,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     print "# Unconverted module types: ",badTypes
     badModules = [ ]
     for badType in badTypes:
-        print " "
         print '## Unconverted module type: ',badType
         for module in analyzers_by_type(process,badType):
             label = module._Labelable__label
