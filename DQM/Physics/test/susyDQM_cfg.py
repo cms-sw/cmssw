@@ -18,18 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #CMSSW_7_5_0_pre5 relvals
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/26C0DAA2-180B-E511-A8AB-00261894386F.root',
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/8E99B59F-180B-E511-B9EA-00248C0BE005.root',
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/54D253B1-C30B-E511-8918-0025905A605E.root'
-        #CMSSW_7_5_0_pre5 ttbar
-        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/56FA331B-B90B-E511-93CE-0025905B858E.root',
-        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/6605FE82-120B-E511-8721-00261894384F.root',
-        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/86B3E421-B90B-E511-A5BE-003048FFCBFC.root'
-        #CMSSW_7_5_0_pre4 ttbar
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/1050C70B-54F6-E411-8CE2-0025905A7786.root',
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/5811D602-54F6-E411-9821-0025905A611C.root',
-        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/90838E13-FAF5-E411-B7DD-003048FF9AA6.root'
+        'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_0/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/80X_mcRun2_asymptotic_v4-v1/10000/2C6A8750-16DA-E511-A317-0025905A60DE.root'
     )
 )
 

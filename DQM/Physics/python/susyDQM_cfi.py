@@ -32,7 +32,7 @@ susyDQM = cms.EDAnalyzer("RecoSusyDQM",
 
     jetPtCut = cms.double(40),
     jetEtaCut = cms.double(3.0),
-    jetTagCollection = cms.InputTag('combinedInclusiveSecondaryVertexV2BJetTags'),
+    jetTagCollection = cms.InputTag('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
     csvv2Cut = cms.double(0.814), #medium CSVV2 working point
 
     #PHYS14 loose cuts-based electron ID

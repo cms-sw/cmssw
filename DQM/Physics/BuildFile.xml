@@ -18,6 +18,7 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="MagneticField/Records"/>
