@@ -10,6 +10,14 @@ from Configuration.StandardSequences.Eras import eras
 #process = cms.Process('L1SEQS',eras.Run2_25ns)
 process = cms.Process('L1SEQS',eras.Run2_2016)
 
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations = cms.untracked.vstring('l1tdebug','cerr'),
+    l1tdebug = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+    cerr = cms.untracked.PSet(threshold  = cms.untracked.string('WARNING')),
+    debugModules = cms.untracked.vstring('*'))
+
+
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -102,58 +110,14 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 # additional tests:
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-
-# from sim
-
-process.l1tSummary = cms.EDAnalyzer("L1TSummary")
-process.l1tSummary.egCheck   = cms.bool(True);
-process.l1tSummary.tauCheck  = cms.bool(True);
-process.l1tSummary.jetCheck  = cms.bool(True);
-process.l1tSummary.sumCheck  = cms.bool(True);
-process.l1tSummary.muonCheck = cms.bool(True);
-
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummary.egToken   = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummary.tauToken  = cms.InputTag("simCaloStage1FinalDigis:rlxTaus");
-    process.l1tSummary.jetToken  = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummary.sumToken  = cms.InputTag("simCaloStage1FinalDigis");
-    process.l1tSummary.muonToken = cms.InputTag("None");
-    process.l1tSummary.muonCheck = cms.bool(False);
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummary.egToken   = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","");
-
-# from packed -> unpacked
-
-process.l1tSummaryB = cms.EDAnalyzer("L1TSummary")
-process.l1tSummaryB.egCheck   = cms.bool(True);
-process.l1tSummaryB.tauCheck  = cms.bool(True);
-process.l1tSummaryB.jetCheck  = cms.bool(True);
-process.l1tSummaryB.sumCheck  = cms.bool(True);
-process.l1tSummaryB.muonCheck = cms.bool(True);
-
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryB.egToken   = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryB.tauToken  = cms.InputTag("caloStage1FinalDigis:rlxTaus");
-    process.l1tSummaryB.jetToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryB.sumToken  = cms.InputTag("caloStage1FinalDigis");
-    process.l1tSummaryB.muonToken = cms.InputTag("None");
-    process.l1tSummaryB.muonCheck = cms.bool(False);
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryB.egToken   = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryB.tauToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryB.jetToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryB.sumToken  = cms.InputTag("caloStage2Digis");
-    process.l1tSummaryB.muonToken = cms.InputTag("gmtStage2Digis","");
+process.load('L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi')
+process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
 
 process.debug_step = cms.Path(
 #    process.dumpES + 
 #    process.dumpED +
-    process.l1tSummary +
-    process.l1tSummaryB
+    process.l1tSummaryStage2Digis +
+    process.l1tSummaryStage2SimDigis
 )
 
 # Schedule definition
@@ -161,9 +125,11 @@ process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_s
 
 print "L1T Emulation Sequence is:  "
 print process.SimL1Emulator
-print "L1T DigiToRaw Sequence is:  "
-print process.L1TDigiToRaw
-print "L1T RawToDigi Sequence is:  "
-print process.L1TRawToDigi
-print "L1T Reco Sequence is:  "
-print process.L1Reco
+#print "L1T DigiToRaw Sequence is:  "
+#print process.L1TDigiToRaw
+#print "L1T RawToDigi Sequence is:  "
+#print process.L1TRawToDigi
+#print "L1T Reco Sequence is:  "
+#print process.L1Reco
+print "DigiToRaw is:  "
+print process.DigiToRaw
