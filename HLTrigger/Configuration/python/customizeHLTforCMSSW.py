@@ -39,6 +39,10 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if (menuType == "Fake"):
         return process
 
+#   L1T menu from (customised) GT
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
+
 #
 # special treatment
     for module in producers_by_type(process,'L1TGlobalProducer'):
