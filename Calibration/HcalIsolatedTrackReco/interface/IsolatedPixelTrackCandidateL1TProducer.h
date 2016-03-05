@@ -19,18 +19,18 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedL1TPixelTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 // l1t
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
+//#include "DataFormats/L1Trigger/interface/EGamma.h"
+//#include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1Trigger/interface/EtSumHelper.h"
+//#include "DataFormats/L1Trigger/interface/Muon.h"
+//#include "DataFormats/L1Trigger/interface/EtSum.h"
+//#include "DataFormats/L1Trigger/interface/EtSumHelper.h"
 ///
 //vertices
 #include "DataFormats/VertexReco/interface/Vertex.h"
