@@ -109,12 +109,6 @@ typedef struct HPD_struct {
 } HPD ;
 
 
-
-float totBNC, nBNC[4000];
-
-RBX RBXColl[36];
-HPD HPDColl[144];
-
 // ************************
 // ************************
 
@@ -587,7 +581,6 @@ void myJetAna::beginJob( ) {
   HFDigiTimeTime = fs->make<TH1F>( "HFDigiTimeTime", "HFDigiTimeTime", 120, -60, 60 );
   HFDigiTimeNHits = fs->make<TH1F>( "HFDigiTimeNHits", "HFDigiTimeNHits", 30, 0, 30 );
 
-
   totBNC = 0;
   for (int i=0; i<4000; i++)  nBNC[i] = 0;
 
@@ -638,7 +631,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   float minJetPt = 20.;
   float minJetPt10 = 10.;
   int jetInd, allJetInd;
-  LeadMass = -1;
 
   //  Handle<DcsStatusCollection> dcsStatus;
   //  evt.getByLabel("scalersRawToDigi", dcsStatus);
@@ -689,7 +681,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   //  evt.getByLabel("TriggerResults::HLT", triggerResults);
 
   if (triggerResults.isValid()) {
-    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger valid " ;
     //    edm::TriggerNames triggerNames;    // TriggerNames class
     //    triggerNames.init(*triggerResults);
     unsigned int n = triggerResults->size();
@@ -725,7 +717,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     //     std::cout << triggerResults << std::endl;
     //     std::cout << triggerResults.isValid() << std::endl;
     
-    if (DEBUG) std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger not valid " << std::endl;
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
 
@@ -826,7 +818,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   //  edm::Handle<reco::VertexCollection> vertexCollection;
 
-  try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
     evt.getManyByType(colls);
 
@@ -903,11 +894,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       }
       break;
     }
-  } catch (...) {
-    cout << "No HF RecHits." << endl;
-  }
 
-  cout << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits << endl;
+  edm::LogInfo("myJetAna") << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits ;
   HFLongShortNHits->Fill(NHFLongShortHits);
   HFDigiTimeNHits->Fill(NHFDigiTimeHits);
 
@@ -971,10 +959,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   nJet      = 0;
   nDiJet    = 0;
-  highestPt = 0.0;
-  nextPt    = 0.0;
 
-  allJetInd = 0;
   Handle<CaloJetCollection> caloJets;
   evt.getByLabel( CaloJetAlgorithm, caloJets );
   for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
@@ -1067,7 +1052,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     } else {
       Pass = false;
     }
-    Pass = true;
+    //Pass = true;
 
   } else {
     if ( (Pass_BunchCrossing) && 
@@ -1094,9 +1079,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   NTotal->Fill(0);
   
-  Pass = false;
+  //Pass = false;
   if ((tC.size() > 100) && (clustColl.size() > 1000)) Pass = true;
-  Pass = true;
+  //Pass = true;
 
   /****
   if (Pass_HFTime) {
@@ -1155,7 +1140,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
 
 
-  Pass = true;
+  //Pass = true;
   if (Pass) {
 
     NPass->Fill(0);
@@ -1167,6 +1152,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   Handle<CaloTowerCollection> caloTowers;
   evt.getByLabel( "towerMaker", caloTowers );
+
+  RBX RBXColl[36];
+  HPD HPDColl[144];
 
   for (int i=0;i<36;i++) {
     RBXColl[i].et        = 0;
@@ -1255,9 +1243,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     if (abs(tower->iphi()) < 100) EMF_Phi->Fill(tower->iphi(), emFrac);
     if (abs(tower->ieta()) < 100) EMF_Eta->Fill(tower->ieta(), emFrac);
     if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
-      std::cout << "Bunch Crossing = " << evt.bunchCrossing() 
-		<< " Orbit Number = "  << evt.orbitNumber()
-		<<  std::endl;
+      edm::LogInfo("myJetAna") << "Bunch Crossing = " << evt.bunchCrossing() 
+		<< " Orbit Number = "  << evt.orbitNumber();
 
       if (abs(tower->iphi()) < 100) EMF_PhiX->Fill(tower->iphi(), emFrac);
       if (abs(tower->ieta()) < 100) EMF_EtaX->Fill(tower->ieta(), emFrac);
@@ -1393,10 +1380,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   HPD_N->Fill(nHPD);
   if ( (nHPD == 1) && (nTowers > 6) ) {
     evtType = 2;
-    cout << " nHPD = "   << nHPD 
+    edm::LogInfo("category") << " nHPD = "   << nHPD 
 	 << " Towers = " << nTowers
-	 << " Type = "   << evtType 
-	 << endl; 
+	 << " Type = "   << evtType ;
   }
  
   // **************************************************************
@@ -1410,7 +1396,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   Int_t JetLoPass = 0;
   
   if (triggerResults.isValid()) {
-    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::LogInfo("myJetAna") << "trigger valid " ;
     //    edm::TriggerNames triggerNames;    // TriggerNames class
     //    triggerNames.init(*triggerResults);
     unsigned int n = triggerResults->size();
@@ -1444,7 +1430,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     //     std::cout << triggerResults << std::endl;
     //     std::cout << triggerResults.isValid() << std::endl;
     
-    if (DEBUG) std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("myJetAna")  << "trigger not valid ";
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
     //return;
@@ -1656,7 +1642,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   // HCALTotalE = 0.;
   HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
-  try {
     std::vector<edm::Handle<HBHERecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
@@ -1805,9 +1790,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
         ****/
       }
     }
-  } catch (...) {
-    cout << "No HB/HE RecHits." << endl;
-  }
 
 
   HFM_ETime = 0.;
@@ -1817,209 +1799,200 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   int NPMTHits;
   NPMTHits = 0;
-  try {
-    std::vector<edm::Handle<HFRecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-	     (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	     NPMTHits++;
-	}
+  std::vector<edm::Handle<HFRecHitCollection> > collsNPMT;
+  evt.getManyByType(collsNPMT);
+  std::vector<edm::Handle<HFRecHitCollection> >::iterator iNPMT;
+  for (iNPMT=collsNPMT.begin(); iNPMT!=collsNPMT.end(); iNPMT++) {
+    for (HFRecHitCollection::const_iterator j=(*iNPMT)->begin(); j!=(*iNPMT)->end(); j++) {
+      if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
+           (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+           NPMTHits++;
       }
-      break;
     }
-  } catch (...) {
-    cout << "No HF RecHits." << endl;
+    break;
   }
-
-
   PMTHits->Fill(NPMTHits); 
 
-  try {
-    std::vector<edm::Handle<HFRecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
 
-	/****
-	float en = j->energy();
-	HcalDetId id(j->detid().rawId());
-	int ieta = id.ieta();
-	int iphi = id.iphi();
-	int depth = id.depth();
-	*****/
+  std::vector<edm::Handle<HFRecHitCollection> > collsHFRecHit;
+  evt.getManyByType(collsHFRecHit);
+  std::vector<edm::Handle<HFRecHitCollection> >::iterator iHFRecHit;
+  for (iHFRecHit=collsHFRecHit.begin(); iHFRecHit!=collsHFRecHit.end(); iHFRecHit++) {
+    for (HFRecHitCollection::const_iterator j=(*iHFRecHit)->begin(); j!=(*iHFRecHit)->end(); j++) {
 
-	//  std::cout << *j << std::endl;
+      /****
+      float en = j->energy();
+      HcalDetId id(j->detid().rawId());
+      int ieta = id.ieta();
+      int iphi = id.iphi();
+      int depth = id.depth();
+      *****/
 
-        if (j->id().subdet() == HcalForward) {
+      //  std::cout << *j << std::endl;
 
-	  if (NPMTHits == 1) {
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	      HFEtaFlagged->Fill(j->id().ieta());
-	      if (j->id().depth() == 1) HFEtaFlaggedL->Fill(j->id().ieta());
-	      if (j->id().depth() == 2) HFEtaFlaggedS->Fill(j->id().ieta());
-	    } else {
-	      HFEtaNFlagged->Fill(j->id().ieta(), j->energy());
-	      HFEtaPhiNFlagged->Fill(j->id().ieta(),j->id().iphi(),j->energy());
-	    }
-	  }
-	  if (j->energy() > 20.) {
-	    if (NPMTHits == 0) {
-	      HFEnePMT0->Fill(j->energy()); 
-	      HFTimePMT0->Fill(j->time()); 
-	    }
-	    if (NPMTHits == 1) {
-	      if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-		   (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-		HFEnePMT1->Fill(j->energy()); 
-		HFTimePMT1->Fill(j->time()); 
-	      }
-	    }
-	    if (NPMTHits > 1) {
-	      if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-		   (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-		HFEnePMT2->Fill(j->energy()); 
-		HFTimePMT2->Fill(j->time()); 
-	      }
-	    }
-	  }
+      if (j->id().subdet() == HcalForward) {
 
-	  HFTimeVsiEtaP->Fill(j->id().ieta(), j->time());
-	  HFTimeVsiEtaM->Fill(j->id().ieta(), j->time());
+        if (NPMTHits == 1) {
+          if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
+      	 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+            HFEtaFlagged->Fill(j->id().ieta());
+            if (j->id().depth() == 1) HFEtaFlaggedL->Fill(j->id().ieta());
+            if (j->id().depth() == 2) HFEtaFlaggedS->Fill(j->id().ieta());
+          } else {
+            HFEtaNFlagged->Fill(j->id().ieta(), j->energy());
+            HFEtaPhiNFlagged->Fill(j->id().ieta(),j->id().iphi(),j->energy());
+          }
+        }
+        if (j->energy() > 20.) {
+          if (NPMTHits == 0) {
+            HFEnePMT0->Fill(j->energy()); 
+            HFTimePMT0->Fill(j->time()); 
+          }
+          if (NPMTHits == 1) {
+            if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
+      	   (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+      	HFEnePMT1->Fill(j->energy()); 
+      	HFTimePMT1->Fill(j->time()); 
+            }
+          }
+          if (NPMTHits > 1) {
+            if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
+      	   (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+      	HFEnePMT2->Fill(j->energy()); 
+      	HFTimePMT2->Fill(j->time()); 
+            }
+          }
+        }
 
-	  if (j->energy() > 5.) { 
-	    HFTimeVsiEtaP5->Fill(j->id().ieta(), j->time());
-	    HFTimeVsiEtaM5->Fill(j->id().ieta(), j->time());
-	  }	  
+        HFTimeVsiEtaP->Fill(j->id().ieta(), j->time());
+        HFTimeVsiEtaM->Fill(j->id().ieta(), j->time());
 
-	  if (j->energy() > 20.) { 
-	    HFTimeVsiEtaP20->Fill(j->id().ieta(), j->time());
-	    HFTimeVsiEtaM20->Fill(j->id().ieta(), j->time());
-	  }	  
+        if (j->energy() > 5.) { 
+          HFTimeVsiEtaP5->Fill(j->id().ieta(), j->time());
+          HFTimeVsiEtaM5->Fill(j->id().ieta(), j->time());
+        }	  
 
-	  HFEne->Fill(j->energy()); 
-	  HFTime->Fill(j->time()); 
-	  HFTvsE->Fill(j->energy(), j->time());
+        if (j->energy() > 20.) { 
+          HFTimeVsiEtaP20->Fill(j->id().ieta(), j->time());
+          HFTimeVsiEtaM20->Fill(j->id().ieta(), j->time());
+        }	  
 
-	  if (j->time() > 20.) HFEneTThr->Fill(j->energy()); 
-	 
-	  if (j->energy() > 10.) HFTvsEThr->Fill(j->energy(), j->time());
+        HFEne->Fill(j->energy()); 
+        HFTime->Fill(j->time()); 
+        HFTvsE->Fill(j->energy(), j->time());
 
-	  if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1)|| 
-	       (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	    HFEneFlagged->Fill(j->energy());
-	    HFoccFlagged->Fill(j->id().ieta(),j->id().iphi());
-	    HFTimeFlagged->Fill(j->time()); 
-	    HFTvsEFlagged->Fill(j->energy(), j->time());
+        if (j->time() > 20.) HFEneTThr->Fill(j->energy()); 
+       
+        if (j->energy() > 10.) HFTvsEThr->Fill(j->energy(), j->time());
 
-	    //	    std::cout << "Flagged:  " << j->energy() << " "
-	    //		      << j->time()
-	    //		      << std::endl;
-	  }
+        if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1)|| 
+             (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+          HFEneFlagged->Fill(j->energy());
+          HFoccFlagged->Fill(j->id().ieta(),j->id().iphi());
+          HFTimeFlagged->Fill(j->time()); 
+          HFTvsEFlagged->Fill(j->energy(), j->time());
+
+          //	    std::cout << "Flagged:  " << j->energy() << " "
+          //		      << j->time()
+          //		      << std::endl;
+        }
 
 
-	  if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) {
-	    HFEneFlagged2->Fill(j->energy());
-	    HFoccFlagged2->Fill(j->id().ieta(),j->id().iphi());
-	    HFTimeFlagged2->Fill(j->time()); 
-	    HFTvsEFlagged2->Fill(j->energy(), j->time());
-	    if (j->energy() > 10.) HFTvsEFlagged2Thr->Fill(j->energy(), j->time());
-	  }
+        if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) {
+          HFEneFlagged2->Fill(j->energy());
+          HFoccFlagged2->Fill(j->id().ieta(),j->id().iphi());
+          HFTimeFlagged2->Fill(j->time()); 
+          HFTvsEFlagged2->Fill(j->energy(), j->time());
+          if (j->energy() > 10.) HFTvsEFlagged2Thr->Fill(j->energy(), j->time());
+        }
 
-	  if (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) {
-	    HFTimeFlagged3->Fill(j->time()); 
-	  }
+        if (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) {
+          HFTimeFlagged3->Fill(j->time()); 
+        }
 
-	  if (j->energy() > HFThreshold) {
-	    HFEneTh->Fill(j->energy()); 
-	    HFTimeTh->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeThFlagged2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeThFlagged3->Fill(j->time()); 
+        if (j->energy() > HFThreshold) {
+          HFEneTh->Fill(j->energy()); 
+          HFTimeTh->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeThFlagged2->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeThFlagged3->Fill(j->time()); 
 
-	    if (evt.id().run() >= StableRun) HFTimeThR->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1)|| 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
+          if (evt.id().run() >= StableRun) HFTimeThR->Fill(j->time()); 
+          if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1)|| 
+      	 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
 
-	      HFTimeThFlagged->Fill(j->time()); 
+            HFTimeThFlagged->Fill(j->time()); 
 
-	      if (j->energy() > HFThreshold2) HFTimeTh2Flagged->Fill(j->time()); 
-	      if (j->energy() > HFThreshold3) HFTimeTh3Flagged->Fill(j->time()); 
+            if (j->energy() > HFThreshold2) HFTimeTh2Flagged->Fill(j->time()); 
+            if (j->energy() > HFThreshold3) HFTimeTh3Flagged->Fill(j->time()); 
 
-	      if (evt.id().run() >= StableRun) {
-		HFTimeThFlaggedR->Fill(j->time()); 
-		if (NPMTHits == 1) HFTimeThFlaggedR1->Fill(j->time()); 
-		if (NPMTHits == 2) HFTimeThFlaggedR2->Fill(j->time()); 
-		if (NPMTHits == 3) HFTimeThFlaggedR3->Fill(j->time()); 
-		if (NPMTHits == 4) HFTimeThFlaggedR4->Fill(j->time()); 
-		if (NPMTHits > 1) HFTimeThFlaggedRM->Fill(j->time()); 
-	      }
-	    }
-	    HFTotalE += j->energy();
-	    HFocc->Fill(j->id().ieta(),j->id().iphi());
-	    hitEta->Fill(j->id().ieta());
-	    hitPhi->Fill(j->id().iphi());
-	  }
+            if (evt.id().run() >= StableRun) {
+      	HFTimeThFlaggedR->Fill(j->time()); 
+      	if (NPMTHits == 1) HFTimeThFlaggedR1->Fill(j->time()); 
+      	if (NPMTHits == 2) HFTimeThFlaggedR2->Fill(j->time()); 
+      	if (NPMTHits == 3) HFTimeThFlaggedR3->Fill(j->time()); 
+      	if (NPMTHits == 4) HFTimeThFlaggedR4->Fill(j->time()); 
+      	if (NPMTHits > 1) HFTimeThFlaggedRM->Fill(j->time()); 
+            }
+          }
+          HFTotalE += j->energy();
+          HFocc->Fill(j->id().ieta(),j->id().iphi());
+          hitEta->Fill(j->id().ieta());
+          hitPhi->Fill(j->id().iphi());
+        }
 
-	  if (j->energy() > HFThreshold1) {
-	    HFEneTh1->Fill(j->energy());
-	    HFTimeTh1->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh1Flagged2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh1Flagged3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh1R->Fill(j->time()); 
-	    if ((j->time()<-20.) || (j->time()>20.)) {
-	      HFoccOOT->Fill(j->id().ieta(),j->id().iphi());
-	    }
-	  } 
-	  if (j->energy() > HFThreshold2) {
-	    HFTimeTh2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh2Flagged2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh2Flagged3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh2R->Fill(j->time()); 
-	  }
-	  if (j->energy() > HFThreshold3) {
-	    HFTimeTh3->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh3Flagged2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh3Flagged3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh3R->Fill(j->time()); 
-	  }
+        if (j->energy() > HFThreshold1) {
+          HFEneTh1->Fill(j->energy());
+          HFTimeTh1->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh1Flagged2->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh1Flagged3->Fill(j->time()); 
+          if (evt.id().run() >= StableRun) HFTimeTh1R->Fill(j->time()); 
+          if ((j->time()<-20.) || (j->time()>20.)) {
+            HFoccOOT->Fill(j->id().ieta(),j->id().iphi());
+          }
+        } 
+        if (j->energy() > HFThreshold2) {
+          HFTimeTh2->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh2Flagged2->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh2Flagged3->Fill(j->time()); 
+          if (evt.id().run() >= StableRun) HFTimeTh2R->Fill(j->time()); 
+        }
+        if (j->energy() > HFThreshold3) {
+          HFTimeTh3->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh3Flagged2->Fill(j->time()); 
+          if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh3Flagged3->Fill(j->time()); 
+          if (evt.id().run() >= StableRun) HFTimeTh3R->Fill(j->time()); 
+        }
 
-	  if (j->id().ieta()<0) {
-	    if (j->energy() > HFThreshold) {
-	      //	      HFTimeM->Fill(j->time()); 
-	      HFEneM->Fill(j->energy()); 
-	      HFM_ETime += j->energy()*j->time(); 
-	      HFM_E     += j->energy();
-	    }
-	  } else {
-	    if (j->energy() > HFThreshold) {
-	      //	      HFTimeP->Fill(j->time()); 
-	      HFEneP->Fill(j->energy()); 
-	      HFP_ETime += j->energy()*j->time(); 
-	      HFP_E     += j->energy();
-	    }
-	  }
+        if (j->id().ieta()<0) {
+          if (j->energy() > HFThreshold) {
+            //	      HFTimeM->Fill(j->time()); 
+            HFEneM->Fill(j->energy()); 
+            HFM_ETime += j->energy()*j->time(); 
+            HFM_E     += j->energy();
+          }
+        } else {
+          if (j->energy() > HFThreshold) {
+            //	      HFTimeP->Fill(j->time()); 
+            HFEneP->Fill(j->energy()); 
+            HFP_ETime += j->energy()*j->time(); 
+            HFP_E     += j->energy();
+          }
+        }
 
-	  // Long and short fibers
-	  if (j->id().depth() == 1){
-	    HFLEne->Fill(j->energy()); 
-	    if (j->energy() > HFThreshold) HFLTime->Fill(j->time());
-	  } else {
-	    HFSEne->Fill(j->energy()); 
-	    if (j->energy() > HFThreshold) HFSTime->Fill(j->time());
-	  }
+        // Long and short fibers
+        if (j->id().depth() == 1){
+          HFLEne->Fill(j->energy()); 
+          if (j->energy() > HFThreshold) HFLTime->Fill(j->time());
+        } else {
+          HFSEne->Fill(j->energy()); 
+          if (j->energy() > HFThreshold) HFSTime->Fill(j->time());
         }
       }
-      break;
-
     }
+    break;
 
-  } catch (...) {
-    cout << "No HF RecHits." << endl;
   }
+
 
 
 
@@ -2100,12 +2073,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
 
 
-  try {
-    std::vector<edm::Handle<HORecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<HORecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+    std::vector<edm::Handle<HORecHitCollection> > collsHORecHit;
+    evt.getManyByType(collsHORecHit);
+    std::vector<edm::Handle<HORecHitCollection> >::iterator iHORecHit;
+    for (iHORecHit=collsHORecHit.begin(); iHORecHit!=collsHORecHit.end(); iHORecHit++) {
+      for (HORecHitCollection::const_iterator j=(*iHORecHit)->begin(); j!=(*iHORecHit)->end(); j++) {
         if (j->id().subdet() == HcalOuter) {
 	  HOEne->Fill(j->energy()); 
 	  HOTime->Fill(j->time());
@@ -2152,12 +2124,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	      HOHrp2Ene->Fill(j->energy());
 	      if (j->energy() > HOThreshold) HOHrp2Time->Fill(j->time());
 	    } else {
-	      std::cout << "Finding events that are in no ring !?!" << std::endl;
-	      std::cout << "eta = " << j->id().ieta() << std::endl;
+	      edm::LogInfo("myJetAna") << "Finding events that are in no ring !?!" ;
+	      edm::LogInfo("myJetAna") << "eta = " << j->id().ieta() ;
 	      
 	    }
 	  } else {
-	    std::cout << "Finding events that are neither SiPM nor HPD!?" << std::endl;	    
+	    edm::LogInfo("myJetAna") << "Finding events that are neither SiPM nor HPD!?";	    
 	  }
 
 	  
@@ -2166,21 +2138,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
         //      std::cout << *j << std::endl;
       }
     }
-  } catch (...) {
-    cout << "No HO RecHits." << endl;
-  }
 
   // HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
   // ECALTotalE = 0.;
   EBTotalE = EETotalE = 0.;
 
 
-  try {
-    std::vector<edm::Handle<EcalRecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<EcalRecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (EcalRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+    std::vector<edm::Handle<EcalRecHitCollection> > collsEcalRecHit;
+    evt.getManyByType(collsEcalRecHit);
+    std::vector<edm::Handle<EcalRecHitCollection> >::iterator iEcalRecHit;
+    for (iEcalRecHit=collsEcalRecHit.begin(); iEcalRecHit!=collsEcalRecHit.end(); iEcalRecHit++) {
+      for (EcalRecHitCollection::const_iterator j=(*iEcalRecHit)->begin(); j!=(*iEcalRecHit)->end(); j++) {
 	if (j->id().subdetId() == EcalBarrel) {
 	  EBEne->Fill(j->energy()); 
 	  EBTime->Fill(j->time()); 
@@ -2219,15 +2187,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	//	std::cout << "EB ID = " << j->id().subdetId() << "/" << EcalBarrel << std::endl;
       }
     }
-  } catch (...) {
-    cout << "No ECAL RecHits." << endl;
-  }
 
   EBvHB->Fill(HBTotalE, EBTotalE);
   EEvHE->Fill(HETotalE, EETotalE);
 
   /*****
-  try {
     std::vector<edm::Handle<EBRecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<EBRecHitCollection> >::iterator i;
@@ -2243,11 +2207,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  //	std::cout << "EB ID = " << j->id().subdetId() << "/" << EcalBarrel << std::endl;
       }
     }
-  } catch (...) {
-    cout << "No EB RecHits." << endl;
-  }
 
-  try {
     std::vector<edm::Handle<EERecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<EERecHitCollection> >::iterator i;
@@ -2271,9 +2231,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	//	std::cout << *j << std::endl;
       }
     }
-  } catch (...) {
-    cout << "No EE RecHits." << endl;
-  }
   ******/
 
   // ECALTotalE = EBTotalE + EETotalE;
@@ -2281,8 +2238,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   if ( (EBTotalE > 320000)  && (EBTotalE < 330000) && 
        (HBTotalE > 2700000) && (HBTotalE < 2800000) ) {
 
-    std::cout << ">>> Off Axis! " 
-	      << std::endl;
+    edm::LogInfo("myJetAna") << "Off Axis! " ;
     
   }
 
@@ -2585,7 +2541,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // *** Vertex
   // ********************************
   VTX  = INVALID;
-  nVTX = 0;
 
   edm::Handle<reco::VertexCollection> vertexCollection;
   evt.getByLabel("offlinePrimaryVertices", vertexCollection);
@@ -2798,12 +2753,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 void myJetAna::endJob() {
 
   for (int i=0; i<4000; i++) {
-    if ((nBNC[i]/totBNC) > 0.05) {
-      std::cout << "+++ " << i << " " 
-		<< (nBNC[i]/totBNC) << " "
+    if (((float)nBNC[i]/(float)totBNC) > 0.05) {
+      edm::LogInfo("myJetAna") << "+++ " << i << " " 
+		<< ((float)nBNC[i]/(float)totBNC) << " "
 		<< nBNC[i]          << " " 
-		<< totBNC           << " " 
-		<< std::endl;      
+		<< totBNC  ;      
     }
   }
 
