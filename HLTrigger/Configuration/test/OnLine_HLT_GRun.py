@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V21 (CMSSW_8_0_0_HLT1)
+# /dev/CMSSW_8_0_0/GRun/V22 (CMSSW_8_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V21')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V22')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3736,20 +3736,23 @@ process.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
+    JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet"' ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     Verbosity = cms.untracked.int32( 0 ),
-    CaloInputTag = cms.InputTag( "hltCaloStage2Digis" ),
+    EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     PrescaleSet = cms.uint32( 1 ),
-    GmtInputTag = cms.InputTag( "hltGmtStage2Digis" ),
+    EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     TriggerMenuLuminosity = cms.string( "startup" ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
-    BstLengthBytes = cms.int32( -1 )
+    TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+    BstLengthBytes = cms.int32( -1 ),
+    MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
@@ -24763,20 +24766,20 @@ process.hltPFTauAgainstMuonDiscriminator = cms.EDProducer( "PFRecoTauDiscriminat
     maskHitsRPC = cms.vint32( 0, 0, 0, 0 ),
     maxNumberOfHitsLast2Stations = cms.int32( -1 ),
     maskMatchesRPC = cms.vint32( 0, 0, 0, 0 ),
-    dRmuonMatch = cms.double( 0.3 ),
+    maskMatchesCSC = cms.vint32( 1, 0, 0, 0 ),
+    maskHitsCSC = cms.vint32( 0, 0, 0, 0 ),
     PFTauProducer = cms.InputTag( "hltPFTaus" ),
     verbosity = cms.int32( 0 ),
+    maskMatchesDT = cms.vint32( 0, 0, 0, 0 ),
     minPtMatchedMuon = cms.double( 5.0 ),
     dRmuonMatchLimitedToJetArea = cms.bool( False ),
-    maskHitsDT = cms.vint32( 0, 0, 0, 0 ),
     Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-    maskHitsCSC = cms.vint32( 0, 0, 0, 0 ),
+    maskHitsDT = cms.vint32( 0, 0, 0, 0 ),
     HoPMin = cms.double( -1.0 ),
     maxNumberOfMatches = cms.int32( 1 ),
     discriminatorOption = cms.string( "custom" ),
+    dRmuonMatch = cms.double( 0.3 ),
     srcMuons = cms.InputTag( "" ),
-    maskMatchesDT = cms.vint32( 0, 0, 0, 0 ),
-    maskMatchesCSC = cms.vint32( 1, 0, 0, 0 ),
     doCaloMuonVeto = cms.bool( False )
 )
 process.hltSelectedPFTausTrackFindingLooseIsolationAgainstMuon = cms.EDFilter( "PFTauSelector",

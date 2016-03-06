@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V21 (CMSSW_8_0_0_HLT1)
+# /dev/CMSSW_8_0_0/HIon/V22 (CMSSW_8_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V21')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V22')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3166,20 +3166,23 @@ process.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
+    JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet"' ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     Verbosity = cms.untracked.int32( 0 ),
-    CaloInputTag = cms.InputTag( "hltCaloStage2Digis" ),
+    EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     PrescaleSet = cms.uint32( 1 ),
-    GmtInputTag = cms.InputTag( "hltGmtStage2Digis" ),
+    EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     TriggerMenuLuminosity = cms.string( "startup" ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
-    BstLengthBytes = cms.int32( -1 )
+    TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+    BstLengthBytes = cms.int32( -1 ),
+    MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataRepacker" )
@@ -4457,15 +4460,15 @@ process.hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
 )
 process.hltHISiPixelClustersAfterSplitting = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.1 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltHISelectedVertex" ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 ),
     forceYError = cms.double( 150.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
     pixelClusters = cms.InputTag( "hltHISiPixelClusters" ),
     ptMin = cms.double( 100.0 ),
-    deltaRmax = cms.double( 0.1 ),
+    chargeFractionMin = cms.double( 2.0 ),
     cores = cms.InputTag( "hltHIJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )

@@ -38,20 +38,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #   stage-2 changes only if needed
     if (menuType == "Fake"):
         return process
-
-#
-#   special treatment
-    for module in producers_by_type(process,'L1TGlobalProducer'):
-        label = module._Labelable__label
-        if hasattr(getattr(process,label),'CaloInputTag'):
-            delattr(getattr(process,label),'CaloInputTag')
-        if hasattr(getattr(process,label),'GmtInputTag'):
-            delattr(getattr(process,label),'GmtInputTag')
-        setattr(getattr(process,label),'MuonInputTag',cms.InputTag("hltGmtStage2Digis","Muon"))
-        setattr(getattr(process,label),'EtSumInputTag',cms.InputTag("hltCaloStage2Digis","EtSum"))
-        setattr(getattr(process,label),'EGammaInputTag',cms.InputTag("hltCaloStage2Digis","EGamma"))
-        setattr(getattr(process,label),'TauInputTag',cms.InputTag("hltCaloStage2Digis","Tau"))
-        setattr(getattr(process,label),'JetInputTag',cms.InputTag("hltCaloStage2Digis","Jet"))
 #
 #   replace converted l1extra=>l1t plugins which are not yet in ConfDB
     replaceList = {
