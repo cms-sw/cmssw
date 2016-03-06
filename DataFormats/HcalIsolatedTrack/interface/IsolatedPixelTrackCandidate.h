@@ -9,6 +9,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
