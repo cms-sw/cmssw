@@ -75,7 +75,7 @@ namespace l1t {
          bool ctp7_mode_;
          bool mtf7_mode_;
          bool debug_;
-         bool warns_;
+         int warns_;
    };
 }
 
