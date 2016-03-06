@@ -52,7 +52,7 @@ process.configurationMetadata = cms.untracked.PSet(
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGains_dbOutput)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGains_metadata)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_75_V1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_v1', '')# '76X_dataRun2_v15', '')
 
 # Path and EndPath definitions
 process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
@@ -68,6 +68,7 @@ process.TFileService = cms.Service("TFileService",
 # Schedule definition
 process.schedule = cms.Schedule(process.SiStripGains,process.ALCAHARVESTDQMSaveAndMetadataWriter)
 
+process.alcaSiStripGainsHarvester.calibrationMode = cms.untracked.string("IsoBunch")
 
 
 

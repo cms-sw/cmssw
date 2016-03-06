@@ -189,7 +189,11 @@ pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmic
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
-pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
+pathALCARECOPromptCalibProdSiStripGainsAB      = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAllBunch)
+pathALCARECOPromptCalibProdSiStripGainsAB0T    = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAllBunch0T)
+pathALCARECOPromptCalibProdSiStripGainsIB      = cms.Path(seqALCARECOPromptCalibProdSiStripGainsIsoBunch)
+pathALCARECOPromptCalibProdSiStripGainsIB0T    = cms.Path(seqALCARECOPromptCalibProdSiStripGainsIsoBunch0T)
+pathALCARECOPromptCalibProdSiStripGainsMEtoEDM = cms.EndPath(seqALCARECOPromptCalibProdSiStripGainsMEtoEDM)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 pathHotlineSkimSingleMuon = cms.Path(seqHotlineSkimSingleMuon)
@@ -621,7 +625,12 @@ ALCARECOStreamPromptCalibProdSiStrip = cms.FilteredStream(
 ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'PromptCalibProdSiStripGains',
-	paths  = (pathALCARECOPromptCalibProdSiStripGains),
+        paths  = (pathALCARECOPromptCalibProdSiStripGainsAB,
+                  pathALCARECOPromptCalibProdSiStripGainsAB0T,
+                  pathALCARECOPromptCalibProdSiStripGainsIB,
+                  pathALCARECOPromptCalibProdSiStripGainsIB0T,
+                  #pathALCARECOPromptCalibProdSiStripGainsMEtoEDM
+                 ),
 	content = OutALCARECOPromptCalibProdSiStripGains.outputCommands,
 	selectEvents = OutALCARECOPromptCalibProdSiStripGains.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
