@@ -29,7 +29,7 @@ l1extra::L1JetParticleRef IsolatedPixelTrackCandidate::l1tau() const {
   return l1tauJet_;
 }
 
-l1t::JetRef IsolatedPixelTrackCandidate::l1ttau() const {
+l1t::TauRef IsolatedPixelTrackCandidate::l1ttau() const {
   return l1ttauJet_;
 }
 
