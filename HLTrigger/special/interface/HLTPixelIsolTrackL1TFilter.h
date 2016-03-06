@@ -5,6 +5,7 @@
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
 
 namespace edm {
   class ConfigurationDescriptions;
