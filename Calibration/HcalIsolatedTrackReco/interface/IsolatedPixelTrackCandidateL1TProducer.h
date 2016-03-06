@@ -25,12 +25,8 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 // l1t
-//#include "DataFormats/L1Trigger/interface/EGamma.h"
-//#include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
-//#include "DataFormats/L1Trigger/interface/Muon.h"
-//#include "DataFormats/L1Trigger/interface/EtSum.h"
-//#include "DataFormats/L1Trigger/interface/EtSumHelper.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
 ///
 //vertices
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -68,7 +64,7 @@ private:
   };
 
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
-  const edm::EDGetTokenT<l1t::JetBxCollection> tok_l1_;
+  const edm::EDGetTokenT<l1t::TauBxCollection> tok_l1_;
   const edm::EDGetTokenT<reco::VertexCollection> tok_vert_;
   const std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_pix_;
 
