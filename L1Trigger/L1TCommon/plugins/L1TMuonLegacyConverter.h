@@ -34,9 +34,12 @@
 // #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 // #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 // #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+
 
 //include new muon data format
 #include "DataFormats/L1Trigger/interface/Muon.h"
+
 
 // forward declarations
 class L1CaloGeometry ;
@@ -57,7 +60,8 @@ class L1TMuonLegacyConverter : public edm::stream::EDProducer<> {
       
       // ----------member data ---------------------------
       bool produceMuonParticles_ ;
-      edm::InputTag muonSource_ ;
+      edm::InputTag muonSource_InputTag ;
+      edm::EDGetTokenT<L1MuGMTReadoutCollection> muonSource_InputToken;
 
       // bool produceCaloParticles_ ;
       // edm::InputTag isoEmSource_ ;

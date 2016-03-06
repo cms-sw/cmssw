@@ -40,7 +40,6 @@
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -68,10 +67,10 @@ double const L1TMuonLegacyConverter::muonMassGeV_ = 0.105658369 ; // PDG06
 // constructors and destructor
 //
 L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
-   : produceMuonParticles_( iConfig.getParameter< bool >(
-      "produceMuonParticles" ) ),
-     muonSource_( iConfig.getParameter< edm::InputTag >(
-	  "muonSource" ) ),
+   // : produceMuonParticles_( iConfig.getParameter< bool >(
+   //    "produceMuonParticles" ) ),
+   //   muonSource_( iConfig.getParameter< edm::InputTag >(
+	  // "muonSource" ) ),
 
 // pb: commenting out all things unrelated to muons
  //     produceCaloParticles_( iConfig.getParameter< bool >(
@@ -100,10 +99,13 @@ L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
 	// "hfRingEtSumsSource" ) ),
  //     hfRingBitCountsSource_( iConfig.getParameter< edm::InputTag >(
 	// "hfRingBitCountsSource" ) ),
-     centralBxOnly_( iConfig.getParameter< bool >( "centralBxOnly" ) ),
-     ignoreHtMiss_( iConfig.getParameter< bool >( "ignoreHtMiss" ) )
+     // centralBxOnly_( iConfig.getParameter< bool >( "centralBxOnly" ) ),
+     // ignoreHtMiss_( iConfig.getParameter< bool >( "ignoreHtMiss" ) )
 {
    using namespace l1extra ;
+
+   // moving inputTag here
+   muonSource_InputTag = iConfig.getParameter<edm::InputTag>("muonSource");
 
    //register your products
    // produces< L1EmParticleCollection >( "Isolated" ) ;
@@ -118,7 +120,9 @@ L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
    // produces< L1HFRingsCollection >() ;
 
    //now do what ever other initialization is needed
-   consumes<L1MuGMTReadoutCollection>(muonSource_);
+   //moving from getByLabel to getByToken
+   muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
+//   consumes<L1MuGMTReadoutCollection>(muonSource_);
    // consumes<L1GctEmCandCollection>(isoEmSource_);
    // consumes<L1GctEmCandCollection>(nonIsoEmSource_);
    // consumes<L1GctJetCandCollection>(cenJetSource_);
@@ -171,14 +175,14 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
       iSetup.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
 
       Handle< L1MuGMTReadoutCollection > hwMuCollection ;
-      iEvent.getByLabel( muonSource_, hwMuCollection ) ;
+      iEvent.getByToken( muonSource_InputToken, hwMuCollection ) ;
 
       vector< L1MuGMTExtendedCand > hwMuCands ;
 
       if( !hwMuCollection.isValid() )
 	{
 	  LogDebug("L1TMuonLegacyConverter")
-	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_
+	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
 	    << "\nrequested in configuration, but not found in the event."
 	    << std::endl;
 	}
