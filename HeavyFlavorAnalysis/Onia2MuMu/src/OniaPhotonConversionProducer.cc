@@ -101,7 +101,6 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 
   std::auto_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
   std::auto_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
-  std::vector<int> flagCollection;   
 
   edm::Handle<reco::VertexCollection> priVtxs;
   event.getByToken(thePVsToken_, priVtxs);
@@ -140,64 +139,63 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 	   flag_fail++;
 	   continue;
         }
-     }
-     
-    bool flag1 = true;
-    bool flag2 = true;
-    bool flag3 = true;
-    bool flag4 = true;
+    }
+    outCollection->push_back(*conv);
+  }
+    
+  removeDuplicates(*outCollection);
+  
+  for (reco::ConversionCollection::const_iterator conv = outCollection->begin(); conv != outCollection->end(); ++conv){
+
+     bool flag1 = true;
+     bool flag2 = true;
+     bool flag3 = true;
+     bool flag4 = true;
 
     // The logic implies that by default this flags are true and if the check are not wanted conversions are saved.
     // If checks are required and failed then don't save the conversion.
 
-    bool flagTkVtxCompatibility  = true;
-    if (! checkTkVtxCompatibility(*conv,*priVtxs.product())) {
+     bool flagTkVtxCompatibility  = true;
+     if (! checkTkVtxCompatibility(*conv,*priVtxs.product())) {
        flagTkVtxCompatibility = false;
        if (wantTkVtxCompatibility_) {
           TkVtxC++;
           flag1 = false;
        }
-    }
-    bool flagCompatibleInnerHits = false;
-    if (conv->tracks().size()==2) {
+     }
+     bool flagCompatibleInnerHits = false;
+     if (conv->tracks().size()==2) {
        reco::HitPattern hitPatA=conv->tracks().at(0)->hitPattern();
        reco::HitPattern hitPatB=conv->tracks().at(1)->hitPattern();
        if ( foundCompatibleInnerHits(hitPatA,hitPatB) && foundCompatibleInnerHits(hitPatB,hitPatA) ) flagCompatibleInnerHits = true;
-    }
-    if (wantCompatibleInnerHits_ && ! flagCompatibleInnerHits) {
+     }
+     if (wantCompatibleInnerHits_ && ! flagCompatibleInnerHits) {
        CInnerHits++;
        flag2 = false;
-    }
-    bool flagHighpurity = true;
-    if (!HighpuritySubset(*conv,*priVtxs.product())) {
+     }
+     bool flagHighpurity = true;
+     if (!HighpuritySubset(*conv,*priVtxs.product())) {
        flagHighpurity = false;
        if (wantHighpurity_) {
           highpurity_count++;
           flag3 = false;
        }
-    }
-    bool pizero_rejected = false;
-    bool large_pizero_window = CheckPi0(*conv, pfphotons, pizero_rejected);
-    if (pi0OnlineSwitch_ && pizero_rejected) {
-      pizero_fail++;
-      flag4 = false;
-    } 
+     }
+     bool pizero_rejected = false;
+     bool large_pizero_window = CheckPi0(*conv, pfphotons, pizero_rejected);
+     if (pi0OnlineSwitch_ && pizero_rejected) {
+       pizero_fail++;
+       flag4 = false;
+     }
 
-    if (flag1 && flag2 && flag3 && flag4){
-        int flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
-        flagCollection.push_back(flags);
-       	outCollection->push_back(*conv);
-	final_conversion++;
-    }
-  }
-  removeDuplicates(*outCollection,flagCollection);
-  
-  int i = -1; 
-  for (reco::ConversionCollection::const_iterator conv = outCollection->begin(); conv != outCollection->end(); ++conv){
-     i++;
-     pat::CompositeCandidate *pat_conv = makePhotonCandidate(*conv);
-     pat_conv->addUserInt("flags",flagCollection.at(i));
-     patoutCollection->push_back(*pat_conv);
+     int flags = 0;
+     if (flag1 && flag2 && flag3 && flag4){
+        flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
+        pat::CompositeCandidate *pat_conv = makePhotonCandidate(*conv);
+        pat_conv->addUserInt("flags",flags);
+        patoutCollection->push_back(*pat_conv);
+        final_conversion++;
+     }
   }
   store_conversion += patoutCollection->size();
   event.put(patoutCollection,"conversions");
@@ -238,7 +236,7 @@ int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool f
 /** Put in out collection only those conversion candidates that are not sharing tracks.
     If sharing, keep the one with the best chi2.
  */
-void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c, std::vector<int> &f){
+void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c){
   // first sort from high to low chi2 prob
   std::sort(c.begin(),c.end(),ConversionLessByChi2);
   int iter1 = 0;
@@ -248,7 +246,6 @@ void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& 
      int iter2 = iter1+1;
      while( iter2 < (int) c.size()) if(ConversionEqualByTrack( c[iter1], c[iter2] ) ){
         c.erase( c.begin() + iter2 );
-        f.erase( f.begin() + iter2 );
 	duplicates++;
         }else{
         iter2++;	// Increment index only if this element is no duplicate. 
