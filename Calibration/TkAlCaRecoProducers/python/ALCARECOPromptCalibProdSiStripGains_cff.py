@@ -217,7 +217,7 @@ MEtoEDMConvertSiStripGainsIsoBunch0T = MEtoEDMConvertSiStripGainsAllBunch.clone(
 
 # the actual sequence
 seqALCARECOPromptCalibProdSiStripGainsAllBunch = cms.Sequence(
-   ALCARECOCalMinBiasFilterForSiStripGains * ZeroBiasGC * siStripBFieldOnFilter *
+   ALCARECOCalMinBiasFilterForSiStripGains * siStripBFieldOnFilter *
    ALCARECOTrackFilterRefit *
    ALCARECOShallowSequence *
    ALCARECOSiStripCalibAllBunch *
@@ -225,7 +225,7 @@ seqALCARECOPromptCalibProdSiStripGainsAllBunch = cms.Sequence(
 )
 
 seqALCARECOPromptCalibProdSiStripGainsAllBunch0T = cms.Sequence(
-   ALCARECOCalMinBiasFilterForSiStripGains * ZeroBiasGC * siStripBFieldOffFilter *
+   ALCARECOCalMinBiasFilterForSiStripGains * siStripBFieldOffFilter *
    ALCARECOTrackFilterRefit *
    ALCARECOShallowSequence *
    ALCARECOSiStripCalibAllBunch0T *
