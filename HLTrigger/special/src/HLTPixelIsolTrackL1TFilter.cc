@@ -66,16 +66,11 @@ bool HLTPixelIsolTrackL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByToken(hltGTseedToken_, l1trigobj);
 
-//  std::vector< edm::Ref<l1t::L1JetParticleCollection> > l1tauobjref;
-//  std::vector< edm::Ref<l1t::L1JetParticleCollection> > l1jetobjref;
-//  std::vector< edm::Ref<l1t::L1JetParticleCollection> > l1forjetobjref;
-  std::vector< edm::Ref<l1t::JetBxCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector< edm::Ref<l1t::JetBxCollection> > l1jetobjref;
-  std::vector< edm::Ref<l1t::JetBxCollection> > l1forjetobjref;
 
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
+  l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
 
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
     if (l1tauobjref[p]->pt() > ptTriggered)
@@ -83,9 +78,6 @@ bool HLTPixelIsolTrackL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   for (unsigned int p=0; p<l1jetobjref.size(); p++)
     if (l1jetobjref[p]->pt() > ptTriggered)
       ptTriggered = l1jetobjref[p]->pt();
-  for (unsigned int p=0; p<l1forjetobjref.size(); p++)
-    if (l1forjetobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1forjetobjref[p]->pt();
 
   int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
