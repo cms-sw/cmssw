@@ -99,7 +99,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     edm::LogError("L1GlobalTriggerObjectMapRecord")
     << " ERROR: The requested (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
+    << ") does not exist in the trigger menu."
     << " Returning zero pointer for getCombinationsInCond."
     << std::endl;
 
@@ -125,7 +125,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     edm::LogError("L1GlobalTriggerObjectMapRecord")
     << " ERROR: The requested (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
+    << ") does not exist in the trigger menu."
     << " Returning zero pointer for getCombinationsInCond."
     << std::endl;
 
@@ -151,7 +151,7 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(
     edm::LogError("L1GlobalTriggerObjectMapRecord")
     << " ERROR: The requested (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
+    << ") does not exist in the trigger menu."
     << " Returning false for condition result! Unknown result, in fact!"
     << std::endl;
 
@@ -177,7 +177,7 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(
     edm::LogError("L1GlobalTriggerObjectMapRecord")
     << " ERROR: The requested (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
+    << ") does not exist in the trigger menu."
     << " Returning false for condition result! Unknown result, in fact!"
     << std::endl;
 
