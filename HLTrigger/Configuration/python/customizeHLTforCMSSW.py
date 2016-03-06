@@ -64,6 +64,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
             'HLTMuonDimuonL2Filter' : 'HLTMuonDimuonL2FromL1TFilter',
             'HLTEgammaL1MatchFilterRegional' : 'HLTEgammaL1TMatchFilterRegional',
             'HLTMuonL2PreFilter' : 'HLTMuonL2FromL1TPreFilter',
+            'HLTPixelIsolTrackFilter' : 'HLTPixelIsolTrackL1TFilter',
             },
         'EDProducer' : {
             'CaloTowerCreatorForTauHLT' : 'CaloTowerFromL1TCreatorForTauHLT',
@@ -72,6 +73,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
             'HLTPFJetL1MatchProducer' : 'HLTPFJetL1TMatchProducer',
             'HLTL1MuonSelector' : 'HLTL1TMuonSelector',
             'L2MuonSeedGenerator' : 'L2MuonSeedGeneratorFromL1T',
+            'IsolatedPixelTrackCandidateProducer' : 'IsolatedPixelTrackCandidateL1TProducer',
             }
         }
     print " "
@@ -115,6 +117,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
                     if (new == 'L2MuonSeedGeneratorFromL1T'):
                         setattr(getattr(process,label),'GMTReadoutCollection',cms.InputTag(''))            
                         setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
+                    if (new == 'IsolatedPixelTrackCandidateL1TProducer'):
+                        setattr(getattr(process,label),'L1eTauJetsSource',cms.InputTag('hltCaloStage2Digis:Tau'))
 
         else:
             print "# Error - Type ',type,' not recognised!"
@@ -137,10 +141,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     print " "
 #   replace remaining l1extra modules with filter returning 'false'
     badTypes = (
-                'IsolatedPixelTrackCandidateProducer',
-                'HLTPixelIsolTrackFilter',
-                'HLTLevel1Activity',
-                )
+        'HLTLevel1Activity',
+        )
     print "# Unconverted module types: ",badTypes
     badModules = [ ]
     for badType in badTypes:
