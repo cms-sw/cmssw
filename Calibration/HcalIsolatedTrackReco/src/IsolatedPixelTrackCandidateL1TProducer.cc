@@ -40,7 +40,7 @@
 
 IsolatedPixelTrackCandidateL1TProducer::IsolatedPixelTrackCandidateL1TProducer(const edm::ParameterSet& config) :
   tok_hlt_(                     consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("L1GTSeedLabel")) ),
-  tok_l1_(                      consumes<l1t::JetBxCollection>(config.getParameter<edm::InputTag>("L1eTauJetsSource")) ),
+  tok_l1_(                      consumes<l1t::TauBxCollection>(config.getParameter<edm::InputTag>("L1eTauJetsSource")) ),
   tok_vert_(                    consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("VertexLabel")) ),
   toks_pix_(                    edm::vector_transform(
                                   config.getParameter<std::vector<edm::InputTag> >("PixelTracksSources"),
@@ -100,7 +100,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     }
   }
 
-  edm::Handle<l1t::JetBxCollection> l1eTauJets;
+  edm::Handle<l1t::TauBxCollection> l1eTauJets;
   theEvent.getByToken(tok_l1_,l1eTauJets);
 
   edm::Handle<reco::VertexCollection> pVert;
@@ -113,13 +113,11 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   theEvent.getByToken(tok_hlt_, l1trigobj);
   
-  std::vector< edm::Ref<l1t::JetBxCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector< edm::Ref<l1t::JetBxCollection> > l1jetobjref;
-  std::vector< edm::Ref<l1t::JetBxCollection> > l1forjetobjref;
   
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
+  l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
   
   for (unsigned int p=0; p<l1tauobjref.size(); p++) {
     if (l1tauobjref[p]->pt()>ptTriggered) {
@@ -133,13 +131,6 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       ptTriggered  = l1jetobjref[p]->pt();
       phiTriggered = l1jetobjref[p]->phi();
       etaTriggered = l1jetobjref[p]->eta();
-    }
-  }
-  for (unsigned int p=0; p<l1forjetobjref.size(); p++) {
-    if (l1forjetobjref[p]->pt()>ptTriggered) {
-      ptTriggered=l1forjetobjref[p]->pt();
-      phiTriggered=l1forjetobjref[p]->phi();
-      etaTriggered=l1forjetobjref[p]->eta();
     }
   }
 
@@ -175,8 +166,8 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
 
     //check taujet matching
     bool tmatch=false;
-    l1t::JetBxCollection::const_iterator selj;
-    for (l1t::JetBxCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
+    l1t::TauBxCollection::const_iterator selj;
+    for (l1t::TauBxCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
       if (reco::deltaR(pixelTrackRefs[iS]->momentum().eta(), pixelTrackRefs[iS]->momentum().phi(), tj->momentum().eta(), tj->momentum().phi()) > drMaxL1Track_) continue;
       selj   = tj;
       tmatch = true;
@@ -197,8 +188,8 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     unsigned int iSeed = VecSeedsatEC[i].index;
     if (!VecSeedsatEC[i].ok) continue;
     if(pixelTrackRefs[iSeed]->p()<minPTrackValue_) continue; 
-    l1t::JetBxCollection::const_iterator selj;
-    for (l1t::JetBxCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++)  {
+    l1t::TauBxCollection::const_iterator selj;
+    for (l1t::TauBxCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++)  {
       if (reco::deltaR(pixelTrackRefs[iSeed]->momentum().eta(),pixelTrackRefs[iSeed]->momentum().phi(),tj->momentum().eta(),tj->momentum().phi()) > drMaxL1Track_) continue;
       selj   = tj;
     } //loop over L1 tau
@@ -228,7 +219,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       }      
     }
     if (maxP<maxPForIsolationValue_) {
-      reco::IsolatedPixelTrackCandidate newCandidate(pixelTrackRefs[iSeed], l1t::JetRef(l1eTauJets,selj-l1eTauJets->begin()), maxP, sumP);
+      reco::IsolatedPixelTrackCandidate newCandidate(pixelTrackRefs[iSeed], l1t::TauRef(l1eTauJets,selj-l1eTauJets->begin()), maxP, sumP);
       newCandidate.setEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
       trackCollection->push_back(newCandidate);
       ntr++;
