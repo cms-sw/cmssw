@@ -105,7 +105,7 @@ l1t::GtBoard::GtBoard() :
 // destructor
 l1t::GtBoard::~GtBoard() {
 
-    reset();
+  //reset();
     delete m_candL1Mu;
     delete m_candL1EG;
     delete m_candL1Tau;
