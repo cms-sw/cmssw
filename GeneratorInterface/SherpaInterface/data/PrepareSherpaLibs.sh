@@ -272,7 +272,7 @@ TDIR=TMP
 
 # get & evaluate options
 ##while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
-while getopts :i:p:d:D:L:C:G:e:h: OPT
+while getopts :i:p:d:D:L:C:G:e:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;

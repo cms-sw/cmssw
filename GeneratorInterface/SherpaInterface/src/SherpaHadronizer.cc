@@ -79,7 +79,7 @@ class CMS_SHERPA_RNG: public ATOOLS::External_RNG {
 public:
 
   CMS_SHERPA_RNG() : randomEngine(nullptr) {
-    std::cout << "Use stored reference for the external RNG" << std::endl;
+    edm::LogVerbatim("SherpaHadronizer") << "Use stored reference for the external RNG";
     setRandomEngine(GetExternalEngine());
   }
   void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
@@ -97,7 +97,7 @@ void SherpaHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v) {
     //First time call to this function makes the interface store the reference in the unnamed namespace
     if (!isRNGinitialized){
         isRNGinitialized=true;
-        std::cout << "Store assigned reference of the randomEngine" << std::endl;
+        edm::LogVerbatim("SherpaHadronizer") <<  "Store assigned reference of the randomEngine";
      SetExternalEngine(v);
     // Throw exception if there is no reference to an external RNG and it is not the first call!
     } else {
@@ -147,17 +147,14 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
         variationweightlist=WeightsBlock.getParameter< std::vector<std::string> >("SherpaVariationWeights");
     else
         throw cms::Exception("SherpaInterface") <<"SherpaVariationWeights does not exists in SherpaWeightsBlock" << std::endl;
-    std::cout << "SherpaHadronizer will try rearrange the event weights according to SherpaWeights and SherpaVariationWeights" << std::endl;
+    edm::LogVerbatim("SherpaHadronizer") <<  "SherpaHadronizer will try rearrange the event weights according to SherpaWeights and SherpaVariationWeights";
   }
 
 
   spf::SherpackFetcher Fetcher(params);
   int retval=Fetcher.Fetch();
   if (retval != 0) {
-   std::cout << "SherpaHadronizer: Preparation of Sherpack failed ... " << std::endl;
-   std::cout << "SherpaHadronizer: Error code: " << retval << std::endl;
-   std::terminate();
-
+   throw cms::Exception("SherpaInterface") <<"SherpaHadronizer: Preparation of Sherpack failed ... ";
   }
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.
@@ -166,7 +163,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   for ( unsigned i=0; i<setNames.size(); ++i ) {
     // ...and read the parameters for each set given in vstrings
     std::vector<std::string> pars = SherpaParameterSet.getParameter<std::vector<std::string> >(setNames[i]);
-    std::cout << "Write Sherpa parameter set " << setNames[i] <<" to "<<setNames[i]<<".dat "<<std::endl;
+    edm::LogVerbatim("SherpaHadronizer") << "Write Sherpa parameter set " << setNames[i] <<" to "<<setNames[i]<<".dat ";
     std::string datfile =  SherpaPath + "/" + setNames[i] +".dat";
     std::ofstream os(datfile.c_str());
     // Loop over all strings and write the according *.dat
@@ -253,14 +250,14 @@ void SherpaHadronizer::statistics()
   
   std::vector<std::string> newWeightList;
   if(rearrangeWeights){
-      std::cout << "The event weights have the following ordering:" << std::endl;
+      edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;
       for(auto &i: weightlist){
           newWeightList.push_back(i);
-          std::cout << i << std::endl;
+          edm::LogVerbatim("SherpaHadronizer") << i;
       }
       for(auto &i: variationweightlist) {
           newWeightList.push_back(i);
-          std::cout << i << std::endl;
+          edm::LogVerbatim("SherpaHadronizer") << i;
       }
     }
   runInfo().setWeightList(newWeightList);
