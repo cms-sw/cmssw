@@ -36,9 +36,14 @@ void kin(){
   gStyle->SetOptStat(0);
 
   // make trees
+  TFile * file = new TFile("L1Ntuple.root");
   //TFile * file = new TFile("all/combined.root");
-  TFile * file = new TFile("l1t_stage2.root");
-  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
+  //TFile * file = new TFile("l1t_stage2.root");
+  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeEmuTree/L1UpgradeTree");
+  if (! treeL1Up){
+    cout << "ERROR: could not open tree\n";
+    return;
+  }
   treeL1Up->Print();
 
   // set branch addresses

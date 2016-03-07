@@ -1,0 +1,18 @@
+The test python file here just prints the non-zero and error
+data for the first five events for the given raw data file,
+and stores all TPG objects created in the output EDM file.
+
+Usage syntax:
+  
+  cd $CMSSW_BASE/src
+  mkdir EventFilter    
+  git clone https://github.com/SridharaDasu/L1TCaloLayer1RawToDigi.git
+  cd $CMSSW_BASE/src/EventFilter/L1TCaloLayer1RawToDigi/test/
+  cmsenv
+  cmsRun testL1TCaloLayer1RawToDigi.py >& 5-event-dump.log
+
+There are also a simple standalone tester and three test events that you can try:
+
+  cd $CMSSW_BASE/src/EventFilter/L1TCaloLayer1RawToDigi/test/
+  c++ testUCTUnpacker.cpp
+  ./a.out < event_test1.txt
