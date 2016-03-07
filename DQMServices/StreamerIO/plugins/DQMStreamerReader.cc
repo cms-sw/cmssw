@@ -43,7 +43,13 @@ DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
   reset_();
 }
 
-DQMStreamerReader::~DQMStreamerReader() { closeFile_("destructor"); }
+DQMStreamerReader::~DQMStreamerReader() {
+  // Sometimes(?) the destructor called after service registry was already destructed
+  // and closeFile_ throws away no ServiceRegistry found exception...
+  //
+  // Normally, this file should be closed before this destructor is called.
+  //closeFile_("destructor");
+}
 
 void DQMStreamerReader::reset_() {
   // We have to load at least a single header,
