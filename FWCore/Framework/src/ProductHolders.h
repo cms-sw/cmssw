@@ -47,7 +47,7 @@ namespace edm {
     defaultStatus_(iDefaultStatus){}
     
     //Public since needed by Alias
-    virtual ProductData const& getProductData() const override final {return productData_;}
+    ProductData const& getProductData() const {return productData_;}
 
     virtual void connectTo(ProductHolderBase const&, Principal const*) override final;
 
@@ -59,7 +59,7 @@ namespace edm {
   protected:
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_;}
-    
+    ProductStatus defaultStatus() const { return defaultStatus_; }
     void setFailedStatus() const { theStatus_ = ProductStatus::NotCompleted; }
     
     
@@ -74,9 +74,12 @@ namespace edm {
       reallyCheckType(prod);
     }
     virtual bool productUnavailable_() const override ;
+    virtual bool productResolved_() const override final;
     virtual bool productWasDeleted_() const override final;
     virtual BranchDescription const& branchDescription_() const override final {return *getProductData().branchDescription();}
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override final {productData_.resetBranchDescription(bd);}
+    virtual Provenance const* provenance_() const override final {return &productData_.provenance();}
+
     virtual std::string const& resolvedModuleLabel_() const override final {return moduleLabel();}
     virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override final;
     virtual void setProcessHistory_(ProcessHistory const& ph) override final;
@@ -176,9 +179,10 @@ namespace edm {
                                                  ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
       virtual bool onDemandWasNotRun_() const override {return realProduct_.onDemandWasNotRun();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
+      virtual bool productResolved_() const override final {
+          return realProduct_.productResolved(); }
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
       virtual void checkType_(WrapperBase const& prod) const override {realProduct_.checkType(prod);}
-      virtual ProductData const& getProductData() const override {return realProduct_.getProductData();}
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override {
         realProduct_.putProduct(std::move(edp));
       }
@@ -190,6 +194,8 @@ namespace edm {
       }
       virtual BranchDescription const& branchDescription_() const override {return *bd_;}
       virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
+      virtual Provenance const* provenance_() const override final { return realProduct_.provenance(); }
+
       virtual std::string const& resolvedModuleLabel_() const override {return realProduct_.moduleLabel();}
       virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
       virtual void setProcessHistory_(ProcessHistory const& ph) override;
@@ -224,9 +230,9 @@ namespace edm {
                                                ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(resolveStatus, *parentPrincipal_, skipCurrentProcess, sra, mcc);}
     virtual bool onDemandWasNotRun_() const override {return realProduct_->onDemandWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
+    virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
     virtual void checkType_(WrapperBase const& prod) const override {realProduct_->checkType(prod);}
-    virtual ProductData const& getProductData() const override {return realProduct_->getProductData();}
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override {
       realProduct_->putProduct(std::move(edp));
     }
@@ -238,6 +244,8 @@ namespace edm {
     }
     virtual BranchDescription const& branchDescription_() const override {return *bd_;}
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
+    virtual Provenance const* provenance_() const override final {return realProduct_->provenance();
+    }
     virtual std::string const& resolvedModuleLabel_() const override {return realProduct_->moduleLabel();}
     virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
     virtual void setProcessHistory_(ProcessHistory const& ph) override;
@@ -260,7 +268,6 @@ namespace edm {
     virtual void connectTo(ProductHolderBase const& iOther, Principal const*) override final ;
 
     private:
-      virtual ProductData const& getProductData() const override;
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
                                                  bool skipCurrentProcess,
@@ -270,12 +277,15 @@ namespace edm {
       virtual bool onDemandWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
+      virtual bool productResolved_() const override final;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
       virtual void checkType_(WrapperBase const& prod) const override;
       virtual BranchDescription const& branchDescription_() const override;
       virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+      virtual Provenance const* provenance_() const override;
+
       virtual std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
       virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
       virtual void setProcessHistory_(ProcessHistory const& ph) override;

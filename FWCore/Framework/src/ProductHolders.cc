@@ -68,10 +68,10 @@ namespace edm {
     }
     
     if (presentStatus == ProductStatus::ProductSet) {
-      assert(product());
-      if(!productUnavailable()) {
+      auto pd = &getProductData();
+      if(pd->wrapper()->isPresent()) {
         resolveStatus = ProductFound;
-        return &getProductData();
+        return pd;
       }
     }
 
@@ -89,9 +89,12 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(status() == ProductStatus::ProductSet && product()->isPresent()) {
-        resolveStatus = ProductFound;
-        return &getProductData();
+      if(status() == ProductStatus::ProductSet) {
+        auto pd = &getProductData();
+        if(pd->wrapper()->isPresent()) {
+          resolveStatus = ProductFound;
+          return pd;
+        }
       }
     }
     resolveStatus = ProductNotFound;
@@ -126,9 +129,10 @@ namespace edm {
         principal.unscheduledFill(moduleLabel(), sra, mcc);
       }
       
-      if(presentStatus == ProductStatus::ProductSet && product()->isPresent()) {
+      auto pd = &getProductData();
+      if(presentStatus == ProductStatus::ProductSet && pd->wrapper()->isPresent()) {
         resolveStatus = ProductFound;
-        return &getProductData();
+        return pd;
       }
 
     }
@@ -149,7 +153,7 @@ namespace edm {
 
   void
   ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if(product()) {
+    if(status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
@@ -169,7 +173,7 @@ namespace edm {
 
   bool
   InputProductHolder::putOrMergeProduct_() const {
-    return(!product());
+    return(status() == defaultStatus());
   }
 
   void
@@ -183,9 +187,8 @@ namespace edm {
   bool
   InputProductHolder::productUnavailable_() const {
     // If there is a product, we know if it is real or a dummy.
-    auto p = product();
-    if(p) {
-      return !(p->isPresent());
+    if(status() == ProductStatus::ProductSet) {
+      return !(getProductData().wrapper()->isPresent());
     }
     return false;
   }
@@ -213,9 +216,16 @@ namespace edm {
     // If unscheduled production, the product is potentially available.
     if(onDemandWasNotRun()) return false;
     // The product is available if and only if a product has been put.
-    bool unavailable = !(product() && product()->isPresent());
+    bool unavailable = !((status() == ProductStatus::ProductSet) && getProductData().wrapper()->isPresent());
     return unavailable;
   }
+    
+  bool
+  DataManagingProductHolder::productResolved_() const {
+    auto s = status();
+    return (s != defaultStatus() ) or (s == ProductStatus::ProductDeleted);
+  }
+
   
   // This routine returns true if the product was deleted early in order to save memory
   bool
@@ -236,7 +246,9 @@ namespace edm {
   }
   
   void DataManagingProductHolder::resetProductData_(bool deleteEarly) {
-    productData_.resetProductData();
+    if(theStatus_ == ProductStatus::ProductSet) {
+      productData_.resetProductData();
+    }
     if(deleteEarly) {
       theStatus_ = ProductStatus::ProductDeleted;
     } else {
@@ -254,12 +266,6 @@ namespace edm {
     matchingHolders_(matchingHolders),
     ambiguous_(ambiguous) {
     assert(ambiguous_.size() == matchingHolders_.size());
-  }
-
-  ProductData const& NoProcessProductHolder::getProductData() const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::getProductData() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
   }
 
   ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
@@ -360,6 +366,12 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
+  bool NoProcessProductHolder::productResolved_() const {
+    throw Exception(errors::LogicError)
+    << "NoProcessProductHolder::productResolved_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+
   bool NoProcessProductHolder::productWasDeleted_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::productWasDeleted_() not implemented and should never be called.\n"
@@ -401,7 +413,13 @@ namespace edm {
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
-  
+
+  Provenance const* NoProcessProductHolder::provenance_() const {
+    throw Exception(errors::LogicError)
+    << "NoProcessProductHolder::provenance_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+
   void NoProcessProductHolder::connectTo(ProductHolderBase const&, Principal const*) {
     throw Exception(errors::LogicError)
     << "NoProcessProductHolder::connectTo() not implemented and should never be called.\n"

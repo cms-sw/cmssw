@@ -61,6 +61,9 @@ namespace edm {
     
     // product is not available (dropped or never created)
     bool productUnavailable() const {return productUnavailable_();}
+    
+    // returns true if resolveProduct was already called for this product
+    bool productResolved() const { return productResolved_(); }
 
     // provenance is currently available
     bool provenanceAvailable() const;
@@ -71,9 +74,6 @@ namespace edm {
     
     // Product was deleted early in order to save memory
     bool productWasDeleted() const {return productWasDeleted_();}
-
-    // Retrieves a pointer to the wrapper of the product.
-    WrapperBase const * product() const { return getProductData().wrapper(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -148,12 +148,7 @@ namespace edm {
 
     virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
 
-  protected:
-    virtual ProductData const& getProductData() const = 0;
-
   private:
-    WrapperBase * unsafe_product() const { return getProductData().unsafe_wrapper(); }
-
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                Principal const& principal,
                                                bool skipCurrentProcess,
@@ -162,6 +157,7 @@ namespace edm {
     virtual void swap_(ProductHolderBase& rhs) = 0;
     virtual bool onDemandWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
+    virtual bool productResolved_() const = 0;
     virtual bool productWasDeleted_() const = 0;
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
@@ -169,6 +165,7 @@ namespace edm {
     virtual void checkType_(WrapperBase const& prod) const = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
+    virtual Provenance const* provenance_() const = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
     virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) = 0;
     virtual void setProcessHistory_(ProcessHistory const& ph) = 0;

@@ -189,7 +189,6 @@ namespace edm {
    void
   EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
     if(phb.branchDescription().produced()) return; // nothing to do.
-    if(phb.product()) return; // nothing to do.
     if(phb.productUnavailable()) return; // nothing to do.
     if(!reader()) return; // nothing to do.
     

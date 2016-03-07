@@ -33,7 +33,7 @@ namespace edm {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
     if(branchDescription().produced()) {
-      return product() && product()->isPresent();
+      return productResolved();
     }
     // If this product is from a prior process, the provenance is available,
     // although the per event part may have been dropped.
@@ -42,7 +42,7 @@ namespace edm {
 
   TypeID
   ProductHolderBase::productType() const {
-    return TypeID(product()->wrappedTypeInfo());
+    return TypeID(branchDescription().wrappedTypeID());
   }
 
   void
@@ -60,7 +60,7 @@ namespace edm {
 
   Provenance const*
   ProductHolderBase::provenance() const {
-    return &(getProductData().provenance());
+    return provenance_();
   }
 
   void
