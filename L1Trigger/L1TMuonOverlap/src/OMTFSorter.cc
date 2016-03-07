@@ -191,8 +191,33 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
+l1t::RegionalMuonCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
+							int charge){ //method kept for backward compatibility
+
+  InternalObj myCand = sortProcessorResults(procResults, charge);
+
+  l1t::RegionalMuonCand candidate;
+  std::bitset<17> bits(myCand.hits);
+  int ipt = myCand.pt+1;
+  if(ipt>31) ipt=31;
+  candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0);//MicroGMT has 0.5 GeV pt bins
+  candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
+  candidate.setHwPhi(myCand.phi);
+  candidate.setHwSign(myCand.charge+1*(myCand.charge<0));
+  candidate.setHwQual(bits.count());
+  std::map<int, int> trackAddr;
+  trackAddr[0] = myCand.hits;
+  trackAddr[1] = myCand.refLayer;
+  trackAddr[2] = myCand.disc;
+  candidate.setTrackAddress(trackAddr);
+  
+  return candidate;
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
+  ///FIXME: read the list from configuration so this can be controlled at runtime.
   std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
 
   for(auto aHitPattern: badPatterns){
@@ -200,28 +225,30 @@ bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
   }
 
   return true; 
-   
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-			       l1t::RegionalMuonCandBxCollection & sortedCands,
-			       int bx, int charge){
-
-  sortedCands.clear();
+void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
+					       const std::vector<OMTFProcessor::resultsMap> & procResults,
+					       l1t::RegionalMuonCandBxCollection & sortedCands,
+					       int bx, int charge){
+  
   std::vector<InternalObj> mySortedCands;
   sortProcessorResults(procResults, mySortedCands, charge);
 
   for(auto myCand: mySortedCands){
     l1t::RegionalMuonCand candidate;
     std::bitset<17> bits(myCand.hits);
-    int ipt = myCand.pt+1;
-    if(ipt>31) ipt=31;
-    candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0 + 1);//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size
-    if(myCand.pt==0)  candidate.setHwPt(0); //Invalid candidate has to be treated separately
-    candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
-    candidate.setHwPhi(myCand.phi);
-    candidate.setHwSign(1-1*(myCand.charge>0)); //Charge convention for uGMT is charge = (-1)^iCharge
+    candidate.setHwPt(myCand.pt);
+    candidate.setHwEta(myCand.eta);
+
+    float phiValue = myCand.phi;
+    if(phiValue>=(int)OMTFConfiguration::nPhiBins) phiValue-=OMTFConfiguration::nPhiBins;
+    ///conversion factor from OMTF to uGMT scale: 5400/576
+    phiValue/=9.375;
+    candidate.setHwPhi(phiValue);
+    
+    candidate.setHwSign(myCand.charge<0 ? 1:0  );
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
@@ -233,11 +260,9 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     trackAddr[1] = myCand.refLayer;
     trackAddr[2] = myCand.disc;
     candidate.setTrackAddress(trackAddr);
-
-    sortedCands.push_back(bx, candidate);
+    candidate.setTFIdentifiers(iProcessor,mtfType);
+    if(candidate.hwPt()) sortedCands.push_back(bx, candidate);
   }
-
-  return;
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////

@@ -99,3 +99,24 @@ def L1NtupleAODRAWEMU(process):
 
     return process
 
+def L1NtupleAODEMU(process):
+
+    L1NtupleEMU(process)
+    L1NtupleAOD(process)
+
+    return process
+
+
+
+def L1NtupleEMUNoEventTree(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+    process.L1NtupleEMU = cms.Sequence( process.l1CaloTowerEmuTree+process.l1UpgradeEmuTree )
+    process.l1ntuplesim = cms.Path(
+        process.L1NtupleEMU
+    )
+    process.schedule.append(process.l1ntuplesim)
+
+    return process
