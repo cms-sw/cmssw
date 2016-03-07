@@ -930,7 +930,11 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleCharge_           .push_back(ele->charge());
     eleChargeConsistent_ .push_back((int)ele->isGsfCtfScPixChargeConsistent());
     eleSCPixCharge_      .push_back(ele->scPixCharge());
-    eleCtfCharge_        .push_back(ele->closestTrack()->charge());
+    if(!(ele->closestTrack().isNull())) {
+      eleCtfCharge_        .push_back(ele->closestTrack()->charge());
+    } else {
+      eleCtfCharge_        .push_back(-99.);
+    }
     eleEn_               .push_back(ele->energy());
     eleD0_               .push_back(ele->gsfTrack()->dxy(pv));
     eleDz_               .push_back(ele->gsfTrack()->dz(pv));
