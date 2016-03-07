@@ -1,3 +1,5 @@
+#include <numeric>
+#include <cmath>
 #include "HLTrigger/JetMET/interface/AlphaT.h"
 
 double AlphaT::value_(std::vector<bool> * jet_sign) const {
@@ -47,5 +49,5 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
     }
   }
   // Alpha_T
-  return (0.5 * (sum_et - min_delta_sum_et) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ));  
+  return (0.5 * (sum_et - min_delta_sum_et) / std::sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ));
 }
