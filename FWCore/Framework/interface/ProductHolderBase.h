@@ -136,9 +136,6 @@ namespace edm {
       mergeProduct_(std::move(edp));
     }
 
-    // Merges two instances of the product.
-    void mergeTheProduct(std::unique_ptr<WrapperBase> edp) const;
-
     void reallyCheckType(WrapperBase const& prod) const;
 
     void checkType(WrapperBase const& prod) const {

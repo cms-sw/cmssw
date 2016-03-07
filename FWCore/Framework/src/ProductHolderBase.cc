@@ -28,33 +28,6 @@ namespace edm {
 
   ProductHolderBase::~ProductHolderBase() {}
 
-  void
-  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) const {
-    if(product()->isMergeable()) {
-      unsafe_product()->mergeProduct(edp.get());
-    } else if(product()->hasIsProductEqual()) {
-      if(!product()->isProductEqual(edp.get())) {
-        LogError("RunLumiMerging")
-              << "ProductHolderBase::mergeTheProduct\n"
-              << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-              << "Using the first, ignoring the second\n"
-              << "className = " << branchDescription().className() << "\n"
-              << "moduleLabel = " << moduleLabel() << "\n"
-              << "instance = " << productInstanceName() << "\n"
-              << "process = " << processName() << "\n";
-      }
-    } else {
-      LogWarning("RunLumiMerging")
-          << "ProductHolderBase::mergeTheProduct\n"
-          << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
-          << "Using the first, ignoring the second in merge\n"
-          << "className = " << branchDescription().className() << "\n"
-          << "moduleLabel = " << moduleLabel() << "\n"
-          << "instance = " << productInstanceName() << "\n"
-          << "process = " << processName() << "\n";
-    }
-  }
-
   bool
   ProductHolderBase::provenanceAvailable() const {
     // If this product is from a the current process,
