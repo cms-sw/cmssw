@@ -116,20 +116,26 @@ def modifyClusterLimits(process):
 
     return process
 
+
+# Add caloTowers to AOD event content
 def storeCaloTowersAOD(process):
 
     process.load('Configuration.EventContent.EventContent_cff')
     
     # extend AOD content
-    process.AODoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+    if hasattr(process,'AODoutput'):
+        process.AODoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+
+    if hasattr(process,'AODSIMoutput'):
+        process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
 
     return process
 
-def storeCaloTowersAODSIM(process):
+def customisePPwithHI(process):
 
-    process.load('Configuration.EventContent.EventContent_cff')
-    
-    # extend AOD content
-    process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+    process=addHIIsolationProducer(process)
+    process=modifyClusterLimits(process)
+    process=storeCaloTowersAOD(process)
 
     return process
+
