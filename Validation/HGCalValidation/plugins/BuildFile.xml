@@ -7,6 +7,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/ValidationFormats"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="CalibFormats/HcalObjects"/>

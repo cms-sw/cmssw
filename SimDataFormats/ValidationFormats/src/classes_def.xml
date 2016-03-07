@@ -167,7 +167,7 @@
   </class>
   <class name="std::vector<MaterialAccountingDetector>"/>
   <class name="edm::Wrapper<std::vector<MaterialAccountingDetector> >"/>
-
+  
   <class name="MaterialAccountingTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="3618055651"/>
     <field name="m_current_volume"  transient="true"/>
@@ -175,4 +175,9 @@
   </class>
   <class name="std::vector<MaterialAccountingTrack>"/>
   <class name="edm::Wrapper<std::vector<MaterialAccountingTrack> >"/>
+
+  <class name="PHGCalValidInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="3282014028"/>
+  </class>
+  <class name="edm::Wrapper<PHGCalValidInfo>"/>
 </lcgdict>
