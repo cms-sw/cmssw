@@ -44,6 +44,17 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Output definition
 
+process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string(''),
+        filterName = cms.untracked.string('')
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    fileName = cms.untracked.string('l1NtupleRECO_RAW2DIGI.root'),
+#    outputCommands = process.RECOSIMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
+
 # Additional output definition
 
 # Other statements
@@ -53,9 +64,11 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.endjob_step = cms.EndPath(process.endOfProcess)
+process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.endjob_step)
+#process.schedule = cms.Schedule(process.raw2digi_step,process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.endjob_step,process.RECOSIMoutput_step)
 
 # customisation of the process.
 
