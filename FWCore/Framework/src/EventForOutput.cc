@@ -16,7 +16,6 @@ namespace edm {
       provRecorder_(ep, md),
       aux_(ep.aux()),
       luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlockForOutput(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
-      gotBranchIDs_(),
       streamID_(ep.streamID()),
       moduleCallingContext_(moduleCallingContext)
   {
@@ -78,11 +77,6 @@ namespace edm {
     return process_found;
   }
 
-  void
-  EventForOutput::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   ProcessHistory const&
   EventForOutput::processHistory() const {
     return provRecorder_.processHistory();
@@ -100,7 +94,6 @@ namespace edm {
     if (result.failedToGet()) {
       return false;
     }
-    addToGotBranchIDs(*result.provenance());
     return true;
   }
 

@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <string>
-#include <set>
 #include <typeinfo>
 #include <vector>
 
@@ -128,14 +127,6 @@ namespace edm {
     EventAuxiliary const& aux_;
     std::shared_ptr<LuminosityBlockForOutput const> const luminosityBlock_;
 
-    // gotBranchIDs_ must be mutable because it records all 'gets',
-    // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
-    // merely a cache reflecting what has been retreived from the
-    // Principal class.
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    void addToGotBranchIDs(Provenance const& prov) const;
-
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
   };
@@ -149,7 +140,6 @@ namespace edm {
     if (result.failedToGet()) {
       return false;
     }
-    addToGotBranchIDs(*result.provenance());
     return true;
   }
   
@@ -162,7 +152,6 @@ namespace edm {
     if (result.failedToGet()) {
       return false;
     }
-    addToGotBranchIDs(*result.provenance());
     return true;
   }
 
