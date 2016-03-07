@@ -102,7 +102,7 @@ double WeakEffectsWeightProducer::sigma0_qqbarll(unsigned int quark_id, double Q
       double alphaW = 2.7e-3 * pow(log(Q*Q/80.4/80.4),2);
       double alphaZ = 2.7e-3 * pow(log(Q*Q/MZ/MZ),2);
       double sudakov_factor = 1.;
-      if (abs(quark_id)%2==1) {
+      if (quark_id%2==1) {
             qq = -1./3.;
             vq = -0.5 - 2.*qq*sin2eff;
             aq = -0.5;
