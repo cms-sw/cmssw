@@ -40,8 +40,8 @@ namespace stage2 {
 	    std::min(j->hwPt(), 0x1FF) |
 	    packed_eta << 9 |
 	    (j->hwPhi() & 0xFF) << 17 |
-	    (j->hwIso() & 0x1) << 25 |
-	    (j->hwQual() & 0x7) << 26;
+	    (j->hwIso() & 0x3) << 25 |
+	    (j->hwQual() & 0x7) << 27;
 	
 	  if (load1.size() < l1t::stage2::layer2::demux::nEGPerLink) load1.push_back(word);
 	  else load2.push_back(word);
