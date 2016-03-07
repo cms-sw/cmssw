@@ -3,8 +3,8 @@
 
 //-------------------------------------------------------------------------------
 // Created 15/04/2010 - E. Conte, A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 #include <TROOT.h>
@@ -16,10 +16,10 @@ namespace L1Analysis
 {
   struct L1AnalysisGeneratorDataFormat
   {
-  
+
     L1AnalysisGeneratorDataFormat(){Reset();};
     ~L1AnalysisGeneratorDataFormat(){};
-    
+
     void Reset()
     {
      weight = -999.;
@@ -31,12 +31,15 @@ namespace L1Analysis
 		py.resize(0);
 		pz.resize(0);
 		e.resize(0);
+    pt.resize(0);
+    phi.resize(0);
+    eta.resize(0);
 
     }
 
-                   
+
     // ---- L1AnalysisGeneratorDataFormat information.
-    
+
     float weight;
     float pthat;
     std::vector<int> id;
@@ -46,9 +49,12 @@ namespace L1Analysis
     std::vector<float> py;
     std::vector<float> pz;
     std::vector<float> e;
-            
-  }; 
-} 
+    std::vector<float> pt;
+    std::vector<float> phi;
+    std::vector<float> eta;
+
+  };
+}
 #endif
 
 

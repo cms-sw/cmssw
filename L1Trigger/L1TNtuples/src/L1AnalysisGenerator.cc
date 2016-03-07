@@ -7,7 +7,7 @@
 
 using namespace reco;
 
-L1Analysis::L1AnalysisGenerator::L1AnalysisGenerator() 
+L1Analysis::L1AnalysisGenerator::L1AnalysisGenerator()
 {
 }
 
@@ -22,17 +22,17 @@ void L1Analysis::L1AnalysisGenerator::Set(const edm::Event& e)
    for(size_t i = 0; i < genParticles->size(); ++ i) {
      const GenParticle & p = (*genParticles)[i];
      int id = p.pdgId();
-     //int st = p.status();  
+     //int st = p.status();
 		if (abs(id) == 13) {
  			unsigned int nMo=p.numberOfMothers();
-//			std::cout << "id " << id << "; st " << st 
+//			std::cout << "id " << id << "; st " << st
 //							<< "; nMo " << nMo << std::endl;
 			for(unsigned int i=0;i<nMo;++i){
 //				int thisParentID = dynamic_cast	<const reco::GenParticle*>(p.mother(i))->pdgId();
 //				std::cout << "   mother ID " << thisParentID << std::endl;
 			}
 		}
-			
+
 //
 // See if the parent was interesting
 		int parentID = -10000;
@@ -44,23 +44,23 @@ void L1Analysis::L1AnalysisGenerator::Set(const edm::Event& e)
 // Is this a bottom hadron?
 			int hundredsIndex = abs(thisParentID)/100;
 			int thousandsIndex = abs(thisParentID)/1000;
-			if ( ((abs(thisParentID) >= 23) && 
+			if ( ((abs(thisParentID) >= 23) &&
 						(abs(thisParentID) <= 25)) ||
 						(abs(thisParentID) == 6) ||
 						(hundredsIndex == 5) ||
 						(hundredsIndex == 4) ||
 						(thousandsIndex == 5) ||
-						(thousandsIndex == 4) 
+						(thousandsIndex == 4)
 					)
 				parentID = thisParentID;
 		}
-		if ((parentID == -10000) && (nMo > 0)) 
+		if ((parentID == -10000) && (nMo > 0))
 			parentID = dynamic_cast
 					<const reco::GenParticle*>(p.mother(0))->pdgId();
 //
 // If the parent of this particle is interesting, store all of the info
 		if ((parentID != p.pdgId()) &&
-			((parentID > -9999) 
+			((parentID > -9999)
 			   || (abs(id) == 11)
 			   || (abs(id) == 13)
 			   || (abs(id) == 23)
@@ -78,6 +78,9 @@ void L1Analysis::L1AnalysisGenerator::Set(const edm::Event& e)
 			generator_.pz.push_back(p.pz());
 			generator_.e.push_back(p.energy());
 			generator_.parent_id.push_back(parentID);
+			generator_.pt.push_back(p.pt());
+			generator_.eta.push_back(p.eta());
+			generator_.phi.push_back(p.phi());
 		}
    }
 
