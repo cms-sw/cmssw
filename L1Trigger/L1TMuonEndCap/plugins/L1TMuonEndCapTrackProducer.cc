@@ -100,7 +100,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
 		tester.push_back(*tp);
 
-		//if(verbose) std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<std::endl;
+		//std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<std::endl;
       }
 
      }
@@ -341,14 +341,14 @@ OutputCands->setBXRange(-2,2);
 for(int sect=0;sect<12;sect++){
 
 	for(unsigned int h=0;h<holder.size();h++){
-
+	
 		int bx = holder[h].first - 6;
 		int sector = holder[h].second.processor();
 		if(holder[h].second.trackFinderType() == 3)
 			sector += 6;
 	
 		if(sector == sect){
-			OutputCands->insert(bx,h,holder[h].second);
+			OutputCands->push_back(bx,holder[h].second);
 		}
 		
 	}
