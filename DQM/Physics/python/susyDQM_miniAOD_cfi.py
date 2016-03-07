@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-susyDQM = cms.EDAnalyzer("RecoSusyDQM",
+susyDQMMiniAOD = cms.EDAnalyzer("PatSusyDQM",
 
-    muonCollection = cms.InputTag('muons'),
-    electronCollection = cms.InputTag('gedGsfElectrons'),
-    photonCollection = cms.InputTag('gedPhotons'),
-    jetCollection = cms.InputTag('ak4PFJetsCHS'),
-    metCollection = cms.InputTag('pfMet'),
-    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-    conversions = cms.InputTag('conversions'),
+    muonCollection = cms.InputTag('slimmedMuons'),
+    electronCollection = cms.InputTag('slimmedElectrons'),
+    photonCollection = cms.InputTag('slimmedPhotons'),
+    jetCollection = cms.InputTag('slimmedJets'),
+    metCollection = cms.InputTag('slimmedMETs'),
+    vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    conversions = cms.InputTag("reducedEgamma", "reducedConversions"),
     beamSpot = cms.InputTag('offlineBeamSpot'),
     fixedGridRhoFastjetAll = cms.InputTag('fixedGridRhoFastjetAll'),
-    genParticles = cms.InputTag('genParticles'),
-    genJets = cms.InputTag('ak4GenJets'),
+    genParticles = cms.InputTag('prunedGenParticles'),
+    genJets = cms.InputTag('slimmedGenJets'),
 
     jetPtCut = cms.double(40),
     jetEtaCut = cms.double(3.0),
@@ -63,4 +63,4 @@ susyDQM = cms.EDAnalyzer("RecoSusyDQM",
     useGen = cms.bool(True),
 )
 
-susyAnalyzer = cms.Path(susyDQM)
+susyMiniAODAnalyzer = cms.Path(susyDQMMiniAOD)

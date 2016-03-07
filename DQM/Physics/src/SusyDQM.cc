@@ -23,14 +23,11 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
             pset.getParameter<edm::InputTag>("beamSpot"));
     fixedGridRhoFastjetAll_ = consumes<double>(
             pset.getParameter<edm::InputTag>("fixedGridRhoFastjetAll"));
-    jetTagCollection_ = consumes<reco::JetTagCollection>(pset.getParameter<edm::InputTag>("jetTagCollection"));
     genParticles_ = consumes<edm::View<reco::GenParticle> >(pset.getParameter<edm::InputTag>("genParticles"));
     genJets_ = consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("genJets"));
-    jetFlavorMatch_ = consumes<reco::JetFlavourMatchingCollection>(pset.getParameter<edm::InputTag>("jetFlavourAssociation"));
 
     jetPtCut = pset.getParameter<double>("jetPtCut");
     jetEtaCut = pset.getParameter<double>("jetEtaCut");
-    jetCSVV2Cut = pset.getParameter<double>("csvv2Cut");
 
     muPtCut = pset.getParameter<double>("muPtCut");
     muEtaCut = pset.getParameter<double>("muEtaCut");
@@ -143,14 +140,12 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     leadingJetMass_pT80 = booker.book1D("leadingJetMass_pT80", "Leading jet mass; m_{jet}", 50, 0., 300);
     deltaPhiJJ_2Jets80 = booker.book1D("deltaPhiJJ_2Jets80", "#Delta #phi_{two leading jets}; #Delta #phi", 20, 0., 3.1415);
     missingEt_HT250 = booker.book1D("missingEt_HT250", "MET (HT > 250) (GeV); MET (GeV)", 50, 0., 800);
-    missingEt_1BTaggedJet = booker.book1D("missingEt_1BTaggedJet", "MET (>= 1 b-jet in event); MET (GeV)", 50, 0., 800);
     metPhi_MET150 = booker.book1D("metPhi_MET150", "MET #phi, MET > 150 GeV; #phi", 20, -3.1415, 3.1415);
     HT_MET150 = booker.book1D("hT_MET150", "HT (MET > 150) (GeV); HT (GeV)", 50, 0., 3000);
     MHT = booker.book1D("mHT", "MHT (GeV); MHT (GeV)", 50, 0., 800);
     missingEtOverMHT = booker.book1D("missingEtOverMHT", "MET/MHT; MET/MHT", 50, 0., 10.0);
     MHTOverHT = booker.book1D("mHTOverHT", "MHT/HT; MHT/HT", 50, 0., 2.0);
     nJets = booker.book1D("nJets", "n_{jets} p_{T} > 40 GeV; n_{jets}", 16, 0, 16);
-    nBTaggedJetsCSVV2M_HT250 = booker.book1D("nBTaggedJetsCSVV2M_HT250", "n_{jets} p_{T} > 40 GeV, CSVV2 medium b-tag, HT > 250 GeV; n_{jets}", 10, 0, 10);
     nJets_HT250 = booker.book1D("nJets_HT250", "n_{jets} p_{T} > 40 GeV (HT > 250); n_{jets}", 16, 0, 16);
     nJets_MET150 = booker.book1D("nJets_MET150", "n_{jets} p_{T} > 40 GeV (MET > 150); n_{jets}", 16, 0, 16);
     deltaPhiJetMET_jet80 = booker.book1D("deltaPhiJetMET_jet80", "#Delta #phi_{MET, leading jet}; #Delta #phi", 20, 0, 3.1415);
@@ -165,8 +160,6 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     fractionOfGoodJetsVsEta_denominator = booker.book1D("fractionOfGoodJetsVsEta_denominator", "Fraction of jets passing loose ID; #eta", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_numerator = booker.book1D("fractionOfGoodJetsVsPhi_numerator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_denominator = booker.book1D("fractionOfGoodJetsVsPhi_denominator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
-    csvV2MediumEfficiencyVsPt_numerator = booker.book1D("csvV2MediumEfficiencyVsPt_numerator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 600);
-    csvV2MediumEfficiencyVsPt_denominator = booker.book1D("csvV2MediumEfficiencyVsPt_denominator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 600);
 
     booker.cd();
 }
@@ -422,11 +415,6 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::setupEvent(const edm::Event& evt){
         edm::LogError("SusyDQM") << "Error: fixedGridRhoFastjetAll not found!\n";
         return false;
     }
-    //jet tags
-    if(!(evt.getByToken(jetTagCollection_, jetTagCollection))){
-        edm::LogError("SusyDQM") << "Error: jetTagCollection not found!\n";
-        return false;
-    }
     //gen particles
     if(useGen){
         if(!(evt.getByToken(genParticles_, genParticles))){
@@ -435,10 +423,6 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::setupEvent(const edm::Event& evt){
         }
         if(!(evt.getByToken(genJets_, genJets))){
             edm::LogError("SusyDQM") << "Error: genJets not found!\n";
-            return false;
-        }
-        if(!(evt.getByToken(jetFlavorMatch_, jetFlavorMatch))){
-            edm::LogError("SusyDQM") << "Error: jetFlavorMatch not found!\n";
             return false;
         }
     }
@@ -474,35 +458,8 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::selectObjects(const edm::Event& evt) {
     }
     //select good jets
     for(typename std::vector<Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++){
-        if(useGen){
-        //get flavor of jet 
-            int jetPartonFlavor = -1;
-            for(auto &jetMatch : (*jetFlavorMatch)){
-                float deltaRJetMatchJet = reco::deltaR(jetMatch.first->eta(), jetMatch.first->phi(), jet->eta(), jet->phi());
-                if(deltaRJetMatchJet < 0.1){
-                    const reco::JetFlavour aFlav = jetMatch.second;
-                    jetPartonFlavor = aFlav.getFlavour();
-                    break;
-                }
-            }
-            if (abs(jetPartonFlavor) == 5){ //b-jet 
-                csvV2MediumEfficiencyVsPt_denominator->Fill(jet->pt());
-            }
-        }
         if(goodJet(&(*jet))){
             goodJets.push_back(&(*jet));
-            if(useGen){ //check if the jet is b-tagged
-                for(const auto jettag: *jetTagCollection){
-                    const float CSV = jettag.second;
-                    if(jettag.first->pt() > jetPtCut && CSV > jetCSVV2Cut){
-                        //match in deltaR
-                        float deltaRJetBJet = reco::deltaR(jettag.first->eta(), jettag.first->phi(), jet->eta(), jet->phi());
-                        if(deltaRJetBJet < 0.1){ //jet is b-tagged
-                            csvV2MediumEfficiencyVsPt_numerator->Fill(jet->pt());
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -752,19 +709,6 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillPhotonic(const edm::Event& evt) {
     nJets->Fill(goodJets.size());
     if(HT > 250) nJets_HT250->Fill(goodJets.size());
     if(MET > 150) nJets_MET150->Fill(goodJets.size());
-
-    //count b-tagged jets
-    uint nBTaggedJets = 0;
-    for(const auto jet: *jetTagCollection){
-        const float CSV = jet.second;
-        if(jet.first->pt() > jetPtCut){
-            if(CSV > jetCSVV2Cut){
-                nBTaggedJets++;
-            }
-        }
-    }
-    if(HT > 250) nBTaggedJetsCSVV2M_HT250->Fill(nBTaggedJets);
-    if(nBTaggedJets > 0) missingEt_1BTaggedJet->Fill(MET);
 
     if(goodJets.size() > 0 && goodJets[0]->pt() > 80){ //fill leading jet information
        leadingJetPt_pT80->Fill(goodJets[0]->pt());

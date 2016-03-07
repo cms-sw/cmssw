@@ -54,8 +54,6 @@
 //GEN includes
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 
 //PAT includes
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -111,10 +109,8 @@ class SusyDQM : public DQMEDAnalyzer {
         edm::EDGetTokenT<reco::ConversionCollection> conversions_;
         edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
         edm::EDGetTokenT<double> fixedGridRhoFastjetAll_;
-        edm::EDGetTokenT<reco::JetTagCollection> jetTagCollection_;
         edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticles_;
         edm::EDGetTokenT<reco::GenJetCollection> genJets_;
-        edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetFlavorMatch_;
 
         edm::Handle<std::vector<Mu> > muons;
         edm::Handle<std::vector<Ele> > electrons;
@@ -125,10 +121,8 @@ class SusyDQM : public DQMEDAnalyzer {
         edm::Handle<reco::ConversionCollection> conversions;
         edm::Handle<reco::BeamSpot> beamSpot;
         edm::Handle<double> fixedGridRhoFastjetAll;
-        edm::Handle<reco::JetTagCollection> jetTagCollection;
         edm::Handle<edm::View<reco::GenParticle> > genParticles;
         edm::Handle<reco::GenJetCollection> genJets;
-        edm::Handle<reco::JetFlavourMatchingCollection> jetFlavorMatch;
 
         //Lorentz vectors for selected physics objects
         vector<const Mu*> goodMuons;
@@ -139,7 +133,6 @@ class SusyDQM : public DQMEDAnalyzer {
         //Cut values from config
         double jetPtCut;
         double jetEtaCut;
-        double jetCSVV2Cut;
 
         double elePtCut;
         double eleEtaCut;
@@ -235,14 +228,12 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* leadingJetMass_pT80;
         MonitorElement* deltaPhiJJ_2Jets80; //inclusive in number of jets
         MonitorElement* missingEt_HT250;
-        MonitorElement* missingEt_1BTaggedJet;
         MonitorElement* metPhi_MET150;
         MonitorElement* HT_MET150;
         MonitorElement* MHT;
         MonitorElement* missingEtOverMHT;
         MonitorElement* MHTOverHT;
         MonitorElement* nJets;
-        MonitorElement* nBTaggedJetsCSVV2M_HT250;
         MonitorElement* nJets_HT250;
         MonitorElement* nJets_MET150;
         MonitorElement* deltaPhiJetMET_jet80;
@@ -257,8 +248,6 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* fractionOfGoodJetsVsPhi_numerator;
         MonitorElement* fractionOfGoodJetsVsEta_denominator;
         MonitorElement* fractionOfGoodJetsVsPhi_denominator;
-        MonitorElement* csvV2MediumEfficiencyVsPt_numerator;
-        MonitorElement* csvV2MediumEfficiencyVsPt_denominator;
 };
 
 typedef SusyDQM<reco::Muon, reco::GsfElectron, reco::Photon, reco::PFJet, reco::PFMET> RecoSusyDQM;

@@ -13,7 +13,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_GRun', '')
 
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:susy_dqm.root"),
+    fileNames = cms.untracked.vstring("file:susy_dqm_miniAOD.root"),
 )
 
 ## number of events
