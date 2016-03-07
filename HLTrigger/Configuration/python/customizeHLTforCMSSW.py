@@ -39,6 +39,12 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if (menuType == "Fake"):
         return process
 #
+#   special case
+    for module in filters_by_type(process,"HLTL1TSeed"):
+        label = module._Labelable__label
+        if hasattr(getattr(process,label),'SaveTags'):
+            delattr(getattr(process,label),'SaveTags')
+#
 #   replace converted l1extra=>l1t plugins which are not yet in ConfDB
     replaceList = {
         'EDAnalyzer' : { },

@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V22 (CMSSW_8_0_1)
+# /dev/CMSSW_8_0_0/GRun/V23 (CMSSW_8_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V23')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -11650,14 +11650,15 @@ fragment.hltPreDoubleMediumIsoPFTau35Trk1eta2p1Reg = cms.EDFilter( "HLTPrescaler
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltCaloTowersIsoTau1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersIsoTau1Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 0 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','IsoTau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkIsoTau1Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -11719,14 +11720,15 @@ fragment.hltAkIsoTau1Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersIsoTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersIsoTau2Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 1 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','IsoTau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkIsoTau2Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -11788,14 +11790,15 @@ fragment.hltAkIsoTau2Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersIsoTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersIsoTau3Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 2 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','IsoTau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkIsoTau3Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -11857,14 +11860,15 @@ fragment.hltAkIsoTau3Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersIsoTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersIsoTau4Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 3 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','IsoTau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkIsoTau4Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -11930,14 +11934,15 @@ fragment.hltL2TauJetsL1IsoTauSeeded = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 20.0 ),
     JetSrc = cms.VInputTag( 'hltAkIsoTau1Regional','hltAkIsoTau2Regional','hltAkIsoTau3Regional','hltAkIsoTau4Regional' )
 )
-fragment.hltCaloTowersTau1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersTau1Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 0 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkTau1Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -11999,14 +12004,15 @@ fragment.hltAkTau1Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 1 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkTau2Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -12068,14 +12074,15 @@ fragment.hltAkTau2Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 2 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkTau3Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -12137,14 +12144,15 @@ fragment.hltAkTau3Regional = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+fragment.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerFromL1TCreatorForTauHLT",
     verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForAll" ),
     TauId = cms.int32( 3 ),
-    TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    TauTrigger = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     minimumE = cms.double( 0.8 ),
     UseTowersInCone = cms.double( 0.8 ),
-    minimumEt = cms.double( 0.5 )
+    minimumEt = cms.double( 0.5 ),
+    BX = cms.int32( 0 )
 )
 fragment.hltAkTau4Regional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -22824,12 +22832,10 @@ fragment.hltEle35CaloIdVTGsfTrkIdTGsfDphiFilter = cms.EDFilter( "HLTEgammaGeneri
     candTag = cms.InputTag( "hltEle35CaloIdVTGsfTrkIdTGsfDetaFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
-fragment.hltPFJetsCorrectedMatchedToL1 = cms.EDProducer( "HLTPFJetL1MatchProducer",
-    L1CenJets = cms.InputTag( 'hltL1extraParticles','Central' ),
+fragment.hltPFJetsCorrectedMatchedToL1 = cms.EDProducer( "HLTPFJetL1TMatchProducer",
+    jetsInput = cms.InputTag( "hltAK4PFJetsCorrected" ),
     DeltaR = cms.double( 0.5 ),
-    L1ForJets = cms.InputTag( 'hltL1extraParticles','Forward' ),
-    L1TauJets = cms.InputTag( 'hltL1extraParticles','Tau' ),
-    jetsInput = cms.InputTag( "hltAK4PFJetsCorrected" )
+    L1Jets = cms.InputTag( 'hltCaloStage2Digis','Jet' )
 )
 fragment.hltDiPFJet50 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
