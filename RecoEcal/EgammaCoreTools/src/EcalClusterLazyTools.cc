@@ -301,7 +301,7 @@ float EcalClusterLazyToolsBase::eseffsiyiy(const reco::SuperCluster &cluster)
 }
 
 // get Preshower Rechits
-std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& _rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology *topology_p, int row, int plane) 
+std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& _rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology const *topology_p, int row, int plane) 
 {
   std::map<DetId, EcalRecHit> rechits_map = _rechits_map;
   std::vector<float> esHits;
