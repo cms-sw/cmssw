@@ -76,7 +76,8 @@ def addHIIsolationProducer(process):
     
     return process
 
-# Customize process to run HI-style photon isolation in the pp RECO sequences                                                                                                        
+
+    # modify cluster limits to run pp reconstruction on peripheral PbPb
 def modifyClusterLimits(process):
 
     process.initialStepSeedsPreSplitting.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
@@ -115,20 +116,26 @@ def modifyClusterLimits(process):
 
     return process
 
+
+# Add caloTowers to AOD event content
 def storeCaloTowersAOD(process):
 
     process.load('Configuration.EventContent.EventContent_cff')
     
     # extend AOD content
-    process.AODoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+    if hasattr(process,'AODoutput'):
+        process.AODoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+
+    if hasattr(process,'AODSIMoutput'):
+        process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
 
     return process
 
-def storeCaloTowersAODSIM(process):
+def customisePPwithHI(process):
 
-    process.load('Configuration.EventContent.EventContent_cff')
-    
-    # extend AOD content
-    process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
+    process=addHIIsolationProducer(process)
+    process=modifyClusterLimits(process)
+    process=storeCaloTowersAOD(process)
 
     return process
+
