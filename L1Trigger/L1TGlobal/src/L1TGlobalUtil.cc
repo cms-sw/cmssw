@@ -1,14 +1,8 @@
-////
-/// \class l1t::L1TGlobalUtil.cc
-///
-/// Description: Dump Accessors for L1 GT Result.
-///
-/// Implementation:
-///    
-///
-/// \author: Brian Winer Ohio State
-///
-/// 
+// L1TGlobalUtil
+//
+// author: Brian Winer Ohio State
+//
+
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 #include <iostream>
@@ -31,25 +25,25 @@
 
 
 // constructor
-l1t::L1TGlobalUtil::L1TGlobalUtil(std::string preScaleFileName, unsigned int psColumn) 
-{
-
+l1t::L1TGlobalUtil::L1TGlobalUtil(){
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
-
     m_filledPrescales = false;
-
-    m_preScaleFileName = preScaleFileName;
-
+    edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/prescale_L1TGlobal.csv");
+    m_preScaleFileName = f1.fullPath();
     m_numberPhysTriggers = 512; //need to get this out of the EventSetup
-
-    m_PreScaleColumn = psColumn;
+    m_PreScaleColumn = 1;
 
 }
 
+void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
+  edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
+  m_preScaleFileName = f1.fullPath();
+  m_PreScaleColumn = psColumn;
+}
+
 // destructor
-l1t::L1TGlobalUtil::~L1TGlobalUtil() {
- 
+l1t::L1TGlobalUtil::~L1TGlobalUtil() { 
 }
 
 
@@ -64,10 +58,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
+        m_l1GtMenu =  l1GtMenu.product();
 
         //std::cout << "Attempting to fill the map " << std::endl;
-        m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
+        m_algorithmMap = &(m_l1GtMenu->getAlgorithmMap());
 
 	//reset vectors since we have new menu
 	resetDecisionVectors();
@@ -167,7 +161,7 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
 void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
-    std::fstream inputPrescaleFile;
+    std::ifstream inputPrescaleFile;
     inputPrescaleFile.open(m_preScaleFileName);
 
     std::vector<std::vector<int> > vec;
