@@ -5,21 +5,23 @@ use Switch;
 $PYTHON_OPT = "--python_filename=l1t_test.py";
 $CMSRUN     = "cmsRun l1t_test.py";
 
-$WORK_DIR = "./test_l1t";
+$WORK_DIR = "test_l1t";
 $MAIN_LOG = "MAIN.log";
 $JOB_LOG = "JOB.log";
 $NUM_JOBS = 5;
 $TIMEOUT = 10*60;
-$NUM_EVENTS = 100;
 
 $VERBOSE  = 0;
 $DRYRUN   = 0;
 $DELETE   = 0;
 $FAST     = 0;
+$SLOW     = 0;
 $RECYCLE  = 0;
 $VISUAL   = 0;
 $REDO     = 0;
 $REEMUL   = 0;
+$COMPARE  = 0;
+$COMPARE_DIR = "";
 
 sub main;
 main @ARGV;
@@ -34,11 +36,13 @@ sub usage() {
     print "--verbose          output lots of information.\n";
     print "--delete           delete previous job directory if it exists.\n";
     print "--fast             limit the number of events for an initial quick test.\n";
+    print "--slow             increase the number of events for a slower but more thorough test.\n";
     print "--redo             redo only previously failed tests.\n";
     print "--dryrun           don't launch any long jobs, just show what would be done.\n";
     print "--recycle          recycle previous results, re-running evaluation only (for debugging).\n";
     print "--visual           run some quick, visual checks.\n";
     print "--reemul           generate command-line supported reEmul.py script and exit\n";
+    print "--compare=<d>      compare ntuples produced here with those in directory <d>\n";
     exit 0;
 }
 
@@ -114,7 +118,9 @@ sub test_dummy {
 #
 sub test_unpackers_dont_crash {
     $file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
-    $nevt = $NUM_EVENTS * 5;
+    $nevt = 500;
+    if ($FAST) {$nevt = 10; }
+    if ($SLOW) {$nevt = -1; }
     if (! $RECYCLE){
 	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --conditions=auto:run2_data -n $nevt --data --filein=$file --no_output  --no_exec >& CMSDRIVER.log");
 	print "INFO: status of cmsDriver call is $status\n";
@@ -137,9 +143,9 @@ sub test_unpackers_dont_crash {
 #
 sub test_pack_unpack_is_unity {
     # this one runs a bit slower so scale number of events:
-
-    my $nevt = $NUM_EVENTS * 0.5;
-    if ($nevt < 5) { $nevt = 5; }
+    $nevt = 50;
+    if ($FAST) {$nevt = 5; }
+    if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
 	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT --conditions auto:run2_mc -s DIGI,L1,DIGI2RAW,RAW2DIGI -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root >& CMSDRIVER.log");
@@ -172,9 +178,12 @@ sub test_pack_unpack_is_unity {
 sub test_reemul {
 #    $file = "/store/data/Run2015D/DoubleEG/RAW-RECO/ZElectron-PromptReco-v4/000/260/627/00000/12455212-1E85-E511-8913-02163E014472.root";
     $file = "/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/4A874FB5-585D-E511-A3D8-02163E0143B5.root";
+    $nevt = 100;
+    if ($FAST) {$nevt = 10; }
+    if ($SLOW) {$nevt = 1000; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $NUM_EVENTS --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $nevt --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -225,10 +234,9 @@ sub test_reemul {
 }
 
 sub test_mc_prod {
-    # this one runs a bit slower so scale number of events:
-
-    my $nevt = $NUM_EVENTS * 0.5;
-    if ($nevt < 5) { $nevt = 5; }
+    $nevt = 50;
+    if ($FAST) {$nevt = 5; }
+    if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
 	$status = long_command("cmsDriver.py L1TEST --conditions auto:run2_mc -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
@@ -302,20 +310,27 @@ sub main {
     while($arg = shift){
         if ($arg =~ /^--/){
             if ($arg =~ /--help/)      { usage();                 }
-            if ($arg =~ /--verbose/)   { $VERBOSE   = 1;          }
-            if ($arg =~ /--dryrun/)    { $DRYRUN    = 1;          }
-            if ($arg =~ /--delete/)    { $DELETE    = 1;          }
-            if ($arg =~ /--fast/)      { $FAST      = 1;          }
-            if ($arg =~ /--recycle/)   { $RECYCLE   = 1;          }
-            if ($arg =~ /--visual/)    { $VISUAL    = 1;          }
-            if ($arg =~ /--redo/)      { $REDO      = 1;          }
-            if ($arg =~ /--reemul/)    { $REEMUL    = 1;          }
+            elsif ($arg =~ /--verbose/)   { $VERBOSE   = 1;          }
+            elsif ($arg =~ /--dryrun/)    { $DRYRUN    = 1;          }
+            elsif ($arg =~ /--delete/)    { $DELETE    = 1;          }
+            elsif ($arg =~ /--fast/)      { $FAST      = 1;          }
+            elsif ($arg =~ /--slow/)      { $SLOW      = 1;          }
+            elsif ($arg =~ /--recycle/)   { $RECYCLE   = 1;          }
+            elsif ($arg =~ /--visual/)    { $VISUAL    = 1;          }
+            elsif ($arg =~ /--redo/)      { $REDO      = 1;          }
+            elsif ($arg =~ /--reemul/)    { $REEMUL    = 1;          }
+            elsif ($arg =~ /--compare=(\S+)/) { $COMPARE = 1; $COMPARE_DIR=$1;}
+	    else {print "ERROR: unrecognized argument: $arg\n"; usage(); }
         } else {
             push @args, $arg;
         }
     }    
     if ($#args != -1){ usage(); }
 
+    if ($FAST && $SLOW){ usage(); }
+    if ($FAST){ $WORK_DIR = "${WORK_DIR}_fast"; $TIMEOUT = 5*60;}
+    if ($SLOW){ $WORK_DIR = "${WORK_DIR}_slow"; $TIMEOUT = 30*60;}
+			    
     print "INFO: Welcome the L1T offline software integration testing!\n";
 
     if ($REDO){
@@ -323,17 +338,30 @@ sub main {
 	exit(0);
     }
     if ($REEMUL){
+	$nevt = 10;
 	$file = "/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/4A874FB5-585D-E511-A3D8-02163E0143B5.root";
-	$status = long_command("cmsDriver.py L1TEST --python_filename=reEmul.py -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $NUM_EVENTS --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST --python_filename=reEmul.py -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo --conditions=auto:run2_data -n $nevt --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs >& CMSDRIVER.log");
 	if ($status){
 	    print "ERROR: abnormal status returned: $status\n";
 	    return;
 	}
 	print "INFO: adding command line option support\n";
         system "cat L1Trigger/L1TCommon/scripts/optionsL1T.py >> reEmul.py";
-	exit(0);
-	
+	exit(0);	
     }
+    if ($COMPARE){
+	print "INFO: Comparing results with those in $COMPARE_DIR\n";
+	$ours = "$WORK_DIR/test_0/L1Ntuple.root";
+	$theirs = "$COMPARE_DIR/$WORK_DIR/test_0/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status - long_command("root -b -q -x 'L1Trigger/L1TCommon/macros/NtupleDiff.C(\"$ours\",\"$theirs\")'");
+	exit(0);
+    }
+
+
 
     if ($VISUAL){
 	print "INFO: visual mode was specified... note that successful results do not green-light a commit.\n";
@@ -341,14 +369,26 @@ sub main {
 	visual_sim_pack_unpack();
 	exit(0);
     }
+    
+    open(VOMS, "voms-proxy-info |");
+    $VOMS_SUCCESS = 0;
+    while (<VOMS>){
+	if (/timeleft/){$VOMS_SUCCESS=1;}
+    }
+    
+    if ($VOMS_SUCCESS){
+	print "INFO:  check of voms-proxy=info succeeded.\n";
+    } 
 
+    if (! $VOMS_SUCCESS) {
+	print "ERROR: you must call voms-proxy-init first, in order to access remote files for tests!\n";
+	return;
+    }
 
 
     if ($FAST){
 	print "INFO: fast mode was specified... note that successful results will not green-light a commit.\n";
-	$NUM_EVENTS = 5;
     }
-
 
     if (! $RECYCLE){
 	if (-e $WORK_DIR){
@@ -389,6 +429,7 @@ sub main {
 
     if ($pid) {
 	print "INFO: Coffee Time!!!\n";
+	if ($SLOW){ print "INFO:  Slow mode specified... better make it two!\n"; }
 	print "INFO: You can view progress at:\n";
 	print "$LOG\n";
         # for some reason, this not true:

@@ -126,3 +126,10 @@ def L1TDumpEventSummary(process):
     process.l1tdumpeventsetup = cms.Path(process.dumpES)
     process.schedule.append(process.l1tdumpeventsetup)
     return process
+
+def L1TStage2ComparisonRAWvsEMU(process):
+    print "L1T INFO:  will dump a comparison of unpacked vs emulated Stage2 content to screen."    
+    process.load('L1Trigger.L1TCommon.l1tComparisonStage2RAWvsEMU_cfi')
+    process.l1tstage2comparison = cms.Path(process.l1tComparisonStage2RAWvsEMU)
+    process.schedule.append(process.l1tstage2comparison)
+    return process
