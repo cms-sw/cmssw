@@ -11,6 +11,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -21,6 +22,7 @@ MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::
    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this))
    , avalidator_(iConfig, consumesCollector()) {
   ModOn = conf_.getParameter<bool>("Mod_On");
+  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
 }
 
 template<TrackerType pixel_or_strip>
@@ -217,6 +219,11 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+  if (!vertices.isValid() || vertices->size() == 0) return;
+  const auto primaryVertex = vertices->at(0); 
+
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -224,9 +231,9 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
 
   avalidator_.fillTrackQuantities(iEvent, iSetup, 
                   // tell the validator to only look at good tracks
-                  [](const reco::Track& track) -> bool { 
+                  [&](const reco::Track& track) -> bool { 
                     return track.pt() > 0.75
-                        && abs( track.dxy() ) > 5*track.dxyError();
+                        && abs( track.dxy(primaryVertex.position()) ) < 5*track.dxyError();
                   }, vtracks);
 
   for (auto& track : vtracks) {

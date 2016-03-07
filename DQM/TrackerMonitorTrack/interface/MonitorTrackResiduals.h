@@ -22,6 +22,7 @@ Monitoring source for track residuals on each detector module
 #include "FWCore/Framework/interface/Run.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class MonitorElement;
 class DQMStore;
@@ -63,6 +64,7 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
   
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
+  edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 
   unsigned long long m_cacheID_;
   bool ModOn;
