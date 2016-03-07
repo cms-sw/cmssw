@@ -97,7 +97,6 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
   desc.add<string>("L1SeedsLogicalExpression","");
-  desc.add<bool>("SaveTags",true);
   desc.add<edm::InputTag>("L1ObjectMapInputTag",edm::InputTag("hltGtStage2ObjectMap"));
   desc.add<edm::InputTag>("L1GlobalInputTag",edm::InputTag("hltGtStage2Digis"));
   desc.add<edm::InputTag>("L1MuonInputTag",edm::InputTag("hltGmtStage2Digis"));
