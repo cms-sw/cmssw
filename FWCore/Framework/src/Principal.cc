@@ -63,13 +63,6 @@ namespace edm {
   }
 
   static
-  void
-  throwCorruptionException(char const* where, std::string const& branchName) {
-    throw Exception(errors::EventCorruption)
-       << "Principal::" << where <<": Product on branch " << branchName << " occurs twice in the same event.\n";
-  }
-
-  static
   std::shared_ptr<cms::Exception>
   makeNotFoundException(char const* where, KindOfType kindOfType,
                         TypeID const& productType, std::string const& label, std::string const& instance, std::string const& process) {
@@ -143,7 +136,6 @@ namespace edm {
     productLookup_(productLookup),
     lookupProcessOrder_(productLookup->lookupProcessNames().size(), 0),
     reader_(),
-    productPtrs_(),
     branchType_(bt),
     historyAppender_(historyAppender),
     cacheIdentifier_(nextIdentifier())
@@ -327,17 +319,12 @@ namespace edm {
     for(auto& prod : *this) {
       prod->resetProductData();
     }
-    productPtrs_.clear();
   }
 
   void
   Principal::deleteProduct(BranchID const& id) const {
     auto phb = getExistingProduct(id);
     assert(nullptr != phb);
-    auto itFound = productPtrs_.find(phb->product());
-    if(itFound != productPtrs_.end()) {
-      productPtrs_.erase(itFound);
-    } 
     phb->unsafe_deleteProduct();
   }
   
@@ -819,15 +806,8 @@ namespace edm {
   }
 
   void
-  Principal::checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* phb) const {
+  Principal::checkType(WrapperBase const* prod, ProductHolderBase const* phb) const {
     if(prod == nullptr) return;
-    // These are defensive checks against things that should never happen, but have.
-    // Checks that the same physical product has not already been put into the event.
-    bool alreadyPresent = !productPtrs_.insert(prod).second;
-    if(alreadyPresent) {
-      phb->checkType(*prod);
-      throwCorruptionException("checkUniquenessAndType", phb->branchDescription().branchName());
-    }
     // Checks that the real type of the product matches the branch.
     phb->checkType(*prod);
   }
@@ -836,7 +816,7 @@ namespace edm {
   Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod.get(), phb);
+      checkType(prod.get(), phb);
       phb->putProduct(std::move(prod));
     } else {
       phb->checkType(*prod);

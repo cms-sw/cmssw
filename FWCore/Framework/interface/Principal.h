@@ -209,7 +209,7 @@ namespace edm {
     ProductHolderBase const* getExistingProduct(ProductHolderBase const& phb) const;
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
+    void checkType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
     void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase>  edp) const;
     
@@ -279,9 +279,6 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store. This 'source' is owned by the input source.
     DelayedReader* reader_;
-
-    // Used to check for duplicates.  The same product instance must not be in more than one product holder
-    mutable std::set<void const*> productPtrs_;
 
     BranchType branchType_;
 

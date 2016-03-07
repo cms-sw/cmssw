@@ -166,7 +166,7 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp.get(), phb);
+    checkType(edp.get(), phb);
     // ProductHolder assumes ownership
     phb->putProduct(std::move(edp));
   }
@@ -181,7 +181,7 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp.get(), phb);
+    checkType(edp.get(), phb);
     // ProductHolder assumes ownership
     phb->putProduct(std::move(edp));
   }
@@ -208,7 +208,7 @@ namespace edm {
       std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
       
       // Now fix up the ProductHolder
-      checkUniquenessAndType(edp.get(), &phb);
+      checkType(edp.get(), &phb);
       phb.putProduct(std::move(edp));
     }
   }
