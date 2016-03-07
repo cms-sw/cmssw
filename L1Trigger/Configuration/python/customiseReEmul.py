@@ -6,7 +6,7 @@ def L1TCaloStage2ParamsForHW(process):
     return process
 
 def L1TEventSetupForHF1x1TPs(process):
-    process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/HcalCommonData/data/Phase0/hcalRecNumberingRun2.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.append('L1Trigger/L1TCalorimeter/data/hcalRecNumberingRun2.xml')
     process.es_pool = cms.ESSource(
         "PoolDBESSource",
         # process.CondDBSetup,                                                                                                                                          
