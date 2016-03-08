@@ -19,6 +19,8 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "DataFormats/Common/interface/View.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
@@ -39,6 +41,8 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+#include "fastjet/contrib/Njettiness.hh"
 
 using namespace std;
 using namespace edm;
@@ -63,6 +67,18 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   trackQuality_ = iConfig.getUntrackedParameter<string>("trackQuality","highPurity");
 
   jetName_ = iConfig.getUntrackedParameter<string>("jetName");
+  doGenTaus_ = iConfig.getUntrackedParameter<bool>("doGenTaus",0);
+  doSubJets_ = iConfig.getUntrackedParameter<bool>("doSubJets",0);
+  // useGenTaus = true;
+  // if (iConfig.exists("genTau1"))
+  //   tokenGenTau1_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("genTau1"));
+  // else useGenTaus = false;
+  // if (iConfig.exists("genTau2"))
+  //   tokenGenTau2_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("genTau2"));
+  // else useGenTaus = false;
+  // if (iConfig.exists("genTau3"))
+  //   tokenGenTau3_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("genTau3"));
+  // else useGenTaus = false;
   
   isMC_ = iConfig.getUntrackedParameter<bool>("isMC",false);
   useHepMC_ = iConfig.getUntrackedParameter<bool> ("useHepMC",false);
@@ -78,6 +94,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   if(isMC_){
     genjetTag_ = consumes<vector<reco::GenJet> > (iConfig.getParameter<InputTag>("genjetTag"));
+    //genjetTag_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<InputTag>("genjetTag"));
     if(useHepMC_) eventInfoTag_ = consumes<HepMCProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
     eventGenInfoTag_ = consumes<GenEventInfoProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
   }
@@ -156,6 +173,9 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
     doSubEvent_ = iConfig.getUntrackedParameter<bool>("doSubEvent",0);
   }
 
+  fastjet::contrib::OnePass_KT_Axes     onepass_kt_axes;
+  fastjet::contrib::NormalizedMeasure normalizedMeasure(1.,rParam);
+  routine_ = std::auto_ptr<fastjet::contrib::Njettiness> ( new fastjet::contrib::Njettiness( onepass_kt_axes, normalizedMeasure) );
 
 }
 
@@ -200,6 +220,13 @@ HiInclusiveJetAnalyzer::beginJob() {
   t->Branch("jttau1",jets_.jttau1,"jttau1[nref]/F");
   t->Branch("jttau2",jets_.jttau2,"jttau2[nref]/F");
   t->Branch("jttau3",jets_.jttau3,"jttau3[nref]/F");
+
+  if(doSubJets_) {
+    t->Branch("jtSubJetPt",&jets_.jtSubJetPt);
+    t->Branch("jtSubJetEta",&jets_.jtSubJetEta);
+    t->Branch("jtSubJetPhi",&jets_.jtSubJetPhi);
+    t->Branch("jtSubJetM",&jets_.jtSubJetM);
+  }
   
   // jet ID information, jet composition
   if(doHiJetID_){
@@ -357,6 +384,11 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("refphi",jets_.refphi,"refphi[nref]/F");
     t->Branch("refm",jets_.refm,"refm[nref]/F");
     t->Branch("refarea",jets_.refarea,"refarea[nref]/F");
+    if(doGenTaus_) {
+      t->Branch("reftau1",jets_.reftau1,"reftau1[nref]/F");
+      t->Branch("reftau2",jets_.reftau2,"reftau2[nref]/F");
+      t->Branch("reftau3",jets_.reftau3,"reftau3[nref]/F");
+    }
     t->Branch("refdphijt",jets_.refdphijt,"refdphijt[nref]/F");
     t->Branch("refdrjt",jets_.refdrjt,"refdrjt[nref]/F");
     // matched parton
@@ -380,6 +412,11 @@ HiInclusiveJetAnalyzer::beginJob() {
       t->Branch("genpt",jets_.genpt,"genpt[ngen]/F");
       t->Branch("geneta",jets_.geneta,"geneta[ngen]/F");
       t->Branch("geny",jets_.geny,"geny[ngen]/F");
+      if(doGenTaus_) {
+        t->Branch("gentau1",jets_.gentau1,"gentau1[ngen]/F");
+        t->Branch("gentau2",jets_.gentau2,"gentau2[ngen]/F");
+        t->Branch("gentau3",jets_.gentau3,"gentau3[ngen]/F");
+      }
       t->Branch("genphi",jets_.genphi,"genphi[ngen]/F");
       t->Branch("genm",jets_.genm,"genm[ngen]/F");
       t->Branch("gendphijt",jets_.gendphijt,"gendphijt[ngen]/F");
@@ -1009,6 +1046,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     jets_.jttau1[jets_.nref] = -999.;
     jets_.jttau2[jets_.nref] = -999.;
     jets_.jttau3[jets_.nref] = -999.;
+
+    if(doSubJets_) analyzeSubjets(jet);
     
     if(usePat_){
       if( (*patjets)[j].hasUserFloat(jetName_+"Njettiness:tau1") )
@@ -1102,6 +1141,10 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	jets_.refdphijt[jets_.nref] = -999.;
 	jets_.refdrjt[jets_.nref] = -999.;
       }
+      jets_.reftau1[jets_.nref] = -999.;
+      jets_.reftau2[jets_.nref] = -999.;
+      jets_.reftau3[jets_.nref] = -999.;
+      
       jets_.refparton_flavorForB[jets_.nref] = (*patjets)[j].partonFlavour();
       // matched partons
       const reco::GenParticle & parton = *(*patjets)[j].genParton();
@@ -1146,9 +1189,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
   }
 
-
   if(isMC_){
-
+  
     if(useHepMC_) {
       edm::Handle<HepMCProduct> hepMCProduct;
       iEvent.getByToken(eventInfoTag_,hepMCProduct);
@@ -1167,45 +1209,78 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     jets_.pthat = hEventInfo->qScale();
 
     edm::Handle<vector<reco::GenJet> >genjets;
+    //edm::Handle<edm::View<reco::Jet>> genjets;
     iEvent.getByToken(genjetTag_, genjets);
-
+    
+    //get gen-level n-jettiness
+    // edm::Handle<edm::ValueMap<float> > genTau1s;
+    // edm::Handle<edm::ValueMap<float> > genTau2s;
+    // edm::Handle<edm::ValueMap<float> > genTau3s;
+    // if(useGenTaus) {
+    //   Printf("get gen taus");
+    //   iEvent.getByToken(tokenGenTau1_,genTau1s);
+    //   iEvent.getByToken(tokenGenTau2_,genTau2s);
+    //   iEvent.getByToken(tokenGenTau3_,genTau3s);
+    // }
+    
     jets_.ngen = 0;
-    for(unsigned int igen = 0 ; igen < genjets->size(); ++igen){
-      const reco::GenJet & genjet = (*genjets)[igen];
 
+    //int igen = 0;
+    for(unsigned int igen = 0 ; igen < genjets->size(); ++igen){
+      //for ( typename edm::View<reco::Jet>::const_iterator genjetIt = genjets->begin() ; genjetIt != genjets->end() ; ++genjetIt ) {
+      const reco::GenJet & genjet = (*genjets)[igen];
+      //edm::Ptr<reco::Jet> genjetPtr = genjets->ptrAt(genjetIt - genjets->begin());
+      //const reco::GenJet genjet = (*dynamic_cast<const reco::GenJet*>(&(*genjetPtr)));
       float genjet_pt = genjet.pt();
 
+      float tau1 =  -999.;
+      float tau2 =  -999.;
+      float tau3 =  -9999.;
+      if(doGenTaus_) {
+        tau1 =  getTau(1,genjet);
+        tau2 =  getTau(2,genjet);
+        tau3 =  getTau(3,genjet);
+      }
+
+      // find matching patJet if there is one
+      jets_.gendrjt[jets_.ngen] = -1.0;
+      jets_.genmatchindex[jets_.ngen] = -1;
+      
+      for(int ijet = 0 ; ijet < jets_.nref; ++ijet){
+        // poor man's matching, someone fix please
+        if(fabs(genjet.pt()-jets_.refpt[ijet])<0.00001 &&
+           fabs(genjet.eta()-jets_.refeta[ijet])<0.00001){
+          if(genjet_pt>genPtMin_) {
+            jets_.genmatchindex[jets_.ngen] = (int)ijet;
+            jets_.gendphijt[jets_.ngen] = reco::deltaPhi(jets_.refphi[ijet],genjet.phi());
+            jets_.gendrjt[jets_.ngen] = sqrt(pow(jets_.gendphijt[jets_.ngen],2)+pow(fabs(genjet.eta()-jets_.refeta[ijet]),2));
+          }
+          if(doGenTaus_) {
+            jets_.reftau1[ijet] = tau1;
+            jets_.reftau2[ijet] = tau2;
+            jets_.reftau3[ijet] = tau3;
+          }
+          break;
+        }
+      }
+      
       // threshold to reduce size of output in minbias PbPb
       if(genjet_pt>genPtMin_){
-
-
 	jets_.genpt[jets_.ngen] = genjet_pt;
 	jets_.geneta[jets_.ngen] = genjet.eta();
 	jets_.genphi[jets_.ngen] = genjet.phi();
         jets_.genm[jets_.ngen] = genjet.mass();
 	jets_.geny[jets_.ngen] = genjet.eta();
 
+        if(doGenTaus_) {
+          jets_.gentau1[jets_.ngen] = tau1;
+          jets_.gentau2[jets_.ngen] = tau2;
+          jets_.gentau3[jets_.ngen] = tau3;
+        }
+
 	if(doSubEvent_){
 	  const GenParticle* gencon = genjet.getGenConstituent(0);
 	  jets_.gensubid[jets_.ngen] = gencon->collisionId();
-	}
-
-	// find matching patJet if there is one
-
-	jets_.gendrjt[jets_.ngen] = -1.0;
-	jets_.genmatchindex[jets_.ngen] = -1;
-
-	for(int ijet = 0 ; ijet < jets_.nref; ++ijet){
-	  // poor man's matching, someone fix please
-	  if(fabs(genjet.pt()-jets_.refpt[ijet])<0.00001 &&
-	     fabs(genjet.eta()-jets_.refeta[ijet])<0.00001){
-
-	    jets_.genmatchindex[jets_.ngen] = (int)ijet;
-	    jets_.gendphijt[jets_.ngen] = reco::deltaPhi(jets_.refphi[ijet],genjet.phi());
-	    jets_.gendrjt[jets_.ngen] = sqrt(pow(jets_.gendphijt[jets_.ngen],2)+pow(fabs(genjet.eta()-jets_.refeta[ijet]),2));
-
-	    break;
-	  }
 	}
 	jets_.ngen++;
       }
@@ -1435,6 +1510,42 @@ int HiInclusiveJetAnalyzer::TaggedJet(Jet calojet, Handle<JetTagCollection > jet
     }
   }
   return result;
+}
+
+float HiInclusiveJetAnalyzer::getTau(unsigned num, const reco::GenJet object) const
+{
+  std::vector<fastjet::PseudoJet> FJparticles;
+  if(object.numberOfDaughters()>0) {
+    for (unsigned k = 0; k < object.numberOfDaughters(); ++k)
+      {
+        const reco::Candidate & dp = *object.daughter(k);
+        //const reco::CandidatePtr & dp = object.daughterPtr(k);
+        if(dp.pt()>0.) FJparticles.push_back( fastjet::PseudoJet( dp.px(), dp.py(), dp.pz(), dp.energy() ) );
+      }
+  }
+  return routine_->getTau(num, FJparticles);
+}
+
+void HiInclusiveJetAnalyzer::analyzeSubjets(const reco::Jet jet) {
+
+  std::vector<float> sjpt;
+  std::vector<float> sjeta;
+  std::vector<float> sjphi;
+  std::vector<float> sjm;
+  if(jet.numberOfDaughters()>0) {
+    for (unsigned k = 0; k < jet.numberOfDaughters(); ++k) {
+      const reco::Candidate & dp = *jet.daughter(k);
+      sjpt.push_back(dp.pt());
+      sjeta.push_back(dp.eta());
+      sjphi.push_back(dp.phi());
+      sjm.push_back(dp.mass());
+    }
+  }
+  jets_.jtSubJetPt.push_back(sjpt);
+  jets_.jtSubJetEta.push_back(sjeta);
+  jets_.jtSubJetPhi.push_back(sjphi);
+  jets_.jtSubJetM.push_back(sjm);
+  
 }
 
 

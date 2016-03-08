@@ -192,12 +192,12 @@ akCs4PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akCs4PFpa
                                                              matchTag = 'patJetsWithBtagging',
                                                              pfCandidateLabel = cms.untracked.InputTag('particleFlowTmp'),
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
-                                                             fillGenJets = True,
-                                                             isMC = True,
-							     doSubEvent = True,
+                                                             fillGenJets = False,
+                                                             isMC = False,
+							     doSubEvent = False,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("generator"),
+							     genParticles = cms.untracked.InputTag(""),
+							     eventInfoTag = cms.InputTag(""),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akCs4PF"),
@@ -205,7 +205,7 @@ akCs4PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akCs4PFpa
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(True),
-							     doGenTaus = True
+							     doGenTaus = False
                                                              #gentau1 = cms.InputTag("ak4HiGenNjettiness","tau1"),
                                                              #gentau2 = cms.InputTag("ak4HiGenNjettiness","tau2"),
                                                              #gentau3 = cms.InputTag("ak4HiGenNjettiness","tau3")

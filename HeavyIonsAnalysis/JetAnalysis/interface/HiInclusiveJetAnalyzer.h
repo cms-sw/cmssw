@@ -21,6 +21,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -29,6 +30,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "fastjet/contrib/Njettiness.hh"
 
 //
 
@@ -77,7 +80,12 @@ private:
   double getEt(math::XYZPoint pos, double energy);
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx = reco::Vertex::Point(0,0,0));
   int TaggedJet(reco::Jet calojet, edm::Handle<reco::JetTagCollection > jetTags );
-
+  float getTau(unsigned num, const reco::GenJet object) const;
+  void analyzeSubjets(const reco::Jet jet);
+  
+  
+  std::auto_ptr<fastjet::contrib::Njettiness>   routine_;
+  
   // edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_;
   edm::InputTag   jetTagLabel_;
   edm::EDGetTokenT<std::vector<reco::Vertex> >         vtxTag_;
@@ -89,6 +97,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection>         trackTag_;
   edm::EDGetTokenT<reco::GenParticleCollection>         genParticleSrc_;
   edm::EDGetTokenT<std::vector<reco::GenJet> >         genjetTag_;
+  //edm::EDGetTokenT<edm::View<reco::Jet>>         genjetTag_;
   edm::EDGetTokenT<edm::HepMCProduct>         eventInfoTag_;
   edm::EDGetTokenT<GenEventInfoProduct>  eventGenInfoTag_;
   edm::EDGetTokenT< L1GlobalTriggerReadoutRecord >         L1gtReadout_;
@@ -99,6 +108,9 @@ private:
   // edm::InputTag genParticleSrc_;
 
   std::string jetName_; //used as prefix for jet structures
+  /* edm::EDGetTokenT< edm::ValueMap<float> > tokenGenTau1_; */
+  /* edm::EDGetTokenT< edm::ValueMap<float> > tokenGenTau2_; */
+  /* edm::EDGetTokenT< edm::ValueMap<float> > tokenGenTau3_; */
   
   // towers
   edm::EDGetTokenT<CaloTowerCollection> TowerSrc_;
@@ -132,6 +144,8 @@ private:
   double rParam;
   double hardPtMin_;
   double jetPtMin_;
+  bool doGenTaus_;
+  bool doSubJets_;
 
   TTree *t;
   edm::Service<TFileService> fs1;
@@ -199,6 +213,11 @@ private:
     float jttau1[MAXJETS];
     float jttau2[MAXJETS];
     float jttau3[MAXJETS];
+
+    std::vector<std::vector<float>> jtSubJetPt;
+    std::vector<std::vector<float>> jtSubJetEta;
+    std::vector<std::vector<float>> jtSubJetPhi;
+    std::vector<std::vector<float>> jtSubJetM;
     
     float trackMax[MAXJETS];
     float trackSum[MAXJETS];
@@ -353,6 +372,9 @@ private:
     float refm[MAXJETS];
     float refarea[MAXJETS];
     float refy[MAXJETS];
+    float reftau1[MAXJETS];
+    float reftau2[MAXJETS];
+    float reftau3[MAXJETS];
     float refdphijt[MAXJETS];
     float refdrjt[MAXJETS];
     float refparton_pt[MAXJETS];
@@ -368,6 +390,9 @@ private:
     float genphi[MAXJETS];
     float genm[MAXJETS];
     float geny[MAXJETS];
+    float gentau1[MAXJETS];
+    float gentau2[MAXJETS];
+    float gentau3[MAXJETS];
     float gendphijt[MAXJETS];
     float gendrjt[MAXJETS];
     int gensubid[MAXJETS];
