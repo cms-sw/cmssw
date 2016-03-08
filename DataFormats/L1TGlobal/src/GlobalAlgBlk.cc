@@ -24,7 +24,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-const static unsigned int maxPhysicsTriggers = 512;  //TO DO Move this to a standard parameter area.
 
 // constructors
 
