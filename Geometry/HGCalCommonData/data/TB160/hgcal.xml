@@ -3,11 +3,11 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="rmax"        value="50.*cm"/>
-  <Constant name="rmaxEE"      value="45.0*cm"/>
-  <Constant name="zCalor"      value="15.*cm"/>
+  <Constant name="rmaxEE"      value="10.0*cm"/>
+  <Constant name="zCalor"      value="20.0*cm"/>
   <Constant name="zminEE"      value="0.0*fm"/>
-  <Constant name="zmaxEE"      value="30.0*cm"/>
-  <Constant name="zposCalo"    value="15.0*cm"/>
+  <Constant name="zmaxEE"      value="25.896*cm"/>
+  <Constant name="zposCalo"    value="20.0*cm"/>
   <Constant name="zposEE"      value="-10.0*cm"/>
   <Constant name="WaferW"      value="123.7*mm"/>
 </ConstantsSection>
