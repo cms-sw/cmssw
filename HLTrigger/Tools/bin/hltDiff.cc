@@ -695,7 +695,7 @@ public:
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << indent(_indent) << key_int("tr", tr) << ',';   // line
+      json << indent(_indent) << key_int("t ", tr) << ',';   // line
       json << indent(_indent) << key("o") << '{' << o.serialise() << "},";   // line
       json << indent(_indent) << key("n") << '{' << n.serialise() << "}";   // line
 
@@ -714,14 +714,14 @@ public:
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << indent(_indent) << '"' << run << ':' << lumi << ':' << event << "\":[";   // line open
+      json << indent(_indent) << '{' << "\"r\"" << ':' << run << ",\"l\":" << lumi << ",\"e\":" << event << ",\"t\":[";   // line open
       for (std::vector<JsonTriggerEventState>::iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
         json << '{';   // line open
         json << (*it).serialise(_indent+2);   // block
         json << indent(_indent+1) << '}';   // line close
         if (it != --triggerStates.end()) json << ',';
       }
-      json << indent(_indent) << ']';   // line close
+      json << indent(_indent) << ']' << '}';   // line close
 
       return json.str();
     }
@@ -772,12 +772,12 @@ public:
     out_file << configuration.serialise(1) << ',';
     out_file << vars.serialise(1) << ',';
     // writing block for each event
-    out_file << indent(1) << key("events") << '{'; // line open
+    out_file << indent(1) << key("events") << '['; // line open
     for (std::vector<JsonEvent>::iterator it = events.begin(); it != events.end(); ++it) {
       out_file << (*it).serialise(2);
       if (it != --events.end()) out_file << ',';
     }
-    out_file << indent(1) << '}'; // line close
+    out_file << indent(1) << ']'; // line close
     out_file << indent(0) << "}"; // line close
     out_file.close();
   }
