@@ -28,12 +28,12 @@ namespace l1t {
   // Empty constructor - should we include classes and collections? - AWB 28.01.16
   EMTFOutput() :
     hasAMC13Header(false), hasMTF7Header(false), hasEventHeader(false), hasCounters(false), numME(0), numRPC(0), 
-      numSP(0), hasEventTrailer(false), hasMTF7Trailer(false), hasAMC13Trailer(false), dataword(-99)
+      numSP(0), hasEventTrailer(false), hasMTF7Trailer(false), hasAMC13Trailer(false), format_errors(0), dataword(-99)
       {};
     
   /* // Fill constructor - should we included a copy constructor for classes and collections (vectors)? - AWB 28.01.16 */
   /* EMTFOutput(emtf::AMC13Header class_AMC13Header, emtf::SPCollection coll_SPCollection) : */
-  /*   AMC13Header(class_AMC13Header), SPCollection(coll_SPCollection), dataword(-99) */
+  /*   AMC13Header(class_AMC13Header), SPCollection(coll_SPCollection), format_errors(0), dataword(-99) */
   /*   {}; */
     
     virtual ~EMTFOutput() {};
@@ -48,6 +48,7 @@ namespace l1t {
     void set_EventTrailer(emtf::EventTrailer bits)  { EventTrailer = bits; hasEventTrailer = true; };
     void set_MTF7Trailer(emtf::MTF7Trailer bits)    { MTF7Trailer = bits;  hasMTF7Trailer  = true; };
     void set_AMC13Trailer(emtf::AMC13Trailer bits)  { AMC13Trailer = bits; hasAMC13Trailer = true; };
+    void add_format_error()                         { format_errors += 1; };
     void set_dataword(uint64_t bits)                { dataword = bits;               };
     
     bool HasAMC13Header()                   { return hasAMC13Header;  };
@@ -70,7 +71,8 @@ namespace l1t {
     emtf::EventTrailer GetEventTrailer()    { return EventTrailer;  };
     emtf::MTF7Trailer GetMTF7Trailer()      { return MTF7Trailer;   };
     emtf::AMC13Trailer GetAMC13Trailer()    { return AMC13Trailer;  };
-    const uint64_t Dataword() const     { return dataword; };
+    const int Format_Errors() const { return format_errors; };
+    const uint64_t Dataword() const { return dataword; };
     
   private:
     bool hasAMC13Header; 
@@ -93,7 +95,7 @@ namespace l1t {
     emtf::EventTrailer EventTrailer;
     emtf::MTF7Trailer MTF7Trailer;
     emtf::AMC13Trailer AMC13Trailer;
-    
+    int  format_errors;
     uint64_t dataword; // Should this be more or fewer bits? - AWB 28.01.16
     
   }; // End class EMTFOutput
