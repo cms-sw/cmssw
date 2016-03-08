@@ -67,40 +67,37 @@ void HLTL1TMuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   iEvent.getByToken(muCollToken_, muColl);
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
 
-  if (muColl.isValid()){
-    for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
-      if (centralBxOnly_ && (ibx != 0)) continue;
-      for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
-      
-        unsigned int quality = it->hwQual();
-        int valid_charge = it->hwChargeValid();
-      
-        float pt    =  it->pt();
-        float eta   =  it->eta();
-        float theta =  2*atan(exp(-eta));
-        float phi   =  it->phi();      
-        int charge  =  it->charge();
-        // Set charge=0 for the time being if the valid charge bit is zero
-        if (!valid_charge) charge = 0;
-      
-        if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
+  for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
+    if (centralBxOnly_ && (ibx != 0)) continue;
+    for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
     
-        LogTrace(metname) << "L1 Muon Found";
-        LogTrace(metname) << "Pt = "     << pt    << " GeV/c";
-        LogTrace(metname) << "eta = "    << eta;
-        LogTrace(metname) << "theta = "  << theta << " rad";
-        LogTrace(metname) << "phi = "    << phi   << " rad";
-        LogTrace(metname) << "charge = " << charge;
+      unsigned int quality = it->hwQual();
+      int valid_charge = it->hwChargeValid();
+    
+      float pt    =  it->pt();
+      float eta   =  it->eta();
+      float theta =  2*atan(exp(-eta));
+      float phi   =  it->phi();      
+      int charge  =  it->charge();
+      // Set charge=0 for the time being if the valid charge bit is zero
+      if (!valid_charge) charge = 0;
+    
+      if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
+  
+      LogTrace(metname) << "L1 Muon Found";
+      LogTrace(metname) << "Pt = "     << pt    << " GeV/c";
+      LogTrace(metname) << "eta = "    << eta;
+      LogTrace(metname) << "theta = "  << theta << " rad";
+      LogTrace(metname) << "phi = "    << phi   << " rad";
+      LogTrace(metname) << "charge = " << charge;
 
-        if ( quality <= theL1MinQuality ) continue;
-        LogTrace(metname) << "quality = "<< quality; 
+      if ( quality <= theL1MinQuality ) continue;
+      LogTrace(metname) << "quality = "<< quality; 
 
-        output->push_back( ibx, *it);
-      }
+      output->push_back( ibx, *it);
     }
-  } else {
-    edm::LogWarning("MissingProduct") << "L1Upgrade muon bx collection not found." << std::endl;
   }
+
 
   iEvent.put(output);
 }

@@ -116,36 +116,33 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
   // look at all muon candidates, check cuts and add to filter object
   int n = 0;
     
-  if (allMuons.isValid()){
-    for (int ibx = allMuons->getFirstBX(); ibx <= allMuons->getLastBX(); ++ibx) {
-      if (centralBxOnly_ && (ibx != 0)) continue;
-      for (auto it = allMuons->begin(ibx); it != allMuons->end(ibx); it++){
+  for (int ibx = allMuons->getFirstBX(); ibx <= allMuons->getLastBX(); ++ibx) {
+    if (centralBxOnly_ && (ibx != 0)) continue;
+    for (auto it = allMuons->begin(ibx); it != allMuons->end(ibx); it++){
 
-        MuonRef muon(allMuons, distance(allMuons->begin(allMuons->getFirstBX()),it) );
+      MuonRef muon(allMuons, distance(allMuons->begin(allMuons->getFirstBX()),it) );
 
-        // Only select muons that were selected in the previous level 
-        if(find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end()) continue;
+      // Only select muons that were selected in the previous level 
+      if(find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end()) continue;
 
-        //check maxEta cut
-        if(fabs(muon->eta()) > maxEta_) continue;
+      //check maxEta cut
+      if(fabs(muon->eta()) > maxEta_) continue;
 
-        //check pT cut
-        if(muon->pt() < minPt_) continue;
+      //check pT cut
+      if(muon->pt() < minPt_) continue;
 
-        //check quality cut
-        if(qualityBitMask_){
-          int quality = (it->hwQual() == 0 ? 0 : (1 << it->hwQual()));
-          if((quality & qualityBitMask_) == 0) continue;
-        }
-
-        //we have a good candidate
-        n++;
-        filterproduct.addObject(TriggerL1Mu,muon);
+      //check quality cut
+      if(qualityBitMask_){
+        int quality = (it->hwQual() == 0 ? 0 : (1 << it->hwQual()));
+        if((quality & qualityBitMask_) == 0) continue;
       }
+
+      //we have a good candidate
+      n++;
+      filterproduct.addObject(TriggerL1Mu,muon);
     }
-  } else {
-    edm::LogWarning("MissingProduct") << "L1Upgrade muon bx collection not found." << std::endl;
   }
+
 
   
   if (saveTags()) filterproduct.addCollectionTag(candTag_);
