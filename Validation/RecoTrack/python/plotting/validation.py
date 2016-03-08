@@ -119,6 +119,11 @@ _globalTags = {
     "CMSSW_8_0_0_pre4_phase1_13TeV": {"default": "76X_upgrade2017_design_v8_UPG17"},
     "CMSSW_8_0_0_pre4_ecal15fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_15fb_v0_ecal15fbm1"},
     "CMSSW_8_0_0_pre4_ecal30fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_30fb_v0_ecal30fbm1"},
+    "CMSSW_8_0_0_pre5": {"default": "80X_mcRun2_asymptotic_v1", "fullsim_50ns": "80X_mcRun2_startup_v1"},
+    "CMSSW_8_0_0_pre5_phase1": {"default": "80X_upgrade2017_design_v1_UPG17"},
+    "CMSSW_8_0_0_pre6": {"default": "80X_mcRun2_asymptotic_v4"},
+    "CMSSW_8_0_0_pre6_phase1": {"default": "80X_upgrade2017_design_v3_UPG17"},
+    "CMSSW_8_0_0_pre6_MT": {"default": "80X_mcRun2_asymptotic_v4_multiCoreResub"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
@@ -191,7 +196,7 @@ class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
-                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None):
+                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
         Arguments:
@@ -206,6 +211,7 @@ class Sample:
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
+        appendGlobalTag -- String to append to GlobalTag (intended for one-time hacks; default "")
         """
         self._sample = sample
         self._append = append
@@ -217,6 +223,7 @@ class Sample:
         self._dqmVersion = dqmVersion
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
+        self._appendGlobalTag = appendGlobalTag
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -330,9 +337,9 @@ class Sample:
             
         globalTag = _getGlobalTag(self, newRelease)
 
-        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
+        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
             sample=sample, midfix=midfix, newrelease=_stripRelease(newRelease),
-            pileup=pileup, globaltag=globalTag, scenario=scenario, fastsim=fastsim,
+            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, scenario=scenario, fastsim=fastsim,
             version=self.version(newRelease), dqmVersion=self._dqmVersion
         )
 
@@ -820,6 +827,8 @@ class SimpleValidation:
         self._files = files
         self._labels = labels
         self._newdir = newdir
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
     def createHtmlReport(self, validationName=""):
         return html.HtmlReport(validationName, self._newdir)
