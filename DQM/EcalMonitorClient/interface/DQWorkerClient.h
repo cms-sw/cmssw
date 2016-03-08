@@ -48,7 +48,7 @@ namespace ecaldqm
     };
 
   protected:
-    void setME(edm::ParameterSet const& _ps) final { DQWorker::setME(_ps); }
+    void setME(edm::ParameterSet const& _ps) final;
     void setSource(edm::ParameterSet const&) override;
 
     bool using_(std::string const& _name, ProcessType _type = kJob) const
