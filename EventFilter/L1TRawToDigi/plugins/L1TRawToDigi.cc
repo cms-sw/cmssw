@@ -75,6 +75,7 @@ namespace l1t {
          bool ctp7_mode_;
          bool mtf7_mode_;
          bool debug_;
+         int warns_;
    };
 }
 
@@ -108,6 +109,7 @@ namespace l1t {
       amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer");
 
       debug_ = config.getUntrackedParameter<bool>("debug");
+      warns_ = 0;
    }
 
 
@@ -142,8 +144,14 @@ namespace l1t {
          LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
          if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
-            LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+	   if (l1tRcd.size() > 0) {
+            LogError("L1T") << "Cannot unpack: invalid L1T raw data (size = "
                << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	   } else if (warns_ < 5) {
+	     warns_++;
+	     LogWarning("L1T") << "Cannot unpack: empty L1T raw data (size = "
+			       << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	   }
             continue;
          }
 
