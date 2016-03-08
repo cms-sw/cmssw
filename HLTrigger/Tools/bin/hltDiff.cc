@@ -850,7 +850,12 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   std::vector<TriggerDiff> differences;
 
   // loop over the reference events
+  const unsigned int nEvents = std::min((int)old_events->size(), (int)max_events);
   for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
+    // printing progress on every 10%
+    if (counter%(nEvents/10) == 0) {
+      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 100*counter/nEvents);
+    }
 
     // seek the same event in the "new" files
     edm::EventID const& id = old_events->id();
@@ -1026,7 +1031,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     }
 
     ++counter;
-    if (max_events and counter >= max_events)
+    if (nEvents and counter >= nEvents)
       break;
   }
 
