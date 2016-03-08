@@ -83,8 +83,6 @@
 todo: 
 add refitted hit position after track/seed fit
 add local angle, path length!
-add n 3d hits for sim tracks
-add number of layers for all, pixel, strip, 3D
 */
 
 namespace {
@@ -280,6 +278,9 @@ private:
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> stripMatchedRecHitToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexToken_;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNLayersToken_;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNPixelLayersToken_;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNStripStereoLayersToken_;
   std::string builderName_;
   std::string parametersDefinerName_;
   const bool includeSeeds_;
@@ -341,6 +342,8 @@ private:
   std::vector<unsigned int> sim_nValid  ;
   std::vector<unsigned int> sim_nPixel  ;
   std::vector<unsigned int> sim_nStrip  ;
+  std::vector<unsigned int> sim_nLay;
+  std::vector<unsigned int> sim_nPixelLay;
   std::vector<unsigned int> sim_n3DLay  ;
   std::vector<std::vector<int> > sim_trkIdx  ;
   std::vector<std::vector<int> > sim_pixelIdx;
@@ -492,6 +495,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   stripMatchedRecHitToken_(consumes<SiStripMatchedRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("stripMatchedRecHits"))),
   vertexToken_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertices"))),
   trackingVertexToken_(consumes<TrackingVertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackingVertices"))),
+  tpNLayersToken_(consumes<edm::ValueMap<unsigned int> >(iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNlayers"))),
+  tpNPixelLayersToken_(consumes<edm::ValueMap<unsigned int> >(iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNpixellayers"))),
+  tpNStripStereoLayersToken_(consumes<edm::ValueMap<unsigned int> >(iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNstripstereolayers"))),
   builderName_(iConfig.getUntrackedParameter<std::string>("TTRHBuilder")),
   parametersDefinerName_(iConfig.getUntrackedParameter<std::string>("parametersDefiner")),
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
@@ -558,6 +564,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_nValid"   , &sim_nValid   );
   t->Branch("sim_nPixel"   , &sim_nPixel   );
   t->Branch("sim_nStrip"   , &sim_nStrip   );
+  t->Branch("sim_nLay"     , &sim_nLay     );
+  t->Branch("sim_nPixelLay", &sim_nPixelLay);
   t->Branch("sim_n3DLay"   , &sim_n3DLay   );
   t->Branch("sim_trkIdx"   , &sim_trkIdx   );
   if(includeAllHits_) {
@@ -765,6 +773,8 @@ void TrackingNtuple::clearVariables() {
   sim_nValid   .clear();
   sim_nPixel   .clear();
   sim_nStrip   .clear();
+  sim_nLay     .clear();
+  sim_nPixelLay.clear();
   sim_n3DLay   .clear();
   sim_trkIdx   .clear();
   sim_pixelIdx .clear();
@@ -1600,6 +1610,17 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
   iSetup.get<TrackAssociatorRecord>().get(parametersDefinerName_, parametersDefinerH);
   const ParametersDefinerForTP *parametersDefiner = parametersDefinerH.product();
 
+  // Number of 3D layers for TPs
+  edm::Handle<edm::ValueMap<unsigned int>> tpNLayersH;
+  iEvent.getByToken(tpNLayersToken_, tpNLayersH);
+  const auto& nLayers_tPCeff = *tpNLayersH;
+
+  iEvent.getByToken(tpNPixelLayersToken_, tpNLayersH);
+  const auto& nPixelLayers_tPCeff = *tpNLayersH;
+
+  iEvent.getByToken(tpNStripStereoLayersToken_, tpNLayersH);
+  const auto& nStripMonoAndStereoLayers_tPCeff = *tpNLayersH;
+
   reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(tracks,TPCollectionH);
 
   for (auto itp = TPCollectionH->begin(); itp != TPCollectionH->end(); ++itp) {
@@ -1660,7 +1681,14 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     sim_nValid   .push_back( pixelCluster.size()+stripCluster.size() );
     sim_nPixel   .push_back( pixelCluster.size() );
     sim_nStrip   .push_back( stripCluster.size() );
-    sim_n3DLay   .push_back( -1 );//fixme
+
+    const auto nSimLayers = nLayers_tPCeff[tp];
+    const auto nSimPixelLayers = nPixelLayers_tPCeff[tp];
+    const auto nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tp];
+    sim_nLay     .push_back( nSimLayers );
+    sim_nPixelLay.push_back( nSimPixelLayers );
+    sim_n3DLay   .push_back( nSimPixelLayers+nSimStripMonoAndStereoLayers );
+
     sim_pixelIdx.push_back(pixelCluster);
     sim_stripIdx.push_back(stripCluster);
   }
@@ -1726,6 +1754,9 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<edm::InputTag>("stripMatchedRecHits", edm::InputTag("siStripMatchedRecHits", "matchedRecHit"));
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.addUntracked<edm::InputTag>("trackingVertices", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.addUntracked<edm::InputTag>("trackingParticleNlayers", edm::InputTag("trackingParticleNumberOfLayersProducer", "trackerLayers"));
+  desc.addUntracked<edm::InputTag>("trackingParticleNpixellayers", edm::InputTag("trackingParticleNumberOfLayersProducer", "pixelLayers"));
+  desc.addUntracked<edm::InputTag>("trackingParticleNstripstereolayers", edm::InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"));
   desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.addUntracked<std::string>("parametersDefiner", "LhcParametersDefinerForTP");
   desc.addUntracked<bool>("includeSeeds", false);

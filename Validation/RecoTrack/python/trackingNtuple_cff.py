@@ -11,6 +11,7 @@ from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 from Validation.RecoTrack.trackingNtuple_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *
+from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 import Validation.RecoTrack.TrackValidation_cff as _TrackValidation_cff
 
 _includeHits = True
@@ -39,10 +40,16 @@ tpClusterProducerIntime = tpClusterProducer.clone(
 quickTrackAssociatorByHitsIntime = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerIntime",
 )
+trackingParticleNumberOfLayersProducerIntime = trackingParticleNumberOfLayersProducer.clone(
+    trackingParticles = "trackingParticlesIntime"
+)
 trackingNtuple.trackingParticles = "trackingParticlesIntime"
 trackingNtuple.clusterTPMap = "tpClusterProducerIntime"
 trackingNtuple.simHitTPMap = "simHitTPAssocProducerIntime"
 trackingNtuple.trackAssociator = "quickTrackAssociatorByHitsIntime"
+trackingNtuple.trackingParticleNlayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
+trackingNtuple.trackingParticleNpixellayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
+trackingNtuple.trackingParticleNstripstereolayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
 trackingNtuple.includeAllHits = _includeHits
 trackingNtuple.includeSeeds = _includeSeeds
 
@@ -89,6 +96,7 @@ trackingNtupleSequence += (
     simHitTPAssocProducerIntime +
     tpClusterProducerIntime +
     quickTrackAssociatorByHitsIntime +
+    trackingParticleNumberOfLayersProducerIntime +
     # ntuplizer
     trackingNtuple
 )
