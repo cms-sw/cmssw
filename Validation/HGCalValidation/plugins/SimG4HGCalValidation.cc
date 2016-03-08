@@ -32,6 +32,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4NavigationHistory.hh"
@@ -308,4 +312,4 @@ void SimG4HGCalValidation::clear() {
   hgchitZ_.erase(hgchitZ_.begin(),hgchitZ_.end());   	
 }
 
-
+DEFINE_SIMWATCHER (SimG4HGCalValidation);
