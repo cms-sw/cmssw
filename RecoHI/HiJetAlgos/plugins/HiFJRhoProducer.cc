@@ -53,6 +53,9 @@ HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
   nExcl_(iConfig.getUntrackedParameter<unsigned int>("nExcl",0)),
   etaMaxExcl_(iConfig.getUntrackedParameter<double>("etaMaxExcl",2.)),
   ptMinExcl_(iConfig.getUntrackedParameter<double>("ptMinExcl",20.)),
+  nExcl2_(iConfig.getUntrackedParameter<unsigned int>("nExcl2",0)),
+  etaMaxExcl2_(iConfig.getUntrackedParameter<double>("etaMaxExcl2",3.)),
+  ptMinExcl2_(iConfig.getUntrackedParameter<double>("ptMinExcl2",20.)),
   checkJetCand(true),
   usingPackedCand(false)
 {
@@ -103,9 +106,14 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
   unsigned int njetsEx = 0;
+  unsigned int njetsEx2 = 0;
   for(auto jet = jets->begin(); jet != jets->end(); ++jet) {
     if(njetsEx<nExcl_ && fabs(jet->eta())<etaMaxExcl_ && jet->pt()>ptMinExcl_) {
       njetsEx++;
+      continue;
+    }
+    if(njetsEx2<nExcl2_ && fabs(jet->eta())<etaMaxExcl2_ && fabs(jet->eta())>etaMaxExcl_ && jet->pt()>ptMinExcl2_) {
+      njetsEx2++;
       continue;
     }
     float pt = jet->pt();

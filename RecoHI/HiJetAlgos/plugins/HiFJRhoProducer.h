@@ -40,6 +40,9 @@ class HiFJRhoProducer : public edm::EDProducer {
       unsigned int   nExcl_;              //Number of leading jets to exclude
       double         etaMaxExcl_;         //max eta for jets to exclude
       double         ptMinExcl_;          //min pt for excluded jets
+      unsigned int   nExcl2_;             //Number of leading jets to exclude in 2nd eta region
+      double         etaMaxExcl2_;        //max eta for jets to exclude in 2nd eta region
+      double         ptMinExcl2_;         //min pt for excluded jets in 2nd eta region
       bool           checkJetCand, usingPackedCand;
 };
 
