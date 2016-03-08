@@ -147,8 +147,6 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   orbit0Set_(false),
   bx_(-1),
   l1a_(-1),
-  l1amin_(numeric_limits<int>::max()),
-  l1amax_(-numeric_limits<int>::min()),
   simpleTrigType_(-1),
   detailedTrigType_(-1),
   //  histo_("hist.root", "RECREATE"),
@@ -439,10 +437,6 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
     cerr << "DCC ID discrepancy in detailed trigger type "
          << " of " << toNth(iEvent_) << " event." << endl;
   }
-
-  if(l1a_>0 && l1a_< l1amin_) l1amin_ = l1a_;
-  if(l1a_>l1amax_) l1amax_ = l1a_;
-
 
 #endif
 
