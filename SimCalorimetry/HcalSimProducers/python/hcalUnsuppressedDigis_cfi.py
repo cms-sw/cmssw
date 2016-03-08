@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 # make a block so other modules, such as the data mixing module, can
