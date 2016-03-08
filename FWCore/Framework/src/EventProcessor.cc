@@ -1688,6 +1688,7 @@ namespace edm {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
       runPrincipal.setEndTime(input_->timestamp());
+      runPrincipal.setComplete();
       input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -1718,7 +1719,6 @@ namespace edm {
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
-      runPrincipal.setComplete();
       if(hasSubProcesses()) {
         for(auto& subProcess : *subProcesses_) {
           subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException);
@@ -1791,6 +1791,7 @@ namespace edm {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
       lumiPrincipal.setEndTime(input_->timestamp());
+      lumiPrincipal.setComplete();
       input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -1822,7 +1823,6 @@ namespace edm {
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(lumiPrincipal, es, cleaningUpAfterException);
-      lumiPrincipal.setComplete();
       if(hasSubProcesses()) {
         for(auto& subProcess : *subProcesses_) {
           subProcess.doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);

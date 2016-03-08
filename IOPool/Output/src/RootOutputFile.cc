@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -407,7 +408,9 @@ namespace edm {
       esids.push_back(om_->selectorConfig());
     }
     pEventSelectionIDs_ = &esids;
-    fillBranches(e, pEventEntryInfoVector_);
+    ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    assert(provRetriever);
+    fillBranches(InEvent, e, pEventEntryInfoVector_, provRetriever);
 
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
@@ -444,7 +447,7 @@ namespace edm {
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(lb);
+    fillBranches(InLumi, lb);
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
 
     Service<JobReport> reportSvc;
@@ -464,7 +467,7 @@ namespace edm {
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
-    fillBranches(r);
+    fillBranches(InRun, r);
     runTree_.optimizeBaskets(10ULL*1024*1024);
 
     Service<JobReport> reportSvc;
@@ -680,25 +683,27 @@ namespace edm {
   }
 
   void RootOutputFile::fillBranches(
-                EventForOutput const& event,
-                StoredProductProvenanceVector* productProvenanceVecPtr) {
+                BranchType const& branchType,
+                OccurrenceForOutput const& occurrence,
+                StoredProductProvenanceVector* productProvenanceVecPtr,
+                ProductProvenanceRetriever const* provRetriever) {
 
     std::vector<std::unique_ptr<WrapperBase> > dummies;
 
-    bool const fastCloning = (whyNotFastClonable_ == FileBlock::CanFastClone);
+    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
-    OutputItemList const& items = om_->selectedOutputItemList()[InEvent];
+    bool const doProvenance = (productProvenanceVecPtr != nullptr) && (om_->dropMetaData() != PoolOutputModule::DropAll);
+    bool const keepProvenanceForPrior = doProvenance && om_->dropMetaData() != PoolOutputModule::DropPrior;
 
+    bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
     std::set<StoredProductProvenance> provenanceToKeep;
-
-    ProductProvenanceRetriever const* provRetriever = event.productProvenanceRetrieverPtr();
-    assert(provRetriever);
-    
+    //
     //If we are dropping some of the meta data we need to know
     // which BranchIDs were produced in this process because
     // we may be storing meta data for only those products
+    // We do this only for event products.
     std::set<BranchID> producedBranches;
-    if(om_->dropMetaData() != PoolOutputModule::DropNone) {
+    if(doProvenance && branchType == InEvent && om_->dropMetaData() != PoolOutputModule::DropNone) {
       Service<ConstProductRegistry> preg;
       for(auto bd : preg->allBranchDescriptions()) {
         if(bd->produced() && bd->branchType() == InEvent) {
@@ -707,40 +712,25 @@ namespace edm {
       }
     }
 
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
+    // Loop over EDProduct branches, possibly fill the provenance, and write the branch.
     for(auto const& item : items) {
 
       BranchID const& id = item.branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
 
       bool produced = item.branchDescription_->produced();
-      bool keepProvenance = productProvenanceVecPtr != nullptr &&
-                            (om_->dropMetaData() == PoolOutputModule::DropNone ||
-                             om_->dropMetaData() == PoolOutputModule::DropDroppedPrior ||
-                            (om_->dropMetaData() == PoolOutputModule::DropPrior && produced));
-      bool getProd = (produced || !fastCloning ||
-         treePointers_[InEvent]->uncloned(item.branchDescription_->branchName()));
+      bool getProd = (produced || !fastCloning || treePointers_[InEvent]->uncloned(item.branchDescription_->branchName()));
+      bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
+      BasicHandle result;
       if(getProd) {
-        BasicHandle result;
-        bool found = event.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
-        if(found) {
-          product = result.wrapper();
+        bool found = occurrence.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
+        product = result.wrapper();
+        if(found && keepProvenance) {
           productProvenance = result.provenance()->productProvenance();
         }
-      } else {
-        if(keepProvenance) {
-          productProvenance = provRetriever->branchIDToProvenance(id);
-        }
-      }
-      if(keepProvenance && productProvenance) {
-        insertProductProvenance(*productProvenance,provenanceToKeep);
-        //provenanceToKeep.insert(*oh.productProvenance());
-        insertAncestors(*productProvenance, provRetriever, produced, producedBranches, provenanceToKeep);
-      }
-      if(getProd) {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
@@ -752,76 +742,18 @@ namespace edm {
           dummies.emplace_back(std::move(dummy));
         }
         item.product_ = product;
+      } else if (keepProvenance) {
+        productProvenance = provRetriever->branchIDToProvenance(id);
+      } 
+      if(productProvenance) {
+        insertProductProvenance(*productProvenance,provenanceToKeep);
+        insertAncestors(*productProvenance, provRetriever, produced, producedBranches, provenanceToKeep);
       }
     }
 
-    if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
-    treePointers_[InEvent]->fillTree();
-    if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->clear();
-  }
-
-  void RootOutputFile::fillBranches(LuminosityBlockForOutput const& lumi) {
-
-    std::vector<std::unique_ptr<WrapperBase> > dummies;
-
-    OutputItemList const& items = om_->selectedOutputItemList()[InLumi];
-
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for(auto const& item : items) {
-
-      BranchID const& id = item.branchDescription_->branchID();
-      branchesWithStoredHistory_.insert(id);
-
-      BasicHandle result;
-      lumi.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
-      WrapperBase const* product = result.wrapper();
-
-      if(product == nullptr) {
-        // No product with this ID is in the event.
-        // Add a null product.
-        TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
-        int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
-        void* p = cp->New();
-        std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
-        product = dummy.get();
-        dummies.emplace_back(std::move(dummy));
-      }
-      item.product_ = product;
-    }
-
-    treePointers_[InLumi]->fillTree();
-  }
-
-  void RootOutputFile::fillBranches(RunForOutput const& run) {
-
-    std::vector<std::unique_ptr<WrapperBase> > dummies;
-
-    OutputItemList const& items = om_->selectedOutputItemList()[InRun];
-
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for(auto const& item : items) {
-
-      BranchID const& id = item.branchDescription_->branchID();
-      branchesWithStoredHistory_.insert(id);
-
-      BasicHandle result;
-      run.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
-      WrapperBase const* product = result.wrapper();
-
-      if(product == nullptr) {
-        // No product with this ID is in the event.
-        // Add a null product.
-        TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
-        int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
-        void* p = cp->New();
-        std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
-        product = dummy.get();
-        dummies.emplace_back(std::move(dummy));
-      }
-      item.product_ = product;
-    }
-
-    treePointers_[InRun]->fillTree();
+    if(doProvenance) productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
+    treePointers_[branchType]->fillTree();
+    if(doProvenance) productProvenanceVecPtr->clear();
   }
 
   bool

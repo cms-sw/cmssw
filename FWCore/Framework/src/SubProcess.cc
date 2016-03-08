@@ -419,10 +419,10 @@ namespace edm {
   void
   SubProcess::endRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    rp.setComplete();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
-    rp.setComplete();
     if(hasSubProcesses()) {
       for(auto& subProcess : *subProcesses_) {
         subProcess.doEndRun(rp, ts, cleaningUpAfterException);
@@ -491,10 +491,10 @@ namespace edm {
   void
   SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+    lbp.setComplete();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
-    lbp.setComplete();
     if(hasSubProcesses()) {
       for(auto& subProcess : *subProcesses_) {
         subProcess.doEndLuminosityBlock(lbp, ts, cleaningUpAfterException);

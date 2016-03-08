@@ -38,9 +38,8 @@ class TFile;
 class TClass;
 
 namespace edm {
-  class ModuleCallingContext;
+  class OccurrenceForOutput;
   class PoolOutputModule;
-
 
   class RootOutputFile {
   public:
@@ -83,12 +82,10 @@ namespace edm {
 
     void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
-    void fillBranches(EventForOutput const& event,
-                      StoredProductProvenanceVector* productProvenanceVecPtr);
-
-    void fillBranches(LuminosityBlockForOutput const& lumi);
-
-    void fillBranches(RunForOutput const& run);
+    void fillBranches(BranchType const& branchType,
+                      OccurrenceForOutput const& occurrence,
+                      StoredProductProvenanceVector* productProvenanceVecPtr = nullptr,
+                      ProductProvenanceRetriever const* provRetriever = nullptr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           ProductProvenanceRetriever const* iMapper,

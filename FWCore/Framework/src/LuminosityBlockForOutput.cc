@@ -9,56 +9,16 @@ namespace edm {
 
   LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                                    ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(lbp, md),
+        OccurrenceForOutput(lbp, md, moduleCallingContext),
         aux_(lbp.aux()),
-        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext)),
-        moduleCallingContext_(moduleCallingContext) {
+        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext)) {
   }
 
   LuminosityBlockForOutput::~LuminosityBlockForOutput() {
   }
 
-  void
-  LuminosityBlockForOutput::setConsumer(EDConsumerBase const* iConsumer) {
-    provRecorder_.setConsumer(iConsumer);
-    if(run_) {
-      const_cast<RunForOutput*>(run_.get())->setConsumer(iConsumer);
-    }
-  }
-  
   LuminosityBlockPrincipal const&
   LuminosityBlockForOutput::luminosityBlockPrincipal() const {
-    return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());
+    return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
   }
-
-  Provenance
-  LuminosityBlockForOutput::getProvenance(BranchID const& bid) const {
-    return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
-  }
-
-  void
-  LuminosityBlockForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    luminosityBlockPrincipal().getAllProvenance(provenances);
-  }
-
-  bool
-  LuminosityBlockForOutput::getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const {
-    result.clear();
-    result = provRecorder_.getByToken_(typeID, PRODUCT_TYPE, token, moduleCallingContext_);
-    if (result.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
-
-  ProcessHistoryID const&
-  LuminosityBlockForOutput::processHistoryID() const {
-    return luminosityBlockPrincipal().processHistoryID();
-  }
-
-  ProcessHistory const&
-  LuminosityBlockForOutput::processHistory() const {
-    return provRecorder_.processHistory();
-  }
-
 }

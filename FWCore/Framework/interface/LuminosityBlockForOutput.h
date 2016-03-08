@@ -21,8 +21,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -37,7 +36,7 @@ namespace edmtest {
 namespace edm {
   class ModuleCallingContext;
   
-  class LuminosityBlockForOutput {
+  class LuminosityBlockForOutput : public OccurrenceForOutput {
   public:
     LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                     ModuleCallingContext const*);
@@ -50,78 +49,20 @@ namespace edm {
     Timestamp const& beginTime() const {return aux_.beginTime();}
     Timestamp const& endTime() const {return aux_.endTime();}
 
-    //Used in conjunction with EDGetToken
-    void setConsumer(EDConsumerBase const* iConsumer);
-    
-    bool
-    getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const;
-
-    template<typename PROD>
-    bool
-    getByToken(EDGetToken token, Handle<PROD>& result) const;
-    
-    template<typename PROD>
-    bool
-    getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
-
     RunForOutput const&
     getRun() const {
       return *run_;
     }
 
-    Provenance
-    getProvenance(BranchID const& theID) const;
-
-    void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
-
-    ProcessHistoryID const& processHistoryID() const;
-
-    ProcessHistory const&
-    processHistory() const;
-
   private:
-    ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
     friend class edmtest::TestOutputModule; // For testing
 
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
 
-    PrincipalGetAdapter provRecorder_;
     LuminosityBlockAuxiliary const& aux_;
     std::shared_ptr<RunForOutput const> const run_;
-    ModuleCallingContext const* moduleCallingContext_;
   };
-
-  template<typename PROD>
-  bool
-  LuminosityBlockForOutput::getByToken(EDGetToken token, Handle<PROD>& result) const {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-    }
-    result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
-    if (result.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
-  
-  template<typename PROD>
-  bool
-  LuminosityBlockForOutput::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-    }
-    result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
-    if (result.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
 
 }
 #endif
