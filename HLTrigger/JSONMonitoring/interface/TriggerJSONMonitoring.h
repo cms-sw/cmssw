@@ -30,12 +30,12 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"          
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"  
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"  
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"  
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
@@ -137,11 +137,10 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
   edm::InputTag triggerResults_;                               // Input tag for TriggerResults 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;  // Token for TriggerResults
 
-  edm::InputTag level1Results_;                                 // Input tag for L1 GT Readout Record   
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1t_results; // Token for L1 GT Readout Record
+  edm::InputTag level1Results_;                                 // Input tag for L1 Global collection   
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results; // Token for L1 Global collection 
 
   //Variables that change at most once per run 
-  HLTPrescaleProvider hltPrescaleProvider_; // To get at HLTConfigProvider
   HLTConfigProvider hltConfig_;         // to get configuration for HLT
   const L1GtTriggerMenu* m_l1GtMenu;    // L1 trigger menu   
   AlgorithmMap algorithmMap;            // L1 algorithm map  
