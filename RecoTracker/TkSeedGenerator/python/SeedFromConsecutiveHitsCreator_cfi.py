@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 SeedFromConsecutiveHitsCreator = cms.PSet(
   ComponentName = cms.string('SeedFromConsecutiveHitsCreator'),
@@ -11,4 +12,8 @@ SeedFromConsecutiveHitsCreator = cms.PSet(
 #  magneticField = cms.string(''),
   TTRHBuilder = cms.string('WithTrackAngle'),
   forceKinematicWithRegionDirection = cms.bool(False)
+)
+eras.trackingPhase1.toModify(SeedFromConsecutiveHitsCreator,
+        magneticField = '',
+        propagator = 'PropagatorWithMaterial'
 )

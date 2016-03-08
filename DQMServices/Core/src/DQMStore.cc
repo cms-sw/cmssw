@@ -58,6 +58,7 @@ static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 static const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
+static const lat::Regexp s_rxself  ("^[^()]*DQMStore::.*");
 static const lat::Regexp s_rxpbfile (".*\\.pb$");
 
 //////////////////////////////////////////////////////////////////////
@@ -629,22 +630,31 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   size = backtrace (array, 10);
   strings = backtrace_symbols (array, size);
 
-  if ((size > 4)
-      &&s_rxtrace.match(strings[4], 0, 0, &m))
-  {
-    char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
+  size_t level = 1;
+  char * demangled = nullptr; 
+  for (; level < size; level++) {
+    if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
+    demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), 0, 0, &r);
+    if (!demangled) continue;
+    if (!s_rxself.match(demangled, 0, 0)) break;
+    free(demangled);
+    demangled = nullptr;
+  }
+
+  if (demangled != nullptr) {
     *stream_ << "\"" << dir << "/"
            << name << "\" "
-           << (r ? m.matchString(strings[4], 2) : demangled) << " "
-           << m.matchString(strings[4], 1) << "\n";
+           << (r ? m.matchString(strings[level], 2) : demangled) << " "
+           << m.matchString(strings[level], 1) << "\n";
     free(demangled);
-  }
-  else
+  } else {
     *stream_ << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
+  }
+
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
-  if (verbose_ > 4)
+  if (verbose_ > 4 || demangled == nullptr)
   {
     size_t i;
     m.reset();

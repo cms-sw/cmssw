@@ -2,16 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 ###### Muon reconstruction module #####
 from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyDisplacedMuons
-from RecoTracker.IterativeTracking.MuonSeededStep_cff import *
 
 ###### SEEDER MODELS ######
 #for displaced global muons
+import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 muonSeededSeedsOutInDisplaced = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
     src = "earlyDisplacedMuons",
 )
 muonSeededSeedsOutInDisplaced.fromVertex = cms.bool(False)
 ###------------- MeasurementEstimator, defining the searcgh window for pattern recongnition ----------------
 #for displaced global muons
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 muonSeededMeasurementEstimatorForOutInDisplaced = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutInDisplaced'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
@@ -20,7 +21,8 @@ muonSeededMeasurementEstimatorForOutInDisplaced = TrackingTools.KalmanUpdators.C
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 #for displaced global muons
-muonSeededTrajectoryFilterForOutInDisplaced = muonSeededTrajectoryFilterForInOut.clone()
+import RecoTracker.IterativeTracking.MuonSeededStep_cff
+muonSeededTrajectoryFilterForOutInDisplaced = RecoTracker.IterativeTracking.MuonSeededStep_cff.muonSeededTrajectoryFilterForInOut.clone()
 muonSeededTrajectoryFilterForOutInDisplaced.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
 muonSeededTrajectoryFilterForOutInDisplaced.minimumNumberOfHits = 5 ## allow more lost hits
 ###------------- TrajectoryBuilders ----------------
@@ -55,19 +57,19 @@ muonSeededTracksOutInDisplaced = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 )
 
 #for displaced global muons
-muonSeededTracksOutInDisplacedClassifier = muonSeededTracksOutInClassifier.clone()
+muonSeededTracksOutInDisplacedClassifier = RecoTracker.IterativeTracking.MuonSeededStep_cff.muonSeededTracksOutInClassifier.clone()
 muonSeededTracksOutInDisplacedClassifier.src='muonSeededTracksOutInDisplaced'
 
 
 #for displaced global muons
 muonSeededStepCoreDisplaced = cms.Sequence(
-    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
+    cms.SequencePlaceholder("muonSeededStepCoreInOut") +
     muonSeededSeedsOutInDisplaced + muonSeededTrackCandidatesOutInDisplaced + muonSeededTracksOutInDisplaced 
 )
 
 #for displaced global muons
 muonSeededStepExtraDisplaced = cms.Sequence(
-    muonSeededTracksInOutClassifier +
+    cms.SequencePlaceholder("muonSeededStepExtraInOut") +
     muonSeededTracksOutInDisplacedClassifier
 )
 #for displaced global muons
@@ -85,5 +87,5 @@ muonSeededTrackCandidatesOutInDisplacedAsTracks = cms.EDProducer("FakeTrackProdu
 #for displaced global muons
 muonSeededStepDebugDisplaced = cms.Sequence(
     muonSeededSeedsOutInDisplacedAsTracks + muonSeededTrackCandidatesOutInDisplacedAsTracks +
-    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+    cms.SequencePlaceholder("muonSeededStepDebugInOut")
 )
