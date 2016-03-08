@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi import *
 from RecoTracker.FinalTrackSelectors.DuplicateListMerger_cfi import *
@@ -7,6 +8,9 @@ duplicateTrackCandidates = DuplicateTrackMerger.clone()
 duplicateTrackCandidates.source = cms.InputTag("preDuplicateMergingGeneralTracks")
 duplicateTrackCandidates.useInnermostState  = True
 duplicateTrackCandidates.ttrhBuilderName   = "WithAngleAndTemplate"
+# This customization will be removed once we get the templates for
+# phase1 pixel
+eras.phase1Pixel.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
                                      
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
