@@ -20,6 +20,8 @@ def makePuppies( process ):
     process.puppiNoLep = process.puppi.clone()
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
 
+    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+
 ## puppi met
     process.puppiForMET = cms.EDProducer("PuppiPhoton",
                                          candName       = cms.InputTag('packedPFCandidates'),
@@ -34,7 +36,7 @@ def makePuppies( process ):
                                          useValueMap    = cms.bool(False),
                                          weightsName    = cms.InputTag('puppi'),
                                          )
-    process.puppiForMET.puppiCandName    = 'puppiNoLep'
+    process.puppiForMET.puppiCandName    = 'puppiMerged'
 
 
 
@@ -47,10 +49,12 @@ def makePuppiesFromMiniAOD( process ):
 # kind of ugly, is there a better way to do this?
 
     process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
-    process.pfNoLepPUPPI   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
+    process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
 
     process.puppiNoLep = process.puppi.clone()
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
+
+    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
 
 ## puppi met
     process.puppiForMET = cms.EDProducer("PuppiPhoton",
@@ -66,5 +70,5 @@ def makePuppiesFromMiniAOD( process ):
                                          useValueMap    = cms.bool(False),
                                          weightsName    = cms.InputTag('puppi'),
                                          )
-    process.puppiForMET.puppiCandName    = 'puppiNoLep'
+    process.puppiForMET.puppiCandName    = 'puppiMerged'
     
