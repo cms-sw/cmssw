@@ -48,7 +48,7 @@ namespace cms
     {
     public:
       explicit METSignificanceProducer(const edm::ParameterSet&);
-      virtual ~METSignificanceProducer() { }
+      virtual ~METSignificanceProducer();
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
@@ -59,6 +59,10 @@ namespace cms
       edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
       edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
       std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+      edm::EDGetTokenT<double> rhoToken_;
+      std::string jetSFType_;
+      std::string jetResPtType_;
+      std::string jetResPhiType_;
  
       metsig::METSignificance* metSigAlgo_;
 

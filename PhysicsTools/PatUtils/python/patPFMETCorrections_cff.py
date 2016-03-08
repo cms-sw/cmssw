@@ -106,29 +106,41 @@ patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorr)
 #--------------------------------------------------------------------------------
 from RecoMET.METProducers.METSigParams_cfi import *
 patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
-                   src = cms.InputTag("patJets"),
-                   dRmaxGenJetMatch = cms.string('min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
-                   sigmaMaxGenJetMatch = cms.double(3.),
-                   inputFileName = cms.FileInPath("PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root"), #MM fixme
-                   lutName = cms.string("pfJetResolutionMCtoDataCorrLUT"),
-                   jetResolutions = METSignificance_params,
-                   # CV: skip jet smearing for pat::Jets for which the jet-energy correction (JEC) factors are either very large or negative
-                   #     since both cases produce unphysically large tails in the Type 1 corrected MET distribution after the smearing,
-                   #
-                   #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV
-                   #          corr. jet: energy = -3 GeV            , pt = -0.1 GeV (JEC factor L1fastjet*L2*L3 = -17)
-                   #                     energy = 10 GeV for corrected jet after smearing
-                   #         --> smeared raw jet energy = -170 GeV !!
-                   #
-                   #         --> (corr. - raw) jet contribution to MET = -1 (-10) GeV before (after) smearing,
-                   #             even though jet energy got smeared by merely 1 GeV
-                   #
-                   skipJetSelection = cms.string(
-        'jecSetsAvailable && abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
-        ),
-            skipRawJetPtThreshold = cms.double(10.), # GeV
-            skipCorrJetPtThreshold = cms.double(1.e-2),
-            verbosity = cms.int32(0)
+    src = cms.InputTag("patJets"),
+
+    enabled = cms.bool(True),  # If False, no smearing is performed
+
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+
+    skipGenMatching = cms.bool(False),  # If True, always skip gen jet matching and smear jet with a random gaussian
+
+    # Resolution and scale factors source.
+    # Can be either from GT or text files
+    # For GT: only 'algo' must be set
+    # For text files: both 'resolutionFile' and 'scaleFactorFile' must point to valid files
+
+    # Read from GT
+    algopt = cms.string('AK4PFchs_pt'),
+    algo = cms.string('AK4PFchs'),
+
+    # Or from text files
+    #resolutionFile = cms.FileInPath('path/to/resolution_file.txt'),
+    #scaleFactorFile = cms.FileInPath('path/to/scale_factor_file.txt'),
+
+    # Gen jet matching
+    genJets = cms.InputTag("ak4GenJetsNoNu"),
+    dRMax = cms.double(0.2),  # = cone size (0.4) / 2
+    dPtMaxFactor = cms.double(3),  # dPt < 3 * resolution
+
+    # Systematic variation
+    # 0: Nominal
+    # -1: -1 sigma (down variation)
+    # 1: +1 sigma (up variation)
+    variation = cms.int32(0),  # If not specified, default to 0
+
+    seed = cms.uint32(37428479),  # If not specified, default to 37428479
+
+    debug = cms.untracked.bool(False)
 )
 
 selectedPatJetsForMetT1T2SmearCorr = cms.EDFilter("PATJetSelector",
