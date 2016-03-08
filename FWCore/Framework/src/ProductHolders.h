@@ -31,14 +31,11 @@ namespace edm {
   class DataManagingProductHolder : public ProductHolderBase {
   public:
     enum class ProductStatus {
-      ProductSet = 0,
-      NotRun = 3,
-      NotCompleted = 4,
-      NotPut = 5,
-      UnscheduledNotRun = 6,
-      DelayedReadNotRun = 7,
-      ProductDeleted =8,
-      Uninitialized = 0xff
+      ProductSet,
+      NotPut,
+      ResolveFailed,
+      ResolveNotRun,
+      ProductDeleted
     };
     
     DataManagingProductHolder(std::shared_ptr<BranchDescription const> bd,ProductStatus iDefaultStatus): ProductHolderBase(),
@@ -58,7 +55,7 @@ namespace edm {
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_;}
     ProductStatus defaultStatus() const { return defaultStatus_; }
-    void setFailedStatus() const { theStatus_ = ProductStatus::NotCompleted; }
+    void setFailedStatus() const { theStatus_ = ProductStatus::ResolveFailed; }
     
     
   private:
@@ -92,7 +89,7 @@ namespace edm {
   class InputProductHolder : public DataManagingProductHolder {
     public:
     explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd) :
-      DataManagingProductHolder(bd, ProductStatus::DelayedReadNotRun) {}
+      DataManagingProductHolder(bd, ProductStatus::ResolveNotRun) {}
 
     private:
     
@@ -126,7 +123,7 @@ namespace edm {
 
   class PuttableProductHolder : public ProducedProductHolder {
   public:
-    explicit PuttableProductHolder(std::shared_ptr<BranchDescription const> bd, ProductStatus defaultStatus) : ProducedProductHolder(bd, defaultStatus) {}
+    explicit PuttableProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(bd, ProductStatus::NotPut) {}
 
   private:
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
@@ -140,14 +137,14 @@ namespace edm {
   class UnscheduledProductHolder : public ProducedProductHolder {
     public:
       explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd) :
-       ProducedProductHolder(bd,ProductStatus::UnscheduledNotRun) {}
+       ProducedProductHolder(bd,ProductStatus::ResolveNotRun) {}
     private:
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual bool onDemandWasNotRun_() const override {return status() == ProductStatus::UnscheduledNotRun;}
+      virtual bool onDemandWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
   };
 
   // Free swap function

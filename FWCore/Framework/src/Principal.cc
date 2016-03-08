@@ -273,13 +273,13 @@ namespace edm {
 
   void
   Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new PuttableProductHolder(std::move(bd), PuttableProductHolder::ProductStatus::NotRun));
+    auto phb = std::make_unique<PuttableProductHolder>(std::move(bd));
     addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new PuttableProductHolder(std::move(bd), PuttableProductHolder::ProductStatus::NotPut));
+    auto phb = std::make_unique<PuttableProductHolder>(std::move(bd));
     addProductOrThrow(std::move(phb));
   }
 

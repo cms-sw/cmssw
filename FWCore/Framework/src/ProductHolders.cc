@@ -54,11 +54,11 @@ namespace edm {
     }
     auto presentStatus = status();
     
-    if(presentStatus == ProductStatus::DelayedReadNotRun) {
+    if(presentStatus == ProductStatus::ResolveNotRun) {
       //if readFromSource fails becuase of exception or not setting product
       // make sure the status goes to failed
       auto failedStatusSetter = [this](ProductStatus* presentStatus) {
-        if(this->status() == ProductStatus::DelayedReadNotRun) {
+        if(this->status() == ProductStatus::ResolveNotRun) {
           this->setFailedStatus();
         }
         *presentStatus = this->status();
@@ -113,12 +113,12 @@ namespace edm {
       }
       auto presentStatus = status();
 
-      if(presentStatus == ProductStatus::UnscheduledNotRun) {
+      if(presentStatus == ProductStatus::ResolveNotRun) {
         
         //if readFromSource fails becuase of exception or not setting product
         // make sure the status goes to failed
         auto failedStatusSetter = [this](ProductStatus* presentStatus) {
-          if(this->status() == ProductStatus::UnscheduledNotRun) {
+          if(this->status() == ProductStatus::ResolveNotRun) {
             this->setFailedStatus();
           }
           *presentStatus = this->status();
@@ -160,7 +160,6 @@ namespace edm {
     assert(branchDescription().produced());
     assert(edp.get() != nullptr);
     assert(status() != ProductStatus::ProductSet);
-    assert(status() != ProductStatus::Uninitialized);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
   }
