@@ -46,9 +46,6 @@ namespace edm {
     theStatus_(iDefaultStatus),
     defaultStatus_(iDefaultStatus){}
     
-    //Public since needed by Alias
-    ProductData const& getProductData() const {return productData_;}
-
     virtual void connectTo(ProductHolderBase const&, Principal const*) override final;
 
     void resetStatus() {theStatus_ = defaultStatus_;}
@@ -57,6 +54,7 @@ namespace edm {
     virtual void resetProductData_(bool deleteEarly) override final;
 
   protected:
+    ProductData const& getProductData() const {return productData_;}
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_;}
     ProductStatus defaultStatus() const { return defaultStatus_; }
