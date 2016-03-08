@@ -329,7 +329,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
         //int bx = 0;
 		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
 		float eta = (-1)*log(tan(theta_angle/2));
-		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
 		
 		if(!ME13 && fabs(eta) > 1.1)
 			holder.push_back(outPair);
