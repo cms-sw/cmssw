@@ -19,7 +19,6 @@ from HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_PbPb_mc_cff import 
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.makePartons_cff import *
 
 highPurityTracks = cms.EDFilter("TrackSelector",
                                 src = cms.InputTag("hiGeneralTracks"),
@@ -52,7 +51,6 @@ jetSequences = cms.Sequence(
     akVs5CaloJets +
     akVs5PFJets +
 
-    makePartons +
     highPurityTracks +
     offlinePrimaryVertices +
 

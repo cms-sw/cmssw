@@ -32,7 +32,7 @@ ak3PFbTagger = bTaggers("ak3PF",0.3)
 
 #create objects locally since they dont load properly otherwise
 #ak3PFmatch = ak3PFbTagger.match
-ak3PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak3PFJets"), matched = cms.InputTag("genParticles"))
+ak3PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak3PFJets"), matched = cms.InputTag("selectedPartons"))
 ak3PFPatJetFlavourAssociationLegacy = ak3PFbTagger.PatJetFlavourAssociationLegacy
 ak3PFPatJetPartons = ak3PFbTagger.PatJetPartons
 ak3PFJetTracksAssociatorAtVertex = ak3PFbTagger.JetTracksAssociatorAtVertex
@@ -234,6 +234,6 @@ ak3PFJetSequence_data = cms.Sequence(ak3PFcorr
                                                     )
 
 ak3PFJetSequence_jec = cms.Sequence(ak3PFJetSequence_mc)
-ak3PFJetSequence_mix = cms.Sequence(ak3PFJetSequence_mc)
+ak3PFJetSequence_mb = cms.Sequence(ak3PFJetSequence_mc)
 
 ak3PFJetSequence = cms.Sequence(ak3PFJetSequence_data)

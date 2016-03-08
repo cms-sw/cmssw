@@ -32,7 +32,7 @@ akVs6CalobTagger = bTaggers("akVs6Calo",0.6)
 
 #create objects locally since they dont load properly otherwise
 #akVs6Calomatch = akVs6CalobTagger.match
-akVs6Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akVs6CaloJets"), matched = cms.InputTag("genParticles"))
+akVs6Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akVs6CaloJets"), matched = cms.InputTag("selectedPartons"))
 akVs6CaloPatJetFlavourAssociationLegacy = akVs6CalobTagger.PatJetFlavourAssociationLegacy
 akVs6CaloPatJetPartons = akVs6CalobTagger.PatJetPartons
 akVs6CaloJetTracksAssociatorAtVertex = akVs6CalobTagger.JetTracksAssociatorAtVertex
@@ -234,6 +234,6 @@ akVs6CaloJetSequence_data = cms.Sequence(akVs6Calocorr
                                                     )
 
 akVs6CaloJetSequence_jec = cms.Sequence(akVs6CaloJetSequence_mc)
-akVs6CaloJetSequence_mix = cms.Sequence(akVs6CaloJetSequence_mc)
+akVs6CaloJetSequence_mb = cms.Sequence(akVs6CaloJetSequence_mc)
 
 akVs6CaloJetSequence = cms.Sequence(akVs6CaloJetSequence_mc)

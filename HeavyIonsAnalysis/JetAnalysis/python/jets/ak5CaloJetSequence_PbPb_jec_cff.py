@@ -32,7 +32,7 @@ ak5CalobTagger = bTaggers("ak5Calo",0.5)
 
 #create objects locally since they dont load properly otherwise
 #ak5Calomatch = ak5CalobTagger.match
-ak5Caloparton = patJetPartonMatch.clone(src = cms.InputTag("ak5CaloJets"), matched = cms.InputTag("hiSignalGenParticles"))
+ak5Caloparton = patJetPartonMatch.clone(src = cms.InputTag("ak5CaloJets"), matched = cms.InputTag("selectedPartons"))
 ak5CaloPatJetFlavourAssociationLegacy = ak5CalobTagger.PatJetFlavourAssociationLegacy
 ak5CaloPatJetPartons = ak5CalobTagger.PatJetPartons
 ak5CaloJetTracksAssociatorAtVertex = ak5CalobTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ ak5CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak5CaloJets
         )
 
 ak5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak5HiSignalGenJets',
+                                                             genjetTag = 'ak5HiGenJets',
                                                              rParam = 0.5,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ ak5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5Calopa
                                                              isMC = True,
 							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,7 +234,7 @@ ak5CaloJetSequence_data = cms.Sequence(ak5Calocorr
                                                     )
 
 ak5CaloJetSequence_jec = cms.Sequence(ak5CaloJetSequence_mc)
-ak5CaloJetSequence_mix = cms.Sequence(ak5CaloJetSequence_mc)
+ak5CaloJetSequence_mb = cms.Sequence(ak5CaloJetSequence_mc)
 
 ak5CaloJetSequence = cms.Sequence(ak5CaloJetSequence_jec)
 ak5CaloJetAnalyzer.genPtMin = cms.untracked.double(1)

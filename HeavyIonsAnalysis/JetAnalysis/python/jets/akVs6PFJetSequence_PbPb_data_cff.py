@@ -32,7 +32,7 @@ akVs6PFbTagger = bTaggers("akVs6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
 #akVs6PFmatch = akVs6PFbTagger.match
-akVs6PFparton = patJetPartonMatch.clone(src = cms.InputTag("akVs6PFJets"), matched = cms.InputTag("hiSignalGenParticles"))
+akVs6PFparton = patJetPartonMatch.clone(src = cms.InputTag("akVs6PFJets"), matched = cms.InputTag("selectedPartons"))
 akVs6PFPatJetFlavourAssociationLegacy = akVs6PFbTagger.PatJetFlavourAssociationLegacy
 akVs6PFPatJetPartons = akVs6PFbTagger.PatJetPartons
 akVs6PFJetTracksAssociatorAtVertex = akVs6PFbTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ akVs6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs6PFJets
         )
 
 akVs6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs6PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak6HiSignalGenJets',
+                                                             genjetTag = 'ak6HiGenJets',
                                                              rParam = 0.6,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ akVs6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs6PFpa
                                                              isMC = False,
 							     doSubEvent = False,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,6 +234,6 @@ akVs6PFJetSequence_data = cms.Sequence(akVs6PFcorr
                                                     )
 
 akVs6PFJetSequence_jec = cms.Sequence(akVs6PFJetSequence_mc)
-akVs6PFJetSequence_mix = cms.Sequence(akVs6PFJetSequence_mc)
+akVs6PFJetSequence_mb = cms.Sequence(akVs6PFJetSequence_mc)
 
 akVs6PFJetSequence = cms.Sequence(akVs6PFJetSequence_data)

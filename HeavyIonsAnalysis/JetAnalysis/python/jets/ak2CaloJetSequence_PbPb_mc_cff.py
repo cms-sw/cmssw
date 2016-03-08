@@ -32,7 +32,7 @@ ak2CalobTagger = bTaggers("ak2Calo",0.2)
 
 #create objects locally since they dont load properly otherwise
 #ak2Calomatch = ak2CalobTagger.match
-ak2Caloparton = patJetPartonMatch.clone(src = cms.InputTag("ak2CaloJets"), matched = cms.InputTag("hiSignalGenParticles"))
+ak2Caloparton = patJetPartonMatch.clone(src = cms.InputTag("ak2CaloJets"), matched = cms.InputTag("selectedPartons"))
 ak2CaloPatJetFlavourAssociationLegacy = ak2CalobTagger.PatJetFlavourAssociationLegacy
 ak2CaloPatJetPartons = ak2CalobTagger.PatJetPartons
 ak2CaloJetTracksAssociatorAtVertex = ak2CalobTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ ak2CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak2CaloJets
         )
 
 ak2CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak2HiSignalGenJets',
+                                                             genjetTag = 'ak2HiGenJets',
                                                              rParam = 0.2,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ ak2CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2Calopa
                                                              isMC = True,
 							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,6 +234,6 @@ ak2CaloJetSequence_data = cms.Sequence(ak2Calocorr
                                                     )
 
 ak2CaloJetSequence_jec = cms.Sequence(ak2CaloJetSequence_mc)
-ak2CaloJetSequence_mix = cms.Sequence(ak2CaloJetSequence_mc)
+ak2CaloJetSequence_mb = cms.Sequence(ak2CaloJetSequence_mc)
 
 ak2CaloJetSequence = cms.Sequence(ak2CaloJetSequence_mc)

@@ -32,7 +32,7 @@ akVs4CalobTagger = bTaggers("akVs4Calo",0.4)
 
 #create objects locally since they dont load properly otherwise
 #akVs4Calomatch = akVs4CalobTagger.match
-akVs4Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akVs4CaloJets"), matched = cms.InputTag("hiSignalGenParticles"))
+akVs4Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akVs4CaloJets"), matched = cms.InputTag("selectedPartons"))
 akVs4CaloPatJetFlavourAssociationLegacy = akVs4CalobTagger.PatJetFlavourAssociationLegacy
 akVs4CaloPatJetPartons = akVs4CalobTagger.PatJetPartons
 akVs4CaloJetTracksAssociatorAtVertex = akVs4CalobTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ akVs4CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs4Calo
         )
 
 akVs4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak4HiSignalGenJets',
+                                                             genjetTag = 'ak4HiGenJets',
                                                              rParam = 0.4,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ akVs4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4Ca
                                                              isMC = True,
 							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,6 +234,6 @@ akVs4CaloJetSequence_data = cms.Sequence(akVs4Calocorr
                                                     )
 
 akVs4CaloJetSequence_jec = cms.Sequence(akVs4CaloJetSequence_mc)
-akVs4CaloJetSequence_mix = cms.Sequence(akVs4CaloJetSequence_mc)
+akVs4CaloJetSequence_mb = cms.Sequence(akVs4CaloJetSequence_mc)
 
 akVs4CaloJetSequence = cms.Sequence(akVs4CaloJetSequence_mc)

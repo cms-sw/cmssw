@@ -32,7 +32,7 @@ ak2PFbTagger = bTaggers("ak2PF",0.2)
 
 #create objects locally since they dont load properly otherwise
 #ak2PFmatch = ak2PFbTagger.match
-ak2PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak2PFJets"), matched = cms.InputTag("hiSignalGenParticles"))
+ak2PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak2PFJets"), matched = cms.InputTag("selectedPartons"))
 ak2PFPatJetFlavourAssociationLegacy = ak2PFbTagger.PatJetFlavourAssociationLegacy
 ak2PFPatJetPartons = ak2PFbTagger.PatJetPartons
 ak2PFJetTracksAssociatorAtVertex = ak2PFbTagger.JetTracksAssociatorAtVertex
@@ -176,7 +176,7 @@ ak2PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak2PFJets"),
         )
 
 ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak2HiSignalGenJets',
+                                                             genjetTag = 'ak2HiGenJets',
                                                              rParam = 0.2,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -186,7 +186,7 @@ ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJet
                                                              isMC = False,
 							     doSubEvent = False,
                                                              useHepMC = cms.untracked.bool(False),
-							     genParticles = cms.untracked.InputTag("hiSignalGenParticles"),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
@@ -234,6 +234,6 @@ ak2PFJetSequence_data = cms.Sequence(ak2PFcorr
                                                     )
 
 ak2PFJetSequence_jec = cms.Sequence(ak2PFJetSequence_mc)
-ak2PFJetSequence_mix = cms.Sequence(ak2PFJetSequence_mc)
+ak2PFJetSequence_mb = cms.Sequence(ak2PFJetSequence_mc)
 
 ak2PFJetSequence = cms.Sequence(ak2PFJetSequence_data)
