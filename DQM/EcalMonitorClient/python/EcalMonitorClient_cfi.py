@@ -20,6 +20,7 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         "PresampleClient",
         "RawDataClient",
         "TrigPrimClient",
+        "TimingClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
