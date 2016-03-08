@@ -922,11 +922,11 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       fastjet::PseudoJet const & constit = *itConst;
 
       if ( verbosity_ >= 1 ) {
-	std::cout << "constituent #" << (itConst - itConstBegin) << ": Pt = " << constit.pt() << ", eta = " << constit.eta() << ", phi = " << constit.phi() << ", mass = " << constit.m() << ", uid: " << constit.user_index() << ")" << std::endl;
+	std::cout << "jet #" << jetIndex << " constituent #" << (itConst - itConstBegin) << ": Pt = " << constit.pt() << ", eta = " << constit.eta() << ", phi = " << constit.phi() << ", mass = " << constit.m() << ", uid: " << constit.user_index() << ")" << std::endl;
       }
 
-      constituentsSub.push_back(constit);
       indices[jetIndex].push_back( constituentsSub.size() );
+      constituentsSub.push_back(constit);
     }
   }
 
@@ -961,11 +961,10 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
     std::vector<int> & ind = indices[p4_index];
     std::vector<reco::CandidatePtr> i_jetConstituents;
     // Add the constituents to the jet
-    for( std::vector<int>::const_iterator iconst = ind.begin();
-	 iconst != ind.end(); ++iconst ) {
+    for( std::vector<int>::const_iterator iconst = ind.begin(); iconst != ind.end(); ++iconst ) {
       reco::CandidatePtr candPtr( constituentHandleAfterPut, *iconst, false );
       i_jetConstituents.push_back( candPtr );
-    }   
+    }
     reco::Particle::Point point(0,0,0);
     reco::PFJet jet;
     reco::writeSpecific(jet,*ip4,point,i_jetConstituents,iSetup);
