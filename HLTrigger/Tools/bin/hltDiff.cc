@@ -507,7 +507,7 @@ private:
     return str;
   }
 
-  static std::string key(std::string _key, std::string _delim="") {
+  static std::string key(const std::string& _key, const std::string& _delim="") {
     std::string str = "\"\":";
     str.insert(1, _key);
     str.append(_delim);
@@ -515,7 +515,7 @@ private:
     return str;
   }
 
-  static std::string key_string(std::string _key, std::string _string, std::string _delim="") {
+  static std::string key_string(const std::string& _key, const std::string& _string, const std::string& _delim="") {
     std::string str = key(_key, _delim);
     str.push_back('"');
     str.append(_string);
@@ -523,14 +523,14 @@ private:
     return str;
   }
 
-  static std::string key_int(std::string _key, int _int, std::string _delim="") {
+  static std::string key_int(const std::string& _key, int _int, const std::string& _delim="") {
     std::string str = key(_key, _delim);
     str.append(std::to_string(_int));
 
     return str;
   }
 
-  static std::string string(std::string _string, std::string _delim="") {
+  static std::string string(const std::string& _string, const std::string& _delim="") {
     std::string str = "\"\"";
     str.insert(1, _string);
     str.append(_delim);
@@ -538,9 +538,9 @@ private:
     return str;
   }
 
-  static std::string list_string(std::vector<std::string> _values, std::string _delim="") {
+  static std::string list_string(const std::vector<std::string>& _values, const std::string& _delim="") {
     std::string str = "[";
-    for (std::vector<std::string>::iterator it = _values.begin(); it != _values.end(); ++it) {
+    for (std::vector<std::string>::const_iterator it = _values.begin(); it != _values.end(); ++it) {
       str.append(_delim);
       str.push_back('"');
       str.append(*it);
