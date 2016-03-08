@@ -51,7 +51,7 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")),
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
   useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
-		    iConfig.getParameter<bool>("UseUnassociatedL1") : true),
+            iConfig.getParameter<bool>("UseUnassociatedL1") : true),
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") )
   {
 
@@ -97,7 +97,7 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
 
   edm::ParameterSetDescription psd0;
   psd0.addUntracked<std::vector<std::string>>("Propagators", {
-	  "SteppingHelixPropagatorAny"
+      "SteppingHelixPropagatorAny"
   });
   psd0.add<bool>("RPCLayers", true);
   psd0.addUntracked<bool>("UseMuonNavigation", true);
@@ -124,189 +124,185 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
     offlineSeedMap = vector<int>(offlineSeedHandle->size(), 0);
   }
 
-  if (muColl.isValid()){
-    for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
-      if (centralBxOnly_ && (ibx != 0)) continue;
-      for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
-    
-        unsigned int quality = it->hwQual();
-        int valid_charge = it->hwChargeValid();
-    
-        float pt    =  it->pt();
-        float eta   =  it->eta();
-        float theta =  2*atan(exp(-eta));
-        float phi   =  it->phi();      
-        int charge  =  it->charge();
-        // Set charge=0 for the time being if the valid charge bit is zero
-        if (!valid_charge) charge = 0;
-
-        bool barrel = fabs(eta) < 1.04 ? true : false; // FIXME: to be updated once we have definition from L1  
-
-        if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
-    
-        LogTrace(metname) << "New L2 Muon Seed" ;
-        LogTrace(metname) << "Pt = "         << pt     << " GeV/c";
-        LogTrace(metname) << "eta = "        << eta; 
-        LogTrace(metname) << "theta = "      << theta  << " rad";
-        LogTrace(metname) << "phi = "        << phi    << " rad";
-        LogTrace(metname) << "charge = "     << charge;
-        LogTrace(metname) << "In Barrel? = " << barrel;
-    
-        if ( quality <= theL1MinQuality ) continue;
-        LogTrace(metname) << "quality = "<< quality; 
-    
-        // Update the services
-        theService->update(iSetup);
-
-        const DetLayer *detLayer = 0;
-        float radius = 0.;
+  for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
+    if (centralBxOnly_ && (ibx != 0)) continue;
+    for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
   
-        CLHEP::Hep3Vector vec(0.,1.,0.);
-        vec.setTheta(theta);
-        vec.setPhi(phi);
-    
-        // Get the det layer on which the state should be put
-        if ( barrel ){
-          LogTrace(metname) << "The seed is in the barrel";
-      
-          // MB2
-          DetId id = DTChamberId(0,2,0);
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
-      
-          const BoundSurface* sur = &(detLayer->surface());
-          const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
-
-          radius = fabs(bc->radius()/sin(theta));
-
-          LogTrace(metname) << "radius "<<radius;
-
-          if ( pt < 3.5 ) pt = 3.5;
-        }
-        else { 
-          LogTrace(metname) << "The seed is in the endcap";
-      
-          DetId id;
-          // ME2
-          if ( theta < Geom::pi()/2. )
-            id = CSCDetId(1,2,0,0,0); 
-          else
-            id = CSCDetId(2,2,0,0,0); 
-      
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
-
-          radius = fabs(detLayer->position().z()/cos(theta));      
-      
-          if( pt < 1.0) pt = 1.0;
-        }
-        
-        vec.setMag(radius);
-    
-        GlobalPoint pos(vec.x(),vec.y(),vec.z());
-      
-        GlobalVector mom(pt*cos(phi), pt*sin(phi), pt*cos(theta)/sin(theta));
-
-        GlobalTrajectoryParameters param(pos,mom,charge,&*theService->magneticField());
-        AlgebraicSymMatrix55 mat;
-    
-        mat[0][0] = (0.25/pt)*(0.25/pt);  // sigma^2(charge/abs_momentum)
-        if ( !barrel ) mat[0][0] = (0.4/pt)*(0.4/pt);
-
-        //Assign q/pt = 0 +- 1/pt if charge has been declared invalid
-        if (!valid_charge) mat[0][0] = (1./pt)*(1./pt);
-    
-        mat[1][1] = 0.05*0.05;        // sigma^2(lambda)
-        mat[2][2] = 0.2*0.2;          // sigma^2(phi)
-        mat[3][3] = 20.*20.;          // sigma^2(x_transverse))
-        mat[4][4] = 20.*20.;          // sigma^2(y_transverse))
-    
-        CurvilinearTrajectoryError error(mat);
-
-        const FreeTrajectoryState state(param,error);
-   
-        LogTrace(metname) << "Free trajectory State from the parameters";
-        LogTrace(metname) << debug.dumpFTS(state);
-
-        // Propagate the state on the MB2/ME2 surface
-        TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
-   
-        LogTrace(metname) << "State after the propagation on the layer";
-        LogTrace(metname) << debug.dumpLayer(detLayer);
-        LogTrace(metname) << debug.dumpFTS(state);
-
-        if (tsos.isValid()) {
-          // Get the compatible dets on the layer
-          std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
-        detsWithStates = detLayer->compatibleDets(tsos, 
-                              *theService->propagator(thePropagatorName), 
-                              *theEstimator);   
-          if (detsWithStates.size()){
-
-            TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
-            const GeomDet *newTSOSDet = detsWithStates.front().first;
-    
-            LogTrace(metname) << "Most compatible det";
-            LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-            LogDebug(metname) << "L1 info: Det and State:";
-            LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-            if (newTSOS.isValid()){
-
-              //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
-              //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
-              LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
-                                << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
-              LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
-                                << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
-
-              //LogDebug(metname) << "State on it";
-              //LogDebug(metname) << debug.dumpTSOS(newTSOS);
-
-               //PTrajectoryStateOnDet seedTSOS;
-              edm::OwnVector<TrackingRecHit> container;
+      unsigned int quality = it->hwQual();
+      int valid_charge = it->hwChargeValid();
   
-              if(useOfflineSeed) {
-                const TrajectorySeed *assoOffseed = 
-                  associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
+      float pt    =  it->pt();
+      float eta   =  it->eta();
+      float theta =  2*atan(exp(-eta));
+      float phi   =  it->phi();      
+      int charge  =  it->charge();
+      // Set charge=0 for the time being if the valid charge bit is zero
+      if (!valid_charge) charge = 0;
 
-                if(assoOffseed!=0) {
-                  PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
-                  TrajectorySeed::const_iterator 
-                    tsci  = assoOffseed->recHits().first,
-                    tscie = assoOffseed->recHits().second;
-                  for(; tsci!=tscie; ++tsci) {
-                    container.push_back(*tsci);
-                  }
-                  output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-                                    MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+      bool barrel = fabs(eta) < 1.04 ? true : false; // FIXME: to be updated once we have definition from L1  
 
+      if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
+  
+      LogTrace(metname) << "New L2 Muon Seed" ;
+      LogTrace(metname) << "Pt = "         << pt     << " GeV/c";
+      LogTrace(metname) << "eta = "        << eta; 
+      LogTrace(metname) << "theta = "      << theta  << " rad";
+      LogTrace(metname) << "phi = "        << phi    << " rad";
+      LogTrace(metname) << "charge = "     << charge;
+      LogTrace(metname) << "In Barrel? = " << barrel;
+  
+      if ( quality <= theL1MinQuality ) continue;
+      LogTrace(metname) << "quality = "<< quality; 
+  
+      // Update the services
+      theService->update(iSetup);
+
+      const DetLayer *detLayer = 0;
+      float radius = 0.;
+
+      CLHEP::Hep3Vector vec(0.,1.,0.);
+      vec.setTheta(theta);
+      vec.setPhi(phi);
+  
+      // Get the det layer on which the state should be put
+      if ( barrel ){
+        LogTrace(metname) << "The seed is in the barrel";
+    
+        // MB2
+        DetId id = DTChamberId(0,2,0);
+        detLayer = theService->detLayerGeometry()->idToLayer(id);
+        LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+    
+        const BoundSurface* sur = &(detLayer->surface());
+        const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
+
+        radius = fabs(bc->radius()/sin(theta));
+
+        LogTrace(metname) << "radius "<<radius;
+
+        if ( pt < 3.5 ) pt = 3.5;
+      }
+      else { 
+        LogTrace(metname) << "The seed is in the endcap";
+    
+        DetId id;
+        // ME2
+        if ( theta < Geom::pi()/2. )
+          id = CSCDetId(1,2,0,0,0); 
+        else
+          id = CSCDetId(2,2,0,0,0); 
+    
+        detLayer = theService->detLayerGeometry()->idToLayer(id);
+        LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+
+        radius = fabs(detLayer->position().z()/cos(theta));      
+    
+        if( pt < 1.0) pt = 1.0;
+      }
+      
+      vec.setMag(radius);
+  
+      GlobalPoint pos(vec.x(),vec.y(),vec.z());
+    
+      GlobalVector mom(pt*cos(phi), pt*sin(phi), pt*cos(theta)/sin(theta));
+
+      GlobalTrajectoryParameters param(pos,mom,charge,&*theService->magneticField());
+      AlgebraicSymMatrix55 mat;
+  
+      mat[0][0] = (0.25/pt)*(0.25/pt);  // sigma^2(charge/abs_momentum)
+      if ( !barrel ) mat[0][0] = (0.4/pt)*(0.4/pt);
+
+      //Assign q/pt = 0 +- 1/pt if charge has been declared invalid
+      if (!valid_charge) mat[0][0] = (1./pt)*(1./pt);
+  
+      mat[1][1] = 0.05*0.05;        // sigma^2(lambda)
+      mat[2][2] = 0.2*0.2;          // sigma^2(phi)
+      mat[3][3] = 20.*20.;          // sigma^2(x_transverse))
+      mat[4][4] = 20.*20.;          // sigma^2(y_transverse))
+  
+      CurvilinearTrajectoryError error(mat);
+
+      const FreeTrajectoryState state(param,error);
+ 
+      LogTrace(metname) << "Free trajectory State from the parameters";
+      LogTrace(metname) << debug.dumpFTS(state);
+
+      // Propagate the state on the MB2/ME2 surface
+      TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
+ 
+      LogTrace(metname) << "State after the propagation on the layer";
+      LogTrace(metname) << debug.dumpLayer(detLayer);
+      LogTrace(metname) << debug.dumpFTS(state);
+
+      if (tsos.isValid()) {
+        // Get the compatible dets on the layer
+        std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
+      detsWithStates = detLayer->compatibleDets(tsos, 
+                            *theService->propagator(thePropagatorName), 
+                            *theEstimator);   
+        if (detsWithStates.size()){
+
+          TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+          const GeomDet *newTSOSDet = detsWithStates.front().first;
+  
+          LogTrace(metname) << "Most compatible det";
+          LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+
+          LogDebug(metname) << "L1 info: Det and State:";
+          LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+
+          if (newTSOS.isValid()){
+
+            //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
+            //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
+            LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
+                              << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
+            LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
+                              << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
+
+            //LogDebug(metname) << "State on it";
+            //LogDebug(metname) << debug.dumpTSOS(newTSOS);
+
+             //PTrajectoryStateOnDet seedTSOS;
+            edm::OwnVector<TrackingRecHit> container;
+
+            if(useOfflineSeed) {
+              const TrajectorySeed *assoOffseed = 
+                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
+
+              if(assoOffseed!=0) {
+                PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
+                TrajectorySeed::const_iterator 
+                  tsci  = assoOffseed->recHits().first,
+                  tscie = assoOffseed->recHits().second;
+                for(; tsci!=tscie; ++tsci) {
+                  container.push_back(*tsci);
                 }
-                else {
-                  if(useUnassociatedL1) {
-                    // convert the TSOS into a PTSOD
-                    PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
-                    output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-                                      MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-                  }
-                } 
-              }  
-              else {
-                // convert the TSOS into a PTSOD
-                PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
                 output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
                                   MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+
               }
-        
+              else {
+                if(useUnassociatedL1) {
+                  // convert the TSOS into a PTSOD
+                  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+                  output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                                    MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+                }
+              } 
+            }  
+            else {
+              // convert the TSOS into a PTSOD
+              PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+              output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                                MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
             }
+      
           }
         }
       }
-  
     }
-  } else {
-    edm::LogWarning("MissingProduct") << "L1Upgrade muon bx collection not found." << std::endl;
+
   }
   
   
