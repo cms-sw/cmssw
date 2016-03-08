@@ -39,7 +39,7 @@ void usage(std::ostream & out) {
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
                [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-d|--debug] [-v|--verbose] [-h|--help]\n\
+               [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
@@ -67,6 +67,10 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
   -j|--json-output OUTPUT_FILE.JSON\n\
       produce comparison results in a JSON format and store it to the specified file\n\
       default filename: 'hltDiff_output.json'\n\
+\n\
+  -f|--file-check\n\
+      check existence of every old and new file before running the comparison\n\
+      safer if files are run for the first time, but can cause a substantial delay\n\
 \n\
   -d|--debug\n\
       display messages about missing events and collectiions\n\
@@ -805,19 +809,19 @@ bool check_files(std::vector<std::string> const & files) {
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
              unsigned int max_events, bool ignore_prescales, std::string const & json_out,
-             unsigned int verbose, bool debug) {
+             bool file_check, unsigned int verbose, bool debug) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
 
-  if (check_files(old_files))
+  if (not file_check or check_files(old_files))
     old_events = std::make_shared<fwlite::ChainEvent>(old_files);
   else
     return;
 
   if (new_files.size() == 1 and new_files[0] == "-")
     new_events = old_events;
-  else if (check_files(new_files))
+  else if (not file_check or check_files(new_files))
     new_events = std::make_shared<fwlite::ChainEvent>(new_files);
   else
     return;
@@ -854,7 +858,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
     // printing progress on every 10%
     if (counter%(nEvents/10) == 0) {
-      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 100*counter/nEvents);
+      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, counter/(nEvents/10));
     }
 
     // seek the same event in the "new" files
@@ -1057,9 +1061,10 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "do:O:n:N:m:pj::v::h";
+  const char optstring[] = "dfo:O:n:N:m:pj::v::h";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
+    option{ "file-check",   no_argument,        nullptr, 'f' },
     option{ "old-files",    required_argument,  nullptr, 'o' },
     option{ "old-process",  required_argument,  nullptr, 'O' },
     option{ "new-files",    required_argument,  nullptr, 'n' },
@@ -1079,6 +1084,7 @@ int main(int argc, char ** argv) {
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
   std::string               json_out("");
+  bool                      file_check = false;
   bool                      debug = false;
   unsigned int              verbose = 0;
 
@@ -1088,6 +1094,10 @@ int main(int argc, char ** argv) {
     switch (c) {
       case 'd':
         debug = true;
+        break;
+
+      case 'f':
+        file_check = true;
         break;
 
       case 'o':
@@ -1170,7 +1180,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, verbose, debug);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, file_check, verbose, debug);
 
   return 0;
 }
