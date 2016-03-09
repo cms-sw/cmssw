@@ -80,39 +80,43 @@ def addHIIsolationProducer(process):
     # modify cluster limits to run pp reconstruction on peripheral PbPb
 def modifyClusterLimits(process):
 
-    process.initialStepSeedsPreSplitting.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.initialStepSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.lowPtTripletStepSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.globalSeedsFromTriplets.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.detachedTripletStepSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.mixedTripletStepSeedsA.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.mixedTripletStepSeedsB.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.globalMixedSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.pixelLessStepSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.globalPixelLessSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.globalPixelSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.pixelPairStepSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.globalSeedsFromPairsWithVertices.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.tobTecStepSeedsPair.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.tobTecStepSeedsTripl.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.pixelPairElectronSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.regionalCosmicTrackerSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.stripPairElectronSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.photonConvTrajSeedFromQuadruplets.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-    process.tripletElectronSeeds.ClusterCheckPSet.cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+    hiClusterCut = cms.string("strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+
+    process.initialStepSeedsPreSplitting.ClusterCheckPSet.cut = hiClusterCut
+    process.initialStepSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.lowPtTripletStepSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.globalSeedsFromTriplets.ClusterCheckPSet.cut = hiClusterCut
+    process.detachedTripletStepSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.mixedTripletStepSeedsA.ClusterCheckPSet.cut = hiClusterCut
+    process.mixedTripletStepSeedsB.ClusterCheckPSet.cut = hiClusterCut
+    process.globalMixedSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.pixelLessStepSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.globalPixelLessSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.globalPixelSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.pixelPairStepSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.globalSeedsFromPairsWithVertices.ClusterCheckPSet.cut = hiClusterCut
+    process.tobTecStepSeedsPair.ClusterCheckPSet.cut = hiClusterCut
+    process.tobTecStepSeedsTripl.ClusterCheckPSet.cut = hiClusterCut
+    process.pixelPairElectronSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.regionalCosmicTrackerSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.stripPairElectronSeeds.ClusterCheckPSet.cut = hiClusterCut
+    process.photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.cut = hiClusterCut
+    process.photonConvTrajSeedFromQuadruplets.ClusterCheckPSet.cut = hiClusterCut
+    process.tripletElectronSeeds.ClusterCheckPSet.cut = hiClusterCut
+
+    maxElement = cms.uint32(1000000)
     
-    process.initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-    process.tobTecStepSeedsPair.OrderedHitsFactoryPSet.maxElement = cms.uint32(1000000)
-    process.pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(1000000)
-    process.jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(1000000)
+    process.initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = maxElement
+    process.tobTecStepSeedsPair.OrderedHitsFactoryPSet.maxElement = maxElement
+    process.pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement = maxElement
+    process.jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.maxElement = maxElement
 
     return process
 
