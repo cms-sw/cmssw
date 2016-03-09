@@ -56,7 +56,10 @@ namespace edm {
     ProductStatus status() const { return theStatus_;}
     ProductStatus defaultStatus() const { return defaultStatus_; }
     void setFailedStatus() const { theStatus_ = ProductStatus::ResolveFailed; }
-    
+    //Handle the boilerplate code needed for resolveProduct_
+    template <bool callResolver, typename FUNC>
+    ProductData const* resolveProductImpl( FUNC resolver, ResolveStatus& resolveStatus) const;
+
     
   private:
     virtual void swap_(ProductHolderBase& rhs) override {

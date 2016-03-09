@@ -42,20 +42,19 @@ namespace {
 }
 
 namespace edm {
-
+  
+  //This is a templated function in order to avoid calling another virtual function
+  template <bool callResolver, typename FUNC>
   ProductData const*
-  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
-                                      Principal const& principal,
-                                      bool,
-                                      SharedResourcesAcquirer* ,
-                                      ModuleCallingContext const* mcc) const {
+  DataManagingProductHolder::resolveProductImpl(FUNC resolver, ResolveStatus& resolveStatus) const {
+    
     if(productWasDeleted()) {
       throwProductDeletedException();
     }
     auto presentStatus = status();
     
-    if(presentStatus == ProductStatus::ResolveNotRun) {
-      //if readFromSource fails becuase of exception or not setting product
+    if(callResolver && presentStatus == ProductStatus::ResolveNotRun) {
+      //if resolver fails because of exception or not setting product
       // make sure the status goes to failed
       auto failedStatusSetter = [this](ProductStatus* presentStatus) {
         if(this->status() == ProductStatus::ResolveNotRun) {
@@ -64,8 +63,11 @@ namespace edm {
         *presentStatus = this->status();
       };
       std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus, failedStatusSetter);
-      principal.readFromSource(*this, mcc);
+
+      //If successful, this will call setProduct
+      resolver();
     }
+    
     
     if (presentStatus == ProductStatus::ProductSet) {
       auto pd = &getProductData();
@@ -79,6 +81,19 @@ namespace edm {
     return nullptr;
   }
 
+
+  ProductData const*
+  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                      Principal const& principal,
+                                      bool,
+                                      SharedResourcesAcquirer* ,
+                                      ModuleCallingContext const* mcc) const {
+    return resolveProductImpl<true>([this,&principal,mcc]() {
+                                return principal.readFromSource(*this, mcc); }
+                              ,resolveStatus);
+                              
+  }
+
   ProductData const*
   PuttableProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
                                           Principal const&,
@@ -86,16 +101,8 @@ namespace edm {
                                           SharedResourcesAcquirer*,
                                           ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
-      if(productWasDeleted()) {
-        throwProductDeletedException();
-      }
-      if(status() == ProductStatus::ProductSet) {
-        auto pd = &getProductData();
-        if(pd->wrapper()->isPresent()) {
-          resolveStatus = ProductFound;
-          return pd;
-        }
-      }
+      //'false' means never call the lambda function
+      return resolveProductImpl<false>([](){return;}, resolveStatus);
     }
     resolveStatus = ProductNotFound;
     return nullptr;
@@ -108,33 +115,9 @@ namespace edm {
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
     if (!skipCurrentProcess) {
-      if(productWasDeleted()) {
-        throwProductDeletedException();
-      }
-      auto presentStatus = status();
-
-      if(presentStatus == ProductStatus::ResolveNotRun) {
-        
-        //if readFromSource fails becuase of exception or not setting product
-        // make sure the status goes to failed
-        auto failedStatusSetter = [this](ProductStatus* presentStatus) {
-          if(this->status() == ProductStatus::ResolveNotRun) {
-            this->setFailedStatus();
-          }
-          *presentStatus = this->status();
-        };
-        
-        std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus, failedStatusSetter);
-
-        principal.unscheduledFill(moduleLabel(), sra, mcc);
-      }
-      
-      auto pd = &getProductData();
-      if(presentStatus == ProductStatus::ProductSet && pd->wrapper()->isPresent()) {
-        resolveStatus = ProductFound;
-        return pd;
-      }
-
+      return resolveProductImpl<true>([&principal,this,sra,mcc]() {
+                                  principal.unscheduledFill(this->moduleLabel(), sra, mcc);},
+                                resolveStatus);
     }
     resolveStatus = ProductNotFound;
     return nullptr;
