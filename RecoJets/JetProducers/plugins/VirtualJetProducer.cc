@@ -965,11 +965,13 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       reco::CandidatePtr candPtr( constituentHandleAfterPut, *iconst, false );
       i_jetConstituents.push_back( candPtr );
     }
-    reco::Particle::Point point(0,0,0);
-    reco::PFJet jet;
-    reco::writeSpecific(jet,*ip4,point,i_jetConstituents,iSetup);
-    jet.setJetArea( area_Jets[ip4 - ip4Begin] );
-    jetCollection->push_back( jet );
+    if(i_jetConstituents.size()>0) { //only keep jets which have constituents after subtraction
+      reco::Particle::Point point(0,0,0);
+      reco::PFJet jet;
+      reco::writeSpecific(jet,*ip4,point,i_jetConstituents,iSetup);
+      jet.setJetArea( area_Jets[ip4 - ip4Begin] );
+      jetCollection->push_back( jet );
+    }
   }
 
   // put jets into event record
