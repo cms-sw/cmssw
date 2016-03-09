@@ -623,8 +623,8 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
   // loop jet collection
   std::vector<reco::Jet> correctedJets;
-  unsigned int mult = 0, multBEff = 0,
-               multBVtx = 0, multBCombVtx = 0,multNoBCombVtx = 0;
+  unsigned int mult = 0, 
+               multBCombVtx = 0,multNoBCombVtx = 0;
 
   edm::Handle<edm::View<reco::Jet>> jets;
   if (!event.getByToken(jets_, jets)) return;
@@ -755,9 +755,6 @@ void MonitorEnsemble::fill(const edm::Event& event,
   }
 
   fill("jetMult_", mult);
-  fill("jetMultBEff_", multBEff);
-  fill("jetmultBCombVtx_", multBCombVtx);
-  fill("jetMultBVtx_", multBVtx);
   fill("jetMultBCombVtx_", multBCombVtx);
 
   /*
