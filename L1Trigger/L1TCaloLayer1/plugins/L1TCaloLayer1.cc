@@ -87,7 +87,9 @@ private:
   std::vector< std::vector< double > > hfSF;
 
   bool useLSB;
-  bool useLUT;
+  bool useECALLUT;
+  bool useHCALLUT;
+  bool useHFLUT;
   bool verbose;
 
   UCTLayer1 *layer1;
@@ -116,6 +118,10 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   hfLUT(12, std::vector < uint32_t >(256)),
   hfSFETBins(iConfig.getParameter<std::vector< uint32_t > >("hfSFETBins")),
   hfSF(12, std::vector < double >(hfSFETBins.size())),
+  useLSB(iConfig.getParameter<bool>("useLSB")),
+  useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
+  useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
+  useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")) 
 {
   hfSF[ 0] = iConfig.getParameter<std::vector < double > >("hfSF30");
@@ -271,7 +277,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   if(!makeHFLUTs()) {
@@ -303,7 +309,7 @@ L1TCaloLayer1::makeHFLUTs() {
   uint32_t nETBins = hfSFETBins.size();
   for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
-      if(useLUT && nETBins != 0) {
+      if(useHFLUT && nETBins != 0) {
 	uint32_t etBin = 0;
 	for(; etBin < nETBins; etBin++) {
 	  if(etCode < hfSFETBins[etBin]) break;
