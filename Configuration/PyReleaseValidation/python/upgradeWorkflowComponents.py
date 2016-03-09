@@ -15,9 +15,9 @@ upgradeKeys=['2017',
 upgradeGeoms={ '2017' : 'Extended2017',
 	     '2023' : 'Extended2023',   
 	     '2023dev' : 'Extended2023dev', 
-	     '2023sim' : 'Extended2023',
-	     '2023LReco': 'Extended2023',
-	     '2023Reco' : 'Extended2023'
+	     '2023sim' : 'Extended2023sim',
+	     '2023LReco': 'Extended2023LReco',
+	     '2023Reco' : 'Extended2023Reco'
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_design',
@@ -36,6 +36,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
 		 
                  }
 upgradeEras={ '2017' : 'Run2_2017',
+	      '2023sim' : 'Run2_25ns',
+	      '2023dev' : 'Run2_25ns'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
@@ -105,7 +107,7 @@ upgradeScenToRun={
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023dev':['GenSimFull','DigiFull','RecoFull'],#dev scenario
+		   '2023dev':['GenSimFull'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull'],#local reco scneario
 		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
