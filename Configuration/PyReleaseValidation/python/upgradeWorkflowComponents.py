@@ -21,11 +21,11 @@ upgradeGeoms={ '2017' : 'Extended2017',
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_design',
-	     '2023' :  'auto_run2_mc',
-	     '2023dev' :  'auto_run2_mc',
-	     '2023sim' : 'auto_run2_mc',
-	     '2023LReco': 'auto_run2_mc',
-	     '2023Reco' : 'auto_run2_mc'	     	      
+	     '2023' :  'auto:run2_mc',
+	     '2023dev' :  'auto:run2_mc',
+	     '2023sim' : 'auto:run2_mc',
+	     '2023LReco': 'auto:run2_mc',
+	     '2023Reco' : 'auto:run2_mc'	     	      
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
  		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
