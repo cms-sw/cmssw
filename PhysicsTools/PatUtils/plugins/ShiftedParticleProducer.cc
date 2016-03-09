@@ -1,4 +1,5 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedParticleProducer.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 ShiftedParticleProducer::ShiftedParticleProducer(const edm::ParameterSet& cfg)
 {
@@ -44,7 +45,8 @@ ShiftedParticleProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     double shift = shiftBy_*uncertainty;
 
     reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
-    shiftedParticleP4 *= (1. + shift);
+    //leave 0*nan = 0
+    if (! (edm::isNotFinite(shift) && shiftedParticleP4.mag2()==0)) shiftedParticleP4 *= (1. + shift);
 
     std::auto_ptr<reco::Candidate> shiftedParticle( new reco::LeafCandidate( *originalParticle ) );
     shiftedParticle->setP4(shiftedParticleP4);

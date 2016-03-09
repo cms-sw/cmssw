@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -86,7 +87,8 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
       double shift = shiftBy_*uncertainty;
 
       reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
-      shiftedParticleP4 *= (1. + shift);
+      //leave 0*nan = 0 
+      if (! (edm::isNotFinite(shift) && shiftedParticleP4.mag2()==0)) shiftedParticleP4 *= (1. + shift);
 
       T shiftedParticle(*originalParticle);
       shiftedParticle.setP4(shiftedParticleP4);
