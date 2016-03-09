@@ -138,7 +138,7 @@ do
     fi
 
 #Temporary fix to remove hidden ASCII characters
-    GLOBALTAG=`echo $GLOBALTAG | cut -c 9-${#GLOBALTAG}`
+    GLOBALTAG=`echo $GLOBALTAG` #| cut -c 9-${#GLOBALTAG}`
 #    GLOBALTAG=`sed -i 's/[\d128-\d255]//g' <<< "${GLOBALTAG}"`
 #    GLOBALTAG=`echo $GLOBALTAG | sed 's/[\d128-\d255]//'`
 #    echo `expr length $GLOBALTAG`
