@@ -719,7 +719,7 @@ namespace edm {
       branchesWithStoredHistory_.insert(id);
 
       bool produced = item.branchDescription_->produced();
-      bool getProd = (produced || !fastCloning || treePointers_[InEvent]->uncloned(item.branchDescription_->branchName()));
+      bool getProd = (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
