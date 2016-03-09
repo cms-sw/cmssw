@@ -18,7 +18,7 @@ do
 
     if [ "$Run_numb" == "$1" ]; then continue; fi
 
-    #2016 - Commissioning period
+#2016 - Commissioning period                                                                                                                               
     if [ $Run_numb -gt 264200 ]; then
 
         DataLocalDir='Data2016'
@@ -27,7 +27,6 @@ do
 
     #Run2015A
     if [ $Run_numb -gt 246907 ]; then
-
         DataLocalDir='Data2015'
         DataOfflineDir='Run2015'
     else
@@ -167,17 +166,6 @@ do
     echo " Creating the list of bad modules "
     
     listbadmodule ${file_path}/$dqmFileName PCLBadComponents.log
-   if [ "$thisDataset" != "StreamExpress" ] ; then
-       sefile=QualityTest_run${Run_numb}.txt
-
-       if [ "$thisDataset" == "Cosmics" ]; then
-           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Cosmics/${nnn}/${Run_numb}/StreamExpressCosmics/${sefile}
-       else
-
-           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Beam/${nnn}/${Run_numb}/StreamExpress/${sefile}
-
-       fi
-   fi
 
 #    mv QualityTest*txt $Run_numb/$thisDataset
 
@@ -217,7 +205,9 @@ do
 # dest=FinalTest
 
 ## create merged list of BadComponent from (PCL, RunInfo and FED Errors)
+
     cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/mergeBadChannel_Template_cfg.py globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName
+
     mv MergedBadComponents.log MergedBadComponents_run${Run_numb}.txt
 
     rm -f *.xml
