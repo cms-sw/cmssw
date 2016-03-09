@@ -30,15 +30,17 @@ namespace {
       std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
       std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
     }
-#else
-    void dep(double) {}
-    void str(double) {}
-    void val(double) {}
-    void zero() {}    
-#endif
   };
-  
  Count count;
+#else
+    void dep(double) const {}
+    void str(double) const {}
+    void val(double) const {}
+    void zero() const {}    
+ };
+ const Count count;
+#endif
+  
 }
 
 
