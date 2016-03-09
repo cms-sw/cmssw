@@ -51,7 +51,6 @@ namespace edm {
     virtual void resetProductData_(bool deleteEarly) override final;
 
   protected:
-    ProductData const& getProductData() const {return productData_;}
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_;}
     ProductStatus defaultStatus() const { return defaultStatus_; }
@@ -59,7 +58,6 @@ namespace edm {
     //Handle the boilerplate code needed for resolveProduct_
     template <bool callResolver, typename FUNC>
     ProductData const* resolveProductImpl( FUNC resolver, ResolveStatus& resolveStatus) const;
-
     
   private:
     virtual void swap_(ProductHolderBase& rhs) override {
@@ -71,6 +69,8 @@ namespace edm {
     virtual void checkType_(WrapperBase const& prod) const override {
       reallyCheckType(prod);
     }
+    ProductData const& getProductData() const {return productData_;}
+    virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override final;
     virtual bool productUnavailable_() const override final;
     virtual bool productResolved_() const override final;
     virtual bool productWasDeleted_() const override final;
@@ -102,7 +102,6 @@ namespace edm {
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
       virtual bool unscheduledWasNotRun_() const override final {return false;}
 
@@ -119,7 +118,6 @@ namespace edm {
 
     private:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
   };
 

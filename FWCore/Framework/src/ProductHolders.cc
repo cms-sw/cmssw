@@ -9,38 +9,6 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <cassert>
-namespace {
-  void
-  mergeTheProduct(std::unique_ptr<edm::WrapperBase> iFrom,
-                  edm::WrapperBase& ioTo,
-                  edm::BranchDescription const& iBranchDescription) {
-    if(ioTo.isMergeable()) {
-      ioTo.mergeProduct(iFrom.get());
-    } else if(ioTo.hasIsProductEqual()) {
-      if(!ioTo.isProductEqual(iFrom.get())) {
-        edm::LogError("RunLumiMerging")
-        << "ProductHolder::mergeTheProduct\n"
-        << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-        << "Using the first, ignoring the second\n"
-        << "className = " << iBranchDescription.className() << "\n"
-        << "moduleLabel = " << iBranchDescription.moduleLabel() << "\n"
-        << "instance = " << iBranchDescription.productInstanceName() << "\n"
-        << "process = " << iBranchDescription.processName() << "\n";
-      }
-    } else {
-      edm::LogWarning("RunLumiMerging")
-      << "ProductHolder::mergeTheProduct\n"
-      << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
-      << "Using the first, ignoring the second in merge\n"
-      << "className = " << iBranchDescription.className() << "\n"
-      << "moduleLabel = " << iBranchDescription.moduleLabel() << "\n"
-      << "instance = " << iBranchDescription.productInstanceName() << "\n"
-      << "process = " << iBranchDescription.processName() << "\n";
-    }
-  }
-
-}
-
 namespace edm {
   
   //This is a templated function in order to avoid calling another virtual function
@@ -81,6 +49,38 @@ namespace edm {
     return nullptr;
   }
 
+  void
+  DataManagingProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> iFrom) const {
+    assert(status() == ProductStatus::ProductSet);
+    
+    auto original =getProductData().unsafe_wrapper();
+    if(original->isMergeable()) {
+      original->mergeProduct(iFrom.get());
+    } else if(original->hasIsProductEqual()) {
+      if(!original->isProductEqual(iFrom.get())) {
+        auto const& bd = branchDescription();
+        edm::LogError("RunLumiMerging")
+        << "ProductHolder::mergeTheProduct\n"
+        << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+        << "Using the first, ignoring the second\n"
+        << "className = " << bd.className() << "\n"
+        << "moduleLabel = " << bd.moduleLabel() << "\n"
+        << "instance = " << bd.productInstanceName() << "\n"
+        << "process = " << bd.processName() << "\n";
+      }
+    } else {
+      auto const& bd = branchDescription();
+      edm::LogWarning("RunLumiMerging")
+      << "ProductHolder::mergeTheProduct\n"
+      << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
+      << "Using the first, ignoring the second in merge\n"
+      << "className = " << bd.className() << "\n"
+      << "moduleLabel = " << bd.moduleLabel() << "\n"
+      << "instance = " << bd.productInstanceName() << "\n"
+      << "process = " << bd.processName() << "\n";
+    }
+  }
+  
 
   ProductData const*
   InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
@@ -129,12 +129,6 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
-    assert(status() == ProductStatus::ProductSet);
-    mergeTheProduct(std::move(edp), *(getProductData().unsafe_wrapper()),branchDescription());
-  }
-
-  void
   ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     if(status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
@@ -143,12 +137,6 @@ namespace edm {
     assert(edp.get() != nullptr);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
-  }
-
-  void
-  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
-    assert(status() == ProductStatus::ProductSet);
-    mergeTheProduct(std::move(edp), *(getProductData().unsafe_wrapper()),branchDescription());
   }
 
   bool
