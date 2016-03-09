@@ -742,9 +742,10 @@ namespace edm {
           dummies.emplace_back(std::move(dummy));
         }
         item.product_ = product;
-      } else if (keepProvenance) {
+      }
+      if (keepProvenance && productProvenance == nullptr) {
         productProvenance = provRetriever->branchIDToProvenance(id);
-      } 
+      }
       if(productProvenance) {
         insertProductProvenance(*productProvenance,provenanceToKeep);
         insertAncestors(*productProvenance, provRetriever, produced, producedBranches, provenanceToKeep);
