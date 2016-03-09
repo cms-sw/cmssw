@@ -161,17 +161,6 @@ namespace edm {
     setProduct(std::move(edp));
   }
 
-  // This routine returns true if it is known that currently there is no real product.
-  // If there is a real product, it returns false.
-  // If it is not known if there is a real product, it returns false.
-  bool
-  InputProductHolder::productUnavailable_() const {
-    // If there is a product, we know if it is real or a dummy.
-    if(status() == ProductStatus::ProductSet) {
-      return !(getProductData().wrapper()->isPresent());
-    }
-    return false;
-  }
   
   void
   DataManagingProductHolder::connectTo(ProductHolderBase const& iOther, Principal const*) {
@@ -193,11 +182,11 @@ namespace edm {
   // If it is not known if there is a real product, it returns false.
   bool
   DataManagingProductHolder::productUnavailable_() const {
-    // If unscheduled production, the product is potentially available.
-    if(onDemandWasNotRun()) return false;
-    // The product is available if and only if a product has been put.
-    bool unavailable = !((status() == ProductStatus::ProductSet) && getProductData().wrapper()->isPresent());
-    return unavailable;
+    auto presentStatus = status();
+    if(presentStatus == ProductStatus::ProductSet) {
+      return !(getProductData().wrapper()->isPresent());
+    }
+    return presentStatus != ProductStatus::ResolveNotRun;
   }
     
   bool
@@ -334,9 +323,9 @@ namespace edm {
     return false;
   }
 
-  bool NoProcessProductHolder::onDemandWasNotRun_() const {
+  bool NoProcessProductHolder::unscheduledWasNotRun_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::onDemandWasNotRun_() not implemented and should never be called.\n"
+      << "NoProcessProductHolder::unscheduledWasNotRun_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

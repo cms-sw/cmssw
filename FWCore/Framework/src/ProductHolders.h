@@ -71,7 +71,7 @@ namespace edm {
     virtual void checkType_(WrapperBase const& prod) const override {
       reallyCheckType(prod);
     }
-    virtual bool productUnavailable_() const override ;
+    virtual bool productUnavailable_() const override final;
     virtual bool productResolved_() const override final;
     virtual bool productWasDeleted_() const override final;
     virtual BranchDescription const& branchDescription_() const override final {return *getProductData().branchDescription();}
@@ -104,8 +104,7 @@ namespace edm {
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual bool onDemandWasNotRun_() const override final {return false;}
-      virtual bool productUnavailable_() const override;
+      virtual bool unscheduledWasNotRun_() const override final {return false;}
 
   };
 
@@ -134,7 +133,7 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const override;
-    virtual bool onDemandWasNotRun_() const override {return false;}
+    virtual bool unscheduledWasNotRun_() const override {return false;}
   };
   
   class UnscheduledProductHolder : public ProducedProductHolder {
@@ -147,7 +146,7 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual bool onDemandWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
+      virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
   };
 
   // Free swap function
@@ -175,7 +174,7 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
-      virtual bool onDemandWasNotRun_() const override {return realProduct_.onDemandWasNotRun();}
+      virtual bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
       virtual bool productResolved_() const override final {
           return realProduct_.productResolved(); }
@@ -226,7 +225,7 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(resolveStatus, *parentPrincipal_, skipCurrentProcess, sra, mcc);}
-    virtual bool onDemandWasNotRun_() const override {return realProduct_->onDemandWasNotRun();}
+    virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
@@ -272,7 +271,7 @@ namespace edm {
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void swap_(ProductHolderBase& rhs) override;
-      virtual bool onDemandWasNotRun_() const override;
+      virtual bool unscheduledWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
       virtual bool productResolved_() const override final;

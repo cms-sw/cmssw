@@ -279,7 +279,7 @@ namespace edm {
     }
     // Check for case where we tried on demand production and
     // it failed to produce the object
-    if(phb->onDemandWasNotRun()) {
+    if(phb->unscheduledWasNotRun()) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
         *whyFailed
