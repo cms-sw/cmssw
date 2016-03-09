@@ -140,9 +140,7 @@ namespace edm {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
-    assert(branchDescription().produced());
     assert(edp.get() != nullptr);
-    assert(status() != ProductStatus::ProductSet);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
   }

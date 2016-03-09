@@ -116,7 +116,7 @@ namespace edm {
 
   class ProducedProductHolder : public DataManagingProductHolder {
     public:
-      ProducedProductHolder(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductHolder(bd, iDefaultStatus) {}
+      ProducedProductHolder(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductHolder(bd, iDefaultStatus) {assert(bd->produced());}
 
     private:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
