@@ -169,7 +169,13 @@ class PFCandidateAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement* > occupancyPFCand_puppiNolepWeight_,ptPFCand_puppiNolepWeight_;
   std::vector<std::string> occupancyPFCand_name_puppiNolepWeight_,ptPFCand_name_puppiNolepWeight_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_;
-  std::vector<int> typePFCand_, countsPFCand_, etaNBinsPFCand_;
+  std::vector<int> typePFCand_, countsPFCand_;
+
+  //PFcandidate maps
+  std::vector<MonitorElement* >occupancyPFCandRECO_,ptPFCandRECO_,multiplicityPFCandRECO_;
+  std::vector<std::string> occupancyPFCand_nameRECO_,ptPFCand_nameRECO_,multiplicityPFCand_nameRECO_;
+  std::vector<double> etaMinPFCandRECO_, etaMaxPFCandRECO_;
+  std::vector<int> typePFCandRECO_, countsPFCandRECO_;
 
   int numPV_;
   int    verbose_;
