@@ -53,6 +53,7 @@ process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
 process.stage2UnpackPath = cms.Path(process.caloStage2Digis +
+                                    process.l1tCaloLayer1Digis +
                                     process.gmtStage2Digis +
                                     process.emtfStage2Digis
                                     )
@@ -65,7 +66,6 @@ process.dqmEndPath = cms.EndPath(
                                  process.dqmEnv *
                                  process.dqmSaver
                                  )
-
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.stage2UnpackPath,
                                 process.l1tMonitorPath,
