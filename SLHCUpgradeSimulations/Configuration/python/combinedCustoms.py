@@ -22,6 +22,18 @@ def cust_2017(process):
     #process=customise_HcalPhase0(process)
     return process
 
+
+def cust_2023sim(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    return process
+
+def cust_2023dev(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    return process
+
+
+
+######Below are the customized used for SLHC releases 
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
