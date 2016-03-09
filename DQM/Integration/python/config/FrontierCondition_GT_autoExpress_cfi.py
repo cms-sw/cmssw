@@ -99,6 +99,9 @@ class Tier0DasInterface:
         #FIXME try
         resultList = json['result']
 
+        if 'null' in resultList[0]:
+            resultList[0] = resultList[0].replace('null','None')
+
         #print self.getValues(json, 'result')
         return resultList
 
