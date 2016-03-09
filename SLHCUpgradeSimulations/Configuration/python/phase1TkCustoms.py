@@ -342,7 +342,7 @@ def customise_Reco(process,pileup):
     # Need this line to stop error about missing siPixelDigis.
     process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
-    if not eras.trackingPhase1.isChosen():
+    if not eras.phase1Pixel.isChosen():
         # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
         process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                             'BPix2+BPix3+BPix4',
