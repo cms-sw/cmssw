@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -131,6 +133,10 @@ private:
 
         int  statCollectionFromMode(const char* tag) const;
         void bookDQMHistos(const char* dqm_dir, const char* tag);
+
+        bool isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const;
+        void swapBFieldMode(void);
+
 	void merge(TH2* A, TH2* B); //needed to add histograms with different number of bins
 	void algoAnalyzeTheTree();
 	void algoComputeMPVandGain();
@@ -154,6 +160,7 @@ private:
 
 	TFileService *tfs;
 	DQMStore* dbe;
+        double       MagFieldCurrentTh;
 	double       MinNrEntries;
 	double       MaxMPVError;
 	double       MaxChi2OverNDF;
@@ -185,8 +192,7 @@ private:
 	std::string  OutputGains;
 	vector<string> VInputFiles;
 
-        enum statistic_type {None=-1, AllBunch, AllBunch0T, IsoBunch, IsoBunch0T, HLTAllBunch, HLTAllBunch0T, HLTIsoBunch,
-                             HLTIsoBunch0T, HTALLBunch, HTTAllBunch0T, HTTIsoBunch, HTTIsoBunch0T, Harvest};
+        enum statistic_type {None=-1, StdBunch, StdBunch0T, FaABunch, FaABunch0T, IsoBunch, IsoBunch0T, Harvest};
 
         std::vector<string>    dqm_tag_;
 
@@ -272,7 +278,7 @@ SiStripGainFromCalibTree::statCollectionFromMode(const char* tag) const
         it++;
     }
 
-    if (std::string(tag)=="") return 0;  // return AllBunch calibration mode for backward compatibility
+    if (std::string(tag)=="") return 0;  // return StdBunch calibration mode for backward compatibility
 
     return None;
 }
@@ -295,6 +301,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 	OutputGains             = iConfig.getParameter<std::string>("OutputGains");
 
 	AlgoMode                = iConfig.getUntrackedParameter<std::string>("AlgoMode", "CalibTree");
+        MagFieldCurrentTh       = iConfig.getUntrackedParameter<double>  ("MagFieldCurrentTh"    ,  2000.);
 	MinNrEntries            = iConfig.getUntrackedParameter<double>  ("minNrEntries"         ,  20);
 	MaxMPVError             = iConfig.getUntrackedParameter<double>  ("maxMPVError"          ,  500.0);
 	MaxChi2OverNDF          = iConfig.getUntrackedParameter<double>  ("maxChi2OverNDF"       ,  5.0);
@@ -318,7 +325,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 	useCalibration          = iConfig.getUntrackedParameter<bool>    ("UseCalibration"     , false);
         m_harvestingMode        = iConfig.getUntrackedParameter<bool>    ("harvestingMode"     , false);
         m_splitDQMstat          = iConfig.getUntrackedParameter<bool>    ("splitDQMstat"       , false);
-        m_calibrationMode       = iConfig.getUntrackedParameter<string>  ("calibrationMode"    , "AllBunch");
+        m_calibrationMode       = iConfig.getUntrackedParameter<string>  ("calibrationMode"    , "StdBunch");
 	m_calibrationPath       = iConfig.getUntrackedParameter<string>  ("calibrationPath");
 
 	tagCondition_NClusters  = iConfig.getUntrackedParameter<double>  ("NClustersForTagProd"     , 2E8);
@@ -333,19 +340,13 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
         //Set the monitoring element tag and store
         dqm_tag_.clear();
-        dqm_tag_.push_back( "AllBunch" );      // statistic collection  == AllBunch
-        dqm_tag_.push_back( "AllBunch0T" );    // statistic collection  == AllBunch0T
-        dqm_tag_.push_back( "IsoBunch" );      // statistic collection  == FirstBunch
-        dqm_tag_.push_back( "IsoBunch0T" );    // statistic collection  == FirstBunch0T
-        dqm_tag_.push_back( "HLTAllBunch" );   // statistic collection  == HLTAllBunch
-        dqm_tag_.push_back( "HLTAllBunch0T" ); // statistic collection  == HLTAllBunch0T
-        dqm_tag_.push_back( "HLTIsoBunch" );   // statistic collection  == HLTFirstBunch
-        dqm_tag_.push_back( "HLTIsoBunch0T" ); // statistic collection  == HLTFirstBunch0T
-        dqm_tag_.push_back( "HTTAllBunch" );   // statistic collection  == HTTAllBunch
-        dqm_tag_.push_back( "HTTAllBunch0T" ); // statistic collection  == HTTAllBunch0T
-        dqm_tag_.push_back( "HTTIsoBunch" );   // statistic collection  == HTTFirstBunch
-        dqm_tag_.push_back( "HTTIsoBunch0T" ); // statistic collection  == HTTFirstBunch0T
-        dqm_tag_.push_back( "Harvest" );       // statistic collection  == Harvest
+        dqm_tag_.push_back( "StdBunch" );      // statistic collection from Standard Collision Bunch @ 3.8 T
+        dqm_tag_.push_back( "StdBunch0T" );    // statistic collection from Standard Collision Bunch @ 0 T
+        dqm_tag_.push_back( "FaABunch" );      // statistic collection from First Collision After Abort Gap @ 3.8 T
+        dqm_tag_.push_back( "FaABunch0T" );    // statistic collection from First Collision After Abort Gap @ 0 T
+        dqm_tag_.push_back( "IsoBunch" );      // statistic collection from Isolated Bunch Collision @ 3.8 T
+        dqm_tag_.push_back( "IsoBunch0T" );    // statistic collection from Isolated Bunch Collision @ 0 T
+        dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
 
         Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
         //Charge_Vs_Index_Absolute.insert( Charge_Vs_Index_Absolute.begin(), dqm_tag_.size(), 0);
@@ -425,7 +426,7 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     std::string cvpTECM1 = std::string("Charge_Vs_PathlengthTECM1") + stag;
     std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
 
-    int elepos = statCollectionFromMode(tag);
+    int elepos = (m_harvestingMode && AlgoMode=="PCL")? Harvest : statCollectionFromMode(tag);
 
     Charge_Vs_Index[elepos]           = dbe->book2D(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
     //Charge_Vs_Index_Absolute[elepos]  = dbe->book2D(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
@@ -447,11 +448,14 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
         //Setup DQM histograms
 	if(AlgoMode != "PCL" or m_harvestingMode) {
             const char * dqm_dir = "AlCaReco/SiStripGainsHarvesting/";
-            if (m_harvestingMode) this->bookDQMHistos( dqm_dir, dqm_tag_[Harvest].c_str() );
-            else this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+            this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+            //if (m_harvestingMode) this->bookDQMHistos( dqm_dir, dqm_tag_[Harvest].c_str() );
+            //else this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
         } else {
             std::string dqm_dir = "AlCaReco/SiStripGains" + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
-            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+            int elem = statCollectionFromMode(m_calibrationMode.c_str());
+            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[elem].c_str() );
+            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[( (elem%2)? elem-1: elem+1 )].c_str() );
         }
 
 
@@ -568,14 +572,41 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 	MASKED     = 0;
 }
 
+bool SiStripGainFromCalibTree::isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const {
+    edm::ESHandle<RunInfo> runInfo;
+    iSetup.get<RunInfoRcd>().get(runInfo);
 
+    double average_current = runInfo.product()->m_avg_current;
+    bool isOn = (average_current > MagFieldCurrentTh);
+    bool is0T = (m_calibrationMode.substr( m_calibrationMode.length()-2 )=="0T");
+
+    return ( (isOn && !is0T) || (!isOn && is0T) );
+}
+
+void SiStripGainFromCalibTree::swapBFieldMode() {
+    if ( m_calibrationMode.substr( m_calibrationMode.length()-2 )=="0T" ) {
+        m_calibrationMode.erase( m_calibrationMode.length()-2,2);
+    } else {
+        m_calibrationMode.append( "0T" );
+    } 
+}
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
-	edm::ESHandle<SiStripGain> gainHandle;
-	iSetup.get<SiStripGainRcd>().get(gainHandle);
-	if(!gainHandle.isValid()){edm::LogError("SiStripGainFromCalibTree")<< "gainHandle is not valid\n"; exit(0);}
- 
+    if( !m_harvestingMode && AlgoMode=="PCL") { 
+        //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
+        if (!isBFieldConsistentWithMode(iSetup)) {
+            string prevMode = m_calibrationMode;
+            swapBFieldMode();
+            edm::LogInfo("SiStripGainFromCalibTree") << "Switching calibration mode for endorsing BField status: "
+                                                     << prevMode << " ==> " << m_calibrationMode << std::endl;
+        }
+    }
+
+    edm::ESHandle<SiStripGain> gainHandle;
+    iSetup.get<SiStripGainRcd>().get(gainHandle);
+    if(!gainHandle.isValid()){edm::LogError("SiStripGainFromCalibTree")<< "gainHandle is not valid\n"; exit(0);}
+
 	edm::ESHandle<SiStripQuality> SiStripQuality_;
 	iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
@@ -785,7 +816,9 @@ bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
 
 void SiStripGainFromCalibTree::processEvent() {
 
-        edm::LogInfo("SiStripGainFromCalibTree") << "Processing run " << runnumber << " and event " << eventnumber << std::endl;
+        edm::LogInfo("SiStripGainFromCalibTree") << "Processing run " << runnumber 
+                                                 << " and event " << eventnumber 
+                                                 << " for " << m_calibrationMode << " calibration." << std::endl;
 
 	if(runnumber<SRun)SRun=runnumber;
 	if(runnumber>ERun)ERun=runnumber;
@@ -943,7 +976,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 	double FitResults[6];
 	double MPVmean = 300;
 
-        int elepos = statCollectionFromMode(m_calibrationMode.c_str());
+        int elepos = (AlgoMode == "PCL")? Harvest : statCollectionFromMode(m_calibrationMode.c_str());
 
         if ( Charge_Vs_Index[elepos]==0 ) {
             edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not execute algoComputeMPVandGain method because "
@@ -1137,7 +1170,7 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
   
     // The goal of this function is to check wether or not there is enough statistics
     // to produce a meaningful tag for the DB
-    int elepos     = statCollectionFromMode(m_calibrationMode.c_str());
+    int elepos     = (AlgoMode == "PCL")? Harvest : statCollectionFromMode(m_calibrationMode.c_str());
     if( Charge_Vs_Index[elepos]==0 ) {
         edm::LogError("SiStripGainFromCalibTree") << "produceTagFilter -> Return false: could not retrieve the "
                                                   << m_calibrationMode.c_str() << " statistics.\n"

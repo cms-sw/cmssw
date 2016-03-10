@@ -7,10 +7,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 
 options.register('conditionGT',
-                 "76X_dataRun2_v15",
+                 "auto:run2_data",
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "condition global tag for the job (\"76X_dataRun2_v15\" is default)")
+                 "condition global tag for the job (\"auto:run2_data\" is default)")
 
 options.register('conditionOverwrite',
                  "",
@@ -70,7 +70,7 @@ process = cms.Process('CALIB')
 process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.conditionGT, options.conditionOverwrite)

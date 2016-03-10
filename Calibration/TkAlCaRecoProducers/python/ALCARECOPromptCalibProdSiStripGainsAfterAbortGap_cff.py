@@ -3,11 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # ------------------------------------------------------------------------------
 # configure a filter to run only on the events selected by TkAlMinBias AlcaReco
 import copy
+from CalibTracker.SiStripCommon.SiStripBFieldFilter_cfi import *
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-ALCARECOCalMinBiasFilterForSiStripGains = copy.deepcopy(hltHighLevel)
-ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = ['pathALCARECOSiStripCalMinBias']
-ALCARECOCalMinBiasFilterForSiStripGains.throw = True ## dont throw on unknown path names
-ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
+ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap = copy.deepcopy(hltHighLevel)
+ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.HLTPaths = ['pathALCARECOSiStripCalMinBiasAfterAbortGap']
+ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.throw = True ## dont throw on unknown path names
+ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 #process.TkAlMinBiasFilterForBS.eventSetupPathsKey = 'pathALCARECOTkAlMinBias:RECO'
 #ALCARECODtCalibHLTFilter.andOr = True ## choose logical OR between Triggerbits
 
@@ -44,9 +45,9 @@ ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("Trigge
 # to have access to transient objects produced during RECO step and not saved
 
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-ALCARECOCalibrationTracks = AlignmentTrackSelector.clone(
+ALCARECOCalibrationTracksAAG = AlignmentTrackSelector.clone(
     #    src = 'generalTracks',
-    src = 'ALCARECOSiStripCalMinBias',
+    src = 'ALCARECOSiStripCalMinBiasAfterAbortGap',
     filter = True,
     applyBasicCuts = True,
     ptMin = 0.8,
@@ -61,15 +62,15 @@ from RecoTracker.IterativeTracking.InitialStep_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 
-ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"),
+ALCARECOCalibrationTracksRefitAAG = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracksAAG"),
                                                      NavigationSchool = cms.string("")
                                                      )
 
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
-ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
-                                        offlineBeamSpot +
-                                        ALCARECOCalibrationTracksRefit )
+ALCARECOTrackFilterRefitAAG = cms.Sequence(ALCARECOCalibrationTracksAAG +
+                                           offlineBeamSpot +
+                                           ALCARECOCalibrationTracksRefitAAG )
 
 # ------------------------------------------------------------------------------
 # Get the information you need from the tracks, calibTree-style to have no code difference
@@ -77,31 +78,31 @@ from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import shallowEvent
 from CalibTracker.SiStripCommon.ShallowTracksProducer_cfi import shallowTracks
 from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import shallowGainCalibration
 ALCARECOShallowEventRun = shallowEventRun.clone()
-ALCARECOShallowTracks = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
-ALCARECOShallowGainCalibration = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
-ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTracks*ALCARECOShallowGainCalibration)
+ALCARECOShallowTracksAAG = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
+ALCARECOShallowGainCalibrationAAG = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
+ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTracksAAG*ALCARECOShallowGainCalibrationAAG)
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
 
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
-ALCARECOSiStripCalib = SiStripCalib.clone()
-ALCARECOSiStripCalib.AlgoMode            = cms.untracked.string('PCL')
-ALCARECOSiStripCalib.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
-ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
-ALCARECOSiStripCalib.harvestingMode      = cms.untracked.bool(False)
-ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')
-ALCARECOSiStripCalib.doStoreOnDB         = cms.bool(False)
-ALCARECOSiStripCalib.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibration')
-ALCARECOSiStripCalib.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')
-ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallowTracks')
+ALCARECOSiStripCalibAfterAbortGap = SiStripCalib.clone()
+ALCARECOSiStripCalibAfterAbortGap.AlgoMode            = cms.untracked.string('PCL')
+ALCARECOSiStripCalibAfterAbortGap.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefitAAG')
+ALCARECOSiStripCalibAfterAbortGap.FirstSetOfConstants = cms.untracked.bool(False)
+ALCARECOSiStripCalibAfterAbortGap.harvestingMode      = cms.untracked.bool(False)
+ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('FaABunch')
+ALCARECOSiStripCalibAfterAbortGap.doStoreOnDB         = cms.bool(False)
+ALCARECOSiStripCalibAfterAbortGap.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')
+ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')
+ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')
 # ----------------------------------------------------------------------------
 
 
 # ****************************************************************************
 # ** Conversion for the SiStripGain DQM dir not used for split statistics   **
 # ****************************************************************************
-MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
+MEtoEDMConvertSiStripGainsAfterAbortGap = cms.EDProducer("MEtoEDMConverter",
                                             Name = cms.untracked.string('MEtoEDMConverter'),
                                             Verbosity = cms.untracked.int32(2), # 0 provides no output
                                             # 1 provides basic output
@@ -112,10 +113,10 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
 )
 
 # The actual sequence
-seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
-   ALCARECOCalMinBiasFilterForSiStripGains *
-   ALCARECOTrackFilterRefit *
-   ALCARECOShallowSequence *
-   ALCARECOSiStripCalib *
-   MEtoEDMConvertSiStripGains
+seqALCARECOPromptCalibProdSiStripGainsAfterAbortGap = cms.Sequence(
+   ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap *
+   ALCARECOTrackFilterRefitAAG *
+   ALCARECOShallowSequenceAAG *
+   ALCARECOSiStripCalibAfterAbortGap *
+   MEtoEDMConvertSiStripGainsAfterAbortGap
 )

@@ -5,7 +5,7 @@ process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '76X_dataRun2_v15'
+process.GlobalTag.globaltag = 'auto:run2_data'
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
