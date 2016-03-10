@@ -51,7 +51,7 @@ L1AnalysisUGMT::findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, i
     if (tf.hwEta() == mu.hwEta() &&
         phi == mu.hwPhi() &&
         tf.hwPt() == mu.hwPt() &&
-        (tf.hwQual() & 0xC) == mu.hwQual()) {
+        tf.hwQual() == mu.hwQual()) {
       return i;
     }
   }
