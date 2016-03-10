@@ -9,7 +9,7 @@ do
 	fi	
         for algo in ak
         do
-            for sub in Vs Pu NONE
+            for sub in Vs Pu Cs NONE
             do
                 for radius in 1 2 3 4 5 6
                 do

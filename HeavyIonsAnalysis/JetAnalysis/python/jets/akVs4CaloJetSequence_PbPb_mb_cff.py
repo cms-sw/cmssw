@@ -5,6 +5,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
+from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 akVs4Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akVs4CaloJets"),
@@ -175,6 +176,12 @@ akVs4CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs4Calo
         # embedPFCandidates = True
         )
 
+akVs4CaloNjettiness = Njettiness.clone(
+		    src = cms.InputTag("akVs4CaloJets"),
+           	    R0  = cms.double( 0.4)
+)
+akVs4CalopatJetsWithBtagging.userData.userFloats.src += ['akVs4CaloNjettiness:tau1','akVs4CaloNjettiness:tau2','akVs4CaloNjettiness:tau3']
+
 akVs4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4CalopatJetsWithBtagging"),
                                                              genjetTag = 'ak4HiGenJets',
                                                              rParam = 0.4,
@@ -191,6 +198,7 @@ akVs4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4Ca
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akVs4Calo"),
+                                                             jetName = cms.untracked.string("akVs4Calo"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(True)
@@ -215,6 +223,8 @@ akVs4CaloJetSequence_mc = cms.Sequence(
                                                   *
                                                   akVs4CaloJetBtagging
                                                   *
+                                                  akVs4CaloNjettiness
+                                                  *
                                                   akVs4CalopatJetsWithBtagging
                                                   *
                                                   akVs4CaloJetAnalyzer
@@ -227,6 +237,8 @@ akVs4CaloJetSequence_data = cms.Sequence(akVs4Calocorr
                                                     akVs4CaloJetTracksAssociatorAtVertex
                                                     *
                                                     akVs4CaloJetBtagging
+                                                    *
+                                                    akVs4CaloNjettiness 
                                                     *
                                                     akVs4CalopatJetsWithBtagging
                                                     *
