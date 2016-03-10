@@ -13,11 +13,6 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     #barrelTFInput  = cms.InputTag("simMuonQualityAdjusterDigis", "BMTF"),
     #overlapTFInput = cms.InputTag("simMuonQualityAdjusterDigis", "OMTF"),
     #forwardTFInput = cms.InputTag("simMuonQualityAdjusterDigis", "EMTF"),
-    triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTower2x2s"),
-    #triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTowerSums"),
+    #triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTower2x2s"),
+    triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTowerSums"),
 )
-
-
-
-
-
