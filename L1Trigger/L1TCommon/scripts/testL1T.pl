@@ -293,7 +293,8 @@ sub run_job {
 #	case 0 {test_dummy; }
 	case 0 {test_reemul;}
 	case 1 {test_mc_prod; }
-	case 2 {test_unpackers_dont_crash; }
+	#case 2 {test_unpackers_dont_crash; }
+	case 2 {test_dummy; }
 	case 3 {test_pack_unpack_is_unity; }
 	else   {test_dummy; }
     }
