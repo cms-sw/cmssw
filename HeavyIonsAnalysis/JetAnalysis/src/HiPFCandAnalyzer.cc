@@ -148,7 +148,7 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     double pt =  pfCandidate.pt();
     double energy = pfCandidate.energy();
-    if(pt<pfPtMin_) continue;
+    if(pt<=pfPtMin_) continue;
 
     int id = pfCandidate.particleId();
     if(skipCharged_ && (abs(id) == 1 || abs(id) == 3)) continue;
