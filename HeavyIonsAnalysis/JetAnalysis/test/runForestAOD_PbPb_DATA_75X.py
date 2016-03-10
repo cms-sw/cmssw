@@ -83,6 +83,8 @@ process.kt4PFJets.doAreaFastjet = True
 process.kt4PFJets.jetPtMin      = cms.double(0.0)
 process.kt4PFJets.GhostArea     = cms.double(0.005)
 
+process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
+
 process.voronoiBackgroundPF = voronoiBackgroundPF
 process.voronoiBackgroundCalo = voronoiBackgroundCalo
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff')
@@ -128,7 +130,7 @@ process.jetSequences = cms.Sequence(
     voronoiBackgroundCalo+
     process.kt4PFJets +
     process.hiFJRhoProducer +
-    
+    process.hiFJRhoAnalyzer +
     process.akPu2CaloJets +
     process.akPu2PFJets +
     process.akVs2CaloJets +
