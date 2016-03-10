@@ -15,6 +15,8 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
   tmax_par(pset.getParameter< std::vector<int> >("Tmax")),
   tmin_par(pset.getParameter< std::vector<int> >("Tmin")),
   tset_par(pset.getParameter< std::vector<int> >("TSetMin")),
+  deltaTmin_(pset.getParameter<uint32_t>("DeltaTmin")),
+  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength")),
   detIdListFile_(pset.getParameter< std::string >("DetIdListFile")),
   excludedDetIdListFile_(pset.getParameter< std::string >("ExcludedDetIdListFile")),
   highVoltageOnThreshold_(pset.getParameter<double>("HighVoltageOnThreshold"))
@@ -276,12 +278,15 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
 
   // compare the first element and the last from previous transfer
   if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
-    if ( lastStoredCondObj.second == modulesOff[0].second &&
-	 *(lastStoredCondObj.first) == *(modulesOff[0].first) ) {
-      std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator moIt = modulesOff.begin();
-      modulesOff.erase(moIt);
-      std::vector< std::vector<uint32_t> >::iterator plIt = payloadStats.begin();
-      payloadStats.erase(plIt);
+    if ( *(lastStoredCondObj.first) == *(modulesOff[0].first) ) {
+      if ( modulesOff.size() == 1 ){
+        // if no HV/LV transition was found in this period: update the last IOV to be tmax
+        modulesOff[0].second = getCondTime(tmax);
+      }else{
+        // HV/LV transitions found: remove the first one (which came from previous transfer)
+        modulesOff.erase(modulesOff.begin());
+        payloadStats.erase(payloadStats.begin());
+      }
     }
   }
   
