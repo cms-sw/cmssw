@@ -43,7 +43,6 @@ namespace edm {
   void
   ProductHolderBase::putOrMergeProduct(std::unique_ptr<WrapperBase> prod) const {
     if(not prod) {return;}
-    checkType(*prod);
     if(putOrMergeProduct_()) {
       putProduct(std::move(prod));
     } else {

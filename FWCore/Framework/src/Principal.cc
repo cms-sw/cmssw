@@ -806,13 +806,6 @@ namespace edm {
   }
 
   void
-  Principal::checkType(WrapperBase const* prod, ProductHolderBase const* phb) const {
-    if(prod == nullptr) return;
-    // Checks that the real type of the product matches the branch.
-    phb->checkType(*prod);
-  }
-
-  void
   Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* phb) const {
     phb->putOrMergeProduct(std::move(prod));
   }

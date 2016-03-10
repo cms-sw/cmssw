@@ -123,22 +123,16 @@ namespace edm {
 
     // Puts the product into the ProductHolder.
     void putProduct(std::unique_ptr<WrapperBase> edp) const {
-      putProduct_(std::move(edp));
+      if(edp) {
+        checkType(*edp);
+        putProduct_(std::move(edp));
+      }
     }
 
     // If the product already exists we merge, else will put
     void putOrMergeProduct(std::unique_ptr<WrapperBase> edp) const;
     
-    // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
-      mergeProduct_(std::move(edp));
-    }
-
     void reallyCheckType(WrapperBase const& prod) const;
-
-    void checkType(WrapperBase const& prod) const {
-      checkType_(prod);
-    }
 
     void swap(ProductHolderBase& rhs) {swap_(rhs);}
 
@@ -147,6 +141,18 @@ namespace edm {
     virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
 
   private:
+    void checkType(WrapperBase const& prod) const {
+      checkType_(prod);
+    }
+
+    // merges the product with the pre-existing product
+    void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
+      if(edp) {
+        checkType(*edp);
+        mergeProduct_(std::move(edp));
+      }
+    }
+    
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                Principal const& principal,
                                                bool skipCurrentProcess,

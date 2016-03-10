@@ -208,9 +208,6 @@ namespace edm {
     ProductHolderBase const* getExistingProduct(BranchID const& branchID) const;
     ProductHolderBase const* getExistingProduct(ProductHolderBase const& phb) const;
 
-    // throws if the pointed to product is already in the Principal.
-    void checkType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
-
     void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase>  edp) const;
     
   private:
