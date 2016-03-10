@@ -4,9 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # scenarios. In this case it makes changes for Run 2.
 from Configuration.StandardSequences.Eras import eras
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
