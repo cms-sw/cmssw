@@ -35,7 +35,9 @@ process = cms.Process("L1TCaloLayer1Test")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
 process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
-process.simCaloStage2Layer1Digis.useLUT = cms.bool(True)
+process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(False)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(False)
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
@@ -48,7 +50,7 @@ process.source = cms.Source("PoolSource",
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('/data/dasu/l1tCaloLayer1.root'),
-    outputCommands = cms.untracked.vstring('keep *')
+    outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_L1TCaloLayer1Test')
 )
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')

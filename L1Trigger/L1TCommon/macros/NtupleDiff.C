@@ -30,7 +30,7 @@ void bitwise_compare(TTree * tree1, TTree * tree2, const char * var, const char 
 
 
 
-void NtupleDiff(const char * file1, const char * treepath1, const char * file2, const char * treepath2){
+void NtupleDiff(const char * file1, const char * file2, const char * treepath1="l1UpgradeEmuTree/L1UpgradeTree", const char * treepath2="l1UpgradeEmuTree/L1UpgradeTree"){
   cout << "INFO: comparing contents of tree " << treepath1 << " in file " << file1 << "\n";
   cout << "INFO: comparing contents of tree " << treepath2 << " in file " << file2 << "\n";
 

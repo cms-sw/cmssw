@@ -30,10 +30,15 @@ namespace stage2 {
       for (int i = egs->getFirstBX(); i <= egs->getLastBX(); ++i) {
 	
 	for (auto j = egs->begin(i); j != egs->end(i); ++j) {
+
+	  uint32_t packed_eta = abs(j->hwEta()) & 0x7F;
+	  if (j->hwEta() < 0){
+	    packed_eta = (128 - packed_eta) | 1<<7;
+	  }
+
 	  uint32_t word =					\
 	    std::min(j->hwPt(), 0x1FF) |
-	    (abs(j->hwEta()) & 0x7F) << 9 |
-	    ((j->hwEta() < 0) & 0x1) << 16 |
+	    packed_eta << 9 |
 	    (j->hwPhi() & 0xFF) << 17 |
 	    (j->hwIso() & 0x1) << 25 |
 	    (j->hwQual() & 0x7) << 26;

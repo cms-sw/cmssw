@@ -10,7 +10,9 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
     hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     useLSB = cms.bool(True),
-    useLUT = cms.bool(True),
+    useECALLUT = cms.bool(True),
+    useHCALLUT = cms.bool(True),
+    useHFLUT = cms.bool(True),
     verbose = cms.bool(False),
     # Note that hf scale factors are temporarily placed here
     # These are used to compute HF look-up-tables
