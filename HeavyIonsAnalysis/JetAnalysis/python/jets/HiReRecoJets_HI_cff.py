@@ -26,6 +26,47 @@ akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
 akCs5PFJets = akCs4PFJets.clone(rParam       = cms.double(0.5))
 akCs6PFJets = akCs4PFJets.clone(rParam       = cms.double(0.6))
 
+from RecoJets.JetProducers.PFJetParameters_cfi import *
+from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
+akCsSoftDrop4PFJets = cms.EDProducer(
+    "FastjetJetProducer",
+    PFJetParameters,
+    AnomalousCellParameters,
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam       = cms.double(0.4),
+    useSoftDrop = cms.bool(True),
+    zcut = cms.double(0.1),
+    beta = cms.double(0.0),
+    R0   = cms.double(0.4),
+    useExplicitGhosts = cms.bool(True),
+    writeCompound = cms.bool(True),
+    jetCollInstanceName=cms.string("SubJets")
+)
+akCsSoftDrop4PFJets.src = cms.InputTag("akCs4PFJets","pfParticlesCs")
+akCsSoftDrop5PFJets = akCsSoftDrop4PFJets.clone(rParam = cms.double(0.5),
+                                                src    = cms.InputTag("akCs5PFJets","pfParticlesCs"))
+akCsSoftDrop6PFJets = akCsSoftDrop4PFJets.clone(rParam = cms.double(0.6),
+                                                src    = cms.InputTag("akCs6PFJets","pfParticlesCs"))
+
+akCsFilter4PFJets = cms.EDProducer(
+    "FastjetJetProducer",
+    PFJetParameters,
+    AnomalousCellParameters,
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam       = cms.double(0.4),
+    useFiltering = cms.bool(True),
+    nFilt = cms.int32(4),
+    rFilt = cms.double(0.15),
+    useExplicitGhosts = cms.bool(True),
+    writeCompound = cms.bool(True),
+    jetCollInstanceName=cms.string("SubJets")
+)
+akCsFilter4PFJets.src = cms.InputTag("akCs4PFJets","pfParticlesCs")
+akCsFilter5PFJets = akCsFilter4PFJets.clone(rParam = cms.double(0.5),
+                                            src    = cms.InputTag("akCs5PFJets","pfParticlesCs"))
+akCsFilter6PFJets = akCsFilter4PFJets.clone(rParam = cms.double(0.6),
+                                            src    = cms.InputTag("akCs6PFJets","pfParticlesCs"))
+
 ak5PFJets.doAreaFastjet = cms.bool(True)
 
 akVs1CaloJets.doAreaFastjet = cms.bool(True)
@@ -144,6 +185,18 @@ akCs4PFJets
 akCs5PFJets
 +
 akCs6PFJets
++
+akCsSoftDrop4PFJets
++
+akCsSoftDrop5PFJets
++
+akCsSoftDrop6PFJets
++
+akCsFilter4PFJets
++
+akCsFilter5PFJets
++
+akCsFilter6PFJets
 )
 
 hiReRecoCaloJets = cms.Sequence(

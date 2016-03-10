@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff import *
 from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiBackgroundPF, voronoiBackgroundCalo
-
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
 kt4PFJets.src = cms.InputTag('particleFlowTmp')
@@ -30,6 +29,13 @@ from HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_mb_cff import 
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_mb_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_mb_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCs5PFJetSequence_PbPb_mb_cff import *
+
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_mb_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter5PFJetSequence_PbPb_mb_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter6PFJetSequence_PbPb_mb_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_mb_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop5PFJetSequence_PbPb_mb_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop6PFJetSequence_PbPb_mb_cff import *
 
 highPurityTracks = cms.EDFilter("TrackSelector",
                                 src = cms.InputTag("hiGeneralTracks"),
@@ -68,6 +74,11 @@ jetSequences = cms.Sequence(
     akVs5PFJets +
     akCs5PFJets +
 
+    akCsFilter4PFJets +
+    akCsFilter5PFJets +
+    akCsSoftDrop4PFJets +
+    akCsSoftDrop5PFJets +
+
     highPurityTracks +
     offlinePrimaryVertices +
 
@@ -93,5 +104,10 @@ jetSequences = cms.Sequence(
     akVs5CaloJetSequence +
     akVs5PFJetSequence +
     akPu5PFJetSequence +
-    akCs5PFJetSequence
+    akCs5PFJetSequence +
+
+    akCsFilter4PFJetSequence +
+    akCsFilter5PFJetSequence +
+    akCsSoftDrop4PFJetSequence +
+    akCsSoftDrop5PFJetSequence
 )

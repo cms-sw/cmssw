@@ -111,6 +111,11 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_data_cf
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCs5PFJetSequence_PbPb_data_cff')
 
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter5PFJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop5PFJetSequence_PbPb_data_cff')
+
 process.highPurityTracks = cms.EDFilter("TrackSelector",
                                         src = cms.InputTag("hiGeneralTracks"),
                                         cut = cms.string('quality("highPurity")'))
@@ -148,6 +153,11 @@ process.jetSequences = cms.Sequence(
     process.akVs5PFJets +
     process.akCs5PFJets +
 
+    process.akCsFilter4PFJets +
+    process.akCsFilter5PFJets +
+    process.akCsSoftDrop4PFJets +
+    process.akCsSoftDrop5PFJets +
+
     process.highPurityTracks +
     process.offlinePrimaryVertices +
 
@@ -173,8 +183,13 @@ process.jetSequences = cms.Sequence(
     process.akVs5CaloJetSequence +
     process.akVs5PFJetSequence +
     process.akPu5PFJetSequence +
-    process.akCs5PFJetSequence
-    )
+    process.akCs5PFJetSequence +
+
+    process.akCsFilter4PFJetSequence +
+    process.akCsFilter5PFJetSequence +
+    process.akCsSoftDrop4PFJetSequence +
+    process.akCsSoftDrop5PFJetSequence
+)
 
 #####################################################################################
 
