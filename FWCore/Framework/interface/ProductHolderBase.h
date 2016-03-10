@@ -126,11 +126,9 @@ namespace edm {
       putProduct_(std::move(edp));
     }
 
-    // This returns true if it will be put, false if it will be merged
-    bool putOrMergeProduct() const {
-      return putOrMergeProduct_();
-    }
-
+    // If the product already exists we merge, else will put
+    void putOrMergeProduct(std::unique_ptr<WrapperBase> edp) const;
+    
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
       mergeProduct_(std::move(edp));

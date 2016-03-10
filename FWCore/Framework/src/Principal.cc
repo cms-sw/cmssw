@@ -814,14 +814,7 @@ namespace edm {
 
   void
   Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* phb) const {
-    bool willBePut = phb->putOrMergeProduct();
-    if(willBePut) {
-      checkType(prod.get(), phb);
-      phb->putProduct(std::move(prod));
-    } else {
-      phb->checkType(*prod);
-      phb->mergeProduct(std::move(prod));
-    }
+    phb->putOrMergeProduct(std::move(prod));
   }
 
   void
