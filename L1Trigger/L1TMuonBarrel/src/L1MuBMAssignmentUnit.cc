@@ -227,7 +227,6 @@ void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
 if(bmtfParams.fwVersion()==2){
     if (Quality() < 4) {
     int ptj = pt;
-
     L1MuBMLUTHandler::PtAssMethod jj1 = getPt1Method(m_ptAssMethod);
     L1MuBMLUTHandler::PtAssMethod jj2 = getPt2Method(m_ptAssMethod);
     if (jj1 != L1MuBMLUTHandler::NODEF) {
@@ -258,7 +257,7 @@ if(bmtfParams.fwVersion()==2){
 
 
 //
-// assign 3 bit quality code
+// assign 4 bit quality code
 //
 void L1MuBMAssignmentUnit::QuaAU() {
 
@@ -266,20 +265,24 @@ void L1MuBMAssignmentUnit::QuaAU() {
 
   const TrackClass tc = m_sp.TA()->trackClass(m_id);
 
+  ///Two LSBs of BMTF Q = Nstations-1
   switch ( tc ) {
-    case T1234 : { quality = 7; break; }
-    case T123  : { quality = 6; break; }
-    case T124  : { quality = 6; break; }
-    case T134  : { quality = 5; break; }
-    case T234  : { quality = 4; break; }
-    case T12   : { quality = 3; break; }
-    case T13   : { quality = 3; break; }
-    case T14   : { quality = 3; break; }
-    case T23   : { quality = 2; break; }
-    case T24   : { quality = 2; break; }
-    case T34   : { quality = 1; break; }
+    case T1234 : { quality = 3; break; }
+    case T123  : { quality = 2; break; }
+    case T124  : { quality = 2; break; }
+    case T134  : { quality = 2; break; }
+    case T234  : { quality = 2; break; }
+    case T12   : { quality = 1; break; }
+    case T13   : { quality = 1; break; }
+    case T14   : { quality = 1; break; }
+    case T23   : { quality = 0; break; }
+    case T24   : { quality = 0; break; }
+    case T34   : { quality = 0; break; }
     default    : { quality = 0; break; }
   }
+
+ ///Two MSB of BMTF Q = 11
+ quality += 12;
 
   m_sp.track(m_id)->setQuality(quality);
   m_sp.tracK(m_id)->setQuality(quality);
