@@ -130,9 +130,10 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Jet ajet( edm::RefToBase<Jet>(jetRef.castTo<JetRef>()) );
 
     if (addJetCorrFactors_) {
-      unsigned int setindex = ajet.availableJECSets().size();
-      // Undo previous jet energy corrections
+      // undo previous jet energy corrections
       ajet.setP4(ajet.correctedP4(0));
+      // clear previous JetCorrFactors
+      ajet.jec_.clear();
       // add additional JetCorrs to the jet
       for ( unsigned int i=0; i<jetCorrFactorsTokens_.size(); ++i ) {
 	const JetCorrFactors& jcf = jetCorrs[i][jetRef];
@@ -142,13 +143,13 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
       }
       std::vector<std::string> levels = jetCorrs[0][jetRef].correctionLabels();
       if(std::find(levels.begin(), levels.end(), "L2L3Residual")!=levels.end()){
-	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L2L3Residual"), JetCorrFactors::NONE, setindex);
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L2L3Residual"));
       }
       else if(std::find(levels.begin(), levels.end(), "L3Absolute")!=levels.end()){
-	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L3Absolute"), JetCorrFactors::NONE, setindex);
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L3Absolute"));
       }
       else{
-	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"), JetCorrFactors::NONE, setindex);
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"));
 	if(printWarning_){
 	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the jetCorrFactors\n"
 						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << ". Jets will remain"

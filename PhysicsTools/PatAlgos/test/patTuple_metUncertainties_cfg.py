@@ -23,7 +23,7 @@ runMETCorrectionsAndUncertainties(process, metType="PF",
                                   produceIntermediateCorrections=False,
                                   addToPatDefaultSequence=False,
                                   jetCollectionUnskimmed="patJets",
-                                  jetCollection="selectedPatJets",
+                                  jetSelection="pt>15 && abs(eta)<9.9",
                                   postfix="",
                                   )
     
