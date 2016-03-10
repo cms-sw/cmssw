@@ -3,9 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Layer1EmulatorOnSpy")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
+process.GlobalTag.globaltag = '74X_dataRun2_Express_v1'
+
 process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
-process.simCaloStage2Layer1Digis.ecalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
-process.simCaloStage2Layer1Digis.hcalTPSource = cms.InputTag("l1tCaloLayer1SpyDigis")
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1SpyDigis")
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1SpyDigis")
+process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useLSB = cms.bool(False)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
 
 process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
