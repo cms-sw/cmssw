@@ -91,6 +91,19 @@ SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
 SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
 SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
 
+# Clone for SiStripMonitorTrack for IsolatedBunches ####
+SiStripMonitorTrackIsoBunches = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+SiStripMonitorTrackIsoBunches.TopFolderName = cms.string('SiStrip/IsolatedBunches')
+SiStripMonitorTrackIsoBunches.TrackProducer = 'generalTracks'
+SiStripMonitorTrackIsoBunches.Mod_On        = False
+SiStripMonitorTrackIsoBunches.andOr         = cms.bool( False )
+SiStripMonitorTrackIsoBunches.dbLabel       = cms.string("SiStripDQMTrigger")
+SiStripMonitorTrackIsoBunches.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
+SiStripMonitorTrackIsoBunches.hltPaths = cms.vstring("HLT_ZeroBias_Isolated*")
+SiStripMonitorTrackIsoBunches.hltDBKey = cms.string("Tracker_MB")
+SiStripMonitorTrackIsoBunches.errorReplyHlt  = cms.bool( False )
+SiStripMonitorTrackIsoBunches.andOrHlt = cms.bool(True) # True:=OR; False:=AND
+
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
@@ -140,16 +153,19 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
+#    *SiStripMonitorTrackIsoBunches ## TEMPORARY
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
     *SiStripMonitorTrackCommon
+#    *SiStripMonitorTrackIsoBunches ## TEMPORARY
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
+    *SiStripMonitorTrackIsoBunches
     *dqmInfoSiStrip)
 
 
