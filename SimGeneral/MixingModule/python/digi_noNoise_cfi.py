@@ -22,13 +22,18 @@ if hasattr(theDigitizersNoNoise,"pixel"):
     theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
     theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
     theDigitizersNoNoise.pixel.AddPixelInefficiency = cms.bool(False) #done in second step
+    theDigitizersNoNoise.pixel.makeDigiSimLinks = cms.untracked.bool(False)
 # no strip in fastsim era
 if hasattr(theDigitizersNoNoise,"strip"):
     theDigitizersNoNoise.strip.Noise = cms.bool(False)
     theDigitizersNoNoise.strip.PreMixingMode = cms.bool(True)
     theDigitizersNoNoise.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
-
+    theDigitizersNoNoise.strip.makeDigiSimLinks = cms.untracked.bool(False)
 theDigitizersNoNoiseValid = cms.PSet(
     theDigitizersNoNoise,
     mergedtruth = SimGeneral.MixingModule.digitizers_cfi.trackingParticles
     )
+if hasattr(theDigitizersNoNoiseValid,"pixel"):
+    theDigitizersNoNoiseValid.pixel.makeDigiSimLinks = cms.untracked.bool(True)
+if hasattr(theDigitizersNoNoiseValid,"strip"):
+    theDigitizersNoNoiseValid.strip.makeDigiSimLinks = cms.untracked.bool(True)

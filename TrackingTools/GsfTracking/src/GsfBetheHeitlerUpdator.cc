@@ -20,7 +20,7 @@ namespace {
   /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerVariance (const float rl)
   {
-#if __clang__
+#if defined(__clang__) || defined(__INTEL_COMPILER)
     const
 #else
     constexpr
