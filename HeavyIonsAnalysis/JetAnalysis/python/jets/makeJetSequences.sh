@@ -9,7 +9,7 @@ do
 	fi	
         for algo in ak
         do
-            for sub in Vs Pu Cs NONE
+            for sub in Vs Pu Cs CsSoftDrop CsFilter NONE
             do
                 for radius in 1 2 3 4 5 6
                 do
@@ -33,6 +33,7 @@ do
                         pflow="particleFlowTmp"
                         domatch="False"
 			doTower="True"
+			doSubJets="False"
                         match=""
                         eventinfotag="generator"
 			jetcorrectionlevels="\'L2Relative\',\'L3Absolute\'"
@@ -64,6 +65,10 @@ do
 			else 
 			    corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
 			fi
+
+			if [ $sub == "CsSoftDrop" ] || [ $sub == "CsFilter" ]; then
+			    doSubJets="True"
+			fi
 			
                         cat templateSequence_bTag_cff.py.txt \
                             | sed "s/ALGO_/$algo/g" \
@@ -84,6 +89,7 @@ do
                             | sed "s/EVENTINFOTAG/$eventinfotag/g" \
 			    | sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
 			    | sed "s/DOTOWERS_/$doTower/g" \
+			    | sed "s/DOSUBJETS_/$doSubJets/g" \
 				  >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
 
 			# skip no sub

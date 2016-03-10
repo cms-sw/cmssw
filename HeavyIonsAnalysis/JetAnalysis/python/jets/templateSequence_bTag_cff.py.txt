@@ -200,7 +200,8 @@ ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Inp
                                                              jetName = cms.untracked.string("ALGO_SUB_RADIUS_OBJECT_"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(DOTOWERS_)
+							     doTower = cms.untracked.bool(DOTOWERS_),
+							     doSubJets = cms.untracked.bool(DOSUBJETS_)
                                                              )
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(

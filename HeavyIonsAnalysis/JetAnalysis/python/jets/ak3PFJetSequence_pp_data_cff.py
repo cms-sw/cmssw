@@ -201,7 +201,8 @@ ak3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak3PFpatJet
                                                              jetName = cms.untracked.string("ak3PF"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(False)
+							     doTower = cms.untracked.bool(False),
+							     doSubJets = cms.untracked.bool(False)
                                                              )
 
 ak3PFJetSequence_mc = cms.Sequence(
