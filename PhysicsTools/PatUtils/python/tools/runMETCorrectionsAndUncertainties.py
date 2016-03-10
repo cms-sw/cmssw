@@ -1409,10 +1409,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 photonCollection = cms.InputTag("cleanedPatPhotons"+postfix)
 
         #jet cleaning
+        have_cleanPatJets = hasattr(process, "cleanPatJets")
         process.load("PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi")
         cleanPatJetProducer = getattr(process, "cleanPatJets").clone( 
                      src = jetCollection
             )
+        #do not leave it hanging
+        if not have_cleanPatJets:
+            del process.cleanPatJets
         cleanPatJetProducer.checkOverlaps.muons.src = muonCollection
         cleanPatJetProducer.checkOverlaps.electrons.src = electronCollection
         if isValidInputTag(photonCollection) and autoJetCleaning != "LepClean":
