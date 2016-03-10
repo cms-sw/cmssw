@@ -40,9 +40,6 @@ from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
 SiPixelHitEfficiencySource.saveFile = False
 SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
 from DQM.TrackerMonitorTrack.SiPixelMonitorTrackResiduals_cfi import *
-SiPixelMonitorTrackResiduals.trajectoryInput = 'generalTracks'
-SiPixelMonitorTrackResiduals.Tracks          = 'generalTracks'
-SiPixelMonitorTrackResiduals.Mod_On          = False
 
 ##online/offline
 #RawDataErrors
