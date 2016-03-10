@@ -22,10 +22,10 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 ##process.MessageLogger.cerr.threshold = "Warning"
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.source = cms.Source("LHESource",
-        #fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/.../*.lhe')
+        fileNames = cms.untracked.vstring('file:')#file name 
 )
 
 import FWCore.ParameterSet.Config as cms
@@ -49,17 +49,14 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
 )
 
 process.selection = cms.EDFilter("ComphepSingletopFilterPy8",
-    isPythia8 = cms.bool(True),
-    pTSep = cms.double(99999999), # 99999999 - tq, 0 -tqb
-    writefile = cms.bool(True),
-    outputFileName = cms.string("out_file_name.root")
+    pTSep = cms.double(9999999), # 99999999 - tq, 0 -tqb
 )
 
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('matching_comphep_singletop.root'), 
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
-    #outputCommands = cms.untracked.vstring('drop *') # !!! Drop all events, comment this line if you need matching_comphep_singletop.root file
+   # outputCommands = cms.untracked.vstring('drop *') # !!! Drop all events, if you do not need matching_comphep_singletop.root file
 )
 
 process.p = cms.Path(process.generator * process.selection)
