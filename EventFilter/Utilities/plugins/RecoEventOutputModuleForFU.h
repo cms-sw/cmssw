@@ -3,8 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 
 #include <sstream>
 #include <iomanip>
@@ -43,10 +42,10 @@ namespace evf {
     virtual void stop() override;
     virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
     virtual void doOutputEvent(EventMsgBuilder const& msg) override;
-    //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
+    //virtual void beginRun(edm::RunForOutput const&);
     virtual void beginJob() override;
-    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -259,7 +258,7 @@ namespace evf {
 
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const& ls)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
     openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
@@ -269,7 +268,7 @@ namespace evf {
   }
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const& ls)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
     long filesize=0;

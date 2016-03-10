@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -153,30 +154,21 @@ namespace edm
         // For the current process we know the trigger names
         // from the configuration file
         if (path.first == process_name) {
-          selectors_.emplace_back(path.first, EventSelector(path.second, triggernames));
+          selectors_.emplace_back(path.first, EventSelector(path.second, triggernames), std::move(iC));
         } else {
           // For previous processes we do not know the trigger
           // names yet.
-          selectors_.emplace_back(path.first, EventSelector(path.second));
+          selectors_.emplace_back(path.first, EventSelector(path.second), std::move(iC));
         }
-      }
-      for(auto const& selector : selectors_) {
-        iC.consumes<TriggerResults>(selector.inputTag());
       }
     }
 
     bool
-    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc) {
+    TriggerResultsBasedEventSelector::wantEvent(EventForOutput const& ev) {
       for(auto& selector : selectors_) {
-        edm::BasicHandle h = ev.getByLabel(PRODUCT_TYPE,
-                                          s_TrigResultsType,
-                                          selector.inputTag(),
-                                          nullptr,
-                                          nullptr,
-                                          mcc);
-        handle_t product;
-        convert_handle(std::move(h), product);
-        bool match = selector.match(*product);
+        Handle<TriggerResults> handle;
+        ev.getByToken<TriggerResults>(selector.token(), handle);
+        bool match = selector.match(*handle);
         if(match) {
           return true;
         }

@@ -21,7 +21,6 @@ pointer to a ProductHolder, when queried.
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -94,8 +93,6 @@ namespace edm {
     void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
-
-    OutputHandle getForOutput(BranchID const& bid, ModuleCallingContext const* mcc) const;
 
     // Return a BasicHandle to the product which:
     //   1. matches the given label, instance, and process

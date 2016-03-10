@@ -273,9 +273,10 @@ namespace edm {
         if(branchToReadingWorker.size()>0) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
-          SelectedProductsForBranchType const&kept = comm->keptProducts();
-          for( auto const& item: kept[InEvent]) {
-            auto found = branchToReadingWorker.equal_range(item->branchName());
+          SelectedProductsForBranchType const& kept = comm->keptProducts();
+          for(auto const& item: kept[InEvent]) {
+            BranchDescription const& desc = *item.first;
+            auto found = branchToReadingWorker.equal_range(desc.branchName());
             if(found.first !=found.second) {
               --nUniqueBranchesToDelete;
               branchToReadingWorker.erase(found.first,found.second);

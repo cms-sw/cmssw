@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include "FWCore/Framework/interface/global/OutputModule.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,9 +27,9 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
-    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void write(EventForOutput const& e) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
+    virtual void writeRun(RunForOutput const&) override {}
     int prescale_;
     int verbosity_;
     int counter_;
@@ -49,11 +49,11 @@ namespace edm {
   }
 
   void
-  AsciiOutputModule::write(EventPrincipal const& e, ModuleCallingContext const*) {
+  AsciiOutputModule::write(EventForOutput const& e) {
 
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
-    // Run const& run = evt.getRun(); // this is still unused
+    // RunForOutput const& run = evt.getRun(); // this is still unused
     LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
     if (verbosity_ <= 1) return;

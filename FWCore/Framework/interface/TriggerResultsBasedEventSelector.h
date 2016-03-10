@@ -17,10 +17,12 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
-  class ModuleCallingContext;
+  class EventForOutput;
+  class TriggerResults;
 
   namespace detail {
     typedef edm::Handle<edm::TriggerResults> handle_t;
@@ -29,6 +31,13 @@ namespace edm {
     public:
       NamedEventSelector(std::string const& n, EventSelector const& s) :
 	inputTag_("TriggerResults", "", n),
+        token_(),
+	eventSelector_(s)
+      { }
+
+      NamedEventSelector(std::string const& n, EventSelector const& s, ConsumesCollector&& iC) :
+	inputTag_("TriggerResults", "", n),
+        token_(iC.consumes<TriggerResults>(inputTag_)),
 	eventSelector_(s)
       { }
 
@@ -40,8 +49,12 @@ namespace edm {
         return inputTag_;
       }
 
+      EDGetTokenT<TriggerResults> const& token() const {
+        return token_;
+      }
     private:
       InputTag            inputTag_;
+      EDGetTokenT<TriggerResults> token_;
       EventSelector       eventSelector_;
     };
 
@@ -59,7 +72,7 @@ namespace edm {
                  std::string const& process_name,
                  ConsumesCollector&& iC);
 
-      bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
+      bool wantEvent(EventForOutput const& e);
 
     private:
       selectors_t selectors_;
@@ -72,7 +85,7 @@ namespace edm {
                                 std::string const& iProcessName,
                                 std::vector<std::string> const& iAllTriggerNames,
                                 edm::detail::TriggerResultsBasedEventSelector& oSelector,
-                                edm::ConsumesCollector&& iC);
+                                ConsumesCollector&& iC);
     /** Takes the user specified SelectEvents PSet and creates a new one
      which conforms to the canonical format required for provenance
      */
