@@ -49,6 +49,9 @@ cat runForestAOD_pp_DATA_75X.py | sed 's@'$replacename'@"file:samples/pp_DATA_AO
 replacename=`cat runForestAOD_PbPb_MIX_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_PbPb_MIX_75X.py | sed 's@'$replacename'@"file:samples/PbPb_MC_AODSIM.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_PbPb_MC_AODSIM.root@g' > test_runForestAOD_PbPb_MIX_75X.py
 
+replacename=`cat runForestAOD_PbPb_MB_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
+cat runForestAOD_PbPb_MB_75X.py | sed 's@'$replacename'@"file:samples/PbPb_MC_AODSIM.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_PbPb_MC_AODSIM.root@g' > test_runForestAOD_PbPb_MB_75X.py
+
 replacename=`cat runForestAOD_pp_MC_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_pp_MC_75X.py | sed 's@'$replacename'@"file:samples/pp_MC_AODSIM.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_pp_MC_AODSIM.root@g' > test_runForestAOD_pp_MC_75X.py
 
