@@ -50,7 +50,7 @@ namespace edm {
   }
 
   void
-  DataManagingProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> iFrom) const {
+  DataManagingProductHolder::mergeProduct(std::unique_ptr<WrapperBase> iFrom) const {
     assert(status() == ProductStatus::ProductSet);
     if(not iFrom) { return;}
     
@@ -126,11 +126,6 @@ namespace edm {
     return nullptr;
   }
 
-  bool
-  ProducedProductHolder::putOrMergeProduct_() const {
-    return productUnavailable();
-  }
-
   void
   ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     if(status() != defaultStatus()) {
@@ -140,11 +135,6 @@ namespace edm {
     assert(edp.get() != nullptr);
     
     setProduct(std::move(edp));  // ProductHolder takes ownership
-  }
-
-  bool
-  InputProductHolder::putOrMergeProduct_() const {
-    return(status() == defaultStatus());
   }
 
   void
@@ -157,6 +147,19 @@ namespace edm {
   DataManagingProductHolder::connectTo(ProductHolderBase const& iOther, Principal const*) {
     assert(false);
   }
+  
+  void
+  DataManagingProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const {
+    if(not prod) {return;}
+    if(status() == defaultStatus()) {
+      //resolveProduct has not been called or it failed
+      putProduct(std::move(prod));
+    } else {
+      mergeProduct(std::move(prod));
+    }
+  }
+  
+
   
   void
   DataManagingProductHolder::checkType(WrapperBase const& prod) const {
@@ -291,15 +294,9 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void AliasProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
+  void AliasProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-    << "AliasProductHolder::mergeProduct_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  bool AliasProductHolder::putOrMergeProduct_() const {
-    throw Exception(errors::LogicError)
-    << "AliasProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+    << "AliasProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
@@ -329,15 +326,9 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void ParentProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
+  void ParentProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  bool ParentProcessProductHolder::putOrMergeProduct_() const {
-    throw Exception(errors::LogicError)
-    << "ParentProcessProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+    << "ParentProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
@@ -394,15 +385,9 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
+  void NoProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  bool NoProcessProductHolder::putOrMergeProduct_() const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+      << "NoProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

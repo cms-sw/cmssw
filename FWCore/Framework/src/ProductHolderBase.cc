@@ -40,17 +40,6 @@ namespace edm {
     return true;
   }
 
-  void
-  ProductHolderBase::putOrMergeProduct(std::unique_ptr<WrapperBase> prod) const {
-    if(not prod) {return;}
-    if(putOrMergeProduct_()) {
-      putProduct(std::move(prod));
-    } else {
-      mergeProduct(std::move(prod));
-    }
-
-  }
-  
   TypeID
   ProductHolderBase::productType() const {
     return TypeID(branchDescription().wrappedTypeID());
