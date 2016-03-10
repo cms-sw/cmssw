@@ -97,14 +97,13 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
   desc.add<string>("L1SeedsLogicalExpression","");
-  desc.add<bool>("SaveTags",true);
   desc.add<edm::InputTag>("L1ObjectMapInputTag",edm::InputTag("hltGtStage2ObjectMap"));
   desc.add<edm::InputTag>("L1GlobalInputTag",edm::InputTag("hltGtStage2Digis"));
-  desc.add<edm::InputTag>("L1MuonInputTag",edm::InputTag("hltGmtStage2Digis"));
-  desc.add<edm::InputTag>("L1EGammaInputTag",edm::InputTag("hltCaloStage2Digis"));
-  desc.add<edm::InputTag>("L1JetInputTag",edm::InputTag("hltCaloStage2Digis"));
-  desc.add<edm::InputTag>("L1TauInputTag",edm::InputTag("hltCaloStage2Digis"));
-  desc.add<edm::InputTag>("L1EtSumInputTag",edm::InputTag("hltCaloStage2Digis"));
+  desc.add<edm::InputTag>("L1MuonInputTag",edm::InputTag("hltGmtStage2Digis:Muon"));
+  desc.add<edm::InputTag>("L1EGammaInputTag",edm::InputTag("hltCaloStage2Digis:EGamma"));
+  desc.add<edm::InputTag>("L1JetInputTag",edm::InputTag("hltCaloStage2Digis:Jet"));
+  desc.add<edm::InputTag>("L1TauInputTag",edm::InputTag("hltCaloStage2Digis:Tau"));
+  desc.add<edm::InputTag>("L1EtSumInputTag",edm::InputTag("hltCaloStage2Digis:EtSum"));
   descriptions.add("hltL1TSeed", desc);
 }
 

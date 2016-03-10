@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
-#include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
+#include "PhysicsTools/PatUtils/interface/RawJetExtractorT.h"
 
 #include <string>
 
@@ -138,7 +138,7 @@ template <typename T, typename Textractor>
       }
 
       if ( evt.isRealData() && addResidualJES_ ) {
-	const static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+    const static pat::RawJetExtractorT<T> rawJetExtractor{};
 	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
 	if ( rawJetP4.E() > 1.e-1 ) {
 	  reco::Candidate::LorentzVector corrJetP4upToL3 =

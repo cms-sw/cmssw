@@ -24,18 +24,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm
 {
   template <class HAD, class DEC> class GeneratorFilter : public one::EDFilter<EndRunProducer,
+                                                                               BeginLuminosityBlockProducer,
 									       EndLuminosityBlockProducer,
                                                                                one::WatchLuminosityBlocks,
                                                                                one::SharedResources>
@@ -53,6 +56,7 @@ namespace edm
     virtual bool filter(Event& e, EventSetup const& es) override;
     virtual void endRunProduce(Run &, EventSetup const&) override;
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    virtual void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
     virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
@@ -99,6 +103,7 @@ namespace edm
          usesResource(resource);
        }
     }
+    
     // This handles the case where there are no shared resources, because you
     // have to declare something when the SharedResources template parameter was used.
     if(sharedResources.empty() && (!decayer_ || decayer_->sharedResources().empty())) {
@@ -107,6 +112,7 @@ namespace edm
 
     produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
+    produces<GenLumiInfoHeader, edm::InLumi>();
     produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
  
@@ -186,6 +192,7 @@ namespace edm
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
 	genEventInfo.reset(new GenEventInfoProduct(event.get()));
       }
+      
     ev.put(genEventInfo);
    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
@@ -215,11 +222,19 @@ namespace edm
   template <class HAD, class DEC>
   void
   GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock const& lumi, EventSetup const& es )
+  {}
+  
+  template <class HAD, class DEC>
+  void
+  GeneratorFilter<HAD, DEC>::beginLuminosityBlockProduce( LuminosityBlock &lumi, EventSetup const& es )
   {
     nEventsInLumiBlock_ = 0;
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
+    hadronizer_.generateLHE(lumi,randomEngineSentry.randomEngine());
+    
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
@@ -245,12 +260,18 @@ namespace edm
 	 << "Failed to initialize hadronizer "
 	 << hadronizer_.classname()
 	 << " for internal parton generation\n";
+         
+    std::auto_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
+    lumi.put(genLumiInfoHeader);
+
   }
 
   template <class HAD, class DEC>
   void
   GeneratorFilter<HAD, DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
-  {}
+  {
+    hadronizer_.cleanLHE();
+  }
 
   template <class HAD, class DEC>
   void
@@ -279,6 +300,7 @@ namespace edm
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo( GenLumiProcess );
+        
     lumi.put(genLumiInfo);
 
     nEventsInLumiBlock_ = 0;

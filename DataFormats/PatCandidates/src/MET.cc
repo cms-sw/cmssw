@@ -67,7 +67,6 @@ uncertainties_(iOther.uncertainties_),
 corrections_(iOther.corrections_),
 caloPackedMet_(iOther.caloPackedMet_) {
 
-  metSig_ =0.;
   initCorMap();
 }
 
