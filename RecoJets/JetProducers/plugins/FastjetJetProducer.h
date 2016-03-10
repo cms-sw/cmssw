@@ -83,6 +83,7 @@ protected:
   bool useCMSBoostedTauSeedingAlgorithm_; /// algorithm for seeding reconstruction of boosted Taus (similar to mass-drop tagging)
   bool useKtPruning_;         /// Use Kt clustering algorithm for pruning (default is Cambridge/Aachen)
   bool useConstituentSubtraction_; /// constituent subtraction technique
+  bool useConstituentSubtractionHi_; /// constituent subtraction technique for heavy-ions
   bool useSoftDrop_;          /// Soft drop
   bool correctShape_;         /// Correct the shape of the jets
   double muCut_;              /// for mass-drop tagging, m0/mjet (m0 = mass of highest mass subjet)
@@ -96,11 +97,12 @@ protected:
   double RcutFactor_;         /// for pruning: constituent dR * pt/2m < rcut_factor
   double csRho_EtaMax_;       /// for constituent subtraction : maximum rapidity for ghosts
   double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
+  double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)
   double beta_;               /// for soft drop : beta (angular exponent)
   double R0_;                 /// for soft drop : R0 (angular distance normalization - should be set to jet radius in most cases)
   double gridMaxRapidity_;    /// for shape subtraction, get the fixed-grid rho
   double gridSpacing_;        /// for shape subtraction, get the grid spacing
-
+  
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
   double muMin_;              /// for CMSBoostedTauSeedingAlgorithm : min mass-drop
@@ -114,7 +116,9 @@ protected:
 
   // tokens for the data access
   edm::EDGetTokenT<edm::View<reco::RecoChargedRefCandidate> > input_chrefcand_token_;
-    
+  edm::EDGetTokenT<std::vector<double>>                       etaToken_;
+  edm::EDGetTokenT<std::vector<double>>                       rhoToken_;
+  edm::EDGetTokenT<std::vector<double>>                       rhomToken_;    
 };
 
 
