@@ -1,7 +1,8 @@
 # Tau isolation LUT with Option = 12
 # iso LUT structure is Et --> nTT -->  eta
 # Compr bits: et: 5 nTT: 5 eta: 2
-# <header> V3 12 8 </header>
+#<header> V3 12 8 </header>
+
 0 4 # start of isolation LUT -- iEt : nTT : ieta 0 : 0 : 0
 1 5 # iEt : inTT : ieta = 0 : 0 : 1
 2 6 # iEt : inTT : ieta = 0 : 0 : 2
