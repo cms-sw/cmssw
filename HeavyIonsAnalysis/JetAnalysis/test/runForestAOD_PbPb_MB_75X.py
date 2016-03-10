@@ -113,6 +113,9 @@ process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
 process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
+process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzerCS_cfi")
+process.pfcandAnalyzerCS.skipCharged = False
+process.pfcandAnalyzerCS.pfPtMin = 0
 
 #####################################################################################
 
@@ -166,6 +169,7 @@ process.ana_step = cms.Path(
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
+                            process.pfcandAnalyzerCS +
                             process.HiForest +
                             process.trackSequencesPbPb #+
                             #process.tupelPatSequence
