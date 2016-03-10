@@ -5,6 +5,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
+from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 akPu5PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu5PFJets"),
@@ -21,7 +22,7 @@ akPu5PFcorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu5PFJets"),
-    payload = "AKPu5PF_offline"
+    payload = "AK5PF_offline"
     )
 
 akPu5PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu5CaloJets'))
@@ -175,6 +176,12 @@ akPu5PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu5PFJets
         # embedPFCandidates = True
         )
 
+akPu5PFNjettiness = Njettiness.clone(
+		    src = cms.InputTag("akPu5PFJets"),
+           	    R0  = cms.double( 0.5)
+)
+akPu5PFpatJetsWithBtagging.userData.userFloats.src += ['akPu5PFNjettiness:tau1','akPu5PFNjettiness:tau2','akPu5PFNjettiness:tau3']
+
 akPu5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5PFpatJetsWithBtagging"),
                                                              genjetTag = 'ak5GenJets',
                                                              rParam = 0.5,
@@ -191,6 +198,7 @@ akPu5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5PFpa
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akPu5PF"),
+                                                             jetName = cms.untracked.string("akPu5PF"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(False)
@@ -215,6 +223,8 @@ akPu5PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   akPu5PFJetBtagging
                                                   *
+                                                  akPu5PFNjettiness
+                                                  *
                                                   akPu5PFpatJetsWithBtagging
                                                   *
                                                   akPu5PFJetAnalyzer
@@ -227,6 +237,8 @@ akPu5PFJetSequence_data = cms.Sequence(akPu5PFcorr
                                                     akPu5PFJetTracksAssociatorAtVertex
                                                     *
                                                     akPu5PFJetBtagging
+                                                    *
+                                                    akPu5PFNjettiness 
                                                     *
                                                     akPu5PFpatJetsWithBtagging
                                                     *

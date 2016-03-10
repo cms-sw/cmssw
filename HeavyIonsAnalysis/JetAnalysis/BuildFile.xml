@@ -2,6 +2,7 @@
 <use name="hepmc"/>
 <use name="boost"/>
 <use name="fastjet"/>
+<use name="fastjet-contrib"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

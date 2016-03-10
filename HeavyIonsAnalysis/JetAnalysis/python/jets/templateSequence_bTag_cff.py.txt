@@ -4,6 +4,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
+from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 ALGO_SUB_RADIUS_OBJECT_match = patJetGenJetMatch.clone(
     src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
@@ -174,6 +175,12 @@ ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging = patJets.clone(jetSource = cms.Input
         # embedPFCandidates = True
         )
 
+ALGO_SUB_RADIUS_OBJECT_Njettiness = Njettiness.clone(
+		    src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+           	    R0  = cms.double( 0.RADIUS_)
+)
+ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging.userData.userFloats.src += ['ALGO_SUB_RADIUS_OBJECT_Njettiness:tau1','ALGO_SUB_RADIUS_OBJECT_Njettiness:tau2','ALGO_SUB_RADIUS_OBJECT_Njettiness:tau3']
+
 ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging"),
                                                              genjetTag = 'ALGO_RADIUS_GENJETS',
                                                              rParam = 0.RADIUS_,
@@ -190,6 +197,7 @@ ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Inp
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("ALGO_SUB_RADIUS_OBJECT_"),
+                                                             jetName = cms.untracked.string("ALGO_SUB_RADIUS_OBJECT_"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(DOTOWERS_)
@@ -214,6 +222,8 @@ ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
                                                   *
                                                   ALGO_SUB_RADIUS_OBJECT_JetBtagging
                                                   *
+                                                  ALGO_SUB_RADIUS_OBJECT_Njettiness
+                                                  *
                                                   ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging
                                                   *
                                                   ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
@@ -226,6 +236,8 @@ ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_co
                                                     ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex
                                                     *
                                                     ALGO_SUB_RADIUS_OBJECT_JetBtagging
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_Njettiness 
                                                     *
                                                     ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging
                                                     *

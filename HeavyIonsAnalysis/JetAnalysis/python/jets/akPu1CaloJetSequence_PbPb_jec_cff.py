@@ -5,6 +5,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
+from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 akPu1Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu1CaloJets"),
@@ -21,7 +22,7 @@ akPu1Calocorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu1CaloJets"),
-    payload = "AKPu1Calo_offline"
+    payload = "AK1Calo_offline"
     )
 
 akPu1CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu1CaloJets'))
@@ -175,6 +176,12 @@ akPu1CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu1Calo
         # embedPFCandidates = True
         )
 
+akPu1CaloNjettiness = Njettiness.clone(
+		    src = cms.InputTag("akPu1CaloJets"),
+           	    R0  = cms.double( 0.1)
+)
+akPu1CalopatJetsWithBtagging.userData.userFloats.src += ['akPu1CaloNjettiness:tau1','akPu1CaloNjettiness:tau2','akPu1CaloNjettiness:tau3']
+
 akPu1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu1CalopatJetsWithBtagging"),
                                                              genjetTag = 'ak1HiGenJets',
                                                              rParam = 0.1,
@@ -191,6 +198,7 @@ akPu1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu1Ca
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akPu1Calo"),
+                                                             jetName = cms.untracked.string("akPu1Calo"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
 							     doTower = cms.untracked.bool(True)
@@ -215,6 +223,8 @@ akPu1CaloJetSequence_mc = cms.Sequence(
                                                   *
                                                   akPu1CaloJetBtagging
                                                   *
+                                                  akPu1CaloNjettiness
+                                                  *
                                                   akPu1CalopatJetsWithBtagging
                                                   *
                                                   akPu1CaloJetAnalyzer
@@ -227,6 +237,8 @@ akPu1CaloJetSequence_data = cms.Sequence(akPu1Calocorr
                                                     akPu1CaloJetTracksAssociatorAtVertex
                                                     *
                                                     akPu1CaloJetBtagging
+                                                    *
+                                                    akPu1CaloNjettiness 
                                                     *
                                                     akPu1CalopatJetsWithBtagging
                                                     *
