@@ -87,18 +87,6 @@ namespace edm {
 
   static
   void
-  throwProductDeletedException(const char* where, TypeID const& productType,std::string const& label, std::string const& instance, std::string const& process) {
-    ProductDeletedException exception;
-    exception << "Principal::" << where << ": The product matching all criteria\nLooking for type: " << productType << "\n"
-      << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
-      << (process.empty() ? "" : "Looking for process: ") << process << "\n"
-      << "Was already deleted. This means there is a configuration error.\n"
-      << "The module which is asking for this data must be configured to state that it will read this data.";
-    throw exception;
-  }
-
-  static
-  void
   throwAmbiguousException(const char* where, TypeID const& productType,std::string const& label, std::string const& instance, std::string const& process) {
     cms::Exception exception("AmbiguousProduct");
     exception << "Principal::" << where << ": More than 1 product matches all criteria\nLooking for type: " << productType << "\n"
@@ -749,29 +737,6 @@ namespace edm {
                          nullptr,
                          mcc);
     return productData;
-  }
-
-  OutputHandle
-  Principal::getForOutput(BranchID const& bid, ModuleCallingContext const* mcc) const {
-    ConstProductHolderPtr const phb = getProductHolder(bid);
-    if(phb == nullptr) {
-      throwProductNotFoundException("getForOutput", errors::LogicError, bid);
-    }
-    if (phb->productWasDeleted()) {
-      throwProductDeletedException("getForOutput",phb->productType(),
-                                   phb->moduleLabel(),
-                                   phb->productInstanceName(),
-                                   phb->processName());
-    }
-    ProductHolderBase::ResolveStatus status;
-    auto productData = phb->resolveProduct(status,*this,false,nullptr, mcc);
-    
-    if(!productData || !productData->wrapper()) {
-      return OutputHandle();
-    }
-    return OutputHandle(productData->wrapper(),
-                        &productData->provenance().branchDescription(),
-                        productData->provenance().productProvenance());
   }
 
   Provenance

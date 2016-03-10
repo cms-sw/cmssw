@@ -1687,6 +1687,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      runPrincipal.setEndTime(input_->timestamp());
+      runPrincipal.setComplete();
       input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -1788,6 +1790,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      lumiPrincipal.setEndTime(input_->timestamp());
+      lumiPrincipal.setComplete();
       input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }

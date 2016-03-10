@@ -57,9 +57,7 @@ namespace edm {
       prov_(&productData.provenance()) {
     }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     BasicHandle(BasicHandle &&h) = default;
-#endif
     
     BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
       product_(iProd),
@@ -117,6 +115,12 @@ namespace edm {
     
     std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
       return whyFailedFactory_;
+    }
+
+    void clear() {
+      product_ = nullptr;
+      prov_ = nullptr;
+      whyFailedFactory_.reset();
     }
 
   private:
