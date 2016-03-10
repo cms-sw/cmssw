@@ -81,9 +81,10 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # Condition for P5 cluster
 if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Condition for lxplus
+# Condition for lxplus: change and possibly customise the GT
 elif(offlineTesting):
-    process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+    from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction
