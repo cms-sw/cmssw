@@ -84,6 +84,9 @@ process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_cleanedPbPb')
 # replace above with this one for JEC:
 #process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPbPb')
 
+#rho analyzer
+process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
+
 ####################################################################################
 
 #############################
@@ -159,6 +162,7 @@ process.ana_step = cms.Path(
                             process.akHiGenJets +
                             process.hiCleanedGenFilters + 
                             process.jetSequences +
+                            process.hiFJRhoAnalyzer +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
