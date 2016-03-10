@@ -267,6 +267,31 @@ namespace edm {
   bool AliasProductHolder::singleProduct_() const {
     return true;
   }
+  
+  void AliasProductHolder::checkType_(WrapperBase const&) const {
+    throw Exception(errors::LogicError)
+    << "AliasProductHolder::checkType_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void AliasProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
+    throw Exception(errors::LogicError)
+    << "AliasProductHolder::putProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void AliasProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
+    throw Exception(errors::LogicError)
+    << "AliasProductHolder::mergeProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  bool AliasProductHolder::putOrMergeProduct_() const {
+    throw Exception(errors::LogicError)
+    << "AliasProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
 
   
   void ParentProcessProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
@@ -287,6 +312,29 @@ namespace edm {
     return true;
   }
 
+  void ParentProcessProductHolder::checkType_(WrapperBase const&) const {
+    throw Exception(errors::LogicError)
+    << "ParentProcessProductHolder::checkType_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void ParentProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
+    throw Exception(errors::LogicError)
+    << "ParentProcessProductHolder::putProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void ParentProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
+    throw Exception(errors::LogicError)
+    << "ParentProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  bool ParentProcessProductHolder::putOrMergeProduct_() const {
+    throw Exception(errors::LogicError)
+    << "ParentProcessProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
   
   void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
     NoProcessProductHolder& other = dynamic_cast<NoProcessProductHolder&>(rhs);

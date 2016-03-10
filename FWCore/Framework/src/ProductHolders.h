@@ -177,16 +177,10 @@ namespace edm {
       virtual bool productResolved_() const override final {
           return realProduct_.productResolved(); }
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
-      virtual void checkType_(WrapperBase const& prod) const override {realProduct_.checkType(prod);}
-      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override {
-        realProduct_.putProduct(std::move(edp));
-      }
-      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override {
-        realProduct_.mergeProduct(std::move(edp));
-      }
-      virtual bool putOrMergeProduct_() const override {
-        return realProduct_.putOrMergeProduct();
-      }
+      virtual void checkType_(WrapperBase const& prod) const override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual bool putOrMergeProduct_() const override;
       virtual BranchDescription const& branchDescription_() const override {return *bd_;}
       virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
       virtual Provenance const* provenance_() const override final { return realProduct_.provenance(); }
@@ -227,16 +221,10 @@ namespace edm {
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
-    virtual void checkType_(WrapperBase const& prod) const override {realProduct_->checkType(prod);}
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override {
-      realProduct_->putProduct(std::move(edp));
-    }
-    virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override {
-      realProduct_->mergeProduct(std::move(edp));
-    }
-    virtual bool putOrMergeProduct_() const override {
-      return realProduct_->putOrMergeProduct();
-    }
+    virtual void checkType_(WrapperBase const& prod) const override; 
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override ;
+    virtual bool putOrMergeProduct_() const override ;
     virtual BranchDescription const& branchDescription_() const override {return *bd_;}
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
     virtual Provenance const* provenance_() const override final {return realProduct_->provenance();
