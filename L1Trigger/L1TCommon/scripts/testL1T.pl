@@ -359,6 +359,14 @@ sub main {
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x 'L1Trigger/L1TCommon/macros/NtupleDiff.C(\"$ours\",\"$theirs\")'");
 
+	$ours = "$WORK_DIR/test_1/L1Ntuple.root";
+	$theirs = "$COMPARE_DIR/$WORK_DIR/test_1/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x 'L1Trigger/L1TCommon/macros/NtupleDiff.C(\"$ours\",\"$theirs\")'");
+
 	# this is a hack until L1T uGT output goes into L1TNtuple:
 	system "grep \"L1T menu Name\" -A 109 $WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
 	system "grep \"L1T menu Name\" -A 109 $COMPARE_DIR/$WORK_DIR/test_0/CMSRUN.log > menu_b.txt";
