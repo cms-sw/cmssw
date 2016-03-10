@@ -293,7 +293,8 @@ sub run_job {
 #	case 0 {test_dummy; }
 	case 0 {test_reemul;}
 	case 1 {test_mc_prod; }
-	case 2 {test_unpackers_dont_crash; }
+	#case 2 {test_unpackers_dont_crash; }
+	case 2 {test_dummy; }
 	case 3 {test_pack_unpack_is_unity; }
 	else   {test_dummy; }
     }
@@ -353,6 +354,14 @@ sub main {
 	print "INFO: Comparing results with those in $COMPARE_DIR\n";
 	$ours = "$WORK_DIR/test_0/L1Ntuple.root";
 	$theirs = "$COMPARE_DIR/$WORK_DIR/test_0/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x 'L1Trigger/L1TCommon/macros/NtupleDiff.C(\"$ours\",\"$theirs\")'");
+
+	$ours = "$WORK_DIR/test_1/L1Ntuple.root";
+	$theirs = "$COMPARE_DIR/$WORK_DIR/test_1/L1Ntuple.root";
 	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
 	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
 	print "$ours\n";
