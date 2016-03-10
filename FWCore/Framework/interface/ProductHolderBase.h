@@ -123,17 +123,12 @@ namespace edm {
 
     // Puts the product into the ProductHolder.
     void putProduct(std::unique_ptr<WrapperBase> edp) const {
-      if(edp) {
-        checkType(*edp);
-        putProduct_(std::move(edp));
-      }
+      putProduct_(std::move(edp));
     }
 
     // If the product already exists we merge, else will put
     void putOrMergeProduct(std::unique_ptr<WrapperBase> edp) const;
     
-    void reallyCheckType(WrapperBase const& prod) const;
-
     void swap(ProductHolderBase& rhs) {swap_(rhs);}
 
     void throwProductDeletedException() const;
@@ -141,16 +136,9 @@ namespace edm {
     virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
 
   private:
-    void checkType(WrapperBase const& prod) const {
-      checkType_(prod);
-    }
-
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
-      if(edp) {
-        checkType(*edp);
-        mergeProduct_(std::move(edp));
-      }
+      mergeProduct_(std::move(edp));
     }
     
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
@@ -166,7 +154,6 @@ namespace edm {
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
-    virtual void checkType_(WrapperBase const& prod) const = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
     virtual Provenance const* provenance_() const = 0;

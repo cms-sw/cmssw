@@ -52,6 +52,9 @@ namespace edm {
   void
   DataManagingProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> iFrom) const {
     assert(status() == ProductStatus::ProductSet);
+    if(not iFrom) { return;}
+    
+    checkType(*iFrom);
     
     auto original =getProductData().unsafe_wrapper();
     if(original->isMergeable()) {
@@ -155,10 +158,24 @@ namespace edm {
     assert(false);
   }
   
+  void
+  DataManagingProductHolder::checkType(WrapperBase const& prod) const {
+    // Check if the types match.
+    TypeID typeID(prod.dynamicTypeInfo());
+    if(typeID != branchDescription().unwrappedTypeID()) {
+      // Types do not match.
+      throw Exception(errors::EventCorruption)
+      << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
+      << "It is supposed to be of type " << branchDescription().className() << ".\n"
+      << "It is actually of type " << typeID.className() << ".\n";
+    }
+  }
+  
 
   void
   DataManagingProductHolder::setProduct(std::unique_ptr<WrapperBase> edp) const {
     if(edp) {
+      checkType(*edp);
       productData_.unsafe_setWrapper(std::move(edp));
       theStatus_ = ProductStatus::ProductSet;
     } else {
@@ -268,12 +285,6 @@ namespace edm {
     return true;
   }
   
-  void AliasProductHolder::checkType_(WrapperBase const&) const {
-    throw Exception(errors::LogicError)
-    << "AliasProductHolder::checkType_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
   void AliasProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
     << "AliasProductHolder::putProduct_() not implemented and should never be called.\n"
@@ -312,12 +323,6 @@ namespace edm {
     return true;
   }
 
-  void ParentProcessProductHolder::checkType_(WrapperBase const&) const {
-    throw Exception(errors::LogicError)
-    << "ParentProcessProductHolder::checkType_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
   void ParentProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
     << "ParentProcessProductHolder::putProduct_() not implemented and should never be called.\n"
@@ -398,12 +403,6 @@ namespace edm {
   bool NoProcessProductHolder::putOrMergeProduct_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductHolder::checkType_(WrapperBase const&) const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 

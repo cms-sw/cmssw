@@ -56,19 +56,6 @@ namespace edm {
     return TypeID(branchDescription().wrappedTypeID());
   }
 
-  void
-  ProductHolderBase::reallyCheckType(WrapperBase const& prod) const {
-    // Check if the types match.
-    TypeID typeID(prod.dynamicTypeInfo());
-    if(typeID != branchDescription().unwrappedTypeID()) {
-      // Types do not match.
-      throw Exception(errors::EventCorruption)
-          << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
-          << "It is supposed to be of type " << branchDescription().className() << ".\n"
-          << "It is actually of type " << typeID.className() << ".\n";
-    }
-  }
-
   Provenance const*
   ProductHolderBase::provenance() const {
     return provenance_();

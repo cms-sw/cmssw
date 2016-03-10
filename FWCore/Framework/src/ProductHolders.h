@@ -66,9 +66,7 @@ namespace edm {
       theStatus_.store(other.theStatus_.exchange(theStatus_.load()));
     }
 
-    virtual void checkType_(WrapperBase const& prod) const override {
-      reallyCheckType(prod);
-    }
+    void checkType(WrapperBase const& prod) const;
     ProductData const& getProductData() const {return productData_;}
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override final;
     virtual bool productUnavailable_() const override final;
@@ -177,7 +175,6 @@ namespace edm {
       virtual bool productResolved_() const override final {
           return realProduct_.productResolved(); }
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
-      virtual void checkType_(WrapperBase const& prod) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
@@ -221,7 +218,6 @@ namespace edm {
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
-    virtual void checkType_(WrapperBase const& prod) const override; 
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override ;
     virtual bool putOrMergeProduct_() const override ;
@@ -264,7 +260,6 @@ namespace edm {
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual void checkType_(WrapperBase const& prod) const override;
       virtual BranchDescription const& branchDescription_() const override;
       virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
       virtual Provenance const* provenance_() const override;
