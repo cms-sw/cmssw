@@ -69,86 +69,50 @@
 //----------------
 L1NtupleProducer::L1NtupleProducer(const edm::ParameterSet& ps) : csctfPtLUTs_(NULL), tree_(0) {
 
-  hltTag_           = ps.getParameter<edm::InputTag>("hltSource");
-//gt, gmt  
-  gmtTag_           = ps.getParameter<edm::InputTag>("gmtSource");
-  gtEvmTag_         = ps.getParameter<edm::InputTag>("gtEvmSource");
-  gtTag_	    = ps.getParameter<edm::InputTag>("gtSource");
-  generatorTag_     = ps.getParameter<edm::InputTag>("generatorSource");
-  simulationTag_    = ps.getParameter<edm::InputTag>("simulationSource");
-//gct
-  gctCenJetsTag_    = ps.getParameter<edm::InputTag>("gctCentralJetsSource");
-  gctForJetsTag_    = ps.getParameter<edm::InputTag>("gctForwardJetsSource");
-  gctTauJetsTag_    = ps.getParameter<edm::InputTag>("gctTauJetsSource");
-  gctIsoTauJetsTag_ = ps.getParameter<edm::InputTag>("gctIsoTauJetsSource");
-  gctETTTag_        = ps.getParameter<edm::InputTag>("gctETTSource");
-  gctETMTag_        = ps.getParameter<edm::InputTag>("gctETMSource");
-  gctHTTTag_        = ps.getParameter<edm::InputTag>("gctHTTSource");
-  gctHTMTag_        = ps.getParameter<edm::InputTag>("gctHTMSource");
-  gctHFSumsTag_     = ps.getParameter<edm::InputTag>("gctHFSumsSource");
-  gctIsoEmTag_      = ps.getParameter<edm::InputTag>("gctIsoEmSource");
-  gctNonIsoEmTag_   = ps.getParameter<edm::InputTag>("gctNonIsoEmSource");
-  gctHFBitsTag_     = ps.getParameter<edm::InputTag>("gctHFBitsSource");
-//rct
-  rctRgnTag_        = ps.getParameter<edm::InputTag>("rctRgnSource");
-  rctEmTag_         = ps.getParameter<edm::InputTag>("rctEmSource");
-//dt  
-  dttfPhTag_        = ps.getParameter<edm::InputTag>("dttfPhSource");
-  dttfThTag_        = ps.getParameter<edm::InputTag>("dttfThSource");
-  dttfTrkTag_       = ps.getParameter<edm::InputTag>("dttfTrkSource");
-//ecal/hcal
-  ecalTag_          = ps.getParameter<edm::InputTag>("ecalSource");
-  hcalTag_          = ps.getParameter<edm::InputTag>("hcalSource");
-//csctf
-  csctfTrkTag_      = ps.getParameter<edm::InputTag>("csctfTrkSource");	
-  csctfLCTTag_      = ps.getParameter<edm::InputTag>("csctfLCTSource"); 
-  csctfStatusTag_   = ps.getParameter<edm::InputTag>("csctfStatusSource"); 
-  csctfDTStubsTag_  = ps.getParameter<edm::InputTag>("csctfDTStubsSource");
-
-  hltSource_           = consumes<edm::TriggerResults>(hltTag_);
+  hltSource_           = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("hltSource"));
 
 //gt, gmt  
-  gmtSource_           = consumes<L1MuGMTReadoutCollection>(gmtTag_);
-  gtEvmSource_         = consumes<L1GlobalTriggerEvmReadoutRecord>(gtEvmTag_);
-  gtSource_	       = consumes<L1GlobalTriggerReadoutRecord>(gtTag_);
-  generatorSource_     = consumes<reco::GenParticleCollection>(generatorTag_);
-  //  simulationSource_    = consumes<CaloTowerBxCollection>(simulationTag_);
+  gmtSource_           = consumes<L1MuGMTReadoutCollection>(ps.getParameter<edm::InputTag>("gmtSource"));
+  gtEvmSource_         = consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag>("gtEvmSource"));
+  gtSource_	       = consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag>("gtSource"));
+  generatorSource_     = consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("generatorSource"));
+  //  simulationSource_    = consumes<CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("simulationSource"));
   physVal_             = ps.getParameter< bool >("physVal");
   
 //gct
-  gctCenJetsSource_    = consumes<L1GctJetCandCollection>(gctCenJetsTag_);
-  gctForJetsSource_    = consumes<L1GctJetCandCollection>(gctForJetsTag_);
-  gctTauJetsSource_    = consumes<L1GctJetCandCollection>(gctTauJetsTag_);
-  gctIsoTauJetsSource_ = consumes<L1GctJetCandCollection>(gctIsoTauJetsTag_);
-  gctETTSource_        = consumes<L1GctEtTotalCollection>(gctETTTag_);
-  gctETMSource_        = consumes<L1GctEtMissCollection>(gctETMTag_);
-  gctHTTSource_        = consumes<L1GctEtHadCollection>(gctHTTTag_);
-  gctHTMSource_        = consumes<L1GctHtMissCollection>(gctHTMTag_);
-  gctHFSumsSource_     = consumes<L1GctHFRingEtSumsCollection>(gctHFSumsTag_);
-  gctIsoEmSource_      = consumes<L1GctEmCandCollection>(gctIsoEmTag_);
-  gctNonIsoEmSource_   = consumes<L1GctEmCandCollection>(gctNonIsoEmTag_);
-  gctHFBitsSource_     = consumes<L1GctHFBitCountsCollection>(gctHFBitsTag_);
+  gctCenJetsSource_    = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctCentralJetsSource"));
+  gctForJetsSource_    = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctForwardJetsSource"));
+  gctTauJetsSource_    = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctTauJetsSource"));
+  gctIsoTauJetsSource_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctIsoTauJetsSource"));
+  gctETTSource_ = consumes<L1GctEtTotalCollection>(ps.getParameter<edm::InputTag>("gctETTSource"));
+  gctETMSource_ = consumes<L1GctEtMissCollection>(ps.getParameter<edm::InputTag>("gctETMSource"));
+  gctHTTSource_ = consumes<L1GctEtHadCollection>(ps.getParameter<edm::InputTag>("gctHTTSource"));
+  gctHTMSource_ = consumes<L1GctHtMissCollection>(ps.getParameter<edm::InputTag>("gctHTMSource"));
+  gctHFSumsSource_ = consumes<L1GctHFRingEtSumsCollection>(ps.getParameter<edm::InputTag>("gctHFSumsSource"));
+  gctIsoEmSource_      = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctIsoEmSource"));
+  gctNonIsoEmSource_   = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctNonIsoEmSource"));
+  gctHFBitsSource_ = consumes<L1GctHFBitCountsCollection>(ps.getParameter<edm::InputTag>("gctHFBitsSource"));
 
   verbose_             = ps.getUntrackedParameter< bool >("verbose", false);
 
 //rct
-  rctRgnSource_        = consumes<L1CaloRegionCollection>(rctRgnTag_);
-  rctEmSource_         = consumes<L1CaloEmCollection>(rctEmTag_);
+  rctRgnSource_           = consumes<L1CaloRegionCollection>(ps.getParameter<edm::InputTag>("rctRgnSource"));
+  rctEmSource_           = consumes<L1CaloEmCollection>(ps.getParameter<edm::InputTag>("rctEmSource"));
 
 //dt  
-  dttfPhSource_        = consumes<L1MuDTChambPhContainer>(dttfPhTag_);
-  dttfThSource_        = consumes<L1MuDTChambThContainer>(dttfThTag_);
-  dttfTrkSource_       = consumes<L1MuDTTrackContainer>(dttfTrkTag_);
+  dttfPhSource_          = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("dttfPhSource"));
+  dttfThSource_          = consumes<L1MuDTChambThContainer>(ps.getParameter<edm::InputTag>("dttfThSource"));
+  dttfTrkSource_          = consumes<L1MuDTTrackContainer>(ps.getParameter<edm::InputTag>("dttfTrkSource"));
   
 //ecal/hcal
-  ecalSource_          = consumes<EcalTrigPrimDigiCollection>(ecalTag_);
-  hcalSource_          = consumes<HcalTrigPrimDigiCollection>(hcalTag_);
+  ecalSource_          = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalSource"));
+  hcalSource_          = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalSource"));
 
 //csctf
-  csctfTrkSource_      = consumes<L1CSCTrackCollection>(csctfTrkTag_);	
-  csctfLCTSource_      = consumes<CSCCorrelatedLCTDigiCollection>(csctfLCTTag_); 
-  csctfStatusSource_   = consumes<L1CSCStatusDigiCollection>(csctfStatusTag_); 
-  csctfDTStubsSource_  = consumes<CSCTriggerContainer<csctf::TrackStub> >(csctfDTStubsTag_);
+  csctfTrkSource_      = consumes<L1CSCTrackCollection>(ps.getParameter<edm::InputTag>("csctfTrkSource"));	
+  csctfLCTSource_      = consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("csctfLCTSource")); 
+  csctfStatusSource_   = consumes<L1CSCStatusDigiCollection>(ps.getParameter<edm::InputTag>("csctfStatusSource")); 
+  csctfDTStubsSource_  = consumes<CSCTriggerContainer<csctf::TrackStub> >(ps.getParameter<edm::InputTag>("csctfDTStubsSource"));
 
   initCSCTFPtLutsPSet  = ps.getParameter< bool >("initCSCTFPtLutsPSet");
   csctfPtLutsPSet      = ps.getParameter<edm::ParameterSet>("csctfPtLutsPSet");
@@ -249,33 +213,15 @@ void L1NtupleProducer::endJob() {
 void L1NtupleProducer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   
    //add if "none" ..
-  if (hltTag_.label() != "none") analyzeEvent(e);
-  if (generatorTag_.label() != "none") analyzeGenerator(e);
-  if (simulationTag_.label() != "none") analyzeSimulation(e);
-  if (gmtTag_.label() != "none") analyzeGMT(e);
-  if (gtTag_.label() != "none" &&
-      gtEvmTag_.label() != "none") analyzeGT(e);
-  if (gctCenJetsTag_.label() != "none" &&
-      gctForJetsTag_.label() != "none" &&
-      gctTauJetsTag_.label() != "none" &&
-      gctIsoTauJetsTag_.label() != "none" &&
-      gctETTTag_.label() != "none" &&
-      gctETMTag_.label() != "none" &&
-      gctHTTTag_.label() != "none" &&
-      gctHTMTag_.label() != "none" &&
-      gctHFSumsTag_.label() != "none" &&
-      gctHFBitsTag_.label() != "none" &&
-      gctIsoEmTag_.label() != "none" &&
-      gctNonIsoEmTag_.label() != "none") analyzeGCT(e);
-  if (rctRgnTag_.label() != "none" &&
-      rctEmTag_.label() != "none") analyzeRCT(e);
-  if (dttfPhTag_.label() != "none" &&
-      dttfThTag_.label() != "none" &&
-      dttfTrkTag_.label() != "none") analyzeDTTF(e);
-  if (csctfTrkTag_.label() != "none" &&
-      csctfLCTTag_.label() != "none" &&
-      csctfStatusTag_.label() != "none" &&
-      csctfDTStubsTag_.label() != "none") analyzeCSCTF(e,es); 
+  analyzeEvent(e);
+  analyzeGenerator(e);
+  analyzeSimulation(e);
+  analyzeGMT(e);
+  analyzeGT(e);
+  analyzeGCT(e);
+  analyzeRCT(e);
+  analyzeDTTF(e);
+  analyzeCSCTF(e,es); 
   //  pL1calotp->Reset();
   //  analyzeECAL(e, es);
   //  analyzeHCAL(e, es);                           
@@ -297,7 +243,7 @@ void L1NtupleProducer::analyzeGenerator(const edm::Event& e) {
 
   if(!generatorSource_.isUninitialized()) {
     pL1generator->Reset();
-    pL1generator->Set(e);
+    //    pL1generator->Set(e);
   }  
 
 }
@@ -315,11 +261,11 @@ void L1NtupleProducer::analyzeGMT(const edm::Event& e) {
   pL1gmt->Reset();
   
   if (!gmtSource_.isUninitialized()) {
-     edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-     e.getByToken(gmtSource_,gmtrc_handle);
-     L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
+    // edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
+    // e.getByToken(gmtSource_,gmtrc_handle);
+    // L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
     
-     pL1gmt->Set(gmtrc, maxDTBX_, maxCSC_, maxRPC_, maxGMT_, physVal_);
+    // pL1gmt->Set(gmtrc, maxDTBX_, maxCSC_, maxRPC_, maxGMT_, physVal_);
   }
 }
 

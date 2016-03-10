@@ -26,11 +26,4 @@
 <class name="L1Analysis::L1AnalysisRecoTauDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoMuon2DataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoElectronDataFormat"/>
-
-<class name="L1Analysis::L1AnalysisUGMTDataFormat"/>
-<class name="L1Analysis::L1AnalysisRegMuonDataFormat"/>
-<class name="L1Analysis::L1AnalysisMuTwrDataFormat"/>
-<class name="std::map<L1Analysis::tftype,L1Analysis::L1AnalysisRegMuonDataFormat>" />
-<class name="std::vector<L1Analysis::TFLink>" />
-<class name="L1Analysis::TFLink" />
 </lcgdict>

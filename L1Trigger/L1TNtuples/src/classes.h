@@ -25,7 +25,6 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTauDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoElectronDataFormat.h"
-#include "L1Trigger/L1TNtuples/interface/L1AnalysisUGMTDataFormat.h"
 
 namespace{
   namespace{
@@ -56,12 +55,5 @@ namespace{
     L1Analysis::L1AnalysisRecoTauDataFormat        pL1tau; 
     L1Analysis::L1AnalysisRecoMuon2DataFormat      pL1muon2;
     L1Analysis::L1AnalysisRecoElectronDataFormat   pL1electron;
-
-    L1Analysis::L1AnalysisUGMTDataFormat        pL1uGmt;
-    L1Analysis::L1AnalysisRegMuonDataFormat        pL1uRegGmt;
-    std::map<L1Analysis::tftype,L1Analysis::L1AnalysisRegMuonDataFormat> pGMTlink;
-    std::vector<L1Analysis::TFLink> tfLinkVec;
-    L1Analysis::TFLink tfLink;
-    L1Analysis::L1AnalysisMuTwrDataFormat pGMTCaloTwrs;
    }
 }

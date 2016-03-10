@@ -23,7 +23,6 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
-<use name="DataFormats/L1TMuon"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/DTGeometryBuilder"/>
@@ -42,7 +41,6 @@
 <use name="PhysicsTools/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="L1Trigger/L1TNtuples"/>
-<use name="L1Trigger/L1TMuon"/>
 <library   file="*.cc" name="L1TriggerL1TNtuplePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
