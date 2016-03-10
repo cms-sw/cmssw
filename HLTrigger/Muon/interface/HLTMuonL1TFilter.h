@@ -39,9 +39,16 @@ class HLTMuonL1TFilter : public HLTFilter {
     
     /// pT threshold
     double minPt_;
+
+    /// Quality codes:
+    /// to be updated with new L1 quality definitions
+    int qualityBitMask_;
     
     /// min N objects
     double minN_;
+    
+    /// use central bx only muons
+    bool centralBxOnly_;
     
 };
 

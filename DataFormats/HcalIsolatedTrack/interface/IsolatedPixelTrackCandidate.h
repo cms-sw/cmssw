@@ -9,6 +9,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
@@ -58,11 +60,33 @@ namespace reco {
       phiEcal_=0;
       etaPhiEcal_=false;
     }
+    // constructor from a track using l1t
+  IsolatedPixelTrackCandidate(const reco::TrackRef & tr, const l1t::TauRef & tauRef, double max, double sum): 
+    RecoCandidate( 0, LorentzVector((tr.get()->px()),(tr.get())->py(),(tr.get())->pz(),(tr.get())->p()) ),
+      track_(tr), l1ttauJet_(tauRef), maxPtPxl_(max), sumPtPxl_(sum) {
+      enIn_=-1;
+      enOut_=-1;
+      nhitIn_=-1;
+      nhitOut_=-1;
+      etaEcal_=0;
+      phiEcal_=0;
+      etaPhiEcal_=false;
+    }
         
     ///constructor from tau jet
     IsolatedPixelTrackCandidate(const l1extra::L1JetParticleRef & tauRef, double enIn, double enOut, int nhitIn, int nhitOut):
     RecoCandidate( 0, LorentzVector(tauRef->px(),tauRef->py(),tauRef->pz(),tauRef->p()) ), 
       l1tauJet_(tauRef), enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {
+      maxPtPxl_=-1;
+      sumPtPxl_=-1;
+      etaEcal_=0;
+      phiEcal_=0;
+      etaPhiEcal_=false;
+    }
+    ///constructor from tau jet using l1t
+    IsolatedPixelTrackCandidate(const l1t::TauRef & tauRef, double enIn, double enOut, int nhitIn, int nhitOut):
+    RecoCandidate( 0, LorentzVector(tauRef->px(),tauRef->py(),tauRef->pz(),tauRef->p()) ), 
+      l1ttauJet_(tauRef), enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {
       maxPtPxl_=-1;
       sumPtPxl_=-1;
       etaEcal_=0;
@@ -93,7 +117,11 @@ namespace reco {
     /// get reference to L1 tau jet
     virtual l1extra::L1JetParticleRef l1tau() const;
     void    setL1TauJet( const l1extra::L1JetParticleRef & tauRef ) { l1tauJet_ = tauRef; }
-          
+
+    /// get reference to L1 tau jet from lt1
+    virtual l1t::TauRef l1ttau() const;
+    void    setL1TTauJet( const l1t::TauRef & tauRef ) { l1ttauJet_ = tauRef; }
+
     /// ECAL energy in the inner cone around tau jet
     double energyIn() const {return enIn_; }
     void   setEnergyIn(double a) {enIn_=a;}
@@ -129,6 +157,8 @@ namespace reco {
     reco::TrackRef track_;
     /// reference to a L1 tau jet
     l1extra::L1JetParticleRef l1tauJet_;
+    /// reference to a S2 L1 tau jet
+    l1t::TauRef l1ttauJet_;
     /// highest Pt of other pixel tracks in the cone around the candidate
     double maxPtPxl_;
     /// Pt sum of other pixel tracks in the cone around the candidate
