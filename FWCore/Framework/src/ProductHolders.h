@@ -66,6 +66,7 @@ namespace edm {
       theStatus_.store(other.theStatus_.exchange(theStatus_.load()));
     }
 
+    void throwProductDeletedException() const;
     void checkType(WrapperBase const& prod) const;
     ProductData const& getProductData() const {return productData_;}
     // merges the product with the pre-existing product

@@ -11,19 +11,6 @@
 
 namespace edm {
 
-  void ProductHolderBase::throwProductDeletedException() const {
-    ProductDeletedException exception;
-    exception << "ProductHolderBase::resolveProduct_: The product matching all criteria was already deleted\n"
-      << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
-      << "Looking for module label: " << moduleLabel() << "\n"
-      << "Looking for productInstanceName: " << productInstanceName() << "\n"
-      << (processName().empty() ? "" : "Looking for process: ") << processName() << "\n"
-      << "This means there is a configuration error.\n"
-      << "The module which is asking for this data must be configured to state that it will read this data.";
-    throw exception;
-    
-  }
-  
   ProductHolderBase::ProductHolderBase() {}
 
   ProductHolderBase::~ProductHolderBase() {}

@@ -133,8 +133,6 @@ namespace edm {
     
     void swap(ProductHolderBase& rhs) {swap_(rhs);}
 
-    void throwProductDeletedException() const;
-
     virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
 
   private:
