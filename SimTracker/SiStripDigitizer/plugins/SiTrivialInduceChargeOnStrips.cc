@@ -13,6 +13,7 @@
 
 namespace {
   struct Count {
+    Count() {}
 #ifdef SISTRIP_COUNT
     // note: this code is not thread safe, counts will be inaccurate if run with multiple threads
     double ncall=0;
