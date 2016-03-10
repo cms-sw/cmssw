@@ -58,14 +58,14 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   }
 
 #ifdef DebugLog
-  LogDebug("HGCSim") << "**************************************************" 
-                      << "\n"
-                      << "*                                                *"
-                      << "\n"
-                      << "* Constructing a HGCSD  with name " << name << "\n"
-                      << "*                                                *"
-                      << "\n"
-                      << "**************************************************";
+  edm::LogInfo("HGCSim")<< "**************************************************"
+			<< "\n"
+			<< "*                                                *"
+			<< "\n"
+			<< "* Constructing a HGCSD  with name " << name << "\n"
+			<< "*                                                *"
+			<< "\n"
+			<< "**************************************************";
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
 }
@@ -154,8 +154,8 @@ void HGCSD::initRun() {
   mumPDG = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
   mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
 #ifdef DebugLog
-  LogDebug("HGCSim") << "HGCSD: Particle code for mu- = " << mumPDG
-		     << " for mu+ = " << mupPDG;
+  edm::LogInfo("HGCSim") << "HGCSD: Particle code for mu- = " << mumPDG
+			 << " for mu+ = " << mupPDG;
 #endif
 }
 
@@ -163,14 +163,11 @@ bool HGCSD::filterHit(CaloG4Hit* aHit, double time) {
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > eminHit));
 }
 
-
-//
 uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
 			      int cell, int iz, G4ThreeVector &pos) {  
   return (numberingScheme ? numberingScheme->getUnitID(subdet, layer, module, cell, iz, pos) : 0);
 }
 
-//
 int HGCSD::setTrackID (G4Step* aStep) {
   theTrack     = aStep->GetTrack();
 
