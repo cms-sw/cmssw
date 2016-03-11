@@ -46,6 +46,7 @@ namespace edm {
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class SharedResourcesAcquirer;
+  class InputProductResolver;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -176,15 +177,6 @@ namespace edm {
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    // Make my DelayedReader get the EDProduct for a ProductResolver.
-    // The ProductResolver is a cache, and so can be modified through the const
-    // reference.
-    // We do not change the *number* of products through this call, and so
-    // *this is const.
-    void readFromSource(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
-      readFromSource_(phb, mcc);
-    }
-
     void readAllFromSourceAndMergeImmediately();
     
     virtual bool unscheduledFill(std::string const& moduleLabel,
@@ -212,6 +204,17 @@ namespace edm {
     
   private:
 
+    // Make my DelayedReader get the EDProduct for a ProductResolver.
+    // The ProductResolver is a cache, and so can be modified through the const
+    // reference.
+    // We do not change the *number* of products through this call, and so
+    // *this is const.
+    // This function is only meant to be called by InputProductResolver
+    friend class InputProductResolver;
+    void readFromSource(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
+      readFromSource_(phb, mcc);
+    }
+    
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
     void addInputProduct(std::shared_ptr<BranchDescription const> bd);

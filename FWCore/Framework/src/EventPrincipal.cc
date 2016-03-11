@@ -186,8 +186,6 @@ namespace edm {
 
    void
   EventPrincipal::readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(phb.productUnavailable()) return; // nothing to do.
     if(!reader()) return; // nothing to do.
     
     // must attempt to load from persistent store
