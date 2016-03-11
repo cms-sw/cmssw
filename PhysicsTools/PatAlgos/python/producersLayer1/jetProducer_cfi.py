@@ -38,17 +38,15 @@ patJets = cms.EDProducer("PATJetProducer",
     discriminatorSources = cms.VInputTag(
         cms.InputTag("pfJetBProbabilityBJetTags"),
         cms.InputTag("pfJetProbabilityBJetTags"),
-#        cms.InputTag("pfTrackCountingHighPurBJetTags"),
         cms.InputTag("pfTrackCountingHighEffBJetTags"),
         cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-#        cms.InputTag("pfSimpleInclusiveSecondaryVertexHighEffBJetTags"),
-#        cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
+        cms.InputTag("pfSimpleInclusiveSecondaryVertexHighEffBJetTags"),
         cms.InputTag("pfCombinedSecondaryVertexV2BJetTags"),
         cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
         cms.InputTag("softPFMuonBJetTags"),
         cms.InputTag("softPFElectronBJetTags"),
         cms.InputTag("pfCombinedMVAV2BJetTags"),
-        #CTagging
+        # CTagging
         cms.InputTag('pfCombinedCvsLJetTags'),
         cms.InputTag('pfCombinedCvsBJetTags')
     ),
