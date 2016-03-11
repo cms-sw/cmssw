@@ -3,7 +3,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 
 # set to True if you want several parallel processes
-multi_thread = True
+multi_thread = False
 
 # input component 
 # several input components can be declared,
