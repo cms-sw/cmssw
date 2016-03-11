@@ -84,8 +84,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
       for(uint32_t hcalInput = 0; hcalInput <= 0xFF; hcalInput++) {
 	uint32_t value = hcalInput;
 	if(useHCALLUT) {
-	  double linearizedHcalInput = e->et(hcalInput, absCaloEta, 1);
-	  if(linearizedHcalInput != (e->et(hcalInput, absCaloEta, -1))) {
+	  double linearizedHcalInput = h->et(hcalInput, absCaloEta, 1);
+	  if(linearizedHcalInput != (h->et(hcalInput, absCaloEta, -1))) {
 	    std::cerr << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
 	  }
 	  // Use ecal = 0 to get hcal only energy but in RCT JetMET scale - should be 8-bit max
