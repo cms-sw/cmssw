@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import *
 
-pfImpactParameterTagInfosCA15 = pfImpactParameterTagInfos.clone(
+pfImpactParameterAK8TagInfos = pfImpactParameterTagInfos.clone(
     computeProbabilities = cms.bool(False),
     computeGhostTrack = cms.bool(False),
-    jets = cms.InputTag("ca15PFJetsCHS"),
-    maxDeltaR = cms.double(1.5)
+    jets = cms.InputTag("ak8PFJetsCHS"),
+    maxDeltaR = cms.double(0.8)
 )
