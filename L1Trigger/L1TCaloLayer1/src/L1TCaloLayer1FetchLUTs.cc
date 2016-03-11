@@ -42,30 +42,31 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloLSB (caloParams.towerLsbSum()) != 0.5, actually = " << caloLSB;
   }
 
-  // ECal/HCal scale factors will be a 9*28 array:
+  // ECal/HCal scale factors will be a x*28 array:
   //   28 eta scale factors (1-28)
-  //   in 9 ET bins (10, 15, 20, 25, 30, 35, 40, 45, Max) N.B. Max effectively is 256*caloLSB
+  //   x = size of Real ET Bins vector
   //   So, index = etBin*28+ieta
-  const std::vector<double> caloSFETBins{10., 15., 20., 25., 30., 35., 40., 45., 1.e6};
+  auto ecalScaleETBins = caloParams.layer1ECalScaleETBins();
   auto ecalSF = caloParams.layer1ECalScaleFactors();
-  if ( ecalSF.size() != 9*28 ) {
-    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != 9*28 !!";
+  if ( ecalSF.size() != ecalScaleETBins.size()*28 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != caloParams.layer1ECalScaleETBins().size()*28 !!";
     return false;
   }
+  auto hcalScaleETBins = caloParams.layer1HCalScaleETBins();
   auto hcalSF = caloParams.layer1HCalScaleFactors();
-  if ( hcalSF.size() != 9*28 ) {
-    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != 9*28 !!";
+  if ( hcalSF.size() != hcalScaleETBins.size()*28 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != caloParams.layer1HCalScaleETBins().size()*28 !!";
     return false;
   }
 
-  // HF 1x1 scale factors will be a 5*12 array:
+  // HF 1x1 scale factors will be a x*12 array:
   //  12 eta scale factors (30-41)
-  //  in 5 REAL ET bins (5, 20, 30, 50, Max)
+  //   x = size of Real ET Bins vector
   //  So, index = etBin*12+ietaHF
-  const std::vector<double> hfSFETBins{5., 20., 30., 50., 1.e6};
+  auto hfScaleETBins = caloParams.layer1HFScaleETBins();
   auto hfSF = caloParams.layer1HFScaleFactors();
-  if ( hfSF.size() != 12*5 ) {
-    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != 5*12 !!";
+  if ( hfSF.size() != hfScaleETBins.size()*12 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != caloParams.layer1HFScaleETBins().size()*12 !!";
     return false;
   }
 
@@ -87,11 +88,11 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
       for(uint32_t ecalInput = 0; ecalInput <= 0xFF; ecalInput++) {
 	uint32_t value = ecalInput;
 	if(useECALLUT) {
-	  double linearizedECalInput = ecalInput*ecalLSB;
+	  double linearizedECalInput = ecalInput*ecalLSB; // in GeV
 
           uint32_t etBin = 0;
-          for(; etBin < caloSFETBins.size(); etBin++) {
-            if(linearizedECalInput < caloSFETBins[etBin]) break;
+          for(; etBin < ecalScaleETBins.size(); etBin++) {
+            if(linearizedECalInput < ecalScaleETBins[etBin]) break;
           }
           double calibratedECalInput = linearizedECalInput*ecalSF.at(etBin*28 + iEta);
 
@@ -121,14 +122,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	uint32_t value = hcalInput;
 	if(useHCALLUT) {
           // hcaletValue defined in L137 of CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.cc
-	  double linearizedHcalInput = decoder->hcaletValue(absCaloEta, hcalInput);
+	  double linearizedHcalInput = decoder->hcaletValue(absCaloEta, hcalInput); // in GeV
 	  if(linearizedHcalInput != decoder->hcaletValue(-absCaloEta, hcalInput)) {
 	    edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
 	  }
 
           uint32_t etBin = 0;
-          for(; etBin < caloSFETBins.size(); etBin++) {
-            if(linearizedHcalInput < caloSFETBins[etBin]) break;
+          for(; etBin < hcalScaleETBins.size(); etBin++) {
+            if(linearizedHcalInput < hcalScaleETBins[etBin]) break;
           }
           double calibratedHcalInput = linearizedHcalInput*hcalSF.at(etBin*28 + iEta);
 
@@ -157,11 +158,11 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
       uint32_t value = etCode;
       if(useHFLUT) {
-        double linearizedHFInput = decoder->hcaletValue(30+etaBin, value);
+        double linearizedHFInput = decoder->hcaletValue(30+etaBin, value); // in GeV
 
 	uint32_t etBin = 0;
-	for(; etBin < hfSFETBins.size(); etBin++) {
-	  if(linearizedHFInput < hfSFETBins[etBin]) break;
+	for(; etBin < hfScaleETBins.size(); etBin++) {
+	  if(linearizedHFInput < hfScaleETBins[etBin]) break;
 	}
         double calibratedHFInput = linearizedHFInput*hfSF.at(etBin*12+etaBin);
 
