@@ -1,19 +1,19 @@
-#ifndef FWCore_Framework_ProductHolders_h
-#define FWCore_Framework_ProductHolders_h
+#ifndef FWCore_Framework_ProductResolvers_h
+#define FWCore_Framework_ProductResolvers_h
 
 /*----------------------------------------------------------------------
 
-ProductHolder: A collection of information related to a single WrapperBase or
+ProductResolver: A collection of information related to a single WrapperBase or
 a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
-#include "FWCore/Framework/interface/ProductHolderBase.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <memory>
@@ -28,7 +28,7 @@ namespace edm {
   class SharedResourcesAcquirer;
   class Principal;
   
-  class DataManagingProductHolder : public ProductHolderBase {
+  class DataManagingProductResolver : public ProductResolverBase {
   public:
     enum class ProductStatus {
       ProductSet,
@@ -38,16 +38,16 @@ namespace edm {
       ProductDeleted
     };
     
-    DataManagingProductHolder(std::shared_ptr<BranchDescription const> bd,ProductStatus iDefaultStatus): ProductHolderBase(),
+    DataManagingProductResolver(std::shared_ptr<BranchDescription const> bd,ProductStatus iDefaultStatus): ProductResolverBase(),
     productData_(bd),
     theStatus_(iDefaultStatus),
     defaultStatus_(iDefaultStatus){}
     
-    virtual void connectTo(ProductHolderBase const&, Principal const*) override final;
+    virtual void connectTo(ProductResolverBase const&, Principal const*) override final;
 
     void resetStatus() {theStatus_ = defaultStatus_;}
     
-    //Give AliasProductHolder access
+    //Give AliasProductResolver access
     virtual void resetProductData_(bool deleteEarly) override final;
 
   protected:
@@ -60,8 +60,8 @@ namespace edm {
     ProductData const* resolveProductImpl( FUNC resolver, ResolveStatus& resolveStatus) const;
     
   private:
-    virtual void swap_(ProductHolderBase& rhs) override {
-      auto& other = dynamic_cast<DataManagingProductHolder&>(rhs);
+    virtual void swap_(ProductResolverBase& rhs) override {
+      auto& other = dynamic_cast<DataManagingProductResolver&>(rhs);
       edm::swap(productData_, other.productData_);
       theStatus_.store(other.theStatus_.exchange(theStatus_.load()));
     }
@@ -91,10 +91,10 @@ namespace edm {
     ProductStatus const defaultStatus_;
   };
 
-  class InputProductHolder : public DataManagingProductHolder {
+  class InputProductResolver : public DataManagingProductResolver {
     public:
-    explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd) :
-      DataManagingProductHolder(bd, ProductStatus::ResolveNotRun) {}
+    explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd) :
+      DataManagingProductResolver(bd, ProductStatus::ResolveNotRun) {}
 
     private:
     
@@ -109,21 +109,21 @@ namespace edm {
   };
 
   // Free swap function
-  inline void swap(InputProductHolder& a, InputProductHolder& b) {
+  inline void swap(InputProductResolver& a, InputProductResolver& b) {
     a.swap(b);
   }
 
-  class ProducedProductHolder : public DataManagingProductHolder {
+  class ProducedProductResolver : public DataManagingProductResolver {
     public:
-      ProducedProductHolder(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductHolder(bd, iDefaultStatus) {assert(bd->produced());}
+      ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
     private:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
   };
 
-  class PuttableProductHolder : public ProducedProductHolder {
+  class PuttableProductResolver : public ProducedProductResolver {
   public:
-    explicit PuttableProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(bd, ProductStatus::NotPut) {}
+    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut) {}
 
   private:
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
@@ -134,10 +134,10 @@ namespace edm {
     virtual bool unscheduledWasNotRun_() const override {return false;}
   };
   
-  class UnscheduledProductHolder : public ProducedProductHolder {
+  class UnscheduledProductResolver : public ProducedProductResolver {
     public:
-      explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd) :
-       ProducedProductHolder(bd,ProductStatus::ResolveNotRun) {}
+      explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd) :
+       ProducedProductResolver(bd,ProductStatus::ResolveNotRun) {}
     private:
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
@@ -148,22 +148,22 @@ namespace edm {
   };
 
   // Free swap function
-  inline void swap(UnscheduledProductHolder& a, UnscheduledProductHolder& b) {
+  inline void swap(UnscheduledProductResolver& a, UnscheduledProductResolver& b) {
     a.swap(b);
   }
 
-  class AliasProductHolder : public ProductHolderBase {
+  class AliasProductResolver : public ProductResolverBase {
     public:
-      typedef ProducedProductHolder::ProductStatus ProductStatus;
-      explicit AliasProductHolder(std::shared_ptr<BranchDescription const> bd, ProducedProductHolder& realProduct) : ProductHolderBase(), realProduct_(realProduct), bd_(bd) {}
+      typedef ProducedProductResolver::ProductStatus ProductStatus;
+      explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct) : ProductResolverBase(), realProduct_(realProduct), bd_(bd) {}
     
-      virtual void connectTo(ProductHolderBase const& iOther, Principal const* iParentPrincipal) override final {
+      virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
         realProduct_.connectTo(iOther, iParentPrincipal );
       };
 
     private:
-      virtual void swap_(ProductHolderBase& rhs) override {
-        AliasProductHolder& other = dynamic_cast<AliasProductHolder&>(rhs);
+      virtual void swap_(ProductResolverBase& rhs) override {
+        AliasProductResolver& other = dynamic_cast<AliasProductResolver&>(rhs);
         realProduct_.swap(other.realProduct_);
         std::swap(bd_, other.bd_);
       }
@@ -190,23 +190,23 @@ namespace edm {
       virtual void resetProductData_(bool deleteEarly) override;
       virtual bool singleProduct_() const override;
 
-      ProducedProductHolder& realProduct_;
+      ProducedProductResolver& realProduct_;
       std::shared_ptr<BranchDescription const> bd_;
   };
 
-  class ParentProcessProductHolder : public ProductHolderBase {
+  class ParentProcessProductResolver : public ProductResolverBase {
   public:
-    typedef ProducedProductHolder::ProductStatus ProductStatus;
-    explicit ParentProcessProductHolder(std::shared_ptr<BranchDescription const> bd) : ProductHolderBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
+    typedef ProducedProductResolver::ProductStatus ProductStatus;
+    explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd) : ProductResolverBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
     
-    virtual void connectTo(ProductHolderBase const& iOther, Principal const* iParentPrincipal) override final {
+    virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
       realProduct_ = &iOther;
       parentPrincipal_ = iParentPrincipal;
     };
     
   private:
-    virtual void swap_(ProductHolderBase& rhs) override {
-      ParentProcessProductHolder& other = dynamic_cast<ParentProcessProductHolder&>(rhs);
+    virtual void swap_(ProductResolverBase& rhs) override {
+      ParentProcessProductResolver& other = dynamic_cast<ParentProcessProductResolver&>(rhs);
       std::swap(realProduct_,other.realProduct_);
       std::swap(bd_, other.bd_);
     }
@@ -232,19 +232,19 @@ namespace edm {
     virtual void resetProductData_(bool deleteEarly) override;
     virtual bool singleProduct_() const override;
     
-    ProductHolderBase const* realProduct_;
+    ProductResolverBase const* realProduct_;
     std::shared_ptr<BranchDescription const> bd_;
     ProductProvenanceRetriever const* provRetriever_;
     Principal const* parentPrincipal_;
   };
 
-  class NoProcessProductHolder : public ProductHolderBase {
+  class NoProcessProductResolver : public ProductResolverBase {
     public:
-      typedef ProducedProductHolder::ProductStatus ProductStatus;
-      NoProcessProductHolder(std::vector<ProductHolderIndex> const& matchingHolders,
+      typedef ProducedProductResolver::ProductStatus ProductStatus;
+      NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
                              std::vector<bool> const& ambiguous);
     
-    virtual void connectTo(ProductHolderBase const& iOther, Principal const*) override final ;
+    virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
 
     private:
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
@@ -252,7 +252,7 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual void swap_(ProductHolderBase& rhs) override;
+      virtual void swap_(ProductResolverBase& rhs) override;
       virtual bool unscheduledWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
@@ -270,7 +270,7 @@ namespace edm {
       virtual void resetProductData_(bool deleteEarly) override;
       virtual bool singleProduct_() const override;
 
-      std::vector<ProductHolderIndex> matchingHolders_;
+      std::vector<ProductResolverIndex> matchingHolders_;
       std::vector<bool> ambiguous_;
   };
 

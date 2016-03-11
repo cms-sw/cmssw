@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "FWCore/Framework/interface/ProductHolderBase.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 
@@ -11,12 +11,12 @@
 
 namespace edm {
 
-  ProductHolderBase::ProductHolderBase() {}
+  ProductResolverBase::ProductResolverBase() {}
 
-  ProductHolderBase::~ProductHolderBase() {}
+  ProductResolverBase::~ProductResolverBase() {}
 
   bool
-  ProductHolderBase::provenanceAvailable() const {
+  ProductResolverBase::provenanceAvailable() const {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
     if(branchDescription().produced()) {
@@ -28,20 +28,20 @@ namespace edm {
   }
 
   TypeID
-  ProductHolderBase::productType() const {
+  ProductResolverBase::productType() const {
     return TypeID(branchDescription().wrappedTypeID());
   }
 
   Provenance const*
-  ProductHolderBase::provenance() const {
+  ProductResolverBase::provenance() const {
     return provenance_();
   }
 
   void
-  ProductHolderBase::write(std::ostream& os) const {
+  ProductResolverBase::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << std::string("ProductHolder for product with ID: ")
+    os << std::string("ProductResolver for product with ID: ")
        << productID();
   }
 }

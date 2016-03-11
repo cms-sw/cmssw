@@ -85,20 +85,20 @@ namespace edm {
     
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::itemsToGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+    ProducingModuleAdaptorBase<T>::itemsToGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
       assert(not m_streamModules.empty());
       m_streamModules[0]->itemsToGet(iType,iIndices);
     }
     
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+    ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
       assert(not m_streamModules.empty());
       m_streamModules[0]->itemsMayGet(iType,iIndices);
     }
 
     template<typename T>
-    std::vector<edm::ProductHolderIndexAndSkipBit> const&
+    std::vector<edm::ProductResolverIndexAndSkipBit> const&
     ProducingModuleAdaptorBase<T>::itemsToGetFromEvent() const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->itemsToGetFromEvent();
@@ -134,7 +134,7 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
-                                        ProductHolderIndexHelper const& iHelper) {
+                                        ProductResolverIndexHelper const& iHelper) {
       for(auto mod: m_streamModules) {
         mod->updateLookup(iType,iHelper);
       }

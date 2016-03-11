@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/ProductHolderBase.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -615,13 +615,13 @@ namespace edm {
     SelectedProducts const& keptVector = keptProducts()[type];
     for(auto const& item : keptVector) {
       BranchDescription const& desc = *item.first;
-      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(desc.branchID());
-      if(parentProductHolder != nullptr) {
-        ProductHolderBase* productHolder = principal.getModifiableProductHolder(desc.branchID());
-        if(productHolder != nullptr) {
+      ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
+      if(parentProductResolver != nullptr) {
+        ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
+        if(productResolver != nullptr) {
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
-          productHolder->connectTo(*parentProductHolder, &parentPrincipal);
+          productResolver->connectTo(*parentProductResolver, &parentPrincipal);
         }
       }
     }

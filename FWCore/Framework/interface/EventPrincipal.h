@@ -49,7 +49,7 @@ namespace edm {
     typedef EventAuxiliary Auxiliary;
     typedef Principal Base;
 
-    typedef Base::ConstProductHolderPtr ConstProductHolderPtr;
+    typedef Base::ConstProductResolverPtr ConstProductResolverPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
@@ -189,7 +189,7 @@ namespace edm {
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
 
-    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;
+    virtual void readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const override;
 
     virtual unsigned int transitionIndex_() const override;
     

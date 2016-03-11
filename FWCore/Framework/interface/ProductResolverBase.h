@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_ProductHolderBase_h
-#define FWCore_Framework_ProductHolderBase_h
+#ifndef FWCore_Framework_ProductResolverBase_h
+#define FWCore_Framework_ProductResolverBase_h
 
 /*----------------------------------------------------------------------
 
-ProductHolder: A collection of information related to a single WrapperBase or
-a set of related EDProducts. This is the storage unit of such information.
+ProductResolver: Class to handle access to a WrapperBase and its related information.
 
+ [The class was formerly called Group and later ProductHolder]
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/WrapperBase.h"
@@ -13,7 +13,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <memory>
@@ -26,24 +26,24 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class Principal;
-  class AliasProductHolder;
-  class DataManagingProductHolder;
-  class ParentProcessProductHolder;
+  class AliasProductResolver;
+  class DataManagingProductResolver;
+  class ParentProcessProductResolver;
 
-  class ProductHolderBase {
+  class ProductResolverBase {
   public:
 
-    friend class AliasProductHolder;
-    friend class DataManagingProductHolder;
-    friend class ParentProcessProductHolder;
+    friend class AliasProductResolver;
+    friend class DataManagingProductResolver;
+    friend class ParentProcessProductResolver;
     
     enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
 
-    ProductHolderBase();
-    virtual ~ProductHolderBase();
+    ProductResolverBase();
+    virtual ~ProductResolverBase();
 
-    ProductHolderBase(ProductHolderBase const&) = delete; // Disallow copying and moving
-    ProductHolderBase& operator=(ProductHolderBase const&) = delete; // Disallow copying and moving
+    ProductResolverBase(ProductResolverBase const&) = delete; // Disallow copying and moving
+    ProductResolverBase& operator=(ProductResolverBase const&) = delete; // Disallow copying and moving
 
     ProductData const* resolveProduct(ResolveStatus& resolveStatus,
                                       Principal const& principal,
@@ -56,7 +56,7 @@ namespace edm {
     void resetProductData() { resetProductData_(false); }
 
     void unsafe_deleteProduct() const {
-      const_cast<ProductHolderBase*>(this)->resetProductData_(true);
+      const_cast<ProductResolverBase*>(this)->resetProductData_(true);
     }
     
     // product is not available (dropped or never created)
@@ -90,7 +90,7 @@ namespace edm {
     // Retrieves a reference to the module label.
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
 
-    // Same as moduleLabel except in the case of an AliasProductHolder, in which
+    // Same as moduleLabel except in the case of an AliasProductResolver, in which
     // case it resolves the module which actually produces the product and returns
     // its module label
     std::string const& resolvedModuleLabel() const {return resolvedModuleLabel_();}
@@ -113,7 +113,7 @@ namespace edm {
     // Write the product to the stream.
     void write(std::ostream& os) const;
 
-    // Return the type of the product stored in this ProductHolder.
+    // Return the type of the product stored in this ProductResolver.
     // We are relying on the fact that Type instances are small, and
     // so we are free to copy them at will.
     TypeID productType() const;
@@ -121,7 +121,7 @@ namespace edm {
     // Retrieves the product ID of the product.
     ProductID const& productID() const {return provenance()->productID();}
 
-    // Puts the product into the ProductHolder.
+    // Puts the product into the ProductResolver.
     void putProduct(std::unique_ptr<WrapperBase> edp) const {
       putProduct_(std::move(edp));
     }
@@ -131,9 +131,9 @@ namespace edm {
       putOrMergeProduct_(std::move(edp));
     }
     
-    void swap(ProductHolderBase& rhs) {swap_(rhs);}
+    void swap(ProductResolverBase& rhs) {swap_(rhs);}
 
-    virtual void connectTo(ProductHolderBase const&, Principal const*) = 0;
+    virtual void connectTo(ProductResolverBase const&, Principal const*) = 0;
 
   private:
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
@@ -141,7 +141,7 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const = 0;
-    virtual void swap_(ProductHolderBase& rhs) = 0;
+    virtual void swap_(ProductResolverBase& rhs) = 0;
     virtual bool unscheduledWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productResolved_() const = 0;
@@ -161,7 +161,7 @@ namespace edm {
 
   inline
   std::ostream&
-  operator<<(std::ostream& os, ProductHolderBase const& phb) {
+  operator<<(std::ostream& os, ProductResolverBase const& phb) {
     phb.write(os);
     return os;
   }

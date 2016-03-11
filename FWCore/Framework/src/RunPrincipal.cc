@@ -2,7 +2,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/ProductHolderBase.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "ProductHolders.h"
+#include "ProductResolvers.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
@@ -13,9 +13,9 @@
 
 namespace edm {
 
-  void DataManagingProductHolder::throwProductDeletedException() const {
+  void DataManagingProductResolver::throwProductDeletedException() const {
     ProductDeletedException exception;
-    exception << "ProductHolderBase::resolveProduct_: The product matching all criteria was already deleted\n"
+    exception << "ProductResolverBase::resolveProduct_: The product matching all criteria was already deleted\n"
     << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
     << "Looking for module label: " << moduleLabel() << "\n"
     << "Looking for productInstanceName: " << productInstanceName() << "\n"
@@ -29,7 +29,7 @@ namespace edm {
   //This is a templated function in order to avoid calling another virtual function
   template <bool callResolver, typename FUNC>
   ProductData const*
-  DataManagingProductHolder::resolveProductImpl(FUNC resolver, ResolveStatus& resolveStatus) const {
+  DataManagingProductResolver::resolveProductImpl(FUNC resolver, ResolveStatus& resolveStatus) const {
     
     if(productWasDeleted()) {
       throwProductDeletedException();
@@ -65,7 +65,7 @@ namespace edm {
   }
 
   void
-  DataManagingProductHolder::mergeProduct(std::unique_ptr<WrapperBase> iFrom) const {
+  DataManagingProductResolver::mergeProduct(std::unique_ptr<WrapperBase> iFrom) const {
     assert(status() == ProductStatus::ProductSet);
     if(not iFrom) { return;}
     
@@ -78,7 +78,7 @@ namespace edm {
       if(!original->isProductEqual(iFrom.get())) {
         auto const& bd = branchDescription();
         edm::LogError("RunLumiMerging")
-        << "ProductHolder::mergeTheProduct\n"
+        << "ProductResolver::mergeTheProduct\n"
         << "Two run/lumi products for the same run/lumi which should be equal are not\n"
         << "Using the first, ignoring the second\n"
         << "className = " << bd.className() << "\n"
@@ -89,7 +89,7 @@ namespace edm {
     } else {
       auto const& bd = branchDescription();
       edm::LogWarning("RunLumiMerging")
-      << "ProductHolder::mergeTheProduct\n"
+      << "ProductResolver::mergeTheProduct\n"
       << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
       << "Using the first, ignoring the second in merge\n"
       << "className = " << bd.className() << "\n"
@@ -101,7 +101,7 @@ namespace edm {
   
 
   ProductData const*
-  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+  InputProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
                                       Principal const& principal,
                                       bool,
                                       SharedResourcesAcquirer* ,
@@ -113,7 +113,7 @@ namespace edm {
   }
 
   ProductData const*
-  PuttableProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+  PuttableProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
                                           Principal const&,
                                           bool skipCurrentProcess,
                                           SharedResourcesAcquirer*,
@@ -127,7 +127,7 @@ namespace edm {
   }
 
   ProductData const*
-  UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+  UnscheduledProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
                                             SharedResourcesAcquirer* sra,
@@ -142,29 +142,29 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+  ProducedProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     if(status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
     assert(edp.get() != nullptr);
     
-    setProduct(std::move(edp));  // ProductHolder takes ownership
+    setProduct(std::move(edp));  // ProductResolver takes ownership
   }
 
   void
-  InputProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+  InputProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     setProduct(std::move(edp));
   }
 
   
   void
-  DataManagingProductHolder::connectTo(ProductHolderBase const& iOther, Principal const*) {
+  DataManagingProductResolver::connectTo(ProductResolverBase const& iOther, Principal const*) {
     assert(false);
   }
   
   void
-  DataManagingProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const {
+  DataManagingProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const {
     if(not prod) {return;}
     if(status() == defaultStatus()) {
       //resolveProduct has not been called or it failed
@@ -177,7 +177,7 @@ namespace edm {
 
   
   void
-  DataManagingProductHolder::checkType(WrapperBase const& prod) const {
+  DataManagingProductResolver::checkType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
     if(typeID != branchDescription().unwrappedTypeID()) {
@@ -191,7 +191,7 @@ namespace edm {
   
 
   void
-  DataManagingProductHolder::setProduct(std::unique_ptr<WrapperBase> edp) const {
+  DataManagingProductResolver::setProduct(std::unique_ptr<WrapperBase> edp) const {
     if(edp) {
       checkType(*edp);
       productData_.unsafe_setWrapper(std::move(edp));
@@ -204,7 +204,7 @@ namespace edm {
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
   bool
-  DataManagingProductHolder::productUnavailable_() const {
+  DataManagingProductResolver::productUnavailable_() const {
     auto presentStatus = status();
     if(presentStatus == ProductStatus::ProductSet) {
       return !(getProductData().wrapper()->isPresent());
@@ -213,7 +213,7 @@ namespace edm {
   }
     
   bool
-  DataManagingProductHolder::productResolved_() const {
+  DataManagingProductResolver::productResolved_() const {
     auto s = status();
     return (s != defaultStatus() ) or (s == ProductStatus::ProductDeleted);
   }
@@ -221,23 +221,23 @@ namespace edm {
   
   // This routine returns true if the product was deleted early in order to save memory
   bool
-  DataManagingProductHolder::productWasDeleted_() const {
+  DataManagingProductResolver::productWasDeleted_() const {
     return status() == ProductStatus::ProductDeleted;
   }
   
-  void DataManagingProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData_.setProvenance(provRetriever,ph,pid);
   }
   
-  void DataManagingProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+  void DataManagingProductResolver::setProcessHistory_(ProcessHistory const& ph) {
     productData_.setProcessHistory(ph);
   }
   
-  ProductProvenance const* DataManagingProductHolder::productProvenancePtr_() const {
+  ProductProvenance const* DataManagingProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
   }
   
-  void DataManagingProductHolder::resetProductData_(bool deleteEarly) {
+  void DataManagingProductResolver::resetProductData_(bool deleteEarly) {
     if(theStatus_ == ProductStatus::ProductSet) {
       productData_.resetProductData();
     }
@@ -248,19 +248,19 @@ namespace edm {
     }
   }
   
-  bool DataManagingProductHolder::singleProduct_() const {
+  bool DataManagingProductResolver::singleProduct_() const {
     return true;
   }
 
-  NoProcessProductHolder::
-  NoProcessProductHolder(std::vector<ProductHolderIndex> const&  matchingHolders,
+  NoProcessProductResolver::
+  NoProcessProductResolver(std::vector<ProductResolverIndex> const&  matchingHolders,
                          std::vector<bool> const& ambiguous) :
     matchingHolders_(matchingHolders),
     ambiguous_(ambiguous) {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
 
-  ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+  ProductData const* NoProcessProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
                                                              Principal const& principal,
                                                              bool skipCurrentProcess,
                                                              SharedResourcesAcquirer* sra,
@@ -273,9 +273,9 @@ namespace edm {
         resolveStatus = Ambiguous;
         return nullptr;
       }
-      if (matchingHolders_[k] != ProductHolderIndexInvalid) {
-        ProductHolderBase const* productHolder = principal.getProductHolderByIndex(matchingHolders_[k]);
-        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);
+      if (matchingHolders_[k] != ProductResolverIndexInvalid) {
+        ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
+        ProductData const* pd =  productResolver->resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);
         if(pd != nullptr) return pd;
       }
     }
@@ -283,150 +283,150 @@ namespace edm {
     return nullptr;
   }
 
-  void AliasProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     realProduct_.setProvenance(provRetriever,ph,pid);
   }
 
-  void AliasProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+  void AliasProductResolver::setProcessHistory_(ProcessHistory const& ph) {
     realProduct_.setProcessHistory(ph);
   }
 
-  ProductProvenance const* AliasProductHolder::productProvenancePtr_() const {
+  ProductProvenance const* AliasProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
   }
 
-  void AliasProductHolder::resetProductData_(bool deleteEarly) {
+  void AliasProductResolver::resetProductData_(bool deleteEarly) {
     realProduct_.resetProductData_(deleteEarly);
   }
 
-  bool AliasProductHolder::singleProduct_() const {
+  bool AliasProductResolver::singleProduct_() const {
     return true;
   }
   
-  void AliasProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void AliasProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
-    << "AliasProductHolder::putProduct_() not implemented and should never be called.\n"
+    << "AliasProductResolver::putProduct_() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
-  void AliasProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-    << "AliasProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
 
   
-  void ParentProcessProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     provRetriever_ = provRetriever;
   }
   
-  void ParentProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+  void ParentProcessProductResolver::setProcessHistory_(ProcessHistory const& ph) {
   }
   
-  ProductProvenance const* ParentProcessProductHolder::productProvenancePtr_() const {
+  ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
     return provRetriever_? provRetriever_->branchIDToProvenance(bd_->branchID()): nullptr;
   }
   
-  void ParentProcessProductHolder::resetProductData_(bool deleteEarly) {
+  void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {
   }
   
-  bool ParentProcessProductHolder::singleProduct_() const {
+  bool ParentProcessProductResolver::singleProduct_() const {
     return true;
   }
 
-  void ParentProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void ParentProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductHolder::putProduct_() not implemented and should never be called.\n"
+    << "ParentProcessProductResolver::putProduct_() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
-  void ParentProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
-  void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
-    NoProcessProductHolder& other = dynamic_cast<NoProcessProductHolder&>(rhs);
+  void NoProcessProductResolver::swap_(ProductResolverBase& rhs) {
+    NoProcessProductResolver& other = dynamic_cast<NoProcessProductResolver&>(rhs);
     ambiguous_.swap(other.ambiguous_);
     matchingHolders_.swap(other.matchingHolders_);
   }
 
-  void NoProcessProductHolder::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
+  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
   }
 
-  void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ) {
+  void NoProcessProductResolver::setProcessHistory_(ProcessHistory const& ) {
   }
 
-  ProductProvenance const* NoProcessProductHolder::productProvenancePtr_() const {
+  ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const {
     return nullptr;
   }
 
-  void NoProcessProductHolder::resetProductData_(bool) {
+  void NoProcessProductResolver::resetProductData_(bool) {
   }
 
-  bool NoProcessProductHolder::singleProduct_() const {
+  bool NoProcessProductResolver::singleProduct_() const {
     return false;
   }
 
-  bool NoProcessProductHolder::unscheduledWasNotRun_() const {
+  bool NoProcessProductResolver::unscheduledWasNotRun_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::unscheduledWasNotRun_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  bool NoProcessProductHolder::productUnavailable_() const {
+  bool NoProcessProductResolver::productUnavailable_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::productUnavailable_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  bool NoProcessProductHolder::productResolved_() const {
+  bool NoProcessProductResolver::productResolved_() const {
     throw Exception(errors::LogicError)
-    << "NoProcessProductHolder::productResolved_() not implemented and should never be called.\n"
+    << "NoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
 
-  bool NoProcessProductHolder::productWasDeleted_() const {
+  bool NoProcessProductResolver::productWasDeleted_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::productWasDeleted_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void NoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+      << "NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  BranchDescription const& NoProcessProductHolder::branchDescription_() const {
+  BranchDescription const& NoProcessProductResolver::branchDescription_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::branchDescription_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
+  void NoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
     throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
+      << "NoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  Provenance const* NoProcessProductHolder::provenance_() const {
+  Provenance const* NoProcessProductResolver::provenance_() const {
     throw Exception(errors::LogicError)
-    << "NoProcessProductHolder::provenance_() not implemented and should never be called.\n"
+    << "NoProcessProductResolver::provenance_() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::connectTo(ProductHolderBase const&, Principal const*) {
+  void NoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
     throw Exception(errors::LogicError)
-    << "NoProcessProductHolder::connectTo() not implemented and should never be called.\n"
+    << "NoProcessProductResolver::connectTo() not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
     
   }

@@ -1,4 +1,4 @@
-#include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
@@ -15,7 +15,7 @@
 #include <istream>
 #include <vector>
 
-// This program will run and time the ProductHolderIndexHelper class.
+// This program will run and time the ProductResolverIndexHelper class.
 // Before running it one needs to create a text file named
 // "log3" which contains a list of products. I generated
 // this file as follows:
@@ -45,7 +45,7 @@
 // Just running the test will print the important timing info
 // to std::cout. In addition if you want to run the program
 // under igprof, use the following commands:
-// igprof -d -pp -o igprof.pp.gz ../tmp/slc5_amd64_gcc472/src/DataFormats/Provenance/test/productHolderIndexHelperTest/productHolderIndexHelperTest > & logfile &
+// igprof -d -pp -o igprof.pp.gz ../tmp/slc5_amd64_gcc472/src/DataFormats/Provenance/test/productResolverIndexHelperTest/productResolverIndexHelperTest > & logfile &
 // igprof-analyse -d -v -g igprof.pp.gz > & igreport_perfres
 // more igreport_perfres
 
@@ -121,7 +121,7 @@ int main() {
   edm::CPUTimer timer;
 
   timer.start();
-  edm::ProductHolderIndexHelper phih;
+  edm::ProductResolverIndexHelper phih;
   timer.stop();
 
   std::vector<unsigned int> savedIndexes;
