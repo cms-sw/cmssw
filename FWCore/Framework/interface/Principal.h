@@ -47,6 +47,7 @@ namespace edm {
   class EDConsumerBase;
   class SharedResourcesAcquirer;
   class InputProductResolver;
+  class UnscheduledProductResolver;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -179,10 +180,6 @@ namespace edm {
 
     void readAllFromSourceAndMergeImmediately();
     
-    virtual bool unscheduledFill(std::string const& moduleLabel,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const = 0;
-
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
     ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const;
@@ -214,7 +211,14 @@ namespace edm {
     void readFromSource(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
       readFromSource_(phb, mcc);
     }
+
+    //This function is only meant to be called by UnscheduledProductResolver
+    friend class UnscheduledProductResolver;
+    virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const = 0;
     
+
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
     void addInputProduct(std::shared_ptr<BranchDescription const> bd);
