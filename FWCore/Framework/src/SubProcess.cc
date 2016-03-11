@@ -617,7 +617,7 @@ namespace edm {
       BranchDescription const& desc = *item.first;
       ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(desc.branchID());
       if(parentProductHolder != nullptr) {
-        ProductHolderBase* productHolder = principal.getModifiableProductHolder(item->branchID());
+        ProductHolderBase* productHolder = principal.getModifiableProductHolder(desc.branchID());
         if(productHolder != nullptr) {
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
