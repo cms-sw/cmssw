@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Geometry.HcalCommonData.GeometryExtended2016_cff import *
+from Configuration.Geometry.GeometryExtended2016dev_cff import *
 
 
 
