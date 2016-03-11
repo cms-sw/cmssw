@@ -15,6 +15,7 @@
 // system include files
 #include <vector>
 #include <string>
+#include <map>
 #include <iosfwd>
 
 // class declaration
@@ -65,6 +66,14 @@ public:
     inline void setETMScales(ScaleParameters& scales) { m_etmScales = scales; }
     inline void setHTMScales(ScaleParameters& scales) { m_htmScales = scales; }
     
+    virtual void setLUT_CaloMuEta(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_CaloMuPhi(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_Cosh(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_Cos(std::string lutName, std::vector<long long> lut);
+    
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
     
@@ -89,6 +98,15 @@ private:
    ScaleParameters m_httScales;
    ScaleParameters m_etmScales;
    ScaleParameters m_htmScales; 
+   
+   //LUTs
+   std::map<std::string, std::vector<long long> > m_lut_CalMuEta;
+   std::map<std::string, std::vector<long long> > m_lut_CalMuPhi;
+   std::map<std::string, std::vector<long long> > m_lut_DeltaEta;
+   std::map<std::string, std::vector<long long> > m_lut_DeltaPhi;
+   std::map<std::string, std::vector<long long> > m_lut_Pt;
+   std::map<std::string, std::vector<long long> > m_lut_Cosh;
+   std::map<std::string, std::vector<long long> > m_lut_Cos;
             
 };
 

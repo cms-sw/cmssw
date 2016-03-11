@@ -32,6 +32,7 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
@@ -115,6 +116,12 @@ void l1t::CorrCondition::setuGtB(const GtBoard* ptrGTB) {
 
 }
 
+
+void l1t::CorrCondition::setScales(const L1TGlobalScales* sc) 
+{
+    m_gtScales = sc;
+}
+
 /* //BLW COmment out for now
 //   set the number of bits for eta of calorimeter objects
 void l1t::CorrCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsValue) {
@@ -138,6 +145,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
     // std::cout << "m_isDebugEnabled = " << m_isDebugEnabled << std::endl;
     // std::cout << "m_verbosity = " << m_verbosity << std::endl;
+
+   
 
     std::ostringstream myCout;
     m_gtCorrelationTemplate->print(myCout);
