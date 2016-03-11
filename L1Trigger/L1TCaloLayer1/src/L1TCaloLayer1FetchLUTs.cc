@@ -65,7 +65,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   const std::vector<double> hfSFETBins{5., 20., 30., 50., 1.e6};
   auto hfSF = caloParams.layer1HFScaleFactors();
   if ( hfSF.size() != 12*5 ) {
-    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != 9*28 !!";
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != 5*12 !!";
     return false;
   }
 
