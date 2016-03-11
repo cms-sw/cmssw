@@ -345,6 +345,29 @@ private:
     bool parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
             unsigned int chipNr = 0 );
 
+    // Parse LUT for Cal Mu Eta
+    void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+
+    // Parse LUT for Cal Mu Phi
+    void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+    // Parse LUT for Cal Mu Pt
+    void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, unsigned int prec);
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
+
 
 private:
 

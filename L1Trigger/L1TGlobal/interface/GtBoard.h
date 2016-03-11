@@ -28,6 +28,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
