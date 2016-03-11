@@ -3,7 +3,9 @@
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
-#include "GMTCollections.h"
+
+#include "L1TObjectCollections.h"
+//#include "GMTCollections.h"
 
 namespace l1t {
    namespace stage2 {
@@ -33,7 +35,7 @@ namespace l1t {
          //lastBX = 0;
          //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
-         auto res = static_cast<GMTCollections*>(coll)->getMuons();
+         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons();
          res->setBXRange(firstBX, lastBX);
 
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;

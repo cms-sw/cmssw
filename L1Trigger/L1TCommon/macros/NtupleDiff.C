@@ -1,9 +1,8 @@
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
-void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char * var, const char * cut, int nbins, double max, double min){
+void bitwise_compare(TTree * tree1, TTree * tree2, const char * var, const char * cut, int nbins, double max, double min){
   char command[1000];
-  static int count = 0;
 
   TH1F h1("h1","",nbins,max,min);
   TH1F h2("h2","",nbins,max,min);
@@ -18,18 +17,10 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
   for (int i=0; i<nbins+2; i++){
     if (h1.GetBinContent(i) != h2.GetBinContent(i)){
       fail = 1;
-      cout << "discrepancy in " << var << " bin:  " << i << " " << h1.GetBinContent(i) << " vs " << h2.GetBinContent(i) << "\n";
     }
   }
   if (fail) {
     cout << "FAILURE:  variable " << var << " shows a disagreement\n";
-    char name[1000];
-    sprintf(name,"discrep_%s_%s_%d.pdf",tag,var,count);
-    TCanvas c1;
-    h1.Draw("L");
-    h2.Draw("epSAME");
-    c1.SaveAs(name);
-    count++;
   } else {
     cout << "SUCCESS:  bitwise equality for variable " << var << "\n";
   }
@@ -39,7 +30,7 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
 
 
 
-void NtupleDiff(const char * tag, const char * file1, const char * file2, const char * treepath1="l1UpgradeEmuTree/L1UpgradeTree", const char * treepath2="l1UpgradeEmuTree/L1UpgradeTree"){
+void NtupleDiff(const char * file1, const char * file2, const char * treepath1="l1UpgradeEmuTree/L1UpgradeTree", const char * treepath2="l1UpgradeEmuTree/L1UpgradeTree"){
   cout << "INFO: comparing contents of tree " << treepath1 << " in file " << file1 << "\n";
   cout << "INFO: comparing contents of tree " << treepath2 << " in file " << file2 << "\n";
 
@@ -62,32 +53,26 @@ void NtupleDiff(const char * tag, const char * file1, const char * file2, const 
   tree1->Print();
   tree2->Print();
 
-  cout << "Very Central Jets:\n";
-  bitwise_compare(tag, tree1, tree2, "jetEt", "(jetEt > 10.0) && (abs(jetEta) < 1.5)", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "jetEta", "(jetEt > 10.0) && (abs(jetEta) < 1.5)", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "jetPhi", "(jetEt > 10.0) && (abs(jetEta) < 1.5)", 20.0, -6.2, 6.2);
+  bitwise_compare(tree1, tree2, "jetEt", "jetEt > 10.0", 20.0, 0.0, 200.0);
+  bitwise_compare(tree1, tree2, "jetEta", "jetEt > 10.0", 20.0, -5.0, 5.0);
+  bitwise_compare(tree1, tree2, "jetPhi", "jetEt > 10.0", 20.0, -6.2, 6.2);
 
-  cout << "All Jets:\n";
-  bitwise_compare(tag, tree1, tree2, "jetEt", "(jetEt > 10.0)", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "jetEta", "(jetEt > 10.0)", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "jetPhi", "(jetEt > 10.0)", 20.0, -6.2, 6.2);
+  bitwise_compare(tree1, tree2, "tauEt", "tauEt > 10.0", 20.0, 0.0, 200.0);
+  bitwise_compare(tree1, tree2, "tauEta", "tauEt > 10.0", 20.0, -5.0, 5.0);
+  bitwise_compare(tree1, tree2, "tauPhi", "tauEt > 10.0", 20.0, -6.2, 6.2);
 
-  bitwise_compare(tag, tree1, tree2, "tauEt", "tauEt > 10.0", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "tauEta", "tauEt > 10.0", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "tauPhi", "tauEt > 10.0", 20.0, -6.2, 6.2);
+  bitwise_compare(tree1, tree2, "egEt", "egEt > 10.0", 20.0, 0.0, 200.0);
+  bitwise_compare(tree1, tree2, "egEta", "egEt > 10.0", 20.0, -5.0, 5.0);
+  bitwise_compare(tree1, tree2, "egPhi", "egEt > 10.0", 20.0, -6.2, 6.2);
 
-  bitwise_compare(tag, tree1, tree2, "egEt", "egEt > 10.0", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "egEta", "egEt > 10.0", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "egPhi", "egEt > 10.0", 20.0, -6.2, 6.2);
+  bitwise_compare(tree1, tree2, "muonEt", "muonEt > 10.0", 20.0, 0.0, 200.0);
+  bitwise_compare(tree1, tree2, "muonEta", "muonEt > 10.0", 20.0, -5.0, 5.0);
+  bitwise_compare(tree1, tree2, "muonPhi", "muonEt > 10.0", 20.0, -6.2, 6.2);
 
-  bitwise_compare(tag, tree1, tree2, "muonEt", "muonEt > 10.0", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "muonEta", "muonEt > 10.0", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "muonPhi", "muonEt > 10.0", 20.0, -6.2, 6.2);
-
-  bitwise_compare(tag, tree1, tree2, "sumEt[0]", "", 20.0, 0.0, 500.0);
-  bitwise_compare(tag, tree1, tree2, "sumEt[1]", "", 20.0, 0.0, 500.0);
-  bitwise_compare(tag, tree1, tree2, "sumEt[2]", "", 20.0, 0.0, 500.0);
-  bitwise_compare(tag, tree1, tree2, "sumEt[3]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tree1, tree2, "sumEt[0]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tree1, tree2, "sumEt[1]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tree1, tree2, "sumEt[2]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tree1, tree2, "sumEt[3]", "", 20.0, 0.0, 500.0);
   
 
   //TH1F * jetEt = new TH1F("jetEt","", 20, 0.0, 200.0);

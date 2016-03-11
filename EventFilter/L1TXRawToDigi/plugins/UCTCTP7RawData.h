@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 using namespace edm;
 
-
 class UCTCTP7RawData {
 public:
 
@@ -192,6 +191,34 @@ public:
     return (data >> 16);
   }
 
+  uint32_t getSummaryIndex(bool negativeEta) {
+    uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4;
+    if(negativeEta) index++;
+    return index;
+  }
+
+  uint32_t getRegionSummary(bool negativeEta, uint32_t region) {
+    uint32_t index = getSummaryIndex(negativeEta);
+    const uint32_t data = myDataPtr[index];
+    return (data >> (16 * (region % 2)));
+  }
+
+  uint32_t getRegionET(bool negativeEta, uint32_t region) {
+    return (getRegionSummary(negativeEta, region) & 0x3FF);
+  }
+  
+  bool getRegionEGVeto(bool negativeEta, uint32_t region) {
+    return (getRegionSummary(negativeEta, region) & 0x0400);
+  }
+  
+  bool getRegionTauVeto(bool negativeEta, uint32_t region) {
+    return (getRegionSummary(negativeEta, region) & 0x0800);
+  }
+  
+  uint32_t getRegionHitLocation(bool negativeEta, uint32_t region) {
+    return ((getRegionSummary(negativeEta, region) & 0xF000) >> 12);
+  }
+
   bool isTowerMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
     uint32_t tower = iPhi;
@@ -281,6 +308,17 @@ public:
 		 << endl;
 	  }
 	}
+      }
+      first = true;
+      for(uint32_t region = 0; region < 7; region++) {
+	if(first) cout << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
+	first = false;
+	cout << dec << setfill(' ') << setw(6) << region 
+	     << dec << setfill(' ') << setw(8) << getRegionET(negativeEta, region)
+	     << "        " << getRegionEGVeto(negativeEta, region)
+	     << "        " << getRegionTauVeto(negativeEta, region)
+	     << "        " << showbase << internal << setfill('0') << setw(3) << hex << getRegionHitLocation(negativeEta, region)
+	     << endl;
       }
     }
   }

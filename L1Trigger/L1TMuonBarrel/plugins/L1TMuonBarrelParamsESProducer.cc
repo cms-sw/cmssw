@@ -124,10 +124,84 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
     //  cout << "Can not open files to load extrapolation look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     //}
     //m_params.setext_lut(ext_lut);
+    //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
 
+   std::vector <std::string>  mask_phtf_st1 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
+   std::vector <std::string>  mask_phtf_st2 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
+   std::vector <std::string>  mask_phtf_st3 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
+   std::vector <std::string>  mask_phtf_st4 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
 
+   std::vector <std::string>  mask_ettf_st1 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
+   std::vector <std::string>  mask_ettf_st2 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
+   std::vector <std::string>  mask_ettf_st3 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
 
-  //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
+    for( int wh=-3; wh<4; wh++ ) {
+       int sec = 0;
+       for(char& c : mask_phtf_st1[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st2[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st3[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st4[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st1[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st2[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st3[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,mask);
+            sec++;
+            //Not used in BMTF init to false
+            m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
+
+        }
+
+    }
+    /*
+cout<<"===="<<endl;
+  for( int wh=-3; wh<4; wh++ ) {
+    for( int sec=0; sec<12; sec++ ) {
+     // m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
+
+      //if(wh==3 || wh==-3) m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,true);
+
+    }
+  }
+*/
+
 
 }
 

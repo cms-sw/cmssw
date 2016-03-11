@@ -42,6 +42,8 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
 using namespace l1t;
@@ -85,7 +87,9 @@ private:
   std::vector< std::vector< double > > hfSF;
 
   bool useLSB;
-  bool useLUT;
+  bool useECALLUT;
+  bool useHCALLUT;
+  bool useHFLUT;
   bool verbose;
 
   UCTLayer1 *layer1;
@@ -114,6 +118,10 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   hfLUT(12, std::vector < uint32_t >(256)),
   hfSFETBins(iConfig.getParameter<std::vector< uint32_t > >("hfSFETBins")),
   hfSF(12, std::vector < double >(hfSFETBins.size())),
+  useLSB(iConfig.getParameter<bool>("useLSB")),
+  useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
+  useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
+  useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")) 
 {
   hfSF[ 0] = iConfig.getParameter<std::vector < double > >("hfSF30");
@@ -217,20 +225,12 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(!layer1->process()) {
     std::cerr << "UCT: Failed to process layer 1" << std::endl;
   }
-  
-  // Crude check if total ET is approximately OK!
-  // We can't expect exact match as there is region level saturation to 10-bits
-  // 1% is good enough
-  int diff = abs(layer1->et() - expectedTotalET);
-  if(verbose && diff > 0.01 * expectedTotalET ) {
-    //print();
-    //    std::cerr << "Expected " 
-    //	      << std::showbase << std::internal << std::setfill('0') << std::setw(10) << std::hex
-    //	      << expectedTotalET << std::dec << std::endl;
-  }
+
 
   int theBX = 0; // Currently we only read and process the "hit" BX only
- 
+
+  towersColl->resize(theBX, CaloTools::caloTowerHashMax()+1);
+  
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
@@ -247,7 +247,10 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  caloTower.setHwPhi(towers[twr]->caloPhi());         // caloPhi = 1-72
 	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
 	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
-	  towersColl->push_back(theBX, caloTower);
+
+	  unsigned hash = CaloTools::caloTowerHash(towers[twr]->caloEta(), towers[twr]->caloPhi());
+	  //	  towersColl->push_back(theBX, caloTower);
+	  towersColl->set(theBX, hash, caloTower);
 	}
       }
     }
@@ -274,7 +277,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   if(!makeHFLUTs()) {
@@ -306,7 +309,7 @@ L1TCaloLayer1::makeHFLUTs() {
   uint32_t nETBins = hfSFETBins.size();
   for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
-      if(useLUT && nETBins != 0) {
+      if(useHFLUT && nETBins != 0) {
 	uint32_t etBin = 0;
 	for(; etBin < nETBins; etBin++) {
 	  if(etCode < hfSFETBins[etBin]) break;

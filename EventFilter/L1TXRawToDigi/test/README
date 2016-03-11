@@ -4,15 +4,13 @@ and stores all TPG objects created in the output EDM file.
 
 Usage syntax:
   
-  cd $CMSSW_BASE/src
-  mkdir EventFilter    
-  git clone https://github.com/SridharaDasu/L1TCaloLayer1RawToDigi.git
-  cd $CMSSW_BASE/src/EventFilter/L1TCaloLayer1RawToDigi/test/
+  cd $CMSSW_BASE/src/EventFilter/L1TXRawToDigi/test/
   cmsenv
   cmsRun testL1TCaloLayer1RawToDigi.py >& 5-event-dump.log
 
 There are also a simple standalone tester and three test events that you can try:
 
-  cd $CMSSW_BASE/src/EventFilter/L1TCaloLayer1RawToDigi/test/
-  c++ testUCTUnpacker.cpp
-  ./a.out < event_test1.txt
+  cd $CMSSW_BASE/src/EventFilter/L1TXRawToDigi/test/
+  cmsenv
+  scram b
+  $CMSSW_BASE/tmp/slc6_amd64_gcc493/src/EventFilter/L1TXRawToDigi/test/testUCTUnpacker/testUCTUnpacker < event_test1.txt

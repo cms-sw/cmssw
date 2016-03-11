@@ -12,39 +12,29 @@ bool UCTTower::process() {
   if(region >= NRegionsInCard) {
     return processHFTower();
   }
-  if(ecalET > 0xFF) ecalET = 0xFF;
-  if(hcalET > 0xFF) hcalET = 0xFF;
+  if(ecalET > etInputMax) ecalET = etInputMax;
+  if(hcalET > etInputMax) hcalET = etInputMax;
   uint32_t calibratedECALET = ecalET;
   uint32_t logECALET = (uint32_t) log2((double) ecalET);
   if(logECALET > erMaxV) logECALET = erMaxV;
   if(ecalLUT != 0) {
-    const std::vector< std::vector< uint32_t> > a = ecalLUT->at(region * NEtaInRegion + iEta);
-    if(!ecalFG) {
-      const std::vector<uint32_t> e = a.at(0);
-      calibratedECALET = e[ecalET] & etInputMax;
-      logECALET = (e[ecalET] & 0x7000) >> 12;
-    }
-    else {
-      const std::vector<uint32_t> e = a.at(1);
-      calibratedECALET = e[ecalET] & etInputMax;
-      logECALET = (e[ecalET] & 0x7000) >> 12;
-    }
+    uint32_t etaAddress = region * NEtaInRegion + iEta;
+    uint32_t fbAddress = 0;
+    if(ecalFG) fbAddress = 1;
+    uint32_t value = (*ecalLUT)[etaAddress][fbAddress][ecalET];
+    calibratedECALET = value & etInputMax;
+    logECALET = (value & 0x7000) >> 12;
   }
   uint32_t calibratedHCALET = hcalET;
   uint32_t logHCALET = (uint32_t) log2((double) hcalET);
   if(logHCALET > erMaxV) logHCALET = erMaxV;
   if(hcalLUT != 0) {
-    const std::vector< std::vector< uint32_t> > a = hcalLUT->at(region * NEtaInRegion + iEta);
-    if(hcalFB == 0) {
-      const std::vector<uint32_t> h = a.at(0);
-      calibratedHCALET = h[hcalET] & etInputMax;
-      logHCALET = (h[hcalET] & 0x7000) >> 12;
-    }
-    else {
-      const std::vector<uint32_t> h = a.at(1);
-      calibratedHCALET = h[hcalET] & etInputMax;
-      logHCALET = (h[hcalET] & 0x7000) >> 12;
-    }
+    uint32_t etaAddress = region * NEtaInRegion + iEta;
+    uint32_t fbAddress = 0;
+    if((hcalFB & 0x1) != 0) fbAddress = 1;
+    uint32_t value = (*hcalLUT)[etaAddress][fbAddress][hcalET];
+    calibratedHCALET = value & etInputMax;
+    logHCALET = (value & 0x7000) >> 12;
   }
   towerData = calibratedECALET + calibratedHCALET;
   if(towerData > etMask) towerData = etMask;
@@ -83,7 +73,7 @@ bool UCTTower::process() {
 }
 
 bool UCTTower::processHFTower() {
-  if(hcalET > 0xFF) hcalET = 0xFF;
+  if(hcalET > etInputMax) hcalET = etInputMax;
   if(hcalFB > 0x3) hcalFB = 0x3;
   uint32_t calibratedET = hcalET;
   if(hfLUT != 0) {
@@ -97,9 +87,9 @@ bool UCTTower::processHFTower() {
 bool UCTTower::setECALData(bool eFG, uint32_t eET) {
   ecalFG = eFG;
   ecalET = eET;
-  if(eET > 0xFF) {
-    std::cerr << "UCTTower::setData - ecalET too high " << eET << "; Pegged to 0xFF" << std::endl;
-    ecalET = 0xFF;
+  if(eET > etInputMax) {
+    std::cerr << "UCTTower::setData - ecalET too high " << eET << "; Pegged to etInputMax" << std::endl;
+    ecalET = etInputMax;
   }
   return true;
 }
@@ -107,9 +97,9 @@ bool UCTTower::setECALData(bool eFG, uint32_t eET) {
 bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
-  if(hET > 0xFF) {
-    std::cerr << "UCTTower::setData - ecalET too high " << hET << "; Pegged to 0xFF" << std::endl;
-    hcalET = 0xFF;
+  if(hET > etInputMax) {
+    std::cerr << "UCTTower::setData - ecalET too high " << hET << "; Pegged to etInputMax" << std::endl;
+    hcalET = etInputMax;
   }
   if(hFB > 0x3F) {
     std::cerr << "UCTTower::setData - too many hcalFeatureBits " << std::hex << hFB 
@@ -174,9 +164,9 @@ std::ostream& operator<<(std::ostream& os, const UCTTower& t) {
      << t.iEta << " "
      << std::showbase << std::internal << std::setfill('0') << std::setw(4) << std::hex
      << t.iPhi << " "
-     << std::setw(4) << std::dec
+     << std::setw(4) << std::setfill(' ') << std::dec
      << g.getCaloEtaIndex(t.negativeEta, t.region, t.iEta) << " "
-     << std::setw(4) << std::dec
+     << std::setw(4) << std::setfill(' ') << std::dec
      << g.getCaloPhiIndex(t.crate, t.card, t.region, t.iPhi) << " "
      << std::showbase << std::internal << std::setfill('0') << std::setw(4) << std::hex
      << t.ecalET << " "

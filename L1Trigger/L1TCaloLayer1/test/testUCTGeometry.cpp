@@ -14,8 +14,8 @@ int main(int argc, char** argv) {
       uint32_t crt = g.getCrate(caloEta, caloPhi);
       uint32_t crd = g.getCard(caloEta, caloPhi);
       uint32_t rgn = g.getRegion(caloEta, caloPhi);
-      uint32_t eta = g.getiEta(caloEta, caloPhi);
-      uint32_t phi = g.getiPhi(caloEta, caloPhi);
+      uint32_t eta = g.getiEta(caloEta);
+      uint32_t phi = g.getiPhi(caloPhi);
       int cEta = g.getCaloEtaIndex((caloEta < 0), rgn, eta);
       int cPhi = g.getCaloPhiIndex(crt, crd, rgn, phi);
       if(cEta != caloEta || cPhi != caloPhi) {
