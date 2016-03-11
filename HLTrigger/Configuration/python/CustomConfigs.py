@@ -22,9 +22,9 @@ def Base(process):
 
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('L1TGlobalSummary')
     process.MessageLogger.categories.append('HLTrigReport')
 
-#
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
 #    if 'GlobalTag' in process.__dict__:
@@ -41,14 +41,25 @@ def Base(process):
 def L1T(process):
 #   modifications when running L1T only
 
-    process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
     labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
     for label in labels:
         if label in process.__dict__:
+            process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
             process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
+            process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
+            process.schedule.append(process.L1AnalyzerEndpath)
 
-    process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
-    process.schedule.append(process.L1AnalyzerEndpath)
+    labels = ['gtStage2Digis','simGtStage2Digis','newGtStage2Digis','hltGtStage2Digis']
+    for label in labels:
+        if label in process.__dict__:
+            process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
+            process.L1TGlobalSummary.AlgInputTag = cms.InputTag( label )
+            process.L1TGlobalSummary.ExtInputTag = cms.InputTag( label )
+            process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
+            process.schedule.append(process.L1TAnalyzerEndpath)
+
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
 
     process=Base(process)
 
@@ -60,11 +71,21 @@ def L1THLT(process):
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
         from HLTrigger.Configuration.HLT_FULL_cff import fragment
-        process.hltGtDigis = fragment.hltGtDigis
-        process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
-        process.hltTrigReport = fragment.hltTrigReport
-        process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
-        process.schedule.append(process.HLTAnalyzerEndpath)
+
+        if 'hltGtDigis' in process.__dict__:
+            process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
+            process.hltTrigReport = fragment.hltTrigReport
+            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
+            process.schedule.append(process.HLTAnalyzerEndpath)
+
+        if 'hltGtStage2ObjectMap' in process.__dict__:
+            process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
+            process.hltTrigReport = fragment.hltTrigReport
+            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
+            process.schedule.append(process.HLTAnalyzerEndpath)
+
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
 
     process=Base(process)
 
