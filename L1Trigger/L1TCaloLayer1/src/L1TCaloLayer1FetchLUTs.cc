@@ -94,6 +94,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           for(; etBin < ecalScaleETBins.size(); etBin++) {
             if(linearizedECalInput < ecalScaleETBins[etBin]) break;
           }
+          if ( etBin >= ecalScaleETBins.size() ) etBin = ecalScaleETBins.size()-1;
+
           double calibratedECalInput = linearizedECalInput*ecalSF.at(etBin*28 + iEta);
 
 	  if(useLSB) value = calibratedECalInput / caloLSB;
@@ -131,6 +133,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           for(; etBin < hcalScaleETBins.size(); etBin++) {
             if(linearizedHcalInput < hcalScaleETBins[etBin]) break;
           }
+          if ( etBin >= hcalScaleETBins.size() ) etBin = hcalScaleETBins.size()-1;
+
           double calibratedHcalInput = linearizedHcalInput*hcalSF.at(etBin*28 + iEta);
 
 	  if(useLSB) calibratedHcalInput /= caloLSB;
@@ -164,6 +168,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	for(; etBin < hfScaleETBins.size(); etBin++) {
 	  if(linearizedHFInput < hfScaleETBins[etBin]) break;
 	}
+        if ( etBin >= hfScaleETBins.size() ) etBin = hfScaleETBins.size()-1;
+
         double calibratedHFInput = linearizedHFInput*hfSF.at(etBin*12+etaBin);
 
         if(useLSB) calibratedHFInput /= caloLSB;
