@@ -13,15 +13,16 @@ legacyBTagging = cms.Sequence(
       # impact parameters and IP-only algorithms
       impactParameterTagInfos *
       ( trackCountingHighEffBJetTags +
-        trackCountingHighPurBJetTags +
         jetProbabilityBJetTags +
         jetBProbabilityBJetTags +
 
         # SV tag infos depending on IP tag infos, and SV (+IP) based algos
         secondaryVertexTagInfos *
         ( simpleSecondaryVertexHighEffBJetTags +
-          simpleSecondaryVertexHighPurBJetTags 
+          combinedSecondaryVertexV2BJetTags
         )
+        + inclusiveSecondaryVertexFinderTagInfos *
+        combinedInclusiveSecondaryVertexV2BJetTags
 
         + ghostTrackVertexTagInfos *
         ghostTrackBJetTags
