@@ -52,12 +52,6 @@ akCsFilter2PFPatJetPartonAssociationLegacy = akCsFilter2PFbTagger.PatJetPartonAs
 akCsFilter2PFImpactParameterTagInfos = akCsFilter2PFbTagger.ImpactParameterTagInfos
 akCsFilter2PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 akCsFilter2PFJetProbabilityBJetTags = akCsFilter2PFbTagger.JetProbabilityBJetTags
-akCsFilter2PFPositiveOnlyJetProbabilityBJetTags = akCsFilter2PFbTagger.PositiveOnlyJetProbabilityBJetTags
-akCsFilter2PFNegativeOnlyJetProbabilityBJetTags = akCsFilter2PFbTagger.NegativeOnlyJetProbabilityBJetTags
-akCsFilter2PFNegativeTrackCountingHighEffBJetTags = akCsFilter2PFbTagger.NegativeTrackCountingHighEffBJetTags
-akCsFilter2PFNegativeTrackCountingHighPurBJetTags = akCsFilter2PFbTagger.NegativeTrackCountingHighPurBJetTags
-akCsFilter2PFNegativeOnlyJetBProbabilityBJetTags = akCsFilter2PFbTagger.NegativeOnlyJetBProbabilityBJetTags
-akCsFilter2PFPositiveOnlyJetBProbabilityBJetTags = akCsFilter2PFbTagger.PositiveOnlyJetBProbabilityBJetTags
 
 akCsFilter2PFSecondaryVertexTagInfos = akCsFilter2PFbTagger.SecondaryVertexTagInfos
 akCsFilter2PFSimpleSecondaryVertexHighEffBJetTags = akCsFilter2PFbTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ akCsFilter2PFNegativeSimpleSecondaryVertexHighEffBJetTags = akCsFilter2PFbTagger
 akCsFilter2PFNegativeSimpleSecondaryVertexHighPurBJetTags = akCsFilter2PFbTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 akCsFilter2PFNegativeCombinedSecondaryVertexBJetTags = akCsFilter2PFbTagger.NegativeCombinedSecondaryVertexBJetTags
 akCsFilter2PFPositiveCombinedSecondaryVertexBJetTags = akCsFilter2PFbTagger.PositiveCombinedSecondaryVertexBJetTags
+akCsFilter2PFNegativeCombinedSecondaryVertexV2BJetTags = akCsFilter2PFbTagger.NegativeCombinedSecondaryVertexV2BJetTags
+akCsFilter2PFPositiveCombinedSecondaryVertexV2BJetTags = akCsFilter2PFbTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 akCsFilter2PFSoftPFMuonsTagInfos = akCsFilter2PFbTagger.SoftPFMuonsTagInfos
 akCsFilter2PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ akCsFilter2PFJetBtaggingIP       = cms.Sequence(akCsFilter2PFImpactParameterTagI
             (akCsFilter2PFTrackCountingHighEffBJetTags +
              akCsFilter2PFTrackCountingHighPurBJetTags +
              akCsFilter2PFJetProbabilityBJetTags +
-             akCsFilter2PFJetBProbabilityBJetTags +
-             akCsFilter2PFPositiveOnlyJetProbabilityBJetTags +
-             akCsFilter2PFNegativeOnlyJetProbabilityBJetTags +
-             akCsFilter2PFNegativeTrackCountingHighEffBJetTags +
-             akCsFilter2PFNegativeTrackCountingHighPurBJetTags +
-             akCsFilter2PFNegativeOnlyJetBProbabilityBJetTags +
-             akCsFilter2PFPositiveOnlyJetBProbabilityBJetTags
+             akCsFilter2PFJetBProbabilityBJetTags 
             )
             )
 
 akCsFilter2PFJetBtaggingSV = cms.Sequence(akCsFilter2PFImpactParameterTagInfos
             *
             akCsFilter2PFSecondaryVertexTagInfos
-            * (akCsFilter2PFSimpleSecondaryVertexHighEffBJetTags
-                +
-                akCsFilter2PFSimpleSecondaryVertexHighPurBJetTags
-                +
-                akCsFilter2PFCombinedSecondaryVertexBJetTags
-                +
+            * (akCsFilter2PFSimpleSecondaryVertexHighEffBJetTags+
+                akCsFilter2PFSimpleSecondaryVertexHighPurBJetTags+
+                akCsFilter2PFCombinedSecondaryVertexBJetTags+
                 akCsFilter2PFCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ akCsFilter2PFJetBtaggingSV = cms.Sequence(akCsFilter2PFImpactParameterTagInfos
 akCsFilter2PFJetBtaggingNegSV = cms.Sequence(akCsFilter2PFImpactParameterTagInfos
             *
             akCsFilter2PFSecondaryVertexNegativeTagInfos
-            * (akCsFilter2PFNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                akCsFilter2PFNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                akCsFilter2PFNegativeCombinedSecondaryVertexBJetTags
-                +
-                akCsFilter2PFPositiveCombinedSecondaryVertexBJetTags
+            * (akCsFilter2PFNegativeSimpleSecondaryVertexHighEffBJetTags+
+                akCsFilter2PFNegativeSimpleSecondaryVertexHighPurBJetTags+
+                akCsFilter2PFNegativeCombinedSecondaryVertexBJetTags+
+                akCsFilter2PFPositiveCombinedSecondaryVertexBJetTags+
+                akCsFilter2PFNegativeCombinedSecondaryVertexV2BJetTags+
+                akCsFilter2PFPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 

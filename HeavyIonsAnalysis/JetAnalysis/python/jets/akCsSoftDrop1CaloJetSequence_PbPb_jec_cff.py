@@ -52,12 +52,6 @@ akCsSoftDrop1CaloPatJetPartonAssociationLegacy = akCsSoftDrop1CalobTagger.PatJet
 akCsSoftDrop1CaloImpactParameterTagInfos = akCsSoftDrop1CalobTagger.ImpactParameterTagInfos
 akCsSoftDrop1CaloImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 akCsSoftDrop1CaloJetProbabilityBJetTags = akCsSoftDrop1CalobTagger.JetProbabilityBJetTags
-akCsSoftDrop1CaloPositiveOnlyJetProbabilityBJetTags = akCsSoftDrop1CalobTagger.PositiveOnlyJetProbabilityBJetTags
-akCsSoftDrop1CaloNegativeOnlyJetProbabilityBJetTags = akCsSoftDrop1CalobTagger.NegativeOnlyJetProbabilityBJetTags
-akCsSoftDrop1CaloNegativeTrackCountingHighEffBJetTags = akCsSoftDrop1CalobTagger.NegativeTrackCountingHighEffBJetTags
-akCsSoftDrop1CaloNegativeTrackCountingHighPurBJetTags = akCsSoftDrop1CalobTagger.NegativeTrackCountingHighPurBJetTags
-akCsSoftDrop1CaloNegativeOnlyJetBProbabilityBJetTags = akCsSoftDrop1CalobTagger.NegativeOnlyJetBProbabilityBJetTags
-akCsSoftDrop1CaloPositiveOnlyJetBProbabilityBJetTags = akCsSoftDrop1CalobTagger.PositiveOnlyJetBProbabilityBJetTags
 
 akCsSoftDrop1CaloSecondaryVertexTagInfos = akCsSoftDrop1CalobTagger.SecondaryVertexTagInfos
 akCsSoftDrop1CaloSimpleSecondaryVertexHighEffBJetTags = akCsSoftDrop1CalobTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighEffBJetTags = akCsSoftDrop1Cal
 akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighPurBJetTags = akCsSoftDrop1CalobTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 akCsSoftDrop1CaloNegativeCombinedSecondaryVertexBJetTags = akCsSoftDrop1CalobTagger.NegativeCombinedSecondaryVertexBJetTags
 akCsSoftDrop1CaloPositiveCombinedSecondaryVertexBJetTags = akCsSoftDrop1CalobTagger.PositiveCombinedSecondaryVertexBJetTags
+akCsSoftDrop1CaloNegativeCombinedSecondaryVertexV2BJetTags = akCsSoftDrop1CalobTagger.NegativeCombinedSecondaryVertexV2BJetTags
+akCsSoftDrop1CaloPositiveCombinedSecondaryVertexV2BJetTags = akCsSoftDrop1CalobTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 akCsSoftDrop1CaloSoftPFMuonsTagInfos = akCsSoftDrop1CalobTagger.SoftPFMuonsTagInfos
 akCsSoftDrop1CaloSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ akCsSoftDrop1CaloJetBtaggingIP       = cms.Sequence(akCsSoftDrop1CaloImpactParam
             (akCsSoftDrop1CaloTrackCountingHighEffBJetTags +
              akCsSoftDrop1CaloTrackCountingHighPurBJetTags +
              akCsSoftDrop1CaloJetProbabilityBJetTags +
-             akCsSoftDrop1CaloJetBProbabilityBJetTags +
-             akCsSoftDrop1CaloPositiveOnlyJetProbabilityBJetTags +
-             akCsSoftDrop1CaloNegativeOnlyJetProbabilityBJetTags +
-             akCsSoftDrop1CaloNegativeTrackCountingHighEffBJetTags +
-             akCsSoftDrop1CaloNegativeTrackCountingHighPurBJetTags +
-             akCsSoftDrop1CaloNegativeOnlyJetBProbabilityBJetTags +
-             akCsSoftDrop1CaloPositiveOnlyJetBProbabilityBJetTags
+             akCsSoftDrop1CaloJetBProbabilityBJetTags 
             )
             )
 
 akCsSoftDrop1CaloJetBtaggingSV = cms.Sequence(akCsSoftDrop1CaloImpactParameterTagInfos
             *
             akCsSoftDrop1CaloSecondaryVertexTagInfos
-            * (akCsSoftDrop1CaloSimpleSecondaryVertexHighEffBJetTags
-                +
-                akCsSoftDrop1CaloSimpleSecondaryVertexHighPurBJetTags
-                +
-                akCsSoftDrop1CaloCombinedSecondaryVertexBJetTags
-                +
+            * (akCsSoftDrop1CaloSimpleSecondaryVertexHighEffBJetTags+
+                akCsSoftDrop1CaloSimpleSecondaryVertexHighPurBJetTags+
+                akCsSoftDrop1CaloCombinedSecondaryVertexBJetTags+
                 akCsSoftDrop1CaloCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ akCsSoftDrop1CaloJetBtaggingSV = cms.Sequence(akCsSoftDrop1CaloImpactParameterTa
 akCsSoftDrop1CaloJetBtaggingNegSV = cms.Sequence(akCsSoftDrop1CaloImpactParameterTagInfos
             *
             akCsSoftDrop1CaloSecondaryVertexNegativeTagInfos
-            * (akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                akCsSoftDrop1CaloNegativeCombinedSecondaryVertexBJetTags
-                +
-                akCsSoftDrop1CaloPositiveCombinedSecondaryVertexBJetTags
+            * (akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighEffBJetTags+
+                akCsSoftDrop1CaloNegativeSimpleSecondaryVertexHighPurBJetTags+
+                akCsSoftDrop1CaloNegativeCombinedSecondaryVertexBJetTags+
+                akCsSoftDrop1CaloPositiveCombinedSecondaryVertexBJetTags+
+                akCsSoftDrop1CaloNegativeCombinedSecondaryVertexV2BJetTags+
+                akCsSoftDrop1CaloPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 

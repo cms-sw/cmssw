@@ -52,12 +52,6 @@ ak5PFPatJetPartonAssociationLegacy = ak5PFbTagger.PatJetPartonAssociationLegacy
 ak5PFImpactParameterTagInfos = ak5PFbTagger.ImpactParameterTagInfos
 ak5PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak5PFJetProbabilityBJetTags = ak5PFbTagger.JetProbabilityBJetTags
-ak5PFPositiveOnlyJetProbabilityBJetTags = ak5PFbTagger.PositiveOnlyJetProbabilityBJetTags
-ak5PFNegativeOnlyJetProbabilityBJetTags = ak5PFbTagger.NegativeOnlyJetProbabilityBJetTags
-ak5PFNegativeTrackCountingHighEffBJetTags = ak5PFbTagger.NegativeTrackCountingHighEffBJetTags
-ak5PFNegativeTrackCountingHighPurBJetTags = ak5PFbTagger.NegativeTrackCountingHighPurBJetTags
-ak5PFNegativeOnlyJetBProbabilityBJetTags = ak5PFbTagger.NegativeOnlyJetBProbabilityBJetTags
-ak5PFPositiveOnlyJetBProbabilityBJetTags = ak5PFbTagger.PositiveOnlyJetBProbabilityBJetTags
 
 ak5PFSecondaryVertexTagInfos = ak5PFbTagger.SecondaryVertexTagInfos
 ak5PFSimpleSecondaryVertexHighEffBJetTags = ak5PFbTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ ak5PFNegativeSimpleSecondaryVertexHighEffBJetTags = ak5PFbTagger.NegativeSimpleS
 ak5PFNegativeSimpleSecondaryVertexHighPurBJetTags = ak5PFbTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 ak5PFNegativeCombinedSecondaryVertexBJetTags = ak5PFbTagger.NegativeCombinedSecondaryVertexBJetTags
 ak5PFPositiveCombinedSecondaryVertexBJetTags = ak5PFbTagger.PositiveCombinedSecondaryVertexBJetTags
+ak5PFNegativeCombinedSecondaryVertexV2BJetTags = ak5PFbTagger.NegativeCombinedSecondaryVertexV2BJetTags
+ak5PFPositiveCombinedSecondaryVertexV2BJetTags = ak5PFbTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 ak5PFSoftPFMuonsTagInfos = ak5PFbTagger.SoftPFMuonsTagInfos
 ak5PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ ak5PFJetBtaggingIP       = cms.Sequence(ak5PFImpactParameterTagInfos *
             (ak5PFTrackCountingHighEffBJetTags +
              ak5PFTrackCountingHighPurBJetTags +
              ak5PFJetProbabilityBJetTags +
-             ak5PFJetBProbabilityBJetTags +
-             ak5PFPositiveOnlyJetProbabilityBJetTags +
-             ak5PFNegativeOnlyJetProbabilityBJetTags +
-             ak5PFNegativeTrackCountingHighEffBJetTags +
-             ak5PFNegativeTrackCountingHighPurBJetTags +
-             ak5PFNegativeOnlyJetBProbabilityBJetTags +
-             ak5PFPositiveOnlyJetBProbabilityBJetTags
+             ak5PFJetBProbabilityBJetTags 
             )
             )
 
 ak5PFJetBtaggingSV = cms.Sequence(ak5PFImpactParameterTagInfos
             *
             ak5PFSecondaryVertexTagInfos
-            * (ak5PFSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak5PFSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak5PFCombinedSecondaryVertexBJetTags
-                +
+            * (ak5PFSimpleSecondaryVertexHighEffBJetTags+
+                ak5PFSimpleSecondaryVertexHighPurBJetTags+
+                ak5PFCombinedSecondaryVertexBJetTags+
                 ak5PFCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ ak5PFJetBtaggingSV = cms.Sequence(ak5PFImpactParameterTagInfos
 ak5PFJetBtaggingNegSV = cms.Sequence(ak5PFImpactParameterTagInfos
             *
             ak5PFSecondaryVertexNegativeTagInfos
-            * (ak5PFNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak5PFNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak5PFNegativeCombinedSecondaryVertexBJetTags
-                +
-                ak5PFPositiveCombinedSecondaryVertexBJetTags
+            * (ak5PFNegativeSimpleSecondaryVertexHighEffBJetTags+
+                ak5PFNegativeSimpleSecondaryVertexHighPurBJetTags+
+                ak5PFNegativeCombinedSecondaryVertexBJetTags+
+                ak5PFPositiveCombinedSecondaryVertexBJetTags+
+                ak5PFNegativeCombinedSecondaryVertexV2BJetTags+
+                ak5PFPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 

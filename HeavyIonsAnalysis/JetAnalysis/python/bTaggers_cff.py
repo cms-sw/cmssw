@@ -6,16 +6,6 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *
 
 
 #load all the b-tagging algorithms
-from RecoBTag.ImpactParameter.positiveOnlyJetProbabilityComputer_cfi import *
-from RecoBTag.ImpactParameter.positiveOnlyJetProbabilityBJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeOnlyJetProbabilityComputer_cfi import *
-from RecoBTag.ImpactParameter.negativeOnlyJetProbabilityBJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeTrackCountingHighEffBJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeTrackCountingHighPurBJetTags_cfi import *
-from RecoBTag.ImpactParameter.positiveOnlyJetBProbabilityComputer_cfi import *
-from RecoBTag.ImpactParameter.positiveOnlyJetBProbabilityBJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeOnlyJetBProbabilityComputer_cfi import *
-from RecoBTag.ImpactParameter.negativeOnlyJetBProbabilityBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.negativeSimpleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.negativeSimpleSecondaryVertexHighPurBJetTags_cfi import *
@@ -23,6 +13,10 @@ from RecoBTag.SecondaryVertex.negativeCombinedSecondaryVertexComputer_cfi import
 from RecoBTag.SecondaryVertex.negativeCombinedSecondaryVertexBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.positiveCombinedSecondaryVertexComputer_cfi import *
 from RecoBTag.SecondaryVertex.positiveCombinedSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.negativeCombinedSecondaryVertexV2Computer_cfi import *
+from RecoBTag.SecondaryVertex.negativeCombinedSecondaryVertexV2BJetTags_cfi import *
+from RecoBTag.SecondaryVertex.positiveCombinedSecondaryVertexV2Computer_cfi import *
+from RecoBTag.SecondaryVertex.positiveCombinedSecondaryVertexV2BJetTags_cfi import *
 
 from RecoJets.JetAssociationProducers.ak5JTA_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
@@ -55,20 +49,6 @@ class bTaggers:
         self.CombinedSecondaryVertexV2BJetTags.tagInfos = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
                 cms.InputTag(jetname+"SecondaryVertexTagInfos"))
 
-        self.PositiveOnlyJetProbabilityBJetTags     =       positiveOnlyJetProbabilityBJetTags.clone()
-        self.NegativeOnlyJetProbabilityBJetTags     =       negativeOnlyJetProbabilityBJetTags.clone()
-        self.NegativeTrackCountingHighEffBJetTags   =       negativeTrackCountingHighEffBJetTags.clone()
-        self.NegativeTrackCountingHighPurBJetTags   =       negativeTrackCountingHighPurBJetTags.clone()
-        self.NegativeOnlyJetBProbabilityBJetTags    =       negativeOnlyJetBProbabilityBJetTags.clone()
-        self.PositiveOnlyJetBProbabilityBJetTags    =       positiveOnlyJetBProbabilityBJetTags.clone()
-
-        self.PositiveOnlyJetProbabilityBJetTags.tagInfos   = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-        self.NegativeOnlyJetProbabilityBJetTags.tagInfos   = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-        self.NegativeTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-        self.NegativeTrackCountingHighPurBJetTags.tagInfos = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-        self.NegativeOnlyJetBProbabilityBJetTags.tagInfos  = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-        self.PositiveOnlyJetBProbabilityBJetTags.tagInfos  = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
-
 
         # secondary vertex b-tag
         self.SecondaryVertexTagInfos                     = secondaryVertexTagInfos.clone()
@@ -86,16 +66,25 @@ class bTaggers:
 
         self.SecondaryVertexNegativeTagInfos                     = secondaryVertexNegativeTagInfos.clone()
         self.SecondaryVertexNegativeTagInfos.trackIPTagInfos     = cms.InputTag(jetname+"ImpactParameterTagInfos")
+
         self.NegativeSimpleSecondaryVertexHighEffBJetTags               = negativeSimpleSecondaryVertexHighEffBJetTags.clone()
         self.NegativeSimpleSecondaryVertexHighEffBJetTags.tagInfos      = cms.VInputTag(cms.InputTag(jetname+"SecondaryVertexNegativeTagInfos"))
         self.NegativeSimpleSecondaryVertexHighPurBJetTags               = negativeSimpleSecondaryVertexHighPurBJetTags.clone()
         self.NegativeSimpleSecondaryVertexHighPurBJetTags.tagInfos      = cms.VInputTag(cms.InputTag(jetname+"SecondaryVertexNegativeTagInfos"))
+
         self.NegativeCombinedSecondaryVertexBJetTags                    = negativeCombinedSecondaryVertexBJetTags.clone()
         self.NegativeCombinedSecondaryVertexBJetTags.tagInfos    = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
-                cms.InputTag(jetname+"SecondaryVertexNegativeTagInfos"))
+                                                                                 cms.InputTag(jetname+"SecondaryVertexNegativeTagInfos"))
         self.PositiveCombinedSecondaryVertexBJetTags                    = positiveCombinedSecondaryVertexBJetTags.clone()
         self.PositiveCombinedSecondaryVertexBJetTags.tagInfos    = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
-                cms.InputTag(jetname+"SecondaryVertexTagInfos"))
+                                                                                 cms.InputTag(jetname+"SecondaryVertexTagInfos"))
+
+        self.NegativeCombinedSecondaryVertexV2BJetTags                    = negativeCombinedSecondaryVertexV2BJetTags.clone()
+        self.NegativeCombinedSecondaryVertexV2BJetTags.tagInfos    = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
+                                                                                 cms.InputTag(jetname+"SecondaryVertexNegativeTagInfos"))
+        self.PositiveCombinedSecondaryVertexV2BJetTags                    = positiveCombinedSecondaryVertexV2BJetTags.clone()
+        self.PositiveCombinedSecondaryVertexV2BJetTags.tagInfos    = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
+                                                                                 cms.InputTag(jetname+"SecondaryVertexTagInfos"))
 
         self.SoftPFMuonsTagInfos                = softPFMuonsTagInfos.clone()
         self.SoftPFMuonsTagInfos.jets           = cms.InputTag(jetname+"Jets")
@@ -119,13 +108,7 @@ class bTaggers:
                 self.TrackCountingHighEffBJetTags +
                 self.TrackCountingHighPurBJetTags +
                 self.JetProbabilityBJetTags +
-                self.JetBProbabilityBJetTags +
-                self.PositiveOnlyJetProbabilityBJetTags +
-                self.NegativeOnlyJetProbabilityBJetTags +
-                self.NegativeTrackCountingHighEffBJetTags +
-                self.NegativeTrackCountingHighPurBJetTags +
-                self.NegativeOnlyJetBProbabilityBJetTags +
-                self.PositiveOnlyJetBProbabilityBJetTags
+                self.JetBProbabilityBJetTags 
                 )
                                                 )
 
@@ -141,7 +124,9 @@ class bTaggers:
                 self.SecondaryVertexNegativeTagInfos * (self.NegativeSimpleSecondaryVertexHighEffBJetTags +
                     self.NegativeSimpleSecondaryVertexHighPurBJetTags +
                     self.NegativeCombinedSecondaryVertexBJetTags +
-                    self.PositiveCombinedSecondaryVertexBJetTags
+                    self.PositiveCombinedSecondaryVertexBJetTags +
+                    self.NegativeCombinedSecondaryVertexV2BJetTags +
+                    self.PositiveCombinedSecondaryVertexV2BJetTags
                     )
                 )
 

@@ -51,12 +51,6 @@ ALGO_SUB_RADIUS_OBJECT_PatJetPartonAssociationLegacy = ALGO_SUB_RADIUS_OBJECT_bT
 ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.ImpactParameterTagInfos
 ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos.primaryVertex = cms.InputTag("VERTEX")
 ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.JetProbabilityBJetTags
-ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveOnlyJetProbabilityBJetTags
-ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeOnlyJetProbabilityBJetTags
-ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeTrackCountingHighEffBJetTags
-ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeTrackCountingHighPurBJetTags
-ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetBProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeOnlyJetBProbabilityBJetTags
-ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetBProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveOnlyJetBProbabilityBJetTags
 
 ALGO_SUB_RADIUS_OBJECT_SecondaryVertexTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SecondaryVertexTagInfos
 ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -69,6 +63,8 @@ ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_R
 ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeCombinedSecondaryVertexBJetTags
 ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveCombinedSecondaryVertexBJetTags
+ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexV2BJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeCombinedSecondaryVertexV2BJetTags
+ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexV2BJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonsTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftPFMuonsTagInfos
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonsTagInfos.primaryVertex = cms.InputTag("VERTEX")
@@ -86,25 +82,16 @@ ALGO_SUB_RADIUS_OBJECT_JetBtaggingIP       = cms.Sequence(ALGO_SUB_RADIUS_OBJECT
             (ALGO_SUB_RADIUS_OBJECT_TrackCountingHighEffBJetTags +
              ALGO_SUB_RADIUS_OBJECT_TrackCountingHighPurBJetTags +
              ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_JetBProbabilityBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetProbabilityBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetProbabilityBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighEffBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighPurBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetBProbabilityBJetTags +
-             ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetBProbabilityBJetTags
+             ALGO_SUB_RADIUS_OBJECT_JetBProbabilityBJetTags 
             )
             )
 
 ALGO_SUB_RADIUS_OBJECT_JetBtaggingSV = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos
             *
             ALGO_SUB_RADIUS_OBJECT_SecondaryVertexTagInfos
-            * (ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags
-                +
-                ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags
-                +
-                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags
-                +
+            * (ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags+
                 ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexV2BJetTags
               )
             )
@@ -112,13 +99,12 @@ ALGO_SUB_RADIUS_OBJECT_JetBtaggingSV = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_Impac
 ALGO_SUB_RADIUS_OBJECT_JetBtaggingNegSV = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos
             *
             ALGO_SUB_RADIUS_OBJECT_SecondaryVertexNegativeTagInfos
-            * (ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexBJetTags
-                +
-                ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexBJetTags
+            * (ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighEffBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_NegativeSimpleSecondaryVertexHighPurBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexBJetTags+
+                ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexV2BJetTags+
+                ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 
