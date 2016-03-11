@@ -69,7 +69,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   bool hasRPCTriggers(const edm::Event& e);
 
   /// return the top folder
-  std::string topFolder(std::string source) { return source=="DCC" ? "DT/03-LocalTrigger-DCC/" : "DT/04-LocalTrigger-DDU/"; }
+  std::string topFolder(std::string source) { return source=="TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/"; }
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -83,7 +83,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
 
   std::string SegmArbitration;
 
-  bool processDCC, processDDU, detailedPlots;
+  bool processTM, processDDU, detailedPlots;
   std::vector<std::string> processTags;
   int minBXDDU, maxBXDDU;
 

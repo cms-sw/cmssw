@@ -196,24 +196,12 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>30 & abs(eta)<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
-        ),
-        cvsVertex = cms.PSet(
+		cvsVertex = cms.PSet(
           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-          workingPoint = cms.double(0.970) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
-      ),
+      ),                                                
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -373,24 +361,12 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>30 & abs(eta)<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
-        ),
-        cvsVertex = cms.PSet(
+		cvsVertex = cms.PSet(
           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-          workingPoint = cms.double(0.970) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
-      ),                                                
+      ),                                                                                                
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass before filling the event monitoring plots
@@ -557,24 +533,12 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>30 & abs(eta)<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled                                                   
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
-        ),
-        cvsVertex = cms.PSet(
+		cvsVertex = cms.PSet(
           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-          workingPoint = cms.double(0.970) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
-      ),
+      ),                                                
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass before filling the event monitoring plots
@@ -732,24 +696,12 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>30 & abs(eta)<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
-        ),
-        cvsVertex = cms.PSet(
+		cvsVertex = cms.PSet(
           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-          workingPoint = cms.double(0.970) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
-      ),
+      ),                                                
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass before filling the event monitoring plots

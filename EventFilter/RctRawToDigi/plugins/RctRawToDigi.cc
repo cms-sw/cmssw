@@ -80,8 +80,12 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //check header size
     if ( rctRcd.size() < sLinkHeaderSize_ + sLinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + MIN_DATA) {
-      LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-		      << rctRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+      if (rctRcd.size() > 0) {
+	LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+			<< rctRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+      } else {
+	// there's no MC packer for this payload, so totally expected that sometimes it will be absent... no warning issued.
+      }
       //continue;
       return;
     }

@@ -93,6 +93,7 @@ private:
   edm::InputTag vtxTag_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::Handle<reco::VertexCollection> vtxH_;
+  bool applyExtraHighEnergyProtection_;
 
   const edm::EventSetup* iSetup_;
 
@@ -112,6 +113,7 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
 
   bunchspacing_ = 450;
   autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
+  applyExtraHighEnergyProtection_ = conf.getParameter<bool>("applyExtraHighEnergyProtection");
 
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
   vtxTag_ = conf.getParameter<edm::InputTag>("vertexCollection");
@@ -531,7 +533,9 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   // CODE FOR STANDARD BDT
   double weight = 0.;
   if ( eOverP > 0.025 && 
-       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) ) {
+       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) &&
+       (!applyExtraHighEnergyProtection_ || ((momentumError < 10.*ep) || (ecor < 200.)))
+       ) {
     // protection against crazy track measurement
     weight = ep_forestH_weight_->GetResponse(eval_ep);
     if(weight>1.) 
@@ -560,7 +564,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
-  std::array<float, 31> eval;
+  std::array<float, 35> eval;
   const reco::SuperClusterRef& the_sc = pho.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
   
@@ -604,8 +608,18 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   if (iseb) {
     EBDetId ebseedid(theseed->seed());
     eval[26] = pho.e5x5()/theseed->energy();
-    eval[27] = ebseedid.ieta();
-    eval[28] = ebseedid.iphi();
+    int ieta = ebseedid.ieta();
+    int iphi = ebseedid.iphi();
+    eval[27] = ieta;
+    eval[28] = iphi;
+    int signieta = ieta > 0 ? +1 : -1; /// this is 1*abs(ieta)/ieta in original training
+    eval[29] = (ieta-signieta)%5;
+    eval[30] = (iphi-1)%2;
+    //    eval[31] = (abs(ieta)<=25)*((ieta-signieta)%25) + (abs(ieta)>25)*((ieta-26*signieta)%20); //%25 is unnescessary in this formula
+    eval[31] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
+    eval[32] = (iphi-1)%20;
+    eval[33] = ieta;  /// duplicated variables but this was trained like that
+    eval[34] = iphi;  /// duplicated variables but this was trained like that
   } else {
     EEDetId eeseedid(theseed->seed());
     eval[26] = the_sc->preshowerEnergy()/raw_energy;

@@ -153,7 +153,7 @@ void ListGroups::fillGradient(void)
   m_gradient.push_back(kBlue + 4); // Underflow lowest bin
   unsigned int ii = 0;
   for (unsigned int i = 0; i < steps; ++i, ++ii) {
-    new TColor(index + ii, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(static_cast<Int_t>(index + ii), r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient.push_back(index + ii);
   }
 
@@ -165,7 +165,7 @@ void ListGroups::fillGradient(void)
   delta_g = (g2 - g1) / (steps - 1);
   delta_b = (b2 - b1) / (steps - 1);
   for (unsigned int i = 0; i < steps; ++i, ++ii) {
-    new TColor(index + ii, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(static_cast<Int_t>(index + ii), r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient.push_back(index + ii);
   }
   m_gradient.push_back(kRed); // Overflow highest bin

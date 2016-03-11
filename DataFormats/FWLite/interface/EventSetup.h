@@ -50,6 +50,7 @@
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 class TFile;
@@ -105,7 +106,7 @@ namespace fwlite
       edm::EventID m_syncedEvent;
       edm::Timestamp m_syncedTimestamp;
       
-      TFile* m_file;
+      mutable TFile* m_file;
 
       mutable std::vector<Record*> m_records;
    };

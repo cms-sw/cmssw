@@ -5,9 +5,10 @@ process = cms.Process("process")
 
 ### Load cfis ###
 
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+#process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+#process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
@@ -170,12 +171,10 @@ process.ecalLaserLedMonitorTask.commonParameters.onlineMode = True
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
     tag = cms.string('EcalDQMChannelStatus_v1_hlt'),
-    connect = cms.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
 ), 
     cms.PSet(
         record = cms.string('EcalDQMTowerStatusRcd'),
         tag = cms.string('EcalDQMTowerStatus_v1_hlt'),
-        connect = cms.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
     ))
 
 process.ecalTestPulseMonitorTask.verbosity = 0

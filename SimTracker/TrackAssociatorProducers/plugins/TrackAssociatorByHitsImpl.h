@@ -26,7 +26,6 @@ class TrackAssociatorByHitsImpl : public reco::TrackToTrackingParticleAssociator
 
   enum SimToRecoDenomType {denomnone,denomsim,denomreco};
 
-  typedef std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > ClusterTPAssociationList;
   typedef std::pair<TrackingParticleRef, TrackPSimHitRef> SimHitTPPair;
   typedef std::vector<SimHitTPPair> SimHitTPAssociationList;
 

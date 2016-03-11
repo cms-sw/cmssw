@@ -19,6 +19,22 @@ namespace CLHEP {
 }
 
 template<class Traits>
+class CaloTDigitizerDefaultRun {
+public:
+  typedef typename Traits::ElectronicsSim ElectronicsSim;
+  typedef typename Traits::Digi Digi;
+  typedef typename Traits::DigiCollection DigiCollection;
+
+  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::vector<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
+    Digi digi(*idItr);
+    theElectronicsSim->analogToDigital(engine, *analogSignal , digi);
+    output.push_back(std::move(digi));
+  }
+  
+};
+
+//second parameter changes the operation of run() slightly (default value for old-style with edm::SortedCollection instead of edm::DataFrameContainer)
+template<class Traits, template <class> class runHelper=CaloTDigitizerDefaultRun>
 class CaloTDigitizer
 {
 public:
@@ -95,7 +111,6 @@ public:
     for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
         idItr != theDetIds->end(); ++idItr)
     {
-       Digi digi(*idItr);
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
        bool needToDeleteSignal = false;
        // don't bother digitizing if no signal and no noise
@@ -106,9 +121,7 @@ public:
          needToDeleteSignal = true;
        }
        if(analogSignal != 0) { 
-
-         theElectronicsSim->analogToDigital(engine, *analogSignal , digi);
-         output.push_back(std::move(digi));
+         runAnalogToDigital(output,engine,analogSignal,idItr,theElectronicsSim);
          if(needToDeleteSignal) delete analogSignal;
       }
     }
@@ -116,7 +129,6 @@ public:
     // free up some memory
     theHitResponse->clear();
   }
-
 
   void addNoiseHits(CLHEP::HepRandomEngine* engine)
   {
@@ -143,6 +155,7 @@ public:
   }
 
 private:
+  runHelper<Traits> runAnalogToDigital;
   CaloHitResponse * theHitResponse;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
   CaloVNoiseSignalGenerator * theNoiseSignalGenerator;

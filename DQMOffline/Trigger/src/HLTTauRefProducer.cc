@@ -143,6 +143,9 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
                       passAll = false;
                       break;
                     }
+                  }else{
+                      passAll = false;
+                      break;
                   }
                 }
                 if(passAll) {

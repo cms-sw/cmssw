@@ -10,6 +10,7 @@ from Configuration.DataProcessing.Impl.AlCa import AlCa
 
 class AlCaLumiPixels(AlCa):
     def __init__(self):
+        AlCa.__init__(self)
         self.skims=['LumiPixels']
     """
     _AlCaLumiPixels_

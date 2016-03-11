@@ -24,6 +24,7 @@ allows you to access data using an edm::Event.
 #include "TSelector.h"
 
 // user include files
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 class TFile;
@@ -96,7 +97,7 @@ class TFWLiteSelectorBasic : public TSelector
       
       void setupNewFile(TFile&);
       // ---------- member data --------------------------------
-      std::shared_ptr<edm::root::TFWLiteSelectorMembers> m_;
+      edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
       bool everythingOK_;
   
   ClassDef(TFWLiteSelectorBasic,2)

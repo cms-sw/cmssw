@@ -28,8 +28,9 @@ class HcalDbService;
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
+  static const float  lsb_;
 
-  HcaluLUTTPGCoder();
+  HcaluLUTTPGCoder(const HcalTopology* topo);
   virtual ~HcaluLUTTPGCoder();
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
@@ -39,8 +40,8 @@ public:
   virtual float getLUTGain(HcalDetId id) const;
 
   void update(const HcalDbService& conditions);
-  void update(const char* filename, const HcalTopology&, bool appendMSB = false);
-  void updateXML(const char* filename, const HcalTopology&);
+  void update(const char* filename, bool appendMSB = false);
+  void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
   void setMaskBit(int bit){ bitToMask_ = bit; };
   std::vector<unsigned short> getLinearizationLUTWithMSB(const HcalDetId& id) const;
@@ -56,12 +57,16 @@ private:
   typedef std::vector<LutElement> Lut;
 
   // constants
-  static const size_t nluts = 46007, INPUT_LUT_SIZE = 128;
-  static const float lsb_;
+  static const size_t INPUT_LUT_SIZE = 128;
+  static const int    nFi_ = 72;
   
   // member variables
+  const HcalTopology* topo_;
   bool LUTGenerationMode_;
-  int bitToMask_;
+  int  bitToMask_;
+  int  firstHBEta_, lastHBEta_, nHBEta_, maxDepthHB_, sizeHB_;
+  int  firstHEEta_, lastHEEta_, nHEEta_, maxDepthHE_, sizeHE_;
+  int  firstHFEta_, lastHFEta_, nHFEta_, maxDepthHF_, sizeHF_;
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;

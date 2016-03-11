@@ -75,6 +75,7 @@ namespace l1t {
          bool ctp7_mode_;
          bool mtf7_mode_;
          bool debug_;
+         int warns_;
    };
 }
 
@@ -100,14 +101,15 @@ namespace l1t {
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
-      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 8);
-      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
-      amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
-      amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer", 8);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader");
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer");
+      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader");
+      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer");
+      amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header");
+      amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer");
 
-      debug_ = config.getUntrackedParameter<bool>("debug", false);
+      debug_ = config.getUntrackedParameter<bool>("debug");
+      warns_ = 0;
    }
 
 
@@ -142,8 +144,14 @@ namespace l1t {
          LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
          if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
-            LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+	   if (l1tRcd.size() > 0) {
+            LogError("L1T") << "Cannot unpack: invalid L1T raw data (size = "
                << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	   } else if (warns_ < 5) {
+	     warns_++;
+	     LogWarning("L1T") << "Cannot unpack: empty L1T raw data (size = "
+			       << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	   }
             continue;
          }
 
@@ -264,13 +272,16 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
+     // These parameters are part of the L1T/HLT interface, avoid changing if possible:
+     desc.add<std::vector<int>>("FedIds", {})->setComment("required parameter:  default value is invalid");
+     desc.add<std::string>("Setup", "")->setComment("required parameter:  default value is invalid");
+     // These parameters have well defined  default values and are not currently 
+     // part of the L1T/HLT interface.  They can be cleaned up or updated at will:     
+     desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
      desc.addUntracked<bool>("CTP7", false);
      desc.addUntracked<bool>("MTF7", false);
-     desc.add<edm::InputTag>("InputLabel");
-     desc.add<std::vector<int>>("FedIds", {});
-     desc.add<std::string>("Setup", "");
+     desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
      desc.addUntracked<int>("lenSlinkHeader", 8);
      desc.addUntracked<int>("lenSlinkTrailer", 8);
      desc.addUntracked<int>("lenAMCHeader", 8);

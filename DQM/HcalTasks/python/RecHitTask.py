@@ -1,0 +1,32 @@
+import FWCore.ParameterSet.Config as cms
+
+recHitTask = cms.EDAnalyzer(
+	"RecHitTask",
+	
+	#	standard parameters
+	name = cms.untracked.string("RecHitTask"),
+	debug = cms.untracked.int32(0),
+	runkeyVal = cms.untracked.int32(0),
+	runkeyName = cms.untracked.string("pp_run"),
+	ptype = cms.untracked.int32(0),
+	mtype = cms.untracked.bool(True),
+	subsystem = cms.untracked.string("Hcal"),
+
+	#	tags
+	tagHBHE = cms.untracked.InputTag("hbhereco"),
+	tagHO = cms.untracked.InputTag("horeco"),
+	tagHF = cms.untracked.InputTag("hfreco"),
+	tagRaw = cms.untracked.InputTag('rawDataCollector')
+)
+
+
+
+
+
+
+
+
+
+
+
+

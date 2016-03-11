@@ -8,8 +8,9 @@
  * \author Luca Lista, INFN
  *
  */
-#include <TH1.h>
+#include "TH1.h"
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace tfwliteselectortest {
 class ThingsTSelector : public TFWLiteSelectorBasic {
@@ -23,7 +24,8 @@ public :
 
 private:
   /// histograms
-  TH1F * h_a, *h_refA;
+  edm::propagate_const<TH1F*> h_a;
+  edm::propagate_const<TH1F*> h_refA;
 
   ThingsTSelector(ThingsTSelector const&);
   ThingsTSelector operator=(ThingsTSelector const&);

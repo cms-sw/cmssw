@@ -1091,12 +1091,10 @@ class ConfigBuilder(object):
 	if self._options.fast:
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
-                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
 		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
-
-		
+                self.DQMOFFLINEDefaultCFF="FastSimulation.Configuration.DQMOfflineMC_cff"
 
         # Mixing
 	if self._options.pileup=='default':
@@ -1501,7 +1499,7 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':
@@ -1939,7 +1937,8 @@ class ConfigBuilder(object):
 			self.renameHLTprocessInSequence(sequence)
 
 		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-		if 'HLT' in self.stepMap.keys():
+	        # not for fastsim
+		if 'HLT' in self.stepMap.keys() and not self._options.fast:
 			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
 			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
 		else:

@@ -11,6 +11,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 static const int IPHI_MAX=72;
+
 //#define DebugLog
 
 HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
@@ -50,23 +51,21 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
     HBSize_     = kHBSizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
     HESize_     = kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_     = kHOSizePreLS1; // ieta * iphi * 2
-    HFSize_     = kHFSizePreLS1; // phi * eta * depth * pm 
+    HFSize_     = kHFSizePreLS1;  // ieta * iphi * depth * 2
     numberOfShapes_ = 87;
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     topoVersion_=10;
-    HBSize_     = nEtaHB_*72*maxDepthHB_*2;
-    HESize_     = nEtaHE_*72*maxDepthHE_*2;
-    HOSize_     = (lastHORing_-firstHORing_+1)*72*2; // ieta * iphi * 2
-    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*maxDepthHF_*2; // ieta * iphi * depth * 2
+    HBSize_     = nEtaHB_*IPHI_MAX*maxDepthHB_*2;
+    HESize_     = nEtaHE_*IPHI_MAX*maxDepthHE_*2;
+    HOSize_     = (lastHORing_-firstHORing_+1)*IPHI_MAX*2; // ieta * iphi * 2
+    HFSize_     = (lastHFRing_-firstHFRing_+1)*IPHI_MAX*maxDepthHF_*2;  // ieta * iphi * depth * 2
     numberOfShapes_ = 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
   if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT) {
     HTSize_ = kHTSizePreLS1;
-  } else if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT_and_1x1) {
-    HTSize_ = kHTSizePhase1;
   } else {
-    HTSize_ = kHTSizePhase1-kHTSizePreLS1;
+    HTSize_ = kHTSizePhase1;
   }
 
 #ifdef DebugLog
@@ -160,10 +159,10 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HOSize_= kHOSizePreLS1; // ieta * iphi * 2
     HFSize_= kHFSizePreLS1; // phi * eta * depth * pm
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
-    HBSize_= maxDepthHB*16*72*2;
-    HESize_= maxDepthHE*(29-16+1)*72*2;
-    HOSize_= 15*72*2; // ieta * iphi * 2
-    HFSize_= 72*13*maxDepthHF_*2; // phi * eta * depth * pm 
+    HBSize_= maxDepthHB*16*IPHI_MAX*2;
+    HESize_= maxDepthHE*(29-16+1)*IPHI_MAX*2;
+    HOSize_= 15*IPHI_MAX*2; // ieta * iphi * 2
+    HFSize_= IPHI_MAX*13*maxDepthHF_*2; // phi * eta * depth * pm 
     topoVersion_=10;
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
@@ -201,23 +200,18 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
-  if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0) return false;
-  if (id.depth() != 0)                             return false;
+  if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
+  if (id.depth() != 0)                              return false;
   if (id.version()==0) {
-    if (triggerMode_==HcalTopologyMode::tm_LHC_1x1) return false;
-    if ((id.ietaAbs()>32) || 
-	(triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>27)) return false;
-    if (id.ietaAbs()>28) {
-      int iphi=id.iphi();
-      if ((iphi/4)*4 + 1 != iphi) return false;
-      iphi = iphi/4 + 1;	  
-      if (iphi > 18) return false;
-    }
+    if ((triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>29) ||
+	(id.ietaAbs()>32))                          return false;
+    int ietaMax = (triggerMode_==HcalTopologyMode::tm_LHC_1x1) ? 29 : 28;
+    if (id.ietaAbs()>ietaMax && ((id.iphi()%4)!=1)) return false;
   } else {
     if (triggerMode_==HcalTopologyMode::tm_LHC_RCT) return false;
-    if (id.ietaAbs()<28 || id.ietaAbs()>41) return false;
-    if (id.ietaAbs()>29 && ((id.iphi()%2)==0)) return false;
-    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3)) return false;
+    if (id.ietaAbs()<30 || id.ietaAbs()>41)         return false;
+    if (id.ietaAbs()>29 && ((id.iphi()%2)==0))      return false;
+    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3))      return false;
   }
   return true;
 }
@@ -430,42 +424,50 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
   int aieta=id.ietaAbs();
   int depth=id.depth();
   int iphi=id.iphi();
-  if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>maxEta_) return false; // outer limits
+  if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>maxEta_) ok = false; // outer limits
  
   if (ok) {
     HcalSubdetector subdet=id.subdet();
     if (subdet==HcalBarrel) {
       if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-	if ((aieta>lastHBRing() || depth>maxDepthHB_ || (aieta==lastHBRing() && depth > 2))) ok=false;
+	if ((aieta>lastHBRing()) || (depth>hcons_->getMaxDepth(0,aieta))) ok=false;
       } else {
 	if (aieta>lastHBRing() || depth>2 || (aieta<=14 && depth>1)) ok=false;
       }
     } else if (subdet==HcalEndcap) {
       if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-        if (depth>maxDepthHE_ || aieta<firstHERing() || aieta>lastHERing() ||
-            (aieta==firstHERing() && depth<3)) {
+        if ((depth>hcons_->getMaxDepth(1,aieta)) || 
+	    (aieta<firstHERing()) || (aieta>lastHERing()) ||
+            (aieta==firstHERing() && depth<hcons_->getDepthEta16(1))) {
           ok = false;
         } else {
           for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
             if (aieta == etaBinsHE_[i].ieta) {
               if (aieta >= firstHEDoublePhiRing() && (iphi%2)==0) ok=false;
               if (aieta >= firstHEQuadPhiRing()   && (iphi%4)!=3) ok=false;
-              if (depth < etaBinsHE_[i].depthStart || 
-                  depth > (etaBinsHE_[i].depthStart+(int)(etaBinsHE_[i].layer.size())))
-                ok = false;
+              if (aieta+1 == hcons_->getNoff(1)) {
+		if (depth < 1) ok = false;
+	      } else {
+		if (depth < etaBinsHE_[i].depthStart) ok = false;
+	      }
               break;
             }
           }
         }
       } else {
-	if (depth>3 || aieta<firstHERing() || aieta>lastHERing() || (aieta==firstHERing() && depth!=3) || (aieta==17 && depth!=1 && mode_!=HcalTopologyMode::H2) || // special case at H2
-	    (((aieta>=17 && aieta<firstHETripleDepthRing()) || aieta==lastHERing()) && depth>2) ||
+	if (depth>hcons_->getMaxDepth(1,aieta) || aieta<firstHERing() || aieta>lastHERing() || 
+	    (aieta==firstHERing() && depth!=hcons_->getDepthEta16(1)) || 
+	    (aieta==17 && depth!=1 && mode_!=HcalTopologyMode::H2) || // special case at H2
+	    (((aieta>=17 && aieta<firstHETripleDepthRing()) || 
+	      aieta==lastHERing()) && depth>2) ||
 	    (aieta>=firstHEDoublePhiRing() && (iphi%2)==0)) ok=false;
       }
     } else if (subdet==HcalOuter) {
       if (aieta>lastHORing() || iphi>IPHI_MAX || depth!=4) ok=false;
     } else if (subdet==HcalForward) {
-      if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || (depth>maxDepthHF_) ||  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
+      if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || 
+	  (depth>hcons_->maxHFDepth(ieta,iphi)) ||  
+	  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
     } else if (subdet==HcalTriggerTower) {
       ok=validHT(HcalTrigTowerDetId(id.rawId()));
     } else {
@@ -504,6 +506,7 @@ bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
 	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
       }
+      if (!validRaw(neighbor)) ok = false;
       break;
     default: ok=false;
     }
@@ -541,6 +544,7 @@ bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
 	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
       }
+      if (!validRaw(neighbor)) ok = false;
       break;
     default: ok=false;
     }
@@ -629,9 +633,9 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
       startingBin = 1;
       if (etaRing==lastHBRing()) {
-	nDepthBins = 2;
+	nDepthBins = hcons_->getDepthEta16(0);
       } else {
-	nDepthBins = maxDepthHB_;
+	nDepthBins = hcons_->getMaxDepth(0,etaRing);
       }
     } else {
       if (etaRing<=14) {
@@ -645,10 +649,10 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
   } else if(subdet == HcalEndcap) {
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
       if (etaRing==firstHERing()) {
-	nDepthBins  = maxDepthHE_ - 2;
-	startingBin = 3;
+	startingBin = hcons_->getDepthEta16(1);
+	nDepthBins  = hcons_->getMaxDepth(1,etaRing) - startingBin + 1;
       } else {
-	nDepthBins  = maxDepthHE_;
+	nDepthBins  = hcons_->getMaxDepth(1,etaRing);
 	startingBin = 1;
       }
     } else {
@@ -940,8 +944,8 @@ unsigned int HcalTopology::detId2denseIdHB(const DetId& id) const {
     retval=( ip - 1 )*18 + dp - 1 + ie - ( ie<16 ? 1 : 0 ) + zn*kHBhalf;
   } else if (topoVersion_==10) {
     retval=(dp-1)+maxDepthHB_*(ip-1);
-    if (hid.ieta()>0) retval+=maxDepthHB_*72*(hid.ieta()-firstHBRing());
-    else              retval+=maxDepthHB_*72*(hid.ieta()+lastHBRing()+nEtaHB_);
+    if (hid.ieta()>0) retval+=maxDepthHB_*IPHI_MAX*(hid.ieta()-firstHBRing());
+    else              retval+=maxDepthHB_*IPHI_MAX*(hid.ieta()+lastHBRing()+nEtaHB_);
   }
   return retval;
 }
@@ -962,8 +966,8 @@ unsigned int HcalTopology::detId2denseIdHE(const DetId& id) const {
 	      26 + 2*( ie - 29 ) + dp - 1 ) ) ) ) + zn*kHEhalf;
   } else if (topoVersion_==10) {
     retval=(dp-1)+maxDepthHE_*(ip-1);
-    if (hid.ieta()>0) retval+=maxDepthHE_*72*(hid.ieta()-firstHERing());
-    else              retval+=maxDepthHE_*72*(hid.ieta()+lastHERing()+nEtaHE_);
+    if (hid.ieta()>0) retval+=maxDepthHE_*IPHI_MAX*(hid.ieta()-firstHERing());
+    else              retval+=maxDepthHE_*IPHI_MAX*(hid.ieta()+lastHERing()+nEtaHE_);
   }
   return retval;
 }
@@ -978,8 +982,8 @@ unsigned int HcalTopology::detId2denseIdHO(const DetId& id) const {
   if (topoVersion_==0) {
     retval=( ip - 1 )*15 + ( ie - 1 ) + zn*kHOhalf;
   } else if (topoVersion_==10) {
-    if   (hid.ieta()>0) retval=(ip-1)+72*(hid.ieta()-1);
-    else                retval=(ip-1)+72*(30+hid.ieta());
+    if   (hid.ieta()>0) retval=(ip-1)+IPHI_MAX*(hid.ieta()-1);
+    else                retval=(ip-1)+IPHI_MAX*(30+hid.ieta());
   }
   return retval;
 }
@@ -997,8 +1001,8 @@ unsigned int HcalTopology::detId2denseIdHF(const DetId& id) const {
       2*( ie - 29 ) + ( dp - 1 ) + zn*kHFhalf;
   } else if (topoVersion_==10) {
     retval=dp-1+2*(ip-1);
-    if (hid.ieta()>0) retval+=maxDepthHF_*72*(hid.ieta()-29);
-    else              retval+=maxDepthHF_*72*((41+13)+hid.ieta());
+    if (hid.ieta()>0) retval+=maxDepthHF_*IPHI_MAX*(hid.ieta()-29);
+    else              retval+=maxDepthHF_*IPHI_MAX*((41+13)+hid.ieta());
   }
   return retval;
 }
@@ -1090,28 +1094,30 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
     HcalDetId hid(id);
     if (hid.subdet()==HcalBarrel) {
       retval = (hid.depth()-1)+maxDepthHB_*(hid.iphi()-1);
-      if (hid.ieta()>0) retval+=maxDepthHB_*72*(hid.ieta()-firstHBRing());
-      else              retval+=maxDepthHB_*72*(hid.ieta()+lastHBRing()+nEtaHB_);
+      if (hid.ieta()>0) retval+=maxDepthHB_*IPHI_MAX*(hid.ieta()-firstHBRing());
+      else              retval+=maxDepthHB_*IPHI_MAX*(hid.ieta()+lastHBRing()+nEtaHB_);
     } else if (hid.subdet()==HcalEndcap) {
       retval = HBSize_;
       retval+= (hid.depth()-1)+maxDepthHE_*(hid.iphi()-1);
-      if (hid.ieta()>0) retval+=maxDepthHE_*72*(hid.ieta()-firstHERing());
-      else              retval+=maxDepthHE_*72*(hid.ieta()+lastHERing()+nEtaHE_);
+      if (hid.ieta()>0) retval+=maxDepthHE_*IPHI_MAX*(hid.ieta()-firstHERing());
+      else              retval+=maxDepthHE_*IPHI_MAX*(hid.ieta()+lastHERing()+nEtaHE_);
     } else if (hid.subdet()==HcalOuter) {
       retval = HBSize_+HESize_;
-      if   (hid.ieta()>0) retval+=(hid.iphi()-1)+72*(hid.ieta()-1);
-      else                retval+=(hid.iphi()-1)+72*(30+hid.ieta());
+      if   (hid.ieta()>0) retval+=(hid.iphi()-1)+IPHI_MAX*(hid.ieta()-1);
+      else                retval+=(hid.iphi()-1)+IPHI_MAX*(30+hid.ieta());
     } else if (hid.subdet()==HcalForward) { 
       retval = HBSize_+HESize_+HOSize_;
       retval+= (hid.depth()-1)+maxDepthHF_*(hid.iphi()-1);
-      if (hid.ieta()>0) retval+=maxDepthHF_*72*(hid.ieta()-29);
-      else              retval+=maxDepthHF_*72*((41+13)+hid.ieta());
+      if (hid.ieta()>0) retval+=maxDepthHF_*IPHI_MAX*(hid.ieta()-29);
+      else              retval+=maxDepthHF_*IPHI_MAX*((41+13)+hid.ieta());
     } else {
       return 0xFFFFFFFu;
     }
   }
 #ifdef DebugLog
-  std::cout << "DetId2Dense " << topoVersion_ << " ID " << HcalDetId(id) << " : " << std::hex << retval << std::dec << std::endl;
+  std::cout << "DetId2Dense " << topoVersion_ << " ID " << std::hex 
+	    << id.rawId() << std::dec << " | " << HcalDetId(id) << " : " 
+	    << std::hex << retval << std::dec << std::endl;
 #endif
   return retval;
 }
@@ -1183,43 +1189,45 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	sd  = HcalForward ;
 	in -= (HBSize_+HESize_+HOSize_);
 	dp  = (in%maxDepthHF_) + 1;
-	ip  = (in - dp + 1)%(maxDepthHF_*72);
+	ip  = (in - dp + 1)%(maxDepthHF_*IPHI_MAX);
 	ip  = (ip/maxDepthHF_) + 1;
-	ie  = (in - dp + 1 - maxDepthHF_*(ip -1))/(72*maxDepthHF_);
+	ie  = (in - dp + 1 - maxDepthHF_*(ip -1))/(IPHI_MAX*maxDepthHF_);
 	if (ie > 12) {ie  = 54 -ie; iz = -1;}
 	else         {ie += 29;     iz =  1;}
       } else if (denseid >= (HBSize_+HESize_)) {
 	sd  = HcalOuter ;
 	in -= (HBSize_+HESize_);
 	dp  = 4;
-	ip  = (in%72) + 1;
-	ie  = (in - ip + 1)/72;
+	ip  = (in%IPHI_MAX) + 1;
+	ie  = (in - ip + 1)/IPHI_MAX;
 	if (ie > 14) {ie  = 30 -ie; iz = -1;}
 	else         {ie += 1;      iz =  1;}
       } else if (denseid >= (HBSize_)) {
 	sd  = HcalEndcap ;
 	in -= (HBSize_);
 	dp  = (in%maxDepthHE_)+1;
-	ip  = (in - dp + 1)%(maxDepthHE_*72);
+	ip  = (in - dp + 1)%(maxDepthHE_*IPHI_MAX);
 	ip  = (ip/maxDepthHE_) + 1;
-	ie  = (in - dp + 1 - maxDepthHE_*(ip-1))/(72*maxDepthHE_);
+	ie  = (in - dp + 1 - maxDepthHE_*(ip-1))/(IPHI_MAX*maxDepthHE_);
         if (ie >= nEtaHE_) {ie = lastHERing()+nEtaHE_ - ie; iz = -1;}
         else               {ie = firstHERing() + ie;        iz =  1;}
       } else {
 	sd  = HcalBarrel ;
 	dp  = (in%maxDepthHB_)+1;
-	ip  = (in - dp + 1)%(maxDepthHB_*72);
+	ip  = (in - dp + 1)%(maxDepthHB_*IPHI_MAX);
 	ip  = (ip/maxDepthHB_) + 1;
-	ie  = (in - dp + 1 - maxDepthHB_*(ip-1))/(72*maxDepthHB_);
+	ie  = (in - dp + 1 - maxDepthHB_*(ip-1))/(IPHI_MAX*maxDepthHB_);
         if (ie >= nEtaHB_) {ie = lastHBRing()+nEtaHB_ - ie; iz = -1;}
         else               {ie = firstHBRing() + ie;        iz =  1;}
       }	
     }
   }
+  HcalDetId hid(sd, iz*int(ie), ip, dp);
 #ifdef DebugLog
-  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp) << std::endl;
+  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid 
+	    << " : " << hid.rawId() << std::dec << " | " << hid << std::endl;
 #endif
-  return HcalDetId( sd, iz*int(ie), ip, dp );
+  return hid;
 }
 
 unsigned int HcalTopology::ncells() const {

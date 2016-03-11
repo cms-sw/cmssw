@@ -14,6 +14,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 class preprodmc(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _preprodmc_
 
@@ -41,7 +43,7 @@ class preprodmc(Scenario):
         options.evt_type = ""
         options.filein = []
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         if args.get('newDQMIO', False):
             process.source = cms.Source("DQMRootSource")
         else:

@@ -4,6 +4,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 namespace SimTracker_TrackerHitAssociation {
@@ -16,8 +17,8 @@ namespace SimTracker_TrackerHitAssociation {
     edm::Wrapper<std::vector<OmniClusterRef> > dummy06;
     std::pair<OmniClusterRef, TrackingParticleRef> dummy13;
     edm::Wrapper<std::pair<OmniClusterRef, TrackingParticleRef> > dummy14;
-    std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > dummy07;
-    edm::Wrapper<std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > > dummy08;
+    ClusterTPAssociation dummy07;
+    edm::Wrapper<ClusterTPAssociation> dummy08;
     std::map<TrackingParticleRef, std::vector<OmniClusterRef> > dummy09;
     edm::Wrapper<std::map<TrackingParticleRef, std::vector<OmniClusterRef> > > dummy10;
     std::map<OmniClusterRef, std::vector<TrackingParticleRef> > dummy11;

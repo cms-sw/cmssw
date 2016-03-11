@@ -12,6 +12,10 @@ void NtupleSummary(const char * file, const char * treepath = "l1UpgradeEmuTree/
   }
   tree->Print();
 
+  TH1F * fjetEt = new TH1F("fjetEt","", 20, 0.0, 200.0);
+  tree->Draw("jetEt>>fjetEt","(jetEt > 10.0) && (abs(jetEta) > 3.0)");
+  cout << "forward jet count:  " << fjetEt->GetEntries() << "\n";
+
   TH1F * jetEt = new TH1F("jetEt","", 20, 0.0, 200.0);
   tree->Draw("jetEt>>jetEt","jetEt > 10.0");
   cout << "jet count:  " << jetEt->GetEntries() << "\n";

@@ -52,6 +52,7 @@ namespace evf{
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
     reg.watchJobFailure(this,&FastMonitoringService::jobFailure);//global
 
+    reg.watchPreBeginJob(this,&FastMonitoringService::preBeginJob);
     reg.watchPreModuleBeginJob(this,&FastMonitoringService::preModuleBeginJob);//global
     reg.watchPostBeginJob(this,&FastMonitoringService::postBeginJob);
     reg.watchPostEndJob(this,&FastMonitoringService::postEndJob);
@@ -141,6 +142,16 @@ namespace evf{
 
   void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
   {
+    nStreams_=bounds.maxNumberOfStreams();
+    nThreads_=bounds.maxNumberOfThreads();
+    //this should already be >=1
+    if (nStreams_==0) nStreams_=1;
+    if (nThreads_==0) nThreads_=1;
+  }
+
+  void FastMonitoringService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&,
+                                          edm::ProcessContext const& pc)
+  {
 
     // FIND RUN DIRECTORY
     // The run dir should be set via the configuration of EvFDaqDirector
@@ -187,13 +198,6 @@ namespace evf{
     LogDebug("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
 			                  << microstateDefPath_;
 			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
-
-    nStreams_=bounds.maxNumberOfStreams();
-    nThreads_=bounds.maxNumberOfThreads();
-
-    //this should already be >=1
-    if (nStreams_==0) nStreams_=1;
-    if (nThreads_==0) nThreads_=1;
 
     /*
      * initialize the fast monitor with:

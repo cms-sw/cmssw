@@ -11,6 +11,8 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
+// Author:  Marcel Schneider
+//         Extended to Pixel Residuals. 
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,8 +27,6 @@ class MonitorElement;
 class DQMStore;
 class GenericTriggerEventFlag;
 namespace edm { class Event; }
-
-typedef std::map<int32_t, MonitorElement *> HistoClass;
 
 class MonitorTrackResiduals : public DQMEDAnalyzer {
  public:
@@ -46,11 +46,23 @@ class MonitorTrackResiduals : public DQMEDAnalyzer {
   DQMStore * dqmStore_;
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
-  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
-  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
-  HistoClass HitResidual;
-  HistoClass NormedHitResiduals;
-  SiStripFolderOrganizer folder_organizer;
+
+  std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
+  
+  struct HistoPair {
+    HistoPair() {base = nullptr; normed = nullptr;};
+    MonitorElement* base;
+    MonitorElement* normed;
+  };
+  struct HistoXY {
+    HistoPair x;
+    HistoPair y;
+  };
+  typedef std::map<std::pair<std::string, int32_t>, HistoXY> HistoSet;
+
+  HistoSet m_SubdetLayerResiduals;
+  HistoSet m_ModuleResiduals;
+  
   unsigned long long m_cacheID_;
   bool ModOn;
   GenericTriggerEventFlag* genTriggerEventFlag_;

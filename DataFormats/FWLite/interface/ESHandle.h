@@ -25,6 +25,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace fwlite {
@@ -77,7 +78,7 @@ class ESHandle
 
       // ---------- member data --------------------------------
       const T* m_data;
-      std::shared_ptr<cms::Exception> m_exception;
+      std::shared_ptr<cms::Exception const> m_exception;
 };
 
 }

@@ -17,8 +17,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
 ##process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
-process.GlobalTag.globaltag = 'PRE_ST62_V8::All'
-
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
+#process.GlobalTag.globaltag = 'auto:startup_GRun'
 
 #dbs search --query 'find file where site=srm-eoscms.cern.ch and dataset=/RelValTTbar/CMSSW_7_0_0_pre3-PRE_ST62_V8-v1/GEN-SIM-RECO'
 #dbs search --query 'find dataset where dataset=/RelValTTbar/CMSSW_7_0_0_pre6*/GEN-SIM-RECO'
@@ -34,7 +34,8 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/72477A84-F93B-E311-BF63-003048FFD720.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
         #    '/store/relval/CMSSW_7_1_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/48ED95A2-66AA-E311-9865-02163E00E5AE.root'
-    '/store/relval/CMSSW_7_1_0_pre9/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V11-v1/00000/90D92DC6-67F0-E311-8D2E-0025905A613C.root'
+    '/store/relval/CMSSW_8_0_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/80X_mcRun2_asymptotic_v1-v1/00000/120469B3-20C5-E511-A321-0026189438CB.root'
+#'/store/relval/CMSSW_7_6_0_pre1/RelValTTbarLepton_13/GEN-SIM-RECO/75X_mcRun2_asymptotic_v1-v1/00000/303083D5-F82F-E511-8B50-0025905B8576.root'
     )
 )
 

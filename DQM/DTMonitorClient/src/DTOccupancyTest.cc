@@ -264,6 +264,21 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
 }
 
 
+int DTOccupancyTest::getIntegral(TH2F *histo, int firstBinX, int lastBinX, int firstBinY, int lastBinY, bool doall) {
+
+  int sum = 0;
+    for (Int_t i = firstBinX; i < lastBinX+1; i++) {
+      for (Int_t j = firstBinY; j < lastBinY+1; j++) {
+        
+        if (histo->GetBinContent(i,j) >0){
+          if (!doall) return 1;
+	  sum += histo->GetBinContent(i,j);
+	}
+      }
+    }
+
+    return sum;
+}
 
 
 // Run a test on the occupancy of the chamber
@@ -273,9 +288,12 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
 // 2 -> dead layer
 // 3 -> dead SL
 // 4 -> dead chamber
+
+
 int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 				      float& chamberPercentage) {
   int nBinsX = histo->GetNbinsX();
+  int nBinsY = histo->GetNbinsY();
 
   // Reset the error flags
   bool failSL = false;
@@ -283,7 +301,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
   bool failCells = false;
 
   // Check that the chamber has digis
-  if(histo->Integral() == 0) {
+  if (getIntegral(histo,1,nBinsX,1,nBinsY,false) == 0) {
     chamberPercentage = 0;
     return 4;
   }
@@ -331,8 +349,8 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
     // check the SL occupancy
     int binYlow = ((slay-1)*4)+1;
     int binYhigh = binYlow+3;
-    double slInteg = histo->Integral(1,nBinsX,binYlow,binYhigh);
-    if(slInteg == 0) {
+
+    if(getIntegral(histo,1,nBinsX,binYlow,binYhigh,false) == 0) {
       chamberPercentage = 1.-1./(float)nSL;
       return 3;
     }
@@ -342,7 +360,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 
       int binY = binYlow+(lay-1);
       
-      double layerInteg = histo->Integral(1,nBinsX,binY,binY);
+      double layerInteg = getIntegral(histo,1,nBinsX,binY,binY,true);
       squaredLayerOccupSum += layerInteg*layerInteg;
       totalChamberOccupp+= layerInteg;
 
@@ -433,7 +451,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
       int binY = binYlow+(lay-1);
 
       // compute the integral of the layer occupancy
-      double layerInteg = histo->Integral(1,nBinsX,binY,binY);
+      double layerInteg = getIntegral(histo,1,nBinsX,binY,binY,true);
 
       LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     layer: " << layID << " integral: " << layerInteg << endl;
 

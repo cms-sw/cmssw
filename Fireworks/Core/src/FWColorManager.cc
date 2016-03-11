@@ -212,13 +212,10 @@ FWColorManager::~FWColorManager()
 
 void FWColorManager::initialize()
 {
-  // Save default ROOT colors.
-  TEveUtil::SetColorBrightness(0, kFALSE);
-
   m_startColorIndex = s_defaultStartColorIndex;
   m_numColorIndices = s_size;
 
-  unsigned int index = m_startColorIndex;
+  int index = m_startColorIndex;
   //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
    
   const float(* itEnd)[3] = s_forBlack+s_size;
@@ -227,8 +224,13 @@ void FWColorManager::initialize()
       ++it) {
     //NOTE: this constructor automatically places this color into the gROOT color list
     //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
+    if ( index <= gROOT->GetListOfColors()->GetLast())
+      gROOT->GetListOfColors()->RemoveAt(index);
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
+
+  // Save default ROOT colors.
+  TEveUtil::SetColorBrightness(0, kFALSE);
 }
 
 void FWColorManager::updateColors()

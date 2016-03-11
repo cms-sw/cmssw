@@ -48,7 +48,7 @@ namespace fwlite {
     pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
-                std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                std::make_shared<LumiHistoryGetter>(this),
                 branchMap_)
   {
     if(nullptr == iFile) {
@@ -94,7 +94,7 @@ namespace fwlite {
     pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
-                std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                std::make_shared<LumiHistoryGetter>(this),
                 branchMap_),
     runFactory_(runFactory)
   {

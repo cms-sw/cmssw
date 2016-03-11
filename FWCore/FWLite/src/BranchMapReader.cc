@@ -26,6 +26,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TBranch.h"
 #include "TFile.h"
@@ -76,7 +77,7 @@ namespace fwlite {
       bidToDesc branchDescriptionMap_;
       std::vector<edm::BranchDescription> bDesc_;
       bool mapperFilled_;
-      std::unique_ptr<edm::ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+      edm::propagate_const<std::unique_ptr<edm::ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     };
 
     Strategy::Strategy(TFile* file, int fileVersion)
@@ -222,9 +223,9 @@ namespace fwlite {
       virtual bool updateMap() override;
       virtual edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
     private:
-      TBranch* entryInfoBranch_;
+      edm::propagate_const<TBranch*> entryInfoBranch_;
       edm::EventEntryInfoVector  eventEntryInfoVector_;
-      edm::EventEntryInfoVector* pEventEntryInfoVector_;
+      edm::EventEntryInfoVector const* pEventEntryInfoVector_;
       edm::BranchListIndexes dummyBranchListIndexes_;
     };
 
@@ -323,10 +324,10 @@ namespace fwlite {
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
       virtual edm::BranchListIndexes const& branchListIndexes() const override {return history_.branchListIndexes();}
     private:
-      std::unique_ptr<edm::BranchIDLists> branchIDLists_;
-      TTree* eventHistoryTree_;
+      edm::propagate_const<std::unique_ptr<edm::BranchIDLists>> branchIDLists_;
+      edm::propagate_const<TTree*> eventHistoryTree_;
       edm::History history_;
-      edm::History* pHistory_;
+      edm::History const* pHistory_;
     };
 
     BranchMapReaderStrategyV11::BranchMapReaderStrategyV11(TFile* file, int fileVersion)
@@ -368,7 +369,7 @@ namespace fwlite {
          throw edm::Exception(edm::errors::EventCorruption)
            <<"No "<<edm::poolNames::metaDataTreeName()<<" TTree in file";
       }
-      branchIDLists_.reset(new edm::BranchIDLists);
+      branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
       if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
@@ -440,10 +441,10 @@ namespace fwlite {
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
       virtual edm::BranchListIndexes const& branchListIndexes() const override {return branchListIndexes_;}
     private:
-      std::unique_ptr<edm::BranchIDLists> branchIDLists_;
-      TTree* eventsTree_;
+      edm::propagate_const<std::unique_ptr<edm::BranchIDLists>> branchIDLists_;
+      edm::propagate_const<TTree*> eventsTree_;
       edm::BranchListIndexes branchListIndexes_;
-      edm::BranchListIndexes* pBranchListIndexes_;
+      edm::propagate_const<edm::BranchListIndexes*> pBranchListIndexes_;
     };
 
     BranchMapReaderStrategyV17::BranchMapReaderStrategyV17(TFile* file, int fileVersion)
@@ -484,7 +485,7 @@ namespace fwlite {
          throw edm::Exception(edm::errors::EventCorruption) <<"No "<<edm::poolNames::metaDataTreeName()<<" TTree in file";
       }
 
-      thinnedAssociationsHelper_.reset(new edm::ThinnedAssociationsHelper);
+      thinnedAssociationsHelper_ = std::make_unique<edm::ThinnedAssociationsHelper>();
       edm::ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = thinnedAssociationsHelper_.get();
       if(metaDataTree->FindBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str());
@@ -492,7 +493,7 @@ namespace fwlite {
         b->GetEntry(0);
       }
 
-      branchIDLists_.reset(new edm::BranchIDLists);
+      branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
       if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
@@ -648,15 +649,15 @@ BranchMapReader::newStrategy(TFile* file, int fileVersion) {
   std::unique_ptr<internal::BMRStrategy> s;
 
   if(fileVersion >= 17) {
-    s = std::unique_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV17(file, fileVersion));
+    s = std::make_unique<internal::BranchMapReaderStrategyV17>(file, fileVersion);
   } else if(fileVersion >= 11) {
-    s = std::unique_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV11(file, fileVersion));
+    s = std::make_unique<internal::BranchMapReaderStrategyV11>(file, fileVersion);
   } else if(fileVersion >= 8) {
-    s = std::unique_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV8(file, fileVersion));
+    s = std::make_unique<internal::BranchMapReaderStrategyV8>(file, fileVersion);
   } else if(fileVersion >= 7) {
-    s = std::unique_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV7(file, fileVersion));
+    s = std::make_unique<internal::BranchMapReaderStrategyV7>(file, fileVersion);
   } else {
-    s = std::unique_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV1(file, fileVersion));
+    s = std::make_unique<internal::BranchMapReaderStrategyV1>(file, fileVersion);
   }
   return s;
 }
