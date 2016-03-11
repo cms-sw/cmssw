@@ -87,7 +87,7 @@ ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTr
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
 ALCARECOSiStripCalib = SiStripCalib.clone()
 ALCARECOSiStripCalib.AlgoMode            = cms.untracked.string('PCL')
-ALCARECOSiStripCalib.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
+#ALCARECOSiStripCalib.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
 ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalib.harvestingMode      = cms.untracked.bool(False)
 ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')
@@ -103,7 +103,7 @@ ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallow
 # ****************************************************************************
 MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
                                             Name = cms.untracked.string('MEtoEDMConverter'),
-                                            Verbosity = cms.untracked.int32(2), # 0 provides no output
+                                            Verbosity = cms.untracked.int32(0), # 0 provides no output
                                             # 1 provides basic output
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),

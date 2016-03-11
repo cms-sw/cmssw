@@ -77,10 +77,10 @@ ALCARECOTrackFilterRefitAAG = cms.Sequence(ALCARECOCalibrationTracksAAG +
 from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import shallowEventRun
 from CalibTracker.SiStripCommon.ShallowTracksProducer_cfi import shallowTracks
 from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import shallowGainCalibration
-ALCARECOShallowEventRun = shallowEventRun.clone()
-ALCARECOShallowTracksAAG = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
+ALCARECOShallowEventRunAAG = shallowEventRun.clone()
+ALCARECOShallowTracksAAG   = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
 ALCARECOShallowGainCalibrationAAG = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
-ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTracksAAG*ALCARECOShallowGainCalibrationAAG)
+ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRunAAG*ALCARECOShallowTracksAAG*ALCARECOShallowGainCalibrationAAG)
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
@@ -88,13 +88,12 @@ ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallo
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
 ALCARECOSiStripCalibAfterAbortGap = SiStripCalib.clone()
 ALCARECOSiStripCalibAfterAbortGap.AlgoMode            = cms.untracked.string('PCL')
-ALCARECOSiStripCalibAfterAbortGap.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefitAAG')
 ALCARECOSiStripCalibAfterAbortGap.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalibAfterAbortGap.harvestingMode      = cms.untracked.bool(False)
 ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('FaABunch')
 ALCARECOSiStripCalibAfterAbortGap.doStoreOnDB         = cms.bool(False)
 ALCARECOSiStripCalibAfterAbortGap.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')
-ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')
+ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')
 ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')
 # ----------------------------------------------------------------------------
 
@@ -104,7 +103,7 @@ ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('AL
 # ****************************************************************************
 MEtoEDMConvertSiStripGainsAfterAbortGap = cms.EDProducer("MEtoEDMConverter",
                                             Name = cms.untracked.string('MEtoEDMConverter'),
-                                            Verbosity = cms.untracked.int32(2), # 0 provides no output
+                                            Verbosity = cms.untracked.int32(0), # 0 provides no output
                                             # 1 provides basic output
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),
