@@ -70,7 +70,7 @@ def unpack_stage2():
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(caloStage2Digis + gmtStage2Digis)# + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:
