@@ -22,6 +22,7 @@
 // user include files
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
 // forward declarations
 class GtCondition;
@@ -83,7 +84,8 @@ public:
     }
 
     void setuGtB(const GtBoard*);
-
+    
+    void setScales(const L1TGlobalScales*);  
 
 /*   //BLW Comment out for now
     ///   get / set the number of bits for eta of calorimeter objects
@@ -126,7 +128,7 @@ private:
     /// pointer to uGt GtBoard, to be able to get the trigger objects
     const GtBoard* m_uGtB;
     
-    
+    const L1TGlobalScales* m_gtScales;
 
 
 /*   //BLW comment out for now

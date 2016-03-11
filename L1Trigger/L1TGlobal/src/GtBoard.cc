@@ -738,6 +738,7 @@ void l1t::GtBoard::runGTL(
 			new CorrCondition(itCond->second, cond0Condition, cond1Condition, this);
 
 		    correlationCond->setVerbosity(m_verbosity);
+		    correlationCond->setScales(&gtScales);
 		    correlationCond->evaluateConditionStoreResult(iBxInEvent);
 
 		    cMapResults[itCond->first] = correlationCond;

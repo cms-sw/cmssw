@@ -32,7 +32,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-
+#include "tmEventSetup/tmEventSetup.hh"
 #include "tmEventSetup/esTriggerMenu.hh"
 #include "tmEventSetup/esAlgorithm.hh"
 #include "tmEventSetup/esCondition.hh"
@@ -552,6 +552,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     L1TGlobalScales::ScaleParameters httScales;
     L1TGlobalScales::ScaleParameters htmScales; 
  
+ 
 // Start by parsing the Scale Map
     for (std::map<std::string, esScale>::const_iterator cit = scaleMap.begin();
        cit != scaleMap.end(); cit++)
@@ -634,7 +635,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 	} //end switch 
     } //end valid scale	
   } //end loop over scaleMap
-  
+
   // put the ScaleParameters into the class
   m_gtScales.setMuonScales(muScales);
   m_gtScales.setEGScales(egScales);
@@ -645,11 +646,225 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   m_gtScales.setHTTScales(httScales);
   m_gtScales.setHTMScales(htmScales);
   
+
+
+// Setup the LUT for the Scale Conversions
+  bool hasPrecision = false;
+  std::map<std::string, unsigned int> precisions;
+  getPrecisions(precisions, scaleMap);
+  for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++)
+  {
+    std::cout << cit->first << " = " << cit->second << "\n";
+    hasPrecision = true;
+  }
+
+
+  if (hasPrecision)
+  {
+
+    //Start with the Cal - Muon Eta LUTS
+    //----------------------------------
+    parseCalMuEta_LUTS(scaleMap, "EG",  "MU");
+    parseCalMuEta_LUTS(scaleMap, "JET", "MU");
+    parseCalMuEta_LUTS(scaleMap, "TAU", "MU");
+    
+    //Now the Cal - Muon Phi LUTS
+    //-------------------------------------
+    parseCalMuPhi_LUTS(scaleMap, "EG",  "MU");
+    parseCalMuPhi_LUTS(scaleMap, "JET", "MU");
+    parseCalMuPhi_LUTS(scaleMap, "TAU", "MU");
+    parseCalMuPhi_LUTS(scaleMap, "HTM", "MU");
+    parseCalMuPhi_LUTS(scaleMap, "ETM", "MU");
+
+    // Now the Pt LUTs  (??? more combinations needed ??)
+    // ---------------
+    parsePt_LUTS(scaleMap, "EG",  precisions["PRECISION-EG-MU-MassPt"] );
+    parsePt_LUTS(scaleMap, "MU",  precisions["PRECISION-EG-MU-MassPt"] );
+    parsePt_LUTS(scaleMap, "JET", precisions["PRECISION-EG-JET-MassPt"] );
+    parsePt_LUTS(scaleMap, "TAU", precisions["PRECISION-EG-TAU-MassPt"] );
+   
+    // Now the Delta Eta/Cosh LUTs (must be done in groups)
+    // ----------------------------------------------------
+    parseDeltaEta_Cosh_LUTS(scaleMap,"EG","EG", precisions["PRECISION-EG-EG-Delta"], precisions["PRECISION-EG-EG-Math"]);
+    parseDeltaEta_Cosh_LUTS(scaleMap,"EG","JET",precisions["PRECISION-EG-JET-Delta"],precisions["PRECISION-EG-JET-Math"]);
+    parseDeltaEta_Cosh_LUTS(scaleMap,"EG","TAU",precisions["PRECISION-EG-TAU-Delta"],precisions["PRECISION-EG-TAU-Math"]);    
+    parseDeltaEta_Cosh_LUTS(scaleMap,"EG","MU", precisions["PRECISION-EG-MU-Delta"], precisions["PRECISION-EG-MU-Math"]);
+
+    parseDeltaEta_Cosh_LUTS(scaleMap,"JET","JET",precisions["PRECISION-JET-JET-Delta"],precisions["PRECISION-JET-JET-Math"]);
+    parseDeltaEta_Cosh_LUTS(scaleMap,"JET","TAU",precisions["PRECISION-JET-TAU-Delta"],precisions["PRECISION-JET-TAU-Math"]);    
+    parseDeltaEta_Cosh_LUTS(scaleMap,"JET","MU", precisions["PRECISION-JET-MU-Delta"], precisions["PRECISION-JET-MU-Math"]);
+
+    parseDeltaEta_Cosh_LUTS(scaleMap,"TAU","TAU",precisions["PRECISION-TAU-TAU-Delta"],precisions["PRECISION-TAU-TAU-Math"]);    
+    parseDeltaEta_Cosh_LUTS(scaleMap,"TAU","MU", precisions["PRECISION-TAU-MU-Delta"], precisions["PRECISION-TAU-MU-Math"]);
+
+    parseDeltaEta_Cosh_LUTS(scaleMap,"MU","MU",  precisions["PRECISION-MU-MU-Delta"], precisions["PRECISION-MU-MU-Math"]);
+
+
+    // Now the Delta Phi/Cos LUTs (must be done in groups)
+    // ----------------------------------------------------
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","EG", precisions["PRECISION-EG-EG-Delta"], precisions["PRECISION-EG-EG-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","JET",precisions["PRECISION-EG-JET-Delta"],precisions["PRECISION-EG-JET-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","TAU",precisions["PRECISION-EG-TAU-Delta"],precisions["PRECISION-EG-TAU-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","ETM",precisions["PRECISION-EG-ETM-Delta"],precisions["PRECISION-EG-ETM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","HTM",precisions["PRECISION-EG-HTM-Delta"],precisions["PRECISION-EG-HTM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"EG","MU", precisions["PRECISION-EG-MU-Delta"], precisions["PRECISION-EG-MU-Math"]);
+
+    parseDeltaPhi_Cos_LUTS(scaleMap,"JET","JET",precisions["PRECISION-JET-JET-Delta"],precisions["PRECISION-JET-JET-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"JET","TAU",precisions["PRECISION-JET-TAU-Delta"],precisions["PRECISION-JET-TAU-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"JET","ETM",precisions["PRECISION-JET-ETM-Delta"],precisions["PRECISION-JET-ETM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"JET","HTM",precisions["PRECISION-JET-HTM-Delta"],precisions["PRECISION-JET-HTM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"JET","MU", precisions["PRECISION-JET-MU-Delta"], precisions["PRECISION-JET-MU-Math"]);
+
+    parseDeltaPhi_Cos_LUTS(scaleMap,"TAU","TAU",precisions["PRECISION-TAU-TAU-Delta"],precisions["PRECISION-TAU-TAU-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"TAU","ETM",precisions["PRECISION-TAU-ETM-Delta"],precisions["PRECISION-TAU-ETM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"TAU","HTM",precisions["PRECISION-TAU-HTM-Delta"],precisions["PRECISION-TAU-HTM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"TAU","MU", precisions["PRECISION-TAU-MU-Delta"], precisions["PRECISION-TAU-MU-Math"]);
+
+    parseDeltaPhi_Cos_LUTS(scaleMap,"MU","ETM",precisions["PRECISION-MU-ETM-Delta"],precisions["PRECISION-MU-ETM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"MU","HTM",precisions["PRECISION-MU-HTM-Delta"],precisions["PRECISION-MU-HTM-Math"]);
+    parseDeltaPhi_Cos_LUTS(scaleMap,"MU","MU", precisions["PRECISION-MU-MU-Delta"], precisions["PRECISION-MU-MU-Math"]);
+
+
+
+  }
+
+  
+
  
     
     return true;
 }
 
+void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2) 
+{
+
+    using namespace tmeventsetup;
+    
+    // First Delta Eta for this set
+    std::string scLabel1 = obj1; 
+    scLabel1 += "-ETA";
+    std::string scLabel2 = obj2; 
+    scLabel2 += "-ETA";    
+    std::cout << scLabel1.c_str() << " " << scLabel2.c_str();
+    const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+    const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
+
+    std::vector<long long> lut_cal_2_mu_eta;
+    getCaloMuonEtaConversionLut(lut_cal_2_mu_eta, scale1, scale2);
+
+    std::string lutName = obj1;
+    lutName += "-";
+    lutName += obj2;
+    std::cout << " LutName: " << lutName.c_str() << std::endl;
+    m_gtScales.setLUT_CaloMuEta(lutName,lut_cal_2_mu_eta);
+        
+
+}
+
+void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2) 
+{
+
+    using namespace tmeventsetup;
+    
+    // First Delta Eta for this set
+    std::string scLabel1 = obj1; 
+    scLabel1 += "-PHI";
+    std::string scLabel2 = obj2; 
+    scLabel2 += "-PHI";    
+    std::cout << scLabel1.c_str() << " " << scLabel2.c_str();
+    const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+    const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
+
+    std::vector<long long> lut_cal_2_mu_phi;
+    getCaloMuonPhiConversionLut(lut_cal_2_mu_phi, scale1, scale2);
+
+    std::string lutName = obj1;
+    lutName += "-";
+    lutName += obj2;
+    std::cout << " LutName: " << lutName.c_str() << std::endl;
+    m_gtScales.setLUT_CaloMuPhi(lutName,lut_cal_2_mu_phi);
+        
+
+}
+
+void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, unsigned int prec) 
+{
+
+    using namespace tmeventsetup;
+    
+    // First Delta Eta for this set
+    std::string scLabel1 = obj1; 
+    scLabel1 += "-ET";
+    const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+
+    std::vector<long long> lut_pt;
+    getLut(lut_pt, scale1, prec);
+    m_gtScales.setLUT_Pt(scLabel1,lut_pt);
+        
+
+}		
+	
+void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2, unsigned int prec1, unsigned int prec2) 
+{
+
+    using namespace tmeventsetup;
+    
+    // First Delta Eta for this set
+    std::string scLabel1 = obj1; 
+    scLabel1 += "-ETA";
+    std::string scLabel2 = obj2; 
+    scLabel2 += "-ETA";    
+    std::cout << scLabel1.c_str() << " " << scLabel2.c_str() << " prec1 " << prec1 << " prec2 " << prec2;
+    const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+    const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
+    std::vector<double> val_delta_eta;
+    std::vector<long long> lut_delta_eta;
+    size_t n = getDeltaVector(val_delta_eta, scale1, scale2);
+    setLut(lut_delta_eta, val_delta_eta, prec1);
+    std::string lutName = obj1;
+    lutName += "-";
+    lutName += obj2;
+    std::cout << " LutName: " << lutName.c_str() << std::endl;
+    m_gtScales.setLUT_DeltaEta(lutName,lut_delta_eta);
+        
+    // Second Get the Cosh for this delta Eta Set
+    std::vector<long long> lut_cosh;
+    applyCosh(val_delta_eta, n);
+    setLut(lut_cosh, val_delta_eta, prec2);
+    m_gtScales.setLUT_Cosh(lutName,lut_cosh);
+
+}	
+
+void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2, unsigned int prec1, unsigned int prec2) 
+{
+
+    using namespace tmeventsetup;
+    
+    // First Delta phi for this set
+    std::string scLabel1 = obj1; 
+    scLabel1 += "-PHI";
+    std::string scLabel2 = obj2; 
+    scLabel2 += "-PHI";    
+    std::cout << scLabel1.c_str() << " " << scLabel2.c_str() << " prec1 " << prec1 << " prec2 " << prec2;
+    const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+    const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
+    std::vector<double> val_delta_phi;
+    std::vector<long long> lut_delta_phi;
+    size_t n = getDeltaVector(val_delta_phi, scale1, scale2);
+    setLut(lut_delta_phi, val_delta_phi, prec1);
+    std::string lutName = obj1;
+    lutName += "-";
+    lutName += obj2;
+    std::cout << " LutName: " << lutName.c_str() << std::endl;
+    m_gtScales.setLUT_DeltaPhi(lutName,lut_delta_phi);
+        
+    // Second Get the Cosh for this delta phi Set
+    std::vector<long long> lut_cos;
+    applyCos(val_delta_phi, n);
+    setLut(lut_cos, val_delta_phi, prec2);
+    m_gtScales.setLUT_Cos(lutName,lut_cos);
+
+}	
 
 /**
  * parseMuon Parse a muon condition and insert an entry to the conditions map
