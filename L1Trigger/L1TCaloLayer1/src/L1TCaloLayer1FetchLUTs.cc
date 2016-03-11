@@ -6,6 +6,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -25,14 +26,21 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    bool useHCALLUT,
                             bool useHFLUT) {
 
-
+  // CaloParams contains all persisted parameters for Layer 1
   edm::ESHandle<l1t::CaloParams> paramsHandle;
   iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
-  if ( paramsHandle.product() == nullptr ) return false;
+  if ( paramsHandle.product() == nullptr ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloParams object! Check Global Tag, etc.";
+    return false;
+  }
   l1t::CaloParamsHelper caloParams(*paramsHandle.product());
 
-  // Global Calo Trigger LSB ET value
-  double caloLSB = caloParams.towerLsbSum(); // Will probably always be 0.5
+  // Calo Trigger Layer1 output LSB Real ET value
+  double caloLSB = caloParams.towerLsbSum();
+  if ( caloLSB != 0.5 ) {
+    // Lots of things expect this, better give fair warning if not
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloLSB (caloParams.towerLsbSum()) != 0.5, actually = " << caloLSB;
+  }
 
   // ECal/HCal scale factors will be a 9*28 array:
   //   28 eta scale factors (1-28)
@@ -40,17 +48,26 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   //   So, index = etBin*28+ieta
   const std::vector<double> caloSFETBins{10., 15., 20., 25., 30., 35., 40., 45., 1.e6};
   auto ecalSF = caloParams.layer1ECalScaleFactors();
-  if ( ecalSF.size() != 9*28 ) return false;
+  if ( ecalSF.size() != 9*28 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != 9*28 !!";
+    return false;
+  }
   auto hcalSF = caloParams.layer1HCalScaleFactors();
-  if ( hcalSF.size() != 9*28 ) return false;
+  if ( hcalSF.size() != 9*28 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != 9*28 !!";
+    return false;
+  }
 
   // HF 1x1 scale factors will be a 5*12 array:
   //  12 eta scale factors (30-41)
-  //  in 5 et bins (5, 20, 30, 50, 256)
+  //  in 5 REAL ET bins (5, 20, 30, 50, Max)
   //  So, index = etBin*12+ietaHF
-  const std::vector<uint32_t> hfSFETBins{5, 20, 30, 50, 256};
+  const std::vector<double> hfSFETBins{5., 20., 30., 50., 1.e6};
   auto hfSF = caloParams.layer1HFScaleFactors();
-  if ( hfSF.size() != 12*5 ) return false;
+  if ( hfSF.size() != 12*5 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != 9*28 !!";
+    return false;
+  }
 
   // get energy scale to convert input from ECAL - this should be linear with LSB = 0.5 GeV
   const double ecalLSB = 0.5;
@@ -58,7 +75,10 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   // get energy scale to convert input from HCAL - this should be Landsberg's E to ET etc non-linear conversion factors
   edm::ESHandle<CaloTPGTranscoder> decoder;
   iSetup.get<CaloTPGRecord>().get(decoder);
-  if ( decoder.product() == nullptr ) return false;
+  if ( decoder.product() == nullptr ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloTPGTranscoder object! Check Global Tag, etc.";
+    return false;
+  }
 
   // Make ECal LUT
   for(int absCaloEta = 1; absCaloEta <= 28; absCaloEta++) {
@@ -68,15 +88,12 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	uint32_t value = ecalInput;
 	if(useECALLUT) {
 	  double linearizedECalInput = ecalInput*ecalLSB;
-	  double calibratedECalInput = linearizedECalInput;
 
-          if ( useECALLUT ) {
-            uint32_t etBin = 0;
-            for(; etBin < caloSFETBins.size(); etBin++) {
-              if(linearizedECalInput < caloSFETBins[etBin]) break;
-            }
-            calibratedECalInput *= ecalSF.at(etBin*28 + iEta);
+          uint32_t etBin = 0;
+          for(; etBin < caloSFETBins.size(); etBin++) {
+            if(linearizedECalInput < caloSFETBins[etBin]) break;
           }
+          double calibratedECalInput = linearizedECalInput*ecalSF.at(etBin*28 + iEta);
 
 	  if(useLSB) value = calibratedECalInput / caloLSB;
 	  if(value > 0xFF) {
@@ -103,19 +120,21 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
       for(uint32_t hcalInput = 0; hcalInput <= 0xFF; hcalInput++) {
 	uint32_t value = hcalInput;
 	if(useHCALLUT) {
-	  double linearizedHcalInput = decoder->hcaletValue(iEta, 0, hcalInput);
-	  if(linearizedHcalInput != decoder->hcaletValue(-iEta, 0, hcalInput)) {
-	    std::cerr << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
+          // hcaletValue defined in L137 of CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.cc
+	  double linearizedHcalInput = decoder->hcaletValue(absCaloEta, hcalInput);
+	  if(linearizedHcalInput != decoder->hcaletValue(-absCaloEta, hcalInput)) {
+	    edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
 	  }
-	  double calibratedHcalInput = linearizedHcalInput;
-          if ( useHCALLUT ) {
-            uint32_t etBin = 0;
-            for(; etBin < caloSFETBins.size(); etBin++) {
-              if(linearizedHcalInput < caloSFETBins[etBin]) break;
-            }
-            calibratedHcalInput *= hcalSF.at(etBin*28 + iEta);
+
+          uint32_t etBin = 0;
+          for(; etBin < caloSFETBins.size(); etBin++) {
+            if(linearizedHcalInput < caloSFETBins[etBin]) break;
           }
-	  if(useLSB) value = calibratedHcalInput / caloLSB;
+          double calibratedHcalInput = linearizedHcalInput*hcalSF.at(etBin*28 + iEta);
+
+	  if(useLSB) calibratedHcalInput /= caloLSB;
+
+          value = calibratedHcalInput;
 	  if(value > 0xFF) {
 	    value = 0xFF;
 	  }
@@ -136,17 +155,26 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   // Make HF LUT
   for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
+      uint32_t value = etCode;
       if(useHFLUT) {
+        double linearizedHFInput = decoder->hcaletValue(30+etaBin, value);
+
 	uint32_t etBin = 0;
 	for(; etBin < hfSFETBins.size(); etBin++) {
-	  if(etCode < hfSFETBins[etBin]) break;
+	  if(linearizedHFInput < hfSFETBins[etBin]) break;
 	}
-	hfLUT[etaBin][etCode] = etCode * hfSF.at(etBin*12 + etaBin);
+        double calibratedHFInput = linearizedHFInput*hfSF.at(etBin*12+etaBin);
+
+        if(useLSB) calibratedHFInput /= caloLSB;
+
+        value = calibratedHFInput;
+        if(value > 0xFF) {
+          value = 0xFF;
+        }
       }
-      else {
-	hfLUT[etaBin][etCode] = etCode;
-      }
+      hfLUT[etaBin][etCode] = value;
     }
   }
   return true;
 }
+/* vim: set ts=8 sw=2 tw=0 et :*/
