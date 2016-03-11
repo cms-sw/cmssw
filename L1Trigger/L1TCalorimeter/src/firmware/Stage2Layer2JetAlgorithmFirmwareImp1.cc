@@ -157,7 +157,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
             if (iEt<=0) continue;
  
 	    math::XYZTLorentzVector p4;
-	    l1t::Jet jet( p4, iEt, ieta, iphi, 0);
+	    int caloEta = CaloTools::caloEta(ieta);
+	    l1t::Jet jet( p4, iEt, caloEta, iphi, 0);
 	    
 	    jetsRing.push_back(jet);
 	    alljets.push_back(jet);
