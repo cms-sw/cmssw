@@ -94,8 +94,6 @@ vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted2Hits()
 float PixelHitMatcher::getVertex()
  { return vertex_ ; }
 
-//CLHEP::Hep3Vector point_to_vector( const GlobalPoint & p )
-// { return CLHEP::Hep3Vector(p.x(),p.y(),p.z()) ; }
 
 std::vector<SeedWithInfo>
 PixelHitMatcher::compatibleSeeds
@@ -117,6 +115,9 @@ PixelHitMatcher::compatibleSeeds
   mapTsos2_fast_.clear();  
   mapTsos_fast_.reserve(seeds->size()) ;
   mapTsos2_fast_.reserve(seeds->size()) ;
+
+  std::vector<TrajectoryStateOnSurface> vTsos(theTrackerGeometry->dets().size());
+
 
   for(const auto& seed : *seeds) {
     hit_gp_map_.clear();
@@ -146,6 +147,14 @@ PixelHitMatcher::compatibleSeeds
 	  mapTsos_fast_.emplace(geomdet1,prop1stLayer->propagate(tsos,geomdet1->surface()));
 	tsos1 = &(empl_result.first->second);
       }
+
+      auto ix1 = geomdet1->gdetIndex();
+      if (ix1<0) std::cout << geomdet1->gdetIndex() << ' ' << it1->geographicalId() << ' ' << geomdet1 << std::endl;;
+      assert(ix1<int(vTsos.size()));
+      if (!vTsos[ix1].isValid()) vTsos[ix1] = prop1stLayer->propagate(tsos,geomdet1->surface());     
+      // auto tsos11 = &vTsos[ix1];
+      assert(theTrackerGeometry->dets()[ix1]==geomdet1);
+
       if( !tsos1->isValid() ) continue;
       std::pair<bool, double> est = ( id1.subdetId() % 2 ? 
 				      meas1stBLayer.estimate(vprim, *tsos1, hit1Pos) :
