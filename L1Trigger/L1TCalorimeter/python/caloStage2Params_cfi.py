@@ -107,3 +107,7 @@ caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1)
 caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  35.,  0.,  35.)
 
+# Layer 1 LUT specification
+caloStage2Params.layer1ECalScaleFactors = cms.vdouble(1,2,3)
+caloStage2Params.layer1HCalScaleFactors = cms.vdouble(1,2,3)
+caloStage2Params.layer1HFScaleFactors = cms.vdouble(1,2,3)

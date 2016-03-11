@@ -30,7 +30,10 @@ namespace l1t {
 	   hiCentrality=13, hiQ2=14,
 	   tauEtToHFRingEt=15,
            tauCompress=16,
-	   NUM_CALOPARAMNODES=17
+           layer1ECal=17,
+           layer1HCal=18,
+           layer1HF=19,
+	   NUM_CALOPARAMNODES=20
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -304,6 +307,13 @@ namespace l1t {
 
     // HI parameters
 
+    // Layer 1 LUT specification
+    std::vector<double> layer1ECalScaleFactors() { return pnode_[layer1ECal].dparams_; }
+    std::vector<double> layer1HCalScaleFactors() { return pnode_[layer1HCal].dparams_; }
+    std::vector<double> layer1HFScaleFactors()   { return pnode_[layer1HF  ].dparams_; }
+    void setLayer1ECalScaleFactors(const std::vector<double> params) { pnode_[layer1ECal].dparams_ = params; }
+    void setLayer1HCalScaleFactors(const std::vector<double> params) { pnode_[layer1HCal].dparams_ = params; }
+    void setLayer1HFScaleFactors(const std::vector<double> params)   { pnode_[layer1HF  ].dparams_ = params; }
 
 
   private:
