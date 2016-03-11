@@ -116,17 +116,17 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
   
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
-  iEvent.getByLabel( tagTTClusters_, PixelDigiTTClusterHandle );
-  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
-  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >    Phase2TrackerDigiTTStubHandle;
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            Phase2TrackerDigiTTTrackHandle;
+  iEvent.getByLabel( tagTTClusters_, Phase2TrackerDigiTTClusterHandle );
+  iEvent.getByLabel( tagTTStubs_, Phase2TrackerDigiTTStubHandle );
+  iEvent.getByLabel( tagTTTracks_, Phase2TrackerDigiTTTrackHandle );
   
   /// Track Trigger MC Truth
-  edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
+  edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTClusterHandle;
+  edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >    MCTruthTTStubHandle;
+  edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
   iEvent.getByLabel( tagTTClusterMCTruth_, MCTruthTTClusterHandle );
   iEvent.getByLabel( tagTTStubMCTruth_, MCTruthTTStubHandle );
   iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
@@ -166,7 +166,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       
       /// Check if this TP produced any clusters
-      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr );
+      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr );
       
       if ( theseClusters.size() > 0 )
       {
@@ -241,7 +241,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       
       /// Check if the TP produced any stubs
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( tempTPPtr );
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( tempTPPtr );
       
       if ( theseStubs.size() > 0 )
       {
@@ -302,7 +302,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if ( verbosePlots_ )
       {
         /// Check if the TP produced any tracks
-        std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > theseTracks =  MCTruthTTTrackHandle->findTTTrackPtrs( tempTPPtr );
+        std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > theseTracks =  MCTruthTTTrackHandle->findTTTrackPtrs( tempTPPtr );
 
         if ( theseTracks.size() > 0 )
         {
@@ -355,10 +355,10 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   
   /// Loop over the input Clusters
-  typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
-  typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-  for ( inputIter = PixelDigiTTClusterHandle->begin();
-       inputIter != PixelDigiTTClusterHandle->end();
+  typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator contentIter;
+  for ( inputIter = Phase2TrackerDigiTTClusterHandle->begin();
+       inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter )
   {
     for ( contentIter = inputIter->begin();
@@ -366,7 +366,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
          ++contentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
       
       //StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       unsigned int memberClu = tempCluRef->getStackMember();
@@ -385,10 +385,10 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   
   /// Loop over the input Stubs
-  typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
-  typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
-  for ( otherInputIter = PixelDigiTTStubHandle->begin();
-       otherInputIter != PixelDigiTTStubHandle->end();
+  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherInputIter;
+  typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherContentIter;
+  for ( otherInputIter = Phase2TrackerDigiTTStubHandle->begin();
+       otherInputIter != Phase2TrackerDigiTTStubHandle->end();
        ++otherInputIter )
   {
     for ( otherContentIter = otherInputIter->begin();
@@ -396,7 +396,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
          ++otherContentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( Phase2TrackerDigiTTStubHandle, otherContentIter );
       
       StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
       
@@ -479,18 +479,18 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   if ( verbosePlots_ )
   {
-    /// Go on only if there are TTTracks from PixelDigis
-    if ( PixelDigiTTTrackHandle->size() > 0 )
+    /// Go on only if there are TTTracks from Phase2TrackerDigis
+    if ( Phase2TrackerDigiTTTrackHandle->size() > 0 )
     {
       /// Loop over TTTracks
       unsigned int tkCnt = 0;
-      std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-      for ( iterTTTrack = PixelDigiTTTrackHandle->begin();
-           iterTTTrack != PixelDigiTTTrackHandle->end();
+      std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
+      for ( iterTTTrack = Phase2TrackerDigiTTTrackHandle->begin();
+           iterTTTrack != Phase2TrackerDigiTTTrackHandle->end();
            ++iterTTTrack )
       {
         /// Make the pointer
-        edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
+        edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( Phase2TrackerDigiTTTrackHandle, tkCnt++ );
         
         unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
         

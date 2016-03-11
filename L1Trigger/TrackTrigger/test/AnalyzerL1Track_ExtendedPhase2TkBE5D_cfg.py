@@ -62,10 +62,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.BeamSpotFromSim = cms.EDProducer("BeamSpotFromSimProducer")
 process.load('L1Trigger.TrackFindingTracklet.L1TTrack_cfi')
-process.TrackFindingTracklet_step = cms.Path(process.BeamSpotFromSim*process.TTTracksFromPixelDigisTracklet)
+process.TrackFindingTracklet_step = cms.Path(process.BeamSpotFromSim*process.TTTracksFromPhase2TrackerDigisTracklet)
 
 process.load('L1Trigger.TrackFindingAM.L1AMTrack_cfi')
-process.TrackFindingAM_step = cms.Path(process.TTTracksFromPixelDigisAM)
+process.TrackFindingAM_step = cms.Path(process.TTTracksFromPhase2TrackerDigisAM)
 
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
@@ -77,15 +77,15 @@ process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 process.AnalyzerL1Track = cms.EDAnalyzer("AnalyzerL1Track",
     DebugMode = cms.bool(True),
 
-    TTClusters       = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
-    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-    TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
-    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-    #TTTracks       = cms.InputTag("TTTracksFromPixelDigisTracklet", "TrackletBasedL1Tracks"),
-    #TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "TrackletBasedL1Tracks"),
+    TTClusters       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "ClusterAccepted"),
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterAccepted"),
+    TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),
+    #TTTracks       = cms.InputTag("TTTracksFromPhase2TrackerDigisTracklet", "TrackletBasedL1Tracks"),
+    #TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPhase2TrackerDigis", "TrackletBasedL1Tracks"),
 
-    TTTracks       = cms.InputTag("TTTracksFromPixelDigisAM", "AML1Tracks"),
-    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "AML1Tracks"),
+    TTTracks       = cms.InputTag("TTTracksFromPhase2TrackerDigisAM", "AML1Tracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPhase2TrackerDigis", "AML1Tracks"),
 
     vLimitsPt  = cms.vdouble( 5.0,
                               15.0,

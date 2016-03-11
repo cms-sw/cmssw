@@ -142,7 +142,7 @@ process.L1CaloTauCorrectionsProducer = cms.EDProducer("L1CaloTauCorrectionsProdu
 process.L1TkTauFromCaloProducer = cms.EDProducer("L1TkTauFromCaloProducer",
       #L1TausInputTag                   = cms.InputTag("SLHCL1ExtraParticles","Taus"),
       L1TausInputTag                   = cms.InputTag("L1CaloTauCorrectionsProducer","CalibratedTaus"),
-      L1TrackInputTag                  = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+      L1TrackInputTag                  = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
       L1TkTrack_ApplyVtxIso            = cms.bool( True  ),      # Produce vertex-isolated L1TkTaus?
       L1TkTrack_VtxIsoZ0Max            = cms.double( 1.0  ),     # Max vertex z for L1TkTracks for VtxIsolation [cm]
       L1TkTrack_NStubsMin              = cms.uint32(  5   ),     # Min number of stubs per L1TkTrack [unitless]
@@ -176,7 +176,7 @@ process.plaincaloTaus = cms.Path( process.L1CaloTauProducer )
 # -------------- Tracker only based taus ------------------------------------
 
 process.L1TkTauFromL1Track = cms.EDProducer("L1TkTauFromL1TrackProducer",
-                                            L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+                                            L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
                                             ZMAX = cms.double( 25. ),# in cm
                                             CHI2MAX = cms.double( 100. ),
                                             PTMINTRA = cms.double( 2. ),# in GeV
@@ -216,7 +216,7 @@ process.pTau = cms.Path( process.tau )
 
 
 process.tkemtau = cms.EDProducer( 'L1TkEmTauProducer' ,       
-                                  L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+                                  L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
                                   L1EmInputTag = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster"),
                                   ptleadcut = cms.double(5.0),
                                   ptleadcone = cms.double(0.3),
@@ -287,12 +287,12 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 
 
 	# the L1Tracks, clusters and stubs
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_Level1TTTracks_*')
 
 	# the L1EG objects
 #process.Out.outputCommands.append('keep *_SLHCL1ExtraParticles_*_*' )
@@ -317,9 +317,9 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 
 
 # --- to use the genParticles, one needs to keep the collections of associators below:
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
+#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
 
 #process.Out.outputCommands.append('keep *_*_*_*' )
 #process.FEVToutput_step = cms.EndPath(process.Out)

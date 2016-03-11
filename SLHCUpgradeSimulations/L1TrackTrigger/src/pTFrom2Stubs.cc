@@ -9,19 +9,19 @@
 namespace pTFrom2Stubs{
 
 	//====================
-	float rInvFrom2(std::vector< TTTrack< Ref_PixelDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry){
+	float rInvFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry){
 
 		//vector of R, r and phi for each stub
 		std::vector< std::vector<float> > riPhiStubs(0);
 		//get stub reference
-		std::vector< edm::Ref<edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > vecStubRefs = trk->getStubRefs();
+		std::vector< edm::Ref<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > vecStubRefs = trk->getStubRefs();
 
 		//loop over L1Track's stubs 
 		int rsize =vecStubRefs.size();
 		for(int j =0; j< rsize; ++j){
 
-			edm::Ref<edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > stubRef =vecStubRefs.at(j) ;
-			const TTStub<Ref_PixelDigi_>* stub=&(*stubRef) ;
+			edm::Ref<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > stubRef =vecStubRefs.at(j) ;
+			const TTStub<Ref_Phase2TrackerDigi_>* stub=&(*stubRef) ;
 
 			GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
@@ -55,7 +55,7 @@ namespace pTFrom2Stubs{
 		return curvature;
 	}
 	//====================
-	float pTFrom2(std::vector< TTTrack< Ref_PixelDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry){
+	float pTFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_> >::const_iterator trk, const StackedTrackerGeometry* theStackedGeometry){
 
 		float rinv= rInvFrom2(trk, theStackedGeometry);
 		return fabs( 0.00299792*3.8/rinv); 

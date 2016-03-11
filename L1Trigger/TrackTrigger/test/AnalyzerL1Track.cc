@@ -448,17 +448,17 @@ void AnalyzerL1Track::beginJob()
 void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Track Trigger
-  //edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  //edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
-  //iEvent.getByLabel( tagTTClusters, PixelDigiTTClusterHandle );
-  //iEvent.getByLabel( tagTTStubs, PixelDigiTTStubHandle );
-  iEvent.getByLabel( tagTTTracks, PixelDigiTTTrackHandle );
+  //edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
+  //edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >    Phase2TrackerDigiTTStubHandle;
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            Phase2TrackerDigiTTTrackHandle;
+  //iEvent.getByLabel( tagTTClusters, Phase2TrackerDigiTTClusterHandle );
+  //iEvent.getByLabel( tagTTStubs, Phase2TrackerDigiTTStubHandle );
+  iEvent.getByLabel( tagTTTracks, Phase2TrackerDigiTTTrackHandle );
 
   /// Track Trigger MC Truth
-  edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
+  edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTClusterHandle;
+  edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >    MCTruthTTStubHandle;
+  edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
   iEvent.getByLabel( tagTTClusterMCTruth, MCTruthTTClusterHandle );
   iEvent.getByLabel( tagTTStubMCTruth, MCTruthTTStubHandle );
   iEvent.getByLabel( tagTTTrackMCTruth, MCTruthTTTrackHandle );
@@ -511,7 +511,7 @@ void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             /// Distinguish between 2-stubs-only and 3-stubs-minimum
             bool found2stubs = false;
             bool found3stubs = false;
-            std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > theseTracks =  MCTruthTTTrackHandle->findTTTrackPtrs( tempTPPtr );
+            std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > theseTracks =  MCTruthTTTrackHandle->findTTTrackPtrs( tempTPPtr );
             for ( unsigned int it = 0; it < theseTracks.size(); it++ )
             {
               if ( found2stubs && found3stubs )
@@ -564,18 +564,18 @@ void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   unsigned int num3Stubs = 0;
   unsigned int num2Stubs = 0;
 
-  /// Go on only if there are TTTracks from PixelDigis
-  if ( PixelDigiTTTrackHandle->size() > 0 )
+  /// Go on only if there are TTTracks from Phase2TrackerDigis
+  if ( Phase2TrackerDigiTTTrackHandle->size() > 0 )
   {
     /// Loop over TTTracks
     unsigned int tkCnt = 0;
-    std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-    for ( iterTTTrack = PixelDigiTTTrackHandle->begin();
-          iterTTTrack != PixelDigiTTTrackHandle->end();
+    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
+    for ( iterTTTrack = Phase2TrackerDigiTTTrackHandle->begin();
+          iterTTTrack != Phase2TrackerDigiTTTrackHandle->end();
           ++iterTTTrack )
     {
       /// Make the pointer
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( Phase2TrackerDigiTTTrackHandle, tkCnt++ );
 
       /// Get everything is relevant
       unsigned int nStubs     = tempTrackPtr->getStubRefs().size();

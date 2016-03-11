@@ -57,8 +57,8 @@ process.source = cms.Source("PoolSource",
 # The name of the stub container over which the association is done, please note that the filtered cluster container is
 # not associated due to the lack of simPixelDigis in official samples
 
-process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
-process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
+process.TTStubAssociatorFromPhase2TrackerDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
+process.TTStubAssociatorFromPhase2TrackerDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis","ClusterAccepted"))
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag

@@ -12,13 +12,13 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                       int &aDisplacement, 
                                                                       int &anOffset, 
-                                                                      const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                      const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Convert DetId
-  StackedTrackerDetId stDetId( aTTStub.getDetId() );
+  /*  StackedTrackerDetId stDetId( aTTStub.getDetId() );
 
   //move this out of the if to ensure that it gets set to something regardless
   aConfirmation = false;
@@ -26,12 +26,12 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
   /// Force this to be a BARREL-only algorithm
   if ( stDetId.isEndcap() ) return;
 
-  typename std::vector< Ref_PixelDigi_ >::const_iterator hitIter;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::const_iterator hitIter;
 
   /// Calculate average coordinates col/row for inner Cluster
   double averageRow = 0.0;
   double averageCol = 0.0;
-  const std::vector< Ref_PixelDigi_ > &lhits0 = aTTStub.getClusterRef(0)->getHits();
+  const std::vector< Ref_Phase2TrackerDigi_ > &lhits0 = aTTStub.getClusterRef(0)->getHits();
   if ( lhits0.size() != 0 )
   {
     for ( hitIter = lhits0.begin();
@@ -51,7 +51,7 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
   /// Calculate average coordinates col/row for outer Cluster
   averageRow = 0.0;
   averageCol = 0.0;
-  const std::vector< Ref_PixelDigi_ > &lhits1 = aTTStub.getClusterRef(1)->getHits();
+  const std::vector< Ref_Phase2TrackerDigi_ > &lhits1 = aTTStub.getClusterRef(1)->getHits();
   if ( lhits1.size() != 0 )
   {
     for ( hitIter = lhits1.begin();
@@ -79,6 +79,6 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
 
     /// By default, assigned as ZERO
     anOffset = 0;
-  }
+    }*/
 }
 

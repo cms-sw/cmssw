@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # AM-based pattern recognition default sequence
 TTPatternsFromStub = cms.EDProducer("TrackFindingAMProducer",
-   TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+   TTInputStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
    TTPatternName      = cms.string("AML1Patterns"),
    inputBankFile      = cms.string('/afs/cern.ch/work/s/sviret/testarea/PatternBanks/BE_5D/Eta7_Phi8/ss32_cov40/612_SLHC6_MUBANK_lowmidhig_sec37_ss32_cov40.pbk'),
    threshold          = cms.int32(5),
@@ -14,7 +14,7 @@ TTPatternsFromStub = cms.EDProducer("TrackFindingAMProducer",
 doRetinaFit = False
 
 TTTracksFromPattern = ( cms.EDProducer("TrackFitRetinaProducer",
-                                       TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+                                       TTInputStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
                                        TTInputPatterns    = cms.InputTag("MergePROutput", "AML1Patterns"),
                                        TTTrackName        = cms.string("AML1Tracks"),
                                        verboseLevel       = cms.untracked.int32(1),
@@ -23,7 +23,7 @@ TTTracksFromPattern = ( cms.EDProducer("TrackFitRetinaProducer",
                                        )
                         if doRetinaFit else
                         cms.EDProducer("TrackFitHoughProducer",
-                                       TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+                                       TTInputStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
                                        TTInputPatterns    = cms.InputTag("MergePROutput", "AML1Patterns"),
                                        TTTrackName        = cms.string("AML1Tracks"),
                                        )
@@ -32,8 +32,8 @@ TTTracksFromPattern = ( cms.EDProducer("TrackFitRetinaProducer",
 
 # AM output merging sequence
 MergePROutput = cms.EDProducer("AMOutputMerger",
-   TTInputClusters     = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
-   TTInputStubs        = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+   TTInputClusters     = cms.InputTag("TTStubsFromPhase2TrackerDigis", "ClusterAccepted"),
+   TTInputStubs        = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
    TTInputPatterns     = cms.VInputTag(cms.InputTag("TTPatternsFromStub", "AML1Patterns")),                               
    TTFiltClustersName  = cms.string("ClusInPattern"),
    TTFiltStubsName     = cms.string("StubInPattern"),
@@ -41,8 +41,8 @@ MergePROutput = cms.EDProducer("AMOutputMerger",
 )
 
 MergeFITOutput = cms.EDProducer("AMOutputMerger",
-   TTInputClusters     = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
-   TTInputStubs        = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+   TTInputClusters     = cms.InputTag("TTStubsFromPhase2TrackerDigis", "ClusterAccepted"),
+   TTInputStubs        = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
    TTInputPatterns     = cms.VInputTag(cms.InputTag("TTTracksFromPattern", "AML1Tracks")),                               
    TTFiltClustersName  = cms.string("ClusInTrack"),
    TTFiltStubsName     = cms.string("StubInTrack"),

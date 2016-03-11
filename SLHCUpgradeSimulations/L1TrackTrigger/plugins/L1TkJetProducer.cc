@@ -58,7 +58,7 @@ class L1TkJetProducer : public edm::EDProducer
 {
 public:
   
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >    L1TkTrackCollectionType;
   
   explicit L1TkJetProducer(const edm::ParameterSet&);
@@ -244,8 +244,8 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	float tmp_trk_chi2 = trackIter->getChi2();
 
 	// get pointers to stubs associated to the L1 track
-	//std::vector< edm::Ptr< L1TkStub_PixelDigi_ > > theStubs = trackIter->getStubPtrs();
-	std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+	//std::vector< edm::Ptr< L1TkStub_Phase2TrackerDigi_ > > theStubs = trackIter->getStubPtrs();
+	std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
 
 	int tmp_trk_nstub = (int) theStubs.size();
 	//int tmp_ndof = tmp_trk_nstub*2-4;

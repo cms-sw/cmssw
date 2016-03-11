@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerMonitorTrack = cms.EDAnalyzer('OuterTrackerMonitorTrack',
     
     TopFolderName  = cms.string('Phase2OuterTracker'),
-    TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+    TTTracks       = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
     HQDelim        = cms.int32(4),
 
 

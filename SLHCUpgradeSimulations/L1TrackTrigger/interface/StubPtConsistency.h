@@ -5,6 +5,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 namespace StubPtConsistency {
-  float getConsistency(TTTrack< Ref_PixelDigi_ > aTrack, const StackedTrackerGeometry* theStackedGeometry, double mMagneticFieldStrength, int nPar);
+  float getConsistency(TTTrack< Ref_Phase2TrackerDigi_ > aTrack, const StackedTrackerGeometry* theStackedGeometry, double mMagneticFieldStrength, int nPar);
 }
 #endif

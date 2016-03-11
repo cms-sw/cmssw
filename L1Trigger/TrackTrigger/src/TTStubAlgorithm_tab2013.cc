@@ -12,23 +12,22 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_tab2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_tab2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement, 
                                                                        int &anOffset, 
-                                                                       const TTStub< Ref_PixelDigi_ > &aTTStub ) const
-{
+                                                                       const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
+{ 
   /// Calculate average coordinates col/row for inner/outer Cluster
-  /// These are already corrected for being at the center of each pixel
+  // These are already corrected for being at the center of each pixel
   MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
   MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
-  StackedTrackerDetId stDetId( aTTStub.getDetId() );
-
-  bool isPS = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( stDetId );
-
-  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
-  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
+  bool isPS = (theTrackerGeom_->getDetectorType(aTTStub.getDetId())==TrackerGeometry::Ph2PSP);
+  // TODO temporary: should use a method from the topology
+  DetId stDetId( aTTStub.getDetId() );
+  const GeomDetUnit* det0 = theTrackerGeom_->idToDetUnit( stDetId+1 );
+  const GeomDetUnit* det1 = theTrackerGeom_->idToDetUnit( stDetId+2 );
 
   /// Find pixel pitch and topology related information
   const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
@@ -70,9 +69,9 @@ void TTStubAlgorithm_tab2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCo
   /// hence the formula iis something like
   /// displacement < Delta * 1 / sqrt( ( 1/(mPtScalingFactor*R) )** 2 - 1 )
 
-  if (stDetId.isBarrel())
+  if (stDetId.subdetId()==StripSubdetector::TOB)
   {
-    int window = 2*barrelCut.at( stDetId.iLayer() );
+    int window = 2*barrelCut.at( theTrackerTopo_->layer(stDetId) );
     /// POSITION IN TERMS OF PITCH MULTIPLES:
     ///       0 1 2 3 4 5 5 6 8 9 ...
     /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
@@ -100,11 +99,11 @@ void TTStubAlgorithm_tab2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCo
         anOffset = offsetI; /// In HALF-STRIP units!
     } /// End of stub is accepted
   }
-  else if (stDetId.isEndcap())
+  else if (stDetId.subdetId()==StripSubdetector::TID)
   {
     /// All of these are calculated in terms of pixels in outer sensor
     /// 0) Calculate window in terms of multiples of outer sensor pitch
-    int window = 2*(ringCut.at( stDetId.iDisk() )).at( stDetId.iRing() );
+    int window = 2*(ringCut.at( theTrackerTopo_->tidWheel(stDetId))).at(theTrackerTopo_->tidRing(stDetId));
     /// 1) disp is the difference between average row coordinates
     ///    in inner and outer stack member, in terms of outer member pitch
     ///    (in case they are the same, this is just a plain coordinate difference)
@@ -124,6 +123,6 @@ void TTStubAlgorithm_tab2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCo
         aDisplacement = dispI; /// In HALF-STRIP units!
         anOffset = offsetI; /// In HALF-STRIP units!
     } /// End of stub is accepted
-  }
+    }
 }
 

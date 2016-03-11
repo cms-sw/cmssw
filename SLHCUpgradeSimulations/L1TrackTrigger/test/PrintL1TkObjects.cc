@@ -70,7 +70,7 @@ using namespace l1extra;
 class PrintL1TkObjects : public edm::EDAnalyzer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit PrintL1TkObjects(const edm::ParameterSet&);

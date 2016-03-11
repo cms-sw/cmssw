@@ -96,7 +96,7 @@ class DTMatchBase : public DTMatchBasePtMethods
 
     /**** STUBS ****/
     /// Store the stub
-    inline void addMatchedStubRef( edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > aStub, GlobalPoint aStubPos )
+    inline void addMatchedStubRef( edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > aStub, GlobalPoint aStubPos )
     {
       StackedTrackerDetId thisId( aStub->getDetId() );
       theMatchedStubRef.insert( std::make_pair( thisId.iLayer(), aStub ) );
@@ -105,7 +105,7 @@ class DTMatchBase : public DTMatchBasePtMethods
     }
 
     /// Get all the stubs matched to the DT object
-    inline std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > getMatchedStubRefs() const
+    inline std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > getMatchedStubRefs() const
     {
       return theMatchedStubRef;
     }
@@ -118,27 +118,27 @@ class DTMatchBase : public DTMatchBasePtMethods
 
     /**** TRACKS ****/
     /// Store a track matched in direction (in the window)
-    inline void addInWindowTrackPtr( edm::Ptr< TTTrack< Ref_PixelDigi_ > > aTrack )
+    inline void addInWindowTrackPtr( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack )
     {
       theTrackPtrInWindow.push_back( aTrack );
       return;
     }
 
     /// Get all the track matched (in the window) to the DT object
-    inline std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > getInWindowTrackPtrs() const
+    inline std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > getInWindowTrackPtrs() const
     {
       return theTrackPtrInWindow;
     }
 
     /// Store the track matched (Pt)
-    inline void setPtMatchedTrackPtr( edm::Ptr< TTTrack< Ref_PixelDigi_ > > aTrack )
+    inline void setPtMatchedTrackPtr( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack )
     {
       theMatchedTrackPtr = aTrack;
       return;
     }
 
     /// Get the track matched (Pt) to the DT object
-    inline edm::Ptr< TTTrack< Ref_PixelDigi_ > > getPtMatchedTrackPtr() const
+    inline edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > getPtMatchedTrackPtr() const
     {
       return theMatchedTrackPtr;
     }
@@ -201,10 +201,10 @@ class DTMatchBase : public DTMatchBasePtMethods
     static const double theInnerCoilR, theOuterCoilR, theCoilRTilde; 
 
     /// Matching TT objects
-    std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theMatchedStubRef;
+    std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theMatchedStubRef;
     std::map< unsigned int, GlobalPoint > theMatchedStubPos;
-    std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > theTrackPtrInWindow;
-    edm::Ptr< TTTrack< Ref_PixelDigi_ > > theMatchedTrackPtr;
+    std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > theTrackPtrInWindow;
+    edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > theMatchedTrackPtr;
 };
 
 #endif

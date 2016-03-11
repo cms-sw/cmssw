@@ -7,5 +7,5 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 
-TYPELOOKUP_DATA_REG( TTStubAlgorithm< Ref_PixelDigi_ > );
+TYPELOOKUP_DATA_REG( TTStubAlgorithm< Ref_Phase2TrackerDigi_ > );
 

@@ -6,7 +6,7 @@
 
 namespace StubPtConsistency {
 
-  float getConsistency(TTTrack< Ref_PixelDigi_ > aTrack, const StackedTrackerGeometry* theStackedGeometry, double mMagneticFieldStrength, int nPar) {
+  float getConsistency(TTTrack< Ref_Phase2TrackerDigi_ > aTrack, const StackedTrackerGeometry* theStackedGeometry, double mMagneticFieldStrength, int nPar) {
     
     double m_ptconsist = 0.0;
 
@@ -46,7 +46,7 @@ namespace StubPtConsistency {
     // loop over stubs
     // ----------------------------------------------------------------------------------------------------------    
 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theStubRefs = aTrack.getStubRefs();
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theStubRefs = aTrack.getStubRefs();
 
     for (unsigned int iStub=0; iStub<theStubRefs.size(); iStub++) {
       

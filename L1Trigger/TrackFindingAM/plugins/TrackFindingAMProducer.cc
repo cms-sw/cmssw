@@ -127,7 +127,7 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
     m_pf->useMissingHitThreshold(nMissingHits);
   }
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
+  produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( TTPatternOutputTag );
 }
 
 /// Destructor
@@ -158,10 +158,10 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   /// Prepare output
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > );
 
   /// Get the Stubs/Cluster already stored
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );
 
   /// STEP 0
@@ -182,10 +182,10 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   m_hits.clear();
 
   unsigned int j = 0;
-  std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
+  std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubMap;
 
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
+  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubIter;
 
   for ( inputIter = TTStubHandle->begin(); inputIter != TTStubHandle->end(); ++inputIter )
   {
@@ -195,7 +195,7 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       j++;
 
       /// Make the Ref to be put in the Track
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = makeRefTo( TTStubHandle, stubIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = makeRefTo( TTStubHandle, stubIter );
 
       stubMap.insert( std::make_pair( j, tempStubRef ) );
 
@@ -265,7 +265,7 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
   std::vector< Hit* > hits;
 
-  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > tempVec;
 
   for ( unsigned int i = 0; i < patternsSectors.size(); i++ )
   {
@@ -292,7 +292,7 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
         tempVec.push_back( stubMap[ hits[k]->getID() ] );
 
 
-      TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+      TTTrack< Ref_Phase2TrackerDigi_ > tempTrack( tempVec );
       tempTrack.setSector( secID );
       tempTrack.setWedge( n_active );
       tempTrack.setPOCA( GlobalPoint(0.,0.,0.),5);		

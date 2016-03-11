@@ -5,7 +5,7 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
 #
 # Default parameters used for the plots for the TP
 #
-     L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+     L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
      ZMAX = cms.double ( 25. ) ,        # in cm
      CHI2MAX = cms.double( 100. ),
      PTMINTRA = cms.double( 2.),        # PTMIN of L1Tracks, in GeV

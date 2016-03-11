@@ -12,13 +12,13 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_globalgeometry< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                               int &aDisplacement,
                                                                               int &anOffset,
-                                                                              const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                              const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Convert DetId
-  StackedTrackerDetId stDetId( aTTStub.getDetId() );
+  /*  StackedTrackerDetId stDetId( aTTStub.getDetId() );
 
   /// Force this to be a BARREL-only algorithm
   if ( stDetId.isEndcap() )
@@ -28,8 +28,8 @@ void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bo
   }
 
   /// Get average position of Clusters composing the Stub
-  GlobalPoint innerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(0).get() );
-  GlobalPoint outerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(1).get() );
+  GlobalPoint innerHitPosition = (*TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(0).get() );
+  GlobalPoint outerHitPosition = (*TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(1).get() );
 
   /// Get useful quantities
   double outerPointRadius = outerHitPosition.perp();
@@ -73,6 +73,6 @@ void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bo
       anOffset = 0;
 
     } /// End of selection based on Z
-  } /// End of selection based on Pt
+    } /// End of selection based on Pt*/
 }
 

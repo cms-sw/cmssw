@@ -43,7 +43,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
 
 process.L1TkTauFromL1Track = cms.EDProducer("L1TkTauFromL1TrackProducer",
-                                            L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+                                            L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
                                             ZMAX = cms.double( 25. ),# in cm
                                             CHI2MAX = cms.double( 100. ),
                                             PTMINTRA = cms.double( 2. ),# in GeV
@@ -100,21 +100,21 @@ process.Out.outputCommands.append('keep *_genParticles_*_*')
 
 
 	# the L1Tracks, clusters and stubs
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
+#process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_Level1TTTracks_*')
 
 	# the L1TkTaus
 process.Out.outputCommands.append('keep *_L1TkTauFromL1Track_*_*')
 
 
 # --- to browse the genParticles, one needs to keep the collections of associators below:
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

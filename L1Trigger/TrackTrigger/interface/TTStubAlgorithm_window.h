@@ -45,17 +45,10 @@ class TTStubAlgorithm_window : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window( const StackedTrackerGeometry *aStackedTracker,
-                            double aPtScalingFactor,
-                            double aIPwidth,
-                            double aRowResolution,
-                            double aColResolution )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ ),
-        mWindowFinder( new WindowFinder( aStackedTracker,
-                                         aPtScalingFactor,
-                                         aIPwidth,
-                                         aRowResolution,
-                                         aColResolution ) ){}
+    TTStubAlgorithm_window( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
+                            double aPtScalingFactor, double aIPwidth, double aRowResolution, double aColResolution ):
+        TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ ),
+        mWindowFinder( new WindowFinder( theTrackerGeom, aPtScalingFactor, aIPwidth, aRowResolution, aColResolution ) ){}
 
     /// Destructor
     ~TTStubAlgorithm_window(){}
@@ -77,14 +70,10 @@ class TTStubAlgorithm_window : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                       int &aDisplacement,
                                                                       int &anOffset,
-                                                                      const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
-
-
-
-
+                                                                      const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 /*! \class   ES_TTStubAlgorithm_window
  *  \brief   Class to declare the algorithm to the framework
@@ -130,15 +119,16 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mPtScalingFactor = 0.0015 * mMagneticFieldStrength / mPtThreshold;
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
+
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window< T >( &(*StackedTrackerGeomHandle),
-                                         mPtScalingFactor,
-                                         mIPWidth,
-                                         mRowResolution,
-                                         mColResolution );
+        new TTStubAlgorithm_window< T >( theTrackerGeom, theTrackerTopo, 
+                                         mPtScalingFactor, mIPWidth, mRowResolution, mColResolution );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;

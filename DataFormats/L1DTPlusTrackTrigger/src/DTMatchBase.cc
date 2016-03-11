@@ -40,10 +40,10 @@ DTMatchBase::DTMatchBase()
 
   theAlphaDT = NAN;
 
-  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >();
+  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >();
   theMatchedStubPos = std::map< unsigned int, GlobalPoint >();
-  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >();
-  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_PixelDigi_ > >();
+  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > >();
+  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >();
 }
 
 /// Constructor
@@ -73,10 +73,10 @@ DTMatchBase::DTMatchBase( int aDTWheel, int aDTStation, int aDTSector,
 
   theAlphaDT = NAN;
 
-  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >();
+  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >();
   theMatchedStubPos = std::map< unsigned int, GlobalPoint >();
-  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >();
-  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_PixelDigi_ > >();
+  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > >();
+  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >();
 }
 
 /// Constructor
@@ -107,10 +107,10 @@ DTMatchBase::DTMatchBase( int aDTWheel, int aDTStation, int aDTSector,
 
   theAlphaDT = NAN;
 
-  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >();
+  theMatchedStubRef = std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >();
   theMatchedStubPos = std::map< unsigned int, GlobalPoint >();
-  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >();
-  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_PixelDigi_ > >();
+  theTrackPtrInWindow = std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > >();
+  theMatchedTrackPtr = edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >();
 }
 
 /// Copy constructor

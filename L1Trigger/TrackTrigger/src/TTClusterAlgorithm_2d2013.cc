@@ -11,25 +11,25 @@
 
 /// Function to compare clusters and sort them by row
 template< >
-bool TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::CompareClusters( const Ref_PixelDigi_& a, const Ref_PixelDigi_& b )
+bool TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b )
 {
   return ( a->row() < b->row() );
 }
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                           const std::vector< Ref_PixelDigi_ > &input,
+void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                           const std::vector< Ref_Phase2TrackerDigi_ > &input,
                                                            bool isPS ) const
 {
   /// Prepare the output
   output.clear();
 
   /// Prepare a proper hit container
-  std::map< unsigned int, std::vector< Ref_PixelDigi_ > > mapHitsByColumn;
+  std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > > mapHitsByColumn;
 
   /// Map all the hits by column index
-  typename std::vector< Ref_PixelDigi_ >::const_iterator inputIterator;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::const_iterator inputIterator;
   inputIterator = input.begin();
   while ( inputIterator != input.end() )
   {
@@ -38,25 +38,25 @@ void TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::Cluster( std::vector< std::vec
   }
 
   /// 1D Clusters must be stored properly <column, first row index>
-  std::map< std::pair< unsigned int, unsigned int >, std::vector< Ref_PixelDigi_ > > map1DCluByColRow;
+  std::map< std::pair< unsigned int, unsigned int >, std::vector< Ref_Phase2TrackerDigi_ > > map1DCluByColRow;
 
   /// Loop over the mapped hits
-  typename std::map< unsigned int, std::vector< Ref_PixelDigi_ > >::iterator mapIterHbC;
+  typename std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIterHbC;
   mapIterHbC = mapHitsByColumn.begin();
   while ( mapIterHbC != mapHitsByColumn.end() )
   {
     /// Collect hits sharing column index and
     /// differing by 1 in row index
-    typename std::vector< Ref_PixelDigi_ >::iterator inputIterator;
+    typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator;
     inputIterator = mapIterHbC->second.begin();
 
     /// Loop over single column
     while( inputIterator != mapIterHbC->second.end() )
     {
-      std::vector< Ref_PixelDigi_ > temp;
+      std::vector< Ref_Phase2TrackerDigi_ > temp;
       temp.push_back(*inputIterator);
       inputIterator = mapIterHbC->second.erase(inputIterator);
-      typename std::vector< Ref_PixelDigi_ >::iterator inputIterator2;
+      typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator2;
       inputIterator2 = inputIterator;
 
       /// Nested loop
@@ -89,15 +89,15 @@ void TTClusterAlgorithm_2d2013< Ref_PixelDigi_ >::Cluster( std::vector< std::vec
 
   /// Cluster over the second dimension
   /// only in PS modules!
-  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_PixelDigi_ > >::iterator mapIter1DCbCR0;
-  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_PixelDigi_ > >::iterator mapIter1DCbCR1;
+  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIter1DCbCR0;
+  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIter1DCbCR1;
   mapIter1DCbCR0 = map1DCluByColRow.begin();
   unsigned int lastCol = mapIter1DCbCR0->first.first;
 
   while ( mapIter1DCbCR0 != map1DCluByColRow.end() )
   {
     /// Add the hits
-    std::vector< Ref_PixelDigi_ > candCluster;
+    std::vector< Ref_Phase2TrackerDigi_ > candCluster;
     candCluster.insert( candCluster.end(), mapIter1DCbCR0->second.begin(), mapIter1DCbCR0->second.end() );
 
     if ( isPS )

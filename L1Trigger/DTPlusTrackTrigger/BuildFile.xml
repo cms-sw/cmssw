@@ -16,6 +16,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/Phase2TrackerDigi"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>

@@ -24,12 +24,14 @@
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 #include <memory>
 #include <map>
@@ -43,13 +45,12 @@ class TTClusterBuilder : public edm::EDProducer
   public:
     /// Constructors
     explicit TTClusterBuilder( const edm::ParameterSet& iConfig );
-
     /// Destructor
     ~TTClusterBuilder();
 
   private:
     /// Data members
-    const StackedTrackerGeometry             *theStackedTrackers;
+    //    const StackedTrackerGeometry             *theStackedTrackers;
     edm::ESHandle< TTClusterAlgorithm< T > > theClusterFindingAlgoHandle; // Handles are needed in ::produce()
     std::vector< edm::InputTag >             rawHitInputTags;
     unsigned int                             ADCThreshold;  
@@ -91,11 +92,6 @@ TTClusterBuilder< T >::~TTClusterBuilder(){}
 template< typename T >
 void TTClusterBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
-  /// Get the geometry
-  edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-  iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  theStackedTrackers = StackedTrackerGeomHandle.product();
-
   /// Get the clustering algorithm 
   iSetup.get< TTClusterAlgorithmRecord >().get( theClusterFindingAlgoHandle );
 
@@ -113,11 +109,11 @@ void TTClusterBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& 
 
 /// Implement the producer
 template< >
-void TTClusterBuilder< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
 /// Retrieve hits from the event
 template< >
-void TTClusterBuilder< Ref_PixelDigi_ >::RetrieveRawHits( std::map< DetId, std::vector< Ref_PixelDigi_ > > &mRawHits,
+void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::RetrieveRawHits( std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > > &mRawHits,
                                                           const edm::Event& iEvent );
 
 #endif

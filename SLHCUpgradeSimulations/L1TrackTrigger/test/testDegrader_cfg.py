@@ -51,7 +51,7 @@ process.pTracking = cms.Path( process.DefaultTrackingSequence )
 
 	# worse z0 as for the tilted tracker:
 process.L1TrackDegraderZ0 = cms.EDProducer("L1TrackDegrader",
-        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks","DEG"),
+        L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks","DEG"),
 	degradeZ0 = cms.bool( True ),
         degradeMomentum = cms.bool( False ),
 	NsigmaPT = cms.int32( 3 )    # dummy here
@@ -61,7 +61,7 @@ process.pZ0 = cms.Path( process.L1TrackDegraderZ0 )
 
 	# degrade the PT resolustion by approx. a factor of 3
 process.L1TrackDegraderPT3 = cms.EDProducer("L1TrackDegrader",
-        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks","DEG"),
+        L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks","DEG"),
         degradeZ0 = cms.bool( False ),
         degradeMomentum = cms.bool( True ),
         NsigmaPT = cms.int32( 3 )   
@@ -81,7 +81,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 process.Out.outputCommands.append('keep *_L1TrackDegrader*_*_*')
 
         # the L1Tracks, clusters and stubs
-process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
+process.Out.outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_Level1TTTracks_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

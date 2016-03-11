@@ -54,7 +54,7 @@ namespace L1TkElectronStubMatchAlgo {
 
     GlobalPoint egPos = L1TkElectronStubMatchAlgo::calorimeterPosition(egIter->phi(), egIter->eta(), egIter->energy());
 
-    edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > stubHandle;    
+    edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > stubHandle;    
     iEvent.getByLabel(L1StubInputTag, stubHandle);
 
     edm::Handle<reco::BeamSpot> BeamSpotHandle;
@@ -70,13 +70,13 @@ namespace L1TkElectronStubMatchAlgo {
     edm::ESHandle<StackedTrackerGeometry> stackedGeometryHandle;
     setup.get<StackedTrackerGeometryRecord>().get(stackedGeometryHandle);
 
-    edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > > mcTruthTTStubHandle;
+    edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > mcTruthTTStubHandle;
     iEvent.getByLabel(MCTruthStubInputTag, mcTruthTTStubHandle );
     
     stubRefCollection preSelectedStubs;
-    for (edmNew::DetSetVector< TTStub<Ref_PixelDigi_> >::const_iterator it  = stubHandle->begin();
+    for (edmNew::DetSetVector< TTStub<Ref_Phase2TrackerDigi_> >::const_iterator it  = stubHandle->begin();
 	 it != stubHandle->end();++it) {
-      for (edmNew::DetSet<TTStub<Ref_PixelDigi_> >::const_iterator jt  = it->begin();
+      for (edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> >::const_iterator jt  = it->begin();
 	   jt != it->end(); ++jt) {
 	/// Make the reference 
 	stubRef stub_ref = edmNew::makeRefTo(stubHandle, jt);

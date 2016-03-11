@@ -50,7 +50,7 @@ class L1TkTauFromL1TrackProducer : public edm::EDProducer {
 
 public:
 
-  typedef  TTTrack< Ref_PixelDigi_ >          L1TkTrackType;
+  typedef  TTTrack< Ref_Phase2TrackerDigi_ >          L1TkTrackType;
   typedef std::vector< L1TkTrackType >         L1TkTrackCollectionType;
 
   explicit L1TkTauFromL1TrackProducer(const edm::ParameterSet&);
@@ -135,7 +135,7 @@ L1TkTauFromL1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
     itrack++;
 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theStubs = trackIter ->getStubRefs();
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theStubs = trackIter ->getStubRefs();
 
     z[ntrack]=trackIter->getPOCA().z();
     double px=trackIter->getMomentum().x();

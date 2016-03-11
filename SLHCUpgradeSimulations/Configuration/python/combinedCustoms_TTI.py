@@ -35,13 +35,13 @@ def l1EventContent_TTI(process):
         b=a+'output'
         if hasattr(process,b):
 
-            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClustersFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_*_*')
 
-            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
 
             getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
             getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')
@@ -49,10 +49,10 @@ def l1EventContent_TTI(process):
 	    getattr(process,b).outputCommands.append('drop *_simSiPixelDigis_*_*')
 
 	    # drop what is not used in the stubs
-            getattr(process,b).outputCommands.append('drop *_TTStubAssociatorFromPixelDigis_StubRejected_*')
-	    getattr(process,b).outputCommands.append('drop *_TTStubsFromPixelDigis_StubRejected_*')
-	    getattr(process,b).outputCommands.append('drop *_TTClustersFromPixelDigis_ClusterInclusive_*')
-	    getattr(process,b).outputCommands.append('drop *_TTClusterAssociatorFromPixelDigis_ClusterInclusive_*')
+            getattr(process,b).outputCommands.append('drop *_TTStubAssociatorFromPhase2TrackerDigis_StubRejected_*')
+	    getattr(process,b).outputCommands.append('drop *_TTStubsFromPhase2TrackerDigis_StubRejected_*')
+	    getattr(process,b).outputCommands.append('drop *_TTClustersFromPhase2TrackerDigis_ClusterInclusive_*')
+	    getattr(process,b).outputCommands.append('drop *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterInclusive_*')
 
 	    # other savings. The following collections can be obtained from RAW2DIGI
 	    #getattr(process,b).outputCommands.append('drop EcalTriggerPrimitiveDigisSorted_simEcalTriggerPrimitiveDigis_*_*')
@@ -75,13 +75,13 @@ def l1EventContent_TTI_forHLT(process):
         b=a+'output'
         if hasattr(process,b):
 
-            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClustersFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubsFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTracksFromPhase2TrackerDigis_*_*')
 
-            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPhase2TrackerDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPhase2TrackerDigis_*_*')
 
             getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
             getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')
@@ -90,10 +90,10 @@ def l1EventContent_TTI_forHLT(process):
             getattr(process,b).outputCommands.append('keep *_simSiPixelDigis_*_*')
 
             # drop what is not used in the stubs
-            getattr(process,b).outputCommands.append('drop *_TTStubAssociatorFromPixelDigis_StubRejected_*')
-            getattr(process,b).outputCommands.append('drop *_TTStubsFromPixelDigis_StubRejected_*')
-            getattr(process,b).outputCommands.append('drop *_TTClustersFromPixelDigis_ClusterInclusive_*')
-            getattr(process,b).outputCommands.append('drop *_TTClusterAssociatorFromPixelDigis_ClusterInclusive_*')
+            getattr(process,b).outputCommands.append('drop *_TTStubAssociatorFromPhase2TrackerDigis_StubRejected_*')
+            getattr(process,b).outputCommands.append('drop *_TTStubsFromPhase2TrackerDigis_StubRejected_*')
+            getattr(process,b).outputCommands.append('drop *_TTClustersFromPhase2TrackerDigis_ClusterInclusive_*')
+            getattr(process,b).outputCommands.append('drop *_TTClusterAssociatorFromPhase2TrackerDigis_ClusterInclusive_*')
 
             # other savings. The following collections can be obtained from RAW2DIGI
             getattr(process,b).outputCommands.append('drop *_simEcalDigis_*_*')

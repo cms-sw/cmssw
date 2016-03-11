@@ -40,18 +40,17 @@ class TTStubAlgorithm_pixelray : public TTStubAlgorithm< T >
 
     /// Function to get pixel ray end points
     static std::pair< double, double >* GetPixelRayEndpoints( const TTStub< T > & aTTStub,
-                                                              const StackedTrackerGeometry* stackedTracker,
+                                                              const TrackerGeometry* const theTrackerGeom,
                                                               double scalingFactor );
 
   public:
     /// Constructor
-    TTStubAlgorithm_pixelray( const StackedTrackerGeometry *aStackedTracker,
+    TTStubAlgorithm_pixelray( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                               double aCompatibilityScalingFactor,
-                              double aIPWidth )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+                              double aIPWidth ) : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
-      mCompatibilityScalingFactor = aCompatibilityScalingFactor;
-      mIPWidth = aIPWidth;
+       mCompatibilityScalingFactor = aCompatibilityScalingFactor;
+       mIPWidth = aIPWidth;
     }
 
     /// Destructor
@@ -74,20 +73,16 @@ class TTStubAlgorithm_pixelray : public TTStubAlgorithm< T >
 
 /// Function to get pixel ray end points
 template< >
-std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_PixelDigi_ > & aTTStub,
-                                                                                               const StackedTrackerGeometry* stackedTracker,
-                                                                                               double scalingFactor );
+std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_Phase2TrackerDigi_ > & aTTStub,
+                                                                                                       const TrackerGeometry* const theTrackerGeom,
+                                                                                                       double scalingFactor );
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                         int &aDisplacement,
                                                                         int &anOffset,
-                                                                        const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
-
-
-
-
+                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 /*! \class   ES_TTStubAlgorithm_pixelray
  *  \brief   Class to declare the algorithm to the framework
@@ -129,14 +124,14 @@ class  ES_TTStubAlgorithm_pixelray : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mCompatibilityScalingFactor = ( CLHEP::c_light * mMagneticFieldStrength ) / (100.0 * 2.0e+9 * mPtThreshold);
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord<StackedTrackerGeometryRecord>().get( StackedTrackerGeomHandle );
+      edm::ESHandle< TrackerGeometry > tGeomHandle;
+      record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
+      const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_pixelray< T >( &(*StackedTrackerGeomHandle),
-                                           mCompatibilityScalingFactor,
-                                           mIPWidth );
-
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_pixelray< T >( theTrackerGeom, theTrackerTopo, mCompatibilityScalingFactor, mIPWidth );
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }

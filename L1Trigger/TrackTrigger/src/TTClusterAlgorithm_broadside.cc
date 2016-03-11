@@ -11,17 +11,17 @@
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_broadside< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                              const std::vector< Ref_PixelDigi_ > &input ) const
+void TTClusterAlgorithm_broadside< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                              const std::vector< Ref_Phase2TrackerDigi_ > &input ) const
 {
   /// Prepare the output
   output.clear();
 
   /// Prepare a proper hit container
-  std::map< unsigned int, std::vector< Ref_PixelDigi_ > > mapHitsByColumn;
+  std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > > mapHitsByColumn;
 
   /// Map all the hits by column index
-  typename std::vector< Ref_PixelDigi_ >::const_iterator inputIterator;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::const_iterator inputIterator;
   inputIterator = input.begin();
   while ( inputIterator != input.end() )
   {
@@ -30,22 +30,22 @@ void TTClusterAlgorithm_broadside< Ref_PixelDigi_ >::Cluster( std::vector< std::
   }
 
   /// Loop over the mapped hits
-  typename std::map< unsigned int, std::vector< Ref_PixelDigi_ > >::iterator mapIterator;
+  typename std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIterator;
   mapIterator = mapHitsByColumn.begin();
   while ( mapIterator != mapHitsByColumn.end() )
   {
     /// Collect hits sharing column index and
     /// differing by 1 in row index
-    typename std::vector< Ref_PixelDigi_ >::iterator inputIterator;
+    typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator;
     inputIterator = mapIterator->second.begin();
 
     /// Loop over single column
     while( inputIterator != mapIterator->second.end() )
     {
-      std::vector< Ref_PixelDigi_ > temp;
+      std::vector< Ref_Phase2TrackerDigi_ > temp;
       temp.push_back(*inputIterator);
       inputIterator = mapIterator->second.erase(inputIterator);
-      typename std::vector< Ref_PixelDigi_ >::iterator inputIterator2;
+      typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator2;
       inputIterator2 = inputIterator;
 
       /// Nested loop

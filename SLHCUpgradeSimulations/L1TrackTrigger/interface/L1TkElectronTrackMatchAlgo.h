@@ -8,7 +8,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 namespace L1TkElectronTrackMatchAlgo {
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >    L1TkTrackCollectionType ;
   void doMatch(l1extra::L1EmParticleCollection::const_iterator egIter, const edm::Ptr< L1TkTrackType >& pTrk, double&  dph, double&  dr, double& deta);
   void doMatch(const GlobalPoint& epos, const edm::Ptr< L1TkTrackType >& pTrk, double& dph, double&  dr, double& deta);

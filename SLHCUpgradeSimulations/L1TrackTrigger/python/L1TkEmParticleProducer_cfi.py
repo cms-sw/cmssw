@@ -21,7 +21,7 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
                                                 # the output collection. When RelIsoCut < 0, no cut is applied.
                                                 # When RelativeIsolation = False, IsoCut is in GeV.
            # Determination of the isolation w.r.t. L1Tracks :
-        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+        L1TrackInputTag = cms.InputTag("TTTracksFromPhase2TrackerDigis","Level1TTTracks"),
         ZMAX = cms.double( 25. ),       # in cm
         CHI2MAX = cms.double( 100. ),
         PTMINTRA = cms.double( 2. ),    # in GeV

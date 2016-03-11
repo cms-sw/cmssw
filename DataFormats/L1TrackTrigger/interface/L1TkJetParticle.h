@@ -25,8 +25,8 @@ namespace l1extra {
       
     public:
       
-      //typedef L1TkTrack_PixelDigi_ L1TkTrackType;
-      typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+      //typedef L1TkTrack_Phase2TrackerDigi_ L1TkTrackType;
+      typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
       
       L1TkJetParticle();
       
