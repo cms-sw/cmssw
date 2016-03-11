@@ -19,7 +19,6 @@ process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
 process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
 
-process.CondDB.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
