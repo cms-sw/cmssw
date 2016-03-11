@@ -120,4 +120,10 @@ caloStage2Params.layer1HCalScaleFactors = cms.vdouble(1,2,3)
 #  12 eta scale factors (30-41)
 #  in 5 et bins (5, 20, 30, 50, 256)
 #  So, index = etBin*12+ietaHF
-caloStage2Params.layer1HFScaleFactors = cms.vdouble(1,2,3)
+caloStage2Params.layer1HFScaleFactors = cms.vdouble([
+    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 
+    1.55, 1.49, 1.35, 1.29, 1.30, 1.42, 1.49, 1.59, 1.74, 1.86, 2.18, 2.43, 
+    1.60, 1.51, 1.38, 1.38, 1.44, 1.56, 1.60, 1.67, 1.83, 2.02, 2.66, 2.79, 
+    1.56, 1.41, 1.34, 1.42, 1.44, 1.52, 1.57, 1.63, 1.73, 1.94, 2.64, 2.64, 
+    1.46, 1.30, 1.29, 1.43, 1.42, 1.49, 1.52, 1.59, 1.69, 1.87, 2.49, 2.66, 
+    ])
