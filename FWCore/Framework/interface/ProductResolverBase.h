@@ -26,17 +26,10 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class Principal;
-  class AliasProductResolver;
-  class DataManagingProductResolver;
-  class ParentProcessProductResolver;
 
   class ProductResolverBase {
   public:
 
-    friend class AliasProductResolver;
-    friend class DataManagingProductResolver;
-    friend class ParentProcessProductResolver;
-    
     enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
 
     ProductResolverBase();
