@@ -164,15 +164,9 @@ private:
   std::string bTagJetName_;
   edm::EDGetTokenT<std::vector<reco::TrackIPTagInfo> > ImpactParameterTagInfos_;
   edm::EDGetTokenT<reco::JetTagCollection> TrackCountingHighEffBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> NegativeTrackCountingHighEffBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> TrackCountingHighPurBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> NegativeTrackCountingHighPurBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> JetProbabilityBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> PositiveOnlyJetProbabilityBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> NegativeOnlyJetProbabilityBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> JetBProbabilityBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> NegativeOnlyJetBProbabilityBJetTags_;
-  edm::EDGetTokenT<reco::JetTagCollection> PositiveOnlyJetBProbabilityBJetTags_;
   edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > SecondaryVertexTagInfos_;
   edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > SecondaryVertexNegativeTagInfos_;
   edm::EDGetTokenT<reco::JetTagCollection> SimpleSecondaryVertexHighEffBJetTags_;
@@ -182,6 +176,9 @@ private:
   edm::EDGetTokenT<reco::JetTagCollection> CombinedSecondaryVertexBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> NegativeCombinedSecondaryVertexBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> PositiveCombinedSecondaryVertexBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> CombinedSecondaryVertexV2BJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeCombinedSecondaryVertexV2BJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> PositiveCombinedSecondaryVertexV2BJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> NegativeSoftPFMuonByPtBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> PositiveSoftPFMuonByPtBJetTags_;
 
@@ -297,8 +294,8 @@ private:
     float matchedR[MAXJETS];
     float matchedPu[MAXJETS];
 
-    float discr_csvMva[MAXJETS];
-    float discr_csvSimple[MAXJETS];
+    float discr_csvV1[MAXJETS];
+    float discr_csvV2[MAXJETS];
     float discr_muByIp3[MAXJETS];
     float discr_muByPt[MAXJETS];
     float discr_prob[MAXJETS];
@@ -310,16 +307,12 @@ private:
 
     float ndiscr_ssvHighEff[MAXJETS];
     float ndiscr_ssvHighPur[MAXJETS];
-    float ndiscr_csvSimple[MAXJETS];
+    float ndiscr_csvV1[MAXJETS];
+    float ndiscr_csvV2[MAXJETS];
     float ndiscr_muByPt[MAXJETS];
-    float ndiscr_prob[MAXJETS];
-    float ndiscr_probb[MAXJETS];
-    float ndiscr_tcHighEff[MAXJETS];
-    float ndiscr_tcHighPur[MAXJETS];
 
-    float pdiscr_csvSimple[MAXJETS];
-    float pdiscr_prob[MAXJETS];
-    float pdiscr_probb[MAXJETS];
+    float pdiscr_csvV1[MAXJETS];
+    float pdiscr_csvV2[MAXJETS];
 
     int nsvtx[MAXJETS];
     int svtxntrk[MAXJETS];

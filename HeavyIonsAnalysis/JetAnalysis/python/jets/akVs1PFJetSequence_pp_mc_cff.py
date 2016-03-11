@@ -52,12 +52,6 @@ akVs1PFPatJetPartonAssociationLegacy = akVs1PFbTagger.PatJetPartonAssociationLeg
 akVs1PFImpactParameterTagInfos = akVs1PFbTagger.ImpactParameterTagInfos
 akVs1PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 akVs1PFJetProbabilityBJetTags = akVs1PFbTagger.JetProbabilityBJetTags
-akVs1PFPositiveOnlyJetProbabilityBJetTags = akVs1PFbTagger.PositiveOnlyJetProbabilityBJetTags
-akVs1PFNegativeOnlyJetProbabilityBJetTags = akVs1PFbTagger.NegativeOnlyJetProbabilityBJetTags
-akVs1PFNegativeTrackCountingHighEffBJetTags = akVs1PFbTagger.NegativeTrackCountingHighEffBJetTags
-akVs1PFNegativeTrackCountingHighPurBJetTags = akVs1PFbTagger.NegativeTrackCountingHighPurBJetTags
-akVs1PFNegativeOnlyJetBProbabilityBJetTags = akVs1PFbTagger.NegativeOnlyJetBProbabilityBJetTags
-akVs1PFPositiveOnlyJetBProbabilityBJetTags = akVs1PFbTagger.PositiveOnlyJetBProbabilityBJetTags
 
 akVs1PFSecondaryVertexTagInfos = akVs1PFbTagger.SecondaryVertexTagInfos
 akVs1PFSimpleSecondaryVertexHighEffBJetTags = akVs1PFbTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ akVs1PFNegativeSimpleSecondaryVertexHighEffBJetTags = akVs1PFbTagger.NegativeSim
 akVs1PFNegativeSimpleSecondaryVertexHighPurBJetTags = akVs1PFbTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 akVs1PFNegativeCombinedSecondaryVertexBJetTags = akVs1PFbTagger.NegativeCombinedSecondaryVertexBJetTags
 akVs1PFPositiveCombinedSecondaryVertexBJetTags = akVs1PFbTagger.PositiveCombinedSecondaryVertexBJetTags
+akVs1PFNegativeCombinedSecondaryVertexV2BJetTags = akVs1PFbTagger.NegativeCombinedSecondaryVertexV2BJetTags
+akVs1PFPositiveCombinedSecondaryVertexV2BJetTags = akVs1PFbTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 akVs1PFSoftPFMuonsTagInfos = akVs1PFbTagger.SoftPFMuonsTagInfos
 akVs1PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ akVs1PFJetBtaggingIP       = cms.Sequence(akVs1PFImpactParameterTagInfos *
             (akVs1PFTrackCountingHighEffBJetTags +
              akVs1PFTrackCountingHighPurBJetTags +
              akVs1PFJetProbabilityBJetTags +
-             akVs1PFJetBProbabilityBJetTags +
-             akVs1PFPositiveOnlyJetProbabilityBJetTags +
-             akVs1PFNegativeOnlyJetProbabilityBJetTags +
-             akVs1PFNegativeTrackCountingHighEffBJetTags +
-             akVs1PFNegativeTrackCountingHighPurBJetTags +
-             akVs1PFNegativeOnlyJetBProbabilityBJetTags +
-             akVs1PFPositiveOnlyJetBProbabilityBJetTags
+             akVs1PFJetBProbabilityBJetTags 
             )
             )
 
 akVs1PFJetBtaggingSV = cms.Sequence(akVs1PFImpactParameterTagInfos
             *
             akVs1PFSecondaryVertexTagInfos
-            * (akVs1PFSimpleSecondaryVertexHighEffBJetTags
-                +
-                akVs1PFSimpleSecondaryVertexHighPurBJetTags
-                +
-                akVs1PFCombinedSecondaryVertexBJetTags
-                +
+            * (akVs1PFSimpleSecondaryVertexHighEffBJetTags+
+                akVs1PFSimpleSecondaryVertexHighPurBJetTags+
+                akVs1PFCombinedSecondaryVertexBJetTags+
                 akVs1PFCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ akVs1PFJetBtaggingSV = cms.Sequence(akVs1PFImpactParameterTagInfos
 akVs1PFJetBtaggingNegSV = cms.Sequence(akVs1PFImpactParameterTagInfos
             *
             akVs1PFSecondaryVertexNegativeTagInfos
-            * (akVs1PFNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                akVs1PFNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                akVs1PFNegativeCombinedSecondaryVertexBJetTags
-                +
-                akVs1PFPositiveCombinedSecondaryVertexBJetTags
+            * (akVs1PFNegativeSimpleSecondaryVertexHighEffBJetTags+
+                akVs1PFNegativeSimpleSecondaryVertexHighPurBJetTags+
+                akVs1PFNegativeCombinedSecondaryVertexBJetTags+
+                akVs1PFPositiveCombinedSecondaryVertexBJetTags+
+                akVs1PFNegativeCombinedSecondaryVertexV2BJetTags+
+                akVs1PFPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 

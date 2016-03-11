@@ -52,12 +52,6 @@ ak3CaloPatJetPartonAssociationLegacy = ak3CalobTagger.PatJetPartonAssociationLeg
 ak3CaloImpactParameterTagInfos = ak3CalobTagger.ImpactParameterTagInfos
 ak3CaloImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak3CaloJetProbabilityBJetTags = ak3CalobTagger.JetProbabilityBJetTags
-ak3CaloPositiveOnlyJetProbabilityBJetTags = ak3CalobTagger.PositiveOnlyJetProbabilityBJetTags
-ak3CaloNegativeOnlyJetProbabilityBJetTags = ak3CalobTagger.NegativeOnlyJetProbabilityBJetTags
-ak3CaloNegativeTrackCountingHighEffBJetTags = ak3CalobTagger.NegativeTrackCountingHighEffBJetTags
-ak3CaloNegativeTrackCountingHighPurBJetTags = ak3CalobTagger.NegativeTrackCountingHighPurBJetTags
-ak3CaloNegativeOnlyJetBProbabilityBJetTags = ak3CalobTagger.NegativeOnlyJetBProbabilityBJetTags
-ak3CaloPositiveOnlyJetBProbabilityBJetTags = ak3CalobTagger.PositiveOnlyJetBProbabilityBJetTags
 
 ak3CaloSecondaryVertexTagInfos = ak3CalobTagger.SecondaryVertexTagInfos
 ak3CaloSimpleSecondaryVertexHighEffBJetTags = ak3CalobTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ ak3CaloNegativeSimpleSecondaryVertexHighEffBJetTags = ak3CalobTagger.NegativeSim
 ak3CaloNegativeSimpleSecondaryVertexHighPurBJetTags = ak3CalobTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 ak3CaloNegativeCombinedSecondaryVertexBJetTags = ak3CalobTagger.NegativeCombinedSecondaryVertexBJetTags
 ak3CaloPositiveCombinedSecondaryVertexBJetTags = ak3CalobTagger.PositiveCombinedSecondaryVertexBJetTags
+ak3CaloNegativeCombinedSecondaryVertexV2BJetTags = ak3CalobTagger.NegativeCombinedSecondaryVertexV2BJetTags
+ak3CaloPositiveCombinedSecondaryVertexV2BJetTags = ak3CalobTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 ak3CaloSoftPFMuonsTagInfos = ak3CalobTagger.SoftPFMuonsTagInfos
 ak3CaloSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ ak3CaloJetBtaggingIP       = cms.Sequence(ak3CaloImpactParameterTagInfos *
             (ak3CaloTrackCountingHighEffBJetTags +
              ak3CaloTrackCountingHighPurBJetTags +
              ak3CaloJetProbabilityBJetTags +
-             ak3CaloJetBProbabilityBJetTags +
-             ak3CaloPositiveOnlyJetProbabilityBJetTags +
-             ak3CaloNegativeOnlyJetProbabilityBJetTags +
-             ak3CaloNegativeTrackCountingHighEffBJetTags +
-             ak3CaloNegativeTrackCountingHighPurBJetTags +
-             ak3CaloNegativeOnlyJetBProbabilityBJetTags +
-             ak3CaloPositiveOnlyJetBProbabilityBJetTags
+             ak3CaloJetBProbabilityBJetTags 
             )
             )
 
 ak3CaloJetBtaggingSV = cms.Sequence(ak3CaloImpactParameterTagInfos
             *
             ak3CaloSecondaryVertexTagInfos
-            * (ak3CaloSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak3CaloSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak3CaloCombinedSecondaryVertexBJetTags
-                +
+            * (ak3CaloSimpleSecondaryVertexHighEffBJetTags+
+                ak3CaloSimpleSecondaryVertexHighPurBJetTags+
+                ak3CaloCombinedSecondaryVertexBJetTags+
                 ak3CaloCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ ak3CaloJetBtaggingSV = cms.Sequence(ak3CaloImpactParameterTagInfos
 ak3CaloJetBtaggingNegSV = cms.Sequence(ak3CaloImpactParameterTagInfos
             *
             ak3CaloSecondaryVertexNegativeTagInfos
-            * (ak3CaloNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak3CaloNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak3CaloNegativeCombinedSecondaryVertexBJetTags
-                +
-                ak3CaloPositiveCombinedSecondaryVertexBJetTags
+            * (ak3CaloNegativeSimpleSecondaryVertexHighEffBJetTags+
+                ak3CaloNegativeSimpleSecondaryVertexHighPurBJetTags+
+                ak3CaloNegativeCombinedSecondaryVertexBJetTags+
+                ak3CaloPositiveCombinedSecondaryVertexBJetTags+
+                ak3CaloNegativeCombinedSecondaryVertexV2BJetTags+
+                ak3CaloPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 

@@ -52,12 +52,6 @@ ak6PFPatJetPartonAssociationLegacy = ak6PFbTagger.PatJetPartonAssociationLegacy
 ak6PFImpactParameterTagInfos = ak6PFbTagger.ImpactParameterTagInfos
 ak6PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak6PFJetProbabilityBJetTags = ak6PFbTagger.JetProbabilityBJetTags
-ak6PFPositiveOnlyJetProbabilityBJetTags = ak6PFbTagger.PositiveOnlyJetProbabilityBJetTags
-ak6PFNegativeOnlyJetProbabilityBJetTags = ak6PFbTagger.NegativeOnlyJetProbabilityBJetTags
-ak6PFNegativeTrackCountingHighEffBJetTags = ak6PFbTagger.NegativeTrackCountingHighEffBJetTags
-ak6PFNegativeTrackCountingHighPurBJetTags = ak6PFbTagger.NegativeTrackCountingHighPurBJetTags
-ak6PFNegativeOnlyJetBProbabilityBJetTags = ak6PFbTagger.NegativeOnlyJetBProbabilityBJetTags
-ak6PFPositiveOnlyJetBProbabilityBJetTags = ak6PFbTagger.PositiveOnlyJetBProbabilityBJetTags
 
 ak6PFSecondaryVertexTagInfos = ak6PFbTagger.SecondaryVertexTagInfos
 ak6PFSimpleSecondaryVertexHighEffBJetTags = ak6PFbTagger.SimpleSecondaryVertexHighEffBJetTags
@@ -70,6 +64,8 @@ ak6PFNegativeSimpleSecondaryVertexHighEffBJetTags = ak6PFbTagger.NegativeSimpleS
 ak6PFNegativeSimpleSecondaryVertexHighPurBJetTags = ak6PFbTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
 ak6PFNegativeCombinedSecondaryVertexBJetTags = ak6PFbTagger.NegativeCombinedSecondaryVertexBJetTags
 ak6PFPositiveCombinedSecondaryVertexBJetTags = ak6PFbTagger.PositiveCombinedSecondaryVertexBJetTags
+ak6PFNegativeCombinedSecondaryVertexV2BJetTags = ak6PFbTagger.NegativeCombinedSecondaryVertexV2BJetTags
+ak6PFPositiveCombinedSecondaryVertexV2BJetTags = ak6PFbTagger.PositiveCombinedSecondaryVertexV2BJetTags
 
 ak6PFSoftPFMuonsTagInfos = ak6PFbTagger.SoftPFMuonsTagInfos
 ak6PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
@@ -87,25 +83,16 @@ ak6PFJetBtaggingIP       = cms.Sequence(ak6PFImpactParameterTagInfos *
             (ak6PFTrackCountingHighEffBJetTags +
              ak6PFTrackCountingHighPurBJetTags +
              ak6PFJetProbabilityBJetTags +
-             ak6PFJetBProbabilityBJetTags +
-             ak6PFPositiveOnlyJetProbabilityBJetTags +
-             ak6PFNegativeOnlyJetProbabilityBJetTags +
-             ak6PFNegativeTrackCountingHighEffBJetTags +
-             ak6PFNegativeTrackCountingHighPurBJetTags +
-             ak6PFNegativeOnlyJetBProbabilityBJetTags +
-             ak6PFPositiveOnlyJetBProbabilityBJetTags
+             ak6PFJetBProbabilityBJetTags 
             )
             )
 
 ak6PFJetBtaggingSV = cms.Sequence(ak6PFImpactParameterTagInfos
             *
             ak6PFSecondaryVertexTagInfos
-            * (ak6PFSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak6PFSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak6PFCombinedSecondaryVertexBJetTags
-                +
+            * (ak6PFSimpleSecondaryVertexHighEffBJetTags+
+                ak6PFSimpleSecondaryVertexHighPurBJetTags+
+                ak6PFCombinedSecondaryVertexBJetTags+
                 ak6PFCombinedSecondaryVertexV2BJetTags
               )
             )
@@ -113,13 +100,12 @@ ak6PFJetBtaggingSV = cms.Sequence(ak6PFImpactParameterTagInfos
 ak6PFJetBtaggingNegSV = cms.Sequence(ak6PFImpactParameterTagInfos
             *
             ak6PFSecondaryVertexNegativeTagInfos
-            * (ak6PFNegativeSimpleSecondaryVertexHighEffBJetTags
-                +
-                ak6PFNegativeSimpleSecondaryVertexHighPurBJetTags
-                +
-                ak6PFNegativeCombinedSecondaryVertexBJetTags
-                +
-                ak6PFPositiveCombinedSecondaryVertexBJetTags
+            * (ak6PFNegativeSimpleSecondaryVertexHighEffBJetTags+
+                ak6PFNegativeSimpleSecondaryVertexHighPurBJetTags+
+                ak6PFNegativeCombinedSecondaryVertexBJetTags+
+                ak6PFPositiveCombinedSecondaryVertexBJetTags+
+                ak6PFNegativeCombinedSecondaryVertexV2BJetTags+
+                ak6PFPositiveCombinedSecondaryVertexV2BJetTags
               )
             )
 
