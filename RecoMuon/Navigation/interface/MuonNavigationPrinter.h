@@ -19,6 +19,9 @@
  *
  * Cesare Calabria:
  * GEMs implementation.
+
+ * David Nash:
+ * ME0s implementation
  */
 
 class DetLayer;
@@ -30,7 +33,7 @@ class GeometricSearchTracker;
 
 class MuonNavigationPrinter {
   public:
-    MuonNavigationPrinter(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = true );
+    MuonNavigationPrinter(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = true , bool enableME0 = true );
     MuonNavigationPrinter(const MuonDetLayerGeometry *,const GeometricSearchTracker *);
 
   private:

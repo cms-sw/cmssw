@@ -2,6 +2,7 @@
  *
  *  \author Port of: MuDDDME0Builder (ORCA)
  *  \author M. Maggi - INFN Bari
+ *  \edited by D. Nash
  */
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -67,6 +68,8 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
    LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
+
+   int nChambers(0);
   while (doSubDets)
   {
     // Get the Base Muon Number
@@ -79,6 +82,17 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     ME0DetId rollDetId(me0num.baseNumberToUnitNumber(mbn));
     LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
+
+    // chamber id for this partition. everything is the same; but partition number is 0.
+    ME0DetId chamberId(rollDetId.chamberId());
+    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 chamber rawId: " << chamberId.rawId() << ", detId: " << chamberId;
+
+    //Commented out, we don't have stations
+    //const int stationId(rollDetId.station());
+    //if (stationId > maxStation) maxStation = stationId;
+    
+    if (rollDetId.roll()==1) ++nChambers;
+
 
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -138,22 +152,32 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     doSubDets = fview.nextSibling(); 
   }
   
-  /*
+  
   auto& partitions(geometry->etaPartitions());
   // build the chambers and add them to the geometry
   std::vector<ME0DetId> vDetId;
   vDetId.clear();
-  int oldRollNumber = 1;
+  //int oldRollNumber = 1;
+  int oldLayerNumber = 1;
   for (unsigned i=1; i<=partitions.size(); ++i){
     ME0DetId detId(partitions.at(i-1)->id());
-    const int rollNumber(detId.roll());
+    LogDebug("ME0GeometryBuilderFromDDD") << "Making ME0DetId = " <<detId<<std::endl;
+
+    //The GEM methodology depended on rollNumber changing from chamber to chamber, we need to use layer ID
+    //const int rollNumber(detId.roll());
     // new batch of eta partitions --> new chamber
-    if (rollNumber < oldRollNumber || i == partitions.size()) {
+    //if (rollNumber < oldRollNumber || i == partitions.size()) {
+
+    const int layerNumber(detId.layer());
+    if (layerNumber < oldLayerNumber || i == partitions.size()) {
+
       // don't forget the last partition for the last chamber
       if (i == partitions.size()) vDetId.push_back(detId);
 
       ME0DetId fId(vDetId.front());
       ME0DetId chamberId(fId.chamberId());
+      LogDebug("ME0GeometryBuilderFromDDD") << "ME0DetId = " << fId <<std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD") << "ME0ChamberId = " << chamberId <<std::endl;
       // compute the overall boundplane using the first eta partition
       const ME0EtaPartition* p(geometry->etaPartition(fId));
       const BoundPlane& bps = p->surface();
@@ -161,76 +185,20 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       ReferenceCountingPointer<BoundPlane> surf(bp);
       
       ME0Chamber* ch = new ME0Chamber(chamberId, surf); 
-      LogDebug("ME0GeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions";
       
       for(auto id : vDetId){
-	LogDebug("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 chamber" << std::endl;
+	LogDebug("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 chamber";
 	ch->add(const_cast<ME0EtaPartition*>(geometry->etaPartition(id)));
       }
 
-      LogDebug("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry" << std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry";
       geometry->add(ch);
       vDetId.clear();
     }
     vDetId.push_back(detId);
-    oldRollNumber = rollNumber;
+    oldLayerNumber = layerNumber;
   }
   
-  auto& chambers(geometry->chambers());
-  // construct super chambers
-  for (unsigned i=0; i<chambers.size(); ++i){
-    const BoundPlane& bps = chambers.at(i)->surface();
-    BoundPlane* bp = const_cast<BoundPlane*>(&bps);
-    ReferenceCountingPointer<BoundPlane> surf(bp);
-    ME0DetId detIdL1(chambers.at(i)->id());
-    if (detIdL1.layer()==2) continue;
-    ME0DetId detIdL2(detIdL1.region(),detIdL1.ring(),detIdL1.station(),2,detIdL1.chamber(),0);
-    auto ch2 = geometry->chamber(detIdL2);
-
-    LogDebug("ME0GeometryBuilderFromDDD") << "First chamber for super chamber: " << detIdL1 << std::endl;
-    LogDebug("ME0GeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2 << std::endl;
-
-    LogDebug("ME0GeometryBuilderFromDDD") << "Creating new ME0 super chamber out of chambers." << std::endl;
-    ME0SuperChamber* sch = new ME0SuperChamber(detIdL1, surf); 
-    sch->add(const_cast<ME0Chamber*>(chambers.at(i)));
-    sch->add(const_cast<ME0Chamber*>(ch2));
-
-    LogDebug("ME0GeometryBuilderFromDDD") << "Adding the super chamber to the geometry." << std::endl;
-    geometry->add(sch);
-  }
-
-  auto& superChambers(geometry->superChambers());
-  // construct the regions, stations and rings. 
-  std::cout << "maxStation " << maxStation << std::endl;
-  for (int re = -1; re <= 1; re = re+2) {
-    ME0Region* region = new ME0Region(re); 
-    for (int st=1; st<=maxStation; ++st) {
-      ME0Station* station = new ME0Station(re, st); 
-      std::string name("ME+ std::to_string(re) + "/" + std::to_string(st));
-      // Closest (furthest) super chambers in GE2/1 are called GE2/1s (GE2/1l)
-      if (st==2) name = "GE" + std::to_string(re) + "/" + std::to_string(st) + "s";
-      if (st==3) name = "GE" + std::to_string(re) + "/" + std::to_string(st-1) + "l";
-      station->setName(name); 
-      for (int ri=1; ri<=1; ++ri) {
-	ME0Ring* ring = new ME0Ring(re, st, ri); 
-	for (unsigned sch=0; sch<superChambers.size(); ++sch){
-	  const ME0DetId detId(superChambers.at(sch)->id());
-	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
-	  ring->add(superChambers.at(sch));
-	  LogDebug("ME0GeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
-						<< "re " << re << " st " << st << " ri " << ri << std::endl;
- 	}
-	LogDebug("ME0GeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
-	station->add(ring);
-	geometry->add(ring);
-      }
-      LogDebug("ME0GeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
-      region->add(station);
-      geometry->add(station);
-    }
-    LogDebug("ME0GeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    geometry->add(region);
-  }
-  */
   return geometry;
 }

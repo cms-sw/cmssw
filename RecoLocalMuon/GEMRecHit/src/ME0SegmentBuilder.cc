@@ -40,6 +40,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
   // Loop on the ME0 rechit and select the different ME0 Ensemble
   for(ME0RecHitCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {        
     ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll());
+    //Changing to using a chamber, not a rawId, for the map of me0rechits and ME0 chambers
     std::vector<ME0RecHit* > pp = ensembleRH[id.rawId()];
     pp.push_back(it2->clone());
     ensembleRH[id.rawId()]=pp;
@@ -62,10 +63,10 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // given the chamber select the appropriate algo... and run it
     std::vector<ME0Segment> segv = algo->run(ensamble, me0RecHits);
     ME0DetId mid(enIt->first);
-    LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << mid;
-    
+    //HACK to make it a chamberID
+    ME0DetId midchamber(mid.region(),1,mid.chamber(),0);
     // Add the segments to master collection
-    oc.put(mid, segv.begin(), segv.end());
+    oc.put(midchamber, segv.begin(), segv.end());
   }
 }
 

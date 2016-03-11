@@ -68,9 +68,11 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
                                                      CSCRecSegmentLabel,
                                                      RPCRecSegmentLabel,
                                                      edm::InputTag(),
+                                                     edm::InputTag(),
 						     enableDTMeasurement,
 						     enableCSCMeasurement,
 						     enableRPCMeasurement,
+						     false,
 						     false);
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
