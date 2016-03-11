@@ -38,6 +38,8 @@ class PrimaryVertexValidation(GenericValidationData):
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
         cfgs = {cfgName: configTemplates.PrimaryVertexValidationTemplate}
+        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
+            repMap["finalResultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
@@ -54,8 +56,47 @@ class PrimaryVertexValidation(GenericValidationData):
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"],
             "VertexCollection": self.general["vertexcollection"],
-            "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
+            "eosdir": os.path.join(self.general["eosdir"]), 
+            #"eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
             })
         return repMap
+
+    def appendToMerge( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is returned,
+        else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        
+        parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
+
+        mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
+        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
+        return validationsSoFar
+
+    def appendToExtendedValidation( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is
+        returned, else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+
+        #print repMap
+
+        if validationsSoFar == "":
+            validationsSoFar = "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+            validationsSoFar += ','
+        else:
+            validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+        return validationsSoFar
+    
+        # comparestring = self.getCompareStrings("PrimaryVertexValidation")
+        # #sep = '|'
+        # #comparestring = comparestring.split(sep,1)[0]
+        # if validationsSoFar != "":
+        #     validationsSoFar += ','
+        # validationsSoFar += comparestring
+
+        # return validationsSoFar
