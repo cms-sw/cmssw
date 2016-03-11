@@ -78,32 +78,6 @@ namespace hcaldqm
 			return sumADC<DIGI>(digi, ped, i, j)/(j-i+1);
 		}
 
-		template<typename DIGI>
-		bool isError(DIGI const& digi)
-		{
-			int capId = 0;
-			int lastcapId = 0;
-			bool anycapId = true;
-			bool anyerror = false;
-			bool anydv = true;
-			bool er, dv;
-			for (int its=0; its<digi.size(); its++)
-			{
-				capId = digi.sample(its).capid();
-				er= digi.sample(its).er();
-				dv = digi.sample(its).dv();
-				if (its!=0 && (lastcapId+1)%4!=capId)
-					anycapId = false;
-				lastcapId = capId;
-				if (er)
-					anyerror = true;
-				if (!dv)
-					anydv = false;
-			}
-
-			return !anycapId || anyerror || !anydv;
-		}
-
 		/*
 		 *	Log Functions
 		 */
@@ -121,8 +95,6 @@ namespace hcaldqm
 		 *	Useful Detector/Electronics/TrigTower Functions. 
 		 *	For Fast Detector Validity Check
 		 */
-		bool validDetId(HcalSubdetector, int , int, int );
-		bool validDetId(HcalDetId const&);
 		int getTPSubDet(HcalTrigTowerDetId const&);
 		int getTPSubDetPM(HcalTrigTowerDetId const&);
 

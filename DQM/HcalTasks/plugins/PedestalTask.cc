@@ -31,6 +31,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalDbService> dbs;
 	es.get<HcalDbRecord>().get(dbs);
 	_emap = dbs->getHcalMapping();
+	std::vector<int> vFEDs = utilities::getFEDList(_emap);
+	std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
+	std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
 	std::vector<uint32_t> vhashC36;
@@ -47,12 +50,25 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_filter_C36.initialize(filter::fFilter, hashfunctions::fCrate,
 		vhashC36);
 
+	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
+		it!=vFEDsVME.end(); ++it)
+		_vhashFEDs.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
+			FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
+	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
+		it!=vFEDsuTCA.end(); ++it)
+		_vhashFEDs.push_back(HcalElectronicsId(
+			utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+			FIBERCH_MIN, false).rawId());
+
 	//	Containers XXX
 	_xPedSum.initialize(hashfunctions::fDChannel);
 	_xPedSum2.initialize(hashfunctions::fDChannel);
 	_xPedRefMean.initialize(hashfunctions::fDChannel);
 	_xPedEntries.initialize(hashfunctions::fDChannel);
 	_xPedRefRMS.initialize(hashfunctions::fDChannel);
+	_xNMsn.initialize(hashfunctions::fFED);
+	_xNBadMean.initialize(hashfunctions::fFED);
+	_xNBadRMS.initialize(hashfunctions::fFED);
 
 	//	Containers
 	_cMean_Subdet.initialize(_name, "Mean",hashfunctions::fSubdet, 
@@ -154,6 +170,15 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
 		new quantity::ValueQuantity(quantity::fN));
 
+	std::vector<std::string> fnames;
+	fnames.push_back("Msn");
+	fnames.push_back("BadMean");
+	fnames.push_back("BadRMS");
+	_cSummary.initialize(_name, "Summary",
+		new quantity::FEDQuantity(vFEDs),
+		new quantity::FlagQuantity(fnames),
+		new quantity::QualityQuantity());
+
 	//	book plots
 	_cMean_Subdet.book(ib, _emap, _subsystem);
 	_cRMS_Subdet.book(ib, _emap, _subsystem);
@@ -181,6 +206,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cRMSBad_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cMeanBad_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cMeanBad_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+
+	_cSummary.book(ib, _subsystem);
 	
 	//	book compact containers
 	_xPedSum.book(_emap);
@@ -188,6 +215,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_xPedEntries.book(_emap);
 	_xPedRefMean.book(_emap);
 	_xPedRefRMS.book(_emap);
+	_xNMsn.book(_emap);
+	_xNBadMean.book(_emap);
+	_xNBadRMS.book(_emap);
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 
@@ -283,6 +313,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				_cMissing_FEDVME.fill(eid);
 			else
 				_cMissing_FEDuTCA.fill(eid);
+			_xNMsn.get(eid)++;
 			continue;
 		}
 
@@ -321,6 +352,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				_cMeanBad_FEDVME.fill(eid);
 			else
 				_cMeanBad_FEDuTCA.fill(eid);
+			_xNBadMean.get(eid)++;
 		}
 		if (fabs(diffr)>0.2)
 		{
@@ -329,8 +361,38 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				_cRMSBad_FEDVME.fill(eid);
 			else 
 				_cRMSBad_FEDuTCA.fill(eid);
+			_xNBadRMS.get(eid)++;
 		}
 	}
+
+	//	set flags
+	for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+		it!=_vhashFEDs.end(); ++it)
+	{
+		HcalElectronicsId eid = HcalElectronicsId(*it);
+		for (int flag=fMsn; flag<nPedestalFlag; flag++)
+			_cSummary.setBinContent(eid, flag, fNA);
+
+		//	set all the flags
+		_xNMsn.get(eid)>0?
+			_cSummary.setBinContent(eid, fMsn, fLow):
+			_cSummary.setBinContent(eid, fMsn, fGood);
+		_xNBadMean.get(eid)>0?
+			_cSummary.setBinContent(eid, fBadMean, fLow):
+			_cSummary.setBinContent(eid, fBadMean, fGood);
+		_xNBadRMS.get(eid)>0?
+			_cSummary.setBinContent(eid, fBadRMS, fLow):
+			_cSummary.setBinContent(eid, fBadRMS, fGood);
+	}
+	_xNMsn.reset(); _xNBadMean.reset(); _xNBadRMS.reset();
+}
+
+/* virtual */ void PedestalTask::endLuminosityBlock(edm::LuminosityBlock const&,
+	edm::EventSetup const&)
+{
+	if (_ptype==fLocal)
+		return;
+	this->_dump();
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e,
@@ -392,10 +454,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			_xPedEntries.get(did)++;
 		}
 	}
-
-	if (_ptype==fOnline && _evsTotal>0 && 
-		_evsTotal%constants::CALIBEVENTS_MIN==0)
-		this->_dump();
 }
 
 /* virtual */ bool PedestalTask::_isApplicable(edm::Event const& e)

@@ -68,6 +68,7 @@ class RawTask : public DQTask
 		Container2D _cBadQuality_FEDuTCA;
 		Container2D _cBadQuality_depth;
 		ContainerSingleProf1D _cBadQualityvsLS;
+		ContainerSingleProf1D _cBadQualityvsBX;
 
 		//	Mismatches
 		Container2D _cEvnMsm_ElectronicsVME;

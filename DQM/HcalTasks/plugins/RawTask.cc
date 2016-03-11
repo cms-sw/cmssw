@@ -120,6 +120,9 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_cBadQualityvsLS.initialize(_name, "BadQualityvsLS",
 		new quantity::LumiSection(_numLSstart),
 		new quantity::ValueQuantity(quantity::fN_m0to10000));
+	_cBadQualityvsBX.initialize(_name, "BadQualityvsBX",
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fN_m0to10000));
 	_cBadQuality_depth.initialize(_name, "BadQuality",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
@@ -151,6 +154,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME);
 	_cBadQuality_depth.book(ib, _emap);
 	_cBadQualityvsLS.book(ib);
+	_cBadQualityvsBX.book(ib);
 
 	_cSummary.book(ib);
 
@@ -193,7 +197,11 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HcalUnpackerReport isn't available"+
 			_tagReport.label()+" " +_tagReport.instance());
 
+	//	extract some info
+	int bx = e.bunchCrossing();
+
 	_cBadQualityvsLS.fill(_currentLS,creport->badQualityDigis());
+	_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
 	for (std::vector<DetId>::const_iterator it=creport->bad_quality_begin();
 		it!=creport->bad_quality_end(); ++it)
 	{

@@ -365,7 +365,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDVME.fill(eid);
 			_cOccupancy_ElectronicsVME.fill(eid);
 			_cOccupancyNR_FEDVME.fill(eid);
-			if (utilities::isError<HBHEDataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDVME.fill(eid, 1);
 			_cDigiSize_FEDVME.fill(eid, it->size());
 		}
@@ -374,7 +374,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDuTCA.fill(eid);
 			_cOccupancy_ElectronicsuTCA.fill(eid);
 			_cOccupancyNR_FEDuTCA.fill(eid);
-			if (utilities::isError<HBHEDataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDuTCA.fill(eid, 1);
 			_cDigiSize_FEDuTCA.fill(eid, it->size());
 		}
@@ -442,7 +442,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDVME.fill(eid);
 			_cOccupancy_ElectronicsVME.fill(eid);
 			_cOccupancyNR_FEDVME.fill(eid);
-			if (utilities::isError<HODataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDVME.fill(eid, 1);
 			_cDigiSize_FEDVME.fill(eid, it->size());
 		}
@@ -451,7 +451,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDuTCA.fill(eid);
 			_cOccupancy_ElectronicsuTCA.fill(eid);
 			_cOccupancyNR_FEDuTCA.fill(eid);
-			if (utilities::isError<HODataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDuTCA.fill(eid, 1);
 			_cDigiSize_FEDuTCA.fill(eid, it->size());
 		}
@@ -514,7 +514,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDVME.fill(eid);
 			_cOccupancy_ElectronicsVME.fill(eid);
 			_cOccupancyNR_FEDVME.fill(eid);
-			if (utilities::isError<HFDataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDVME.fill(eid, 1);
 			_cDigiSize_FEDVME.fill(eid, it->size());
 		}
@@ -523,7 +523,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancy_FEDuTCA.fill(eid);
 			_cOccupancy_ElectronicsuTCA.fill(eid);
 			_cOccupancyNR_FEDuTCA.fill(eid);
-			if (utilities::isError<HFDataFrame>(*it))
+			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDuTCA.fill(eid, 1);
 			_cDigiSize_FEDuTCA.fill(eid, it->size());
 		}

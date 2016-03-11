@@ -13,6 +13,7 @@
 #include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 #include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
@@ -28,7 +29,17 @@ class PedestalTask : public DQTask
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 		virtual void endRun(edm::Run const&, edm::EventSetup const&);
+
+		enum PedestalFlag
+		{
+			fMsn = 0,
+			fBadMean = 1,
+			fBadRMS = 2,
+			nPedestalFlag = 3
+		};
 
 	protected:
 		//	funcs
@@ -54,12 +65,15 @@ class PedestalTask : public DQTask
 		HashFilter _filter_VME;
 		HashFilter _filter_C36;
 
-
+		std::vector<uint32_t> _vhashFEDs;
 		ContainerXXX<double> _xPedSum;
 		ContainerXXX<double> _xPedSum2;
 		ContainerXXX<int>	_xPedEntries;
 		ContainerXXX<double> _xPedRefMean;
 		ContainerXXX<double> _xPedRefRMS;
+		ContainerXXX<int> _xNMsn;
+		ContainerXXX<int> _xNBadMean;
+		ContainerXXX<int> _xNBadRMS;
 
 		//	1D Means/RMSs
 		Container1D		_cMean_Subdet;
@@ -96,6 +110,8 @@ class PedestalTask : public DQTask
 		Container2D		_cRMSBad_FEDuTCA;
 		Container2D		_cRMSBad_FEDVME;
 		Container2D		_cMeanBad_FEDuTCA;
+
+		ContainerSingle2D _cSummary;
 };
 
 #endif
