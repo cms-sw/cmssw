@@ -60,11 +60,6 @@ namespace edm {
     ProductData const* resolveProductImpl( FUNC resolver, ResolveStatus& resolveStatus) const;
     
   private:
-    virtual void swap_(ProductResolverBase& rhs) override {
-      auto& other = dynamic_cast<DataManagingProductResolver&>(rhs);
-      edm::swap(productData_, other.productData_);
-      theStatus_.store(other.theStatus_.exchange(theStatus_.load()));
-    }
 
     void throwProductDeletedException() const;
     void checkType(WrapperBase const& prod) const;
@@ -108,11 +103,6 @@ namespace edm {
 
   };
 
-  // Free swap function
-  inline void swap(InputProductResolver& a, InputProductResolver& b) {
-    a.swap(b);
-  }
-
   class ProducedProductResolver : public DataManagingProductResolver {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
@@ -147,11 +137,6 @@ namespace edm {
       virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
   };
 
-  // Free swap function
-  inline void swap(UnscheduledProductResolver& a, UnscheduledProductResolver& b) {
-    a.swap(b);
-  }
-
   class AliasProductResolver : public ProductResolverBase {
     public:
       typedef ProducedProductResolver::ProductStatus ProductStatus;
@@ -162,11 +147,6 @@ namespace edm {
       };
 
     private:
-      virtual void swap_(ProductResolverBase& rhs) override {
-        AliasProductResolver& other = dynamic_cast<AliasProductResolver&>(rhs);
-        realProduct_.swap(other.realProduct_);
-        std::swap(bd_, other.bd_);
-      }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
                                                  bool skipCurrentProcess,
@@ -205,11 +185,6 @@ namespace edm {
     };
     
   private:
-    virtual void swap_(ProductResolverBase& rhs) override {
-      ParentProcessProductResolver& other = dynamic_cast<ParentProcessProductResolver&>(rhs);
-      std::swap(realProduct_,other.realProduct_);
-      std::swap(bd_, other.bd_);
-    }
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                Principal const& principal,
                                                bool skipCurrentProcess,
@@ -252,7 +227,6 @@ namespace edm {
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual void swap_(ProductResolverBase& rhs) override;
       virtual bool unscheduledWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;

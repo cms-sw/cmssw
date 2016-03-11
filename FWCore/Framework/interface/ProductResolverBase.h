@@ -124,8 +124,6 @@ namespace edm {
       putOrMergeProduct_(std::move(edp));
     }
     
-    void swap(ProductResolverBase& rhs) {swap_(rhs);}
-
     virtual void connectTo(ProductResolverBase const&, Principal const*) = 0;
 
   private:
@@ -134,7 +132,6 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const = 0;
-    virtual void swap_(ProductResolverBase& rhs) = 0;
     virtual bool unscheduledWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productResolved_() const = 0;

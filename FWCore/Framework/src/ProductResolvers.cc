@@ -347,12 +347,6 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void NoProcessProductResolver::swap_(ProductResolverBase& rhs) {
-    NoProcessProductResolver& other = dynamic_cast<NoProcessProductResolver&>(rhs);
-    ambiguous_.swap(other.ambiguous_);
-    matchingHolders_.swap(other.matchingHolders_);
-  }
-
   void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
   }
 
