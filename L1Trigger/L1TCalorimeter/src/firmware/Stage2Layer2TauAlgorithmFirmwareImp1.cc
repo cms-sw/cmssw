@@ -49,7 +49,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
 void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::CaloCluster>& clusters,
                                                         const std::vector<l1t::CaloTower>& towers,
                                                         std::vector<l1t::Tau>& taus)
-{
+{  
     // navigator
     l1t::CaloStage2Nav caloNav; 
   
