@@ -70,8 +70,6 @@ private:
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  bool makeHFLUTs();
-
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSource;
@@ -82,9 +80,6 @@ private:
   std::vector< std::vector< std::vector < uint32_t > > > ecalLUT;
   std::vector< std::vector< std::vector < uint32_t > > > hcalLUT;
   std::vector< std::vector< uint32_t > > hfLUT;
-
-  std::vector< uint32_t > hfSFETBins;
-  std::vector< std::vector< double > > hfSF;
 
   bool useLSB;
   bool useECALLUT;
@@ -116,26 +111,12 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   ecalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hfLUT(12, std::vector < uint32_t >(256)),
-  hfSFETBins(iConfig.getParameter<std::vector< uint32_t > >("hfSFETBins")),
-  hfSF(12, std::vector < double >(hfSFETBins.size())),
   useLSB(iConfig.getParameter<bool>("useLSB")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
   useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")) 
 {
-  hfSF[ 0] = iConfig.getParameter<std::vector < double > >("hfSF30");
-  hfSF[ 1] = iConfig.getParameter<std::vector < double > >("hfSF31");
-  hfSF[ 2] = iConfig.getParameter<std::vector < double > >("hfSF32");
-  hfSF[ 3] = iConfig.getParameter<std::vector < double > >("hfSF33");
-  hfSF[ 4] = iConfig.getParameter<std::vector < double > >("hfSF34");
-  hfSF[ 5] = iConfig.getParameter<std::vector < double > >("hfSF35");
-  hfSF[ 6] = iConfig.getParameter<std::vector < double > >("hfSF36");
-  hfSF[ 7] = iConfig.getParameter<std::vector < double > >("hfSF37");
-  hfSF[ 8] = iConfig.getParameter<std::vector < double > >("hfSF38");
-  hfSF[ 9] = iConfig.getParameter<std::vector < double > >("hfSF39");
-  hfSF[10] = iConfig.getParameter<std::vector < double > >("hfSF40");
-  hfSF[11] = iConfig.getParameter<std::vector < double > >("hfSF41");
   produces<CaloTowerBxCollection>();
   layer1 = new UCTLayer1;
 }
@@ -277,11 +258,8 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useECALLUT, useHCALLUT, useHFLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
-  }
-  if(!makeHFLUTs()) {
-    std::cerr << "L1TCaloLayer1::beginRun: failed to make HF LUTs - using unity" << std::endl;
   }
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
@@ -304,28 +282,6 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   }
 }
 
-bool 
-L1TCaloLayer1::makeHFLUTs() {
-  uint32_t nETBins = hfSFETBins.size();
-  for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
-    for(uint32_t etCode = 0; etCode < 256; etCode++) {
-      if(useHFLUT && nETBins != 0) {
-	uint32_t etBin = 0;
-	for(; etBin < nETBins; etBin++) {
-	  if(etCode < hfSFETBins[etBin]) break;
-	}
-	hfLUT[etaBin][etCode] = etCode * hfSF[etaBin][etBin];
-      }
-      else {
-	hfLUT[etaBin][etCode] = etCode;
-      }
-    }
-  }
-  if(nETBins == 0) {
-    return false;
-  }
-  return true;
-}
 
 // ------------ method called when ending the processing of a run  ------------
 /*

@@ -5,8 +5,10 @@
 bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup, 
 			    std::vector< std::vector< std::vector < uint32_t > > > &eLUT,
 			    std::vector< std::vector< std::vector < uint32_t > > > &hLUT,
+                            std::vector< std::vector< uint32_t > > &hfLUT,
 			    bool useLSB = true,
 			    bool useECALLUT = true,
-			    bool useHCALLUT = true);
+			    bool useHCALLUT = true,
+                            bool useHFLUT = true);
 
 #endif

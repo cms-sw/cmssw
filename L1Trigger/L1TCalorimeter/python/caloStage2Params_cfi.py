@@ -108,6 +108,16 @@ caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  35.,  0.,  35.)
 
 # Layer 1 LUT specification
+#
+# Et-dependent scale factors
+# ECal/HCal scale factors will be a 9*28 array:
+#   28 eta scale factors (1-28)
+#   in 9 ET bins (10, 15, 20, 25, 30, 35, 40, 45, 256)
+#  So, index = etBin*28+ieta
 caloStage2Params.layer1ECalScaleFactors = cms.vdouble(1,2,3)
 caloStage2Params.layer1HCalScaleFactors = cms.vdouble(1,2,3)
+# HF 1x1 scale factors will be a 5*12 array:
+#  12 eta scale factors (30-41)
+#  in 5 et bins (5, 20, 30, 50, 256)
+#  So, index = etBin*12+ietaHF
 caloStage2Params.layer1HFScaleFactors = cms.vdouble(1,2,3)

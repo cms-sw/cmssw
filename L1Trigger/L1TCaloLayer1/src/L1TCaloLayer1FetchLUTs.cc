@@ -7,8 +7,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
@@ -22,17 +23,38 @@
 bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup, 
 			    std::vector< std::vector< std::vector < uint32_t > > > &eLUT,
 			    std::vector< std::vector< std::vector < uint32_t > > > &hLUT,
+                            std::vector< std::vector< uint32_t > > &hfLUT,
 			    bool useLSB,
 			    bool useECALLUT,
-			    bool useHCALLUT) {
+			    bool useHCALLUT,
+                            bool useHFLUT) {
 
-  // get rct parameters - these should contain Laura Dodd's tower-level scalefactors (ET, eta)
 
-  edm::ESHandle<L1RCTParameters> rctParameters;
-  iSetup.get<L1RCTParametersRcd>().get(rctParameters);
-  const L1RCTParameters* rctParameters_ = rctParameters.product();
-  if(rctParameters_ == 0) return false;
+  edm::ESHandle<l1t::CaloParams> paramsHandle;
+  iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+  if ( paramsHandle.product() == nullptr ) return false;
+  l1t::CaloParamsHelper caloParams(*paramsHandle.product());
 
+  // Global Calo Trigger LSB ET value
+  double caloLSB = caloParams.towerLsbSum(); // Will probably always be 0.5
+
+  // ECal/HCal scale factors will be a 9*28 array:
+  //   28 eta scale factors (1-28)
+  //   in 9 ET bins (10, 15, 20, 25, 30, 35, 40, 45, Max) N.B. Max effectively is 256*caloLSB
+  //   So, index = etBin*28+ieta
+  const std::vector<double> caloSFETBins{10., 15., 20., 25., 30., 35., 40., 45., 1.e6};
+  auto ecalSF = caloParams.layer1ECalScaleFactors();
+  if ( ecalSF.size() != 9*28 ) return false;
+  auto hcalSF = caloParams.layer1HCalScaleFactors();
+  if ( hcalSF.size() != 9*28 ) return false;
+
+  // HF 1x1 scale factors will be a 5*12 array:
+  //  12 eta scale factors (30-41)
+  //  in 5 et bins (5, 20, 30, 50, 256)
+  //  So, index = etBin*12+ietaHF
+  const std::vector<uint32_t> hfSFETBins{5, 20, 30, 50, 256};
+  auto hfSF = caloParams.layer1HFScaleFactors();
+  if ( hfSF.size() != 12*5 ) return false;
 
   // get energy scale to convert input from ECAL - this should be linear with LSB = 0.5 GeV
   edm::ESHandle<L1CaloEcalScale> ecalScale;
@@ -47,6 +69,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   const L1CaloHcalScale* h = hcalScale.product();
   if(h == 0) return false;
 
+  // Make ECal LUT
   for(int absCaloEta = 1; absCaloEta <= 28; absCaloEta++) {
     uint32_t iEta = absCaloEta - 1;
     for(uint32_t fb = 0; fb < 2; fb++) {
@@ -59,8 +82,16 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	  }
 	  // Use hcal = 0 to get ecal only energy but in RCT JetMET scale - should be 8-bit max
 	  double calibratedECalInput = linearizedECalInput;
-	  if(useECALLUT) calibratedECalInput = rctParameters_->JetMETTPGSum(linearizedECalInput, 0, absCaloEta);
-	  if(useLSB) value = calibratedECalInput / rctParameters_->jetMETLSB();
+
+          if ( useECALLUT ) {
+            uint32_t etBin = 0;
+            for(; etBin < caloSFETBins.size(); etBin++) {
+              if(linearizedECalInput < caloSFETBins[etBin]) break;
+            }
+            calibratedECalInput *= ecalSF.at(etBin*28 + iEta);
+          }
+
+	  if(useLSB) value = calibratedECalInput / caloLSB;
 	  if(value > 0xFF) {
 	    value = 0xFF;
 	  }
@@ -78,6 +109,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     }
   }
 
+  // Make HCal LUT
   for(int absCaloEta = 1; absCaloEta <= 28; absCaloEta++) {
     uint32_t iEta = absCaloEta - 1;
     for(uint32_t fb = 0; fb < 2; fb++) {
@@ -90,8 +122,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	  }
 	  // Use ecal = 0 to get hcal only energy but in RCT JetMET scale - should be 8-bit max
 	  double calibratedHcalInput = linearizedHcalInput;
-	  if(useHCALLUT) calibratedHcalInput = rctParameters_->JetMETTPGSum(0, linearizedHcalInput, absCaloEta);
-	  if(useLSB) value = calibratedHcalInput / rctParameters_->jetMETLSB();
+          if ( useHCALLUT ) {
+            uint32_t etBin = 0;
+            for(; etBin < caloSFETBins.size(); etBin++) {
+              if(linearizedHcalInput < caloSFETBins[etBin]) break;
+            }
+            calibratedHcalInput *= hcalSF.at(etBin*28 + iEta);
+          }
+	  if(useLSB) value = calibratedHcalInput / caloLSB;
 	  if(value > 0xFF) {
 	    value = 0xFF;
 	  }
@@ -108,7 +146,21 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
       }
     }
   }
-  
+
+  // Make HF LUT
+  for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
+    for(uint32_t etCode = 0; etCode < 256; etCode++) {
+      if(useHFLUT) {
+	uint32_t etBin = 0;
+	for(; etBin < hfSFETBins.size(); etBin++) {
+	  if(etCode < hfSFETBins[etBin]) break;
+	}
+	hfLUT[etaBin][etCode] = etCode * hfSF.at(etBin*12 + etaBin);
+      }
+      else {
+	hfLUT[etaBin][etCode] = etCode;
+      }
+    }
+  }
   return true;
-  
 }
