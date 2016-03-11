@@ -41,6 +41,7 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 #include "TkAlStyle.cc"
+#include "CMS_lumi.C"
 
 void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_t nFiles,TString LegLabels[10],TString theDate="bogus",bool onlyBias=false);
 void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_t nFiles,TString LegLabels[10],TString theDate="bogus");
@@ -60,7 +61,7 @@ Double_t tp0Fit( Double_t *x, Double_t *par5 );
 std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > fitStudentTResiduals(TH1 *hist);
 
 void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, TString var_,Int_t nbins);
-void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[24][24], TString fitPar_);
+void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], TString fitPar_);
 
 void MakeNiceTrendPlotStyle(TH1 *hist,Int_t color);
 void MakeNicePlotStyle(TH1 *hist);
@@ -85,7 +86,7 @@ void setStyle();
 ofstream outfile("FittedDeltaZ.txt");
 Int_t my_colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen};
 
-const Int_t nBins_ = 24;
+const Int_t nBins_  = 48;
 Float_t _boundMin   = -0.5;
 Float_t _boundSx    = (nBins_/4.)-0.5;
 Float_t _boundDx    = 3*(nBins_/4.)-0.5;
@@ -379,74 +380,88 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   }
   
-  // DCA absolute
-  TString theStrDate = theDate;
-  theStrDate.ReplaceAll(" ","");
 
+  TString theStrDate       = theDate;
+  TString theStrAlignment  = LegLabels[0];
+
+  /*
+  std::vector<TString> vLabels(LegLabels, LegLabels+10);
+  vLabels.shrink_to_fit();
+  */
+
+  for(Int_t j=1; j < nFiles_; j++) {
+    theStrAlignment+=("_vs_"+LegLabels[j]);
+  }
+
+  theStrDate.ReplaceAll(" ","");
+  theStrAlignment.ReplaceAll(" ","_");
+
+  // DCA absolute
+  
   TCanvas *dxyPhiTrend = new TCanvas("dxyPhiTrend","dxyPhiTrend",1200,600);
   arrangeCanvas(dxyPhiTrend,dxyPhiMeanTrend,dxyPhiWidthTrend,nFiles_,LegLabels,theDate);
 
-  dxyPhiTrend->SaveAs("dxyPhiTrend_"+theStrDate+".pdf");
-  dxyPhiTrend->SaveAs("dxyPhiTrend_"+theStrDate+".png");
+  dxyPhiTrend->SaveAs("dxyPhiTrend_"+theStrDate+theStrAlignment+".pdf");
+  dxyPhiTrend->SaveAs("dxyPhiTrend_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dzPhiTrend = new TCanvas("dzPhiTrend","dzPhiTrend",1200,600);
   arrangeCanvas(dzPhiTrend,dzPhiMeanTrend,dzPhiWidthTrend,nFiles_,LegLabels,theDate);
 
-  dzPhiTrend->SaveAs("dzPhiTrend_"+theStrDate+".pdf");
-  dzPhiTrend->SaveAs("dzPhiTrend_"+theStrDate+".png");
+  dzPhiTrend->SaveAs("dzPhiTrend_"+theStrDate+theStrAlignment+".pdf");
+  dzPhiTrend->SaveAs("dzPhiTrend_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dxyEtaTrend = new TCanvas("dxyEtaTrend","dxyEtaTrend",1200,600);
   arrangeCanvas(dxyEtaTrend,dxyEtaMeanTrend,dxyEtaWidthTrend,nFiles_,LegLabels,theDate);
 
-  dxyEtaTrend->SaveAs("dxyEtaTrend_"+theStrDate+".pdf");
-  dxyEtaTrend->SaveAs("dxyEtaTrend_"+theStrDate+".png");
+  dxyEtaTrend->SaveAs("dxyEtaTrend_"+theStrDate+theStrAlignment+".pdf");
+  dxyEtaTrend->SaveAs("dxyEtaTrend_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dzEtaTrend = new TCanvas("dzEtaTrend","dzEtaTrend",1200,600);
   arrangeCanvas(dzEtaTrend,dzEtaMeanTrend,dzEtaWidthTrend,nFiles_,LegLabels,theDate);
 
-  dzEtaTrend->SaveAs("dzEtaTrend_"+theStrDate+".pdf");
-  dzEtaTrend->SaveAs("dzEtaTrend_"+theStrDate+".png");
+  dzEtaTrend->SaveAs("dzEtaTrend_"+theStrDate+theStrAlignment+".pdf");
+  dzEtaTrend->SaveAs("dzEtaTrend_"+theStrDate+theStrAlignment+".png");
 
   // fit dz vs phi
   TCanvas *dzPhiTrendFit = new TCanvas("dzPhiTrendFit","dzPhiTrendFit",1200,600);
   arrangeFitCanvas(dzPhiTrendFit,dzPhiMeanTrend,nFiles_,LegLabels,theDate);
 
-  dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+".pdf");
-  dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+".png");
+  dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".pdf");
+  dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".png");
 
   // DCA normalized
 
   TCanvas *dxyNormPhiTrend = new TCanvas("dxyNormPhiTrend","dxyNormPhiTrend",1200,600);
   arrangeCanvas(dxyNormPhiTrend,dxyNormPhiMeanTrend,dxyNormPhiWidthTrend,nFiles_,LegLabels,theDate);
 
-  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_"+theStrDate+".pdf");
-  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_"+theStrDate+".png");
+  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_"+theStrDate+theStrAlignment+".pdf");
+  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dzNormPhiTrend = new TCanvas("dzNormPhiTrend","dzNormPhiTrend",1200,600);
   arrangeCanvas(dzNormPhiTrend,dzNormPhiMeanTrend,dzNormPhiWidthTrend,nFiles_,LegLabels,theDate);
 
-  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_"+theStrDate+".pdf");
-  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_"+theStrDate+".png");
+  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_"+theStrDate+theStrAlignment+".pdf");
+  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dxyNormEtaTrend = new TCanvas("dxyNormEtaTrend","dxyNormEtaTrend",1200,600);
   arrangeCanvas(dxyNormEtaTrend,dxyNormEtaMeanTrend,dxyNormEtaWidthTrend,nFiles_,LegLabels,theDate);
 
-  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_"+theStrDate+".pdf");
-  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_"+theStrDate+".png");
+  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_"+theStrDate+theStrAlignment+".pdf");
+  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dzNormEtaTrend = new TCanvas("dzNormEtaTrend","dzNormEtaTrend",1200,600);
   arrangeCanvas(dzNormEtaTrend,dzNormEtaMeanTrend,dzNormEtaWidthTrend,nFiles_,LegLabels,theDate);
 
-  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+".pdf");
-  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+".png");
+  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".pdf");
+  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".png");
 
   // Bias plots
 
   TCanvas *BiasesCanvas = new TCanvas("BiasCanvas","BiasCanvas",1200,1200);
   arrangeBiasCanvas(BiasesCanvas,dxyPhiMeanTrend,dzPhiMeanTrend,dxyEtaMeanTrend,dzEtaMeanTrend,nFiles_,LegLabels,theDate);
   
-  BiasesCanvas->SaveAs("BiasesCanvas_"+theStrDate+".pdf");
-  BiasesCanvas->SaveAs("BiasesCanvas_"+theStrDate+".png");
+  BiasesCanvas->SaveAs("BiasesCanvas_"+theStrDate+theStrAlignment+".pdf");
+  BiasesCanvas->SaveAs("BiasesCanvas_"+theStrDate+theStrAlignment+".png");
 
   TCanvas *dxyPhiBiasCanvas = new TCanvas("dxyPhiBiasCanvas","dxyPhiBiasCanvas",600,600);
   TCanvas *dxyEtaBiasCanvas = new TCanvas("dxyEtaBiasCanvas","dxyEtaBiasCanvas",600,600);
@@ -458,15 +473,15 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   arrangeCanvas(dxyEtaBiasCanvas,dxyEtaMeanTrend,dxyEtaWidthTrend,nFiles_,LegLabels,theDate,true);
   arrangeCanvas(dzEtaBiasCanvas,dzEtaMeanTrend,dzEtaWidthTrend,nFiles_,LegLabels,theDate,true);
   
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_"+theStrDate+".pdf");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_"+theStrDate+".pdf");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+".pdf"); 
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+".pdf"); 
+  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_"+theStrDate+theStrAlignment+".pdf");
+  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_"+theStrDate+theStrAlignment+".pdf");
+  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+theStrAlignment+".pdf"); 
+  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+theStrAlignment+".pdf"); 
   
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_"+theStrDate+".png");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_"+theStrDate+".png");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+".png"); 
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+".png"); 
+  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_"+theStrDate+theStrAlignment+".png");
+  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_"+theStrDate+theStrAlignment+".png");
+  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
+  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
 
   /*
   dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas.eps");
@@ -486,23 +501,23 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   
     TCanvas *dxyAbsMap = new TCanvas("dxyAbsMap","dxyAbsMap",1200,500*nFiles_);
     arrangeCanvas2D(dxyAbsMap,dxyMeanMap,dxyWidthMap,nFiles_,LegLabels,theDate);
-    dxyAbsMap->SaveAs("dxyAbsMap_"+theStrDate+".pdf");
-    dxyAbsMap->SaveAs("dxyAbsMap_"+theStrDate+".png");
+    dxyAbsMap->SaveAs("dxyAbsMap_"+theStrDate+theStrAlignment+".pdf");
+    dxyAbsMap->SaveAs("dxyAbsMap_"+theStrDate+theStrAlignment+".png");
     
     TCanvas *dzAbsMap = new TCanvas("dzAbsMap","dzAbsMap",1200,500*nFiles_);
     arrangeCanvas2D(dzAbsMap,dzMeanMap,dzWidthMap,nFiles_,LegLabels,theDate);
-    dzAbsMap->SaveAs("dzAbsMap_"+theStrDate+".pdf");
-    dzAbsMap->SaveAs("dzAbsMap_"+theStrDate+".png");
+    dzAbsMap->SaveAs("dzAbsMap_"+theStrDate+theStrAlignment+".pdf");
+    dzAbsMap->SaveAs("dzAbsMap_"+theStrDate+theStrAlignment+".png");
     
     TCanvas *dxyNormMap = new TCanvas("dxyNormMap","dxyNormMap",1200,500*nFiles_);
     arrangeCanvas2D(dxyNormMap,dxyNormMeanMap,dxyNormWidthMap,nFiles_,LegLabels,theDate);
-    dxyNormMap->SaveAs("dxyNormMap_"+theStrDate+".pdf");
-    dxyNormMap->SaveAs("dxyNormMap_"+theStrDate+".png");
+    dxyNormMap->SaveAs("dxyNormMap_"+theStrDate+theStrAlignment+".pdf");
+    dxyNormMap->SaveAs("dxyNormMap_"+theStrDate+theStrAlignment+".png");
 
     TCanvas *dzNormMap = new TCanvas("dzNormMap","dzNormMap",1200,500*nFiles_);
     arrangeCanvas2D(dzNormMap,dzNormMeanMap,dzNormWidthMap,nFiles_,LegLabels,theDate);
-    dzNormMap->SaveAs("dzNormMap_"+theStrDate+".pdf");
-    dzNormMap->SaveAs("dzNormMap_"+theStrDate+".png");
+    dzNormMap->SaveAs("dzNormMap_"+theStrDate+theStrAlignment+".pdf");
+    dzNormMap->SaveAs("dzNormMap_"+theStrDate+theStrAlignment+".png");
 
   }
 
@@ -515,7 +530,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanTrend[100],TH1F* dxyEtaMeanTrend[100],TH1F* dzEtaMeanTrend[100],Int_t nFiles, TString LegLabels[10],TString theDate){
 //*************************************************************
 
-  TLegend *lego = new TLegend(0.19,0.76,0.79,0.86);
+  TLegend *lego = new TLegend(0.19,0.82,0.79,0.92);
   //lego-> SetNColumns(2);
   lego->SetFillColor(10);
   lego->SetTextSize(0.042);
@@ -524,6 +539,7 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
   lego->SetLineColor(10);
   lego->SetShadowColor(10);
 
+  /*
   TPaveText *pt = new TPaveText(0.20,0.96,0.260,0.99,"NDC");
   pt->SetFillColor(10);
   pt->SetTextColor(1);
@@ -548,7 +564,9 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
   pt3->SetTextFont(42);
   pt3->SetTextAlign(22);
   TText *text3 = pt3->AddText("2.84 fb^{-1} (13 TeV)");//, L=3.67fb^{-1}");
-  text3->SetTextSize(0.05);//*extraOverCmsTextSize);
+  text3->SetTextSize(0.05);
+  //text3->SetTextSize(0.05*extraOverCmsTextSize);
+  */
 
   TPaveText *ptDate =new TPaveText(0.3,0.86,0.79,0.92,"blNDC");
   ptDate->SetFillColor(10);
@@ -638,10 +656,13 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
     }  
   
     lego->Draw();
-    pt->Draw("same");
-    pt2->Draw("same");
-    pt3->Draw("same");
-    ptDate->Draw("same");
+    //pt->Draw("same");
+    //pt2->Draw("same");
+    //pt3->Draw("same");
+ 
+    TPad *current_pad = static_cast<TPad*>(canv->GetPad(k+1));
+    CMS_lumi(current_pad,4,33 );
+    // ptDate->Draw("same");
   }
   
 }
@@ -662,7 +683,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   TText *alitext = ali->AddText("Alignment: PCL"); //"Preliminary 2015 - 0T collision data");
   alitext->SetTextSize(0.04);
 
-  TLegend *lego = new TLegend(0.18,0.75,0.78,0.87);
+  TLegend *lego = new TLegend(0.18,0.82,0.78,0.92);
   //lego-> SetNColumns(2);
   //TLegend *lego = new TLegend(0.18,0.77,0.50,0.86);
   lego->SetFillColor(10);
@@ -672,10 +693,13 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   lego->SetLineColor(10);
   lego->SetShadowColor(10);
 
+  TPaveText *ptDate = NULL;
+
+  /*
   TPaveText *pt  = NULL;
   TPaveText *pt2 = NULL;
   TPaveText *pt3 = NULL;
-  TPaveText *ptDate = NULL;
+ 
 
   if(!onlyBias){ 
     pt =new TPaveText(0.179,0.955,0.260,0.985,"NDC");
@@ -716,7 +740,9 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   pt3->SetTextFont(42);
   pt3->SetTextAlign(32);
   TText *text3 = pt3->AddText("2.84 fb^{-1} (13 TeV)"); // L=3.67fb^{-1}");
-  text3->SetTextSize(0.05);//*extraOverCmsTextSize);
+  text3->SetTextSize(0.05);
+  //text3->SetTextSize(0.05*extraOverCmsTextSize);
+  */
 
   canv->SetFillColor(10);  
   //TPad *myPad = NULL;
@@ -795,8 +821,8 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
 	Double_t lowedge  = meanplots[i]->GetBinLowEdge(1);
 	Double_t highedge = meanplots[i]->GetBinLowEdge(nbins+1);
 	
-	//TH1F* hzero = DrawZero(meanplots[i],nbins,lowedge,highedge,2);
-	//hzero->Draw("PLsame");
+	TH1F* hzero = DrawZero(meanplots[i],nbins,lowedge,highedge,2);
+	hzero->Draw("PLsame");
 	
       }
     }
@@ -806,10 +832,19 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   
   //ali->Draw();
   lego->Draw();
-  pt->Draw("same");
-  pt2->Draw("same");
-  pt3->Draw("same");
-  ptDate->Draw("same");
+  //pt->Draw("same");
+  //pt2->Draw("same");
+  //pt3->Draw("same");
+
+  TPad *current_pad;
+  if(!onlyBias){
+    current_pad = static_cast<TPad*>(canv->GetPad(1));
+  } else {
+    current_pad = static_cast<TPad*>(canv->GetPad(0));
+  }
+
+  CMS_lumi(current_pad,4,33 );
+  // ptDate->Draw("same");
 
   if(!onlyBias){
 
@@ -836,10 +871,13 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
     }
     
     lego->Draw();
-    pt->Draw("same");
-    pt2->Draw("same");
-    pt3->Draw("same");
-    ptDate->Draw("same");
+    //pt->Draw("same");
+    //pt2->Draw("same");
+    //pt3->Draw("same");
+
+    TPad *current_pad2 = static_cast<TPad*>(canv->GetPad(2));
+    CMS_lumi(current_pad2,4,33 );
+    //ptDate->Draw("same");
 
   }
 }
@@ -955,6 +993,7 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
   //lego->SetNColumns(2);
   lego->SetShadowColor(10);
 
+  /*
   TPaveText *pt = new TPaveText(0.148,0.95,0.89,0.97,"NDC");
   pt->SetFillColor(10);
   pt->SetTextColor(1);
@@ -972,7 +1011,9 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
   //ptDate->SetTextColor(kBlue);
   // ptDate->SetTextAlign(22);
   TText *textDate = ptDate->AddText("Alignment: cosmic rays + 3.8T collisions");
-  textDate->SetTextSize(0.04);//*extraOverCmsTextSize);
+  textDate->SetTextSize(0.04); 
+  //textDate->SetTextSize(0.04*extraOverCmsTextSize);
+  */
 
   TF1 *fleft[nFiles]; 
   TF1 *fright[nFiles];
@@ -1059,8 +1100,9 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
  
   //TkAlStyle::drawStandardTitle(Coll0T15);
   lego->Draw("same");
-  ptDate->Draw("same");
-  pt->Draw("same");
+  CMS_lumi( canv,4,33 );
+  //ptDate->Draw("same");
+  //pt->Draw("same");
 
 }
 
@@ -1627,7 +1669,7 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
 }
 
 //*************************************************************
-void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[24][24], TString fitPar_)
+void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], TString fitPar_)
 //*************************************************************
 {
  
@@ -1687,9 +1729,13 @@ void  MakeNiceTrendPlotStyle(TH1 *hist,Int_t color)
 { 
 
   Int_t markers[9] = {kFullSquare,kFullCircle,kDot,kFullTriangleDown,kOpenSquare,kOpenCircle,kFullTriangleDown,kFullTriangleUp,kOpenTriangleDown};
-  Int_t colors[8]  = {kBlack,kGreen+2,kRed,kGreen+2,kOrange,kMagenta,kCyan,kViolet};
   
-  // Int_t markers[4] = {kFullSquare,kFullCircle,kOpenSquare};
+  // color for approval
+  //Int_t colors[8]  = {kBlack,kGreen+2,kRed,kGreen+2,kOrange,kMagenta,kCyan,kViolet};
+
+  Int_t colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen};
+ 
+  //Int_t markers[4] = {kFullSquare,kFullCircle,kOpenSquare};
   //Int_t colors[4]  = {kBlack,kRed,kBlue};
 
   hist->SetStats(kFALSE);  
@@ -1844,6 +1890,10 @@ void MakeNiceMapStyle(TH2 *hist)
 /*--------------------------------------------------------------------*/
 void setStyle(){
 /*--------------------------------------------------------------------*/
+
+  writeExtraText = true;       // if extra text
+  lumi_13TeV     = "p-p collisions";
+  
   TH1::StatOverflows(kTRUE);
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat("e");

@@ -330,3 +330,44 @@ echo  -----------------------
 
 """
 
+######################################################################
+######################################################################
+
+PrimaryVertexPlotExecution="""
+#make primary vertex validation plots
+
+cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/TkAlStyle.cc .
+rfcp .oO[PrimaryVertexPlotScriptPath]Oo. .
+root -x -b -q TkAlPrimaryVertexValidationPlot.C++
+
+for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
+    rfcp ${PdfOutputFile}  .oO[datadir]Oo.                                                                                                                               
+done 
+
+for PngOutputFile in $(ls *png ); do
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
+    rfcp ${PngOutputFile}  .oO[datadri]Oo.
+done
+
+"""
+
+######################################################################
+######################################################################
+
+PrimaryVertexPlotTemplate="""
+/****************************************
+This can be run directly in root, or you
+ can run ./TkAlMerge.sh in this directory
+It can be run as is, or adjusted to fit
+ for misalignments or to only make
+ certain plots
+****************************************/
+
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/FitPVResiduals.C"
+
+void TkAlPrimaryVertexValidationPlot()
+{
+  FitPVResiduals(".oO[PrimaryVertexPlotInstantiation]Oo.",true,true,"");
+}
+"""

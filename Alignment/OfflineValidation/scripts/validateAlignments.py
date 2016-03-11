@@ -272,7 +272,19 @@ def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
     theFile = open( outFilePath, "w" )
     theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
     theFile.close()
-    
+
+def createPrimaryVertexPlotScript(PrimaryVertexValidationList, outFilePath):
+    repMap = PrimaryVertexValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    repMap[ "PrimaryVertexPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in PrimaryVertexValidationList:
+        repMap[ "PrimaryVertexPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "PrimaryVertexPlotInstantiation" ] )
+
+    theFile = open( outFilePath, "w" )
+    theFile.write( replaceByMap( configTemplates.PrimaryVertexPlotTemplate ,repMap ) )
+    theFile.close()
+
 def createMergeZmumuPlotsScript(zMuMuValidationList, outFilePath):
     config = zMuMuValidationList[0].config
     repMap = PlottingOptions(config, "zmumu")
@@ -297,6 +309,7 @@ def createMergeScript( path, validations ):
             "RunExtendedOfflineValidation":"",
             "RunTrackSplitPlot":"",
             "MergeZmumuPlots":"",
+            "RunPrimaryVertexPlot":"",
             "CMSSW_BASE": os.environ["CMSSW_BASE"],
             "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
             "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
@@ -312,7 +325,7 @@ def createMergeScript( path, validations ):
                 comparisonLists[ validationName ].append( validation )
             else:
                 comparisonLists[ validationName ] = [ validation ]
-
+   
     # introduced to merge individual validation outputs separately
     #  -> avoids problems with merge script
     repMap["haddLoop"] = "mergeRetCode=0\n"
@@ -322,6 +335,7 @@ def createMergeScript( path, validations ):
     repMap["mergeParallelFilePrefixes"] = ""
 
     anythingToMerge = []
+    
     for validationType in comparisonLists:
         for validation in comparisonLists[validationType]:
             if isinstance(validation, PreexistingValidation) or validation.NJobs == 1:
@@ -363,7 +377,6 @@ def createMergeScript( path, validations ):
     else:
         repMap["DownloadData"] = ""
 
-
     if "OfflineValidation" in comparisonLists:
         repMap["extendedValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript(comparisonLists["OfflineValidation"],
@@ -394,14 +407,33 @@ def createMergeScript( path, validations ):
         repMap["MergeZmumuPlots"] = \
             replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap_zMuMu)
 
+    if "PrimaryVertexValidation" in comparisonLists:
+        repMap["PrimaryVertexPlotScriptPath"] = \
+            os.path.join(path, "TkAlPrimaryVertexValidationPlot.C")
+        createPrimaryVertexPlotScript(comparisonLists["PrimaryVertexValidation"],
+                                      repMap["PrimaryVertexPlotScriptPath"] )
+        repMap["RunPrimaryVertexPlot"] = \
+            replaceByMap(configTemplates.PrimaryVertexPlotExecution, repMap)
+
     repMap["CompareAlignments"] = "#run comparisons"
     if "OfflineValidation" in comparisonLists:
         compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
         compareStringsPlain = [ val.getCompareStrings("OfflineValidation", plain=True) for val in comparisonLists["OfflineValidation"] ]
             
+        repMap_offline.update({"validationId": "OfflineValidation",
         repMap_offline = repMap.copy()
         repMap_offline.update(PlottingOptions(config, "offline"))
         repMap_offline.update({"validationId": "OfflineValidation",
+                               "compareStrings": " , ".join(compareStrings),
+                               "compareStringsPlain": " ".join(compareStringsPlain) })
+                               
+        repMap["CompareAlignments"] += \
+            replaceByMap(configTemplates.compareAlignmentsExecution, repMap_offline)
+          
+    for validationId in comparisonLists:
+        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
+        compareStringsPlain = [ val.getCompareStrings(validationId, plain=True) for val in comparisonLists[validationId] ]
+        repMap.update({"validationId": validationId,
                        "compareStrings": " , ".join(compareStrings),
                        "compareStringsPlain": " ".join(compareStringsPlain) })
         
