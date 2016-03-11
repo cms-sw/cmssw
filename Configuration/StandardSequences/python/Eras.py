@@ -44,7 +44,7 @@ class Eras (object):
         self.Run1 = cms.Modifier()
         # The various Run2 scenarios for 2015 startup.
         self.Run2_25ns = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage1L1Trigger )
-        self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific, self.stage1L1Trigger )
+        self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific )
         self.Run2_HI = cms.ModifierChain( self.run2_common, self.run2_HI_specific, self.stage1L1Trigger )
         # Future Run 2 scenarios.
         self.Run2_2016 = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage2L1Trigger, self.run2_HF_2016 )
