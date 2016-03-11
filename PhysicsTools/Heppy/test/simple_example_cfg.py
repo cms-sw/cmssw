@@ -3,7 +3,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 
 # set to True if you want several parallel processes
-multi_thread = False
+multi_thread = True
 
 # input component 
 # several input components can be declared,
@@ -20,7 +20,7 @@ Do not expect meaningful results for this sample:'''
     print inputSample
 
 if multi_thread: 
-    inputSample.splitFactor = len(inputSamples.files)
+    inputSample.splitFactor = len(inputSample.files)
 
 selectedComponents  = [inputSample]
 
