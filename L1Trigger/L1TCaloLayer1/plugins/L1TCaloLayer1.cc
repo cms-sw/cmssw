@@ -319,3 +319,4 @@ L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TCaloLayer1);
+/* vim: set ts=8 sw=2 tw=0 et :*/
