@@ -207,6 +207,18 @@ private:
     float jtm[MAXJETS];
     float jtarea[MAXJETS];
 
+    float jtPfCHF[MAXJETS];
+    float jtPfNHF[MAXJETS];
+    float jtPfCEF[MAXJETS];
+    float jtPfNEF[MAXJETS];
+    float jtPfMUF[MAXJETS];
+
+    int jtPfCHM[MAXJETS];
+    int jtPfNHM[MAXJETS];
+    int jtPfCEM[MAXJETS];
+    int jtPfNEM[MAXJETS];
+    int jtPfMUM[MAXJETS];
+    
     float jttau1[MAXJETS];
     float jttau2[MAXJETS];
     float jttau3[MAXJETS];
