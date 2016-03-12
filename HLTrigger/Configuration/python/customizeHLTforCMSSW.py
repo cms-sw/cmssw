@@ -36,7 +36,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         pass
 
 #   stage-2 changes only if needed
-    if (menuType == "Fake"):
+    if ("Fake" in menuType):
         return process
 #
 #   special case
