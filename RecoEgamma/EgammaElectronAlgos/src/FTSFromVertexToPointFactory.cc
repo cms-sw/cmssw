@@ -45,8 +45,8 @@ FreeTrajectoryState FTSFromVertexToPointFactory::get( MagneticField const & magF
 
   GlobalTrajectoryParameters gp(xmeas, pNew, charge, & magField);
   
-  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
-  FreeTrajectoryState VertexToPoint(gp,CurvilinearTrajectoryError(C));
+  // AlgebraicSymMatrix55 C = AlgebraicMatrixID();
+  FreeTrajectoryState VertexToPoint(gp);
 
   return VertexToPoint;
 }
