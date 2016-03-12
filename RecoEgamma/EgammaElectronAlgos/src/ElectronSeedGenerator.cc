@@ -47,6 +47,19 @@
 #include <vector>
 #include <utility>
 
+namespace {
+  struct Count {
+    long long s=0;
+    long long n=0;
+    ~Count() { std::cout << "ElectronSeeds res " << s<<'/'<<n << std::endl;}
+  };
+
+  Count stcount;
+}
+
+
+
+
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
 				      const ElectronSeedGenerator::Tokens& ts)
  : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
@@ -270,6 +283,10 @@ void  ElectronSeedGenerator::run
   LogDebug ("run") << ": For event "<<e.id();
   LogDebug ("run") <<"Nr of superclusters after filter: "<<sclRefs.size()
    <<", no. of ElectronSeeds found  = " << out.size();
+
+   stcount.s+=sclRefs.size();
+   stcount.n+=out.size();
+
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster

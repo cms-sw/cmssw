@@ -1,4 +1,3 @@
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
@@ -12,9 +11,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>
+#include <bitset>
 
 using namespace reco ;
 using namespace std ;
+
+namespace {
+  struct Count { 
+    long long n=0;
+    ~Count() { std::cout << "PixelHitMatcher res " << n << std::endl;}
+  };
+
+  Count stcount;
+}
+
 
 PixelHitMatcher::PixelHitMatcher
  ( float phi1min, float phi1max,
@@ -104,20 +114,32 @@ PixelHitMatcher::compatibleSeeds
    typedef std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> PosTsosAssoc;
    const int charge = int(fcharge) ;
 
-   const double xmeas_phi = xmeas.phi();
+   // auto xmeas_phi = xmeas.barePhi();
+   auto xmeas_r = xmeas.perp();
+   
+   const float phicut = std::acos(2.5);
+
+
   FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
   
   std::vector<SeedWithInfo> result ;
   
-  mapTsos_fast_.clear();  
+  //mapTsos_fast_.clear();  
   mapTsos2_fast_.clear();  
-  mapTsos_fast_.reserve(seeds->size()) ;
+  // mapTsos_fast_.reserve(seeds->size()) ;
   mapTsos2_fast_.reserve(seeds->size()) ;
 
-  std::vector<TrajectoryStateOnSurface> vTsos(theTrackerGeometry->dets().size());
+  // std::vector<TrajectoryStateOnSurface> vTsos(theTrackerGeometry->dets().size());
+  // TrajectoryStateOnSurface vTsos[theTrackerGeometry->dets().size()];
 
+  auto ndets = theTrackerGeometry->dets().size();
+  // std::vector<bool> away(ndets,false);
+
+  int iTsos[ndets];
+  for ( auto & i : iTsos) i=-1;
+  std::vector<TrajectoryStateOnSurface> vTsos; vTsos.reserve(seeds->size());
 
   for(const auto& seed : *seeds) {
     hit_gp_map_.clear();
@@ -125,19 +147,37 @@ PixelHitMatcher::compatibleSeeds
       edm::LogWarning("GsfElectronAlgo|UnexpectedSeed") <<"We cannot deal with seeds having more than 9 hits." ;
       continue;
     }
+    
     const TrajectorySeed::range& hits = seed.recHits();
     // cache the global points
+   
     for( auto it = hits.first; it != hits.second; ++it ) {
       hit_gp_map_.emplace_back(it->globalPosition());      
     }
-    //iterate on the hits    
-    for( auto it1 = hits.first; it1 != hits.second; ++it1 ) {
-      if( !it1->isValid() ) continue;
-      const unsigned idx1 = std::distance(hits.first,it1);
-      const DetId id1 = it1->geographicalId();
-      const GeomDet *geomdet1 = it1->det();      
-      const GlobalPoint& hit1Pos = hit_gp_map_[idx1];
 
+    //iterate on the hits 
+    auto he =  hits.second -1;   
+    for( auto it1 = hits.first; it1 < he; ++it1 ) {
+      if( !it1->isValid() ) continue;
+      auto  idx1 = std::distance(hits.first,it1);
+      const DetId id1 = it1->geographicalId();
+      const GeomDet *geomdet1 = it1->det();
+
+      auto ix1 = geomdet1->gdetIndex();
+      assert(ix1<int(ndets));
+      /*
+      if (away[ix1]) continue;
+      away[ix1] = geomdet1->position().basicVector().dot(xmeas.basicVector()) <0;
+      if (away[ix1]) continue;
+      */
+
+      const GlobalPoint& hit1Pos = hit_gp_map_[idx1];
+      // if( std::abs(normalized_phi(hit1Pos.phi()-xmeas_phi))>2.5 ) continue;
+      auto dt = hit1Pos.x()*xmeas.x()+hit1Pos.y()*xmeas.y();
+      if (dt<0) continue;
+      if (dt<phicut*(xmeas_r*hit1Pos.perp())) continue;
+
+      /*
       const TrajectoryStateOnSurface* tsos1;      
       DetTsosAssoc::iterator tsos1_itr = mapTsos_fast_.find(geomdet1);
       if( tsos1_itr != mapTsos_fast_.end() ) {	
@@ -147,20 +187,26 @@ PixelHitMatcher::compatibleSeeds
 	  mapTsos_fast_.emplace(geomdet1,prop1stLayer->propagate(tsos,geomdet1->surface()));
 	tsos1 = &(empl_result.first->second);
       }
+      */
 
-      auto ix1 = geomdet1->gdetIndex();
-      if (ix1<0) std::cout << geomdet1->gdetIndex() << ' ' << it1->geographicalId() << ' ' << geomdet1 << std::endl;;
-      assert(ix1<int(vTsos.size()));
-      if (!vTsos[ix1].isValid()) vTsos[ix1] = prop1stLayer->propagate(tsos,geomdet1->surface());     
-      // auto tsos11 = &vTsos[ix1];
-      assert(theTrackerGeometry->dets()[ix1]==geomdet1);
+      /*
+      if (!visited[ix1]) vTsos[ix1] = prop1stLayer->propagate(tsos,geomdet1->surface());     
+      visited[ix1]=true;
+      auto tsos1 = &vTsos[ix1];
+      */
+
+      if(iTsos[ix1]<0)   {
+        iTsos[ix1] = vTsos.size();
+        vTsos.push_back(prop1stLayer->propagate(tsos,geomdet1->surface()));
+      }
+      auto tsos1 = &vTsos[iTsos[ix1]];
 
       if( !tsos1->isValid() ) continue;
       std::pair<bool, double> est = ( id1.subdetId() % 2 ? 
 				      meas1stBLayer.estimate(vprim, *tsos1, hit1Pos) :
 				      meas1stFLayer.estimate(vprim, *tsos1, hit1Pos)  );
       if( !est.first ) continue;
-      if( std::abs(normalized_phi(hit1Pos.phi()-xmeas_phi))>2.5 ) continue;
+      // if( std::abs(normalized_phi(hit1Pos.phi()-xmeas_phi))>2.5 ) continue;
       EleRelPointPair pp1(hit1Pos,tsos1->globalParameters().position(),vprim);
       const math::XYZPoint relHit1Pos(hit1Pos-vprim), relTSOSPos(tsos1->globalParameters().position() - vprim);
       const int subDet1 = id1.subdetId();
@@ -188,13 +234,13 @@ PixelHitMatcher::compatibleSeeds
       // now find the matching hit
       for( auto it2 = it1+1; it2 != hits.second; ++it2 ) {
 	if( !it2->isValid() ) continue;
-	const unsigned idx2 = std::distance(hits.first,it2);
+	auto idx2 = std::distance(hits.first,it2);
 	const DetId id2 = it2->geographicalId();
 	const GeomDet *geomdet2 = it2->det();
 	const std::pair<const GeomDet*,GlobalPoint> det_key(geomdet2,hit1Pos);	
 	const TrajectoryStateOnSurface* tsos2;
 	PosTsosAssoc::iterator tsos2_itr = mapTsos2_fast_.find(det_key);
-	if( tsos2_itr != mapTsos2_fast_.end() ) {	
+	if( tsos2_itr != mapTsos2_fast_.end() ) {
 	  tsos2 = &(tsos2_itr->second);
 	} else {
 	  auto empl_result =
@@ -220,7 +266,8 @@ PixelHitMatcher::compatibleSeeds
 
   mapTsos_fast_.clear() ;
   mapTsos2_fast_.clear() ;
-
+ 
+  stcount.n += result.size();
   return result ;
  }
 
@@ -234,6 +281,9 @@ PixelHitMatcher::compatibleHits
    const TrackerTopology *tTopo,
    const NavigationSchool& navigationSchool)
  {
+
+  assert(false);
+
   float SCl_phi = xmeas.phi();
 
   int charge = int(fcharge);
