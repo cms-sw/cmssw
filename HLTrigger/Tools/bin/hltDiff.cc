@@ -699,7 +699,7 @@ public:
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << indent(_indent) << key_int("t ", tr) << ',';   // line
+      json << indent(_indent) << key_int("t", tr) << ',';   // line
       json << indent(_indent) << key("o") << '{' << o.serialise() << "},";   // line
       json << indent(_indent) << key("n") << '{' << n.serialise() << "}";   // line
 
@@ -858,7 +858,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
     // printing progress on every 10%
     if (counter%(nEvents/10) == 0) {
-      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, counter/(nEvents/10));
+      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(nEvents/10));
     }
 
     // seek the same event in the "new" files
