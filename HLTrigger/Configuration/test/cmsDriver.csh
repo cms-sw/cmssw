@@ -37,6 +37,7 @@ set NNHIMC = 25
 set NNHIRD = 25
 
 set EraRun1        = " "
+set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp      = " --era=Run2_2016 "
 set EraRun2HI      = " --era=Run2_2016,Run2_HI "
  
@@ -86,7 +87,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun HIon PIon PRef Fake )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 )
 
     set name = ${table}_${gtag}  
 
@@ -114,6 +115,18 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun1
       set Custom = " "
       set L1REPACK = L1REPACK:GT1
+    else if ( $table == Fake1 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:Fake1
+      set GTAG = ${BASE2}_Fake1
+      set RTAG = ${BASE2RD}_Fake1
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun2
+      set Era  = $EraRun25ns
+      set Custom = " "
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
