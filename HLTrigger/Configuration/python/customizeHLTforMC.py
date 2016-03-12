@@ -320,6 +320,8 @@ def customizeHLTforMC(process,_fastSim=False):
     import fnmatch,re
     ExplicitList = []
     HLTSchedule = tuple( path.label_() for path in process.HLTSchedule)
+    for path in HLTSchedule:
+      getattr(process,path).insert(1,process.HLTL1UnpackerSequence)
     for black in fastSimUnsupportedPaths:
       compiled = re.compile(fnmatch.translate(black))
       for path in HLTSchedule:
@@ -504,6 +506,9 @@ def customizeHLTforMC(process,_fastSim=False):
     fastsim.extend(process)
     fastsim.setSchedule_(fastsim.schedule)
     fastsim.prune()
+
+    if hasattr(fastsim,'hltL1extraParticles'):
+      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
 
     return fastsim
 

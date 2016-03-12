@@ -690,6 +690,7 @@ if 'hltDQML1SeedLogicScalers' in %%(dict)s:
 if 'MessageLogger' in %(dict)s:
     %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
     %(process)sMessageLogger.categories.append('L1GtTrigReport')
+    %(process)sMessageLogger.categories.append('L1TGlobalSummary')
     %(process)sMessageLogger.categories.append('HLTrigReport')
     %(process)sMessageLogger.categories.append('FastReport')
 """
