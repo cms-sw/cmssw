@@ -878,7 +878,7 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
 
   // get a list of output jets  MV: make this compatible with template
   std::auto_ptr<reco::PFJetCollection>  jetCollection( new reco::PFJetCollection() );
-  // this is the mapping of constituent to jet
+  // this is the mapping of jet to constituents
   std::vector< std::vector<int> > indices;
   // this is the list of jet 4-momenta
   std::vector<math::XYZTLorentzVector> p4_Jets;
@@ -914,40 +914,32 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       constituents = it->pieces();
     else if ( it->has_constituents() )
       fastjet::SelectorIsPureGhost().sift(it->constituents(), ghosts, constituents); //filter out ghosts
-    
     //loop over constituents of jet (can be subjets or normal constituents)
     std::vector<fastjet::PseudoJet>::const_iterator itConstBegin = constituents.begin(),
       itConst = itConstBegin, itConstEnd = constituents.end();
     for (; itConst != itConstEnd; ++itConst ) {
       fastjet::PseudoJet const & constit = *itConst;
-
       if ( verbosity_ >= 1 ) {
-	std::cout << "jet #" << jetIndex << " constituent #" << (itConst - itConstBegin) << ": Pt = " << constit.pt() << ", eta = " << constit.eta() << ", phi = " << constit.phi() << ", mass = " << constit.m() << ", uid: " << constit.user_index() << ")" << std::endl;
+        std::cout << "jet #" << jetIndex << " constituent #" << (itConst - itConstBegin) << ": Pt = " << constit.pt() << ", eta = " << constit.eta() << ", phi = " << constit.phi() << ", mass = " << constit.m() << ", uid: " << constit.user_index() << ", pos: " << constituentsSub.size() << ")" << std::endl;
       }
-
       indices[jetIndex].push_back( constituentsSub.size() );
       constituentsSub.push_back(constit);
     }
   }
-
-  //Loop over original constituents and find constituent subtracted version
+  
+  //Loop over constituents and store in the event
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
-  for (unsigned int i=0;i<inputs_.size();i++) {
-
-    auto subMatched = find_if( constituentsSub.begin(), constituentsSub.end(), [&i]( fastjet::PseudoJet const & p ){ return p.user_index() == (int)i; } );
-    auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(inputs_[i]->pdgId());
-    reco::PFCandidate pCand( reco::PFCandidate(inputs_[i]->charge(), inputs_[i]->p4(), id) );
-
+  for (std::vector<fastjet::PseudoJet>::const_iterator itsub = constituentsSub.begin() ; itsub != constituentsSub.end(); ++itsub ) {
+    fastjet::PseudoJet const & constit = *itsub;
+    auto orig = inputs_[constit.user_index()];
+    auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(orig->pdgId());
+    reco::PFCandidate pCand( reco::PFCandidate(orig->charge(), orig->p4(), id) );
     math::XYZTLorentzVector pVec;
-    if ( subMatched != constituentsSub.end() )
-      pVec.SetPxPyPzE(subMatched->px(),subMatched->py(),subMatched->pz(),subMatched->e());
-    else
-      pVec.SetPxPyPzE( 0, 0, 0, 0);
+    pVec.SetPxPyPzE(constit.px(),constit.py(),constit.pz(),constit.e());
     pCand.setP4(pVec);
-    pCand.setSourceCandidatePtr( inputs_[i]->sourceCandidatePtr(0) );
+    pCand.setSourceCandidatePtr( orig->sourceCandidatePtr(0) );
     constituentCollection->push_back(pCand);
   }
-      
   // put constituents into event record
   constituentHandleAfterPut = iEvent.put( constituentCollection, jetCollInstanceName_ );
   
