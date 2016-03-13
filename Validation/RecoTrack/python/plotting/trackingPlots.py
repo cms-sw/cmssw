@@ -24,10 +24,13 @@ _maxLayers = [5, 10, 25]
 _maxPixelLayers = 8
 _min3DLayers = [0, 5, 10]
 _max3DLayers = [5, 10, 20]
+_minPU = [0, 10, 20, 50, 100, 150]
+_maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 
-_legendDy_4rows = 0.09
+_legendDy_1row = 0.46
 _legendDy_2rows = -0.025
 _legendDy_2rows_3cols = -0.17
+_legendDy_4rows = 0.09
 
 
 _effandfake1 = PlotGroup("effandfake1", [
@@ -85,7 +88,12 @@ _effandfake4 = PlotGroup("effandfake4", [
     Plot("effic_vs_dr", xlog=True, xtitle="TP min #DeltaR", ytitle="efficiency vs dr", **_common),
     Plot(FakeDuplicate("fakeduprate_vs_dr", assoc="num_assoc(recoToSim)_dr", dup="num_duplicate_dr", reco="num_reco_dr", title="fake+duplicates vs. #DeltaR"),
          xtitle="track min #DeltaR", ytitle="fake+duplicates vs #DeltaR", xlog=True, ymax=_maxFake),
-])
+    Plot("effic_vs_pu", xtitle="Pileup", ytitle="efficiency vs PU", xmin=_minPU, xmax=_maxPU, **_common),
+    Plot(FakeDuplicate("fakeduprate_vs_pu", assoc="num_assoc(recoToSim)_pu", dup="num_duplicate_pu", reco="num_reco_pu", title="fake+duplicates vs. PU"),
+         xtitle="Pileup", ytitle="fake+duplicates vs PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
+],
+                         legendDy=_legendDy_4rows
+)
 
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakeratePt", xtitle="track p_{T} (GeV)", ytitle="fakerate vs p_{T}", xlog=True, ymax=_maxFake),
@@ -149,12 +157,21 @@ _dupandfake4 = PlotGroup("dupandfake4", [
     Plot("duplicatesRate_dr", xtitle="track min #DeltaR", ytitle="duplicates rate vs #DeltaR", xlog=True, ymax=_maxFake),
     Plot("pileuprate_dr", xtitle="track min #DeltaR", ytitle="pileup rate vs #DeltaR", xlog=True, ymax=_maxFake),
     #
+    Plot("fakerate_vs_pu", xtitle="Pileup", ytitle="fakerate vs PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
+    Plot("duplicatesRate_pu", xtitle="Pileup", ytitle="duplicates rate vs PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
+    Plot("pileuprate_pu", xtitle="Pileup", ytitle="pileup rate vs PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake)
+],
+                         ncols=3, legendDy=_legendDy_4rows
+)
+_dupandfake5 = PlotGroup("dupandfake5", [
     Plot("fakerate_vs_chi2", xtitle="track #chi^{2}", ytitle="fakerate vs #chi^{2}", ymax=_maxFake),
     Plot("duplicatesRate_chi2", xtitle="track #chi^{2}", ytitle="duplicates rate vs #chi^{2}", ymax=_maxFake),
     Plot("pileuprate_chi2", xtitle="track #chi^{2}", ytitle="pileup rate vs #chi^{2}", ymax=_maxFake)
 ],
-                         ncols=3, legendDy=_legendDy_4rows
+                         ncols=3, legendDy=_legendDy_1row
 )
+
+
 _common = {
     "ytitle": "Fake+pileup rate",
     "ymax": _maxFake,
@@ -763,6 +780,7 @@ _recoBasedPlots = [
     _dupandfake2,
     _dupandfake3,
     _dupandfake4,
+    _dupandfake5,
     _pvassociation1,
     _pvassociation2,
     _pvassociation3,
