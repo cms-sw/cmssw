@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V23 (CMSSW_8_0_1)
+# /dev/CMSSW_8_0_0/HIon/V24 (CMSSW_8_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V23')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V24')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3166,7 +3166,7 @@ process.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
-    JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet"' ),
+    JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
