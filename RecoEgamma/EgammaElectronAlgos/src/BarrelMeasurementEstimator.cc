@@ -81,20 +81,20 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate
   float zDiff = myZ -ts.z() ;  
   float myZmax =  theZMax;
   float myZmin =  theZMin;
-  if(std::abs(myZ)<30. && myR>8.)
+  if( (std::abs(myZ)<30.f) & (myR>8.f) )
     {
-      myZmax = 0.09;
-      myZmin = -0.09;
+      myZmax = 0.09f;
+      myZmin = -0.09f;
     }
   
 
   if( zDiff >= myZmax || zDiff <= myZmin ) return std::pair<bool,double>(false,0.);
 
-  float rhPhi = gp.phi() ;
-  float tsPhi = ts.phi();  
+  float rhPhi = gp.barePhi() ;
+  float tsPhi = ts.barePhi();  
   float phiDiff = normalized_phi(rhPhi-tsPhi) ;
 
-  if ( phiDiff < thePhiMax && phiDiff > thePhiMin )
+  if ( (phiDiff < thePhiMax) & (phiDiff > thePhiMin) )
    { return std::pair<bool,double>(true,1.) ; }
   else
    { return std::pair<bool,double>(false,0.) ; }
@@ -142,7 +142,7 @@ BarrelMeasurementEstimator::maximalLocalDisplacement
   if ( ts.hasError())
    {
     LocalError le = ts.localError().positionError() ;
-    return Local2DVector( sqrt(le.xx())*nSigmaCut, sqrt(le.yy())*nSigmaCut) ;
+    return Local2DVector( std::sqrt(le.xx())*nSigmaCut, std::sqrt(le.yy())*nSigmaCut) ;
    }
   else return Local2DVector(99999,99999) ;
  }
