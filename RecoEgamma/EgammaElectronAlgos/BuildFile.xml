@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
+<flags   CXXFLAGS="-O2"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>

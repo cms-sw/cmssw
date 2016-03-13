@@ -56,22 +56,17 @@ namespace std{
   template<>
     struct hash<std::pair<const GeomDet*,GlobalPoint> > {
       std::size_t operator()(const std::pair<const GeomDet*,GlobalPoint>& g) const {
-	std::size_t hsh = 5381;
-	hsh = ((hsh << 5) + hsh) + (unsigned long)g.first;
-	hsh = ((hsh << 5) + hsh) + 10000*g.second.x();
-	hsh = ((hsh << 5) + hsh) + 10000*g.second.y();
-	hsh = ((hsh << 5) + hsh) + 10000*g.second.z();
-	return hsh;
+	auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
+        unsigned long long k; memcpy(&k, &g.second,sizeof(k));
+        auto h2 = std::hash<unsigned long long>()(k);
+        return h1 ^ (h2 << 1);
       }
     };
   template<>
     struct equal_to<std::pair<const GeomDet*,GlobalPoint> > : public std::binary_function<std::pair<const GeomDet*,GlobalPoint>,std::pair<const GeomDet*,GlobalPoint>,bool> {
       bool operator()(const std::pair<const GeomDet*,GlobalPoint>& a, 
 		      const std::pair<const GeomDet*,GlobalPoint>& b)  const {
-	return ( a.first == b.first &&
-		 a.second.x() == b.second.x() && 
-		 a.second.y() == b.second.y() && 
-		 a.second.z() == b.second.z() );
+	return (a.first == b.first) & (a.second == b.second);
       }
     };
 }
