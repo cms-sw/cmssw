@@ -11,14 +11,15 @@
 
 bool OuterHitCompatibility::operator() ( const TrackingRecHit & hit) const
 {
-  GlobalPoint hitPos = hit.globalPosition();
-  float hitR = hitPos.perp();
-  float hitPhi = hitPos.phi();
+  auto hitPos = hit.globalPosition();
+  auto hitR = hitPos.perp();
 
+  auto hitZ = hitPos.z();
+  if ( !(*theRZCompatibility)(hitR,hitZ) ) return false;
+
+  auto hitPhi = hitPos.barePhi();
   if ( !checkPhi(hitPhi, hitR) ) return false;
 
-  float hitZ = hitPos.z();
-  if ( !(*theRZCompatibility)(hitR,hitZ) ) return false;
 
   return true;
 }
