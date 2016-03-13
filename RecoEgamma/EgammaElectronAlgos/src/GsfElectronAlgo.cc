@@ -436,7 +436,7 @@ void GsfElectronAlgo::ElectronData::computeCharge
   GlobalVector scvect(scpos-orig) ;
   GlobalPoint inntkpos = innTSOS.globalPosition() ;
   GlobalVector inntkvect = GlobalVector(inntkpos-orig) ;
-  float dPhiInnEle=normalized_phi(scvect.phi()-inntkvect.phi()) ;
+  float dPhiInnEle=normalized_phi(scvect.barePhi()-inntkvect.barePhi()) ;
   if(dPhiInnEle>0) info.scPixCharge = -1 ;
   else info.scPixCharge = 1 ;
 

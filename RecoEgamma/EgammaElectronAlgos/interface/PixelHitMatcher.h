@@ -50,7 +50,6 @@ class MagneticField;
 class GeometricSearchTracker;
 class TrackerGeometry;
 class TrackerTopology;
-class NavigationSchool;
 
 namespace std{
   template<>
@@ -184,17 +183,18 @@ class PixelHitMatcher
 
     void setEvent( const MeasurementTrackerEvent & event ) ;
 
+    std::vector<SeedWithInfo>
+    compatibleSeeds
+      ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
+        const GlobalPoint & vprim, float energy, float charge ) ;
+
+
     std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
     compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, 
 		   float energy, float charge,
 		   const TrackerTopology *tTopo,
                    const NavigationSchool& navigationSchool) ;
 
-    // compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
-    std::vector<SeedWithInfo>
-    compatibleSeeds
-      ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
-        const GlobalPoint & vprim, float energy, float charge ) ;
 
     std::vector<CLHEP::Hep3Vector> predicted1Hits() ;
     std::vector<CLHEP::Hep3Vector> predicted2Hits();
@@ -231,7 +231,6 @@ class PixelHitMatcher
 
     bool searchInTIDTEC_ ;
     bool useRecoVertex_ ;
-    std::unordered_map<const GeomDet*, TrajectoryStateOnSurface> mapTsos_fast_;
     std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> mapTsos2_fast_;    
     std::vector<GlobalPoint> hit_gp_map_;    
 } ;
