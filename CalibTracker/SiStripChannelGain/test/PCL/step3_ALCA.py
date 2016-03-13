@@ -21,9 +21,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.ALCARECOCalibrationTracks.src = cms.InputTag("ALCARECOSiStripCalMinBias")
+process.ALCARECOCalibrationTracksAAG.src = cms.InputTag("ALCARECOSiStripCalMinBias")
 #process.ALCARECOCalibrationTracks.src = cms.InputTag("generalTracks")    #for 2012 data
 
 process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
+process.ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
 #process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('*')     #for 2012 data
 
 
@@ -43,18 +45,18 @@ process.source = cms.Source("PoolSource",
       "/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/DEFA8704-CCAA-E511-8203-0CC47A4D7634.root",
       "/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/FE24690A-2DAA-E511-A96A-00259074AE3E.root"
     ),
-    skipEvents = cms.untracked.uint32(9800),
+    #skipEvents = cms.untracked.uint32(9800),
 )
 
 # Uncomment to turn on verbosity output
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.threshold = cms.untracked.string('INFO')
-process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
-process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring('cout')
-process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger.threshold = cms.untracked.string('INFO')
+#process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
+#process.MessageLogger.debugModules = cms.untracked.vstring("*")
+#process.MessageLogger.destinations = cms.untracked.vstring('cout')
+#process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 
-process.Tracer = cms.Service("Tracer")
+#process.Tracer = cms.Service("Tracer")
 
 process.options = cms.untracked.PSet(
 
@@ -75,8 +77,15 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAfterAbortGap_Output_cff import *
 
 process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutputModule",
-    SelectEvents   = OutALCARECOPromptCalibProdSiStripGains.SelectEvents,
-    outputCommands = OutALCARECOPromptCalibProdSiStripGains.outputCommands,
+    SelectEvents   = cms.untracked.PSet(
+        SelectEvents = cms.vstring(
+            'pathALCARECOPromptCalibProdSiStripGains',
+            'pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap')
+                                       ),
+    outputCommands = cms.untracked.vstring(
+        'keep *_alcaBeamSpotProducer_*_*',
+        'keep *_MEtoEDMConvertSiStripGains_*_*',
+        'keep *_MEtoEDMConvertSiStripGainsAfterAbortGap_*_*'),
     fileName = cms.untracked.string('PromptCalibProdSiStripGains.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('PromptCalibProdSiStripGains'),
@@ -84,6 +93,7 @@ process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutput
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
+
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -95,6 +105,7 @@ process.ALCARECOStreamPromptCalibProdSiStripGainsOutPath = cms.EndPath(process.A
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOPromptCalibProdSiStripGains,
+                                process.pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap,
                                 process.endjob_step,
                                 process.ALCARECOStreamPromptCalibProdSiStripGainsOutPath)
 

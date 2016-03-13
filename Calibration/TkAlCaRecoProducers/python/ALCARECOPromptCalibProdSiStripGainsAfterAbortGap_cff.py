@@ -90,7 +90,8 @@ ALCARECOSiStripCalibAfterAbortGap = SiStripCalib.clone()
 ALCARECOSiStripCalibAfterAbortGap.AlgoMode            = cms.untracked.string('PCL')
 ALCARECOSiStripCalibAfterAbortGap.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalibAfterAbortGap.harvestingMode      = cms.untracked.bool(False)
-ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('FaABunch')
+ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('AagBunch')
+ALCARECOSiStripCalibAfterAbortGap.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap')
 ALCARECOSiStripCalibAfterAbortGap.doStoreOnDB         = cms.bool(False)
 ALCARECOSiStripCalibAfterAbortGap.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')
 ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')
@@ -103,11 +104,11 @@ ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('AL
 # ****************************************************************************
 MEtoEDMConvertSiStripGainsAfterAbortGap = cms.EDProducer("MEtoEDMConverter",
                                             Name = cms.untracked.string('MEtoEDMConverter'),
-                                            Verbosity = cms.untracked.int32(0), # 0 provides no output
+                                            Verbosity = cms.untracked.int32(1), # 0 provides no output
                                             # 1 provides basic output
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),
-                                            MEPathToSave = cms.untracked.string('AlCaReco/SiStripGains'),
+                                            MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap'),
                                             deleteAfterCopy = cms.untracked.bool(False)
 )
 

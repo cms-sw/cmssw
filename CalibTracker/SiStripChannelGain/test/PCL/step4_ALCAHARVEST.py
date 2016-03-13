@@ -58,6 +58,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
 process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.pclMetadataWriter)
 process.SiStripGains = cms.Path(process.ALCAHARVESTSiStripGains)
+process.SiStripGainsAfterAbortGap = cms.Path(process.ALCAHARVESTSiStripGainsAfterAbortGap)
 process.BeamSpotByLumi = cms.Path(process.ALCAHARVESTBeamSpotByLumi)
 process.SiStripQuality = cms.Path(process.ALCAHARVESTSiStripQuality)
 
@@ -66,11 +67,8 @@ process.TFileService = cms.Service("TFileService",
 )
 
 # Schedule definition
-process.schedule = cms.Schedule(process.SiStripGains,process.ALCAHARVESTDQMSaveAndMetadataWriter)
+process.schedule = cms.Schedule(process.SiStripGains,
+                                process.SiStripGainsAfterAbortGap,
+                                process.ALCAHARVESTDQMSaveAndMetadataWriter)
 
-process.alcaSiStripGainsHarvester.calibrationMode = cms.untracked.string("IsoBunch")
-
-
-
-
-
+#process.alcaSiStripGainsHarvester.calibrationMode = cms.untracked.string("IsoBunch")

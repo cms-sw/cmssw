@@ -15,7 +15,7 @@ ALCARECOSiStripCalMinBiasAfterAbortGapHLT = HLTrigger.HLTfilters.hltHighLevel_cf
 # Select only events where tracker had HV on (according to DCS bit information)
 # AND respective partition is in the run (according to FED information)
 import CalibTracker.SiStripCommon.SiStripDCSFilter_cfi
-DCSStatusForSiStripCalMinBias = CalibTracker.SiStripCommon.SiStripDCSFilter_cfi.siStripDCSFilter.clone()
+DCSStatusForSiStripCalMinBiasAAG = CalibTracker.SiStripCommon.SiStripDCSFilter_cfi.siStripDCSFilter.clone()
 
 # Select pp-like events based on the pixel cluster multiplicity
 #import HLTrigger.special.hltPixelActivityFilter_cfi
@@ -47,5 +47,5 @@ ALCARECOSiStripCalMinBiasAfterAbortGap.TwoBodyDecaySelector.applyMissingETFilter
 #seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*HLTPixelActivityFilterForSiStripCalMinBias*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
 
 seqALCARECOSiStripCalMinBiasAfterAbortGap = cms.Sequence(ALCARECOSiStripCalMinBiasAfterAbortGapHLT *
-                                                         DCSStatusForSiStripCalMinBias *
+                                                         DCSStatusForSiStripCalMinBiasAAG *
                                                          ALCARECOSiStripCalMinBiasAfterAbortGap)

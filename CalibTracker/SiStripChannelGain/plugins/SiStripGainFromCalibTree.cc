@@ -184,6 +184,7 @@ private:
         bool         m_splitDQMstat;
         string       m_calibrationMode;
 	string       m_calibrationPath;
+        string       m_DQMdir;
 
 	double tagCondition_NClusters;
 	double tagCondition_GoodFrac;
@@ -327,6 +328,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
         m_splitDQMstat          = iConfig.getUntrackedParameter<bool>    ("splitDQMstat"       , false);
         m_calibrationMode       = iConfig.getUntrackedParameter<string>  ("calibrationMode"    , "StdBunch");
 	m_calibrationPath       = iConfig.getUntrackedParameter<string>  ("calibrationPath");
+        m_DQMdir                = iConfig.getUntrackedParameter<string>  ("DQMdir"             , "AlCaReco/SiStripGains");
 
 	tagCondition_NClusters  = iConfig.getUntrackedParameter<double>  ("NClustersForTagProd"     , 2E8);
 	tagCondition_GoodFrac   = iConfig.getUntrackedParameter<double>  ("GoodFracForTagProd"     , 0.95);
@@ -342,10 +344,10 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
         dqm_tag_.clear();
         dqm_tag_.push_back( "StdBunch" );      // statistic collection from Standard Collision Bunch @ 3.8 T
         dqm_tag_.push_back( "StdBunch0T" );    // statistic collection from Standard Collision Bunch @ 0 T
-        dqm_tag_.push_back( "FaABunch" );      // statistic collection from First Collision After Abort Gap @ 3.8 T
-        dqm_tag_.push_back( "FaABunch0T" );    // statistic collection from First Collision After Abort Gap @ 0 T
-        dqm_tag_.push_back( "IsoBunch" );      // statistic collection from Isolated Bunch Collision @ 3.8 T
-        dqm_tag_.push_back( "IsoBunch0T" );    // statistic collection from Isolated Bunch Collision @ 0 T
+        dqm_tag_.push_back( "AagBunch" );      // statistic collection from First Collision After Abort Gap @ 3.8 T
+        dqm_tag_.push_back( "AagBunch0T" );    // statistic collection from First Collision After Abort Gap @ 0 T
+        dqm_tag_.push_back( "IsoMuon" );       // statistic collection from Isolated Muon @ 3.8 T
+        dqm_tag_.push_back( "IsoMuon0T" );     // statistic collection from Isolated Muon @ 0 T
         dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
 
         Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
@@ -452,7 +454,7 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
             //if (m_harvestingMode) this->bookDQMHistos( dqm_dir, dqm_tag_[Harvest].c_str() );
             //else this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
         } else {
-            std::string dqm_dir = "AlCaReco/SiStripGains" + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
+            std::string dqm_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
             int elem = statCollectionFromMode(m_calibrationMode.c_str());
             this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[elem].c_str() );
             this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[( (elem%2)? elem-1: elem+1 )].c_str() );
@@ -658,7 +660,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
                     stag="";
                 }
 
-                std::string DQM_dir = "AlCaReco/SiStripGains" + ((m_splitDQMstat)? m_calibrationMode:"");
+                std::string DQM_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"");
 
                 std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;
                 //std::string cviA     = DQM_dir + std::string("/Charge_Vs_Index_Absolute")  + stag;

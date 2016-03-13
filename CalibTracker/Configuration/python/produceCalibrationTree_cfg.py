@@ -14,18 +14,22 @@ process.add_( cms.Service( "TFileService",
                            closeFileFast = cms.untracked.bool(True)  ) )
 
 process.load('CalibTracker.SiStripCommon.theBigNtuple_cfi')
-process.TkCalPath_AB   = cms.Path( process.theBigNtuple * process.TkCalSeq_AllBunch     )
-process.TkCalPath_AB0T = cms.Path( process.theBigNtuple * process.TkCalSeq_AllBunch0T   )
-process.TkCalPath_IB   = cms.Path( process.theBigNtuple * process.TkCalSeq_IsoBunch     )
-process.TkCalPath_IB0T = cms.Path( process.theBigNtuple * process.TkCalSeq_IsoBunch0T   )
+process.TkCalPath_SB   = cms.Path( process.theBigNtuple * process.TkCalSeq_StdBunch     )
+process.TkCalPath_SB0T = cms.Path( process.theBigNtuple * process.TkCalSeq_StdBunch0T   )
+process.TkCalPath_IM   = cms.Path( process.theBigNtuple * process.TkCalSeq_IsoMuon      )
+process.TkCalPath_IM0T = cms.Path( process.theBigNtuple * process.TkCalSeq_IsoMuon0T    )
+process.TkCalPath_AB   = cms.Path( process.theBigNtuple * process.TkCalSeq_AagBunch     )
+process.TkCalPath_AB0T = cms.Path( process.theBigNtuple * process.TkCalSeq_AagBunch0T   )
 process.TkPathDigi     = cms.Path (process.theBigNtupleDigi)
 process.endPath        = cms.EndPath(process.bigShallowTree)
 
-process.schedule = cms.Schedule( process.TkCalPath_AB, process.TkCalPath_AB0T, process.TkCalPath_IB, process.TkCalPath_IB0T )
+process.schedule = cms.Schedule( process.TkCalPath_AB, process.TkCalPath_AB0T, 
+                                 process.TkCalPath_SB, process.TkCalPath_SB0T,
+                                 process.TkCalPath_IM, process.TkCalPath_IM0T )
 
 
 #following ignored by CRAB
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source (
     "PoolSource",
     fileNames=cms.untracked.vstring(

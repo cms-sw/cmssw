@@ -113,16 +113,20 @@ process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias' #cms.InputTag( optio
 ## process.L1T1.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
 #process.TkCalPath = cms.Path(process.L1T1*process.TkCalFullSequence)
-process.TkCalPath_AllBunch   = cms.Path(process.TkCalSeq_AllBunch)
-process.TkCalPath_AllBunch0T = cms.Path(process.TkCalSeq_AllBunch0T)
-process.TkCalPath_IsoBunch   = cms.Path(process.TkCalSeq_IsoBunch)
-process.TkCalPath_IsoBunch0T = cms.Path(process.TkCalSeq_IsoBunch0T)
+process.TkCalPath_StdBunch   = cms.Path(process.TkCalSeq_StdBunch)
+process.TkCalPath_StdBunch0T = cms.Path(process.TkCalSeq_StdBunch0T)
+process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon)
+process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T)
+process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch)
+process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T)
 
 
-process.schedule = cms.Schedule( process.TkCalPath_AllBunch, 
-                                 process.TkCalPath_AllBunch0T,
-                                 process.TkCalPath_IsoBunch,
-                                 process.TkCalPath_IsoBunch0T
+process.schedule = cms.Schedule( process.TkCalPath_StdBunch, 
+                                 process.TkCalPath_StdBunch0T,
+                                 process.TkCalPath_IsoMuon,
+                                 process.TkCalPath_IsoMuon0T
+                                 process.TkCalPath_AagBunch,
+                                 process.TkCalPath_AagBunch0T,
                                )
 
 
