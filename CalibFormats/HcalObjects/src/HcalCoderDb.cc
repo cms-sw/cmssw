@@ -23,9 +23,12 @@ template <class Digi> void HcalCoderDb::adc2fC_ (const Digi& df, CaloSamples& cl
 
 template <> void HcalCoderDb::adc2fC_<QIE10DataFrame> (const QIE10DataFrame& df, CaloSamples& clf) const {
   clf=CaloSamples(df.id(),df.samples());
+  int presample = -1;
   for (int i=0; i<df.samples(); i++) {
     clf[i]=mCoder->charge (*mShape, df[i].adc (), df[i].capid ());
+    if(df[i].soi()) presample = i;
   }
+  if(presample>=0) clf.setPresamples(presample);
 }
 
 template <class Digi> void HcalCoderDb::fC2adc_ (const CaloSamples& clf, Digi& df, int fCapIdOffset) const {
