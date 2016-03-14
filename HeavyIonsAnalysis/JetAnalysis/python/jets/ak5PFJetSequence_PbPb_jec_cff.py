@@ -33,7 +33,7 @@ ak5PFbTagger = bTaggers("ak5PF",0.5)
 
 #create objects locally since they dont load properly otherwise
 #ak5PFmatch = ak5PFbTagger.match
-ak5PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak5PFJets"), matched = cms.InputTag("selectedPartons"))
+ak5PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak5PFJets"), matched = cms.InputTag("hiSignalGenParticles"))
 ak5PFPatJetFlavourAssociationLegacy = ak5PFbTagger.PatJetFlavourAssociationLegacy
 ak5PFPatJetPartons = ak5PFbTagger.PatJetPartons
 ak5PFJetTracksAssociatorAtVertex = ak5PFbTagger.JetTracksAssociatorAtVertex
