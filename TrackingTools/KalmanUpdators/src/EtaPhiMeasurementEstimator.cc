@@ -10,14 +10,14 @@ std::pair<bool,double>
 EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TrackingRecHit& aRecHit) const {
 
-  double dEta = fabs(tsos.globalPosition().eta() - aRecHit.globalPosition().eta());
-  double dPhi = deltaPhi< double > (tsos.globalPosition().phi(), aRecHit.globalPosition().phi());
+  auto dEta = std::abs(tsos.globalPosition().eta() - aRecHit.globalPosition().eta());
+  auto dPhi = deltaPhi(tsos.globalPosition().barePhi(), aRecHit.globalPosition().barePhi());
 
   LogDebug("EtaPhiMeasurementEstimator")<< " The state to compare with is \n"<< tsos
 					<< " The hit position is:\n" << aRecHit.globalPosition()
 					<< " deta: "<< dEta<< " dPhi: "<<dPhi;
 
-  if (dEta < thedEta && dPhi <thedPhi)
+  if ( (dEta < thedEta) & (dPhi <thedPhi) )
     return std::make_pair(true, 1.0);
   else
     return std::make_pair(false, 0.0);
@@ -26,18 +26,16 @@ EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const Plane& plane) const {
 
-  double dEta = fabs(tsos.globalPosition().eta() - plane.position().eta());
-  double dPhi = deltaPhi< double > (tsos.globalPosition().phi(), plane.position().phi());
+  auto dEta = std::abs(tsos.globalPosition().eta() - plane.eta());
+  auto dPhi = deltaPhi(tsos.globalPosition().barePhi(), plane.phi());
+
 
   LogDebug("EtaPhiMeasurementEstimator")<< "The state to compare with is \n"<< tsos << "\n"
 					<< "The plane position center is: " << plane.position() << "\n"
 					<< "the deta = " << thedEta << " --- the dPhi = " << thedPhi << "\n"
 					<< "deta = "<< fabs(dEta)<< " --- dPhi = "<<fabs(dPhi);
 
-  if (fabs(dEta) < thedEta && fabs(dPhi) <thedPhi)
-    return true;
-  else
-    return false;
+  return (std::abs(dEta) < thedEta) & (std::abs(dPhi) <thedPhi);
 }
 
 MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
