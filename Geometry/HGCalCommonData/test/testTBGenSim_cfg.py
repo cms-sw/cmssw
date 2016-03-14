@@ -5,7 +5,6 @@ process = cms.Process('SIM')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Geometry.HGCalCommonData.testTB160XML_cfi')
@@ -13,7 +12,7 @@ process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -21,6 +20,19 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
+)
+
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HGCSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+    ),
+    categories = cms.untracked.vstring('HGCSim'),
+    destinations = cms.untracked.vstring('cout','cerr')
 )
 
 # Input source
@@ -65,17 +77,18 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     PGunParameters = cms.PSet(
         MinE = cms.double(99.99),
         MaxE = cms.double(100.01),
-        MinTheta = cms.double(-0.01),
-        MaxTheta = cms.double(0.01),
+        MinTheta = cms.double(0.0),
+        MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        PartID = cms.vint32(11)
+        PartID = cms.vint32(13)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single electron E 100')
+    psethack = cms.string('single muon E 100')
 )
-
+process.VtxSmeared.MeanZ = 10
+process.VtxSmeared.SigmaZ = 0
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

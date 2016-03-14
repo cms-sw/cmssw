@@ -162,7 +162,7 @@ namespace edm {
       }
 
       if(missingProductProvenance.size()) {
-         LogError("ProvenanceChecker") << "The ProductHolders for the following BranchIDs have no ProductProvenance\n";
+         LogError("ProvenanceChecker") << "The ProductResolvers for the following BranchIDs have no ProductProvenance\n";
          for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it != itEnd;
              ++it) {
@@ -180,7 +180,7 @@ namespace edm {
       if(missingFromMapper.size() || missingProductProvenance.size() || missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
          << (missingFromMapper.size() ? "Having missing ancestors from ProductProvenanceRetriever.\n" : "")
-         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductHolder in Event.\n" : "")
+         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductResolver in Event.\n" : "")
          << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
       }
    }

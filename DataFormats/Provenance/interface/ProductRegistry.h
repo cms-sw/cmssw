@@ -12,7 +12,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -27,7 +27,7 @@
 #include <vector>
 
 namespace edm {
-  class ProductHolderIndexHelper;
+  class ProductResolverIndexHelper;
 
   class ProductRegistry {
 
@@ -102,11 +102,11 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
-    std::shared_ptr<ProductHolderIndexHelper const> productLookup(BranchType branchType) const;
-    std::shared_ptr<ProductHolderIndexHelper> productLookup(BranchType branchType);
+    std::shared_ptr<ProductResolverIndexHelper const> productLookup(BranchType branchType) const;
+    std::shared_ptr<ProductResolverIndexHelper> productLookup(BranchType branchType);
 
-    // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
-    ProductHolderIndex indexFrom(BranchID const& iID) const;
+    // returns the appropriate ProductResolverIndex else ProductResolverIndexInvalid if no BranchID is available
+    ProductResolverIndex indexFrom(BranchID const& iID) const;
 
     bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
@@ -123,7 +123,7 @@ namespace edm {
       return transient_.aliasToOriginal_;
     }
 
-    ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;
+    ProductResolverIndex const& getNextIndexValue(BranchType branchType) const;
 
     void initializeTransients() {transient_.reset();}
 
@@ -133,27 +133,27 @@ namespace edm {
       Transients();
       void reset();
 
-      std::shared_ptr<ProductHolderIndexHelper const> eventProductLookup() const {return get_underlying_safe(eventProductLookup_);}
-      std::shared_ptr<ProductHolderIndexHelper>& eventProductLookup() {return get_underlying_safe(eventProductLookup_);}
-      std::shared_ptr<ProductHolderIndexHelper const> lumiProductLookup() const {return get_underlying_safe(lumiProductLookup_);}
-      std::shared_ptr<ProductHolderIndexHelper>& lumiProductLookup() {return get_underlying_safe(lumiProductLookup_);}
-      std::shared_ptr<ProductHolderIndexHelper const> runProductLookup() const {return get_underlying_safe(runProductLookup_);}
-      std::shared_ptr<ProductHolderIndexHelper>& runProductLookup() {return get_underlying_safe(runProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper const> eventProductLookup() const {return get_underlying_safe(eventProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper>& eventProductLookup() {return get_underlying_safe(eventProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper const> lumiProductLookup() const {return get_underlying_safe(lumiProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper>& lumiProductLookup() {return get_underlying_safe(lumiProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper const> runProductLookup() const {return get_underlying_safe(runProductLookup_);}
+      std::shared_ptr<ProductResolverIndexHelper>& runProductLookup() {return get_underlying_safe(runProductLookup_);}
 
       bool frozen_;
       // Is at least one (run), (lumi), (event) product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> eventProductLookup_;
-      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> lumiProductLookup_;
-      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> runProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> eventProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> lumiProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> runProductLookup_;
 
-      ProductHolderIndex eventNextIndexValue_;
-      ProductHolderIndex lumiNextIndexValue_;
-      ProductHolderIndex runNextIndexValue_;
+      ProductResolverIndex eventNextIndexValue_;
+      ProductResolverIndex lumiNextIndexValue_;
+      ProductResolverIndex runNextIndexValue_;
 
-      std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
+      std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
       std::vector<TypeID> missingDictionaries_;
 
@@ -173,7 +173,7 @@ namespace edm {
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
 
-    ProductHolderIndex& nextIndexValue(BranchType branchType);
+    ProductResolverIndex& nextIndexValue(BranchType branchType);
 
     ProductList productList_;
     Transients transient_;

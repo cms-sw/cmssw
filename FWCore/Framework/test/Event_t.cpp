@@ -736,7 +736,7 @@ void testEvent::deleteProduct() {
       id = iDesc.branchID();
     }});
 
-  const ProductHolderBase* phb = principal_->getProductHolder(id);
+  const ProductResolverBase* phb = principal_->getProductResolver(id);
   CPPUNIT_ASSERT(phb != nullptr);
   
   CPPUNIT_ASSERT(!phb->productWasDeleted());  
