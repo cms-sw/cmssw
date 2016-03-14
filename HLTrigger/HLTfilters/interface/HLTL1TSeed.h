@@ -98,12 +98,6 @@ private:
 
 private:
 
-    // cached stuff
-
-    /// trigger menu
-    const L1GtTriggerMenu * m_utml1GtMenu;
-    unsigned long long m_l1GtMenuCacheID;
-
     /// logic parser for m_l1SeedsLogicalExpression
     L1GtLogicParser m_l1AlgoLogicParser;
 
@@ -119,25 +113,9 @@ private:
 
 private:
 
-    /// if true:
-    ///    seeding done via L1 trigger object maps, with objects that fired
-    ///    only objects from the central BxInEvent (L1A) are used
-    /// if false:
-    ///    seeding is done ignoring if a L1 object fired or not,
-    ///    adding all L1EXtra objects corresponding to the object types
-    ///    used in all conditions from the algorithms in logical expression
-    ///    for a given number of BxInEvent
-    bool m_l1UseL1TriggerObjectMaps;
-
     /// option used forL1UseL1TriggerObjectMaps = False only
     /// number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
     int m_l1NrBxInEvent;
-
-    /// seeding done via technical trigger bits, if value is "true"
-    bool m_l1TechTriggerSeeding;
-
-    /// seeding uses algorithm aliases instead of algorithm names, if value is "true"
-    bool m_l1UseAliasesForSeeding;
 
     /// logical expression for the required L1 algorithms
     /// the algorithms are specified by name
@@ -176,9 +154,6 @@ private:
     edm::InputTag m_l1EtSumCollectionsTag;
     edm::InputTag m_l1EtSumTag;
     edm::EDGetTokenT<l1t::EtSumBxCollection>   m_l1EtSumToken;
-
-    /// replace string "L1GlobalDecision" with bool to speed up the "if"
-    bool m_l1GlobalDecision;
 
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;
