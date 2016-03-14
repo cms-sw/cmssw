@@ -9,9 +9,9 @@ namespace l1t {
     EMTFTokens::EMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
     {
       auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
-      
-      // EMTFMuonCandToken_ = cc.consumes<EMTFMuonCandBxCollection>(tag); // Does this need a tag? which one? - AWB 11.01.15
-      EMTFOutputToken_   = cc.consumes<EMTFOutputCollection>(tag);     // Does this need a tag? which one? - AWB 11.01.15
+
+      regionalMuonCandToken_ = cc.consumes<RegionalMuonCandBxCollection>(tag);
+      EMTFOutputToken_   = cc.consumes<EMTFOutputCollection>(tag);
     }
   }
 }

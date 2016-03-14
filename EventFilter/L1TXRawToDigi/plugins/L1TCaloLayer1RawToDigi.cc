@@ -53,6 +53,9 @@
 
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+
 #include "UCTDAQRawData.h"
 #include "UCTAMCRawData.h"
 #include "UCTCTP7RawData.h"
@@ -79,7 +82,9 @@ private:
 
   void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
-  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hfTPGs);
+  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
+
+  void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<L1CaloRegionCollection>& regions);
 
   //virtual void beginRun(Run const&, EventSetup const&) override;
   //virtual void endRun(Run const&, EventSetup const&) override;
@@ -118,7 +123,7 @@ L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const ParameterSet& iConfig) :
 
   produces<EcalTrigPrimDigiCollection>();
   produces<HcalTrigPrimDigiCollection>();
-  produces<HcalTrigPrimDigiCollection>("hfTPGDigis");
+  produces<L1CaloRegionCollection>();
 
   consumes<FEDRawDataCollection>(fedRawDataLabel);
 
@@ -146,7 +151,7 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
 
   std::auto_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
   std::auto_ptr<HcalTrigPrimDigiCollection> hcalTPGs(new HcalTrigPrimDigiCollection);
-  std::auto_ptr<HcalTrigPrimDigiCollection> hfTPGs(new HcalTrigPrimDigiCollection);
+  std::auto_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
 
   // if raw data collection is present, check the headers and do the unpacking
   if (fedRawDataCollection.isValid()) {
@@ -177,8 +182,9 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
 	if(verbose && event < 5) LogDebug("L1TCaloLayer1") << endl;
 	makeECalTPGs(lPhi, ctp7Data, ecalTPGs);
 	makeHCalTPGs(lPhi, ctp7Data, hcalTPGs);
-	// Note: HF TPGs are separately put in event to avoid RCT gettting confused
-	makeHFTPGs(lPhi, ctp7Data, hfTPGs);
+	// Note: HF TPGs are added at the tail of other TPGs
+	makeHFTPGs(lPhi, ctp7Data, hcalTPGs);
+	makeRegions(lPhi, ctp7Data, regions);
       }
 
     }
@@ -193,7 +199,7 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
 
   iEvent.put(ecalTPGs);
   iEvent.put(hcalTPGs);
-  iEvent.put(hfTPGs, "hfTPGDigis");
+  iEvent.put(regions);
 
   event++;
   if(verbose && event == 5) LogDebug("L1TCaloLayer1") << "L1TCaloLayer1RawToDigi: Goodbye! Tired of printing junk" << endl;
@@ -287,7 +293,7 @@ void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 
 }
 
-void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hfTPGs) {
+void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
   UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HF;
   for(uint32_t side = 0; side <= 1; side++) {
     bool negativeEta = false;
@@ -295,8 +301,7 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
     for(uint32_t iEta = 30; iEta <= 40; iEta++) {
       for(uint32_t iPhi = 0; iPhi < 2; iPhi++) {
 	if(iPhi == 1 && iEta == 40) iEta = 41;
-	int cPhi = 1 + lPhi * 2 + iPhi; // Calorimeter phi index
-	if(iEta == 40 || iEta == 41) cPhi = lPhi + 1;
+	int cPhi = 1 + lPhi * 4 + iPhi * 2; // Calorimeter phi index: 1, 3, 5, ... 71
 	int cEta = iEta;
 	if(negativeEta) cEta = -iEta;
 	// This code is fragile! Note that towerDatum is packed as is done in HcalTriggerPrimitiveSample
@@ -318,11 +323,26 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
 	   ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x8000;
 	HcalTriggerPrimitiveSample sample(towerDatum); 
 	HcalTrigTowerDetId id(cEta, cPhi);
+	id.setVersion(1); // To not process these 1x1 HF TPGs with RCT
 	HcalTriggerPrimitiveDigi tpg(id);
 	tpg.setSize(1);
 	tpg.setSample(0, sample);
-	hfTPGs->push_back(tpg);
+	hcalTPGs->push_back(tpg);
       }
+    }
+  }
+}
+
+void 
+L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<L1CaloRegionCollection>& regions) {
+  for(uint32_t side = 0; side <= 1; side++) {
+    bool negativeEta = false;
+    if(side == 0) negativeEta = true;
+    for(uint32_t region = 0; region <= 6; region++) {
+      uint32_t regionData = ctp7Data.getRegionSummary(negativeEta, region);
+      uint32_t lEta = region + 4; // GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
+      if(!negativeEta) lEta += 7;
+      regions->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) lEta, (unsigned) lPhi, (int16_t) 0));
     }
   }
 }
