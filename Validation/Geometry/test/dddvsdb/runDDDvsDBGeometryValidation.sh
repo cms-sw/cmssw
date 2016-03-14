@@ -24,22 +24,6 @@ echo geometry = ${geometry}
 # Run 2 Extended condlabel corresponds to GeometryExtended2015 scenario. 
 set condlabel = `(echo $geometry | sed '{s/Geometry//g}' | sed '{s/2015//g}')`
 echo ${condlabel} " geometry label from db"
-echo "Check out and compile the needed packages"
-git cms-addpkg DetectorDescription/Schema
-git cms-addpkg GeometryReaders/XMLIdealGeometryESSource  
-git cms-addpkg Geometry/CaloEventSetup
-
-if ($loctag != '') then 
-    git cms-addpkg CondCore/ESSources
-    cd CondCore/ESSources/python
-    set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
-    sed -i "{s/frontier:\/\/FrontierProd\/CMS_CONDITIONS/${escloctag}/g}" CondDBESSource_cfi.py 
-endif
-
-cd $CMSSW_BASE/src
-scram build
-
-echo "Finish the setup of release working area"
 
 mkdir workArea
 cd workArea
