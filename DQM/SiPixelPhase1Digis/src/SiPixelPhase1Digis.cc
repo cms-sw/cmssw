@@ -32,13 +32,13 @@ SiPixelPhase1Digis::~SiPixelPhase1Digis() {
 }
 
 void SiPixelPhase1Digis::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup) {
-
+  std::cout << "++++ Begin run.\n";
 }
 
 
 void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
   iBooker.setCurrentFolder(topFolderName_);
-
+  std::cout << "+++++ Booking.\n";
   alladcs = iBooker.book1D("alladcs","All ADC Values",100,0.,300.);
 
 }
