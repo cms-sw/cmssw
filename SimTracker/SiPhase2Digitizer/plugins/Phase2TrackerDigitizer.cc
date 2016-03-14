@@ -223,10 +223,10 @@ namespace cms
     TrackerGeometry::ModuleType mType = pDD_->getDetectorType(detId);    
     switch(mType){
 
-    case TrackerGeometry::ModuleType::Ph1PXB:
+    case TrackerGeometry::ModuleType::Ph2PXB:
       algotype = AlgorithmType::InnerPixel;
       break;
-    case TrackerGeometry::ModuleType::Ph1PXF:
+    case TrackerGeometry::ModuleType::Ph2PXF:
       algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph2PSP:
