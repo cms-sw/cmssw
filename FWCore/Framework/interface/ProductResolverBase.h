@@ -12,7 +12,7 @@ ProductResolver: Class to handle access to a WrapperBase and its related informa
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -96,6 +96,9 @@ namespace edm {
 
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
     Provenance const* provenance() const;
+
+    // Retrieves pointer to a class containing the event independent provenance.
+    StableProvenance const* stableProvenance() const {return &provenance()->stable();}
 
     // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the provRetriever.
     void setProvenance(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) { setProvenance_(provRetriever, ph, pid); }

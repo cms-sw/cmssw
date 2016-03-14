@@ -1,8 +1,8 @@
 
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Common/interface/Provenance.h"
 
 #include <TBranch.h>
 

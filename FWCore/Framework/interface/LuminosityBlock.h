@@ -125,7 +125,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     ProcessHistoryID const& processHistoryID() const;
 

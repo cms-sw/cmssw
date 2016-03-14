@@ -112,8 +112,8 @@ void GlobalHitsProdHistStripper::beginRun(const edm::Run& iRun,
 
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iRun.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iRun.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)

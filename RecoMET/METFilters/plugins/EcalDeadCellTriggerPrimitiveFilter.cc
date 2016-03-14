@@ -234,11 +234,11 @@ EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
 
 void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
 
-  std::vector<edm::Provenance const*> provenances;
-  iEvent.getAllProvenance(provenances);
+  std::vector<edm::StableProvenance const*> provenances;
+  iEvent.getAllStableProvenance(provenances);
   const unsigned int nProvenance = provenances.size();
   for (unsigned int ip = 0; ip < nProvenance; ip++) {
-    const edm::Provenance& provenance = *( provenances[ip] );
+    const edm::StableProvenance& provenance = *( provenances[ip] );
     if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
     if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
        hasReducedRecHits_++;

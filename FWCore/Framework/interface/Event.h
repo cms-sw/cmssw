@@ -207,6 +207,9 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
+    void
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+
     // Return true if this Event has been subjected to a process with
     // the given processName, and false otherwise.
     // If true is returned, then ps is filled with the ParameterSet
