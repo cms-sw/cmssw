@@ -82,6 +82,7 @@ private:
   std::vector< std::vector< uint32_t > > hfLUT;
 
   bool useLSB;
+  bool useCalib;
   bool useECALLUT;
   bool useHCALLUT;
   bool useHFLUT;
@@ -112,6 +113,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hfLUT(12, std::vector < uint32_t >(256)),
   useLSB(iConfig.getParameter<bool>("useLSB")),
+  useCalib(iConfig.getParameter<bool>("useCalib")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
   useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
@@ -258,7 +260,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useECALLUT, useHCALLUT, useHFLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -269,7 +271,7 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
 	vector<UCTTower*> towers = regions[rgn]->getTowers();
 	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(rgn < NRegionsInCard) {
+	  if(towers[twr]->getRegion() < NRegionsInCard) {
 	    towers[twr]->setECALLUT(&ecalLUT);
 	    towers[twr]->setHCALLUT(&hcalLUT);
 	  }

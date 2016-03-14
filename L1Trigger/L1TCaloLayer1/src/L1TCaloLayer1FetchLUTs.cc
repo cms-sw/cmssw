@@ -22,6 +22,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    std::vector< std::vector< std::vector < uint32_t > > > &hLUT,
                             std::vector< std::vector< uint32_t > > &hfLUT,
 			    bool useLSB,
+			    bool useCalib,
 			    bool useECALLUT,
 			    bool useHCALLUT,
                             bool useHFLUT) {
@@ -96,9 +97,11 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           }
           if ( etBin >= ecalScaleETBins.size() ) etBin = ecalScaleETBins.size()-1;
 
-          double calibratedECalInput = linearizedECalInput*ecalSF.at(etBin*28 + iEta);
+          double calibratedECalInput = linearizedECalInput;
+          if (useCalib) calibratedECalInput *= ecalSF.at(etBin*28 + iEta);
+          if (useLSB) calibratedECalInput /= caloLSB;
 
-	  if(useLSB) value = calibratedECalInput / caloLSB;
+	  value = calibratedECalInput;
 	  if(value > 0xFF) {
 	    value = 0xFF;
 	  }
@@ -135,8 +138,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           }
           if ( etBin >= hcalScaleETBins.size() ) etBin = hcalScaleETBins.size()-1;
 
-          double calibratedHcalInput = linearizedHcalInput*hcalSF.at(etBin*28 + iEta);
-
+          double calibratedHcalInput = linearizedHcalInput;
+          if(useCalib) calibratedHcalInput *= hcalSF.at(etBin*28 + iEta);
 	  if(useLSB) calibratedHcalInput /= caloLSB;
 
           value = calibratedHcalInput;
@@ -170,8 +173,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	}
         if ( etBin >= hfScaleETBins.size() ) etBin = hfScaleETBins.size()-1;
 
-        double calibratedHFInput = linearizedHFInput*hfSF.at(etBin*12+etaBin);
-
+        double calibratedHFInput = linearizedHFInput;
+        if(useCalib) calibratedHFInput *= hfSF.at(etBin*12+etaBin);
         if(useLSB) calibratedHFInput /= caloLSB;
 
         value = calibratedHFInput;
