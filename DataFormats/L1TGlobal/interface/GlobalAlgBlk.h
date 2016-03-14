@@ -49,6 +49,7 @@ public:
 
 
 public:
+    const static unsigned int maxPhysicsTriggers = 512;
 
     /// set simple members
     void setOrbitNr(int orbNr)      { m_orbitNr        = orbNr; }

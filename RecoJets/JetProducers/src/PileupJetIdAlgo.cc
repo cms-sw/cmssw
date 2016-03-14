@@ -27,10 +27,10 @@ PileupJetIdAlgo::PileupJetIdAlgo(const edm::ParameterSet & ps, bool runMvas)
 	  {
 	    etaBinnedWeights_ = ps.getParameter<bool>("etaBinnedWeights");
 	    if(etaBinnedWeights_){
-	      tmvaWeights_jteta_0_2_        = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_0_2")).fullPath();
-	      tmvaWeights_jteta_2_2p5_      = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_2_2p5")).fullPath();
-	      tmvaWeights_jteta_2p5_3_      = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_2p5_3")).fullPath();
-	      tmvaWeights_jteta_3_5_        = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_3_5")).fullPath();
+	      tmvaWeights_jteta_0_2p5_    = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_0_2p5")).fullPath();
+	      tmvaWeights_jteta_2p5_2p75_ = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_2p5_2p75")).fullPath();
+	      tmvaWeights_jteta_2p75_3_   = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_2p75_3")).fullPath();
+	      tmvaWeights_jteta_3_5_      = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights_jteta_3_5")).fullPath();
 	    }
 	    else{
 	      tmvaWeights_                  = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights")).fullPath();  
@@ -142,10 +142,10 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 void PileupJetIdAlgo::bookReader()
 {
 	if(etaBinnedWeights_){
-		reader_jteta_0_2_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-		reader_jteta_2_2p5_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-		reader_jteta_2p5_3_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-		reader_jteta_3_5_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_0_2p5_    = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_2p5_2p75_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_2p75_3_   = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_3_5_      = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
 	} else {
 		reader_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
 	}
@@ -154,9 +154,9 @@ void PileupJetIdAlgo::bookReader()
 		if(  tmvaNames_[*it].empty() ) { 
 			tmvaNames_[*it] = *it;
 		}
-		reader_jteta_0_2_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-		reader_jteta_2_2p5_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-		reader_jteta_2p5_3_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+		reader_jteta_0_2p5_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+		reader_jteta_2p5_2p75_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+		reader_jteta_2p75_3_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
 	  }
 	  for(std::vector<std::string>::iterator it=tmvaVariables_jteta_3_5_.begin(); it!=tmvaVariables_jteta_3_5_.end(); ++it) {
 		if(  tmvaNames_[*it].empty() ) { 
@@ -177,18 +177,18 @@ void PileupJetIdAlgo::bookReader()
 			tmvaNames_[*it] = *it;
 		}
 		if(etaBinnedWeights_){
-			reader_jteta_0_2_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-			reader_jteta_2_2p5_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-			reader_jteta_2p5_3_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+			reader_jteta_0_2p5_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+			reader_jteta_2p5_2p75_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+			reader_jteta_2p75_3_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 			reader_jteta_3_5_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 		} else {
 			reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 		}
 	}
 	if(etaBinnedWeights_){
-		reco::details::loadTMVAWeights(reader_jteta_0_2_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_0_2_.c_str() ); 
-		reco::details::loadTMVAWeights(reader_jteta_2_2p5_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2_2p5_.c_str() ); 
-		reco::details::loadTMVAWeights(reader_jteta_2p5_3_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2p5_3_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_0_2p5_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_0_2p5_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_2p5_2p75_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2p5_2p75_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_2p75_3_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2p75_3_.c_str() ); 
 		reco::details::loadTMVAWeights(reader_jteta_3_5_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_3_5_.c_str() ); 
 	} else {
 		reco::details::loadTMVAWeights(reader_.get(),  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
@@ -211,9 +211,9 @@ void PileupJetIdAlgo::runMva()
 			internalId_.mva_ = -2.;
 		} else {
 			if(etaBinnedWeights_){
-			  if(std::abs(internalId_.jetEta_)<=2.) internalId_.mva_ = reader_jteta_0_2_->EvaluateMVA( tmvaMethod_.c_str() );
-			  else if(std::abs(internalId_.jetEta_)<=2.5) internalId_.mva_ = reader_jteta_2_2p5_->EvaluateMVA( tmvaMethod_.c_str() );
-			  else if(std::abs(internalId_.jetEta_)<=3.) internalId_.mva_ = reader_jteta_2p5_3_->EvaluateMVA( tmvaMethod_.c_str() );
+			  if(std::abs(internalId_.jetEta_)<=2.5) internalId_.mva_ = reader_jteta_0_2p5_->EvaluateMVA( tmvaMethod_.c_str() );
+			  else if(std::abs(internalId_.jetEta_)>2.5 && std::abs(internalId_.jetEta_)<=2.75) internalId_.mva_ = reader_jteta_2p5_2p75_->EvaluateMVA( tmvaMethod_.c_str() );
+			  else if(std::abs(internalId_.jetEta_)>2.75 && std::abs(internalId_.jetEta_)<=3.) internalId_.mva_ = reader_jteta_2p75_3_->EvaluateMVA( tmvaMethod_.c_str() );
 			  else internalId_.mva_ = reader_jteta_3_5_->EvaluateMVA( tmvaMethod_.c_str() );
 			} else {
 			  internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
@@ -494,17 +494,25 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	if ( lLeadEm == nullptr )   { lLeadEm   = lTrail; }
 	if ( lLeadCh == nullptr )   { lLeadCh   = lTrail; }
 	
-	internalId_.nCharged_    = pfjet->chargedMultiplicity();
-	internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
-	internalId_.chgEMfrac_   = pfjet->chargedEmEnergy()    /jet->energy();
-	internalId_.neuEMfrac_   = pfjet->neutralEmEnergy()    /jet->energy();
-	internalId_.chgHadrfrac_ = pfjet->chargedHadronEnergy()/jet->energy();
-	internalId_.neuHadrfrac_ = pfjet->neutralHadronEnergy()/jet->energy();
-	internalId_.nParticles_ = jet->numberOfDaughters();
-
+	if( patjet != nullptr ) { // to enable running on MiniAOD slimmedJets
+	 internalId_.nCharged_    = patjet->chargedMultiplicity();
+	 internalId_.nNeutrals_   = patjet->neutralMultiplicity();
+	 internalId_.chgEMfrac_   = patjet->chargedEmEnergy()    /jet->energy();
+	 internalId_.neuEMfrac_   = patjet->neutralEmEnergy()    /jet->energy();
+	 internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy()/jet->energy();
+	 internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy()/jet->energy();
+	} else {
+	 internalId_.nCharged_    = pfjet->chargedMultiplicity();
+	 internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
+	 internalId_.chgEMfrac_   = pfjet->chargedEmEnergy()    /jet->energy();
+	 internalId_.neuEMfrac_   = pfjet->neutralEmEnergy()    /jet->energy();
+	 internalId_.chgHadrfrac_ = pfjet->chargedHadronEnergy()/jet->energy();
+	 internalId_.neuHadrfrac_ = pfjet->neutralHadronEnergy()/jet->energy();
+	}
+        internalId_.nParticles_   = jet->nConstituents();
 
 	///////////////////////pull variable///////////////////////////////////
-	float sumW(0.0), sumW2(0.0);
+	float sumW2(0.0);
 	float sum_deta(0.0),sum_dphi(0.0);
 	float ave_deta(0.0), ave_dphi(0.0);
 	for (size_t j = 0; j < jet->numberOfDaughters(); j++) {
@@ -520,7 +528,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  float dphi = reco::deltaPhi(*part, *jet);
 	  sum_deta     += deta*weight2;
 	  sum_dphi     += dphi*weight2;
-	  if (sumW > 0) {
+	  if (sumW2 > 0) {
 	    ave_deta = sum_deta/sumW2;
 	    ave_dphi = sum_dphi/sumW2;
 	  }

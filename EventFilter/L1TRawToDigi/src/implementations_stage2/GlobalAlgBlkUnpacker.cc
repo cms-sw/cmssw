@@ -77,8 +77,8 @@ namespace stage2 {
          if( (block.header().getID()!=initialBlkID+4 && block.header().getID()!=prescaledBlkID+4 && block.header().getID()!=finalBlkID+4 ) || wd<4) {
            for(unsigned int bt=0; bt<32; bt++) {
 	     int val = ((raw_data >> bt) & 0x1);
-	     int algBit = bt+wd*32+algOffset;
-             if(val==1 && algBit < 128) { //FIX ME...get dimension from object
+	     unsigned int algBit = bt+wd*32+algOffset;
+             if(val==1 && algBit < alg.maxPhysicsTriggers) { //FIX ME...get dimension from object
 	         LogDebug("L1T") << "Found valid alg bit ("<< algBit <<") on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	        if(block.header().getID()<initialBlkID+5) {
 		  alg.setAlgoDecisionInitial(algBit,true);
