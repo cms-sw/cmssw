@@ -609,6 +609,7 @@ public:
     JsonConfigurationBlock o; // old
     JsonConfigurationBlock n; // new
     bool prescales;
+    int events;
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
@@ -620,7 +621,8 @@ public:
       json << n.serialise(_indent+2);   // line block
       json << indent(_indent+1) << "},";   // line close
       std::string prescales_str = prescales ? "true" : "false";
-      json << indent(_indent+1) << key("prescales") << prescales_str;   // line
+      json << indent(_indent+1) << key("prescales") << prescales_str << ',';   // line
+      json << indent(_indent+1) << key("events") << events;   // line
       json << indent(_indent) << "}";   // line close
 
       return json.str();
@@ -632,6 +634,7 @@ public:
   struct JsonVars {
     std::vector<std::string> state;
     std::vector<std::string> trigger;
+    std::vector<std::pair<int, int> > trigger_passed_count;  // <old, new>
     std::vector<std::string> label;
     std::vector<std::string> type;
 
@@ -640,6 +643,13 @@ public:
       json << indent(_indent) << key("vars") << '{';   // line open
       json << indent(_indent+1) << key("state") << list_string(state) << ',';   // line
       json << indent(_indent+1) << key("trigger") << list_string(trigger) << ',';   // line
+      json << indent(_indent+1) << key("trigger_passed_count") << '[';   // line
+        for (std::vector<std::pair<int, int> >::iterator it = trigger_passed_count.begin(); it != trigger_passed_count.end(); ++it) {
+          json << '{' << key("o") << (*it).first << ',' << key("n") << (*it).second << '}';
+          if (it != trigger_passed_count.end()-1)
+            json << ',';
+        }
+      json << "],";
       json << indent(_indent+1) << key("label") << list_string(label) << ',';   // line
       json << indent(_indent+1) << key("type") << list_string(type);   // line
       json << indent(_indent) << '}';   // line close
@@ -647,7 +657,7 @@ public:
       return json.str();
     }
 
-    JsonVars() : state(0), trigger(0), label(0), type(0) {}
+    JsonVars() : state(0), trigger(0), trigger_passed_count(0), label(0), type(0) {}
   };
 
   // class members
@@ -932,8 +942,10 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         for (int i = State::Ready; i != State::Invalid; i++)
           states_str.push_back(std::string(path_state(static_cast<State>(i))));
         json.vars.state = states_str;
-        for (size_t triggerId = 0; triggerId < old_config->size(); ++triggerId)
+        for (size_t triggerId = 0; triggerId < old_config->size(); ++triggerId) {
           json.vars.trigger.push_back(old_config->triggerName(triggerId));
+          json.vars.trigger_passed_count.push_back(std::pair<int, int>(0,0));
+        }
         // getting names of triggers existing only in the old configuration
         for (std::vector<std::string>::const_iterator it = old_config_data->triggerNames().begin(); it != old_config_data->triggerNames().end(); ++it) {
           if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), *it) != json.vars.trigger.end()) continue;
@@ -957,8 +969,15 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       State old_state = prescaled_state(old_results->state(old_index), p, old_results->index(old_index), * old_config);
       State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
 
-      if (old_state == Pass)
+      if (old_state == Pass) {
         ++differences[p].count;
+      }
+      if (json.isActive) {
+        if (old_state == Pass)
+          ++json.vars.trigger_passed_count.at(p).first;
+        if (new_state == Pass)
+          ++json.vars.trigger_passed_count.at(p).second;
+      }
 
       bool trigger_affected = false;
       if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
@@ -1038,6 +1057,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     if (nEvents and counter >= nEvents)
       break;
   }
+  
+  if (json.isActive)
+    json.configuration.events = counter;
 
   if (not counter) {
     std::cout << "There are no common events between the old and new files";
