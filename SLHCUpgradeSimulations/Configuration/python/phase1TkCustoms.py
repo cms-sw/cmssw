@@ -143,7 +143,9 @@ def customise_DQM(process,pileup):
     process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
 
     # Pixel DQM needs to be updated for phase1
-    process.DQMOfflinePreDPG.remove(process.siPixelOfflineDQM_source)
+    old = process.siPixelOfflineDQM_source
+    process.load('DQM.SiPixelPhase1Common.SiPixelPhase1OfflineDQM_source_cff')
+    process.DQMOfflinePreDPG.replace(old, process.siPixelPhase1OfflineDQM_source)
 
     # Doesn't work because TriggerResults::HLT is missing
     process.muonAnalyzer.remove(process.muonRecoOneHLT)
