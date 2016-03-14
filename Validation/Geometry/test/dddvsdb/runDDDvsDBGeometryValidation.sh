@@ -121,6 +121,7 @@ endif
 
 cd ../tkddd
 cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoDDD_cfg.py .
+sed -i "{s/GeometryExtended/${geometry}/}" trackerModuleInfoDDD_cfg.py >>  ../GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log 
 cmsRun trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
