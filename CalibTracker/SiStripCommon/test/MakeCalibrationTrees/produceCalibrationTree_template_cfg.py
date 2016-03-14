@@ -124,7 +124,7 @@ process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T)
 process.schedule = cms.Schedule( process.TkCalPath_StdBunch, 
                                  process.TkCalPath_StdBunch0T,
                                  process.TkCalPath_IsoMuon,
-                                 process.TkCalPath_IsoMuon0T
+                                 process.TkCalPath_IsoMuon0T,
                                  process.TkCalPath_AagBunch,
                                  process.TkCalPath_AagBunch0T,
                                )
