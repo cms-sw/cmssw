@@ -21,8 +21,10 @@ do
                         fi
 			if [ $sample == "mb" ]; then
                             matchGenjets="HiCleanedGenJets"
+			    partons="selectedPartons"
 			else
 			    matchGenjets="HiSignalGenJets"
+			    partons="hiSignalGenParticles"
 			fi
 			genjets="HiGenJets"
                         ismc="False"
@@ -44,6 +46,7 @@ do
                             tracks="generalTracks"
 			    vertex="offlinePrimaryVertices"
                             genparticles="genParticles"
+                            partons="genParticles"
                             pflow="particleFlow"
 			    doTower="False"
 			    if [ $sample == "data" ] && [ $sub == "NONE" ] && [ $radius == 4 ] && [ $object == "PF" ]; then
@@ -82,6 +85,7 @@ do
                             | sed "s/MATCHGENJETS/$matchGenjets/g" \
                             | sed "s/GENJETS/$genjets/g" \
                             | sed "s/GENPARTICLES/$genparticles/g" \
+                            | sed "s/PARTONS/$partons/g" \
                             | sed "s/TRACKS/$tracks/g" \
                             | sed "s/VERTEX/$vertex/g" \
                             | sed "s/PARTICLEFLOW/$pflow/g" \

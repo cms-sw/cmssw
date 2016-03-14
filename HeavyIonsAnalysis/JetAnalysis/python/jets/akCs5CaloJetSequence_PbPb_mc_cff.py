@@ -33,7 +33,7 @@ akCs5CalobTagger = bTaggers("akCs5Calo",0.5)
 
 #create objects locally since they dont load properly otherwise
 #akCs5Calomatch = akCs5CalobTagger.match
-akCs5Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akCs5CaloJets"), matched = cms.InputTag("selectedPartons"))
+akCs5Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akCs5CaloJets"), matched = cms.InputTag("hiSignalGenParticles"))
 akCs5CaloPatJetFlavourAssociationLegacy = akCs5CalobTagger.PatJetFlavourAssociationLegacy
 akCs5CaloPatJetPartons = akCs5CalobTagger.PatJetPartons
 akCs5CaloJetTracksAssociatorAtVertex = akCs5CalobTagger.JetTracksAssociatorAtVertex

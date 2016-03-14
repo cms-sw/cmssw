@@ -33,7 +33,7 @@ akCsFilter3PFbTagger = bTaggers("akCsFilter3PF",0.3)
 
 #create objects locally since they dont load properly otherwise
 #akCsFilter3PFmatch = akCsFilter3PFbTagger.match
-akCsFilter3PFparton = patJetPartonMatch.clone(src = cms.InputTag("akCsFilter3PFJets"), matched = cms.InputTag("selectedPartons"))
+akCsFilter3PFparton = patJetPartonMatch.clone(src = cms.InputTag("akCsFilter3PFJets"), matched = cms.InputTag("genParticles"))
 akCsFilter3PFPatJetFlavourAssociationLegacy = akCsFilter3PFbTagger.PatJetFlavourAssociationLegacy
 akCsFilter3PFPatJetPartons = akCsFilter3PFbTagger.PatJetPartons
 akCsFilter3PFJetTracksAssociatorAtVertex = akCsFilter3PFbTagger.JetTracksAssociatorAtVertex
