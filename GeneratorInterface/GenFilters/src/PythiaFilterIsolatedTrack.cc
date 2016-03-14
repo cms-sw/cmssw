@@ -12,7 +12,8 @@
 #include<cmath>
 
 
-std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ) {
+std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ)
+{
 
   double deltaPhi;
   double etaEC=100;
@@ -20,7 +21,7 @@ std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP
   double Rcurv=pT*33.3*100/38; //r(m)=pT(GeV)*33.3/B(kG)
   double theta=2*atan(exp(-etaIP));
   double zNew;
-  if (theta>0.5*CLHEP::pi) theta=CLHEP::pi-theta;
+  if (theta>CLHEP::halfpi) theta=CLHEP::pi-theta;
   if (fabs(etaIP)<1.479) {
     deltaPhi=-charge*asin(0.5*ecRad_/Rcurv);
     double alpha1=2*asin(0.5*ecRad_/Rcurv);
@@ -59,8 +60,8 @@ std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP
   return retVal;
 }
 
-double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double eta2, double phi2) {
-
+double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double eta2, double phi2) 
+{
   double dR, Rec;
   if (fabs(eta1)<1.479) Rec=ecRad_;
   else                  Rec=ecDist_;
@@ -109,17 +110,18 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
   std::vector<const HepMC::GenParticle *> seeds;
 
   // fill the vector of charged particles and seeds in the event
-  for(HepMC::GenEvent::particle_const_iterator iter=myGenEvent->particles_begin(); iter!=myGenEvent->particles_end(); ++iter) {
+  for (HepMC::GenEvent::particle_const_iterator iter=myGenEvent->particles_begin(); iter!=myGenEvent->particles_end(); ++iter) {
     const HepMC::GenParticle *p=*iter;
+    if (!(pdt->particle(p->pdg_id()))) continue;
     int charge3 = pdt->particle(p->pdg_id())->ID().threeCharge();
     int status = p->status();
     double momentum = p->momentum().rho();
     double abseta = fabs(p->momentum().eta());
 
     // only consider stable, charged particles
-    if(abs(charge3)==3 && status==1 && momentum>MinIsolTrackMom_ && abseta<MaxSeedEta_+0.5) {
+    if (abs(charge3)==3 && status==1 && momentum>MinIsolTrackMom_ && abseta<MaxSeedEta_+0.5) {
       chargedParticles.push_back(p);
-      if(momentum>MinSeedMom_ && abseta<MaxSeedEta_) {
+      if (momentum>MinSeedMom_ && abseta<MaxSeedEta_) {
 	seeds.push_back(p);
       }
     }
@@ -127,8 +129,9 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
 
   // loop over all the seeds and see if any of them are isolated
   unsigned int ntrk(0);
-  for(std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
+  for (std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
     const HepMC::GenParticle *p1=*it1;
+    if (!(pdt->particle(p1->pdg_id()))) continue;
     if (p1->pdg_id() < -100 || p1->pdg_id() > 100 || (!onlyHadrons_)) { // Select hadrons only
       std::pair<double,double> EtaPhi1=GetEtaPhiAtEcal(p1->momentum().eta(),
 						       p1->momentum().phi(),
@@ -138,7 +141,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
 
       // loop over all of the other charged particles in the event, and see if any are close by
       bool failsIso=false;
-      for(std::vector<const HepMC::GenParticle *>::const_iterator it2=chargedParticles.begin(); it2!=chargedParticles.end(); ++it2) {
+      for (std::vector<const HepMC::GenParticle *>::const_iterator it2=chargedParticles.begin(); it2!=chargedParticles.end(); ++it2) {
 	const HepMC::GenParticle *p2=*it2;
 
 	// don't consider the seed particle among the other charge particles
@@ -152,7 +155,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
 	  // find out how far apart the particles are
 	  // if the seed fails the isolation requirement, try a different seed
 	  // occasionally allow a seed to pass to isolation requirement
-	  if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
+	  if (getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
 	    failsIso=true;
 	    break;
 	  }
