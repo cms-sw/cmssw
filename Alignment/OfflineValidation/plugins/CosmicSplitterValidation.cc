@@ -32,6 +32,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -179,6 +180,13 @@ private:
         double thetaErr_orm_, etaErr_orm_, phiErr_orm_;
         double ptErr_orm_, qoverptErr_orm_;
 
+        //consumes tokens
+        edm::EDGetTokenT<std::vector<reco::Track>> splitTracksToken_;
+        edm::EDGetTokenT<std::vector<reco::Track>> originalTracksToken_;
+        edm::EDGetTokenT<reco::MuonCollection> splitGlobalMuonsToken_;
+        edm::EDGetTokenT<reco::MuonCollection> originalGlobalMuonsToken_;
+        edm::EDGetTokenT<reco::MuonCollection> STAMuonsToken_;
+
 };
 
 //
@@ -289,7 +297,15 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
         thetaErr_orm_(0), etaErr_orm_(0), phiErr_orm_(0),
         ptErr_orm_(0), qoverptErr_orm_(0)
 {
-
+        edm::ConsumesCollector&& iC = consumesCollector();
+        splitTracksToken_ = iC.consumes<std::vector<reco::Track>>(splitTracks_);
+        originalTracksToken_ = iC.consumes<std::vector<reco::Track>>(originalTracks_);
+        if (splitMuons_){
+                splitGlobalMuonsToken_ = iC.consumes<reco::MuonCollection>(splitGlobalMuons_);
+                originalGlobalMuonsToken_ = iC.consumes<reco::MuonCollection>(originalGlobalMuons_);
+        }
+        if (checkIfGolden_)
+                STAMuonsToken_ = iC.consumes<reco::MuonCollection>(edm::InputTag("STAMuons"));
 }
 
 
@@ -310,15 +326,15 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
         if (checkIfGolden_) isGolden = is_gold_muon( iEvent );
 
         // grab collections
-        edm::Handle<std::vector<reco::Track> > tracks;
+        edm::Handle<std::vector<reco::Track>> tracks;
+        edm::Handle<std::vector<reco::Track>> originalTracks;
         edm::Handle<reco::MuonCollection> globalMuons;
         edm::Handle<reco::MuonCollection> originalGlobalMuons;
-        edm::Handle<std::vector<reco::Track> > originalTracks;
-        iEvent.getByLabel(splitTracks_, tracks);
-        iEvent.getByLabel(originalTracks_, originalTracks);
+        iEvent.getByToken(splitTracksToken_, tracks);
+        iEvent.getByToken(originalTracksToken_, originalTracks);
         if (splitMuons_){
-                iEvent.getByLabel(splitGlobalMuons_, globalMuons);
-                iEvent.getByLabel(originalGlobalMuons_, originalGlobalMuons);
+                iEvent.getByToken(splitGlobalMuonsToken_, globalMuons);
+                iEvent.getByToken(originalGlobalMuonsToken_, originalGlobalMuons);
         }
 
         const int kBPIX = PixelSubdetector::PixelBarrel;
@@ -902,7 +918,7 @@ void CosmicSplitterValidation::endJob() {
 bool CosmicSplitterValidation::is_gold_muon(const edm::Event& e){
 
         edm::Handle<reco::MuonCollection> muHandle;
-        e.getByLabel("STAMuons", muHandle);
+        e.getByToken(STAMuonsToken_, muHandle);
         const reco::MuonCollection & muons = *(muHandle.product());
         // make sure there are 2 muons
         if ( 2 != muons.size() ) return false;
