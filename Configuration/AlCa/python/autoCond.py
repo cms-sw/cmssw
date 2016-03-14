@@ -30,7 +30,7 @@ autoCond = {
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '80X_dataRun2_HLT_frozen_v8',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v3',
+    'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v4',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '80X_dataRun2_HLTHI_frozen_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
