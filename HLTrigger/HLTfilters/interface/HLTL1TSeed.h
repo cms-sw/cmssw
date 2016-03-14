@@ -60,9 +60,6 @@ public:
 
 private:
 
-    /// get the vector of object types for a condition cndName on the GTL chip chipNumber
-    //const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName) const;
-
     /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
     /// for a new L1 Trigger menu
     void inline updateAlgoLogicParser(const L1GtTriggerMenu*, const AlgorithmMap&) { };
@@ -72,25 +69,8 @@ private:
     void inline updateAlgoLogicParser(const std::vector<bool>& gtWord,
             const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition) { };
 
-    /// debug print grouped in a single function
-    /// can be called for a new menu (bool "true") or for a new event
-    //void debugPrint(bool) const;
-
-    /// seeding is done ignoring if a L1 object fired or not
-    /// if the event is selected at L1, fill all the L1 objects of types corresponding to the
-    /// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
-    /// directly from L1Extra and use them as seeds at HLT
-    /// method and filter return true if at least an object is filled
-    bool seedsAll(edm::Event &, trigger::TriggerFilterObjectWithRefs &) const;
-
     /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
-    bool seedsL1TriggerObjectMaps(
-            edm::Event &,
-            trigger::TriggerFilterObjectWithRefs &
-            //, const L1GtTriggerMask *,
-            //const L1GlobalTriggerReadoutRecord *,
-            //const int physicsDaqPartition
-            );
+    bool seedsL1TriggerObjectMaps( edm::Event &, trigger::TriggerFilterObjectWithRefs &);
 
 
     /// detailed print of filter content
