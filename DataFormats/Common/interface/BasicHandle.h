@@ -28,7 +28,6 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
-#include "DataFormats/Common/interface/ProductData.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <memory>
@@ -51,11 +50,6 @@ namespace edm {
       product_(h.product_),
       prov_(h.prov_),
       whyFailedFactory_(h.whyFailedFactory_){}
-
-    explicit BasicHandle(ProductData const& productData) :
-      product_(productData.wrapper()),
-      prov_(&productData.provenance()) {
-    }
 
     BasicHandle(BasicHandle &&h) = default;
     

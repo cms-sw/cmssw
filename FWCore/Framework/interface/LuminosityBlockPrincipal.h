@@ -40,7 +40,8 @@ namespace edm {
         std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int index);
+        unsigned int index,
+        bool isForPrimaryProcess=true);
 
     ~LuminosityBlockPrincipal() {}
 
