@@ -461,35 +461,32 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             legend->AddEntry((TObject*)0,meansrmss[i],"");
         }
     }
-    if (n>=2)
+    if (legend->GetListOfPrimitives()->At(0) == 0)
     {
-        if (legend->GetListOfPrimitives()->At(0) == 0)
-        {
-            stufftodelete->Clear();
-            deleteCanvas(c1);
-            return 0;
-        }
-
-
-        c1->Update();
-        Double_t x1min  = .98*gPad->GetUxmin() + .02*gPad->GetUxmax();
-        Double_t x2max  = .02*gPad->GetUxmin() + .98*gPad->GetUxmax();
-        Double_t y1min  = .98*gPad->GetUymin() + .02*gPad->GetUymax();
-        Double_t y2max  = .02*gPad->GetUymin() + .98*gPad->GetUymax();
-        Double_t width  = .4*(x2max-x1min);
-        Double_t height = (1./20)*legend->GetListOfPrimitives()->GetEntries()*(y2max-y1min);
-        if (type == Histogram || type == OrgHistogram)
-        {
-            width *= 2;
-            height /= 2;
-            legend->SetNColumns(2);
-        }
-        Double_t newy2max = placeLegend(legend,width,height,x1min,y1min,x2max,y2max);
-        maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(),(newy2max-.02*gPad->GetUymin())/.98);
-
-        legend->SetFillStyle(0);
-        legend->Draw();
+        stufftodelete->Clear();
+        deleteCanvas(c1);
+        return 0;
     }
+
+
+    c1->Update();
+    Double_t x1min  = .98*gPad->GetUxmin() + .02*gPad->GetUxmax();
+    Double_t x2max  = .02*gPad->GetUxmin() + .98*gPad->GetUxmax();
+    Double_t y1min  = .98*gPad->GetUymin() + .02*gPad->GetUymax();
+    Double_t y2max  = .02*gPad->GetUymin() + .98*gPad->GetUymax();
+    Double_t width  = .4*(x2max-x1min);
+    Double_t height = (1./20)*legend->GetListOfPrimitives()->GetEntries()*(y2max-y1min);
+    if (type == Histogram || type == OrgHistogram)
+    {
+        width *= 2;
+        height /= 2;
+        legend->SetNColumns(2);
+    }
+    Double_t newy2max = placeLegend(legend,width,height,x1min,y1min,x2max,y2max);
+    maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(),(newy2max-.02*gPad->GetUymin())/.98);
+
+    legend->SetFillStyle(0);
+    legend->Draw();
 
     if (saveas != "")
         saveplot(c1,saveas);
