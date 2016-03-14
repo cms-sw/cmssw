@@ -1,5 +1,5 @@
 
-#include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -57,15 +57,15 @@ namespace edm {
     }
   }
 
-  ProductHolderIndexHelper::ProductHolderIndexHelper() :
+  ProductResolverIndexHelper::ProductResolverIndexHelper() :
     nextIndexValue_(0),
     beginElements_(0),
-    items_(new std::set<ProductHolderIndexHelper::Item>),
+    items_(new std::set<ProductResolverIndexHelper::Item>),
     processItems_(new std::set<std::string>) {
   }
 
-  ProductHolderIndex
-  ProductHolderIndexHelper::index(KindOfType kindOfType,
+  ProductResolverIndex
+  ProductResolverIndexHelper::index(KindOfType kindOfType,
                                   TypeID const& typeID,
                                   char const* moduleLabel,
                                   char const* instance,
@@ -78,63 +78,63 @@ namespace edm {
                                                          process);
 
     if (iToIndexAndNames == std::numeric_limits<unsigned int>::max()) {
-      return ProductHolderIndexInvalid;
+      return ProductResolverIndexInvalid;
     }
     return indexAndNames_[iToIndexAndNames].index();
   }
 
-  ProductHolderIndexHelper::Matches::Matches(ProductHolderIndexHelper const* productHolderIndexHelper,
+  ProductResolverIndexHelper::Matches::Matches(ProductResolverIndexHelper const* productResolverIndexHelper,
                                              unsigned int startInIndexAndNames,
                                              unsigned int numberOfMatches) :
-    productHolderIndexHelper_(productHolderIndexHelper),
+    productResolverIndexHelper_(productResolverIndexHelper),
     startInIndexAndNames_(startInIndexAndNames),
     numberOfMatches_(numberOfMatches) {
-    if (numberOfMatches != 0 && startInIndexAndNames_ + numberOfMatches_ > productHolderIndexHelper_->indexAndNames_.size()) {
+    if (numberOfMatches != 0 && startInIndexAndNames_ + numberOfMatches_ > productResolverIndexHelper_->indexAndNames_.size()) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::Matches::Matches - Arguments exceed vector bounds.\n";
+        << "ProductResolverIndexHelper::Matches::Matches - Arguments exceed vector bounds.\n";
     }
   }
 
-  ProductHolderIndex
-  ProductHolderIndexHelper::Matches::index(unsigned int i) const {
+  ProductResolverIndex
+  ProductResolverIndexHelper::Matches::index(unsigned int i) const {
     if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::Matches::index - Argument is out of range.\n";
+        << "ProductResolverIndexHelper::Matches::index - Argument is out of range.\n";
     }
-    return productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].index();
+    return productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].index();
   }
 
   bool
-  ProductHolderIndexHelper::Matches::isFullyResolved(unsigned int i) const {
+  ProductResolverIndexHelper::Matches::isFullyResolved(unsigned int i) const {
     if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::Matches::isFullyResolved - Argument is out of range.\n";
+        << "ProductResolverIndexHelper::Matches::isFullyResolved - Argument is out of range.\n";
     }
-    return (productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames() != 0U);
+    return (productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames() != 0U);
   }
 
   char const*
-  ProductHolderIndexHelper::Matches::processName(unsigned int i) const {
+  ProductResolverIndexHelper::Matches::processName(unsigned int i) const {
      if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::Matches::processName - Argument is out of range.\n";
+        << "ProductResolverIndexHelper::Matches::processName - Argument is out of range.\n";
      }
-     unsigned int startInProcessNames = productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames();
-     return &productHolderIndexHelper_->processNames_[startInProcessNames];
+     unsigned int startInProcessNames = productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames();
+     return &productResolverIndexHelper_->processNames_[startInProcessNames];
   }
 
   char const*
-  ProductHolderIndexHelper::Matches::moduleLabel(unsigned int i) const {
+  ProductResolverIndexHelper::Matches::moduleLabel(unsigned int i) const {
      if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::Matches::moduleLabel - Argument is out of range.\n";
+        << "ProductResolverIndexHelper::Matches::moduleLabel - Argument is out of range.\n";
      }
-     unsigned int start = productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInBigNamesContainer();
-     return &productHolderIndexHelper_->bigNamesContainer_[start];
+     unsigned int start = productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInBigNamesContainer();
+     return &productResolverIndexHelper_->bigNamesContainer_[start];
   }
 
-  ProductHolderIndexHelper::Matches
-  ProductHolderIndexHelper::relatedIndexes(KindOfType kindOfType,
+  ProductResolverIndexHelper::Matches
+  ProductResolverIndexHelper::relatedIndexes(KindOfType kindOfType,
                                            TypeID const& typeID,
                                            char const* moduleLabel,
                                            char const* instance) const {
@@ -159,8 +159,8 @@ namespace edm {
     return Matches(this, startInIndexAndNames, numberOfMatches);
   }
 
-  ProductHolderIndexHelper::Matches
-  ProductHolderIndexHelper::relatedIndexes(KindOfType kindOfType,
+  ProductResolverIndexHelper::Matches
+  ProductResolverIndexHelper::relatedIndexes(KindOfType kindOfType,
                                            TypeID const& typeID) const {
 
     unsigned int startInIndexAndNames = std::numeric_limits<unsigned int>::max();
@@ -179,20 +179,20 @@ namespace edm {
     return Matches(this, startInIndexAndNames, numberOfMatches);
   }
 
-  ProductHolderIndex
-  ProductHolderIndexHelper::insert(TypeID const& typeID,
+  ProductResolverIndex
+  ProductResolverIndexHelper::insert(TypeID const& typeID,
                                    char const* moduleLabel,
                                    char const* instance,
                                    char const* process,
                                    TypeID const& containedTypeID) {
     if (!items_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::insert - Attempt to insert more elements after frozen.\n";
+        << "ProductResolverIndexHelper::insert - Attempt to insert more elements after frozen.\n";
     }
 
     if (process == 0 || *process == '\0') {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::insert - Empty process.\n";
+        << "ProductResolverIndexHelper::insert - Empty process.\n";
     }
 
     // Throw if this has already been inserted
@@ -200,7 +200,7 @@ namespace edm {
     std::set<Item>::iterator iter = items_->find(item);
     if (iter != items_->end()) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::insert - Attempt to insert duplicate entry.\n";
+        << "ProductResolverIndexHelper::insert - Attempt to insert duplicate entry.\n";
     }
 
     // Put in an entry for the product
@@ -227,7 +227,7 @@ namespace edm {
       Item containedItem(ELEMENT_TYPE, containedTypeID, moduleLabel, instance, process, savedProductIndex);
       iter = items_->find(containedItem);
       if (iter != items_->end()) {
-        containedItem.setIndex(ProductHolderIndexAmbiguous);
+        containedItem.setIndex(ProductResolverIndexAmbiguous);
         items_->erase(iter);
       }
       items_->insert(containedItem);
@@ -250,7 +250,7 @@ namespace edm {
         Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
         iter = items_->find(baseItem);
         if (iter != items_->end()) {
-          baseItem.setIndex(ProductHolderIndexAmbiguous);
+          baseItem.setIndex(ProductResolverIndexAmbiguous);
           items_->erase(iter);
         }
         items_->insert(baseItem);
@@ -267,7 +267,7 @@ namespace edm {
     return savedProductIndex;
   }
 
-  void ProductHolderIndexHelper::setFrozen() {
+  void ProductResolverIndexHelper::setFrozen() {
 
     if (!items_) return;
 
@@ -384,7 +384,7 @@ namespace edm {
         unsigned int processStart = processIndex(item.process().c_str());
         if (processStart == std::numeric_limits<unsigned int>::max()) {
           throw Exception(errors::LogicError)
-            << "ProductHolderIndexHelper::setFrozen - Process not found in processNames_.\n";
+            << "ProductResolverIndexHelper::setFrozen - Process not found in processNames_.\n";
         }
         indexAndNames_.emplace_back(item.index(), previousCharacterCount, processStart);
 
@@ -408,16 +408,16 @@ namespace edm {
     processItems_ = nullptr;
   }
 
-  std::vector<std::string> const& ProductHolderIndexHelper::lookupProcessNames() const {
+  std::vector<std::string> const& ProductResolverIndexHelper::lookupProcessNames() const {
     if (items_) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::lookupProcessNames - Attempt to access names before frozen.\n";
+        << "ProductResolverIndexHelper::lookupProcessNames - Attempt to access names before frozen.\n";
     }
     return lookupProcessNames_;
   }
 
   unsigned int
-  ProductHolderIndexHelper::indexToIndexAndNames(KindOfType kindOfType,
+  ProductResolverIndexHelper::indexToIndexAndNames(KindOfType kindOfType,
                                                  TypeID const& typeID,
                                                  char const* moduleLabel,
                                                  char const* instance,
@@ -435,7 +435,7 @@ namespace edm {
         }
       }
 
-      ProductHolderIndexHelper::Range const& range = ranges_[iType];
+      ProductResolverIndexHelper::Range const& range = ranges_[iType];
       unsigned int begin = range.begin();
       unsigned int end = range.end();
 
@@ -501,7 +501,7 @@ namespace edm {
   }
 
   unsigned int
-  ProductHolderIndexHelper::indexToType(KindOfType kindOfType,
+  ProductResolverIndexHelper::indexToType(KindOfType kindOfType,
                                         TypeID const& typeID) const {
 
     unsigned int beginType = 0;
@@ -525,7 +525,7 @@ namespace edm {
     return std::numeric_limits<unsigned int>::max(); // Failed to find it
   }
 
-  unsigned int ProductHolderIndexHelper::processIndex(char const* process)  const {
+  unsigned int ProductResolverIndexHelper::processIndex(char const* process)  const {
 
     char const* ptr = &processNames_[0];
     char const* begin = ptr;
@@ -549,7 +549,7 @@ namespace edm {
     return 0;
   }
 
-  void ProductHolderIndexHelper::sanityCheck() const {
+  void ProductResolverIndexHelper::sanityCheck() const {
     bool sanityChecksPass = true;
     if (sortedTypeIDs_.size() != ranges_.size()) sanityChecksPass = false;
 
@@ -565,7 +565,7 @@ namespace edm {
     unsigned maxStart = 0;
     unsigned maxStartProcess = 0;
     for (auto const& indexAndName : indexAndNames_) {
-      if (indexAndName.index() >= nextIndexValue_ && indexAndName.index() != ProductHolderIndexAmbiguous) sanityChecksPass = false;
+      if (indexAndName.index() >= nextIndexValue_ && indexAndName.index() != ProductResolverIndexAmbiguous) sanityChecksPass = false;
 
       if (indexAndName.startInBigNamesContainer() >= bigNamesContainer_.size()) sanityChecksPass = false;
       if (indexAndName.startInProcessNames() >= processNames_.size()) sanityChecksPass = false;
@@ -597,16 +597,16 @@ namespace edm {
 
     if (!sanityChecksPass) {
       throw Exception(errors::LogicError)
-        << "ProductHolderIndexHelper::setFrozen - Detected illegal state.\n";
+        << "ProductResolverIndexHelper::setFrozen - Detected illegal state.\n";
     }
   }
 
-  ProductHolderIndexHelper::Item::Item(KindOfType kindOfType,
+  ProductResolverIndexHelper::Item::Item(KindOfType kindOfType,
                                        TypeID const& typeID,
                                        std::string const& moduleLabel,
                                        std::string const& instance,
                                        std::string const& process,
-                                       ProductHolderIndex index) :
+                                       ProductResolverIndex index) :
     kindOfType_(kindOfType),
     typeID_(typeID),
     moduleLabel_(moduleLabel),
@@ -616,7 +616,7 @@ namespace edm {
   }
 
   bool
-  ProductHolderIndexHelper::Item::operator<(Item const& right) const {
+  ProductResolverIndexHelper::Item::operator<(Item const& right) const {
     if (kindOfType_ < right.kindOfType_) return true;
     if (kindOfType_ > right.kindOfType_) return false;
     if (typeID_ < right.typeID_) return true;
@@ -628,9 +628,9 @@ namespace edm {
     return process_ < right.process_;
   }
 
-  void ProductHolderIndexHelper::print(std::ostream& os) const {
+  void ProductResolverIndexHelper::print(std::ostream& os) const {
 
-    os << "\n******* Dump ProductHolderIndexHelper *************************\n";
+    os << "\n******* Dump ProductResolverIndexHelper *************************\n";
 
     os << "\nnextIndexValue_ = " <<  nextIndexValue_ << "\n";
     os << "beginElements_ = " << beginElements_ << "\n";

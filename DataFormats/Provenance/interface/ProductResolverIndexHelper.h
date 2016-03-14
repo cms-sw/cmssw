@@ -1,49 +1,49 @@
-#ifndef DataFormats_Provenance_ProductHolderIndexHelper_h
-#define DataFormats_Provenance_ProductHolderIndexHelper_h
+#ifndef DataFormats_Provenance_ProductResolverIndexHelper_h
+#define DataFormats_Provenance_ProductResolverIndexHelper_h
 
-/** \class edm::ProductHolderIndexHelper
+/** \class edm::ProductResolverIndexHelper
 
-This class assigns and gets the ProductHolderIndex
+This class assigns and gets the ProductResolverIndex
 associated with a type, module label, instance, and
-process.  The ProductHolderIndex is used to tell the
-Principal where to store a ProductHolder and how to find
+process.  The ProductResolverIndex is used to tell the
+Principal where to store a ProductResolver and how to find
 it quickly.
 
-One can also look up the same ProductHolderIndex's using
+One can also look up the same ProductResolverIndex's using
 the type or base type of an element in a container in the
 product (if the product is a container). In this case the
 KindOfType argument to the Principal::getByLabel function
 is ELEMENT_TYPE, whereas normally it is PRODUCT_TYPE.
 
-There are also special ProductHolderIndex's generated
+There are also special ProductResolverIndex's generated
 where the process name is empty. These indexes refer
-to a special ProductHolders that search for a matching
+to a special ProductResolvers that search for a matching
 product from the most recent process that has a matching
-type, label and instance. There is ProductHolderIndex
+type, label and instance. There is ProductResolverIndex
 generated for each type/label/instance combination which
 has at least one entry in the tables in this class.
 Both PRODUCT_TYPEs and ELEMENT_TYPEs get these special
-ProductHolders.
+ProductResolvers.
 
-The ProductHolderIndex for a particular product
+The ProductResolverIndex for a particular product
 will not change during a process after the ProductRegistry
 has been frozen. Nor will any of the other member data
 of this class. Multiple threads can access it concurrently
-without problems. The ProductHolderIndexes can be safely
+without problems. The ProductResolverIndexes can be safely
 cached in InputTags and possibly other places, because
-they never change within a process. The ProductHolderIndex
+they never change within a process. The ProductResolverIndex
 for a particular product is not intended to be persistent
 and will be different in different processes.
 
-The ProductHolderIndex is used to order the placement of
-the ProductHolders in the Principal that are either
+The ProductResolverIndex is used to order the placement of
+the ProductResolvers in the Principal that are either
 present in the input or produced in the current process.
-Be aware that there are other ProductHolders for products
-that come after ProductHolders placed by this class.
+Be aware that there are other ProductResolvers for products
+that come after ProductResolvers placed by this class.
 For example, the placement of dropped products
 is not handled by this class, instead by the ProductRegistry.
 The reason for this distinction is that those other
-ProductHolders can change and be added as a process runs.
+ProductResolvers can change and be added as a process runs.
 The content of this class never changes after the
 ProductRegistry is frozen.
 
@@ -51,7 +51,7 @@ ProductRegistry is frozen.
 
 */
 
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -82,18 +82,18 @@ namespace edm {
     TypeID getContainedType(TypeID const& typeID);
   }
 
-  class ProductHolderIndexHelper {
+  class ProductResolverIndexHelper {
   public:
 
-    ProductHolderIndexHelper();
+    ProductResolverIndexHelper();
 
-    // The accessors below return a ProductHolderIndex that matches 
+    // The accessors below return a ProductResolverIndex that matches 
     // the arguments or a set of matching indexes using the Matches
     // class. A returned index can have a value that indicates that it
     // is invalid or ambiguous and the client should check for these
     // values before using the index (see ProductIndexHolder.h).
 
-    // If no matches are found or the ProductHolderIndexHelper
+    // If no matches are found or the ProductResolverIndexHelper
     // has not been frozen yet, then an invalid index or a Matches
     // object with numberOfMatches equal to 0 will be returned.
 
@@ -108,10 +108,10 @@ namespace edm {
     // The 3 pointer arguments must point to C style strings terminated
     // by a '\0' with the one following possible exception. If the
     // process pointer is null or the process string empty, then
-    // this returns the index of the special ProductHolder that
+    // this returns the index of the special ProductResolver that
     // knows how to search for the product matching the type, module
     // label, and instance and which is from the most recent process.
-    ProductHolderIndex index(KindOfType kindOfType,
+    ProductResolverIndex index(KindOfType kindOfType,
                              TypeID const& typeID,
                              char const* moduleLabel,
                              char const* instance,
@@ -119,22 +119,22 @@ namespace edm {
 
     class Matches {
     public:
-      Matches(ProductHolderIndexHelper const* productHolderIndexHelper,
+      Matches(ProductResolverIndexHelper const* productResolverIndexHelper,
               unsigned int startInIndexAndNames,
               unsigned int numberOfMatches);
 
-      ProductHolderIndex index(unsigned int i) const;
+      ProductResolverIndex index(unsigned int i) const;
       unsigned int numberOfMatches() const { return numberOfMatches_; }
       bool isFullyResolved(unsigned int i) const;
       char const* moduleLabel(unsigned int i) const;
       char const* processName(unsigned int i) const;
     private:
-      ProductHolderIndexHelper const* productHolderIndexHelper_;
+      ProductResolverIndexHelper const* productResolverIndexHelper_;
       unsigned int startInIndexAndNames_;
       unsigned int numberOfMatches_;
     };
 
-    // Return ProductHolderIndex's for all product holders that
+    // Return ProductResolverIndex's for all product holders that
     // match the type, module label, and product instance name.
     // The pointer arguments must be C style strings terminated
     // by a '\0'.
@@ -154,11 +154,11 @@ namespace edm {
     // (the calling function is expected to check that)
     // The pointer arguments must point at C style strings
     // terminated by '\0'.
-    // 1. This creates an entry and new ProductHolderIndex for
+    // 1. This creates an entry and new ProductResolverIndex for
     // the product if it does not already exist. If it
     // does exist then it throws.
     // 2. If it does not already exist, this will create an
-    // entry and new ProductHolderIndex for the ProductHolder
+    // entry and new ProductResolverIndex for the ProductResolver
     // that will search for the matching type, label, and
     // instance for the most recent process (internally indicated
     // by an empty process string).
@@ -167,18 +167,18 @@ namespace edm {
     // 1. If the matching type, label, instance, and process
     // already exist then that entry is modified and marked
     // ambiguous. If not, it inserts an entry which uses the same
-    // ProductHolderIndex as the containing product.
+    // ProductResolverIndex as the containing product.
     // 2. If it does not already exist it inserts a new
-    // entry with a new ProductHolderIndex for the case
+    // entry with a new ProductResolverIndex for the case
     // which searches for the most recent process.
-    ProductHolderIndex
+    ProductResolverIndex
     insert(TypeID const& typeID,
            char const* moduleLabel,
            char const* instance,
            char const* process,
            TypeID const& containedTypeID);
 
-    ProductHolderIndex
+    ProductResolverIndex
     insert(TypeID const& typeID,
            char const* moduleLabel,
            char const* instance,
@@ -205,13 +205,13 @@ namespace edm {
 
     class IndexAndNames {
     public:
-      IndexAndNames(ProductHolderIndex index, unsigned int start, unsigned int startProcess) :
+      IndexAndNames(ProductResolverIndex index, unsigned int start, unsigned int startProcess) :
         index_(index), startInBigNamesContainer_(start), startInProcessNames_(startProcess) { }
-      ProductHolderIndex index() const { return index_; }
+      ProductResolverIndex index() const { return index_; }
       unsigned int startInBigNamesContainer() const { return startInBigNamesContainer_; }
       unsigned int startInProcessNames() const { return startInProcessNames_; }
     private:
-      ProductHolderIndex index_;
+      ProductResolverIndex index_;
       unsigned int startInBigNamesContainer_;
       unsigned int startInProcessNames_;
     };
@@ -244,16 +244,16 @@ namespace edm {
     // might cause out of bounds errors when accessing the vectors.
     void sanityCheck() const;
 
-    ProductHolderIndex nextIndexValue() const { return nextIndexValue_; }
+    ProductResolverIndex nextIndexValue() const { return nextIndexValue_; }
 
     // For debugging only
     void print(std::ostream& os) const;
 
   private:
 
-    // Next available value for a ProductHolderIndex. This just
+    // Next available value for a ProductResolverIndex. This just
     // increments by one each time a new value is assigned.
-    ProductHolderIndex nextIndexValue_;
+    ProductResolverIndex nextIndexValue_;
 
     // This is an index into sortedTypeIDs_ that tells where
     // the entries corresponding to types of elements in containers
@@ -274,7 +274,7 @@ namespace edm {
     // vector below.
     std::vector<Range> ranges_;
 
-    // Each element of this vector contains a ProductHolderIndex.
+    // Each element of this vector contains a ProductResolverIndex.
     // It also contains indexes into vectors of characters that
     // hold the corresponding moduleLabel, instance, and process
     // name. Note this is sorted with product entries first then
@@ -313,16 +313,16 @@ namespace edm {
            std::string const& moduleLabel,
            std::string const& instance,
            std::string const& process,
-           ProductHolderIndex index);
+           ProductResolverIndex index);
       KindOfType kindOfType() const { return kindOfType_; }
       TypeID const& typeID() const { return typeID_; }
       std::string const& moduleLabel() const { return moduleLabel_; }
       std::string const& instance() const { return instance_; }
       std::string const& process() const { return process_; }
-      ProductHolderIndex index() const { return index_; }
+      ProductResolverIndex index() const { return index_; }
 
       void clearProcess() { process_.clear(); }
-      void setIndex(ProductHolderIndex v) { index_ = v; }
+      void setIndex(ProductResolverIndex v) { index_ = v; }
 
       bool operator<(Item const& right) const;
 
@@ -332,7 +332,7 @@ namespace edm {
       std::string moduleLabel_;
       std::string instance_;
       std::string process_;
-      ProductHolderIndex index_;
+      ProductResolverIndex index_;
     };
 
     edm::propagate_const<std::unique_ptr<std::set<Item>>> items_;
