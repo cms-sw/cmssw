@@ -3,3 +3,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DQMServices/Core"/>
+<export>
+  <lib   name="1"/>
+</export>
