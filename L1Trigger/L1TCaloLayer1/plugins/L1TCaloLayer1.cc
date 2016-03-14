@@ -87,6 +87,7 @@ private:
   std::vector< std::vector< double > > hfSF;
 
   bool useLSB;
+  bool useCalib;
   bool useECALLUT;
   bool useHCALLUT;
   bool useHFLUT;
@@ -119,6 +120,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   hfSFETBins(iConfig.getParameter<std::vector< uint32_t > >("hfSFETBins")),
   hfSF(12, std::vector < double >(hfSFETBins.size())),
   useLSB(iConfig.getParameter<bool>("useLSB")),
+  useCalib(iConfig.getParameter<bool>("useCalib")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
   useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
@@ -277,7 +279,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useCalib, useECALLUT, useHCALLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   if(!makeHFLUTs()) {
@@ -291,7 +293,7 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
 	vector<UCTTower*> towers = regions[rgn]->getTowers();
 	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(rgn < NRegionsInCard) {
+	  if(towers[twr]->getRegion() < NRegionsInCard) {
 	    towers[twr]->setECALLUT(&ecalLUT);
 	    towers[twr]->setHCALLUT(&hcalLUT);
 	  }

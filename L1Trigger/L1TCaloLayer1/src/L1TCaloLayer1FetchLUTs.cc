@@ -23,6 +23,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    std::vector< std::vector< std::vector < uint32_t > > > &eLUT,
 			    std::vector< std::vector< std::vector < uint32_t > > > &hLUT,
 			    bool useLSB,
+			    bool useCalib,
 			    bool useECALLUT,
 			    bool useHCALLUT) {
 
@@ -59,7 +60,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	  }
 	  // Use hcal = 0 to get ecal only energy but in RCT JetMET scale - should be 8-bit max
 	  double calibratedECalInput = linearizedECalInput;
-	  if(useECALLUT) calibratedECalInput = rctParameters_->JetMETTPGSum(linearizedECalInput, 0, absCaloEta);
+	  if(useCalib) calibratedECalInput = rctParameters_->JetMETTPGSum(linearizedECalInput, 0, absCaloEta);
+	  value = calibratedECalInput;
 	  if(useLSB) value = calibratedECalInput / rctParameters_->jetMETLSB();
 	  if(value > 0xFF) {
 	    value = 0xFF;
@@ -90,7 +92,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	  }
 	  // Use ecal = 0 to get hcal only energy but in RCT JetMET scale - should be 8-bit max
 	  double calibratedHcalInput = linearizedHcalInput;
-	  if(useHCALLUT) calibratedHcalInput = rctParameters_->JetMETTPGSum(0, linearizedHcalInput, absCaloEta);
+	  if(useCalib) calibratedHcalInput = rctParameters_->JetMETTPGSum(0, linearizedHcalInput, absCaloEta);
+	  value = calibratedHcalInput;
 	  if(useLSB) value = calibratedHcalInput / rctParameters_->jetMETLSB();
 	  if(value > 0xFF) {
 	    value = 0xFF;
