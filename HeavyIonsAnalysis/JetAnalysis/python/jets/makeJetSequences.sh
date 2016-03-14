@@ -15,6 +15,10 @@ do
                 do
                     for object in PF Calo
                     do
+			# no Cs Calo or pp jets
+			if ( [ $object == "Calo" ] || [ $system == "pp" ] ) && ( [ $sub == "Cs" ] || [ $sub == "CsSoftDrop" ] || [ $sub == "CsFilter" ] ) ; then
+			    continue
+			fi
                         subt=$sub
                         if [ $sub == "NONE" ]; then
                             subt=""
