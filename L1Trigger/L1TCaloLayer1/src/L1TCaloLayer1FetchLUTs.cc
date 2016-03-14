@@ -14,6 +14,9 @@
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
 #include "L1TCaloLayer1FetchLUTs.hh"
 
@@ -74,13 +77,24 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   // get energy scale to convert input from ECAL - this should be linear with LSB = 0.5 GeV
   const double ecalLSB = 0.5;
       
-  // get energy scale to convert input from HCAL - this should be Landsberg's E to ET etc non-linear conversion factors
+  // get energy scale to convert input from HCAL
   edm::ESHandle<CaloTPGTranscoder> decoder;
   iSetup.get<CaloTPGRecord>().get(decoder);
   if ( decoder.product() == nullptr ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloTPGTranscoder object! Check Global Tag, etc.";
     return false;
   }
+  // TP compression scale is always phi symmetric
+  // We default to 3 since HF has no ieta=41 iphi=1,2
+  auto decodeHcalEt = [&decoder](uint32_t iEta, uint32_t compressedEt, uint32_t iPhi=3) -> double {
+    HcalTriggerPrimitiveSample sample(compressedEt);
+    HcalTrigTowerDetId id(iEta, iPhi);
+    if ( abs(iEta) >= 30 ) {
+      id.setVersion(1);
+    }
+    return decoder->hcaletValue(id, sample);
+  };
+
 
   // Make ECal LUT
   for(int absCaloEta = 1; absCaloEta <= 28; absCaloEta++) {
@@ -127,8 +141,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	uint32_t value = hcalInput;
 	if(useHCALLUT) {
           // hcaletValue defined in L137 of CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.cc
-	  double linearizedHcalInput = decoder->hcaletValue(absCaloEta, hcalInput); // in GeV
-	  if(linearizedHcalInput != decoder->hcaletValue(-absCaloEta, hcalInput)) {
+	  double linearizedHcalInput = decodeHcalEt(absCaloEta, hcalInput); // in GeV
+	  if(linearizedHcalInput != decodeHcalEt(-absCaloEta, hcalInput)) {
 	    edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
 	  }
 
@@ -165,7 +179,10 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
       uint32_t value = etCode;
       if(useHFLUT) {
-        double linearizedHFInput = decoder->hcaletValue(30+etaBin, value); // in GeV
+        double linearizedHFInput = decodeHcalEt(30+etaBin, value); // in GeV
+        if(linearizedHFInput != decodeHcalEt(-30-etaBin, value)) {
+          edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - HF scale factors are different for positive and negative eta ! :(" << std::endl;
+        }
 
 	uint32_t etBin = 0;
 	for(; etBin < hfScaleETBins.size(); etBin++) {
