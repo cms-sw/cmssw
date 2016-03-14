@@ -1048,25 +1048,6 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
     Long64_t nSel = 0;
     if (histnamesfilled && histnames.size() > 0) {
       nSel = (Long64_t)histnames.size();
-
-      //============================================================
-      //for compatibility - please remove this at some point
-      //it's now the end of August 2015
-      TH1 *firstHist = 0;
-      if (histnames[0].Contains("/")) {
-        firstHist = (TH1*)f->Get(histnames[0]);
-      } else {
-        TKey *histKey = f->FindKeyAny(histnames[0]);
-        if (histKey)
-          firstHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
-      }
-      if (!firstHist)             //then the validation was done with an older version of TrackerOfflineValidation
-      {                           // ==> have to make the plots the old (long) way
-        histnamesfilled = false;
-        histnames.clear();
-      }
-      //============================================================
-
     }
     if (!histnamesfilled) {
       // first loop on tree to find out which entries (i.e. modules) fulfill the selection
