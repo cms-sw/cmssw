@@ -100,10 +100,10 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   Handle<reco::TrackCollection> theTCollection;
   iEvent.getByToken(srcToken_,theTCollection);
 
-  std::auto_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
-  std::auto_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);
+  edm::RefProd<std::vector<MomentumConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint>>();
 
-  edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
+  std::auto_ptr<std::vector<MomentumConstraint>> pairs(new std::vector<MomentumConstraint>);
+  std::auto_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
 
   int index = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
@@ -114,7 +114,7 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
       tmp= MomentumConstraint(i->p(),fixedmomerr_);
     }
     pairs->push_back(tmp);
-    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint> >(rPairs,index) );
+    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint>>(rPairs,index) );
     index++;
   }
 
