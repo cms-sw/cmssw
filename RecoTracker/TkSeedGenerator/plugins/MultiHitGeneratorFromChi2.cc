@@ -149,47 +149,61 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 					const edm::EventSetup& es,
 					SeedingLayerSetsHits::SeedingLayerSet pairLayers,
 					std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers)
-{ 
+{
+  LogDebug("MultiHitGeneratorFromChi2") << "pair: " << thePairGenerator->innerLayer(pairLayers).name() << "+" <<  thePairGenerator->outerLayer(pairLayers).name() << " 3rd lay size: " << thirdLayers.size();
+
+  auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
+  LogTrace("MultiHitGeneratorFromChi2") << "";
+  if (doublets.empty()) {
+    //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";                                                      
+    return;
+  }
+  int size = thirdLayers.size();
+  const RecHitsSortedInPhi * thirdHitMap[size];
+  vector<const DetLayer *> thirdLayerDetLayer(size,0);
+  for (int il=0; il<size; ++il) 
+    {
+      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+
+      thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
+    }
+  hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
+}
+void MultiHitGeneratorFromChi2::hitTriplets(
+					   const TrackingRegion& region, 
+					   OrderedMultiHits & result,
+					   const edm::EventSetup & es,
+					   const HitDoublets & doublets,
+					   const RecHitsSortedInPhi ** thirdHitMap,
+					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+					   const int nThirdLayers)
+{
+
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
   unsigned int debug_Id2 = detIdsToDebug[2];
-
-  LogDebug("MultiHitGeneratorFromChi2") << "pair: " << thePairGenerator->innerLayer(pairLayers).name() << "+" <<  thePairGenerator->outerLayer(pairLayers).name() << " 3rd lay size: " << thirdLayers.size();
-
-  //gc: first get the pairs
-  OrderedHitPairs pairs;
-  pairs.reserve(30000);
-  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
-  LogTrace("MultiHitGeneratorFromChi2") << "";
-  if (pairs.empty()) {
-    //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";
-    return;
-  }
   
   //gc: these are all the layers compatible with the layer pairs (as defined in the config file)
-  int size = thirdLayers.size();
 
 
   //gc: initialize a KDTree per each 3rd layer
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
   std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
-  declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,size, hitTree);
-  float rzError[size]; //save maximum errors
+  declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,nThirdLayers, hitTree);
+  declareDynArray(LayerRZPredictions, nThirdLayers, mapPred);
+  float rzError[nThirdLayers]; //save maximum errors
 
   const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
-  std::map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
-  const RecHitsSortedInPhi * thirdHitMap[size];//gc: this comes from theLayerCache
-
+  //std::map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
   //gc: loop over each layer
-  for(int il = 0; il < size; il++) {
-    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
-    LogTrace("MultiHitGeneratorFromChi2") << "considering third layer: " << thirdLayers[il].name() << " with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first;
-    const DetLayer *layer = thirdLayers[il].detLayer();
-    LayerRZPredictions &predRZ = mapPred[thirdLayers[il].name()];
+  for(int il = 0; il < nThirdLayers; il++) {
+    LogTrace("MultiHitGeneratorFromChi2") << "considering third layer: with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first;
+    const DetLayer *layer = thirdLayerDetLayer[il];
+    LayerRZPredictions &predRZ = mapPred[il];
     predRZ.line.initLayer(layer);
     predRZ.line.initTolerance(extraHitRZtolerance);
 
@@ -198,7 +212,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     layerTree.clear();
     float minz=999999.0f, maxz= -minz; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
-    bool barrelLayer = (thirdLayers[il].detLayer()->location() == GeomDetEnumerators::barrel);
+    bool barrelLayer = (thirdLayerDetLayer[il]->location() == GeomDetEnumerators::barrel);
     if (hitRange.first != hitRange.second)
       { minz = barrelLayer? hitRange.first->hit()->globalPosition().z() : hitRange.first->hit()->globalPosition().perp();
 	maxz = minz; //In case there's only one hit on the layer
@@ -231,18 +245,18 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: this sets the minPt of the triplet
   auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
 
-  LogTrace("MultiHitGeneratorFromChi2") << "pair size=" << pairs.size() << std::endl;
+  LogTrace("MultiHitGeneratorFromChi2") << "doublet size=" << doublets.size() << std::endl;
 
   //gc: now we loop over all pairs
-  for (OrderedHitPairs::const_iterator ip = pairs.begin(); ip != pairs.end(); ++ip) {
+  for (std::size_t ip =0; ip!=doublets.size(); ip++) {
 
     int foundTripletsFromPair = 0;
     bool usePair = false;
     cacheHitPointer bestH2;
     float minChi2 = std::numeric_limits<float>::max();
 
-    SeedingHitSet::ConstRecHitPointer oriHit0 = ip->inner();
-    SeedingHitSet::ConstRecHitPointer oriHit1 = ip->outer();
+    SeedingHitSet::ConstRecHitPointer oriHit0 =doublets.hit(ip,HitDoublets::inner);
+    SeedingHitSet::ConstRecHitPointer oriHit1 =doublets.hit(ip,HitDoublets::outer);
 
     HitOwnPtr hit0(*oriHit0);
     HitOwnPtr hit1(*oriHit1);
@@ -250,7 +264,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     GlobalPoint gp1 = hit1->globalPosition();
 
 #ifdef EDM_ML_DEBUG
-    bool debugPair = ip->inner()->rawId()==debug_Id0 && ip->outer()->rawId()==debug_Id1;
+    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit01->rawId()==debug_Id1;
 #endif
     IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
                                                        << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1;
@@ -335,9 +349,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     }
 
     //gc: loop over all third layers compatible with the pair
-    for(int il = 0; (il < size) & (!usePair); il++) {
+    for(int il = 0; (il < nThirdLayers) & (!usePair); il++) {
 
-      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "cosider layer: " << thirdLayers[il].name() << " for this pair. Location: " << thirdLayers[il].detLayer()->location();
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "cosider layer:" << " for this pair. Location: " << thirdLayerDetLayer[il]->location();
 
       if (hitTree[il].empty()) {
 	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "empty hitTree";
@@ -347,13 +361,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       cacheHitPointer bestL2;
       float chi2FromThisLayer = std::numeric_limits<float>::max();
 
-      const DetLayer *layer = thirdLayers[il].detLayer();
+      const DetLayer *layer = thirdLayerDetLayer[il];
       bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
 
       if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
 
 
-      LayerRZPredictions &predRZ = mapPred.find(thirdLayers[il].name())->second;
+      LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
       
       //gc: this takes the z at R-thick/2 and R+thick/2 according to 
@@ -377,7 +391,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       if (useFixedPreFiltering) { 
 	//gc: in this case it takes as range the phi of the outer 
 	//    hit +/- the phiPreFiltering value from cfg
-        float phi0 = ip->outer()->globalPosition().phi();
+        float phi0 = oriHit0->globalPosition().phi();
         phiRange = Range(phi0 - dphi, phi0 + dphi);
       } else {	
 	//gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
@@ -616,7 +630,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
     //push back only (max) once per pair
     IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "Done seed #" << result.size();
-    if (usePair) result.push_back(SeedingHitSet(ip->inner(), ip->outer())); 
+    if (usePair) result.push_back(SeedingHitSet(oriHit0, oriHit1)); 
     else { 
       assert(1==foundTripletsFromPair);
       assert(bestH2);
