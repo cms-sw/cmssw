@@ -52,6 +52,12 @@ public:
   // and executes the rest of the spec. This may need a lot of information to
   // reconstruct the folder names used before... we'll see.
 
+  void setName(std::string name) {this->name = name;};
+  void setTitle(std::string title) {this->title = title;};
+  void setXlabel(std::string xlabel) {this->xlabel = xlabel;};
+  void setYlabel(std::string ylabel) {this->ylabel = ylabel;};
+  void setDimensions(int dimensions) {this->dimensions = dimensions;};
+
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface = GeometryInterface::get();
@@ -64,6 +70,13 @@ private:
   std::set<GeometryInterface::Column> significantColumns;
 
   std::string topFolderName;
+
+  std::string name;
+  std::string title;
+  std::string xlabel;
+  std::string ylabel;
+  int dimensions;
+
 
 };
 
