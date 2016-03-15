@@ -11,13 +11,13 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
 {
 }
 
-void HistogramManager::addSpec(SummationSpecification& spec) {
+void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
   tables.push_back(Table());
 }
 
 SummationSpecificationBuilder HistogramManager::addSpec() {
-  specs.push_back(SummationSpecification());
+  addSpec(SummationSpecification());
   return SummationSpecificationBuilder(specs[specs.size()-1]);
 }
 
