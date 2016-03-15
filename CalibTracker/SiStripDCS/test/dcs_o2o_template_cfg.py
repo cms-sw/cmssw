@@ -115,10 +115,10 @@ process.SiStripDetVOffBuilder = cms.Service(
 # -----------------------------------------------------------------------------
 
 process.load("CondCore.CondDB.CondDB_cfi")
-process.siStripPopConDetVOff = cms.EDAnalyzer( "SiStripDetVOffHandler",
+process.siStripPopConDetVOff = cms.EDAnalyzer( "SiStripO2ODetVOff",
                                      process.CondDB,
-                                     # if we start with the last IOV from conditionDatabase. 'False' means starting with Tracker ALL OFF.  
-                                     getLastIOVFromDB = cms.untracked.bool(True),
+                                     # Get the last IOV from conditionDatabase.
+                                     # Leave empty for manual restart (will then get the last IOV from sqlite condDbFile). 
                                      conditionDatabase = cms.string("oracle://cms_orcon_prod/CMS_CONDITIONS"),
                                      condDbFile = cms.string("sqlite:%s" % "OUTPUT_DBFILE"),
                                      targetTag = cms.string("TARGETTAG"),

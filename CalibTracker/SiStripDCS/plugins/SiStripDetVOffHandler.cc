@@ -24,7 +24,6 @@ private:
   std::string m_localCondDbFile;
   std::string m_targetTag;
 
-  bool getLastIOVFromDB_;
   int maxTimeBeforeNewIOV_;
 
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > newPayloads;
@@ -36,7 +35,6 @@ SiStripDetVOffHandler::SiStripDetVOffHandler(const edm::ParameterSet& iConfig):
     m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
     m_localCondDbFile( iConfig.getParameter< std::string >("condDbFile") ),
     m_targetTag( iConfig.getParameter< std::string >("targetTag") ),
-    getLastIOVFromDB_( iConfig.getUntrackedParameter< bool >("getLastIOVFromDB", true) ),
     maxTimeBeforeNewIOV_( iConfig.getUntrackedParameter< int >("maxTimeBeforeNewIOV", 86400) ){
   m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
   m_connectionPool.configure();
@@ -52,19 +50,26 @@ void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup
   cond::Time_t lastIov = 0;
   boost::shared_ptr<SiStripDetVOff> lastPayload;
 
-  if (getLastIOVFromDB_){
+  edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
+      << "Retrieve last IOV from " << m_condDb;
+  cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDb );
+  condDbSession.transaction().start( true );
+  if ( m_condDb.find("sqlite")==0 && (!condDbSession.existsDatabase()) ){
+    // Source of last IOV is empty
     edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
-        << "Retrieve last IOV from " << m_condDb;
-    cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDb );
-    condDbSession.transaction().start( true );
+        << "No information can be retrieved from " << m_condDb << " because the file is empty.\n"
+        << "Will assume all HV/LV's are off.";
+  }else{
     cond::persistency::IOVProxy iovProxy = condDbSession.readIov( m_targetTag );
-    lastIov = iovProxy.getLast().since; // move to LastValidatedTime?
     cond::Hash lastPayloadHash = iovProxy.getLast().payloadId;
-    lastPayload = condDbSession.fetchPayload<SiStripDetVOff>( lastPayloadHash );
-    condDbSession.transaction().commit();
+    if ( !lastPayloadHash.empty() ) {
+      lastPayload = condDbSession.fetchPayload<SiStripDetVOff>( lastPayloadHash );
+      lastIov = iovProxy.getLast().since; // move to LastValidatedTime?
+    }
     edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
         << " ... last IOV: " << lastIov << " , " << "last Payload: " << lastPayloadHash;
   }
+  condDbSession.transaction().commit();
 
   // build the object!
   newPayloads.clear();
@@ -79,7 +84,7 @@ void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup
       << "Write new payloads to sqlite file " << m_localCondDbFile;
   cond::persistency::Session localFileSession = m_connectionPool.createSession( m_localCondDbFile, true );
   localFileSession.transaction().start( false );
-  if ( newPayloads.size() == 1 && *newPayloads[0].first == *lastPayload ){
+  if ( lastPayload && newPayloads.size() == 1 && *newPayloads[0].first == *lastPayload ){
     // if no HV/LV transition was found in this period
     edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
         << "No HV/LV transition was found from PVSS query.";
@@ -126,4 +131,5 @@ void SiStripDetVOffHandler::endJob() {
 }
 
 // -------------------------------------------------------
-DEFINE_FWK_MODULE(SiStripDetVOffHandler);
+typedef SiStripDetVOffHandler SiStripO2ODetVOff;
+DEFINE_FWK_MODULE(SiStripO2ODetVOff);
