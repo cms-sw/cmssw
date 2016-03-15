@@ -36,7 +36,7 @@ public:
   explicit HistogramManager(const edm::ParameterSet& iConfig);
 
   // Add a specification for a set of plot. this has to happen before fill()'ing, since it optimizes for the spec.
-  void addSpec(SummationSpecification& spec);
+  void addSpec(SummationSpecification spec);
   // This allows for a fluent interface, where the spec is constructed as a chain of builder-calls.
   SummationSpecificationBuilder addSpec();
 
