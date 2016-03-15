@@ -337,12 +337,12 @@ def customise_Reco(process,pileup):
     nPU=70
     if pileup>100: nPU=140
     
-    #use with latest pixel geometry
-    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
-    # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+    if not eras.phase1Pixel.isChosen():
+        #use with latest pixel geometry
+        process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+        # Need this line to stop error about missing siPixelDigis.
+        process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
-    if not eras.trackingPhase1.isChosen():
         # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
         process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                             'BPix2+BPix3+BPix4',
@@ -471,31 +471,19 @@ def customise_Reco(process,pileup):
         
         # End of new tracking configuration which can be removed if new Reconstruction is used.
 
-    # Needed to make the loading of recoFromSimDigis_cff below to work
-    process.InitialStepPreSplitting.remove(siPixelClusters)
+        process.InitialStepPreSplitting.remove(siPixelClusters)
 
+        process.reconstruction.remove(process.castorreco)
+        process.reconstruction.remove(process.CastorTowerReco)
+        process.reconstruction.remove(process.ak5CastorJets)
+        process.reconstruction.remove(process.ak5CastorJetID)
+        process.reconstruction.remove(process.ak7CastorJets)
+        #process.reconstruction.remove(process.ak7BasicJets)
+        process.reconstruction.remove(process.ak7CastorJetID)
 
-    process.reconstruction.remove(process.castorreco)
-    process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak5CastorJets)
-    process.reconstruction.remove(process.ak5CastorJetID)
-    process.reconstruction.remove(process.ak7CastorJets)
-    #process.reconstruction.remove(process.ak7BasicJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
+        # Need these until pixel templates are used
+        process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 
-    #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
-    
-    # Need these until pixel templates are used
-    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-    # CPE for other steps
-    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-
-    if not eras.phase1Pixel.isChosen():
         # Turn of template use in tracking
         # Iterations and the following ones are treated in the configs    
         process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
@@ -526,60 +514,55 @@ def customise_Reco(process,pileup):
         process.globalSETMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
-    # End of pixel template needed section
 
-    # Remove, for now, the pre-cluster-splitting clustering step
-    # To be enabled later together with or after the jet core step is enabled
-    # This snippet must be after the loading of recoFromSimDigis_cff
-    process.pixeltrackerlocalreco = cms.Sequence(
-        process.siPixelClusters +
-        process.siPixelRecHits
-    )
-    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # Enable, for now, pixel tracks and vertices
-    # To be removed later together with the cluster splitting
-    process.globalreco_tracking.replace(process.standalonemuontracking,
-                                        process.standalonemuontracking+process.recopixelvertexing)
-    process.initialStepSelector.vertices = "pixelVertices"
-    process.highPtTripletStepSelector.vertices = "pixelVertices"
-    process.lowPtQuadStepSelector.vertices = "pixelVertices"
-    process.lowPtTripletStepSelector.vertices = "pixelVertices"
-    process.detachedQuadStepSelector.vertices = "pixelVertices"
-    process.mixedTripletStepSelector.vertices = "pixelVertices"
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
-    process.pixelPairStepSelector.vertices = "pixelVertices"
-    process.tobTecStepSelector.vertices = "pixelVertices"
-    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
-    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
-    process.duplicateTrackClassifier.vertices = "pixelVertices"
-    process.convStepSelector.vertices = "pixelVertices"
-    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
-    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
-    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
-
-    # Make pixelTracks use quadruplets
-    process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+        # Remove the pre-cluster-splitting clustering step
+        # To be enabled later together with or after the jet core step is enabled
+        # This snippet must be after the loading of recoFromSimDigis_cff
+        process.pixeltrackerlocalreco = cms.Sequence(
+            process.siPixelClusters +
+            process.siPixelRecHits
         )
-    process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
-    process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+        process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+        process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+        process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # use defaults d.k. 2/16
-    #process.templates.DoLorentz=False
-    #process.templates.LoadTemplatesFromDB = cms.bool(False)
-    #process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+        # Enable, for now, pixel tracks and vertices
+        # To be removed later together with the cluster splitting
+        process.globalreco_tracking.replace(process.standalonemuontracking,
+                                            process.standalonemuontracking+process.recopixelvertexing)
+        process.initialStepSelector.vertices = "pixelVertices"
+        process.highPtTripletStepSelector.vertices = "pixelVertices"
+        process.lowPtQuadStepSelector.vertices = "pixelVertices"
+        process.lowPtTripletStepSelector.vertices = "pixelVertices"
+        process.detachedQuadStepSelector.vertices = "pixelVertices"
+        process.mixedTripletStepSelector.vertices = "pixelVertices"
+        process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+        process.pixelPairStepSelector.vertices = "pixelVertices"
+        process.tobTecStepSelector.vertices = "pixelVertices"
+        process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+        process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+        process.duplicateTrackClassifier.vertices = "pixelVertices"
+        process.convStepSelector.vertices = "pixelVertices"
+        process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
+        process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+        process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
 
-    # This probably breaks badly the "displaced muon" reconstruction,
-    # but let's do it for now, until the upgrade tracking sequences
-    # are modernized
-    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
-    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+        # Make pixelTracks use quadruplets
+        process.pixelTracks.SeedMergerPSet = cms.PSet(
+            layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+            addRemainingTriplets = cms.bool(False),
+            mergeTriplets = cms.bool(True),
+            ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+            )
+        process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
+        process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
+        process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+
+        # This probably breaks badly the "displaced muon" reconstruction,
+        # but let's do it for now, until the upgrade tracking sequences
+        # are modernized
+        process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+        process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
     return process
