@@ -80,7 +80,16 @@ bool UCTTower::processHFTower() {
     const std::vector< uint32_t > a = hfLUT->at((region - NRegionsInCard) * NHFEtaInRegion + iEta);
     calibratedET = a[hcalET];
   }
-  towerData = calibratedET + (hcalFB << miscShift) + (location() << ecalShift);
+  uint32_t absCaloEta = abs(caloEta());
+  if(absCaloEta > 29 && absCaloEta < 40) {
+    // Divide by two (since two duplicate towers are sent)
+    calibratedET /= 2;
+  }
+  else if(absCaloEta == 40 || absCaloEta == 41) {
+    // Divide by four
+    calibratedET /= 4;
+  }
+  towerData = calibratedET + (hcalFB << miscShift);
   return true;
 }
 
