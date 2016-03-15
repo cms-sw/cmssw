@@ -54,6 +54,7 @@ process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
 process.stage2UnpackPath = cms.Path(process.caloStage2Digis +
                                     process.gmtStage2Digis +
+                                    process.gtStage2Digis +
                                     process.emtfStage2Digis)
 
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
@@ -96,7 +97,8 @@ process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
 process.l1s.fedRawData = cms.InputTag("rawDataCollector")
-    
+process.gtStage2Digis.InputLabel = cms.InputTag("rawDataCollector")
+
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
@@ -115,6 +117,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+    process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
 
 ### process customizations included here
 
