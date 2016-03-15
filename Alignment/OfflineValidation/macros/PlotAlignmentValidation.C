@@ -39,7 +39,7 @@
 //------------------------------------------------------------------------------
 PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle)
 {
-  setOutputDir("$TMPDIR");
+  setOutputDir(".");
   setTreeBaseDir();
   sourcelist = NULL;
   
@@ -91,6 +91,7 @@ void PlotAlignmentValidation::setOutputDir( std::string dir )
   // we should check if this dir exsits...
   std::cout <<"'"<< outputDir <<"' = "<< dir << std::endl;
   outputDir = dir;
+  gSystem->mkdir(outputDir.data(), true);
 }
 
 //------------------------------------------------------------------------------
