@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# MonitorTrackResiduals
-MonitorTrackResiduals = cms.EDAnalyzer("MonitorTrackResiduals",
+# SiPixelMonitorTrackResiduals
+SiPixelMonitorTrackResiduals = cms.EDAnalyzer("SiPixelMonitorTrackResiduals",
     OutputMEsInRootFile = cms.bool(False),
     # should histogramms on module level be booked and filled?
-    Mod_On = cms.bool(True),
+    Mod_On = cms.bool(False),
     OutputFileName = cms.string('test_monitortracks.root'),
     # bining and range for absolute and normalized residual histogramms
     TH1ResModules = cms.PSet(
@@ -19,8 +19,8 @@ MonitorTrackResiduals = cms.EDAnalyzer("MonitorTrackResiduals",
     ),
     # input for Tracks and Trajectories, should be TrackRefitter
     # or similar
-    Tracks = cms.InputTag("TrackRefitter"),
-    trajectoryInput = cms.string('TrackRefitter'),
+    Tracks = cms.InputTag("generalTracks"),
+    trajectoryInput = cms.string("generalTracks"),
     # should all MEs be reset after each run?
     ResetAfterRun = cms.bool(True)
 )
