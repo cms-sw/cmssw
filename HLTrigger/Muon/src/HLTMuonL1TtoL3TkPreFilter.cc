@@ -85,7 +85,7 @@ HLTMuonL1TtoL3TkPreFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",9999.0);
-  descriptions.add("hltMuonL1toL3TkPreFilter", desc);
+  descriptions.add("hltMuonL1TtoL3TkPreFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
