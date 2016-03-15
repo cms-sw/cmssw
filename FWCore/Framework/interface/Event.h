@@ -204,9 +204,13 @@ namespace edm {
     Provenance
     getProvenance(ProductID const& theID) const;
 
+    // Get the provenance for all products that may be in the event
     void
     getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
+    // Get the provenance for all products that may be in the event,
+    // excluding the per-event provenance (the parentage information).
+    // The excluded information may change from event to event.
     void
     getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
