@@ -13,6 +13,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
 
 void HistogramManager::addSpec(SummationSpecification& spec) {
   specs.push_back(spec);
+  tables.push_back(Table());
 }
 
 SummationSpecificationBuilder HistogramManager::addSpec() {
@@ -21,21 +22,20 @@ SummationSpecificationBuilder HistogramManager::addSpec() {
 }
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
-void HistogramManager::fill(double value, DetId sourceModule, edm::Event *sourceEvent, int col, int row) {
-  if(!columsFinal) {
-    for (SummationSpecification const& s : specs) {
-      for (auto c : s.steps[0].columns) {
-        significantColumns.insert(c);
-      }
-    }
-    columsFinal = true;
+void HistogramManager::fill(double value, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
+  auto iq = GeometryInterface::InterestingQuantities{
+              sourceModule, sourceEvent, col, row
+	    };							    
+  for (unsigned int i = 0; i < specs.size(); i++) {
+    auto& s = specs[i];
+    auto& t = tables[i];
+    auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
+    // TODO: more step1 steps must be excuted here. Step1 steps can be applied per-sample.
+    // Step1 steps are those that have s.stage = SummationStep::STAGE1, and step[0].
+    t[significantvalues].fill(value);
   }
 
-  auto significantvalues = geometryInterface.extractColumns(significantColumns, 
-                             GeometryInterface::InterestingQuantities{
-			       sourceModule, sourceEvent, col, row
-			     });
-  table[significantvalues].fill(value);
+  
 }
   
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
