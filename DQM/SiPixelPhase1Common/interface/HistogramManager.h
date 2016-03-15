@@ -63,6 +63,8 @@ private:
   bool columsFinal = false;
   std::set<GeometryInterface::Column> significantColumns;
 
+  std::string topFolderName;
+
 };
 
 
