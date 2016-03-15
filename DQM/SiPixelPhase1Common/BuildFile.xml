@@ -3,6 +3,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DQMServices/Core"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="CalibTracker/Records"/>
 <export>
   <lib   name="1"/>
 </export>
