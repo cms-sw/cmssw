@@ -7,7 +7,8 @@
   <class name="l1t::L1CandidateBxCollection"/>
   <class name="edm::Wrapper<l1t::L1CandidateBxCollection>"/>
 
-  <class name="l1t::Jet" ClassVersion="12">
+  <class name="l1t::Jet" ClassVersion="13">
+   <version ClassVersion="13" checksum="3915457337"/>
    <version ClassVersion="12" checksum="380555501"/>
    <version ClassVersion="11" checksum="1836963461"/>
    <version ClassVersion="10" checksum="4108627301"/>
@@ -15,7 +16,8 @@
   <class name="l1t::JetBxCollection"/>
   <class name="edm::Wrapper<l1t::JetBxCollection>"/>
 
-  <class name="l1t::EGamma" ClassVersion="12">
+  <class name="l1t::EGamma" ClassVersion="13">
+   <version ClassVersion="13" checksum="2044674704"/>
    <version ClassVersion="12" checksum="1332125006"/>
    <version ClassVersion="11" checksum="2788532966"/>
    <version ClassVersion="10" checksum="130849840"/>
@@ -32,7 +34,8 @@
   <class name="l1t::EtSumBxCollection"/>
   <class name="edm::Wrapper<l1t::EtSumBxCollection>"/>
 
-  <class name="l1t::Tau" ClassVersion="12">
+  <class name="l1t::Tau" ClassVersion="13">
+   <version ClassVersion="13" checksum="3236083459"/>
    <version ClassVersion="12" checksum="1992693786"/>
    <version ClassVersion="11" checksum="3449101746"/>
    <version ClassVersion="10" checksum="3214350964"/>
@@ -40,7 +43,9 @@
   <class name="l1t::TauBxCollection"/>
   <class name="edm::Wrapper<l1t::TauBxCollection>"/>
 
-  <class name="l1t::Muon" ClassVersion="14">
+  <class name="l1t::Muon" ClassVersion="16">
+   <version ClassVersion="16" checksum="1302394108"/>
+   <version ClassVersion="15" checksum="957467775"/>
    <version ClassVersion="14" checksum="1302394108"/>
    <version ClassVersion="13" checksum="957467775"/>
    <version ClassVersion="12" checksum="2662600115"/>

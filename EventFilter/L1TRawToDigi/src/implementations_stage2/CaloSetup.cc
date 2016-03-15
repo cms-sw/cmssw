@@ -64,7 +64,7 @@ namespace l1t {
                auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
 
                UnpackerMap res;
-               if (fed == 1366) {
+               if (fed == 1366 || (fed == 1360 && board == 0x221B)) {
 	          res[9]  = egamma_unp;
 	          res[11] = egamma_unp;
                   res[13] = jet_unp;
@@ -72,7 +72,7 @@ namespace l1t {
 		  res[17] = tau_unp;
 		  res[19] = tau_unp;
                   res[21] = etsum_unp;
-	       } else if (fed == 1360) {
+	       } else if (fed == 1360 && board != 0x221B) {
                   res[121] = mp_unp;
                   res[123] = mp_unp;
                   res[125] = mp_unp;
