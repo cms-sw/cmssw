@@ -30,16 +30,16 @@ namespace edm {
   class EventPrincipal;
   
   struct BranchToCount {
-    edm::BranchID first;
-    std::atomic<unsigned int> second;
+    edm::BranchID const branch;
+    std::atomic<unsigned int> count;
     
     BranchToCount(edm::BranchID id, unsigned int count):
-    first(id),
-    second(count) {}
+    branch(id),
+    count(count) {}
     
     BranchToCount(BranchToCount const& iOther):
-    first(iOther.first),
-    second(iOther.second.load()) {}
+    branch(iOther.branch),
+    count(iOther.count.load()) {}
   };
   
   class EarlyDeleteHelper

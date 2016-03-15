@@ -731,11 +731,11 @@ namespace edm {
   StreamSchedule::resetEarlyDelete() {
     //must be sure we have cleared the count first
     for(auto& count:earlyDeleteBranchToCount_) {
-      count.second = 0;
+      count.count = 0;
     }
     //now reset based on how many helpers use that branch
     for(auto& index: earlyDeleteHelperToBranchIndicies_) {
-      ++(earlyDeleteBranchToCount_[index].second);
+      ++(earlyDeleteBranchToCount_[index].count);
     }
     for(auto& helper: earlyDeleteHelpers_) {
       helper.reset();

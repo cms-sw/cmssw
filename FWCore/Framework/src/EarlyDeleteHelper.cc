@@ -75,10 +75,10 @@ EarlyDeleteHelper::moduleRan(EventPrincipal const& iEvent) {
   pathsLeftToComplete_=0;
   for(auto it = pBeginIndex_; it != pEndIndex_;++it) {
     auto& count = (*pBranchCounts_)[*it];
-    assert(count.second>0);
-    auto value = --(count.second);
+    assert(count.count>0);
+    auto value = --(count.count);
     if(value==0) {
-      iEvent.deleteProduct(count.first);
+      iEvent.deleteProduct(count.branch);
     }
   }
 }
