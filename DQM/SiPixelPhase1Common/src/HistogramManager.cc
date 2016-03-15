@@ -6,7 +6,8 @@
 #include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
 
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
-  iConfig(iconfig)
+  iConfig(iconfig),
+  topFolderName(iconfig.getParameter<std::string>("TopFolderName"))
 {
 }
 
@@ -41,6 +42,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup, iConfig);
   }
+  iBooker.setCurrentFolder(topFolderName);
   // TODO: more stuff here. 
 }
 
