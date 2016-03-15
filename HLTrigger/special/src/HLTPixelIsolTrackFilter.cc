@@ -43,7 +43,7 @@ HLTPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("filterTrackEnergy",true);
   desc.add<int>("NMaxTrackCandidates",10);
   desc.add<bool>("DropMultiL2Event",false);
-  descriptions.add("isolPixelTrackFilter",desc);
+  descriptions.add("hltPixelIsolTrackFilter",desc);
 }
 
 bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
