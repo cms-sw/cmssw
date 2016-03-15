@@ -38,6 +38,9 @@ void SiPixelPhase1Digis::dqmBeginRun(const edm::Run& r, const edm::EventSetup& i
 
 void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
   std::cout << "+++++ Booking.\n";
+  histoman.addSpec()
+    .groupBy("")
+    .save();
   histoman.book(iBooker, iSetup);
 }
 
