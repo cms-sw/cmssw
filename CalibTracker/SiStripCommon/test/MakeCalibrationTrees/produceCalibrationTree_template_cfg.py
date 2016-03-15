@@ -1,42 +1,108 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+###################################################################
+# Setup 'standard' options
+###################################################################
+options = VarParsing.VarParsing()
+
+options.register('conditionGT',
+                 "auto:run2_data",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "condition global tag for the job (\"auto:run2_data\" is default)")
+
+options.register('conditionOverwrite',
+                 "",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "configuration to overwrite the condition into the GT (\"\" is default)")
+
+options.register('inputCollection',
+                 "ALCARECOSiStripCalMinBias",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "collections to be used for input (\"ALCARECOSiStripCalMinBias\" is default)")
+
+options.register('outputFile',
+                 "calibTreeTest.root",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "name for the output root file (\"calibTreeTest.root\" is default)")
+
+options.register('inputFiles',
+                 "/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60007/869EE593-1FAB-E511-AF99-0025905A60B4.root",
+#                  '/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/0C35C6BF-D3AA-E511-9BC9-0CC47A4C8E16.root',
+#                  '/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/38B847F9-05AA-E511-AB78-00259074AE82.root',
+#                  '/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/D0BAD20B-09AB-E511-B073-0026189438F6.root',
+#                  '/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/DEFA8704-CCAA-E511-8203-0CC47A4D7634.root',
+#                  '/store/data/Run2015D/ZeroBias/ALCARECO/SiStripCalMinBias-16Dec2015-v1/60009/FE24690A-2DAA-E511-A96A-00259074AE3E.root',
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.string,
+                 "file to process")
+
+options.register('maxEvents',
+                 -1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "number of events to process (\"-1\" for all)")
+
+
+
+
+# To use the prompt reco dataset please use 'generalTracks' as inputCollection
+# To use the cosmic reco dataset please use 'ctfWithMaterialTracksP5' as inputCollection
+
+
+
+options.parseArguments()
+
+print "conditionGT       : ", options.conditionGT
+print "conditionOverwrite: ", options.conditionOverwrite
+print "inputCollection   : ", options.inputCollection
+print "maxEvents         : ", options.maxEvents
+print "outputFile        : ", options.outputFile
+print "inputFiles        : ", options.inputFiles
+
+
 
 process = cms.Process('CALIB')
 process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.GlobalTag.globaltag = 'GR_P_V27::All' #2011
-#process.GlobalTag.globaltag = 'GR_P_V32::All'  #2012AB #first run in 2012 is 190450
-#process.GlobalTag.globaltag = 'GR_P_V40::All' #2012  
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAG', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.conditionGT, options.conditionOverwrite)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
 process.add_( cms.Service( "TFileService",
-                           fileName = cms.string( 'OUTFILE' ),
+                           fileName = cms.string( options.outputFile ),
                            closeFileFast = cms.untracked.bool(True)  ) )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+#process.source = cms.Source (
+#    "PoolSource",
+#    fileNames = cms.untracked.vstring(options.inputFiles)
+#    )
+
+#import runs
 process.source = cms.Source (
-    "PoolSource",
-    fileNames = cms.untracked.vstring(FILES)
+  "PoolSource",
+  fileNames = cms.untracked.vstring( options.inputFiles )
     )
+
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-# Definition of the track collection module label
-# To use the prompt reco dataset uncomment the following two lines
-#process.CalibrationTracks.src = 'generalTracks'
-#process.shallowTracks.Tracks  = 'generalTracks'
-# To use the SiStripCalMinBias AlCaReco dataset uncomment the following two lines
-process.CalibrationTracks.src = 'ALCARECOSiStripCalMinBias'
-process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias'
-# To use the cosmic reco dataset uncomment the following two lines
-#process.CalibrationTracks.src = 'ctfWithMaterialTracksP5'
-#process.shallowTracks.Tracks  = 'ctfWithMaterialTracksP5'
+#definition of input collection
+process.CalibrationTracks.src = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
+process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
+#process.shallowGainCalibrationAllBunch   = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
+#process.shallowGainCalibrationAllBunch0T = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
+
 
 # BSCNoBeamHalo selection (Not to use for Cosmic Runs) --- OUTDATED!!!
 ## process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
@@ -47,26 +113,21 @@ process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias'
 ## process.L1T1.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
 #process.TkCalPath = cms.Path(process.L1T1*process.TkCalFullSequence)
-process.TkCalPath = cms.Path(process.TkCalFullSequence)
+process.TkCalPath_StdBunch   = cms.Path(process.TkCalSeq_StdBunch)
+process.TkCalPath_StdBunch0T = cms.Path(process.TkCalSeq_StdBunch0T)
+process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon)
+process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T)
+process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch)
+process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T)
 
 
-#uncomment to OVERWRITE Gain condition in GT
-#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#    DBParameters = cms.PSet(
-#        messageLevel = cms.untracked.int32(2),
-#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#    ),
-#    timetype = cms.string('runnumber'),
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('SiStripApvGainRcd'),
-#        tag = cms.string('SiStripGainFromParticles')
-#    )),
-#    connect = cms.string('sqlite_file:Gains_Sqlite.db')
-#)
-#process.es_prefer_gainpayload = cms.ESPrefer("PoolDBESSource")
-
-
+process.schedule = cms.Schedule( process.TkCalPath_StdBunch, 
+                                 process.TkCalPath_StdBunch0T,
+                                 process.TkCalPath_IsoMuon,
+                                 process.TkCalPath_IsoMuon0T,
+                                 process.TkCalPath_AagBunch,
+                                 process.TkCalPath_AagBunch0T,
+                               )
 
 
 process.options = cms.untracked.PSet(
