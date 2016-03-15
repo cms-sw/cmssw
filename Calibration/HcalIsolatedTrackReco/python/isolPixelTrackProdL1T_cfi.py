@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #IsolatedPixelTrackCandidateProducer default configuration
 isolPixelTrackProd    = cms.EDProducer("IsolatedPixelTrackCandidateL1TProducer",
-    L1eTauJetsSource           = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    L1eTauJetsSource           = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     tauAssociationCone         = cms.double( 0.0 ),
     tauUnbiasCone              = cms.double( 1.2 ),
     PixelTracksSources         = cms.VInputTag( "hltPixelTracks" ),
