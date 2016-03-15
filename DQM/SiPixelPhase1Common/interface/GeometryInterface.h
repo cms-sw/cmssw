@@ -49,7 +49,7 @@ class GeometryInterface {
       auto ex = extractors.find(col);
       if (ex == extractors.end()) {
 	// we have never heard about this. This is a typo for sure.
-	std::cout << "Undefined column used: " << col << ". Check your spelling.\n";
+	//std::cout << "Undefined column used: " << col << ". Check your spelling.\n";
       } else {
         auto val = ex->second(iq);
 	out[col] = val;
