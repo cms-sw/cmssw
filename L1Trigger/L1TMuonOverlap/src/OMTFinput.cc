@@ -72,7 +72,7 @@ void OMTFinput::readData(XMLConfigReader *aReader,
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-void OMTFinput::mergeData(OMTFinput *aInput){
+void OMTFinput::mergeData(const OMTFinput *aInput){
 
   for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
