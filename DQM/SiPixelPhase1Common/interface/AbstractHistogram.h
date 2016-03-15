@@ -9,7 +9,7 @@
 // not be backed by a TH1 or similar. May not be there at all and created on 
 // demand. Mainly designed as a value in std::map.
 //
-// Original Author:  Marcel Schenider
+// Original Author:  Marcel Schneider
 //
 
 #include "DQMServices/Core/interface/MonitorElement.h"

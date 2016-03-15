@@ -42,7 +42,7 @@ public:
 
 
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
-  void fill(double value, DetId sourceModule, edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
+  void fill(double value, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
   // TODO: we need multi-dimensional version, but probably a hardcoded fill2 for 2D will do.
   
   // Initiate the geometry extraction and book all required frames. Requires the specs to be set.
@@ -57,8 +57,8 @@ private:
   GeometryInterface& geometryInterface = GeometryInterface::get();
 
   std::vector<SummationSpecification> specs;
-  std::map<GeometryInterface::Values, AbstractHistogram> table;
-
+  typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
+  std::vector<Table> tables;
  
   bool columsFinal = false;
   std::set<GeometryInterface::Column> significantColumns;

@@ -37,13 +37,13 @@ class GeometryInterface {
 
   struct InterestingQuantities {
     DetId sourceModule;
-    edm::Event *sourceEvent;
+    const edm::Event *sourceEvent;
     int col; int row;
   };
 
   // This has to be fast, _should_ not malloc.
   // Current impl is not so good, but interning should fix it.
-  const Values extractColumns(std::set<Column> names, InterestingQuantities const& iq) {
+  const Values extractColumns(std::vector<Column> const& names, InterestingQuantities const& iq) {
     Values out;
     for (auto col : names) {
       auto ex = extractors.find(col);
