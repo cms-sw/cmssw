@@ -13,7 +13,6 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -116,21 +115,35 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
-	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0), testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"))
+	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"))
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
   if ( iConfig.exists("GainWidthsForTrigPrims") ) 
     switchGainWidthsForTrigPrims = iConfig.getParameter<bool>("GainWidthsForTrigPrims");
   else  switchGainWidthsForTrigPrims = false;
-       
+  
+  //DB helper preparation
+  dbHardcode.setHB(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hb")));
+  dbHardcode.setHE(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("he")));
+  dbHardcode.setHF(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hf")));
+  dbHardcode.setHO(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("ho")));
+  dbHardcode.setHBUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hbUpgrade")));
+  dbHardcode.setHEUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("heUpgrade")));
+  dbHardcode.setHFUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hfUpgrade")));
+  dbHardcode.useHBUpgrade(iConfig.getParameter<bool>("useHBUpgrade"));
+  dbHardcode.useHEUpgrade(iConfig.getParameter<bool>("useHEUpgrade"));
+  dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
+  dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
 
   // HE and HF recalibration preparation
-  iLumi = 0.;
-  if ( iConfig.exists("iLumi") )
-    iLumi=iConfig.getParameter<double>("iLumi");
+  iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
+    dbHardcode.setLumi(iLumi);
+    dbHardcode.setLumiOffset(iConfig.getParameter<double>("iLumiOffset"));
+    dbHardcode.setHBSiPMLumiDep(iConfig.getParameter<double>("HBSiPMLumiDep"));
+    dbHardcode.setHESiPMLumiDep(iConfig.getParameter<double>("HESiPMLumiDep"));
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(he_recalib) {
@@ -279,7 +292,7 @@ std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const
   auto result = std::make_unique<HcalPedestals>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false, iLumi);
+    HcalPedestal item = dbHardcode.makePedestal (*cell, false);
     result->addValues(item);
   }
   return result;
@@ -294,7 +307,7 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWid
   auto result = std::make_unique<HcalPedestalWidths>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*htopo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell, iLumi);
+    HcalPedestalWidth item = dbHardcode.makePedestalWidth (*cell);
     result->addValues(item);
   }
   return result;
@@ -309,7 +322,7 @@ std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGai
   auto result = std::make_unique<HcalGains>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalGain item = HcalDbHardcode::makeGain (*cell);
+    HcalGain item = dbHardcode.makeGain (*cell);
     result->addValues(item);
   }
   return result;
@@ -327,10 +340,10 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (con
 
     // for Upgrade - include TrigPrims, for regular case - only HcalDetId 
     if(switchGainWidthsForTrigPrims) {
-      HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
+      HcalGainWidth item = dbHardcode.makeGainWidth (*cell);
       result->addValues(item);
     } else if (!cell->isHcalTrigTowerDetId()) {
-      HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
+      HcalGainWidth item = dbHardcode.makeGainWidth (*cell);
       result->addValues(item);
     }
   }
@@ -352,7 +365,7 @@ std::unique_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const Hca
   auto result = std::make_unique<HcalQIEData>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
+    HcalQIECoder coder = dbHardcode.makeQIECoder (*cell);
     result->addCoder (coder);
   }
   return result;
@@ -367,7 +380,7 @@ std::unique_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes (const H
     auto result = std::make_unique<HcalQIETypes>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIEType item = HcalDbHardcode::makeQIEType(*cell,testHFQIE10);
+    HcalQIEType item = dbHardcode.makeQIEType(*cell);
     result->addValues(item);
   }
   return result;
@@ -540,7 +553,7 @@ std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronics
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
 
   auto result = std::make_unique<HcalElectronicsMap>();
-  HcalDbHardcode::makeHardcodeMap(*result);
+  dbHardcode.makeHardcodeMap(*result);
   return result;
 }
 
@@ -600,7 +613,7 @@ std::unique_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalD
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
 
   auto result = std::make_unique<HcalDcsMap>();
-  HcalDbHardcode::makeHardcodeDcsMap(*result);
+  dbHardcode.makeHardcodeDcsMap(*result);
   return result;
 }
 
@@ -613,7 +626,7 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (con
   auto result = std::make_unique<HcalRecoParams>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalRecoParam item = HcalDbHardcode::makeRecoParam (*cell);
+    HcalRecoParam item = dbHardcode.makeRecoParam (*cell);
     result->addValues(item);
   }
   return result;
@@ -627,7 +640,7 @@ std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams 
   auto result = std::make_unique<HcalTimingParams>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalTimingParam item = HcalDbHardcode::makeTimingParam (*cell);
+    HcalTimingParam item = dbHardcode.makeTimingParam (*cell);
     result->addValues(item);
   }
   return result;
@@ -687,7 +700,7 @@ std::unique_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const H
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 
     //    HcalMCParam item(cell->rawId(),0);
-    HcalMCParam item = HcalDbHardcode::makeMCParam (*cell);
+    HcalMCParam item = dbHardcode.makeMCParam (*cell);
     result->addValues(item);
   }
   return result;
@@ -763,13 +776,89 @@ std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovaria
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
+	desc.add<double>("iLumiOffset",-1.);
+	desc.add<double>("HBSiPMLumiDep",1.7);
+	desc.add<double>("HESiPMLumiDep",0.7);
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
 	desc.add<bool>("HFRecalibration",false);
 	desc.add<bool>("GainWidthsForTrigPrims",false);
+	desc.add<bool>("useHBUpgrade",false);
+	desc.add<bool>("useHEUpgrade",false);
+	desc.add<bool>("useHFUpgrade",false);
 	desc.add<bool>("testHFQIE10",false);
 	desc.addUntracked<std::vector<std::string>>("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
+	
+	edm::ParameterSetDescription desc_hb;
+	desc_hb.add<std::vector<double>>("gain", std::vector<double>({0.19}));
+	desc_hb.add<std::vector<double>>("gainWidth", std::vector<double>({0.0}));
+	desc_hb.add<double>("pedestal", 3.0);
+	desc_hb.add<double>("pedestalWidth", 0.55);
+	desc_hb.add<std::vector<double>>("qieOffset", std::vector<double>({-0.49, 1.8, 7.2, 37.9}));
+	desc_hb.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_hb.add<int>("qieType", 0);
+	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
+
+	edm::ParameterSetDescription desc_hbUpgrade;
+	desc_hbUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
+	desc_hbUpgrade.add<std::vector<double>>("gainWidth", std::vector<double>({0}));
+	desc_hbUpgrade.add<double>("pedestal", 18.0);
+	desc_hbUpgrade.add<double>("pedestalWidth", 5.0);
+	desc_hbUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
+	desc_hbUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
+	desc_hbUpgrade.add<int>("qieType", 2);
+	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
+
+	edm::ParameterSetDescription desc_he;
+	desc_he.add<std::vector<double>>("gain", std::vector<double>({0.23}));
+	desc_he.add<std::vector<double>>("gainWidth", std::vector<double>({0}));
+	desc_he.add<double>("pedestal", 3.0);
+	desc_he.add<double>("pedestalWidth", 0.79);
+	desc_he.add<std::vector<double>>("qieOffset", std::vector<double>({-0.38, 2.0, 7.6, 39.6}));
+	desc_he.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_he.add<int>("qieType", 0);
+	desc.add<edm::ParameterSetDescription>("he", desc_he);
+
+	edm::ParameterSetDescription desc_heUpgrade;
+	desc_heUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
+	desc_heUpgrade.add<std::vector<double>>("gainWidth", std::vector<double>({0}));
+	desc_heUpgrade.add<double>("pedestal", 18.0);
+	desc_heUpgrade.add<double>("pedestalWidth", 5.0);
+	desc_heUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
+	desc_heUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
+	desc_heUpgrade.add<int>("qieType", 2);
+	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
+
+	edm::ParameterSetDescription desc_hf;
+	desc_hf.add<std::vector<double>>("gain", std::vector<double>({0.14, 0.135}));
+	desc_hf.add<std::vector<double>>("gainWidth", std::vector<double>({0.0, 0.0}));
+	desc_hf.add<double>("pedestal", 3.0);
+	desc_hf.add<double>("pedestalWidth", 0.84);
+	desc_hf.add<std::vector<double>>("qieOffset", std::vector<double>({-0.87, 1.4, 7.8, -29.6}));
+	desc_hf.add<std::vector<double>>("qieSlope", std::vector<double>({0.36, 0.36, 0.36, 0.36}));
+	desc_hf.add<int>("qieType", 0);
+	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
+
+	edm::ParameterSetDescription desc_hfUpgrade;
+	desc_hfUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.14, 0.135}));
+	desc_hfUpgrade.add<std::vector<double>>("gainWidth", std::vector<double>({0.0, 0.0}));
+	desc_hfUpgrade.add<double>("pedestal", 13.33);
+	desc_hfUpgrade.add<double>("pedestalWidth", 3.33);
+	desc_hfUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({3.9, 3.3, 12.7, -667.8}));
+	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.3, 0.3, 0.3, 0.3}));
+	desc_hfUpgrade.add<int>("qieType", 1);
+	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
+
+	edm::ParameterSetDescription desc_ho;
+	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));
+	desc_ho.add<std::vector<double>>("gainWidth", std::vector<double>({0.0, 0.0}));
+	desc_ho.add<double>("pedestal", 11.0);
+	desc_ho.add<double>("pedestalWidth", 0.57);
+	desc_ho.add<std::vector<double>>("qieOffset", std::vector<double>({-0.44, 1.4, 7.1, 38.5}));
+	desc_ho.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_ho.add<int>("qieType", 0);
+	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 	
 	descriptions.addDefault(desc);
 }

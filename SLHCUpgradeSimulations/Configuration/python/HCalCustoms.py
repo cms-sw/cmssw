@@ -49,7 +49,9 @@ def customise_HcalPhase1(process):
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
-
+    process.es_hardcode.useHBUpgrade = cms.bool(True)
+    process.es_hardcode.useHEUpgrade = cms.bool(True)
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
