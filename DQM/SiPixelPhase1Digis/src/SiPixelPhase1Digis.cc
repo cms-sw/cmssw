@@ -21,7 +21,7 @@
 
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   src_(iConfig.getParameter<edm::InputTag>("src")),
-  topFolderName_(iConfig.getParameter<std::string>("TopFolderName"))
+  histoman(iConfig)
 {
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
@@ -37,10 +37,8 @@ void SiPixelPhase1Digis::dqmBeginRun(const edm::Run& r, const edm::EventSetup& i
 
 
 void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
-  iBooker.setCurrentFolder(topFolderName_);
   std::cout << "+++++ Booking.\n";
-  alladcs = iBooker.book1D("alladcs","All ADC Values",100,0.,300.);
-
+  histoman.book(iBooker, iSetup);
 }
 
 void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -54,7 +52,7 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::DetSetVector<PixelDigi>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     for(PixelDigi const& digi : *it) {
-      alladcs->Fill(digi.adc());
+      histoman.fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
     }
   }
 }

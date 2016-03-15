@@ -15,6 +15,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
+// PixelDQM Framework
+#include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
+
 class SiPixelPhase1Digis : public DQMEDAnalyzer {
 
   public:
@@ -26,11 +29,10 @@ class SiPixelPhase1Digis : public DQMEDAnalyzer {
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
-  MonitorElement* alladcs;
-
   edm::InputTag src_;
-  std::string topFolderName_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;
+
+  HistogramManager histoman;
 
 };
 
