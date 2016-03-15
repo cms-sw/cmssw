@@ -36,10 +36,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     const Int_t n = nFiles;
 
     setTDRStyle();
-    gStyle->SetOptStat(0);        //for histograms, the mean and rms are included in the legend if nFiles >= 2
-                                  //if nFiles == 1, there is no legend, so they're in the statbox
-    if ((type == Histogram || type == OrgHistogram) && nFiles == 1)
-        gStyle->SetOptStat(1110);
+    gStyle->SetOptStat(0);        //for histograms, the mean and rms are included in the legend
     //for a scatterplot, this is needed to show the z axis scale
     //for non-pull histograms or when run number is on the x axis, this is needed so that 10^-? on the right is not cut off
     if (type == ScatterPlot || (type == Histogram && !pull) || xvar == "runNumber")
