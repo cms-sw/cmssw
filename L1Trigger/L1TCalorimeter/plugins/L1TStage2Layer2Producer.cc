@@ -208,7 +208,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for( auto etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) 
       etsums->push_back(ibx, CaloTools::etSumP4Demux(*etsum));
 
-
+  
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;
 
   }
