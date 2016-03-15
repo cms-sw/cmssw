@@ -82,15 +82,18 @@ SiStripMonitorTrack_ckf.TH1nClustersOff.xmax = cms.double(1999.5)
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
+MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
 MonitorTrackResiduals_cosmicTk.Mod_On              = False
 # Clone for CKF Tracks
 MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
+MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
 MonitorTrackResiduals_ckf.Mod_On                   = False
 # Clone for Road Search  Tracks
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 #MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
+#MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # TrackingMonitor ####
