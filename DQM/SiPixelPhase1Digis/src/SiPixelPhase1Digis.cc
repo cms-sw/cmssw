@@ -38,6 +38,10 @@ void SiPixelPhase1Digis::dqmBeginRun(const edm::Run& r, const edm::EventSetup& i
 
 void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
   std::cout << "+++++ Booking.\n";
+  histoman.setName("adc");
+  histoman.setTitle("Digi ADC values");
+  histoman.setXlabel("adc readout");
+  histoman.setDimensions(1);
   histoman.addSpec()
     .groupBy("")
     .save();
