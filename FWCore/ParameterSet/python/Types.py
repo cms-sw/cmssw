@@ -1246,6 +1246,7 @@ if __name__ == "__main__":
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
+            self.assertRaises(ValueError, lambda: bool("False"))
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
