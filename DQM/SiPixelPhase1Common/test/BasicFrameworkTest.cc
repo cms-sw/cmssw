@@ -10,6 +10,7 @@ BasicFrameworkTest::BasicFrameworkTest(const edm::ParameterSet& config) :
 }
 
 void BasicFrameworkTest::beginRun(const edm::Run&  run, const edm::EventSetup& setup) {
+  GeometryInterface::get().load(setup, histoman.iConfig);
   
   // This is for the current SiPixelResidual, Barrel only.
   histoman.addSpec()

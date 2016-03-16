@@ -60,6 +60,7 @@ class GeometryInterface {
 
 
   private:
+  void loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
 
   static GeometryInterface instance;
   bool is_loaded = false;
