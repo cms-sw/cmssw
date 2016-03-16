@@ -42,109 +42,105 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     _debug = False
 #
 #   special case
-    for module in filters_by_type(process,"HLTL1TSeed"):
-        label = module._Labelable__label
-        if hasattr(getattr(process,label),'SaveTags'):
-            delattr(getattr(process,label),'SaveTags')
+#    for module in filters_by_type(process,"HLTL1TSeed"):
+#        label = module._Labelable__label
+#        if hasattr(getattr(process,label),'SaveTags'):
+#            delattr(getattr(process,label),'SaveTags')
 #
 #   replace converted l1extra=>l1t plugins which are not yet in ConfDB
-    replaceList = {
-        'EDAnalyzer' : { },
-        'EDFilter'   : {
-            'HLTMuonL1Filter' : 'HLTMuonL1TFilter',
-            'HLTMuonL1RegionalFilter' : 'HLTMuonL1TRegionalFilter',
-            'HLTMuonTrkFilter' : 'HLTMuonTrkL1TFilter',
-            'HLTMuonL1toL3TkPreFilter' : 'HLTMuonL1TtoL3TkPreFilter',
-            'HLTMuonDimuonL2Filter' : 'HLTMuonDimuonL2FromL1TFilter',
-            'HLTEgammaL1MatchFilterRegional' : 'HLTEgammaL1TMatchFilterRegional',
-            'HLTMuonL2PreFilter' : 'HLTMuonL2FromL1TPreFilter',
-            'HLTPixelIsolTrackFilter' : 'HLTPixelIsolTrackL1TFilter',
-            },
-        'EDProducer' : {
-            'CaloTowerCreatorForTauHLT' : 'CaloTowerFromL1TCreatorForTauHLT',
-            'L1HLTTauMatching' : 'L1THLTTauMatching',
-            'HLTCaloJetL1MatchProducer' : 'HLTCaloJetL1TMatchProducer',
-            'HLTPFJetL1MatchProducer' : 'HLTPFJetL1TMatchProducer',
-            'HLTL1MuonSelector' : 'HLTL1TMuonSelector',
-            'L2MuonSeedGenerator' : 'L2MuonSeedGeneratorFromL1T',
-            'IsolatedPixelTrackCandidateProducer' : 'IsolatedPixelTrackCandidateL1TProducer',
-            }
-        }
-    if _debug:
-        print " "
-    for type,list in replaceList.iteritems():
-        if (type=="EDAnalyzer"):
-            if _debug:
-                print "# Replacing EDAnalyzers:"
-            for old,new in list.iteritems():
-                if _debug:
-                    print '## EDAnalyzer plugin type: ',old,' -> ',new
-                for module in analyzers_by_type(process,old):
-                    label = module._Labelable__label
-                    if _debug:
-                        print '### Instance: ',label
-                    setattr(process,label,cms.EDAnalyzer(new,**module.parameters_()))
-        elif (type=="EDFilter"):
-            if _debug:
-                print "# Replacing EDFilters  :"
-            for old,new in list.iteritems():
-                if _debug:
-                    print '## EDFilter plugin type  : ',old,' -> ',new
-                for module in filters_by_type(process,old):
-                    label = module._Labelable__label
-                    if _debug:
-                        print '### Instance: ',label
-                    setattr(process,label,cms.EDFilter(new,**module.parameters_()))
-        elif (type=="EDProducer"):
-            if _debug:
-                print "# Replacing EDProducers:"
-            for old,new in list.iteritems():
-                if _debug:
-                    print '## EDProducer plugin type: ',old,' -> ',new
-                for module in producers_by_type(process,old):
-                    label = module._Labelable__label
-                    if _debug:
-                        print '### Instance: ',label
-                    setattr(process,label,cms.EDProducer(new,**module.parameters_()))
-                    if (new == 'CaloTowerFromL1TCreatorForTauHLT'):
-                        setattr(getattr(process,label),'TauTrigger',cms.InputTag('hltCaloStage2Digis:Tau'))
-                    if ((new == 'HLTCaloJetL1TMatchProducer') or (new == 'HLTPFJetL1TMatchProducer')):
-                        setattr(getattr(process,label),'L1Jets',cms.InputTag('hltCaloStage2Digis:Jet'))
-                        if hasattr(getattr(process,label),'L1CenJets'):
-                            delattr(getattr(process,label),'L1CenJets')
-                        if hasattr(getattr(process,label),'L1ForJets'):
-                            delattr(getattr(process,label),'L1ForJets')
-                        if hasattr(getattr(process,label),'L1TauJets'):
-                            delattr(getattr(process,label),'L1TauJets')
-                    if (new == 'HLTL1TMuonSelector'):
-                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
-                    if (new == 'L2MuonSeedGeneratorFromL1T'):
-                        setattr(getattr(process,label),'GMTReadoutCollection',cms.InputTag(''))            
-                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
-                    if (new == 'IsolatedPixelTrackCandidateL1TProducer'):
-                        setattr(getattr(process,label),'L1eTauJetsSource',cms.InputTag('hltCaloStage2Digis:Tau'))
-
-        else:
-            if _debug:
-                print "# Error - Type ',type,' not recognised!"
+#    replaceList = {
+#        'EDAnalyzer' : { },
+#        'EDFilter'   : {
+#            'HLTMuonL1Filter' : 'HLTMuonL1TFilter',
+#            'HLTMuonL1RegionalFilter' : 'HLTMuonL1TRegionalFilter',
+#            'HLTMuonTrkFilter' : 'HLTMuonTrkL1TFilter',
+#            'HLTMuonL1toL3TkPreFilter' : 'HLTMuonL1TtoL3TkPreFilter',
+#            'HLTMuonDimuonL2Filter' : 'HLTMuonDimuonL2FromL1TFilter',
+#            'HLTEgammaL1MatchFilterRegional' : 'HLTEgammaL1TMatchFilterRegional',
+#            'HLTMuonL2PreFilter' : 'HLTMuonL2FromL1TPreFilter',
+#            'HLTPixelIsolTrackFilter' : 'HLTPixelIsolTrackL1TFilter',
+#            },
+#        'EDProducer' : {
+#            'CaloTowerCreatorForTauHLT' : 'CaloTowerFromL1TCreatorForTauHLT',
+#            'L1HLTTauMatching' : 'L1THLTTauMatching',
+#            'HLTCaloJetL1MatchProducer' : 'HLTCaloJetL1TMatchProducer',
+#            'HLTPFJetL1MatchProducer' : 'HLTPFJetL1TMatchProducer',
+#            'HLTL1MuonSelector' : 'HLTL1TMuonSelector',
+#            'L2MuonSeedGenerator' : 'L2MuonSeedGeneratorFromL1T',
+#            'IsolatedPixelTrackCandidateProducer' : 'IsolatedPixelTrackCandidateL1TProducer',
+#            }
+#        }
+#    for type,list in replaceList.iteritems():
+#        if (type=="EDAnalyzer"):
+#            if _debug:
+#                print "# Replacing EDAnalyzers:"
+#            for old,new in list.iteritems():
+#                if _debug:
+#                    print '## EDAnalyzer plugin type: ',old,' -> ',new
+#                for module in analyzers_by_type(process,old):
+#                    label = module._Labelable__label
+#                    if _debug:
+#                        print '### Instance: ',label
+#                    setattr(process,label,cms.EDAnalyzer(new,**module.parameters_()))
+#        elif (type=="EDFilter"):
+#            if _debug:
+#                print "# Replacing EDFilters  :"
+#            for old,new in list.iteritems():
+#                if _debug:
+#                    print '## EDFilter plugin type  : ',old,' -> ',new
+#                for module in filters_by_type(process,old):
+#                    label = module._Labelable__label
+#                    if _debug:
+#                        print '### Instance: ',label
+#                    setattr(process,label,cms.EDFilter(new,**module.parameters_()))
+#        elif (type=="EDProducer"):
+#            if _debug:
+#                print "# Replacing EDProducers:"
+#            for old,new in list.iteritems():
+#                if _debug:
+#                    print '## EDProducer plugin type: ',old,' -> ',new
+#                for module in producers_by_type(process,old):
+#                    label = module._Labelable__label
+#                    if _debug:
+#                        print '### Instance: ',label
+#                    setattr(process,label,cms.EDProducer(new,**module.parameters_()))
+#                    if (new == 'CaloTowerFromL1TCreatorForTauHLT'):
+#                        setattr(getattr(process,label),'TauTrigger',cms.InputTag('hltCaloStage2Digis:Tau'))
+#                    if ((new == 'HLTCaloJetL1TMatchProducer') or (new == 'HLTPFJetL1TMatchProducer')):
+#                        setattr(getattr(process,label),'L1Jets',cms.InputTag('hltCaloStage2Digis:Jet'))
+#                        if hasattr(getattr(process,label),'L1CenJets'):
+#                            delattr(getattr(process,label),'L1CenJets')
+#                        if hasattr(getattr(process,label),'L1ForJets'):
+#                            delattr(getattr(process,label),'L1ForJets')
+#                        if hasattr(getattr(process,label),'L1TauJets'):
+#                            delattr(getattr(process,label),'L1TauJets')
+#                    if (new == 'HLTL1TMuonSelector'):
+#                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
+#                    if (new == 'L2MuonSeedGeneratorFromL1T'):
+#                        setattr(getattr(process,label),'GMTReadoutCollection',cms.InputTag(''))            
+#                        setattr(getattr(process,label),'InputObjects',cms.InputTag('hltGmtStage2Digis:Muon'))
+#                    if (new == 'IsolatedPixelTrackCandidateL1TProducer'):
+#                        setattr(getattr(process,label),'L1eTauJetsSource',cms.InputTag('hltCaloStage2Digis:Tau'))
+#
+#        else:
+#            if _debug:
+#                print "# Error - Type ',type,' not recognised!"
 #
 #   Both of the HLTEcalRecHitInAllL1RegionsProducer instances need InputTag fixes
-    for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
-        label = module._Labelable__label
-        setattr(getattr(process,label).l1InputRegions[0],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
-        setattr(getattr(process,label).l1InputRegions[0],'type',cms.string("EGamma"))
-        setattr(getattr(process,label).l1InputRegions[1],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
-        setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("EGamma"))
-        setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis:Jet'))
-        setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("Jet"))
+#    for module in producers_by_type(process,'HLTEcalRecHitInAllL1RegionsProducer'):
+#        label = module._Labelable__label
+#        setattr(getattr(process,label).l1InputRegions[0],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
+#        setattr(getattr(process,label).l1InputRegions[0],'type',cms.string("EGamma"))
+#        setattr(getattr(process,label).l1InputRegions[1],'inputColl',cms.InputTag('hltCaloStage2Digis:EGamma'))
+#        setattr(getattr(process,label).l1InputRegions[1],'type',cms.string("EGamma"))
+#        setattr(getattr(process,label).l1InputRegions[2],'inputColl',cms.InputTag('hltCaloStage2Digis:Jet'))
+#        setattr(getattr(process,label).l1InputRegions[2],'type',cms.string("Jet"))
 #
 #   One of the EgammaHLTCaloTowerProducer instances need InputTag fixes
-    if hasattr(process,'hltRegionalTowerForEgamma'):
-        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1NonIsoCand',cms.InputTag('hltCaloStage2Digis:EGamma'))
-        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand'   ,cms.InputTag('hltCaloStage2Digis:EGamma'))
+#    if hasattr(process,'hltRegionalTowerForEgamma'):
+#        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1NonIsoCand',cms.InputTag('hltCaloStage2Digis:EGamma'))
+#        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand'   ,cms.InputTag('hltCaloStage2Digis:EGamma'))
 
-    if _debug:
-        print " "
 #   replace remaining l1extra modules with filter returning 'false'
     badTypes = (
         'HLTLevel1Activity',
@@ -170,8 +166,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
             badModules += [label]
             if _debug:
                 print '### producer label: ',label
-    if _debug:
-        print " "
     for label in badModules:
         setattr(process,label,cms.EDFilter("HLTBool",result=cms.bool(False)))
 
