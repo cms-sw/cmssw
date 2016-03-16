@@ -58,12 +58,12 @@ from HeavyIonsAnalysis.JetAnalysis.jets.akPu6PFJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak6PFJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCs6PFJetSequence_PbPb_jec_cff import *
 
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter5PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter6PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop5PFJetSequence_PbPb_mc_cff import *
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop6PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter5PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter6PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop5PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop6PFJetSequence_PbPb_mc_cff import *
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
@@ -195,12 +195,12 @@ jetSequences = cms.Sequence(
     ak6PFJetSequence +
     akVs6PFJetSequence +
     akPu6PFJetSequence +
-    akCs6PFJetSequence +
+    akCs6PFJetSequence
 
-    akCsFilter4PFJetSequence +
-    akCsFilter5PFJetSequence +
-    akCsFilter6PFJetSequence +
-    akCsSoftDrop4PFJetSequence +
-    akCsSoftDrop5PFJetSequence +
-    akCsSoftDrop6PFJetSequence 
+#    akCsFilter4PFJetSequence +
+#    akCsFilter5PFJetSequence +
+#    akCsFilter6PFJetSequence +
+#    akCsSoftDrop4PFJetSequence +
+#    akCsSoftDrop5PFJetSequence +
+#    akCsSoftDrop6PFJetSequence 
 )
