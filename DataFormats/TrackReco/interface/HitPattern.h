@@ -264,6 +264,10 @@ public:
 
     bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
     bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
+    bool hasValidHitInSecondPixelBarrel() const; // has valid hit in PXB layer 2
+    bool hasValidHitInSecondPixelEndcap() const; // has valid hit in PXF layer 2
+    bool hasValidHitInThirdPixelBarrel() const; // has valid hit in PXB layer 3
+    bool hasValidHitInThirdPixelEndcap() const; // has valid hit in PXF layer 3
 
     int numberOfHits(HitCategory category) const;                 // not-null
     int numberOfValidHits() const;                                // not-null, valid
