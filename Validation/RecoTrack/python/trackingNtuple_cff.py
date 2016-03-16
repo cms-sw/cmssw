@@ -20,8 +20,8 @@ _includeHits = True
 _includeSeeds = True
 #_includeSeeds = False
 
-from PhysicsTools.RecoAlgos.trackingParticleSelector_cfi import *
-trackingParticlesIntime = trackingParticleSelector.clone(
+from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
+trackingParticlesIntime = _trackingParticleRefSelector.clone(
     signalOnly = False,
     intimeOnly = True,
     chargedOnly = False,
@@ -31,25 +31,8 @@ trackingParticlesIntime = trackingParticleSelector.clone(
     maxRapidity = 10,
     ptMin = 0,
 )
-simHitTPAssocProducerIntime = simHitTPAssocProducer.clone(
-    trackingParticleSrc = "trackingParticlesIntime"
-)
-tpClusterProducerIntime = tpClusterProducer.clone(
-    trackingParticleSrc = "trackingParticlesIntime"
-)
-quickTrackAssociatorByHitsIntime = quickTrackAssociatorByHits.clone(
-    cluster2TPSrc = "tpClusterProducerIntime",
-)
-trackingParticleNumberOfLayersProducerIntime = trackingParticleNumberOfLayersProducer.clone(
-    trackingParticles = "trackingParticlesIntime"
-)
 trackingNtuple.trackingParticles = "trackingParticlesIntime"
-trackingNtuple.clusterTPMap = "tpClusterProducerIntime"
-trackingNtuple.simHitTPMap = "simHitTPAssocProducerIntime"
-trackingNtuple.trackAssociator = "quickTrackAssociatorByHitsIntime"
-trackingNtuple.trackingParticleNlayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
-trackingNtuple.trackingParticleNpixellayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
-trackingNtuple.trackingParticleNstripstereolayers.setModuleLabel("trackingParticleNumberOfLayersProducerIntime")
+trackingNtuple.trackingParticlesRef = True
 trackingNtuple.includeAllHits = _includeHits
 trackingNtuple.includeSeeds = _includeSeeds
 
@@ -92,11 +75,11 @@ if _includeSeeds:
 
 trackingNtupleSequence += (
     # sim information
-    cms.ignore(trackingParticlesIntime) +
-    simHitTPAssocProducerIntime +
-    tpClusterProducerIntime +
-    quickTrackAssociatorByHitsIntime +
-    trackingParticleNumberOfLayersProducerIntime +
+    trackingParticlesIntime +
+    simHitTPAssocProducer +
+    tpClusterProducer +
+    quickTrackAssociatorByHits +
+    trackingParticleNumberOfLayersProducer +
     # ntuplizer
     trackingNtuple
 )

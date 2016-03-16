@@ -76,6 +76,8 @@
 
 #include <set>
 #include <map>
+#include <unordered_set>
+#include <unordered_map>
 
 #include "TTree.h"
 
@@ -183,6 +185,12 @@ private:
 
   void clearVariables();
 
+  // This pattern is copied from QuickTrackAssociatorByHitsImpl. If
+  // further needs arises, it wouldn't hurt to abstract it somehow.
+  typedef std::unordered_set<reco::RecoToSimCollection::index_type> TrackingParticleRefKeySet;
+  typedef std::unordered_map<reco::RecoToSimCollection::index_type, size_t> TrackingParticleRefKeyToIndex;
+  typedef TrackingParticleRefKeyToIndex TrackingVertexRefKeyToIndex;
+
   enum HitType {
     HitPixel = 0,
     HitStrip = 1,
@@ -191,26 +199,27 @@ private:
   };
 
   struct TPHitIndex {
-    TPHitIndex(int tp=0, int hit=0, float to=0, HitType ty=Unknown): tpIdx(tp), hitIdx(hit), tof(to), type(ty) {}
-    int tpIdx;
-    int hitIdx;
+    TPHitIndex(unsigned int tp=0, unsigned int hit=0, float to=0, HitType ty=Unknown): tpKey(tp), hitIdx(hit), tof(to), type(ty) {}
+    unsigned int tpKey;
+    unsigned int hitIdx;
     float tof;
     HitType type;
   };
-  static bool tpHitIndexListLess(const TPHitIndex& i, const TPHitIndex& j) { return (i.tpIdx < j.tpIdx); }
+  static bool tpHitIndexListLess(const TPHitIndex& i, const TPHitIndex& j) { return (i.tpKey < j.tpKey); }
   static bool tpHitIndexListLessSort(const TPHitIndex& i, const TPHitIndex& j) {
-    if(i.tpIdx == j.tpIdx) {
+    if(i.tpKey == j.tpKey) {
       if(std::isnan(i.tof) && std::isnan(j.tof)) {
         return i.type < j.type;
       }
       return i.tof < j.tof; // works as intended if either one is NaN
     }
-    return i.tpIdx < j.tpIdx;
+    return i.tpKey < j.tpKey;
   }
 
   void fillBeamSpot(const reco::BeamSpot& bs);
   void fillPixelHits(const edm::Event& iEvent,
                      const ClusterTPAssociation& clusterToTPMap,
+                     const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                      const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                      const TransientTrackingRecHitBuilder& theTTRHBuilder,
                      const TrackerTopology& tTopo,
@@ -220,6 +229,7 @@ private:
 
   void fillStripRphiStereoHits(const edm::Event& iEvent,
                                const ClusterTPAssociation& clusterToTPMap,
+                               const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const TrackerTopology& tTopo,
@@ -234,7 +244,8 @@ private:
                             );
 
   void fillSeeds(const edm::Event& iEvent,
-                 const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+                 const TrackingParticleRefVector& tpCollection,
+                 const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                  const reco::BeamSpot& bs,
                  const reco::TrackToTrackingParticleAssociator& associatorByHits,
                  const TransientTrackingRecHitBuilder& theTTRHBuilder,
@@ -244,8 +255,9 @@ private:
                  std::map<edm::ProductID, size_t>& seedToCollIndex
                  );
 
-  void fillTracks(const edm::Handle<edm::View<reco::Track> >& tracks,
-                  const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+  void fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
+                  const TrackingParticleRefVector& tpCollection,
+                  const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                   const reco::BeamSpot& bs,
                   const reco::TrackToTrackingParticleAssociator& associatorByHits,
                   const TransientTrackingRecHitBuilder& theTTRHBuilder,
@@ -255,15 +267,18 @@ private:
                   );
 
   void fillTrackingParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-                             const edm::Handle<edm::View<reco::Track> >& tracks,
-                             const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+                             const edm::RefToBaseVector<reco::Track>& tracks,
+                             const TrackingParticleRefVector& tpCollection,
+                             const TrackingVertexRefKeyToIndex& tvKeyToIndex,
                              const reco::TrackToTrackingParticleAssociator& associatorByHits,
                              const std::vector<TPHitIndex>& tpHitList
                              );
 
   void fillVertices(const reco::VertexCollection& vertices);
 
-  void fillTrackingVertices(const std::vector<const TrackingVertex *>& trackingVertices);
+  void fillTrackingVertices(const TrackingVertexRefVector& trackingVertices,
+                            const TrackingParticleRefKeyToIndex& tpKeyToIndex
+                            );
 
 
 
@@ -284,6 +299,7 @@ private:
                           DetId hitId, int clusterKey,
                           const TransientTrackingRecHit::RecHitPointer& ttrh,
                           const ClusterTPAssociation& clusterToTPMap,
+                          const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                           const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                           std::vector<TPHitIndex>& tpHitList,
                           HitType hitType
@@ -293,6 +309,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > seedTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
+  edm::EDGetTokenT<TrackingParticleRefVector> trackingParticleRefToken_;
   edm::EDGetTokenT<ClusterTPAssociation> clusterTPMapToken_;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitTPMapToken_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
@@ -351,6 +368,8 @@ private:
   std::vector<std::vector<int> > trk_hitIdx;
   std::vector<std::vector<int> > trk_hitType;
   //sim tracks
+  std::vector<int>   sim_event    ;
+  std::vector<int>   sim_bunchCrossing;
   std::vector<float> sim_px       ;
   std::vector<float> sim_py       ;
   std::vector<float> sim_pz       ;
@@ -359,9 +378,6 @@ private:
   std::vector<float> sim_phi      ;
   std::vector<float> sim_dxy      ;
   std::vector<float> sim_dz       ;
-  std::vector<float> sim_prodx    ;
-  std::vector<float> sim_prody    ;
-  std::vector<float> sim_prodz    ;
   std::vector<std::vector<float> > sim_shareFrac;
   std::vector<int> sim_q       ;
   std::vector<unsigned int> sim_nValid  ;
@@ -370,6 +386,8 @@ private:
   std::vector<unsigned int> sim_nLay;
   std::vector<unsigned int> sim_nPixelLay;
   std::vector<unsigned int> sim_n3DLay  ;
+  std::vector<int> sim_parentVtxIdx;
+  std::vector<std::vector<int> > sim_decayVtxIdx;
   std::vector<std::vector<int> > sim_trkIdx  ;
   std::vector<std::vector<int> > sim_hitIdx;
   std::vector<std::vector<int> > sim_hitType;
@@ -380,8 +398,6 @@ private:
   std::vector<std::vector<int> > pix_simTrkIdx;
   std::vector<std::vector<int> > pix_particle ;
   std::vector<std::vector<int> > pix_process  ;
-  std::vector<std::vector<int> > pix_bunchXing;
-  std::vector<std::vector<int> > pix_event    ;
   std::vector<std::vector<float> > pix_xsim ;
   std::vector<std::vector<float> > pix_ysim ;
   std::vector<std::vector<float> > pix_zsim ;
@@ -407,8 +423,6 @@ private:
   std::vector<std::vector<int> > str_simTrkIdx;
   std::vector<std::vector<int> > str_particle ;
   std::vector<std::vector<int> > str_process  ;
-  std::vector<std::vector<int> > str_bunchXing;
-  std::vector<std::vector<int> > str_event    ;
   std::vector<std::vector<float> > str_xsim ;
   std::vector<std::vector<float> > str_ysim ;
   std::vector<std::vector<float> > str_zsim ;
@@ -494,10 +508,14 @@ private:
   std::vector<std::vector<int> > vtx_trkIdx;
 
   // Tracking vertices
+  std::vector<int>   simvtx_event;
+  std::vector<int>   simvtx_bunchCrossing;
   std::vector<float> simvtx_x;
   std::vector<float> simvtx_y;
   std::vector<float> simvtx_z;
-  std::vector<int> simvtx_nTrack;
+  std::vector<std::vector<int> > simvtx_sourceSimIdx;
+  std::vector<std::vector<int> > simvtx_daughterSimIdx;
+  std::vector<int> simpv_idx;
 };
 
 //
@@ -508,7 +526,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
         return consumes<edm::View<reco::Track> >(tag);
       })),
   trackToken_(consumes<edm::View<reco::Track> >(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
-  trackingParticleToken_(consumes<TrackingParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackingParticles"))),
   clusterTPMapToken_(consumes<ClusterTPAssociation>(iConfig.getUntrackedParameter<edm::InputTag>("clusterTPMap"))),
   simHitTPMapToken_(consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(iConfig.getUntrackedParameter<edm::InputTag>("simHitTPMap"))),
   trackAssociatorToken_(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociator"))),
@@ -527,6 +544,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
   includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits"))
 {
+  const bool tpRef = iConfig.getUntrackedParameter<bool>("trackingParticlesRef");
+  const auto tpTag = iConfig.getUntrackedParameter<edm::InputTag>("trackingParticles");
+  if(tpRef) {
+    trackingParticleRefToken_ = consumes<TrackingParticleRefVector>(tpTag);
+  }
+  else {
+    trackingParticleToken_ = consumes<TrackingParticleCollection>(tpTag);
+  }
+
   edm::Service<TFileService> fs;
   t = fs->make<TTree>("tree","tree");
 
@@ -572,6 +598,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("trk_hitType", &trk_hitType);
   }
   //sim tracks
+  t->Branch("sim_event"    , &sim_event    );
+  t->Branch("sim_bunchCrossing", &sim_bunchCrossing);
   t->Branch("sim_px"       , &sim_px       );
   t->Branch("sim_py"       , &sim_py       );
   t->Branch("sim_pz"       , &sim_pz       );
@@ -580,9 +608,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_phi"      , &sim_phi      );
   t->Branch("sim_dxy"      , &sim_dxy      );
   t->Branch("sim_dz"       , &sim_dz       );
-  t->Branch("sim_prodx"    , &sim_prodx    );
-  t->Branch("sim_prody"    , &sim_prody    );
-  t->Branch("sim_prodz"    , &sim_prodz    );
   t->Branch("sim_shareFrac", &sim_shareFrac);
   t->Branch("sim_q"        , &sim_q        );
   t->Branch("sim_nValid"   , &sim_nValid   );
@@ -591,6 +616,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_nLay"     , &sim_nLay     );
   t->Branch("sim_nPixelLay", &sim_nPixelLay);
   t->Branch("sim_n3DLay"   , &sim_n3DLay   );
+  t->Branch("sim_parentVtxIdx", &sim_parentVtxIdx);
+  t->Branch("sim_decayVtxIdx", &sim_decayVtxIdx);
   t->Branch("sim_trkIdx"   , &sim_trkIdx   );
   if(includeAllHits_) {
     t->Branch("sim_hitIdx" , &sim_hitIdx );
@@ -604,8 +631,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("pix_simTrkIdx" , &pix_simTrkIdx);
     t->Branch("pix_particle"  , &pix_particle );
     t->Branch("pix_process"   , &pix_process  );
-    t->Branch("pix_bunchXing" , &pix_bunchXing);
-    t->Branch("pix_event"     , &pix_event    );
     t->Branch("pix_xsim"  , &pix_xsim );
     t->Branch("pix_ysim"  , &pix_ysim );
     t->Branch("pix_zsim"  , &pix_zsim );
@@ -631,8 +656,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("str_simTrkIdx" , &str_simTrkIdx);
     t->Branch("str_particle"  , &str_particle );
     t->Branch("str_process"   , &str_process  );
-    t->Branch("str_bunchXing" , &str_bunchXing);
-    t->Branch("str_event"     , &str_event    );
     t->Branch("str_xsim"  , &str_xsim );
     t->Branch("str_ysim"  , &str_ysim );
     t->Branch("str_zsim"  , &str_zsim );
@@ -722,10 +745,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("vtx_trkIdx"  , &vtx_trkIdx);
 
   // tracking vertices
+  t->Branch("simvtx_event"   , &simvtx_event    );
+  t->Branch("simvtx_bunchCrossing", &simvtx_bunchCrossing);
   t->Branch("simvtx_x"       , &simvtx_x);
   t->Branch("simvtx_y"       , &simvtx_y);
   t->Branch("simvtx_z"       , &simvtx_z);
-  t->Branch("simvtx_nTrack"  , &simvtx_nTrack);
+  t->Branch("simvtx_sourceSimIdx", &simvtx_sourceSimIdx);
+  t->Branch("simvtx_daughterSimIdx", &simvtx_daughterSimIdx);
+
+  t->Branch("simpv_idx"      , &simpv_idx);
 
   //t->Branch("" , &);
 }
@@ -780,6 +808,8 @@ void TrackingNtuple::clearVariables() {
   trk_hitIdx   .clear();
   trk_hitType  .clear();
   //sim tracks
+  sim_event    .clear();
+  sim_bunchCrossing.clear();
   sim_px       .clear();
   sim_py       .clear();
   sim_pz       .clear();
@@ -788,9 +818,6 @@ void TrackingNtuple::clearVariables() {
   sim_phi      .clear();
   sim_dxy      .clear();
   sim_dz       .clear();
-  sim_prodx    .clear();
-  sim_prody    .clear();
-  sim_prodz    .clear();
   sim_shareFrac.clear();
   sim_q        .clear();
   sim_nValid   .clear();
@@ -799,6 +826,8 @@ void TrackingNtuple::clearVariables() {
   sim_nLay     .clear();
   sim_nPixelLay.clear();
   sim_n3DLay   .clear();
+  sim_parentVtxIdx.clear();
+  sim_decayVtxIdx.clear();
   sim_trkIdx   .clear();
   sim_hitIdx   .clear();
   sim_hitType  .clear();
@@ -809,8 +838,6 @@ void TrackingNtuple::clearVariables() {
   pix_simTrkIdx.clear();
   pix_particle .clear();
   pix_process  .clear();
-  pix_bunchXing.clear();
-  pix_event    .clear();
   pix_xsim .clear();
   pix_ysim .clear();
   pix_zsim .clear();
@@ -836,8 +863,6 @@ void TrackingNtuple::clearVariables() {
   str_simTrkIdx.clear();
   str_particle .clear();
   str_process  .clear();
-  str_bunchXing.clear();
-  str_event    .clear();
   str_xsim .clear();
   str_ysim .clear();
   str_zsim .clear();
@@ -920,6 +945,16 @@ void TrackingNtuple::clearVariables() {
   vtx_fake.clear();
   vtx_valid.clear();
   vtx_trkIdx.clear();
+
+  // Tracking vertices
+  simvtx_event.clear();
+  simvtx_bunchCrossing.clear();
+  simvtx_x.clear();
+  simvtx_y.clear();
+  simvtx_z.clear();
+  simvtx_sourceSimIdx.clear();
+  simvtx_daughterSimIdx.clear();
+  simpv_idx.clear();
 }
 
 
@@ -949,9 +984,54 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //initialize tree variables
   clearVariables();
 
+  // FIXME: we really need to move to edm::View for reading the
+  // TrackingParticles... Unfortunately it has non-trivial
+  // consequences on the associator/association interfaces etc.
+  TrackingParticleRefVector tmpTP;
+  TrackingParticleRefKeySet tmpTPkeys;
+  const TrackingParticleRefVector *tmpTPptr = nullptr;
+  edm::Handle<TrackingParticleCollection>  TPCollectionH;
+  edm::Handle<TrackingParticleRefVector>  TPCollectionHRefVector;
+
+  if(!trackingParticleToken_.isUninitialized()) {
+    iEvent.getByToken(trackingParticleToken_, TPCollectionH);
+    for(size_t i=0, size=TPCollectionH->size(); i<size; ++i) {
+      tmpTP.push_back(TrackingParticleRef(TPCollectionH, i));
+    }
+    tmpTPptr = &tmpTP;
+  }
+  else {
+    iEvent.getByToken(trackingParticleRefToken_, TPCollectionHRefVector);
+    tmpTPptr = TPCollectionHRefVector.product();
+    for(const auto& ref: *tmpTPptr) {
+      tmpTPkeys.insert(ref.key());
+    }
+  }
+  const TrackingParticleRefVector& tpCollection = *tmpTPptr;
+
+  // Fill mapping from Ref::key() to index
+  TrackingParticleRefKeyToIndex tpKeyToIndex;
+  for(size_t i=0; i<tpCollection.size(); ++i) {
+    tpKeyToIndex[tpCollection[i].key()] = i;
+  }
+
+  // tracking vertices
+  edm::Handle<TrackingVertexCollection> htv;
+  iEvent.getByToken(trackingVertexToken_, htv);
+  const TrackingVertexCollection& tvs = *htv;
+
+  // Fill mapping from Ref::key() to index
+  TrackingVertexRefVector tvRefs;
+  TrackingVertexRefKeyToIndex tvKeyToIndex;
+  for(size_t i=0; i<tvs.size(); ++i) {
+    const TrackingVertex& v = tvs[i];
+    if(v.eventId().bunchCrossing() != 0) // Ignore OOTPU; would be better to not to hardcode?
+      continue;
+    tvKeyToIndex[i] = tvRefs.size();
+    tvRefs.push_back(TrackingVertexRef(htv, i));
+  }
+
   //get association maps, etc.
-  Handle<TrackingParticleCollection>  TPCollectionH;
-  iEvent.getByToken(trackingParticleToken_, TPCollectionH);
   Handle<ClusterTPAssociation> pCluster2TPListH;
   iEvent.getByToken(clusterTPMapToken_, pCluster2TPListH);
   const ClusterTPAssociation& clusterToTPMap = *pCluster2TPListH;
@@ -979,10 +1059,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   vector<pair<int,int> > monoStereoClusterList;
   if(includeAllHits_) {
     //pixel hits
-    fillPixelHits(iEvent, clusterToTPMap, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
+    fillPixelHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
 
     //strip hits
-    fillStripRphiStereoHits(iEvent, clusterToTPMap, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
+    fillStripRphiStereoHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
 
     //matched hits
     fillStripMatchedHits(iEvent, *theTTRHBuilder, tTopo, monoStereoClusterList);
@@ -990,18 +1070,24 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //seeds
   if(includeSeeds_) {
-    fillSeeds(iEvent, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds, seedCollToOffset);
+    fillSeeds(iEvent, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds, seedCollToOffset);
   }
 
   //tracks
-  edm::Handle<edm::View<reco::Track> > tracks;
-  iEvent.getByToken(trackToken_, tracks);
-  fillTracks(tracks, TPCollectionH, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset);
+  edm::Handle<edm::View<reco::Track> > tracksHandle;
+  iEvent.getByToken(trackToken_, tracksHandle);
+  const edm::View<reco::Track>& tracks = *tracksHandle;
+  // The associator interfaces really need to be fixed...
+  edm::RefToBaseVector<reco::Track> trackRefs;
+  for(edm::View<Track>::size_type i=0; i<tracks.size(); ++i) {
+    trackRefs.push_back(tracks.refAt(i));
+  }
+  fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset);
 
   //tracking particles
   //sort association maps with clusters
   std::sort( tpHitList.begin(), tpHitList.end(), tpHitIndexListLessSort );
-  fillTrackingParticles(iEvent, iSetup, tracks, TPCollectionH, associatorByHits, tpHitList);
+  fillTrackingParticles(iEvent, iSetup, trackRefs, tpCollection, tvKeyToIndex, associatorByHits, tpHitList);
 
   // vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -1009,20 +1095,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   fillVertices(*vertices);
 
   // tracking vertices
-  edm::Handle<TrackingVertexCollection> htv;
-  iEvent.getByToken(trackingVertexToken_, htv);
-  std::vector<const TrackingVertex *> trackingVertices;
-  int current_event = -1;
-  for(const TrackingVertex& v: *htv) {
-    // Associate only to primary vertices of the in-time pileup
-    // events (BX=0, first vertex in each of the events)
-    if(v.eventId().bunchCrossing() != 0) continue;
-    if(v.eventId().event() != current_event) {
-      current_event = v.eventId().event();
-      trackingVertices.push_back(&v);
-    }
-  }
-  fillTrackingVertices(trackingVertices);
+  fillTrackingVertices(tvRefs, tpKeyToIndex);
 
   t->Fill();
 
@@ -1041,6 +1114,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
                                                         DetId hitId, int clusterKey,
                                                         const TransientTrackingRecHit::RecHitPointer& ttrh,
                                                         const ClusterTPAssociation& clusterToTPMap,
+                                                        const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                                         const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                                         std::vector<TPHitIndex>& tpHitList,
                                                         HitType hitType
@@ -1050,10 +1124,13 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
   auto range = clusterToTPMap.equal_range( cluster );
   if( range.first != range.second ) {
     for( auto ip=range.first; ip != range.second; ++ip ) {
-      const TrackingParticleRef trackingParticle=(ip->second);
+      const TrackingParticleRef& trackingParticle = ip->second;
+      auto tpIndex = tpKeyToIndex.find(trackingParticle.key());
+      if( tpIndex == tpKeyToIndex.end())
+        continue;
       if( trackingParticle->numberOfHits() == 0 ) continue;
 
-      ret.matchingTp.push_back(trackingParticle.key());
+      ret.matchingTp.push_back(tpIndex->second);
       //now get the corresponding sim hit
       std::pair<TrackingParticleRef, TrackPSimHitRef> simHitTPpairWithDummyTP(trackingParticle,TrackPSimHitRef());
       //SimHit is dummy: for simHitTPAssociationListGreater sorting only the TP is needed
@@ -1087,6 +1164,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
 
 void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                    const ClusterTPAssociation& clusterToTPMap,
+                                   const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                    const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                    const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                    const TrackerTopology& tTopo,
@@ -1105,7 +1183,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
       SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, simHitsTPAssoc, tpHitList, HitPixel);
+                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, tpHitList, HitPixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
       pix_lay      .push_back( lay );
@@ -1113,8 +1191,6 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_simTrkIdx.push_back( simHitData.matchingTp );
       pix_particle .push_back( simHitData.particleType );
       pix_process  .push_back( simHitData.processType );
-      pix_bunchXing.push_back( simHitData.bunchCrossing );
-      pix_event    .push_back( simHitData.event );
       pix_x    .push_back( ttrh->globalPosition().x() );
       pix_y    .push_back( ttrh->globalPosition().y() );
       pix_z    .push_back( ttrh->globalPosition().z() );
@@ -1153,6 +1229,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
 
 void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
                                              const ClusterTPAssociation& clusterToTPMap,
+                                             const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                              const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                              const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                              const TrackerTopology& tTopo,
@@ -1173,8 +1250,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_simTrkIdx.resize(totalStripHits);
   str_particle .resize(totalStripHits);
   str_process  .resize(totalStripHits);
-  str_bunchXing.resize(totalStripHits);
-  str_event    .resize(totalStripHits);
   str_x    .resize(totalStripHits);
   str_y    .resize(totalStripHits);
   str_z    .resize(totalStripHits);
@@ -1203,7 +1278,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         const int key = hit.cluster().key();
         const int lay = tTopo.layer(hitId);
         SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
-                                             clusterToTPMap, simHitsTPAssoc, tpHitList, HitStrip);
+                                             clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, tpHitList, HitStrip);
         str_isBarrel [key] = (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB);
         str_isStereo [key] = isStereo;
         str_det      [key] = hitId.subdetId();
@@ -1212,8 +1287,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_simTrkIdx[key] = simHitData.matchingTp;
         str_particle [key] = simHitData.particleType;
         str_process  [key] = simHitData.processType;
-        str_bunchXing[key] = simHitData.bunchCrossing;
-        str_event    [key] = simHitData.event;
         str_x    [key] = ttrh->globalPosition().x();
         str_y    [key] = ttrh->globalPosition().y();
         str_z    [key] = ttrh->globalPosition().z();
@@ -1295,7 +1368,8 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
 }
 
 void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
-                               const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+                               const TrackingParticleRefVector& tpCollection,
+                               const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const reco::BeamSpot& bs,
                                const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
@@ -1306,13 +1380,19 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                ) {
   TSCBLBuilderNoMaterial tscblBuilder;
   for(const auto& seedToken: seedTokens_) {
-    edm::Handle<edm::View<reco::Track> > seedTracks;
-    iEvent.getByToken(seedToken, seedTracks);
+    edm::Handle<edm::View<reco::Track> > seedTracksHandle;
+    iEvent.getByToken(seedToken, seedTracksHandle);
+    const auto& seedTracks = *seedTracksHandle;
 
-    if(seedTracks->empty())
+    if(seedTracks.empty())
       continue;
 
-    reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTracks, TPCollectionH);
+    // The associator interfaces really need to be fixed...
+    edm::RefToBaseVector<reco::Track> seedTrackRefs;
+    for(edm::View<reco::Track>::size_type i=0; i<seedTracks.size(); ++i) {
+      seedTrackRefs.push_back(seedTracks.refAt(i));
+    }
+    reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTrackRefs, tpCollection);
 
     edm::EDConsumerBase::Labels labels;
     labelsForToken(seedToken, labels);
@@ -1323,23 +1403,22 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     label.ReplaceAll("muonSeeded","muonSeededStep");
     int algo = reco::TrackBase::algoByName(label.Data());
 
-    edm::ProductID id = (*seedTracks)[0].seedRef().id();
+    edm::ProductID id = seedTracks[0].seedRef().id();
     auto inserted = seedCollToOffset.emplace(id, see_fitok.size());
     if(!inserted.second)
       throw cms::Exception("Configuration") << "Trying to add seeds with ProductID " << id << " for a second time from collection " << labels.module << ", seed algo " << label << ". Typically this is caused by a configuration problem.";
     see_offset.push_back(see_fitok.size());
 
-    LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks->size() << " algo=" << algo
+    LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks.size() << " algo=" << algo
                                << " ProductID " << id;
 
-    for(unsigned int iSeed=0; iSeed<seedTracks->size(); ++iSeed) {
-      auto seedTrackRef = seedTracks->refAt(iSeed);
+    for(const auto& seedTrackRef: seedTrackRefs) {
       const auto& seedTrack = *seedTrackRef;
       const auto& seedRef = seedTrack.seedRef();
       const auto& seed = *seedRef;
 
       if(seedRef.id() != id)
-        throw cms::Exception("LogicError") << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the element 0 had ProductID " << id << " while the element " << iSeed << " had " << seedTrackRef.id() << ". The source collection is " << labels.module << ".";
+        throw cms::Exception("LogicError") << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the element 0 had ProductID " << id << " while the element " << seedTrackRef.key() << " had " << seedTrackRef.id() << ". The source collection is " << labels.module << ".";
 
       std::vector<float> sharedFraction;
       std::vector<int> tpIdx;
@@ -1347,7 +1426,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       if (foundTPs != recSimColl.end()) {
         for(const auto tpQuality: foundTPs->val) {
           sharedFraction.push_back(tpQuality.second);
-          tpIdx.push_back(tpQuality.first.key());
+          tpIdx.push_back( tpKeyToIndex.at( tpQuality.first.key() ) );
         }
       }
 
@@ -1444,7 +1523,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	ge[0] = recHit0->globalPositionError();
 	gp[1] = recHit1->globalPosition();
 	ge[1] = recHit1->globalPositionError();
-        LogTrace("TrackingNtuple") << "seed " << iSeed
+        LogTrace("TrackingNtuple") << "seed " << seedTrackRef.key()
                                    << " pt=" << pt << " eta=" << eta << " phi=" << phi << " q=" << charge
                                    << " - PAIR - ids: " << recHit0->geographicalId().rawId() << " " << recHit1->geographicalId().rawId()
                                    << " hitpos: " << gp[0] << " " << gp[1]
@@ -1478,7 +1557,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	float seed_chi2 = rzLine.chi2(cottheta, intercept);
 	//float seed_pt = state.globalParameters().momentum().perp();
         float seed_pt = pt;
-	LogTrace("TrackingNtuple") << "seed " << iSeed
+	LogTrace("TrackingNtuple") << "seed " << seedTrackRef.key()
                                    << " pt=" << pt << " eta=" << eta << " phi=" << phi << " q=" << charge
                                    << " - TRIPLET - ids: " << recHit0->geographicalId().rawId() << " " << recHit1->geographicalId().rawId() << " " << recHit2->geographicalId().rawId()
                                    << " hitpos: " << gp[0] << " " << gp[1] << " " << gp[2]
@@ -1499,8 +1578,9 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
   }
 }
 
-void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& tracks,
-                                const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
+                                const TrackingParticleRefVector& tpCollection,
+                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                 const reco::BeamSpot& bs,
                                 const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                 const TransientTrackingRecHitBuilder& theTTRHBuilder,
@@ -1508,12 +1588,11 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
                                 const std::set<edm::ProductID>& hitProductIds,
                                 const std::map<edm::ProductID, size_t>& seedCollToOffset
                                 ) {
-  reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(tracks,TPCollectionH);
+  reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(tracks, tpCollection);
   edm::EDConsumerBase::Labels labels;
   labelsForToken(trackToken_, labels);
   LogTrace("TrackingNtuple") << "NEW TRACK LABEL: " << labels.module;
-  for(unsigned int i=0; i<tracks->size(); ++i){
-    auto itTrack = tracks->refAt(i);
+  for(const auto& itTrack: tracks) {
     int nSimHits = 0;
     bool isSimMatched = false;
     std::vector<float> sharedFraction;
@@ -1526,7 +1605,7 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
       }
       for(const auto tpQuality: foundTPs->val) {
         sharedFraction.push_back(tpQuality.second);
-	tpIdx.push_back(tpQuality.first.key());
+	tpIdx.push_back( tpKeyToIndex.at( tpQuality.first.key() ) );
       }
     }
     int charge = itTrack->charge();
@@ -1576,7 +1655,7 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
       trk_seedIdx  .push_back( offset->second + itTrack->seedRef().key() );
     }
     trk_simIdx   .push_back(tpIdx);
-    LogTrace("TrackingNtuple") << "Track #" << i << " with q=" << charge
+    LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
                                << ", chi2=" << chi2
                                << ", Nhits=" << nHits
@@ -1626,8 +1705,9 @@ void TrackingNtuple::fillTracks(const edm::Handle<edm::View<reco::Track> >& trac
 
 
 void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-                                           const edm::Handle<edm::View<reco::Track> >& tracks,
-                                           const edm::Handle<TrackingParticleCollection>& TPCollectionH,
+                                           const edm::RefToBaseVector<reco::Track>& tracks,
+                                           const TrackingParticleRefVector& tpCollection,
+                                           const TrackingVertexRefKeyToIndex& tvKeyToIndex,
                                            const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                            const std::vector<TPHitIndex>& tpHitList
                                            ) {
@@ -1646,10 +1726,9 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
   iEvent.getByToken(tpNStripStereoLayersToken_, tpNLayersH);
   const auto& nStripMonoAndStereoLayers_tPCeff = *tpNLayersH;
 
-  reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(tracks,TPCollectionH);
+  reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(tracks, tpCollection);
 
-  for (auto itp = TPCollectionH->begin(); itp != TPCollectionH->end(); ++itp) {
-    TrackingParticleRef tp(TPCollectionH, itp-TPCollectionH->begin());
+  for(const TrackingParticleRef& tp: tpCollection) {
     LogTrace("TrackingNtuple") << "tracking particle pt=" << tp->pt() << " eta=" << tp->eta() << " phi=" << tp->phi();
     bool isRecoMatched = false;
     std::vector<int> tkIdx;
@@ -1663,6 +1742,8 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
       }
     }
     LogTrace("TrackingNtuple") << "matched to tracks = " << make_VectorPrinter(tkIdx) << " isRecoMatched=" << isRecoMatched;
+    sim_event    .push_back(tp->eventId().event());
+    sim_bunchCrossing.push_back(tp->eventId().bunchCrossing());
     sim_px       .push_back(tp->px());
     sim_py       .push_back(tp->py());
     sim_pz       .push_back(tp->pz());
@@ -1672,9 +1753,11 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     sim_shareFrac.push_back(sharedFraction);
     sim_q        .push_back(tp->charge());
     sim_trkIdx   .push_back(tkIdx);
-    sim_prodx    .push_back(tp->vertex().x());
-    sim_prody    .push_back(tp->vertex().y());
-    sim_prodz    .push_back(tp->vertex().z());
+    sim_parentVtxIdx.push_back( tvKeyToIndex.at(tp->parentVertex().key()) );
+    std::vector<int> decayIdx;
+    for(const auto& v: tp->decayVertices())
+      decayIdx.push_back( tvKeyToIndex.at(v.key()) );
+    sim_decayVtxIdx.push_back(decayIdx);
     //Calcualte the impact parameters w.r.t. PCA
     TrackingParticle::Vector momentum = parametersDefiner->momentum(iEvent,iSetup,tp);
     TrackingParticle::Point vertex = parametersDefiner->vertex(iEvent,iSetup,tp);
@@ -1728,13 +1811,40 @@ void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices) {
   }
 }
 
-void TrackingNtuple::fillTrackingVertices(const std::vector<const TrackingVertex *>& trackingVertices) {
-  for(const TrackingVertex *ptr: trackingVertices) {
-    const TrackingVertex& trackingVertex = *ptr;
-    simvtx_x.push_back(trackingVertex.position().x());
-    simvtx_y.push_back(trackingVertex.position().y());
-    simvtx_z.push_back(trackingVertex.position().z());
-    simvtx_nTrack.push_back(trackingVertex.nDaughterTracks());
+void TrackingNtuple::fillTrackingVertices(const TrackingVertexRefVector& trackingVertices,
+                                          const TrackingParticleRefKeyToIndex& tpKeyToIndex
+                                          ) {
+  int current_event = -1;
+  for(const auto& ref: trackingVertices) {
+    const TrackingVertex v = *ref;
+    if(v.eventId().event() != current_event) {
+      // next PV
+      current_event = v.eventId().event();
+      simpv_idx.push_back(simvtx_x.size());
+    }
+
+    simvtx_event.push_back(v.eventId().event());
+    simvtx_bunchCrossing.push_back(v.eventId().bunchCrossing());
+    simvtx_x.push_back(v.position().x());
+    simvtx_y.push_back(v.position().y());
+    simvtx_z.push_back(v.position().z());
+
+    auto fill = [&](const TrackingParticleRefVector& tps, std::vector<int>& idx) {
+      for(const auto& tpRef: tps) {
+        auto found = tpKeyToIndex.find(tpRef.key());
+        if(found != tpKeyToIndex.end()) {
+          idx.push_back(tpRef.key());
+        }
+      }
+    };
+
+    std::vector<int> sourceIdx;
+    std::vector<int> daughterIdx;
+    fill(v.sourceTracks(), sourceIdx);
+    fill(v.daughterTracks(), daughterIdx);
+
+    simvtx_sourceSimIdx.push_back(sourceIdx);
+    simvtx_daughterSimIdx.push_back(daughterIdx);
   }
 }
 
@@ -1757,6 +1867,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   });
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.addUntracked<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.addUntracked<bool>("trackingParticlesRef", false);
   desc.addUntracked<edm::InputTag>("clusterTPMap", edm::InputTag("tpClusterProducer"));
   desc.addUntracked<edm::InputTag>("simHitTPMap", edm::InputTag("simHitTPAssocProducer"));
   desc.addUntracked<edm::InputTag>("trackAssociator", edm::InputTag("quickTrackAssociatorByHits"));
