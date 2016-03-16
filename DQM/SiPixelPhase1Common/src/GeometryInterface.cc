@@ -70,29 +70,23 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
     uint32_t variableBase;
     uint32_t variableMask;
     Alignable* currenParent;
-    std::set<uint32_t> examples; // This should go away once the masks work.
   };
 
   std::map<align::StructureType, BitInfo> infos;
 
   struct {
     void traverseAlignables(Alignable* compositeAlignable, std::map<align::StructureType, BitInfo>& infos) {
-      //std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << "\n";
+      //std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << " " << std::hex << compositeAlignable->id() << "\n";
 	
       auto alignable = compositeAlignable;
       auto& info = infos[alignable->alignableObjectId()];
+      // default values -- sort of a constructor for BitInfo
       if (info.characteristicBits == 0) {
 	info.characteristicBits = alignable->id();
 	info.characteristicMask = 0xFFFFFFFF;
 	info.variableMask = 0x0;
       } 
-      // climb up the hierarchy and widen characteristics.
-      for (auto alignable = compositeAlignable; alignable; alignable = alignable->mother()) {
-	auto& info = infos[alignable->alignableObjectId()];
-	// ^ gives changed bits, ~ unchanged, & to collect all always  unchanged
-	info.characteristicMask &= ~(info.characteristicBits ^ compositeAlignable->id());
-	info.examples.insert(compositeAlignable->id());
-      }
+
       // variable mask must be local to the hierarchy
       if (info.currenParent != alignable->mother() || !alignable->mother()) {
 	info.currenParent = alignable->mother();
@@ -102,10 +96,17 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	info.variableMask |= info.variableBase ^ compositeAlignable->id();
       }
 
+      auto leafVariableMask = info.variableMask;
+      // climb up the hierarchy and widen characteristics.
+      for (auto alignable = compositeAlignable; alignable; alignable = alignable->mother()) {
+	auto& info = infos[alignable->alignableObjectId()];
+	// ^ gives changed bits, ~ unchanged, & to collect all always  unchanged
+	info.characteristicMask &= ~(info.characteristicBits ^ compositeAlignable->id());
+	// sometimes we have "noise" in the lower bits and the higher levels claim 
+	// variable bits that belong to lower elements. Clear these.
+	if (info.variableMask != leafVariableMask) info.variableMask &= ~leafVariableMask;
+      }
       for (auto* alignable : compositeAlignable->components()) {
-	// for e.g. full Pixel, there is no variable part. so wee need to look at 
-	// children to see where characteristic ends.
-	//info.characteristicMask &= ~(info.characteristicBits ^ alignable->id());
 	traverseAlignables(alignable, infos);
       }
     }
@@ -120,10 +121,10 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
     // to normalize we set them to 0.
     info.characteristicBits &= info.characteristicMask;
 
-    //std::cout << std::hex << std::setfill('0') << std::setw(8)
-              //<< "+++ Type " << info.characteristicBits << " "
-                                  //<< info.characteristicMask << " "
-                                  //<< info.variableMask << " " << type << "\n";
+    std::cout << std::hex << std::setfill('0') << std::setw(8)
+              << "+++ Type " << info.characteristicBits << " "
+                                  << info.characteristicMask << " "
+                                  << info.variableMask << " " << type << "\n";
     extractors.insert(std::make_pair(
       type,
       [info] (InterestingQuantities const& iq) {
