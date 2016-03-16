@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V26 (CMSSW_8_0_X_2016-03-15-1100_HLT2)
+# /dev/CMSSW_8_0_0/GRun/V27 (CMSSW_8_0_X_2016-03-15-1100_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V26')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V27')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -28200,7 +28200,7 @@ fragment.hltL1MuOpenL1FilteredDT = cms.EDFilter( "HLTMuonL1TFilter",
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltL1sL1TechDTGlobalOR = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
