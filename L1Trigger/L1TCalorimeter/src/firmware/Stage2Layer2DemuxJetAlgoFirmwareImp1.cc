@@ -64,7 +64,7 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
     //jet.setHwEta(gtEta);
     //jet.setHwPhi(gtPhi);
     
-    jet.setHwEta(jet.hwEta()*2);
+    jet.setHwEta(CaloTools::mpEta(jet.hwEta())*2);
     jet.setHwPhi(jet.hwPhi()*2);
 
 

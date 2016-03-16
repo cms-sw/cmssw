@@ -183,7 +183,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		    tower->hwEtHad(),
 		    tower->hwEtRatio());
 
-      localTowers->at(mpEta) = tow;
+      localTowers->at(CaloTools::caloTowerHash(tow.hwEta(),tow.hwPhi())) = tow;
     }
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;
