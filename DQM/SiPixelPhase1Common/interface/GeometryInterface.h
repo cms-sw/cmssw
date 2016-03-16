@@ -26,7 +26,10 @@
 class GeometryInterface {
   public:
   typedef std::string Column;
-  typedef std::map<Column, int> Values;
+  typedef int Value;
+  typedef std::map<Column, Value> Values;
+  static const Value UNDEFINED = 0x0FFFFFFF; 
+
 
   static GeometryInterface& get() { return instance; };
 
@@ -49,7 +52,7 @@ class GeometryInterface {
       auto ex = extractors.find(col);
       if (ex == extractors.end()) {
 	// we have never heard about this. This is a typo for sure.
-	//std::cout << "Undefined column used: " << col << ". Check your spelling.\n";
+	std::cout << "Undefined column used: " << col << ". Check your spelling.\n";
       } else {
         auto val = ex->second(iq);
 	out[col] = val;
@@ -64,7 +67,7 @@ class GeometryInterface {
 
   static GeometryInterface instance;
   bool is_loaded = false;
-  std::map<Column, std::function<int(InterestingQuantities const& iq)>> extractors;
+  std::map<Column, std::function<Value(InterestingQuantities const& iq)>> extractors;
 };
 
 
