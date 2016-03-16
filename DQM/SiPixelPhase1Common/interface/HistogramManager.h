@@ -58,7 +58,7 @@ public:
   void setYlabel(std::string ylabel) {this->ylabel = ylabel;};
   void setDimensions(int dimensions) {this->dimensions = dimensions;};
 
-private:
+//private: // we need a bit more access for testing
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface = GeometryInterface::get();
 
