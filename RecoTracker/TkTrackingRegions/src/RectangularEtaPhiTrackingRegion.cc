@@ -67,15 +67,12 @@ void RectangularEtaPhiTrackingRegion:: initEtaRange( const GlobalVector & dir, c
 }
 
 HitRZCompatibility* RectangularEtaPhiTrackingRegion::
-checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSetup& iSetup) const
+checkRZOld(const DetLayer* layer, const Hit & outerHit, const edm::EventSetup&iSetup, const DetLayer* outerlayer) const
 {
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
-  GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-  float outerred_r = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
-  //PixelRecoPointRZ outer(ohit.perp(), ohit.z());
+  GlobalPoint ohit =  outerHit->globalPosition();
+  float outerred_r = std::sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
   PixelRecoPointRZ outer(outerred_r, ohit.z());
   
   float zMinOrigin = origin().z() - originZBound();
@@ -92,55 +89,55 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
     float cotLeft = std::min(vcotMax,  theLambdaRange.max());
     return new HitEtaCheck( isBarrel, outer, cotLeft, cotRight);
   }
-  float hitZErr = 0.;
-  float hitRErr = 0.;
 
-  PixelRecoPointRZ  outerL, outerR;
-  if (layer->location() == GeomDetEnumerators::barrel) {
-    outerL = PixelRecoPointRZ(outer.r(), outer.z()-hitZErr);
-    outerR = PixelRecoPointRZ(outer.r(), outer.z()+hitZErr);
-  } else if (outer.z() > 0) {
-    outerL = PixelRecoPointRZ(outer.r()+hitRErr, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()-hitRErr, outer.z());
-  } else {
-    outerL = PixelRecoPointRZ(outer.r()-hitRErr, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()+hitRErr, outer.z());
-  }
+
+
+  float outerZscatt=0;
+  float innerScatt =0;
   //CHECK
-  MultipleScatteringParametrisation oSigma(layer,iSetup);
-  float cotThetaOuter = theMeanLambda;
-  float sinThetaOuter = 1/std::sqrt(1+sqr(cotThetaOuter)); 
-  float outerZscatt = 3.f*oSigma(ptMin(),cotThetaOuter) / sinThetaOuter;
+  if (theUseMS)	{
+    MultipleScatteringParametrisation oSigma(layer,iSetup);
+    float cotThetaOuter = theMeanLambda;
+    float sinThetaOuterInv = std::sqrt(1.f+sqr(cotThetaOuter)); 
+    outerZscatt = 3.f*oSigma(ptMin(),cotThetaOuter)*sinThetaOuterInv;
+  }
 
-  PixelRecoLineRZ boundL(outerL, theLambdaRange.max());
-  PixelRecoLineRZ boundR(outerR, theLambdaRange.min());
+  PixelRecoLineRZ boundL(outer, theLambdaRange.max());
+  PixelRecoLineRZ boundR(outer, theLambdaRange.min());
   float zMinLine = boundL.zAtR(0.)-outerZscatt;
   float zMaxLine = boundR.zAtR(0.)+outerZscatt;
   PixelRecoPointRZ vtxL(0.,max(zMinLine, zMinOrigin));
   PixelRecoPointRZ vtxR(0.,min(zMaxLine, zMaxOrigin)); 
   PixelRecoPointRZ vtxMean(0.,(vtxL.z()+vtxR.z())*0.5f);
   //CHECK
-  MultipleScatteringParametrisation iSigma(layer,iSetup);
-  float innerScatt = 3.f * iSigma(ptMin(),vtxMean, outer);
-  
-  SimpleLineRZ leftLine( vtxL, outerL);
-  SimpleLineRZ rightLine( vtxR, outerR);
+
+  if (theUseMS) {
+    MultipleScatteringParametrisation iSigma(layer,iSetup);
+    
+    innerScatt = 3.f * ( outerlayer ?
+       iSigma( ptMin(), vtxMean, outer, outerlayer->seqNum())
+    :  iSigma( ptMin(), vtxMean, outer) ) ;
+    
+    // innerScatt = 3.f *iSigma( ptMin(), vtxMean, outer);
+  }
+
+  SimpleLineRZ leftLine( vtxL, outer);
+  SimpleLineRZ rightLine(vtxR, outer);
 
   HitRZConstraint rzConstraint(leftLine, rightLine);
-  float cotTheta = std::abs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
+  auto cotTheta = std::abs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
 
-//  float bendR = longitudinalBendingCorrection(outer.r(),ptMin());
 
   // std::cout << "RectangularEtaPhiTrackingRegion " << outer.r()<<','<< outer.z() << " " << innerScatt << " " << cotTheta << " " <<  hitZErr <<  std::endl; 
 
   if (isBarrel) {
-    float sinTheta = 1/std::sqrt(1+sqr(cotTheta));
-    float corrZ = innerScatt/sinTheta + hitZErr;
-    return new HitZCheck(rzConstraint, HitZCheck::Margin(corrZ,corrZ));
+    auto sinThetaInv = std::sqrt(1.f+sqr(cotTheta));
+    auto corr = innerScatt*sinThetaInv;
+    return new HitZCheck(rzConstraint, HitZCheck::Margin(corr,corr));
   } else {
-    float cosTheta = 1/std::sqrt(1+sqr(1/cotTheta));
-    float corrR = innerScatt/cosTheta + hitRErr;
-    return new HitRCheck( rzConstraint, HitRCheck::Margin(corrR,corrR));
+    auto cosThetaInv = std::sqrt(1.f+sqr(1.f/cotTheta));
+    auto corr = innerScatt*cosThetaInv;
+    return new HitRCheck( rzConstraint, HitRCheck::Margin(corr,corr));
   }
 }
 

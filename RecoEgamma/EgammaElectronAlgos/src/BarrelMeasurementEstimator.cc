@@ -18,7 +18,6 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
@@ -108,13 +107,12 @@ bool BarrelMeasurementEstimator::estimate
 
 
   GlobalPoint trajPos(ts.globalParameters().position());
-  GlobalDetRangeZPhi detRange(plane);
 
   Range trajZRange(trajPos.z() - std::abs(theZMin), trajPos.z() + std::abs(theZMax));
   Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
-  if(rangesIntersect(trajZRange, detRange.zRange()) &&
-     rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))
+  if(rangesIntersect(trajZRange, plane.zSpan()) &&
+     rangesIntersect(trajPhiRange, plane.phiSpan(), PhiLess()))
    {
     return true;
    }
