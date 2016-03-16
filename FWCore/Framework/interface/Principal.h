@@ -166,6 +166,8 @@ namespace edm {
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
+    void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+
     BranchType const& branchType() const {return branchType_;}
     
     //This will never return 0 so you can use 0 to mean unset

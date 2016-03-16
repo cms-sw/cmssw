@@ -70,6 +70,9 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
+    void
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+
     virtual ProcessHistory const&
     processHistory() const;
 
