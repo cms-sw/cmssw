@@ -18,7 +18,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -104,7 +103,6 @@ bool ForwardMeasurementEstimator::estimate
   typedef std::pair<float,float> Range ;
 
   GlobalPoint trajPos(ts.globalParameters().position());
-  GlobalDetRangeRPhi detRange(plane);
 
   float r1 = 0.;
   float r2 = 40.;
@@ -112,8 +110,8 @@ bool ForwardMeasurementEstimator::estimate
   Range trajRRange(trajPos.perp() - r1, trajPos.perp() + r2);
   Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
-  if(rangesIntersect(trajRRange, detRange.rRange()) &&
-     rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))
+  if(rangesIntersect(trajRRange, plane.rSpan()) &&
+     rangesIntersect(trajPhiRange, plane.phiSpan(), PhiLess()))
    { return true ; }
   else
    { return false ; }
