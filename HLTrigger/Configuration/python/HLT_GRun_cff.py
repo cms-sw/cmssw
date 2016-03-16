@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V24 (CMSSW_8_0_1)
+# /dev/CMSSW_8_0_0/GRun/V26 (CMSSW_8_0_X_2016-03-15-1100_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V24')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V26')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3454,7 +3454,7 @@ fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxRadius = cms.double( 2.0 )
 )
 fragment.hltL1sL1SingleJet176ORSingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -3462,8 +3462,7 @@ fragment.hltL1sL1SingleJet176ORSingleJet200 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAK8PFJet360TrimMass30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -4607,7 +4606,6 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_12 = cms.vdouble( 0.183, 0.054, -0.087, 0.028, 0.002, 0.0 ),
     DT_14 = cms.vdouble( 0.359, 0.052, -0.107, 0.072, -0.004, 0.0 ),
     CSC_13_3_scale = cms.vdouble( -1.701268, 0.0 ),
-    DT_24_2_scale = cms.vdouble( -6.63094, 0.0 ),
     CSC_23 = cms.vdouble( -0.081, 0.113, -0.029, 0.015, 0.008, 0.0 ),
     CSC_24 = cms.vdouble( 0.004, 0.021, -0.002, 0.053, 0.0, 0.0 ),
     OL_2222 = cms.vdouble( 0.107, 0.0, 0.0, 0.04, 0.0, 0.0 ),
@@ -4622,14 +4620,14 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     SME_22_0_scale = cms.vdouble( -3.457901, 0.0 ),
     DT_24_1_scale = cms.vdouble( -7.490909, 0.0 ),
     OL_1232_0_scale = cms.vdouble( -5.964634, 0.0 ),
-    DT_23_1_scale = cms.vdouble( -5.320346, 0.0 ),
+    SMB_32 = cms.vdouble( 0.67, -0.327, 0.0, 0.22, 0.0, 0.0 ),
     SME_13_0_scale = cms.vdouble( 0.104905, 0.0 ),
     SMB_22_0_scale = cms.vdouble( 1.346681, 0.0 ),
     CSC_12_1_scale = cms.vdouble( -6.434242, 0.0 ),
     DT_34 = cms.vdouble( 0.044, 0.004, -0.013, 0.029, 0.003, 0.0 ),
     SME_32 = cms.vdouble( -0.901, 1.333, -0.47, 0.41, 0.073, 0.0 ),
     SME_31 = cms.vdouble( -1.594, 1.482, -0.317, 0.487, 0.097, 0.0 ),
-    CSC_13_2_scale = cms.vdouble( -6.077936, 0.0 ),
+    SMB_32_0_scale = cms.vdouble( -3.054156, 0.0 ),
     crackEtas = cms.vdouble( 0.2, 1.6, 1.7 ),
     SME_11_0_scale = cms.vdouble( 1.325085, 0.0 ),
     SMB_20_0_scale = cms.vdouble( 1.486168, 0.0 ),
@@ -4648,7 +4646,7 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_34_1_scale = cms.vdouble( -13.783765, 0.0 ),
     CSC_34_1_scale = cms.vdouble( -11.520507, 0.0 ),
     OL_2213_0_scale = cms.vdouble( -7.239789, 0.0 ),
-    SMB_32_0_scale = cms.vdouble( -3.054156, 0.0 ),
+    CSC_13_2_scale = cms.vdouble( -6.077936, 0.0 ),
     CSC_12_3_scale = cms.vdouble( -1.63622, 0.0 ),
     deltaEtaCrackSearchWindow = cms.double( 0.25 ),
     SME_21_0_scale = cms.vdouble( -0.040862, 0.0 ),
@@ -4656,7 +4654,7 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
     SMB_10_0_scale = cms.vdouble( 2.448566, 0.0 ),
     EnableDTMeasurement = cms.bool( True ),
-    CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+    DT_24_2_scale = cms.vdouble( -6.63094, 0.0 ),
     CSC_23_2_scale = cms.vdouble( -6.079917, 0.0 ),
     scaleDT = cms.bool( True ),
     DT_12_2_scale = cms.vdouble( -3.518165, 0.0 ),
@@ -4666,7 +4664,7 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     CSC_02 = cms.vdouble( 0.612, -0.207, 0.0, 0.067, -0.001, 0.0 ),
     CSC_03 = cms.vdouble( 0.787, -0.338, 0.029, 0.101, -0.008, 0.0 ),
     CSC_01 = cms.vdouble( 0.166, 0.0, 0.0, 0.031, 0.0, 0.0 ),
-    SMB_32 = cms.vdouble( 0.67, -0.327, 0.0, 0.22, 0.0, 0.0 ),
+    DT_23_1_scale = cms.vdouble( -5.320346, 0.0 ),
     SMB_30 = cms.vdouble( 0.505, -0.022, 0.0, 0.215, 0.0, 0.0 ),
     SMB_31 = cms.vdouble( 0.549, -0.145, 0.0, 0.207, 0.0, 0.0 ),
     crackWindow = cms.double( 0.04 ),
@@ -4679,24 +4677,26 @@ fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_14_1_scale = cms.vdouble( -5.644816, 0.0 ),
     beamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     SMB_11_0_scale = cms.vdouble( 2.56363, 0.0 ),
-    EnableCSCMeasurement = cms.bool( True ),
+    CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+    CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
     CSC_14 = cms.vdouble( 0.606, -0.181, -0.002, 0.111, -0.003, 0.0 ),
     OL_2222_0_scale = cms.vdouble( -7.667231, 0.0 ),
-    CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
+    EnableCSCMeasurement = cms.bool( True ),
     CSC_12 = cms.vdouble( -0.161, 0.254, -0.047, 0.042, -0.007, 0.0 )
 )
-fragment.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
+fragment.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
-    InputObjects = cms.InputTag( "hltL1extraParticles" ),
+    CentralBxOnly = cms.bool( True ),
+    InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
     L1MaxEta = cms.double( 2.5 ),
     OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
-    GMTReadoutCollection = cms.InputTag( "hltGtStage2Digis" ),
+    GMTReadoutCollection = cms.InputTag( "" ),
     UseUnassociatedL1 = cms.bool( False ),
     UseOfflineSeed = cms.untracked.bool( True ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
@@ -7742,7 +7742,7 @@ fragment.hltBoolEnd = cms.EDFilter( "HLTBool",
     result = cms.bool( True )
 )
 fragment.hltL1sL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -7750,8 +7750,7 @@ fragment.hltL1sL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAK8PFHT700TrimR0p1PT0p03Mass50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -9116,7 +9115,7 @@ fragment.hltAK8PFHT600 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 600.0 )
 )
 fragment.hltL1sL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -9124,8 +9123,7 @@ fragment.hltL1sL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreCaloJet500NoJetID = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -9142,7 +9140,7 @@ fragment.hltSingleCaloJet500 = cms.EDFilter( "HLT1CaloJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_0_WdEta18" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -9150,8 +9148,7 @@ fragment.hltL1sL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_0_WdEta18" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDimuon13PsiPrime = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -9163,9 +9160,11 @@ fragment.hltL1fL1sL1DoubleMu10MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -9341,7 +9340,7 @@ fragment.hltDisplacedmumuFilterDimuon20Jpsi = cms.EDFilter( "HLTDisplacedmumuFil
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1DoubleEG2210 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_22_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -9349,8 +9348,7 @@ fragment.hltL1sL1DoubleEG2210 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_22_10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleEle2422eta2p1WPLooseGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -9362,22 +9360,15 @@ fragment.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsPr
         regionEtaMargin = cms.double( 0.14 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-        type = cms.string( "L1EmParticle" )
-      ),
-      cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
-        minEt = cms.double( 5.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','Isolated' ),
-        type = cms.string( "L1EmParticle" )
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+        type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999.0 ),
         regionEtaMargin = cms.double( 0.14 ),
         minEt = cms.double( 200.0 ),
         regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','Central' ),
-        type = cms.string( "L1JetParticle" )
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+        type = cms.string( "Jet" )
       )
     ),
     recHitLabels = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
@@ -9390,22 +9381,15 @@ fragment.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProd
         regionEtaMargin = cms.double( 0.14 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-        type = cms.string( "L1EmParticle" )
-      ),
-      cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
-        minEt = cms.double( 5.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','Isolated' ),
-        type = cms.string( "L1EmParticle" )
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+        type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999.0 ),
         regionEtaMargin = cms.double( 0.14 ),
         minEt = cms.double( 200.0 ),
         regionPhiMargin = cms.double( 0.4 ),
-        inputColl = cms.InputTag( 'hltL1extraParticles','Central' ),
-        type = cms.string( "L1JetParticle" )
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+        type = cms.string( "Jet" )
       )
     ),
     recHitLabels = cms.VInputTag( 'hltEcalPreshowerRecHit:EcalRecHitsES' ),
@@ -9716,7 +9700,7 @@ fragment.hltEgammaCandidates = cms.EDProducer( "EgammaHLTRecoEcalCandidateProduc
     scHybridBarrelProducer = cms.InputTag( 'hltParticleFlowSuperClusterECALL1Seeded','hltParticleFlowSuperClusterECALBarrel' ),
     recoEcalCandidateCollection = cms.string( "" )
 )
-fragment.hltEGL1DoubleEG2210FilterEta2p1 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1DoubleEG2210FilterEta2p1 = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -9905,10 +9889,10 @@ fragment.hltEle24Ele22WPLooseleg2EcalIsoFilter = cms.EDFilter( "HLTEgammaGeneric
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltRegionalTowerForEgamma = cms.EDProducer( "EgammaHLTCaloTowerProducer",
-    L1NonIsoCand = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
+    L1NonIsoCand = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     EMin = cms.double( 0.8 ),
     EtMin = cms.double( 0.5 ),
-    L1IsoCand = cms.InputTag( 'hltL1extraParticles','Isolated' ),
+    L1IsoCand = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     useTowersInCone = cms.double( 0.8 ),
     towerCollection = cms.InputTag( "hltTowerMakerForAll" )
 )
@@ -11153,7 +11137,7 @@ fragment.hltEle24Ele22WPLooseGsfleg2TrackIsoFilter = cms.EDFilter( "HLTEgammaGen
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG40OR35OR30OR25OR20ORL1DoubleEG2210ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_SingleEG30 OR L1_SingleEG25 OR L1_SingleEG20 OR L1_DoubleEG_22_10 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -11161,14 +11145,13 @@ fragment.hltL1sL1SingleEG40OR35OR30OR25OR20ORL1DoubleEG2210ORL1SingleJet200 = cm
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_SingleEG30 OR L1_SingleEG25 OR L1_SingleEG20 OR L1_DoubleEG_22_10 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleEle33CaloIdLGsfTrkIdVLMW = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG40OR35OR30OR25OR20ORDoubleEG2210ORSingleJet200Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG40OR35OR30OR25OR20ORDoubleEG2210ORSingleJet200Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -11635,7 +11618,7 @@ fragment.hltPreDoubleEle33CaloIdLGsfTrkIdVL = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sDoubleIsoTau28erORDoubleIsoTau32erORDoubleIsoTau36erORDoubleIsoTau40erORDoubleTau40er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleIsoTau28er OR L1_DoubleIsoTau32er OR L1_DoubleIsoTau36er OR L1_DoubleIsoTau40er OR L1_DoubleTauJet40er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -11643,8 +11626,7 @@ fragment.hltL1sDoubleIsoTau28erORDoubleIsoTau32erORDoubleIsoTau36erORDoubleIsoTa
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleIsoTau28er OR L1_DoubleIsoTau32er OR L1_DoubleIsoTau36er OR L1_DoubleIsoTau40er OR L1_DoubleTauJet40er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleMediumIsoPFTau35Trk1eta2p1Reg = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -14147,7 +14129,7 @@ fragment.hltDoublePFTau35TrackPt1MediumIsolationReg = cms.EDFilter( "HLT1PFTau",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 84 )
 )
-fragment.hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationMatchReg = cms.EDProducer( "L1HLTTauMatching",
+fragment.hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationMatchReg = cms.EDProducer( "L1THLTTauMatching",
     JetSrc = cms.InputTag( "hltSelectedPFTausTrackPt1MediumIsolationReg" ),
     EtMin = cms.double( 0.0 ),
     L1TauTrigger = cms.InputTag( "hltL1sDoubleIsoTau28erORDoubleIsoTau32erORDoubleIsoTau36erORDoubleIsoTau40erORDoubleTau40er" )
@@ -14225,7 +14207,7 @@ fragment.hltDoublePFTau40TrackPt1MediumIsolationDz02Reg = cms.EDFilter( "HLTPFTa
     JetMaxEta = cms.double( 2.1 )
 )
 fragment.hltL1sL1DoubleMu103p5ORDoubleMu125 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_3p5 OR L1_DoubleMu_12_5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -14233,8 +14215,7 @@ fragment.hltL1sL1DoubleMu103p5ORDoubleMu125 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_3p5 OR L1_DoubleMu_12_5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleMu33NoFiltersNoVtx = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -14246,12 +14227,14 @@ fragment.hltL1fDimuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltL2MuonCandidatesNoVtx = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( "hltL2Muons" )
 )
-fragment.hltL2fDimuonL1f0L2NoVtxFiltered10 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fDimuonL1f0L2NoVtxFiltered10 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -15042,7 +15025,7 @@ fragment.hltPreDoubleMu38NoFiltersNoVtx = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fDimuonL1f0L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fDimuonL1f0L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -15137,7 +15120,7 @@ fragment.hltL3fDimuonL1f0L2NVf16L3NoFiltersNoVtxDisplacedFiltered28 = cms.EDFilt
     MinPt = cms.double( 28.0 )
 )
 fragment.hltL1sL1DoubleMu0er16ORL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18 OR L1_DoubleMu0_Eta1p6_WdEta18_OS OR L1_DoubleMu_10_0_WdEta18" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -15145,8 +15128,7 @@ fragment.hltL1sL1DoubleMu0er16ORL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18 OR L1_DoubleMu0_Eta1p6_WdEta18_OS OR L1_DoubleMu_10_0_WdEta18" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleMu43Bs = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -15158,9 +15140,11 @@ fragment.hltL1fL1sL1DoubleMu0er16ORL1DoubleMu10MuOpenL1Filtered0 = cms.EDFilter(
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1DoubleMu0er16ORL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1DoubleMu0er16ORL1DoubleMu10MuOpenL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -17329,7 +17313,7 @@ fragment.hltPsiPrimeTkVertexFilter = cms.EDFilter( "HLTmumutkFilter",
     MinPt = cms.double( 0.0 )
 )
 fragment.hltL1sL1DoubleMu0 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -17337,8 +17321,7 @@ fragment.hltL1sL1DoubleMu0 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu7p5L2Mu2Jpsi = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -17350,9 +17333,11 @@ fragment.hltL1fL1DoubleMu0L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fDoubleMu2L2PreFiltered2 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fDoubleMu2L2PreFiltered2 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -17437,7 +17422,7 @@ fragment.hltMu7p5L2Mu2UpsilonTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMass
     MinTrackP = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleMu5ORL1SingleMu7 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu7" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -17445,8 +17430,7 @@ fragment.hltL1sL1SingleMu5ORL1SingleMu7 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu7" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu7p5Track2Jpsi = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -17458,9 +17442,11 @@ fragment.hltL1fMu7p5TrackFiltered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fMu7p5TrackL2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fMu7p5TrackL2Filtered7 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -18319,7 +18305,7 @@ fragment.hltMu7p5Track7UpsilonTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMas
     MinTrackP = cms.double( 3.5 )
 )
 fragment.hltL1sL1DoubleMu0er16NoOS = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18327,8 +18313,7 @@ fragment.hltL1sL1DoubleMu0er16NoOS = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDimuon0er16JpsiNoOSNoVertexing = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -18340,9 +18325,11 @@ fragment.hltL1fL1sL1DoubleMu0er16NoOSL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilt
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1DoubleMu0er16NoOSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1DoubleMu0er16NoOSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -18390,7 +18377,7 @@ fragment.hltDimuon0JpsiNoOSL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinInvMass = cms.vdouble( 2.8 )
 )
 fragment.hltL1sL1DoubleMu0er16OS = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18_OS" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18398,8 +18385,7 @@ fragment.hltL1sL1DoubleMu0er16OS = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18_OS" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDimuon0er16JpsiNoVertexing = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -18411,9 +18397,11 @@ fragment.hltL1fL1sL1DoubleMu0er16OSL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1DoubleMu0er16OSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1DoubleMu0er16OSL1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -18492,7 +18480,7 @@ fragment.hltDimuon6JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinInvMass = cms.vdouble( 2.8 )
 )
 fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18500,14 +18488,13 @@ fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1SingleJet200 = cms.EDFilter( "HLTL1
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoublePhoton60 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG40ORL1SingleEG35ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG40ORL1SingleEG35ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -18640,7 +18627,7 @@ fragment.hltDiEG85HEUnseededFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleIsoEG20erORSingleIsoEG22erORSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18648,14 +18635,13 @@ fragment.hltL1sL1SingleIsoEG20erORSingleIsoEG22erORSingleEG25 = cms.EDFilter( "H
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle22eta2p1WPLooseGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleIsoEG20erFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleIsoEG20erFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -19098,7 +19084,7 @@ fragment.hltSingleEle22WPTightGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGeneri
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1IsoEG20erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_IsoEG20er_TauJet20er_NotWdEta0" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -19106,14 +19092,13 @@ fragment.hltL1sL1IsoEG20erTauJet20er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_IsoEG20er_TauJet20er_NotWdEta0" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle22eta2p1WPLooseGsfLooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGRegionalL1IsoEG20erTauJet20er = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGRegionalL1IsoEG20erTauJet20er = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -20071,7 +20056,7 @@ fragment.hltPreEle22eta2p1WPLooseGsfLooseIsoPFTau20SingleL1 = cms.EDFilter( "HLT
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGRegionalL1SingleIsoEG20er = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGRegionalL1SingleIsoEG20er = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -20344,7 +20329,7 @@ fragment.hltOverlapFilterSingleIsoEle22WPLooseGsfLooseIsoPFTau20 = cms.EDFilter(
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleEG25OrSingleIsoEG30er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleIsoEG30er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -20352,14 +20337,13 @@ fragment.hltL1sL1SingleEG25OrSingleIsoEG30er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleIsoEG30er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle30WP60SC4Mass55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG25OrL1SingleIsoEG30erFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG25OrL1SingleIsoEG30erFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -20814,7 +20798,7 @@ fragment.hltEle30WP60Ele8Mass55Filter = cms.EDFilter( "HLTPMMassFilter",
     nZcandcut = cms.int32( 1 )
 )
 fragment.hltL1sL1SingleEG20ORSingleIsoEG18erORSingleIsoEG20ORSingleIsoEG20erORSingleIsoEG22erORSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -20822,14 +20806,13 @@ fragment.hltL1sL1SingleEG20ORSingleIsoEG18erORSingleIsoEG20ORSingleIsoEG20erORSi
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle23WPLooseGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG20ORSinglIsoEg18erORSingleIsoEG20Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG20ORSinglIsoEg18erORSingleIsoEG20Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -21549,7 +21532,7 @@ fragment.hltWCand70NoEle23WPLooseMHTIDTight = cms.EDFilter( "HLT2PhotonMET",
     MinDphi = cms.double( -999.0 )
 )
 fragment.hltL1sL1SingleIsoEG20OrSingleEG20OrSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleEG20 OR L1_SingleEG25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -21557,14 +21540,13 @@ fragment.hltL1sL1SingleIsoEG20OrSingleEG20OrSingleEG25 = cms.EDFilter( "HLTL1TSe
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleEG20 OR L1_SingleEG25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle27WPLooseGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleIsoEG20OrSingleEG20OrSingleEG25Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleIsoEG20OrSingleEG20OrSingleEG25Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.5 ),
     region_phi_size = cms.double( 1.044 ),
@@ -21797,7 +21779,7 @@ fragment.hltEle27noerWPLooseGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericF
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleIsoEG22erOrSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleEG25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -21805,14 +21787,13 @@ fragment.hltL1sL1SingleIsoEG22erOrSingleEG25 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleEG25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle27eta2p1WPLooseGsfLooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleIsoEG22erOrSingleEG25Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleIsoEG22erOrSingleEG25Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -22445,7 +22426,7 @@ fragment.hltEle27WPTightGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericFilte
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleIsoEG30erOrSingleEG40 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG30er OR L1_SingleEG40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -22453,14 +22434,13 @@ fragment.hltL1sL1SingleIsoEG30erOrSingleEG40 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG30er OR L1_SingleEG40" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle32eta2p1WPTightGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleIsoEG30erOrSingleEG40Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleIsoEG30erOrSingleEG40Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -22693,7 +22673,7 @@ fragment.hltEle32WPTightGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericFilte
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -22701,14 +22681,13 @@ fragment.hltL1sL1SingleEG25 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle35CaloIdVTGsfTrkIdTPFJet150PFJet50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG25Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG25Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -22871,7 +22850,7 @@ fragment.hltEle35CaloIdVTGsfTrkIdTCentralPFJet150EleCleaned = cms.EDFilter( "HLT
     MaxAbsJetEta = cms.double( 2.6 )
 )
 fragment.hltL1sL1SingleEG40 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -22879,14 +22858,13 @@ fragment.hltL1sL1SingleEG40 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle45CaloIdVTGsfTrkIdTPFJet200PFJet50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG40Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG40Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -23146,7 +23124,7 @@ fragment.hltEle105CaloIdVTGsfTrkIdTGsfDphiFilter = cms.EDFilter( "HLTEgammaGener
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -23154,8 +23132,7 @@ fragment.hltL1sL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHT200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -23300,7 +23277,7 @@ fragment.hltPreHT650 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sMu14erETM30 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu14er_ETM30" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -23308,8 +23285,7 @@ fragment.hltL1sMu14erETM30 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu14er_ETM30" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu16eta2p1MET30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -23321,9 +23297,11 @@ fragment.hltL1fL1sMu14erETM30L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu14erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu14erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -23383,7 +23361,7 @@ fragment.hltMET30 = cms.EDFilter( "HLT1CaloMET",
     triggerType = cms.int32( 87 )
 )
 fragment.hltL1sMu10erETM30ORMu14erETM30 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu10er_ETM30 OR L1_Mu14er_ETM30" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -23391,8 +23369,7 @@ fragment.hltL1sMu10erETM30ORMu14erETM30 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu10er_ETM30 OR L1_Mu14er_ETM30" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu16eta2p1MET30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -23404,9 +23381,11 @@ fragment.hltL1fL1sMu10erETM30L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu10erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu10erETM30L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -24237,7 +24216,7 @@ fragment.hltPFTau50TrackPt30LooseAbsOrRelIso = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 fragment.hltL1sL1SingleMu16er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24245,8 +24224,7 @@ fragment.hltL1sL1SingleMu16er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu17eta2p1 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -24258,9 +24236,11 @@ fragment.hltL1fL1sSingleMu16erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sSingleMu16erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sSingleMu16erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -24347,7 +24327,7 @@ fragment.hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09 = cms.EDF
     DepTag = cms.VInputTag( 'hltMuonTkRelIsolationCut0p09Map' )
 )
 fragment.hltL1sMu16erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_TauJet20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24355,8 +24335,7 @@ fragment.hltL1sMu16erTauJet20er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_TauJet20er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu17eta2p1LooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -24368,9 +24347,11 @@ fragment.hltL1fL1sMu16erTauJet20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter"
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16erTauJet20erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16erTauJet20erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -24546,7 +24527,7 @@ fragment.hltOverlapFilterSingleIsoMu17LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonP
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sMu16erIsoTau28erORMu16erIsoTau32erORMu16erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_IsoTau28er OR L1_Mu16er_IsoTau32er OR L1_Mu16er_TauJet20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24554,8 +24535,7 @@ fragment.hltL1sMu16erIsoTau28erORMu16erIsoTau32erORMu16erTauJet20er = cms.EDFilt
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_IsoTau28er OR L1_Mu16er_IsoTau32er OR L1_Mu16er_TauJet20er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu17eta2p1MediumIsoPFTau35Trk1eta2p1Reg = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -24567,9 +24547,11 @@ fragment.hltL1fL1sMu16erIsoTau36erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter"
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16erIsoTau36erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16erIsoTau36erL1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -24725,7 +24707,7 @@ fragment.hltPFTau35TrackPt1MediumIsolationReg = cms.EDFilter( "HLT1PFTau",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 84 )
 )
-fragment.hltL1JetsHLTPFTauTrackPt1MediumIsolationMatchReg = cms.EDProducer( "L1HLTTauMatching",
+fragment.hltL1JetsHLTPFTauTrackPt1MediumIsolationMatchReg = cms.EDProducer( "L1THLTTauMatching",
     JetSrc = cms.InputTag( "hltSelectedPFTausTrackPt1MediumIsolationReg" ),
     EtMin = cms.double( 0.0 ),
     L1TauTrigger = cms.InputTag( "hltL1sMu16erIsoTau28erORMu16erIsoTau32erORMu16erTauJet20er" )
@@ -24825,7 +24807,7 @@ fragment.hltOverlapFilterIsoMu17MediumIsoPFTau40Reg = cms.EDFilter( "HLT2MuonPFT
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1DoubleMu125 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_12_5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24833,8 +24815,7 @@ fragment.hltL1sL1DoubleMu125 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_12_5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleIsoMu17eta2p1 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -24846,9 +24827,11 @@ fragment.hltL1fL1sDoubleMu125L1Filtered16er = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 16.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.1 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sDoubleMu125L1f16erL2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu125L1f16erL2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -24948,7 +24931,7 @@ fragment.hltL3crIsoL1sDoubleMu125L1f16erL2f10QL3f17QL3Dz0p2L3crIsoRhoFiltered0p1
     DepTag = cms.VInputTag( 'hltMuonTkRelIsolationCut0p09Map' )
 )
 fragment.hltL1sL1SingleMu16 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24956,8 +24939,7 @@ fragment.hltL1sL1SingleMu16 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu18 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -24969,9 +24951,11 @@ fragment.hltL1fL1sMu16L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -25273,9 +25257,11 @@ fragment.hltL1fL1sMu16erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -25382,7 +25368,7 @@ fragment.hltOverlapFilterSingleIsoMu20LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonP
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleMu20 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu20" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -25390,8 +25376,7 @@ fragment.hltL1sL1SingleMu20 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu20" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu22 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -25403,9 +25388,11 @@ fragment.hltL1fL1sMu20L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu20L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu20L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -25542,7 +25529,7 @@ fragment.hltIsoMu22Trk02CentralPFJet50MuCleaned = cms.EDFilter( "HLTPFJetCollect
     MaxAbsJetEta = cms.double( 2.6 )
 )
 fragment.hltL1sL1SingleMu25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -25550,8 +25537,7 @@ fragment.hltL1sL1SingleMu25 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreIsoMu27 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -25563,9 +25549,11 @@ fragment.hltL1fL1sMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu25L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu25L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -25655,10 +25643,11 @@ fragment.hltPreIsoTkMu18 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL1MuonsPt15 = cms.EDProducer( "HLTL1MuonSelector",
+fragment.hltL1MuonsPt15 = cms.EDProducer( "HLTL1TMuonSelector",
     L1MinPt = cms.double( 15.0 ),
+    CentralBxOnly = cms.bool( True ),
+    InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
     L1MinQuality = cms.uint32( 3 ),
-    InputObjects = cms.InputTag( "hltL1extraParticles" ),
     L1MaxEta = cms.double( 5.0 )
 )
 fragment.hltIter0HighPtTkMuPixelTracks = cms.EDProducer( "PixelTrackProducer",
@@ -26281,7 +26270,7 @@ fragment.hltHighPtTkMuons = cms.EDProducer( "MuonIdProducer",
 fragment.hltHighPtTkMuonCands = cms.EDProducer( "L3MuonCandidateProducerFromMuons",
     InputObjects = cms.InputTag( "hltHighPtTkMuons" )
 )
-fragment.hltL3fL1sMu16f0TkFiltered18Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu16f0TkFiltered18Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -27730,7 +27719,7 @@ fragment.hltHighPtTkMu20TkFilt = cms.EDFilter( "HLTTrackWithHits",
     MaxN = cms.int32( 99999 ),
     MinFPX = cms.int32( 0 )
 )
-fragment.hltL3fL1sMu16f0TkFiltered20Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu16f0TkFiltered20Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -27804,7 +27793,7 @@ fragment.hltHighPtTkMu22TkFilt = cms.EDFilter( "HLTTrackWithHits",
     MaxN = cms.int32( 99999 ),
     MinFPX = cms.int32( 0 )
 )
-fragment.hltL3fL1sMu20f0TkFiltered22Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu20f0TkFiltered22Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -27878,7 +27867,7 @@ fragment.hltHighPtTkMu27TkFilt = cms.EDFilter( "HLTTrackWithHits",
     MaxN = cms.int32( 99999 ),
     MinFPX = cms.int32( 0 )
 )
-fragment.hltL3fL1sMu25f0TkFiltered27Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu25f0TkFiltered27Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 1.0E99 ),
@@ -27949,7 +27938,7 @@ fragment.hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
     bunchCrossings = cms.vint32( 0, 1, -1 )
 )
 fragment.hltL1sL1SingleJetC20NotBptxOR = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -27957,8 +27946,7 @@ fragment.hltL1sL1SingleJetC20NotBptxOR = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     technicalBits = cms.uint64( 0x0 ),
@@ -28126,7 +28114,7 @@ fragment.hltPreJetE30NoBPTX = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleJetC32NotBptxOR = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC32_NotBptxOR" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28134,8 +28122,7 @@ fragment.hltL1sL1SingleJetC32NotBptxOR = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC32_NotBptxOR" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreJetE50NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28174,7 +28161,7 @@ fragment.hltPreL2Mu10 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleMuOpen = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28182,8 +28169,7 @@ fragment.hltL1sL1SingleMuOpen = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreL1SingleMuOpen = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28195,6 +28181,8 @@ fragment.hltL1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreL1SingleMuOpenDT = cms.EDFilter( "HLTPrescaler",
@@ -28207,10 +28195,12 @@ fragment.hltL1MuOpenL1FilteredDT = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.25 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltL1sL1TechDTGlobalOR = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "20" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28218,8 +28208,7 @@ fragment.hltL1sL1TechDTGlobalOR = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "20" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreL1TechDTGlobalOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28235,9 +28224,11 @@ fragment.hltL1fL1sDoubleMu103p5ORDoubleMu125L1Filtered0 = cms.EDFilter( "HLTMuon
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -28261,7 +28252,7 @@ fragment.hltPreL2DoubleMu28NoVertex2ChaAngle2p5Mass10 = cms.EDFilter( "HLTPresca
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered28 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered28 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -28281,7 +28272,7 @@ fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered28 = cms.EDFilter( "HL
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
-fragment.hltL2DoubleMu28NoVertexL2Filtered2ChaAngle2p5Mass10 = cms.EDFilter( "HLTMuonDimuonL2Filter",
+fragment.hltL2DoubleMu28NoVertexL2Filtered2ChaAngle2p5Mass10 = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
     saveTags = cms.bool( True ),
     ChargeOpt = cms.int32( 0 ),
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
@@ -28312,7 +28303,7 @@ fragment.hltPreL2DoubleMu38NoVertex2ChaAngle2p5Mass10 = cms.EDFilter( "HLTPresca
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered38 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered38 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -28332,7 +28323,7 @@ fragment.hltL2fL1sDoubleMu103p5OR125L1f0L2NoVtxPreFiltered38 = cms.EDFilter( "HL
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
-fragment.hltL2DoubleMu38NoVertexL2Filtered2ChaAngle2p5Mass10 = cms.EDFilter( "HLTMuonDimuonL2Filter",
+fragment.hltL2DoubleMu38NoVertexL2Filtered2ChaAngle2p5Mass10 = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
     saveTags = cms.bool( True ),
     ChargeOpt = cms.int32( 0 ),
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
@@ -28360,7 +28351,7 @@ fragment.hltL2DoubleMu38NoVertexL2Filtered2ChaAngle2p5Mass10 = cms.EDFilter( "HL
     MinInvMass = cms.double( 10.0 )
 )
 fragment.hltL1sMuOpenNotBptxOR = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen_NotBptxOR" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28368,8 +28359,7 @@ fragment.hltL1sMuOpenNotBptxOR = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen_NotBptxOR" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreL2Mu10NoVertexNoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28381,6 +28371,8 @@ fragment.hltL1fL1sMuOpenNotBptxORL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltDt4DSegmentsMeanTimer = cms.EDProducer( "DTRecSegment4DProducer",
@@ -28465,18 +28457,19 @@ fragment.hltL2CosmicOfflineMuonSeeds = cms.EDProducer( "CosmicMuonSeedGenerator"
     MaxSeeds = cms.int32( 1000 ),
     EnableCSCMeasurement = cms.bool( True )
 )
-fragment.hltL2CosmicMuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
+fragment.hltL2CosmicMuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
-    InputObjects = cms.InputTag( "hltL1extraParticles" ),
+    CentralBxOnly = cms.bool( True ),
+    InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
     L1MaxEta = cms.double( 2.5 ),
     OfflineSeedLabel = cms.untracked.InputTag( "hltL2CosmicOfflineMuonSeeds" ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
-    GMTReadoutCollection = cms.InputTag( "hltGtStage2Digis" ),
+    GMTReadoutCollection = cms.InputTag( "" ),
     UseUnassociatedL1 = cms.bool( False ),
     UseOfflineSeed = cms.untracked.bool( True ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
@@ -28573,7 +28566,7 @@ fragment.hltL2CosmicMuons = cms.EDProducer( "L2MuonProducer",
 fragment.hltL2MuonCandidatesNoVtxMeanTimerCosmicSeed = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( "hltL2CosmicMuons" )
 )
-fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -28601,7 +28594,7 @@ fragment.hltPreL2Mu35NoVertex3StaNoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered35Sta3 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered35Sta3 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -28625,7 +28618,7 @@ fragment.hltPreL2Mu40NoVertex3StaNoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -28646,7 +28639,7 @@ fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3 = 
     MinNstations = cms.vint32( 3 )
 )
 fragment.hltL1sL1QuadJetC36TauJet52 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC36_TauJet52" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28654,15 +28647,14 @@ fragment.hltL1sL1QuadJetC36TauJet52 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC36_TauJet52" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreLooseIsoPFTau50Trk30eta2p1 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1ETM60ORETM70 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM60 OR L1_ETM70" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28670,8 +28662,7 @@ fragment.hltL1sL1ETM60ORETM70 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM60 OR L1_ETM70" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreLooseIsoPFTau50Trk30eta2p1MET120 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28688,7 +28679,7 @@ fragment.hltMET120 = cms.EDFilter( "HLT1CaloMET",
     triggerType = cms.int32( 87 )
 )
 fragment.hltL1sL1ETM50ORETM60ORETM70 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM50 OR L1_ETM60 OR L1_ETM70" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28696,8 +28687,7 @@ fragment.hltL1sL1ETM50ORETM60ORETM70 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM50 OR L1_ETM60 OR L1_ETM70" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreLooseIsoPFTau50Trk30eta2p1MET80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -28717,7 +28707,7 @@ fragment.hltPreMu17Mu8 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -28737,7 +28727,7 @@ fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0 = cms.EDFilter( "HLTMuonL2Pre
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
-fragment.hltL2fL1sDoubleMu103p5L1f0L2Filtered10OneMu = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5L1f0L2Filtered10OneMu = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -28955,9 +28945,11 @@ fragment.hltL1fL1sDoubleMu103p5L1OneMuFiltered0 = cms.EDFilter( "HLTMuonL1TFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sDoubleMu103p5L1f0OneMuL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5L1f0OneMuL2Filtered10 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30214,7 +30206,7 @@ fragment.hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2 = cms.EDFilter( "HL
     inputTag2 = cms.InputTag( "hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4" )
 )
 fragment.hltL1sL1SingleMu16ORSingleMu20erORSingleMu25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16 OR L1_SingleMu20er OR L1_SingleMu25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -30222,8 +30214,7 @@ fragment.hltL1sL1SingleMu16ORSingleMu20erORSingleMu25 = cms.EDFilter( "HLTL1TSee
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16 OR L1_SingleMu20er OR L1_SingleMu25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu25TkMu0dEta18Onia = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -30235,9 +30226,11 @@ fragment.hltL1fL1sMu16orMu20erorMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilte
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16orMu20erorMu25L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16orMu20erorMu25L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30314,7 +30307,7 @@ fragment.hltDiMuonGlb25Trk0DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     inputTag2 = cms.InputTag( "hltDiMuonGlbFiltered25TrkFiltered0" )
 )
 fragment.hltL1sL1SingleMu16ORSingleMu25 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16 OR L1_SingleMu25" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -30322,8 +30315,7 @@ fragment.hltL1sL1SingleMu16ORSingleMu25 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16 OR L1_SingleMu25" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu27TkMu8 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -30335,9 +30327,11 @@ fragment.hltL1fL1sMu16orMu25L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16orMu25L1f0L2Filtered25 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16orMu25L1f0L2Filtered25 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30474,7 +30468,7 @@ fragment.hltDiMuonGlb30Trk11DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     inputTag2 = cms.InputTag( "hltDiMuonGlbFiltered30TrkFiltered11" )
 )
 fragment.hltL1sL1SingleMu16erORSingleMu20er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16er OR L1_SingleMu20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -30482,8 +30476,7 @@ fragment.hltL1sL1SingleMu16erORSingleMu20er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16er OR L1_SingleMu20er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu30eta2p1PFJet150PFJet50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -30495,9 +30488,11 @@ fragment.hltL1fL1sMu16erorMu20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu16erorMu20erL1f0L2Filtered16Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16erorMu20erL1f0L2Filtered16Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30658,7 +30653,7 @@ fragment.hltPreTkMu20 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleMu20er = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -30666,8 +30661,7 @@ fragment.hltL1sL1SingleMu20er = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu20er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu24eta2p1 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -30679,9 +30673,11 @@ fragment.hltL1fL1sMu20erL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu20Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu20Eta2p1L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30737,7 +30733,7 @@ fragment.hltHighPtTkMu24TkFilt = cms.EDFilter( "HLTTrackWithHits",
     MaxN = cms.int32( 99999 ),
     MinFPX = cms.int32( 0 )
 )
-fragment.hltL3fL1sMu20Eta2p1f0TkFiltered24Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu20Eta2p1f0TkFiltered24Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.1 ),
@@ -30765,7 +30761,7 @@ fragment.hltPreMu50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMu16orMu25L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16orMu25L1f0L2Filtered10Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30834,7 +30830,7 @@ fragment.hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q = cms.EDFilter( "HLTMuon
     MinPt = cms.double( 45.0 )
 )
 fragment.hltL1sL1Mu5EG20 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG20" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -30842,8 +30838,7 @@ fragment.hltL1sL1Mu5EG20 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG20" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu38NoFiltersNoVtxPhoton38CaloIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -30855,9 +30850,11 @@ fragment.hltL1fL1sMu5EG20L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu5EG20L1f5L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu5EG20L1f5L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -30899,7 +30896,7 @@ fragment.hltL3fL1sMu5EG20L1f5L2NVf16L3NoFiltersNoVtxFiltered38 = cms.EDFilter( "
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 38.0 )
 )
-fragment.hltEGL1Mu5EG20Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1Mu5EG20Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -31279,7 +31276,7 @@ fragment.hltPreMu33NoFiltersNoVtxDisplacedDisplacedJet50Tight = cms.EDFilter( "H
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMu16orMu25L1f0L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16orMu25L1f0L2NoVtxFiltered16 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -31795,7 +31792,7 @@ fragment.hltPreMu28NoFiltersNoVtxCentralCaloJet40 = cms.EDFilter( "HLTPrescaler"
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1HTT100ORL1HTT125ORL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -31803,8 +31800,7 @@ fragment.hltL1sL1HTT100ORL1HTT125ORL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed"
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFHT350PFMET100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -31937,7 +31933,7 @@ fragment.hltPF4JetPt50HT750 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 750.0 )
 )
 fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -31945,8 +31941,7 @@ fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFHT600 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -31988,7 +31983,7 @@ fragment.hltPFHT800 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 800.0 )
 )
 fragment.hltL1sL1ZeroBias = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -31996,8 +31991,7 @@ fragment.hltL1sL1ZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32030,7 +32024,7 @@ fragment.hltSinglePFJet40 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet36 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32038,8 +32032,7 @@ fragment.hltL1sL1SingleJet36 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet60 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32072,7 +32065,7 @@ fragment.hltSinglePFJet60 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet52 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32080,8 +32073,7 @@ fragment.hltL1sL1SingleJet52 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32114,7 +32106,7 @@ fragment.hltSinglePFJet80 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet92 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet92" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32122,8 +32114,7 @@ fragment.hltL1sL1SingleJet92 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet92" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet140 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32156,7 +32147,7 @@ fragment.hltSinglePFJet140 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet128 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32164,8 +32155,7 @@ fragment.hltL1sL1SingleJet128 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32198,7 +32188,7 @@ fragment.hltSinglePFJet200 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet128ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32206,8 +32196,7 @@ fragment.hltL1sL1SingleJet128ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFJet260 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32460,7 +32449,7 @@ fragment.hltDiPFJetAve200 = cms.EDFilter( "HLTDiPFJetAveFilter",
     minDphi = cms.double( -1.0 )
 )
 fragment.hltL1sL1SingleJet128ORL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet176" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32468,8 +32457,7 @@ fragment.hltL1sL1SingleJet128ORL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet176" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiPFJetAve260 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32620,7 +32608,7 @@ fragment.hltDiPFJetAve80ForHFJEC = cms.EDFilter( "HLTDiPFJetAveEtaFilter",
     minDphi = cms.double( 2.5 )
 )
 fragment.hltL1sL1SingleJet68 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32628,8 +32616,7 @@ fragment.hltL1sL1SingleJet68 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiPFJetAve100HFJEC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32700,7 +32687,7 @@ fragment.hltDiPFJetAve160ForHFJEC = cms.EDFilter( "HLTDiPFJetAveEtaFilter",
     minDphi = cms.double( 2.5 )
 )
 fragment.hltL1sL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32708,8 +32695,7 @@ fragment.hltL1sL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiPFJetAve220HFJEC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32822,7 +32808,7 @@ fragment.hltPFMETNoMu140 = cms.EDFilter( "HLTMhtFilter",
     minMht = cms.vdouble( 140.0 )
 )
 fragment.hltL1sL1ETM50 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM50" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32830,8 +32816,7 @@ fragment.hltL1sL1ETM50 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM50" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiPFJet40DEta3p5MJJ600PFMETNoMu80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -32996,7 +32981,7 @@ fragment.hltPFHT475 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 475.0 )
 )
 fragment.hltL1sL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM40OrETM50OrETM60OrETM70OrETM100 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33004,8 +32989,7 @@ fragment.hltL1sL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM40OrETM50OrETM60OrET
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFHT200PFAlphaT0p51 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -33040,7 +33024,7 @@ fragment.hltPFHT200PFAlphaT0p51 = cms.EDFilter( "HLTAlphaTPFJetFilter",
     minHt = cms.double( 200.0 )
 )
 fragment.hltL1sL1HTT75OrL1HTT100OrL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM40OrETM50OrETM60OrETM70OrETM100 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33048,8 +33032,7 @@ fragment.hltL1sL1HTT75OrL1HTT100OrL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM4
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFHT200DiPFJetAve90PFAlphaT0p57 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -33499,7 +33482,7 @@ fragment.hltPFMET120Filter = cms.EDFilter( "HLTMhtFilter",
     minMht = cms.vdouble( 120.0 )
 )
 fragment.hltL1sL1Mu0erETM40ORL1Mu0erETM55 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu0er_ETM40 OR L1_Mu0er_ETM55" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33507,15 +33490,14 @@ fragment.hltL1sL1Mu0erETM40ORL1Mu0erETM55 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu0er_ETM40 OR L1_Mu0er_ETM55" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFMET120Mu5 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleMuOpenCandidate = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33523,8 +33505,7 @@ fragment.hltL1sL1SingleMuOpenCandidate = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPFMET120Mu5L1MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     saveTags = cms.bool( False ),
@@ -33532,9 +33513,11 @@ fragment.hltPFMET120Mu5L1MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltPFMET120Mu5L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltPFMET120Mu5L2PreFiltered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -33739,7 +33722,7 @@ fragment.hltPrePFMET170 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1ETM70ORETM60ORETM50ORDoubleJetC56ETM60 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM70 OR L1_DoubleJetC56_ETM60 OR L1_ETM60 OR L1_ETM50" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33747,8 +33730,7 @@ fragment.hltL1sL1ETM70ORETM60ORETM50ORDoubleJetC56ETM60 = cms.EDFilter( "HLTL1TS
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM70 OR L1_DoubleJetC56_ETM60 OR L1_ETM60 OR L1_ETM50" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFMET90PFMHT90IDTight = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -33934,7 +33916,7 @@ fragment.hltPreCaloMHTNoPU90PFMET90PFMHT90IDTight = cms.EDFilter( "HLTPrescaler"
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORL1TripleJet846848VBFORL1HTT100ORL1HTT125ORL1HTT150ORL1HTT175ORL1SingleJet128ORL1DoubleJetC84 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_TripleJet_84_68_48_VBF OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_DoubleJetC84" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33942,8 +33924,7 @@ fragment.hltL1sL1TripleJet927664VBFORL1TripleJet846848VBFORL1HTT100ORL1HTT125ORL
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_TripleJet_84_68_48_VBF OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_DoubleJetC84" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreQuadPFJetBTagCSVp037p11VBFMqq200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -34159,7 +34140,7 @@ fragment.hltPreL1TripleJetVBF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1HTT175ORL1QuadJetC60ORL1HTT100ORL1HTT125ORL1HTT150ORL1QuadJetC40 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_QuadJetC60 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_QuadJetC40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34167,8 +34148,7 @@ fragment.hltL1sL1HTT175ORL1QuadJetC60ORL1HTT100ORL1HTT125ORL1HTT150ORL1QuadJetC4
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_QuadJetC60 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_QuadJetC40" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreQuadJet45TripleBTagCSVp087 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -34217,7 +34197,7 @@ fragment.hltBTagCaloCSVp087Double = cms.EDFilter( "HLTCaloJetTag",
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORL1DoubleJetC100ORL1TripleJet846848VBFORL1DoubleJetC84ORL1HTT100ORL1HTT125ORL1HTT150ORL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_DoubleJetC100 OR L1_TripleJet_84_68_48_VBF OR L1_DoubleJetC84 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34225,8 +34205,7 @@ fragment.hltL1sL1TripleJet927664VBFORL1DoubleJetC100ORL1TripleJet846848VBFORL1Do
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_DoubleJetC100 OR L1_TripleJet_84_68_48_VBF OR L1_DoubleJetC84 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleJet90Double30TripleBTagCSVp087 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -34277,7 +34256,7 @@ fragment.hltPreDoubleJet90Double30DoubleBTagCSVp087 = cms.EDFilter( "HLTPrescale
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1DoubleJetC100 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34285,8 +34264,7 @@ fragment.hltL1sL1DoubleJetC100 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleJetsC100DoubleBTagCSVp026DoublePFJetsC160 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -34382,7 +34360,7 @@ fragment.hltDoublePFJetsC100MaxDeta1p6 = cms.EDFilter( "HLT2PFJetPFJet",
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1DoubleJetC112 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC112" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34390,8 +34368,7 @@ fragment.hltL1sL1DoubleJetC112 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC112" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleJetsC112DoubleBTagCSVp026DoublePFJetsC172 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -34452,7 +34429,7 @@ fragment.hltDoublePFJetsC112MaxDeta1p6 = cms.EDFilter( "HLT2PFJetPFJet",
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleEG40ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34460,14 +34437,13 @@ fragment.hltL1sL1SingleEG40ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton135PFMET100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG40ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG40ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -34512,7 +34488,7 @@ fragment.hltEG135HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG20 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34520,14 +34496,13 @@ fragment.hltL1sL1SingleEG20 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton22R9Id90HE10Iso40EBOnlyPFMET40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG20Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG20Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -35261,7 +35236,7 @@ fragment.hltEG300erEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     ncandcut = cms.int32( 1 )
 )
 fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -35269,14 +35244,13 @@ fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510 = cms.
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton26R9Id85ORCaloId24b40eIso50T80LPhoton16ANDHE10R9Id65Eta2Mass60 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltDoubleEGL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510Eta2Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltDoubleEGL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510Eta2Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.0 ),
     region_phi_size = cms.double( 1.044 ),
@@ -36192,7 +36166,7 @@ fragment.hltDiEG22R9Id85ORCaloId24b40eIso50T80LANDHE10R9Id65Mass15CombMassLastFi
     secondLegLastFilter = cms.InputTag( "hltEG22Iso50T80LCaloId24b40eHE10R9Id65TrackIsoUnseededLastFilter" )
 )
 fragment.hltL1sL1SingleEG30 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG30" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -36200,14 +36174,13 @@ fragment.hltL1sL1SingleEG30 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG30" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton36R9Id90HE10Iso40EBOnlyPFMET40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG30Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG30Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -36769,9 +36742,11 @@ fragment.hltL1fL1sMu5L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu5L1f0L2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu5L1f0L2Filtered5 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -36822,7 +36797,7 @@ fragment.hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4 = cms.EDFilter( "HLTMuo
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
 fragment.hltL1sL1SingleMu12 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu12" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -36830,8 +36805,7 @@ fragment.hltL1sL1SingleMu12 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu12" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu17TrkIsoVVL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -36843,9 +36817,11 @@ fragment.hltL1fL1sMu12L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu12L1f0L2Filtered12 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu12L1f0L2Filtered12 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -36896,7 +36872,7 @@ fragment.hltL3fL1sMu12L1f0L2f12L3Filtered17TkIsoFiltered0p4 = cms.EDFilter( "HLT
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
 fragment.hltL1sL1SingleEG15ORSingleEG10 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG10 OR L1_SingleEG15" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -36904,14 +36880,13 @@ fragment.hltL1sL1SingleEG15ORSingleEG10 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG10 OR L1_SingleEG15" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle12CaloIdLTrackIdLIsoVLPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -37126,7 +37101,7 @@ fragment.hltPreEle23CaloIdLTrackIdLIsoVLPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle23CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle23CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -37341,7 +37316,7 @@ fragment.hltPreEle33CaloIdLTrackIdLIsoVLPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle33CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle33CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -37553,7 +37528,7 @@ fragment.hltEle33PFJet30EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     MaxAbsJetEta = cms.double( 2.5 )
 )
 fragment.hltL1sL1Mu3JetC16WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC16_WdEtaPhi2" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -37561,8 +37536,7 @@ fragment.hltL1sL1Mu3JetC16WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC16_WdEtaPhi2" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreBTagMuDiJet20Mu5 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -37737,7 +37711,7 @@ fragment.hltBSoftMuonDiJet40L1FastJetMu5L3FilterByDR = cms.EDFilter( "HLTCaloJet
     MaxTag = cms.double( 99999.0 )
 )
 fragment.hltL1sL1Mu3JetC52WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC52_WdEtaPhi2" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -37745,8 +37719,7 @@ fragment.hltL1sL1Mu3JetC52WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC52_WdEtaPhi2" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreBTagMuDiJet70Mu5 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -37980,7 +37953,7 @@ fragment.hltPreEle23Ele12CaloIdLTrackIdLIsoVLDZ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle23Ele12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle23Ele12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -38371,7 +38344,7 @@ fragment.hltEle23Ele12CaloIdLTrackIdLIsoVLDZFilter = cms.EDFilter( "HLT2PhotonPh
     inputTag2 = cms.InputTag( "hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter" )
 )
 fragment.hltL1sL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_15_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -38379,14 +38352,13 @@ fragment.hltL1sL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_15_10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle17Ele12CaloIdLTrackIdLIsoVLDZ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle17Ele12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle17Ele12CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -38777,7 +38749,7 @@ fragment.hltEle17Ele12CaloIdLTrackIdLIsoVLDZFilter = cms.EDFilter( "HLT2PhotonPh
     inputTag2 = cms.InputTag( "hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter" )
 )
 fragment.hltL1sL1TripleEG14108 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleEG_14_10_8" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -38785,14 +38757,13 @@ fragment.hltL1sL1TripleEG14108 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleEG_14_10_8" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle16Ele12Ele8CaloIdLTrackIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle16Ele12Ele8CaloIdLTrackIdLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle16Ele12Ele8CaloIdLTrackIdLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -39196,9 +39167,11 @@ fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilt
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -39248,7 +39221,7 @@ fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8 = cms.EDF
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
-fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -39445,7 +39418,7 @@ fragment.hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter = cms
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu5EG15 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG15" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -39453,8 +39426,7 @@ fragment.hltL1sL1Mu5EG15 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG15" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -39466,9 +39438,11 @@ fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFilt
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -39518,7 +39492,7 @@ fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8 = cms.EDF
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
-fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -39715,7 +39689,7 @@ fragment.hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter = cms
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu20EG10 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu20_EG10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -39723,8 +39697,7 @@ fragment.hltL1sL1Mu20EG10 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu20_EG10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -39736,9 +39709,11 @@ fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFil
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -39788,7 +39763,7 @@ fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23 = cms.E
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
-fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -39985,7 +39960,7 @@ fragment.hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter = cm
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu12EG10 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu12_EG10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -39993,8 +39968,7 @@ fragment.hltL1sL1Mu12EG10 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu12_EG10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -40006,9 +39980,11 @@ fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL1Filtered0 = cms.EDFil
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL2Filtered10 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -40058,7 +40034,7 @@ fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered17 = cms.E
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     DepTag = cms.VInputTag( 'hltL3MuonRelTrkIsolationVVL' )
 )
-fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -40389,7 +40365,7 @@ fragment.hltEle30CaloIdLGsfTrkIdVLDPhiUnseededFilter = cms.EDFilter( "HLTEgammaG
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu6DoubleEG10 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu6_DoubleEG10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -40397,8 +40373,7 @@ fragment.hltL1sL1Mu6DoubleEG10 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu6_DoubleEG10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu8DiEle12CaloIdLTrackIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -40410,9 +40385,11 @@ fragment.hltMu8DiEle12CaloIdLTrackIdLMuonlegL1Filtered0 = cms.EDFilter( "HLTMuon
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu8DiEle12CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu8DiEle12CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -40454,7 +40431,7 @@ fragment.hltMu8DiEle12CaloIdLTrackIdLMuonlegL3Filtered8 = cms.EDFilter( "HLTMuon
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 8.0 )
 )
-fragment.hltMu8DiEle12CaloIdLTrackIdLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltMu8DiEle12CaloIdLTrackIdLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -40597,7 +40574,7 @@ fragment.hltMu8DiEle12CaloIdLTrackIdLElectronlegDphiFilter = cms.EDFilter( "HLTE
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu5EG20ORL1Mu20EG10 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG20 OR L1_Mu20_EG10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -40605,8 +40582,7 @@ fragment.hltL1sL1Mu5EG20ORL1Mu20EG10 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu5_EG20 OR L1_Mu20_EG10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu12Photon25CaloIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -40618,9 +40594,11 @@ fragment.hltL1fL1sMu5EG20ORL1Mu20EG10L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilt
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1Mu5EG20ORL1Mu20EG10L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1Mu5EG20ORL1Mu20EG10L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -40662,7 +40640,7 @@ fragment.hltL3fL1sL1Mu5EG20L1f5L2f7L3Filtered12 = cms.EDFilter( "HLTMuonL3PreFil
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 12.0 )
 )
-fragment.hltEGL1Mu5EG20ORL1Mu20EG10Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1Mu5EG20ORL1Mu20EG10Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -40725,7 +40703,7 @@ fragment.hltMu12Photon25CaloIdLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter"
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1Mu5IsoEG18 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu5_IsoEG18" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -40733,8 +40711,7 @@ fragment.hltL1sL1Mu5IsoEG18 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu5_IsoEG18" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu12Photon25CaloIdLL1ISO = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -40746,9 +40723,11 @@ fragment.hltL1fL1sMu5IsoEG18L1Filtered5 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 5.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sL1Mu5IsoEG18L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sL1Mu5IsoEG18L1f5L2Filtered7 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -40790,7 +40769,7 @@ fragment.hltL3fL1sL1Mu5IsoEG18L1f5L2f7L3Filtered12 = cms.EDFilter( "HLTMuonL3Pre
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 12.0 )
 )
-fragment.hltEGL1Mu5IsoEG18Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1Mu5IsoEG18Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -41097,7 +41076,7 @@ fragment.hltMu17Photon35CaloIdLL1ISOHEFilter = cms.EDFilter( "HLTEgammaGenericFi
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1DoubleMu7EG7 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu7_EG7" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41105,8 +41084,7 @@ fragment.hltL1sL1DoubleMu7EG7 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu7_EG7" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiMu9Ele9CaloIdLTrackIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -41118,9 +41096,11 @@ fragment.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL1Filtered0 = cms.EDFilter( "HLTMuonL
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL2Filtered5 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -41162,7 +41142,7 @@ fragment.hltDiMu9Ele9CaloIdLTrackIdLMuonlegL3Filtered9 = cms.EDFilter( "HLTMuonL
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 9.0 )
 )
-fragment.hltDiMu9Ele9CaloIdLTrackIdLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltDiMu9Ele9CaloIdLTrackIdLElectronlegL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -41305,7 +41285,7 @@ fragment.hltDiMu9Ele9CaloIdLTrackIdLElectronlegDphiFilter = cms.EDFilter( "HLTEg
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1TripleMu553 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleMu_5_5_3" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41313,8 +41293,7 @@ fragment.hltL1sL1TripleMu553 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleMu_5_5_3" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreTripleMu12105 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -41326,9 +41305,11 @@ fragment.hltL1TripleMu553L1TriMuFiltered3 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 3.0 ),
     MinN = cms.int32( 3 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL1TripleMu553L2TriMuFiltered3 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL1TripleMu553L2TriMuFiltered3 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -41433,9 +41414,11 @@ fragment.hltMu3erPFHT140PFMET125MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu3erPFHT140PFMET125L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu3erPFHT140PFMET125L2PreFiltered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -41492,7 +41475,7 @@ fragment.hltPFHT140 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 140.0 )
 )
 fragment.hltL1sL1Mu6HTT100 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu6_HTT100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41500,8 +41483,7 @@ fragment.hltL1sL1Mu6HTT100 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu6_HTT100" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu6PFHT200PFMET80BTagCSVp067 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -41522,9 +41504,11 @@ fragment.hltMu6PFHT200PFMET100MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu6PFHT200PFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu6PFHT200PFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -41576,7 +41560,7 @@ fragment.hltPreMu6PFHT200PFMET100 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1Mu10erETM30orL1Mu14erETM30 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu10er_ETM30 OR L1_Mu14er_ETM30" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41584,8 +41568,7 @@ fragment.hltL1sL1Mu10erETM30orL1Mu14erETM30 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu10er_ETM30 OR L1_Mu14er_ETM30" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu14erPFMET100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -41597,9 +41580,11 @@ fragment.hltMu14erPFMET100MuFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMu14erPFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMu14erPFMET100L2PreFiltered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -41654,7 +41639,7 @@ fragment.hltPreEle23CaloIdLTrackIdLIsoVL = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleEG15 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG15" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41662,14 +41647,13 @@ fragment.hltL1sL1SingleEG15 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG15" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle17CaloIdLTrackIdLIsoVL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEle17CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEle17CaloIdLTrackIdLIsoVLL1MatchFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -42068,7 +42052,7 @@ fragment.hltEG36HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25ORL1SingleEG40 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -42076,14 +42060,13 @@ fragment.hltL1sL1SingleEG25ORL1SingleEG40 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG25ORL1SingleEG40Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG25ORL1SingleEG40Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -42224,7 +42207,7 @@ fragment.hltEG120HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25ORL1SingleEG40ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -42232,14 +42215,13 @@ fragment.hltL1sL1SingleEG25ORL1SingleEG40ORL1SingleJet200 = cms.EDFilter( "HLTL1
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40 OR L1_SingleJet200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePhoton175 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG25ORL1SingleEG40ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG25ORL1SingleEG40ORL1SingleJet200Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -43148,7 +43130,7 @@ fragment.hltEG165R9Id90HE10IsoMTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericQ
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG25 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -43156,14 +43138,13 @@ fragment.hltL1sSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG151
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG25 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDiphoton3018R9IdORIsoCaloIdANDHER9IdMass95 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG1510Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG1510Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -44237,7 +44218,7 @@ fragment.hltDiEG18EBR9Idb85e90ORIso60CaloId15b35eANDHE10R9Id50b80eMass55CombMass
     secondLegLastFilter = cms.InputTag( "hltEG18EBIso60CaloId15b35eHE10R9Id50b80eTrackIsoUnseededDoublePixelVetoLastFilter" )
 )
 fragment.hltL1sL1TripleMu0 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleMu0" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44245,8 +44226,7 @@ fragment.hltL1sL1TripleMu0 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleMu0" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDimuon0JpsiMuon = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -44258,9 +44238,11 @@ fragment.hltTripleMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 3 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltTripleMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltTripleMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -44405,7 +44387,7 @@ fragment.hltVertexmumuFilterUpsilonMuon = cms.EDFilter( "HLTDisplacedmumuFilter"
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1QuadMu0 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_QuadMu0" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44413,8 +44395,7 @@ fragment.hltL1sL1QuadMu0 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_QuadMu0" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreQuadMuon0Dimuon0Jpsi = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -44426,9 +44407,11 @@ fragment.hltQuadMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 4 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltQuadMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltQuadMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -44573,7 +44556,7 @@ fragment.hltVertexmumuFilterUpsilonMuonMuon = cms.EDFilter( "HLTDisplacedmumuFil
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1HTT75to175OrSingleJet128OrSingleJet176OrSingleJet200OrDoubleJetC84OrDoubleJetC100OrQuadJetC40OrQuadJetC60 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_DoubleJetC84 OR L1_DoubleJetC100 OR L1_QuadJetC40 OR L1_QuadJetC60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44581,8 +44564,7 @@ fragment.hltL1sL1HTT75to175OrSingleJet128OrSingleJet176OrSingleJet200OrDoubleJet
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_DoubleJetC84 OR L1_DoubleJetC100 OR L1_QuadJetC40 OR L1_QuadJetC60" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreRsq0p25 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -44756,7 +44738,7 @@ fragment.hlt4PFJet40 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 0 )
 )
 fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT175ORSingleJet200ORDoubleJetC100ORQuadJetC60 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT175 OR L1_SingleJet200 OR L1_DoubleJetC100 OR L1_QuadJetC60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44764,8 +44746,7 @@ fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT175ORSingleJet200ORDoubleJetC100ORQuadJet
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT175 OR L1_SingleJet200 OR L1_DoubleJetC100 OR L1_QuadJetC60" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreRsqMR270Rsq0p09MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -44973,7 +44954,7 @@ fragment.hltBTagPFCSVp063DoubleMbb60200Ptb5030 = cms.EDFilter( "HLTPFJetHbbFilte
     maxTag = cms.double( 99999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44981,8 +44962,7 @@ fragment.hltL1sL1HTT150ORHTT175ORHTT200 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175 OR L1_HTT200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHT750DisplacedDijet80Inclusive = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -45389,7 +45369,7 @@ fragment.hltL4DisplacedDijetFullTracksTightHLTCaloJetTagFilter = cms.EDFilter( "
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125ORHTT100ORHTT75 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45397,8 +45377,7 @@ fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125ORHTT100ORHTT75 = cms.EDFilter( "
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHT250DisplacedDijet40DisplacedTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -45535,7 +45514,7 @@ fragment.hltL4DisplacedDijetFullTracksHLTCaloJetTagFilterLowPt = cms.EDFilter( "
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45543,8 +45522,7 @@ fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHT350DisplacedDijet40DisplacedTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -45576,7 +45554,7 @@ fragment.hltPreHT550DisplacedDijet40Inclusive = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF  OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45584,8 +45562,7 @@ fragment.hltL1sL1TripleJet927664VBFORHTT175 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF  OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreVBFDisplacedJet40DisplacedTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -46287,7 +46264,7 @@ fragment.hltPreMonoCentralPFJet80PFMETNoMu120JetIdCleanedPFMHTNoMu120IDTight = c
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1EG25erHTT100orL1HTT125orL1HTT100 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_EG25er_HTT100 OR L1_HTT125 OR L1_HTT100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46295,14 +46272,13 @@ fragment.hltL1sL1EG25erHTT100orL1HTT125orL1HTT100 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_EG25er_HTT100 OR L1_HTT125 OR L1_HTT100" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle27eta2p1WPLooseGsfHT200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1EG25erHTT100Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1EG25erHTT100Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.17 ),
     region_phi_size = cms.double( 1.044 ),
@@ -46615,7 +46591,7 @@ fragment.hltPFHT500 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 500.0 )
 )
 fragment.hltL1sL1Mu8HTT50orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu8_HTT50 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR  L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46623,8 +46599,7 @@ fragment.hltL1sL1Mu8HTT50orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.EDFilter
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu8_HTT50 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR  L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleMu8Mass8PFHT250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -46636,9 +46611,11 @@ fragment.hltDimuon8L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltDimuon8L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltDimuon8L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -46695,9 +46672,11 @@ fragment.hltMuon8L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltMuon8L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltMuon8L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( False ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -46926,7 +46905,7 @@ fragment.hltElectronMuonInvMassFilter8 = cms.EDFilter( "HLTElectronMuonInvMassFi
     elePrevCandTag = cms.InputTag( "hltMu8Ele8CaloIdMTrkIdMDPhiFilter" )
 )
 fragment.hltL1sL1DoubleEG6HTT150orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG6_HTT150 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46934,8 +46913,7 @@ fragment.hltL1sL1DoubleEG6HTT150orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.E
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG6_HTT150 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDoubleEle8CaloIdMTrackIdMMass8PFHT250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -47142,7 +47120,7 @@ fragment.hltPreDoubleEle8CaloIdMTrackIdMMass8PFHT300 = cms.EDFilter( "HLTPrescal
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1Jet32MuOpenMu10dPhiMuMu1 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Jet32_DoubleMu_Open_10_MuMuNotWdPhi23_JetMuWdPhi1" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -47150,8 +47128,7 @@ fragment.hltL1sL1Jet32MuOpenMu10dPhiMuMu1 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Jet32_DoubleMu_Open_10_MuMuNotWdPhi23_JetMuWdPhi1" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu10CentralPFJet30BTagCSVp13 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -47163,9 +47140,11 @@ fragment.hltL1fL1sMu0L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu0L1f0L2Filtered3Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu0L1f0L2Filtered3Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -47217,7 +47196,7 @@ fragment.hltBTagPFCSVp13Single = cms.EDFilter( "HLTPFJetTag",
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1Jet32MuOpenEG10dPhiMuEG1 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_Jet32_MuOpen_EG10_MuEGNotWdPhi3_JetMuWdPhi1" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -47225,8 +47204,7 @@ fragment.hltL1sL1Jet32MuOpenEG10dPhiMuEG1 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_Jet32_MuOpen_EG10_MuEGNotWdPhi3_JetMuWdPhi1" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle10CaloIdMTrackIdMCentralPFJet30BTagCSVp13 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -47411,7 +47389,7 @@ fragment.hltPreEle15IsoVVVLBTagCSVp067PFHT400 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleEG5Open = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -47419,10 +47397,9 @@ fragment.hltL1sL1SingleEG5Open = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
-fragment.hltEGL1SingleEG5OpenFilter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG5OpenFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -47717,9 +47694,11 @@ fragment.hltL1fL1sSingleMu6L1Filtered6 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 6.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sSingleMu6L1f6L2Filtered6Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sSingleMu6L1f6L2Filtered6Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -47818,9 +47797,11 @@ fragment.hltL1fL1sSingleMuOpenCandidateL1Filtered0 = cms.EDFilter( "HLTMuonL1TFi
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sSingleMuOpenCandidateL1f0L2Filtered0Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sSingleMuOpenCandidateL1f0L2Filtered0Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -48238,7 +48219,7 @@ fragment.hltDisplacedmumuFilterDimuon0PhiBarrel = cms.EDFilter( "HLTDisplacedmum
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleMu14erORSingleMu16 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu14er OR L1_SingleMu16" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -48246,8 +48227,7 @@ fragment.hltL1sL1SingleMu14erORSingleMu16 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu14er OR L1_SingleMu16" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreMu16TkMu0dEta18Onia = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -48259,9 +48239,11 @@ fragment.hltL1fL1sMu14erorMu16L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2fL1sMu14erorMu16L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu14erorMu16L1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -48379,7 +48361,7 @@ fragment.hltPreTrkMu15DoubleTrkMu5NoFiltersNoVtx = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0NoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0NoVtx = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -48399,7 +48381,7 @@ fragment.hltL2pfL1sDoubleMu103p5L1f0L2PreFiltered0NoVtx = cms.EDFilter( "HLTMuon
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
-fragment.hltL2fL1sDoubleMu103p5L1f0L2Filtered10OneMuNoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu103p5L1f0L2Filtered10OneMuNoVtx = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -48756,7 +48738,7 @@ fragment.hltGlbTrkMuonsNoVtx = cms.EDProducer( "MuonIdProducer",
 fragment.hltGlbTrkMuonCandsNoVtx = cms.EDProducer( "L3MuonCandidateProducerFromMuons",
     InputObjects = cms.InputTag( "hltGlbTrkMuonsNoVtx" )
 )
-fragment.hltTripleTrkMuFiltered5NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltTripleTrkMuFiltered5NoVtx = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -48772,7 +48754,7 @@ fragment.hltTripleTrkMuFiltered5NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
     inputMuonCollection = cms.InputTag( "hltGlbTrkMuonsNoVtx" ),
     allowedTypeMask = cms.uint32( 255 )
 )
-fragment.hltSingleTrkMuFiltered15NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltSingleTrkMuFiltered15NoVtx = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -48792,7 +48774,7 @@ fragment.hltPreTrkMu17DoubleTrkMu8NoFiltersNoVtx = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltTripleTrkMuFiltered8NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltTripleTrkMuFiltered8NoVtx = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -48808,7 +48790,7 @@ fragment.hltTripleTrkMuFiltered8NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
     inputMuonCollection = cms.InputTag( "hltGlbTrkMuonsNoVtx" ),
     allowedTypeMask = cms.uint32( 255 )
 )
-fragment.hltSingleTrkMuFiltered17NoVtx = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltSingleTrkMuFiltered17NoVtx = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -48833,7 +48815,7 @@ fragment.hltPreMu17 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1SingleEG10ORL1SingleEG5 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG10 OR L1_SingleEG5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -48841,8 +48823,7 @@ fragment.hltL1sL1SingleEG10ORL1SingleEG5 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG10 OR L1_SingleEG5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreEle8CaloIdMTrackIdMPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -49443,7 +49424,7 @@ fragment.hltEle33NoIsoPFJet30EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilt
     MaxAbsJetEta = cms.double( 2.5 )
 )
 fragment.hltL1sL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT175" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -49451,8 +49432,7 @@ fragment.hltL1sL1HTT175 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePFHT450SixJet40BTagCSVp056 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50053,7 +50033,7 @@ fragment.hltPrePhoton90CaloIdLPFHT600 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sETT15BptxAND = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETT15_BptxAND" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50061,8 +50041,7 @@ fragment.hltL1sETT15BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETT15_BptxAND" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePixelTracksMultiplicity60ForEndOfFill = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50198,7 +50177,7 @@ fragment.hlt1HighMult85 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MinSep = cms.double( 0.12 )
 )
 fragment.hltL1sETT40 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETT40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50206,8 +50185,7 @@ fragment.hltL1sETT40 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETT40" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePixelTracksMultiplicity110ForEndOfFill = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50240,7 +50218,7 @@ fragment.hlt1HighMult135 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MinSep = cms.double( 0.12 )
 )
 fragment.hltL1sETT60 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETT60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50248,8 +50226,7 @@ fragment.hltL1sETT60 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETT60" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPrePixelTracksMultiplicity160ForEndOfFill = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50267,7 +50244,7 @@ fragment.hlt1HighMult160 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MinSep = cms.double( 0.12 )
 )
 fragment.hltL1sL1HTT175OrETM70 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_ETM70" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50275,8 +50252,7 @@ fragment.hltL1sL1HTT175OrETM70 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_ETM70" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreECALHT800 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50437,7 +50413,7 @@ fragment.hltPreDSTZeroBiasBTagScouting = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1DoubleMu103p5orL1DoubleMu125 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_3p5 OR L1_DoubleMu_12_5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50445,8 +50421,7 @@ fragment.hltL1sL1DoubleMu103p5orL1DoubleMu125 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_3p5 OR L1_DoubleMu_12_5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreDSTL1DoubleMuBTagScouting = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50466,9 +50441,11 @@ fragment.hltDimuon3L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltDimuon3L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltDimuon3L2PreFiltered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -50705,7 +50682,7 @@ fragment.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     bunchCrossings = cms.vint32( 0, 1, -1 )
 )
 fragment.hltL1sL1SingleEG2BptxAND = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG2_BptxAND" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50713,8 +50690,7 @@ fragment.hltL1sL1SingleEG2BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG2_BptxAND" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHISinglePhoton10ForEndOfFill = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50854,7 +50830,7 @@ fragment.hltHIPhoton20 = cms.EDFilter( "HLT1Photon",
     triggerType = cms.int32( 81 )
 )
 fragment.hltL1sL1SingleEG5 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50862,8 +50838,7 @@ fragment.hltL1sL1SingleEG5 = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHISinglePhoton40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50894,7 +50869,7 @@ fragment.hltHIPhoton60 = cms.EDFilter( "HLT1Photon",
     triggerType = cms.int32( 81 )
 )
 fragment.hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50902,8 +50877,7 @@ fragment.hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHIL1DoubleMu0BPTX = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -50915,6 +50889,8 @@ fragment.hltHIL1DoubleMuOpenFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreHIL2Mu3BPTX = cms.EDFilter( "HLTPrescaler",
@@ -50927,9 +50903,11 @@ fragment.hltHIL1SingleMuOpenFiltered = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltHIL2Mu3BPTXL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltHIL2Mu3BPTXL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -50953,7 +50931,7 @@ fragment.hltPreHIL2DoubleMu0BPTX = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltHIL2DoubleMu0BPTXL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltHIL2DoubleMu0BPTXL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -51581,7 +51559,7 @@ fragment.hltHISingleMu3L3BPTXFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     MinPt = cms.double( 3.0 )
 )
 fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -51589,8 +51567,7 @@ fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreFullTrack12ForEndOfFill = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53253,7 +53230,7 @@ fragment.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1197, 1198, 1199 )
 )
 fragment.hltL1sL1ZeroBiasORAlwaysTrue = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_AlwaysTrue" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53261,8 +53238,7 @@ fragment.hltL1sL1ZeroBiasORAlwaysTrue = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_AlwaysTrue" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAlCaEcalPhiSym = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53285,7 +53261,7 @@ fragment.hltEcalPhiSymFilter = cms.EDFilter( "HLTEcalPhiSymFilter",
     ampCut_barrelP = cms.vdouble( 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 )
 )
 fragment.hltL1sL1SingleIsoEG22erOrSingleIsoEG20OrSingleEG25OrSingleEG20 = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleIsoEG20  OR L1_SingleEG25 OR L1_SingleEG20" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53293,14 +53269,13 @@ fragment.hltL1sL1SingleIsoEG22erOrSingleIsoEG20OrSingleEG25OrSingleEG20 = cms.ED
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleIsoEG20  OR L1_SingleEG25 OR L1_SingleEG20" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAlCaEle23WPVeryLooseGsf = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleIsoEG22erOrSingleIsoEG20OrSingleEG25OrSingleEG20ForEleStream = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleIsoEG22erOrSingleIsoEG20OrSingleEG25OrSingleEG20ForEleStream = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.7 ),
     region_phi_size = cms.double( 1.044 ),
@@ -53533,7 +53508,7 @@ fragment.hltEle23WPLooseGsfTrackIsoFilterForEleStream = cms.EDFilter( "HLTEgamma
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleJet20CentralNoBPTXNoHalo = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53541,8 +53516,7 @@ fragment.hltL1sL1SingleJet20CentralNoBPTXNoHalo = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreGlobalRunHPDNoise = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53555,7 +53529,7 @@ fragment.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     fedId = cms.int32( 813 )
 )
 fragment.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleJet36 OR L1_SingleJet68 OR L1_SingleMuOpen OR L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53563,15 +53537,14 @@ fragment.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleJet36 OR L1_SingleJet68 OR L1_SingleMuOpen OR L1_ZeroBias" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHcalNZS = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sHcalPhiSym = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleMuOpen" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53579,8 +53552,7 @@ fragment.hltL1sHcalPhiSym = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleMuOpen" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreHcalPhiSym = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53597,7 +53569,7 @@ fragment.hltPreHcalUTCA = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1AlwaysTrue = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_AlwaysTrue" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53605,15 +53577,14 @@ fragment.hltL1sL1AlwaysTrue = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_AlwaysTrue" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreZeroBiasIsolatedBunches = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sAlCaRPC = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu14er OR L1_SingleMu16er OR L1_SingleMu20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53621,8 +53592,7 @@ fragment.hltL1sAlCaRPC = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu14er OR L1_SingleMu16er OR L1_SingleMu20er" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAlCaRPCMuonNoTriggers = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53634,6 +53604,8 @@ fragment.hltRPCMuonNoTriggersL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.6 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32( 6 ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreAlCaRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
@@ -53672,6 +53644,8 @@ fragment.hltRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.6 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
 fragment.hltPreAlCaLumiPixelsRandom = cms.EDFilter( "HLTPrescaler",
@@ -53905,7 +53879,7 @@ fragment.hltPreMCDiphoton1010R9IdORIsoCaloIdANDHER9IdMass10 = cms.EDFilter( "HLT
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1SingleEG5Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1SingleEG5Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -54650,7 +54624,7 @@ fragment.hltPreMCEle15Ele10CaloIdLTrackIdLIsoVLDZ = cms.EDFilter( "HLTPrescaler"
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltEGL1DoubleEG1510Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+fragment.hltEGL1DoubleEG1510Filter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
     region_phi_size = cms.double( 1.044 ),
@@ -55044,7 +55018,7 @@ fragment.hltPreMCIsoMu = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMu5L1L2SingleMu = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu5L1L2SingleMu = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -55144,7 +55118,7 @@ fragment.hltHighPtTkMu15TkFilt = cms.EDFilter( "HLTTrackWithHits",
     MaxN = cms.int32( 99999 ),
     MinFPX = cms.int32( 0 )
 )
-fragment.hltL3fL1sMu5f0TkFiltered15Q = cms.EDFilter( "HLTMuonTrkFilter",
+fragment.hltL3fL1sMu5f0TkFiltered15Q = cms.EDFilter( "HLTMuonTrkL1TFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( True ),
     maxAbsEta = cms.double( 2.5 ),
@@ -55214,9 +55188,11 @@ fragment.hltL1fL1sDoubleMu0HighQL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
     CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
 )
-fragment.hltL2pfL1sDoubleMu0L1f0L2doubleMu = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2pfL1sDoubleMu0L1f0L2doubleMu = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -55283,7 +55259,7 @@ fragment.hltPreMCDoubleGlbTrkMuTrkIsoVVLDZ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sDoubleMu0L1f0OneMuL2doubleGlb = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sDoubleMu0L1f0OneMuL2doubleGlb = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -55371,7 +55347,7 @@ fragment.hltPreMCDoubleMuNoFiltersNoVtx = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fDimuonL1f0L2NoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fDimuonL1f0L2NoVtx = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( True ),
@@ -55481,7 +55457,7 @@ fragment.hltPreMu300 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL2fL1sMu16orMu25L1f0L2Filtered16Q = cms.EDFilter( "HLTMuonL2PreFilter",
+fragment.hltL2fL1sMu16orMu25L1f0L2Filtered16Q = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
@@ -55625,9 +55601,9 @@ fragment.hltPreIsoTrackHE = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltIsolPixelTrackProdHE = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
+fragment.hltIsolPixelTrackProdHE = cms.EDProducer( "IsolatedPixelTrackCandidateL1TProducer",
     minPTrack = cms.double( 5.0 ),
-    L1eTauJetsSource = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    L1eTauJetsSource = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     MaxVtxDXYSeed = cms.double( 101.0 ),
     tauUnbiasCone = cms.double( 1.2 ),
     VertexLabel = cms.InputTag( "hltTrimmedPixelVertices" ),
@@ -55641,7 +55617,7 @@ fragment.hltIsolPixelTrackProdHE = cms.EDProducer( "IsolatedPixelTrackCandidateP
     tauAssociationCone = cms.double( 0.0 ),
     ExtrapolationConeSize = cms.double( 1.0 )
 )
-fragment.hltIsolPixelTrackL2FilterHE = cms.EDFilter( "HLTPixelIsolTrackFilter",
+fragment.hltIsolPixelTrackL2FilterHE = cms.EDFilter( "HLTPixelIsolTrackL1TFilter",
     MaxPtNearby = cms.double( 2.0 ),
     saveTags = cms.bool( True ),
     MinEtaTrack = cms.double( 1.1 ),
@@ -55677,7 +55653,7 @@ fragment.hltHcalITIPTCorrectorHE = cms.EDProducer( "IPTCorrector",
     filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHE" ),
     associationCone = cms.double( 0.2 )
 )
-fragment.hltIsolPixelTrackL3FilterHE = cms.EDFilter( "HLTPixelIsolTrackFilter",
+fragment.hltIsolPixelTrackL3FilterHE = cms.EDFilter( "HLTPixelIsolTrackL1TFilter",
     MaxPtNearby = cms.double( 2.0 ),
     saveTags = cms.bool( True ),
     MinEtaTrack = cms.double( 1.1 ),
@@ -55695,9 +55671,9 @@ fragment.hltPreIsoTrackHB = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltIsolPixelTrackProdHB = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
+fragment.hltIsolPixelTrackProdHB = cms.EDProducer( "IsolatedPixelTrackCandidateL1TProducer",
     minPTrack = cms.double( 5.0 ),
-    L1eTauJetsSource = cms.InputTag( 'hltL1extraParticles','Tau' ),
+    L1eTauJetsSource = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     MaxVtxDXYSeed = cms.double( 101.0 ),
     tauUnbiasCone = cms.double( 1.2 ),
     VertexLabel = cms.InputTag( "hltTrimmedPixelVertices" ),
@@ -55711,7 +55687,7 @@ fragment.hltIsolPixelTrackProdHB = cms.EDProducer( "IsolatedPixelTrackCandidateP
     tauAssociationCone = cms.double( 0.0 ),
     ExtrapolationConeSize = cms.double( 1.0 )
 )
-fragment.hltIsolPixelTrackL2FilterHB = cms.EDFilter( "HLTPixelIsolTrackFilter",
+fragment.hltIsolPixelTrackL2FilterHB = cms.EDFilter( "HLTPixelIsolTrackL1TFilter",
     MaxPtNearby = cms.double( 2.0 ),
     saveTags = cms.bool( True ),
     MinEtaTrack = cms.double( 0.0 ),
@@ -55747,7 +55723,7 @@ fragment.hltHcalITIPTCorrectorHB = cms.EDProducer( "IPTCorrector",
     filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHB" ),
     associationCone = cms.double( 0.2 )
 )
-fragment.hltIsolPixelTrackL3FilterHB = cms.EDFilter( "HLTPixelIsolTrackFilter",
+fragment.hltIsolPixelTrackL3FilterHB = cms.EDFilter( "HLTPixelIsolTrackL1TFilter",
     MaxPtNearby = cms.double( 2.0 ),
     saveTags = cms.bool( True ),
     MinEtaTrack = cms.double( 0.0 ),
@@ -55762,7 +55738,7 @@ fragment.hltIsolPixelTrackL3FilterHB = cms.EDFilter( "HLTPixelIsolTrackFilter",
     filterTrackEnergy = cms.bool( True )
 )
 fragment.hltL1sAlCaEcalPi0Eta = cms.EDFilter( "HLTL1TSeed",
-    SaveTags = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100 OR L1_DoubleJetC112 OR L1_DoubleJetC52 OR L1_DoubleJetC84 OR L1_QuadJetC40 OR L1_QuadJetC60 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_SingleJet36 OR L1_SingleJet52 OR L1_SingleJet68 OR L1_SingleJet92 OR L1_TripleJet_84_68_48_VBF OR L1_TripleJet_92_76_64_VBF OR L1_DoubleEG_15_10 OR L1_DoubleEG_22_10 OR L1_SingleEG5 OR L1_SingleEG10 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleEG30 OR L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleIsoEG25 OR L1_SingleIsoEG25er OR L1_SingleIsoEG30er OR L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_AlwaysTrue" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -55770,8 +55746,7 @@ fragment.hltL1sAlCaEcalPi0Eta = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
     L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
     L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
-    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100 OR L1_DoubleJetC112 OR L1_DoubleJetC52 OR L1_DoubleJetC84 OR L1_QuadJetC40 OR L1_QuadJetC60 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_SingleJet36 OR L1_SingleJet52 OR L1_SingleJet68 OR L1_SingleJet92 OR L1_TripleJet_84_68_48_VBF OR L1_TripleJet_92_76_64_VBF OR L1_DoubleEG_15_10 OR L1_DoubleEG_22_10 OR L1_SingleEG5 OR L1_SingleEG10 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleEG30 OR L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleIsoEG25 OR L1_SingleIsoEG25er OR L1_SingleIsoEG30er OR L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_AlwaysTrue" )
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreAlCaEcalPi0EEonly = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
