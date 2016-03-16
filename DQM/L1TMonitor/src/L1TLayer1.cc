@@ -41,7 +41,6 @@ L1TLayer1::L1TLayer1(const edm::ParameterSet & ps) :
   ecalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceRecd").label()),
   hcalTPSourceRecd_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceRecd"))),
   hcalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceRecd").label()),
-  hfTPSourceRecd_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hfTPSourceRecd"))),
   ecalTPSourceSent_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceSent"))),
   ecalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceSent").label()),
   hcalTPSourceSent_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceSent"))),
@@ -162,8 +161,6 @@ void L1TLayer1::analyze(const edm::Event & event, const edm::EventSetup & es)
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsRecd;
   event.getByToken(hcalTPSourceRecd_, hcalTPsRecd);
-  edm::Handle<HcalTrigPrimDigiCollection> hfTPsRecd;
-  event.getByToken(hfTPSourceRecd_, hfTPsRecd);
 
   SimpleTowerSet hcalSentSet;
   for ( const auto& tp : *hcalTPsSent ) {
@@ -180,18 +177,6 @@ void L1TLayer1::analyze(const edm::Event & event, const edm::EventSetup & es)
     // Zero-suppress (if not already done before collection was saved)
     if ( tp.SOI_compressedEt() > 0 ) {
       hcalRecdSet.emplace(tp.id().ieta(), tp.id().iphi(), tp.SOI_compressedEt(), tp.sample(0).raw()>>13);
-    }
-  }
-  // Layer 1 unpacker stores HF TPs separate from rest of HCAL
-  for ( const auto& tp : *hfTPsRecd ) {
-    // Zero-suppress (if not already done before collection was saved)
-    if ( tp.SOI_compressedEt() > 0 ) {
-      hcalRecdSet.emplace(tp.id().ieta(), tp.id().iphi(), tp.SOI_compressedEt(), tp.sample(0).raw()>>13);
-    }
-    if ( ((tp.sample(0).raw()>>13) & 0b11) > 0 ) {
-      // We will use this later to check if a mismatch is from masked link/tower
-      // Sets are nice for this since find is O(log(n))
-      hcalMasked.emplace(tp.id().ieta(), tp.id().iphi(), 0);
     }
   }
 

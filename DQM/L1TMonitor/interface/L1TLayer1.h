@@ -42,7 +42,6 @@ class L1TLayer1 : public DQMEDAnalyzer {
     std::string ecalTPSourceRecdLabel_;
     edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceRecd_;
     std::string hcalTPSourceRecdLabel_;
-    edm::EDGetTokenT<HcalTrigPrimDigiCollection> hfTPSourceRecd_;
     edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceSent_;
     std::string ecalTPSourceSentLabel_;
     edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceSent_;
