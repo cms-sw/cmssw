@@ -107,6 +107,9 @@ public:
   /// Return alignment errors, sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const;
 
+  const TrackerTopology* trackerTopology_;
+  const TrackerTopology* trackerTopology() const { return trackerTopology_; };
+
 private:
 
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;

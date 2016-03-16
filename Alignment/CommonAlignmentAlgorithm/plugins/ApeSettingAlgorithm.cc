@@ -32,6 +32,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h" 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
