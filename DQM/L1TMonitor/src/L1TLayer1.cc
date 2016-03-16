@@ -24,8 +24,8 @@ namespace {
   const float TPETAMAXHCAL = 41.5;
 
   const unsigned int TPGPHIBINS = 72;
-  const float TPGPHIMIN = -0.5;
-  const float TPGPHIMAX = 71.5;
+  const float TPGPHIMIN = 0.5;
+  const float TPGPHIMAX = 72.5;
 
   const unsigned int TPGEtbins = 255;
   const float TPGEtMIN = 0.0;
