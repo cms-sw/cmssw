@@ -347,6 +347,54 @@ bool HitPattern::hasValidHitInFirstPixelEndcap() const
     return false;
 }
 
+bool HitPattern::hasValidHitInSecondPixelBarrel() const
+{
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 2)
+	&& validHitFilter(pattern)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HitPattern::hasValidHitInSecondPixelEndcap() const
+{
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 2)
+	&& validHitFilter(pattern)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HitPattern::hasValidHitInThirdPixelBarrel() const
+{
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 3)
+	&& validHitFilter(pattern)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HitPattern::hasValidHitInThirdPixelEndcap() const
+{
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 3)
+	&& validHitFilter(pattern)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {
     bool hasMono[SubstrMask + 1][LayerMask + 1];
