@@ -111,12 +111,14 @@ namespace l1t {
 	// Unpack the SP Output Data Record
 	///////////////////////////////////
 
-	SP_.set_phi_full_int   ( GetHexBits(SP1a,  0, 11) );
+	SP_.set_phi_local_int  ( GetHexBits(SP1a,  0, 11) );
+	SP_.set_phi_global     ( SP_.Phi_local(), (res->at(iOut)).GetEventHeader().Sector() );
 	SP_.set_vc             ( GetHexBits(SP1a, 12, 12) );
 	SP_.set_c              ( GetHexBits(SP1a, 13, 13) );
 	SP_.set_hl             ( GetHexBits(SP1a, 14, 14) );
 
 	SP_.set_phi_GMT_int    ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
+	SP_.set_phi_GMT_global ( SP_.Phi_GMT(), (res->at(iOut)).GetEventHeader().Sector() );
 	mu_.setHwPhi           ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
 	SP_.set_bc0            ( GetHexBits(SP1b, 12, 12) );
 	SP_.set_se             ( GetHexBits(SP1b, 13, 13) );
