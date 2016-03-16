@@ -5,6 +5,9 @@
 <use   name="DQMServices/Core"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="CalibTracker/Records"/>
+<use   name="Alignment/TrackerAlignment"/>
+<use   name="CondFormats/GeometryObjects"/>
+
 <export>
   <lib   name="1"/>
 </export>
