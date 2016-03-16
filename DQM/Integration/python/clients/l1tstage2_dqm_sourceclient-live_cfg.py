@@ -9,10 +9,10 @@ process = cms.Process("DQM")
 # Event Source
 #
 # for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+#process.load("DQM.Integration.config.inputsource_cfi")
 #
 # for testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
+process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
@@ -23,13 +23,13 @@ process.dqmSaver.tag = 'L1T2016'
 #
 #
 # references needed
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
+#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 # Condition for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -52,11 +52,13 @@ process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
 process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
-process.stage2UnpackPath = cms.Path(process.caloStage2Digis +
-                                    process.gmtStage2Digis +
+process.stage2UnpackPath = cms.Path(#process.caloStage2Digis +
+                                    #process.gmtStage2Digis +
                                     process.emtfStage2Digis)
 
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
+process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
+process.l1tStage2online.remove(process.l1tStage2mGMT)
 
 process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
@@ -65,11 +67,11 @@ process.dqmEndPath = cms.EndPath(
                                  process.dqmSaver
                                  )
 
-process.schedule = cms.Schedule(process.rawToDigiPath,
+process.schedule = cms.Schedule(#process.rawToDigiPath,
                                 process.stage2UnpackPath,
                                 process.l1tMonitorPath,
                                 #process.l1tMonitorClientPath,
-                                process.l1tMonitorEndPath,
+                                #process.l1tMonitorEndPath,
                                 #process.l1tMonitorClientEndPath,
                                 process.dqmEndPath
                                 )

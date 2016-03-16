@@ -21,14 +21,14 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 512, 0, 512);
   emtfTrackPt->setAxisTitle("Track p_{T} [GeV]", 1);
 
-  emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 460, -230, 230);
+  emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
   emtfTrackEta->setAxisTitle("Track #eta", 1);
 
   emtfTrackPhi = ibooker.book1D("emtfTrackPhi", "EMTF Track #phi", 116, -16, 100);
   emtfTrackPhi->setAxisTitle("Track #phi", 1);
 
-  emtfTrackPhiFull = ibooker.book1D("emtfTrackPhiFull", "EMTF Full Precision Track #phi", 4096, 0, 4096);
-  emtfTrackPhiFull->setAxisTitle("Full Precision Track #phi", 1);
+  emtfTrackPhiFull = ibooker.book1D("emtfTrackPhiFull", "EMTF Full Precision Track #phi", 1, 0, 1);
+
 
   emtfTrackBX = ibooker.book1D("emtfTrackBX", "EMTF Track Bunch Crossings", 4, 0, 4);
   emtfTrackBX->setAxisTitle("Track BX", 1);
@@ -52,7 +52,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       emtfTrackPt->Fill(itSP->Pt());
       emtfTrackEta->Fill(itSP->Eta_GMT());
       emtfTrackPhi->Fill(itSP->Phi_GMT());
-      emtfTrackPhiFull->Fill(itSP->Phi_full());
       nTracks++;
     }
   }

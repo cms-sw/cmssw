@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(
-        "file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root",
+    'root://eoscms//store/express/Commissioning2016/ExpressCosmics/FEVT/Express-v1/000/264/593/00000/E8F68B40-0ED2-E511-90DB-02163E0145B3.root',
+#        "file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root",
 #        "/store/data/Commissioning2014/Cosmics/RAW//v3/000/224/380/00000/E05943D1-1227-E411-BB8E-02163E00F0C4.root"
 #    "/store/data/Commissioning2014/Cosmics/RAW/v3/000/224/380/00000/68FDADE5-1227-E411-8AA6-02163E00A10C.root"
         )
