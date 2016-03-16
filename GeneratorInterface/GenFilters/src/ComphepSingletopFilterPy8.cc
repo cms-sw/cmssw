@@ -92,7 +92,6 @@ vector<const GenParticle *> vgp_b_t;
 //Run through all particles in myEvt, if lepton found saves it gp_clep
     for (GenEvent::particle_const_iterator it = myEvt->particles_begin(); it != myEvt->particles_end(); ++it)
    {
-       cout <<"###  Filter Start 1 ###"<< abs((*it)->status()) <<endl;
     if (abs((*it)->status()) == hardLep) 
       {
             int abs_id = abs((*it)->pdg_id());//11=e, -11=E, 13=mu, -13=Mu, 15=l(tau), -15=L
