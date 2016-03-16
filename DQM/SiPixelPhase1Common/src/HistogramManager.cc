@@ -49,7 +49,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup, iConfig);
   }
-  iBooker.setCurrentFolder(topFolderName);
 
   // TODO: this should go into GeometryInterface?
   edm::ESHandle<TrackerGeometry> tg;
@@ -66,6 +65,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       };
       auto dimensions = this->dimensions;
       std::stringstream name(this->name);
+      std::stringstream dir("");
       std::stringstream title(this->title);
       std::stringstream xlabel(this->xlabel);
       std::stringstream ylabel(this->ylabel);
@@ -75,8 +75,16 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	  //TODO: change labels, dimensionality, range, colums as fits
 	}
       }
+
       AbstractHistogram& histo = t[significantvalues];
       if (histo.me) continue;
+
+      for (auto c : s.steps[0].columns) {
+	dir << c << "_" << std::hex << significantvalues[c] << "/";
+      }
+
+      iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
+
       if (dimensions == 1) {
 	title << ";" << xlabel.str();
       	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), 100, 0.0, 300.0);

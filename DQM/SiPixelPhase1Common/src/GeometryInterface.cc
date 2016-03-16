@@ -70,13 +70,14 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
     uint32_t variableBase;
     uint32_t variableMask;
     Alignable* currenParent;
+    std::set<uint32_t> examples; // This should go away once the masks work.
   };
 
   std::map<align::StructureType, BitInfo> infos;
 
   struct {
     void traverseAlignables(Alignable* compositeAlignable, std::map<align::StructureType, BitInfo>& infos) {
-      std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << "\n";
+      //std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << "\n";
 	
       auto alignable = compositeAlignable;
       auto& info = infos[alignable->alignableObjectId()];
@@ -90,6 +91,7 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	auto& info = infos[alignable->alignableObjectId()];
 	// ^ gives changed bits, ~ unchanged, & to collect all always  unchanged
 	info.characteristicMask &= ~(info.characteristicBits ^ compositeAlignable->id());
+	info.examples.insert(compositeAlignable->id());
       }
       // variable mask must be local to the hierarchy
       if (info.currenParent != alignable->mother() || !alignable->mother()) {
@@ -97,7 +99,7 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	info.variableBase = alignable->id();
       } else {
 	// ^ gives changed bits, | to collect all ever changed
-	info.variableMask |= info.variableBase ^ alignable->id();
+	info.variableMask |= info.variableBase ^ compositeAlignable->id();
       }
 
       for (auto* alignable : compositeAlignable->components()) {
@@ -114,20 +116,33 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
   for (auto el : infos) {
     auto info = el.second;
     auto type = AlignableObjectId::idToString(el.first);
-    // since we did not update the characteristic for all children,
-    // we have false mask bits in the lsbs.
-    // We assume a left-to right ordererd hierarchy ad kill the
-    // characteristic bits from the left.
-    // +1 flips all bits up to (including) the first 0 from the right.
-    //info.characteristicMask &= (info.characteristicMask + 1);
     // the characteristicBits that are masked out don't matter,
     // to normalize we set them to 0.
     info.characteristicBits &= info.characteristicMask;
 
-    std::cout << std::hex << std::setfill('0') << std::setw(8)
-              << "+++ Type " << info.characteristicBits << " "
-                                  << info.characteristicMask << " "
-                                  << info.variableMask << " " << type << "\n";
+    //std::cout << std::hex << std::setfill('0') << std::setw(8)
+              //<< "+++ Type " << info.characteristicBits << " "
+                                  //<< info.characteristicMask << " "
+                                  //<< info.variableMask << " " << type << "\n";
+    extractors.insert(std::make_pair(
+      type,
+      [info] (InterestingQuantities const& iq) {
+	//auto it = info.examples.find(iq.sourceModule.rawId());
+	//if (it == info.examples.end()) {
+	  //return Value(UNDEFINED);
+	//} else {
+	  //return Value(std::distance(info.examples.begin(), it));
+	//}
+	uint32_t id = iq.sourceModule.rawId();
+	if ((id & info.characteristicMask) == (info.characteristicBits & info.characteristicMask)) {
+	  uint32_t pos = id & info.variableMask;
+	  return Value(pos); // TODO: shift out zreo lsbs
+	} else {
+	  return Value(UNDEFINED);
+	}
+      })
+    );
+
   }
   delete trackerAlignables;
 }

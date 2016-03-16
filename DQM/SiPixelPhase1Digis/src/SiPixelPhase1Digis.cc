@@ -43,7 +43,10 @@ void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run co
   histoman.setXlabel("adc readout");
   histoman.setDimensions(1);
   histoman.addSpec()
-    .groupBy("")
+    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
+    .save();
+  histoman.addSpec()
+    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
     .save();
   histoman.book(iBooker, iSetup);
 }
