@@ -38,8 +38,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #   stage-2 changes only if needed
     if ("Fake" in menuType):
         return process
-#
-    _debug = False
+
+#    _debug = False
 #
 #   special case
 #    for module in filters_by_type(process,"HLTL1TSeed"):
@@ -140,33 +140,33 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #    if hasattr(process,'hltRegionalTowerForEgamma'):
 #        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1NonIsoCand',cms.InputTag('hltCaloStage2Digis:EGamma'))
 #        setattr(getattr(process,'hltRegionalTowerForEgamma'),'L1IsoCand'   ,cms.InputTag('hltCaloStage2Digis:EGamma'))
-
+#
 #   replace remaining l1extra modules with filter returning 'false'
-    badTypes = (
-        'HLTLevel1Activity',
-        )
-    if _debug:
-        print "# Unconverted module types: ",badTypes
-    badModules = [ ]
-    for badType in badTypes:
-        if _debug:
-            print '## Unconverted module type: ',badType
-        for module in analyzers_by_type(process,badType):
-            label = module._Labelable__label
-            badModules += [label]
-            if _debug:
-                print '### analyzer label: ',label
-        for module in filters_by_type(process,badType):
-            label = module._Labelable__label
-            badModules += [label]
-            if _debug:
-                print '### filter   label: ',label
-        for module in producers_by_type(process,badType):
-            label = module._Labelable__label
-            badModules += [label]
-            if _debug:
-                print '### producer label: ',label
-    for label in badModules:
-        setattr(process,label,cms.EDFilter("HLTBool",result=cms.bool(False)))
+#    badTypes = (
+#        'HLTLevel1Activity',
+#        )
+#    if _debug:
+#        print "# Unconverted module types: ",badTypes
+#    badModules = [ ]
+#    for badType in badTypes:
+#        if _debug:
+#            print '## Unconverted module type: ',badType
+#        for module in analyzers_by_type(process,badType):
+#            label = module._Labelable__label
+#            badModules += [label]
+#            if _debug:
+#                print '### analyzer label: ',label
+#        for module in filters_by_type(process,badType):
+#            label = module._Labelable__label
+#            badModules += [label]
+#            if _debug:
+#                print '### filter   label: ',label
+#        for module in producers_by_type(process,badType):
+#            label = module._Labelable__label
+#            badModules += [label]
+#            if _debug:
+#                print '### producer label: ',label
+#    for label in badModules:
+#        setattr(process,label,cms.EDFilter("HLTBool",result=cms.bool(False)))
 
     return process
