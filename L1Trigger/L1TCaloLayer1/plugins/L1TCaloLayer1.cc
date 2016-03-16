@@ -81,6 +81,8 @@ private:
   std::vector< std::vector< std::vector < uint32_t > > > hcalLUT;
   std::vector< std::vector< uint32_t > > hfLUT;
 
+  std::vector< UCTTower* > twrList;
+
   bool useLSB;
   bool useCalib;
   bool useECALLUT;
@@ -121,6 +123,19 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
 {
   produces<CaloTowerBxCollection>();
   layer1 = new UCTLayer1;
+  vector<UCTCrate*> crates = layer1->getCrates();
+  for(uint32_t crt = 0; crt < crates.size(); crt++) {
+    vector<UCTCard*> cards = crates[crt]->getCards();
+    for(uint32_t crd = 0; crd < cards.size(); crd++) {
+      vector<UCTRegion*> regions = cards[crd]->getRegions();
+      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
+	vector<UCTTower*> towers = regions[rgn]->getTowers();
+	for(uint32_t twr = 0; twr < towers.size(); twr++) {
+	  twrList.push_back(towers[twr]);
+	}
+      }
+    }
+  }
 }
 
 L1TCaloLayer1::~L1TCaloLayer1() {
@@ -214,30 +229,18 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   towersColl->resize(theBX, CaloTools::caloTowerHashMax()+1);
   
-  vector<UCTCrate*> crates = layer1->getCrates();
-  for(uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for(uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	vector<UCTTower*> towers = regions[rgn]->getTowers();
-	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  CaloTower caloTower;
-	  caloTower.setHwPt(towers[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEtRatio(towers[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
-	  caloTower.setHwQual(towers[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEta(towers[twr]->caloEta());         // caloEta = 1-28 and 30-41
-	  caloTower.setHwPhi(towers[twr]->caloPhi());         // caloPhi = 1-72
-	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
-	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
-
-	  unsigned hash = CaloTools::caloTowerHash(towers[twr]->caloEta(), towers[twr]->caloPhi());
-	  //	  towersColl->push_back(theBX, caloTower);
-	  towersColl->set(theBX, hash, caloTower);
-	}
-      }
-    }
-  }  
+  for(uint32_t twr = 0; twr < twrList.size(); twr++) {
+    CaloTower caloTower;
+    caloTower.setHwPt(twrList[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
+    caloTower.setHwEtRatio(twrList[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
+    caloTower.setHwQual(twrList[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
+    caloTower.setHwEta(twrList[twr]->caloEta());         // caloEta = 1-28 and 30-41
+    caloTower.setHwPhi(twrList[twr]->caloPhi());         // caloPhi = 1-72
+    caloTower.setHwEtEm(twrList[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
+    caloTower.setHwEtHad(twrList[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
+    unsigned hash = CaloTools::caloTowerHash(twrList[twr]->caloEta(), twrList[twr]->caloPhi());
+    towersColl->set(theBX, hash, caloTower);
+  }
 
   iEvent.put(towersColl);
 
@@ -263,24 +266,10 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
-  vector<UCTCrate*> crates = layer1->getCrates();
-  for(uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for(uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	vector<UCTTower*> towers = regions[rgn]->getTowers();
-	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(towers[twr]->getRegion() < NRegionsInCard) {
-	    towers[twr]->setECALLUT(&ecalLUT);
-	    towers[twr]->setHCALLUT(&hcalLUT);
-	  }
-	  else {
-	    towers[twr]->setHFLUT(&hfLUT);
-	  }
-	}
-      }
-    }
+  for(uint32_t twr = 0; twr < twrList.size(); twr++) {
+    twrList[twr]->setECALLUT(&ecalLUT);
+    twrList[twr]->setHCALLUT(&hcalLUT);
+    twrList[twr]->setHFLUT(&hfLUT);
   }
 }
 
