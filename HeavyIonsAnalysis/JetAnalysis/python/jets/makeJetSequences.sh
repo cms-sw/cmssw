@@ -43,7 +43,7 @@ do
                         match=""
                         eventinfotag="generator"
 			jetcorrectionlevels="\'L2Relative\',\'L3Absolute\'"
-                        echo "" > $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
+                        #echo "" > $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
 
                         if [ $system == "pp" ]; then
                             #corrlabel="_generalTracks"
@@ -76,29 +76,29 @@ do
 			if [ $sub == "CsSoftDrop" ] || [ $sub == "CsFilter" ]; then
 			    doSubJets="True"
 			fi
-			
+
                         cat templateSequence_bTag_cff.py.txt \
-                            | sed "s/ALGO_/$algo/g" \
-                            | sed "s/SUB_/$subt/g" \
-                            | sed "s/RADIUS_/$radius/g" \
-                            | sed "s/OBJECT_/$object/g" \
-                            | sed "s/SAMPLE_/$sample/g" \
-                            | sed "s/CORRNAME_/$corrname/g" \
-                            | sed "s/MATCHED_/$match/g" \
-                            | sed "s/ISMC/$ismc/g" \
-                            | sed "s/MATCHGENJETS/$matchGenjets/g" \
-                            | sed "s/GENJETS/$genjets/g" \
-                            | sed "s/GENPARTICLES/$genparticles/g" \
-                            | sed "s/PARTONS/$partons/g" \
-                            | sed "s/TRACKS/$tracks/g" \
-                            | sed "s/VERTEX/$vertex/g" \
-                            | sed "s/PARTICLEFLOW/$pflow/g" \
-                            | sed "s/DOMATCH/$domatch/g" \
-                            | sed "s/EVENTINFOTAG/$eventinfotag/g" \
-			    | sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
-			    | sed "s/DOTOWERS_/$doTower/g" \
-			    | sed "s/DOSUBJETS_/$doSubJets/g" \
-				  >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
+                            | sed -e "s/ALGO_/$algo/g" \
+                            -e "s/SUB_/$subt/g" \
+                            -e "s/RADIUS_/$radius/g" \
+                            -e "s/OBJECT_/$object/g" \
+                            -e "s/SAMPLE_/$sample/g" \
+                            -e "s/CORRNAME_/$corrname/g" \
+                            -e "s/MATCHED_/$match/g" \
+                            -e "s/ISMC/$ismc/g" \
+                            -e "s/MATCHGENJETS/$matchGenjets/g" \
+                            -e "s/GENJETS/$genjets/g" \
+                            -e "s/GENPARTICLES/$genparticles/g" \
+                            -e "s/PARTONS/$partons/g" \
+                            -e "s/TRACKS/$tracks/g" \
+                            -e "s/VERTEX/$vertex/g" \
+                            -e "s/PARTICLEFLOW/$pflow/g" \
+                            -e "s/DOMATCH/$domatch/g" \
+                            -e "s/EVENTINFOTAG/$eventinfotag/g" \
+			    -e "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
+			    -e "s/DOTOWERS_/$doTower/g" \
+			    -e "s/DOSUBJETS_/$doSubJets/g" \
+				  > $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
 
 			# skip no sub
 			if [ $sample == "jec" ]; then
