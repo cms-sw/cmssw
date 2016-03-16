@@ -80,7 +80,8 @@ void GoldenPattern::addCount(unsigned int iRefLayer,
   if(phiDistShift<0 ||
      phiDistShift>exp2(OMTFConfiguration::nPdfAddrBits)-1){
     return;
-  }  
+  }
+
   if((int)iLayer==OMTFConfiguration::refToLogicNumber[iRefLayer]) ++meanDistPhiCounts[iLayer][iRefLayer];
   ++pdfAllRef[iLayer][iRefLayer][phiDistShift];
 }
@@ -167,7 +168,7 @@ void GoldenPattern::normalise(){
   for (unsigned int iRefLayer=0;iRefLayer<meanDistPhi[0].size();++iRefLayer){
     for (unsigned int iLayer=0;iLayer<meanDistPhi.size();++iLayer){   
       if(meanDistPhiCounts.size() && meanDistPhiCounts[iLayer][iRefLayer]){
-	if (meanDistPhiCounts[iLayer][iRefLayer]<1000) 	meanDistPhi[iLayer][iRefLayer] = 0;
+	if(meanDistPhiCounts[iLayer][iRefLayer]<1000) 	meanDistPhi[iLayer][iRefLayer] = 0;
 	else meanDistPhi[iLayer][iRefLayer] = rint((float)meanDistPhi[iLayer][iRefLayer]/meanDistPhiCounts[iLayer][iRefLayer]);      
       }
     }

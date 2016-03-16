@@ -48,9 +48,9 @@ using namespace std;
 //----------------
 
 L1MuBMWedgeSorter::L1MuBMWedgeSorter(const L1MuBMTrackFinder& tf, int id) :
-      m_tf(tf), m_wsid(id), m_TrackCands(2) {
+      m_tf(tf), m_wsid(id), m_TrackCands(3) {
 
-  m_TrackCands.reserve(2);
+  m_TrackCands.reserve(3);
 
 }
 
