@@ -120,7 +120,7 @@ import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return (isinstance(value,type(False)) or isinstance(value(type(True))))
+        return (isinstance(value,type(False)) or isinstance(value,type(True)))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
