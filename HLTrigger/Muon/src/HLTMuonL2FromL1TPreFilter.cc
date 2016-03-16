@@ -127,7 +127,7 @@ HLTMuonL2FromL1TPreFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("MinDxySig",-1.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
-  descriptions.add("hltMuonL2PreFilter",desc);
+  descriptions.add("hltMuonL2FromL1TPreFilter",desc);
 }
 
 //
