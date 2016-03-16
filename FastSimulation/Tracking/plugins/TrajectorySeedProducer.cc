@@ -51,7 +51,8 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
-
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
@@ -82,7 +83,8 @@ private:
 
     bool skipSeedFinderSelector;
 
-    std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
+  std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
+  std::unique_ptr<MultiHitGeneratorFromPairAndLayers> MultiHitGenerator;
 public:
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
@@ -102,6 +104,12 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 	auto iC = consumesCollector();
 	pixelTripletGenerator.reset(HitTripletGeneratorFromPairAndLayersFactory::get()->create(tripletConfig.getParameter<std::string>("ComponentName"),tripletConfig,iC));
     }
+    if(conf.exists("MultiHitGeneratorFactory"))
+      {
+	const edm::ParameterSet & tripletConfig = conf.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
+        //auto iC = consumesCollector();
+        MultiHitGenerator.reset(MultiHitGeneratorFromPairAndLayersFactory::get()->create(tripletConfig.getParameter<std::string>("ComponentName"),tripletConfig));
+      }
     produces<TrajectorySeedCollection>();
 
     // consumes
@@ -183,11 +191,12 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // pointers for selector function
     TrackingRegion * selectedTrackingRegion = 0;
     auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
+    auto MultiHitGeneratorPtr = MultiHitGenerator.get();
     std::unique_ptr<HitDoublets> hitDoublets;
        
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&hitDoublets](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
+    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr,&hitDoublets](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
     {
 	// criteria for hit pairs
 	// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
@@ -209,16 +218,25 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    return hitDoublets->size()!=0;
 	}
 	
-	else if(pixelTripletGeneratorPtr && hits.size()==3 && hitDoublets->size()!=0)
+	else if((pixelTripletGeneratorPtr||MultiHitGeneratorPtr)&& hits.size()==3 && hitDoublets->size()!=0)
 	{
-	    OrderedHitTriplets Tripletresult;
+	    
 	    const FastTrackerRecHit * thirdHit = hits[2];
 	    const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
 	    std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
 	    std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
 	    const RecHitsSortedInPhi* thm=new RecHitsSortedInPhi (thirdHits, selectedTrackingRegion->origin(), thirdLayer);
-	    pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
-	    return Tripletresult.size()!=0;
+	    if(pixelTripletGeneratorPtr){
+	      OrderedHitTriplets Tripletresult;
+	      pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
+	      return Tripletresult.size()!=0;
+	    }
+	    if(MultiHitGeneratorPtr){
+	      OrderedMultiHits  Tripletresult;
+	      MultiHitGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
+	      return Tripletresult.size()!=0;
+	    }
+	    return true;
 	}
 	
 	return true;

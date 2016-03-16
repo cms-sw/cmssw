@@ -14,8 +14,9 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
     layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet,
     hitMasks = cms.InputTag("pixelLessStepMasks"),
+MultiHitGeneratorFactory = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet
 )
-
+pixelLessStepSeeds.MultiHitGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
