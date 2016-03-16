@@ -1,30 +1,38 @@
 #ifndef Alignment_TrackerAlignment_AlignableTracker_H
 #define Alignment_TrackerAlignment_AlignableTracker_H
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+// Original Author:  ?
+//     Last Update:  Max Stark
+//            Date:  Mon, 15 Feb 2016 09:32:12 CET
 
+// alignment
+#include "Alignment/CommonAlignment/interface/AlignableMap.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Alignment/CommonAlignment/interface/AlignSetup.h"
-#include "Alignment/TrackerAlignment/interface/TrackerCounters.h"
 
-class GeometricDet;
 class TrackerGeometry;
 class TrackerTopology;
 
 
-class AlignableTracker: public AlignableComposite 
-{
+
+class AlignableTracker : public AlignableComposite {
+
+  /// grant access for the tracker-alignables builder
+  friend class AlignableTrackerBuilder;
 
 public:
-  
-  /// Constructor (builds the full hierarchy)
-  explicit AlignableTracker(const TrackerGeometry *tracker, const TrackerTopology *tTopo);
+
+  AlignableTracker(const TrackerGeometry*, const TrackerTopology*);
+  virtual ~AlignableTracker() { /* TODO: delete all tracker-alignables? */ };
 
   /// Return alignables of subdet and hierarchy level determined by name
   /// as defined in tracker part of Alignment/CommonAlignment/StructureType.h
   Alignables& subStructures(const std::string &subStructName) {
-    return alignableLists_.find(subStructName);
+    return alignableMap.find(subStructName);
   }
+
+  // TODO: Are these methods still used? It seems that only the above method
+  //       is used; anyways, these methods will not work after the geometry-
+  //       upgrade, because the names of some structures will change.
 
   /// Return TOB half barrels
   Alignables& outerHalfBarrels() { return this->subStructures("TOBHalfBarrel");}
@@ -91,38 +99,19 @@ public:
   /// Return pixel endcap layers
   Alignables& pixelEndcapLayers() { return this->subStructures("TPEHalfDisk");}
 
+
+
   /// Return alignments, sorted by DetId
   Alignments* alignments() const;
 
   /// Return alignment errors, sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const;
 
-  /// Returns tracker topology
-  const TrackerTopology* trackerTopology() const { return tTopo_;}
-  private:
-
-  /// Build a barrel for a given sub-detector (TPB, TIB, TOB).
-  void buildBarrel( const std::string& subDet );  // prefix for sub-detector 
-  
-  /// Create list of lower-level modules
-  void detsToAlignables(const TrackingGeometry::DetContainer& dets,
-                        const std::string& moduleName );
-
-  void buildTPB();
-  void buildTPE();
-  void buildTIB();
-  void buildTID();
-  void buildTOB();
-  void buildTEC();
-  void buildTRK();
+private:
 
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
 
-  AlignSetup<Alignables> alignableLists_; //< kind of map of lists of alignables
-
-  TrackerCounters tkCounters_;
-  
-  const TrackerTopology* tTopo_;
+  AlignableMap alignableMap;
 
 };
 
