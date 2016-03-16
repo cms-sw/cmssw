@@ -123,7 +123,7 @@ HLTMuonDimuonL2FromL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  descriptions.add("hltMuonDimuonL2Filter", desc);
+  descriptions.add("hltMuonDimuonL2FromL1TFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
