@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('SIMDIGI')
+process = cms.Process('SIMDIGIRECO')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,7 +9,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimG4CMS.TestBeam.HGCalTB160XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
@@ -22,8 +22,9 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('SimG4CMS.TestBeam.DigiHGCalTB160_cff')
-process.load('SimG4CMS.TestBeam.HGCalTBAnalyzer_cfi')
+process.load('SimG4CMS.HGCalTestBeam.DigiHGCalTB160_cff')
+process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoSequence_cff')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
@@ -50,10 +51,10 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
 #    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string('file:gensimdigi.root'),
+    fileName = cms.untracked.string('file:gensimdigireco.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI')
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RECO')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
@@ -62,7 +63,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSimDigi.root')
+                                   fileName = cms.string('TBGenSimDigiReco.root')
                                    )
 
 # Other statements
@@ -87,19 +88,20 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
 )
 process.VtxSmeared.MeanZ = 10
 process.VtxSmeared.SigmaZ = 0
-process.HGCalTBAnalyzer.DoRecHits = False
+process.HGCalUncalibRecHit.HGCHEFConfig.isSiFE = False
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.mix)
+process.reconstruction_step = cms.Path(process.HGCalLocalRecoSequence)
 process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.analysis_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.reconstruction_step,process.analysis_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
