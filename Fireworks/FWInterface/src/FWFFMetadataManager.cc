@@ -1,7 +1,7 @@
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
@@ -16,12 +16,12 @@ bool
 FWFFMetadataManager::hasModuleLabel(std::string& iModuleLabel)
 {
    if (m_event) {
-      std::vector<edm::Provenance const *> provenances;
-      m_event->getAllProvenance(provenances);
+      std::vector<edm::StableProvenance const *> provenances;
+      m_event->getAllStableProvenance(provenances);
 
       for (size_t pi = 0, pe = provenances.size(); pi != pe; ++pi)
       {
-         edm::Provenance const *provenance = provenances[pi];
+         edm::StableProvenance const *provenance = provenances[pi];
          if (provenance && (provenance->branchDescription().moduleLabel() == iModuleLabel))
             return true;
       }
@@ -44,20 +44,17 @@ FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
 
    typedef std::set<std::string> Purposes;
    Purposes purposes;
-   std::vector<edm::Provenance const *> provenances;
+   std::vector<edm::StableProvenance const *> provenances;
 
-   event.getAllProvenance(provenances);
+   event.getAllStableProvenance(provenances);
 
    for (size_t pi = 0, pe = provenances.size(); pi != pe; ++pi)
    {
-      edm::Provenance const *provenance = provenances[pi];
+      edm::StableProvenance const *provenance = provenances[pi];
       if (!provenance)
          continue;
       Data d;
       const edm::BranchDescription &desc = provenance->branchDescription();
-
-      if (!desc.present())
-         continue;
 
       const std::vector<FWRepresentationInfo>& infos
          = m_typeAndReps->representationsForType(desc.fullClassName());

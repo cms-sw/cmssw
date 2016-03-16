@@ -774,6 +774,21 @@ namespace edm {
     }
   }
 
+  // This one is also mostly for test printout purposes
+  // No attempt to trigger on demand execution
+  // Skips provenance for dropped branches.
+  void
+  Principal::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    provenances.clear();
+    for(auto const& productResolver : *this) {
+      if(productResolver->singleProduct() && !productResolver->branchDescription().isAlias()) {
+        if(productResolver->stableProvenance()->branchDescription().present()) {
+           provenances.push_back(productResolver->stableProvenance());
+        }
+      }
+    }
+  }
+ 
   void
   Principal::recombine(Principal& other, std::vector<BranchID> const& bids) {
     for(auto& prod : bids) {
