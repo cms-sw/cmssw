@@ -4,14 +4,15 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
+//#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
+#include "L1TObjectCollections.h"
 
 namespace l1t {
    namespace stage2 {
-      class GMTCollections : public UnpackerCollections {
+      class GMTCollections : public L1TObjectCollections {
          public:
             GMTCollections(edm::Event& e) :
-               UnpackerCollections(e),
+               L1TObjectCollections(e),
                regionalMuonCandsBMTF_(new RegionalMuonCandBxCollection()),
                regionalMuonCandsOMTF_(new RegionalMuonCandBxCollection()),
                regionalMuonCandsEMTF_(new RegionalMuonCandBxCollection()),
