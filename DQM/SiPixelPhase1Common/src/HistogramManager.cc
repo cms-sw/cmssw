@@ -98,3 +98,13 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
   }
 }
 
+void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup) {
+  std::cout << "+++ HistogramManager: Step2 online\n";
+}
+
+void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
+  std::cout << "+++ HistogramManager: Step2 offline\n";
+
+}
+
+
