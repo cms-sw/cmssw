@@ -175,6 +175,11 @@ void GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case l1t::CondCorrelation: {
+                myCout << "  Condition category: " << "CondCorrelation"  << std::endl;
+            }
+
+            break;	    
         case l1t::CondExternal: {
                 myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }

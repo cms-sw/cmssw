@@ -66,8 +66,8 @@ public:
     inline void setETMScales(ScaleParameters& scales) { m_etmScales = scales; }
     inline void setHTMScales(ScaleParameters& scales) { m_htmScales = scales; }
     
-    virtual void setLUT_CaloMuEta(std::string lutName, std::vector<long long> lut); 
-    virtual void setLUT_CaloMuPhi(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_CalMuEta(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut);
     virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut);
     virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut); 
     virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut);
@@ -76,7 +76,17 @@ public:
     
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
+
+    long long getLUT_CalMuEta(std::string lutName, int element) const;
+    long long getLUT_CalMuPhi(std::string lutName, int element) const;
+    long long getLUT_DeltaEta(std::string lutName, int element) const;
+    long long getLUT_DeltaPhi(std::string lutName, int element) const;
+    long long getLUT_Pt(std::string lutName, int element) const;
+    long long getLUT_Cosh(std::string lutName, int element) const;
+    long long getLUT_Cos(std::string lutName, int element) const;
     
+    virtual void dumpAllLUTs(std::ostream& myCout) const;
+    virtual void dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const;
     virtual void print(std::ostream& myCout) const;
     virtual void printScale(ScaleParameters scale, std::ostream& myCout) const;
 

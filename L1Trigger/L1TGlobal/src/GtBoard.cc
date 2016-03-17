@@ -84,11 +84,6 @@ l1t::GtBoard::GtBoard() :
     m_uGtBoardNumber = 0;
     m_uGtFinalBoard = true;
    
-/*   Do we need this?
-    // pointer to conversion - actually done in the event loop (cached)
-    m_gtEtaPhiConversions = new L1GtEtaPhiConversions();
-    m_gtEtaPhiConversions->setVerbosity(m_verbosity);
-*/
 
 }
 
@@ -137,17 +132,7 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
   
   LogDebug("L1TGlobal") << "\t Initializing Board with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_ << std::endl;
 
-  //m_candL1Mu->resizeAll(nrL1Mu);
-
-    // FIXME move from bitset to std::vector<bool> to be able to use
-    // numberPhysTriggers from EventSetup
-
-    //m_gtlAlgorithmOR.reserve(numberPhysTriggers);
-    //m_gtlAlgorithmOR.assign(numberPhysTriggers, false);
-
-    //m_gtlDecisionWord.reserve(numberPhysTriggers);
-    //m_gtlDecisionWord.assign(numberPhysTriggers, false);
-
+ 
 }
 
 
@@ -469,67 +454,6 @@ void l1t::GtBoard::runGTL(
 			   << "\nSize corrSums " << corrEnergySum.size() << std::endl;
     
 
-    // conversion needed for correlation conditions
-    // done in the condition loop when the first correlation template is in the menu
-    bool convertScale = false;
-
-/* BLW Comment out 
-    // get / update the calorimeter geometry from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1CaloGeometryCacheID =
-            evSetup.get<L1CaloGeometryRecord>().cacheIdentifier();
-
-
-    if (m_l1CaloGeometryCacheID != l1CaloGeometryCacheID) {
-
-        edm::ESHandle<L1CaloGeometry> l1CaloGeometry;
-        evSetup.get<L1CaloGeometryRecord>().get(l1CaloGeometry) ;
-        m_l1CaloGeometry =  l1CaloGeometry.product();
-
-        m_l1CaloGeometryCacheID = l1CaloGeometryCacheID;
-        convertScale = true;
-
-    }
-
-    // get / update the eta and phi muon trigger scales from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1MuTriggerScalesCacheID =
-            evSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
-
-    if (m_l1MuTriggerScalesCacheID != l1MuTriggerScalesCacheID) {
-
-        edm::ESHandle< L1MuTriggerScales> l1MuTriggerScales;
-        evSetup.get< L1MuTriggerScalesRcd>().get(l1MuTriggerScales);
-        m_l1MuTriggerScales = l1MuTriggerScales.product();
-
-        m_l1MuTriggerScalesCacheID = l1MuTriggerScalesCacheID;
-        convertScale = true;
-    }
-*/
-    if (convertScale) {
-
-/*  Comment out for now
-        m_gtEtaPhiConversions->setVerbosity(m_verbosity);
-        m_gtEtaPhiConversions->convertL1Scales(m_l1CaloGeometry,
-                m_l1MuTriggerScales, ifCaloEtaNumberBits, ifMuEtaNumberBits);
-
-        // print the conversions if DEBUG and verbosity enabled
-
-        if (m_verbosity && m_isDebugEnabled) {
-            std::ostringstream myCout;
-            m_gtEtaPhiConversions->print(myCout);
-
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
-        }
-
-        // set convertScale to false to avoid executing the conversion
-        // more than once - in case the scales change it will be set to true
-        // in the cache check
-*/
-        convertScale = false;
-    }
-
-
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // save the results in temporary maps
@@ -569,11 +493,7 @@ void l1t::GtBoard::runGTL(
                             nrL1Mu, ifMuEtaNumberBits);
 
                     muCondition->setVerbosity(m_verbosity);
-                  // BLW Comment out for now
-		  //  muCondition->setGtCorrParDeltaPhiNrBins(
-                  //          (m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2
-                  //                  + 1);
-		  // BLW Need to pass the bx we are working on.
+
                     muCondition->evaluateConditionStoreResult(iBxInEvent);
 
                    // BLW COmment out for now 
@@ -603,11 +523,6 @@ void l1t::GtBoard::runGTL(
 
                     caloCondition->setVerbosity(m_verbosity);
 
-                    // BLW COmment out for Now
-                    //caloCondition->setGtCorrParDeltaPhiNrBins(
-                    //        (m_gtEtaPhiConversions->gtObjectNrBinsPhi(
-                    //                ((itCond->second)->objectType())[0])) / 2
-                    //                + 1);
                     caloCondition->evaluateConditionStoreResult(iBxInEvent);
                     
 		    // BLW Comment out for now
@@ -687,14 +602,9 @@ void l1t::GtBoard::runGTL(
 		     LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects << std::endl;
 
 
-//BLW		    int cond0EtaBits = 0;
-//		    int cond1EtaBits = 0;
-
 		    switch (cond0Categ) {
 			case CondMuon: {
 			    cond0Condition = &((corrMuon[iChip])[cond0Ind]);
-//			    cond0NrL1Objects = nrL1Mu;
-//BLW			    cond0EtaBits = ifMuEtaNumberBits;
 			}
 			    break;
 			case CondCalo: {
@@ -703,7 +613,6 @@ void l1t::GtBoard::runGTL(
 			    break;
 			case CondEnergySum: {
 			    cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
-//			    cond0NrL1Objects = 1;
 			}
 			    break;
 			default: {
@@ -715,8 +624,6 @@ void l1t::GtBoard::runGTL(
 		    switch (cond1Categ) {
 			case CondMuon: {
 			    cond1Condition = &((corrMuon[iChip])[cond1Ind]);
-//			    cond1NrL1Objects = nrL1Mu;
-//BLW			    cond1EtaBits = ifMuEtaNumberBits;
 			}
 			    break;
 			case CondCalo: {
@@ -725,7 +632,6 @@ void l1t::GtBoard::runGTL(
 			    break;
 			case CondEnergySum: {
 			    cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
-//			    cond1NrL1Objects = 1;
 			}
 			    break;
 			default: {
