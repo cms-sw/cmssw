@@ -1,6 +1,7 @@
 #ifndef DQMOffline_Trigger_HLTMuonMatchAndPlot_H
 #define DQMOffline_Trigger_HLTMuonMatchAndPlot_H
 
+
 /** \class HLTMuonMatchAndPlot
  *  Match reconstructed muons to HLT objects and plot efficiencies.
  *
@@ -63,8 +64,7 @@ class HLTMuonMatchAndPlot
  public:
 
   /// Constructor
-  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,
-                      const std::vector<std::string>&);
+  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,std::string);
 
   // Analyzer Methods
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
@@ -112,7 +112,7 @@ class HLTMuonMatchAndPlot
   std::string triggerLevel_;
   unsigned int cutMinPt_;
   std::string hltPath_;
-  std::vector<std::string> moduleLabels_;
+  std::string moduleLabel_;
   std::map<std::string, MonitorElement *> hists_;
   
   // Selectors

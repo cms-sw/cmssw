@@ -67,7 +67,7 @@ private:
   // Member Variables
   HLTMuonMatchAndPlotContainer plotterContainer_;
   HLTConfigProvider hltConfig_;
-
+  
 };
 
 
@@ -106,11 +106,12 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
   vector<string>::iterator iter = modules.begin();
 
   while (iter != modules.end())
-    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) 
+    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) {
       iter = modules.erase(iter);
+    }
     else
       ++iter;
-
+      
   return modules;
   
 }
@@ -140,11 +141,12 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   
   // Initialize the plotters
   set<string>::iterator iPath;
+  vector<string>::const_iterator ilabel;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
     vector<string> labels = moduleLabels(path);
-    if (labels.size() > 0) {
-      plotterContainer_.addPlotter(pset_, path, moduleLabels(path));
+    for (ilabel = labels.begin(); ilabel != labels.end(); ilabel++) {
+      plotterContainer_.addPlotter(pset_, path, *ilabel);
     }
   }
 

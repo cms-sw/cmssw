@@ -33,14 +33,14 @@ typedef std::vector<std::string> vstring;
 /// Constructor
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset, 
                                          string hltPath, 
-                                         const vector<string>& moduleLabels) :
+                                         string moduleLabel) :
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
   destination_(pset.getUntrackedParameter<string>("destination")),
   requiredTriggers_(pset.getUntrackedParameter<vstring>("requiredTriggers")),
   targetParams_(pset.getParameterSet("targetParams")),
   probeParams_(pset.getParameterSet("probeParams")),
   hltPath_(hltPath),
-  moduleLabels_(moduleLabels),
+  moduleLabel_(moduleLabel),
   hasTargetRecoCuts(targetParams_.exists("recoCuts")),
   hasProbeRecoCuts(probeParams_.exists("recoCuts")),
   targetMuonSelector_(targetParams_.getUntrackedParameter<string>("recoCuts", "")),
@@ -59,8 +59,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   // Get the trigger level.
   triggerLevel_ = "L3";
   TPRegexp levelRegexp("L[1-3]");
-  size_t nModules = moduleLabels_.size();
-  TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
+  //  size_t nModules = moduleLabels_.size();
+  TObjArray * levelArray = levelRegexp.MatchS(moduleLabel_);
   if (levelArray->GetEntriesFast() > 0) {
     triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
   }
@@ -91,7 +91,8 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
   string pathSansSuffix = hltPath_;
   if (hltPath_.rfind("_v") < hltPath_.length())
     pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
-  iBooker.setCurrentFolder(baseDir + pathSansSuffix);
+  iBooker.setCurrentFolder(baseDir + pathSansSuffix + "/" + moduleLabel_);
+  
 
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
@@ -198,14 +199,15 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 
 
   // Throw out this event if it doesn't pass the required triggers.
-  for (size_t i = 0; i < requiredTriggers_.size(); i++) {
-    unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);
-    if (triggerIndex < triggerResults->size() ||
-        !triggerResults->accept(triggerIndex))
-      return;
-  }
-
-
+  // this is not needed anymore rejecting if there is no filter... 
+///  for (size_t i = 0; i < requiredTriggers_.size(); i++) {
+///    unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);
+///    if (triggerIndex < triggerResults->size() ||
+///        !triggerResults->accept(triggerIndex))
+///      return;
+///  }
+  
+  
   // Select objects based on the configuration.
   MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot, hasTargetRecoCuts, targetMuonSelector_, targetD0Cut_, targetZ0Cut_);
   MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot, hasProbeRecoCuts, probeMuonSelector_, probeD0Cut_, probeZ0Cut_);
@@ -480,8 +482,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 {
   if ( !hasTriggerCuts) return TriggerObjectCollection();
 
-  InputTag filterTag(moduleLabels_[moduleLabels_.size() - 1], "", 
-                     hltProcessName_);
+  InputTag filterTag(moduleLabel_, "", hltProcessName_);
   size_t filterIndex = triggerSummary.filterIndex(filterTag);
 
   TriggerObjectCollection selectedObjects;
