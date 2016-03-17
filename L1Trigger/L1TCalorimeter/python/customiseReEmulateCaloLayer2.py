@@ -6,7 +6,7 @@ def reEmulateLayer2(process):
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
     process.load('L1Trigger/L1TCalorimeter/caloStage2Params_HWConfig_cfi')
 
-    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis")
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     
     process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
 
@@ -40,16 +40,16 @@ def hwEmulCompHistos(process):
     process.l1tCaloStage2HwHistos.mpBx = 0
     process.l1tCaloStage2HwHistos.dmxBx = 0
     process.l1tCaloStage2HwHistos.allBx = False
-    process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis")
+    process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     process.l1tCaloStage2HwHistos.clusterToken = cms.InputTag("None")
-    process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "MP")
-    process.l1tCaloStage2HwHistos.mpTauToken = cms.InputTag("caloStage2Digis","MP")
-    process.l1tCaloStage2HwHistos.mpJetToken = cms.InputTag("caloStage2Digis", "MP")
-    process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("caloStage2Digis", "MP")
-    process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis")
-    process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis")
-    process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis")
-    process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis")
+    process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "EGamma")
+    process.l1tCaloStage2HwHistos.mpTauToken = cms.InputTag("caloStage2Digis","Tau")
+    process.l1tCaloStage2HwHistos.mpJetToken = cms.InputTag("caloStage2Digis", "Jet")
+    process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("caloStage2Digis", "EtSum")
+    process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis", "EGamma")
+    process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis", "Tau")
+    process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis", "Jet")
+    process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis", "EtSum")
 
     process.hwEmulHistos = cms.Path(
         process.l1tStage2CaloAnalyzer
@@ -61,7 +61,7 @@ def hwEmulCompHistos(process):
     return process
 
 
-def reEmulateLayer2FatHistos(process):
+def reEmulateLayer2ValHistos(process):
 
     process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
     

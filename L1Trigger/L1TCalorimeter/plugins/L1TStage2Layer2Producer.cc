@@ -182,7 +182,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		    tower->hwEtEm(),
 		    tower->hwEtHad(),
 		    tower->hwEtRatio());
-
+      
       localTowers->at(CaloTools::caloTowerHash(tow.hwEta(),tow.hwPhi())) = tow;
     }
 
