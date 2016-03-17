@@ -20,24 +20,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  histoman(iConfig)
+  SiPixelPhase1Base(iConfig),
+  src_(iConfig.getParameter<edm::InputTag>("src"))
 {
-  srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
-}
-
-SiPixelPhase1Digis::~SiPixelPhase1Digis() {
-
-
-}
-
-void SiPixelPhase1Digis::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup) {
-  std::cout << "++++ Begin run.\n";
-}
-
-
-void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
-  std::cout << "+++++ Booking.\n";
   histoman.setName("adc");
   histoman.setTitle("Digi ADC values");
   histoman.setXlabel("adc readout");
@@ -48,8 +33,13 @@ void SiPixelPhase1Digis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run co
   histoman.addSpec()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
     .save();
-  histoman.book(iBooker, iSetup);
+} 
+
+template<class Consumer>
+void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, Consumer& c) {
+  srcToken_ = c.template consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
+  
 
 void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -67,5 +57,8 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 }
 
-DEFINE_FWK_MODULE(SiPixelPhase1Digis);
+typedef SiPixelPhase1Analyzer<SiPixelPhase1Digis> SiPixelPhase1DigisAnalyzer;
+typedef SiPixelPhase1Harvester<SiPixelPhase1Digis> SiPixelPhase1DigisHarvester;
+DEFINE_FWK_MODULE(SiPixelPhase1DigisAnalyzer);
+DEFINE_FWK_MODULE(SiPixelPhase1DigisHarvester);
 
