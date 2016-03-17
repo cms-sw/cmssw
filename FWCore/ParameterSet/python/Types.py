@@ -120,7 +120,7 @@ import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return (isinstance(value,type(False)) or isinstance(value(type(True))))
+        return (isinstance(value,type(False)) or isinstance(value,type(True)))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
@@ -1246,6 +1246,7 @@ if __name__ == "__main__":
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
+            self.assertRaises(ValueError, lambda: bool("False"))
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
