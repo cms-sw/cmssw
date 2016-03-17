@@ -57,6 +57,7 @@ process.l1tMonitorPath = cms.Path(process.l1tStage2online)
 #process.l1tStage2online.remove(process.l1tLayer1)
 #process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
 #process.l1tStage2online.remove(process.l1tStage2uGMT)
+#process.l1tStage2online.remove(process.l1tStage2uGt)
 #process.l1tStage2online.remove(process.l1tStage2Emtf)
 
 #--------------------------------------------------
@@ -66,6 +67,7 @@ process.stage2UnpackPath = cms.Path(
     process.l1tCaloLayer1Digis +
     process.caloStage2Digis +
     process.gmtStage2Digis +
+    process.gtStage2Digis +
     process.emtfStage2Digis
 )
 
