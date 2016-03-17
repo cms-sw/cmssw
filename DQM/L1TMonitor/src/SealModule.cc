@@ -44,9 +44,6 @@ DEFINE_FWK_MODULE(L1TStage2BMTF);
 #include <DQM/L1TMonitor/interface/L1TStage2EMTF.h>
 DEFINE_FWK_MODULE(L1TStage2EMTF);
 
-#include <DQM/L1TMonitor/interface/L1TStage2uGT.h>
-DEFINE_FWK_MODULE(L1TStage2uGT);
-
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
 
