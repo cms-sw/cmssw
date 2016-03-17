@@ -37,7 +37,7 @@ public:
      auto hitZ = hitPos.z();
      if ( !theRZCompatibility(hitR,hitZ) ) return false;
 
-     auto hitPhi = unsafe_atan2f<7>(hitPos.y(),hitPos.x());
+     auto hitPhi = unsafe_atan2f<9>(hitPos.y(),hitPos.x());
 
      return checkPhi(hitPhi, hitR);
    }
