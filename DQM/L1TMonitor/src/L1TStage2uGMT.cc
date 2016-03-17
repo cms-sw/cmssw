@@ -23,7 +23,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtCharge = ibooker.book1D("ugmtCharge", "uGMT Charge", 2, -0.5, 1.5);
   ugmtChargeValid = ibooker.book1D("ugmtChargeValid", "uGMT ChargeValid", 2, -0.5, 1.5);
   ugmtQual = ibooker.book1D("ugmtQual", "uGMT Quality", 21, -0.5, 20.5);
-  ugmtIso = ibooker.book1D("ugmtIso", "uGMT Iso", 5, -0.5, 4.5);
+  ugmtIso = ibooker.book1D("ugmtIso", "uGMT Isolation", 5, -0.5, 4.5);
 
   ugmtBXvsPt = ibooker.book2D("ugmtBXvsPt", "uGMT BX vs p_{T}", 511, -0.5, 510.5, 5, -2.5, 2.5);
   ugmtBXvsEta = ibooker.book2D("ugmtBXvsEta", "uGMT BX vs #eta", 447, -223.5, 223.5, 5, -2.5, 2.5);
@@ -31,7 +31,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtBXvsCharge = ibooker.book2D("ugmtBXvsCharge", "uGMT BX vs Charge", 2, -0.5, 1.5, 5, -2.5, 2.5);
   ugmtBXvsChargeValid = ibooker.book2D("ugmtBXvsChargeValid", "uGMT BX vs ChargeValid", 2, -0.5, 1.5, 5, -2.5, 2.5);
   ugmtBXvsQual = ibooker.book2D("ugmtBXvsQual", "uGMT BX vs Quality", 21, -0.5, 20.5, 5, -2.5, 2.5);
-  ugmtBXvsIso = ibooker.book2D("ugmtBXvsIso", "uGMT BX vs Iso", 5, -0.5, 4.5, 5, -2.5, 2.5);
+  ugmtBXvsIso = ibooker.book2D("ugmtBXvsIso", "uGMT BX vs Isolation", 5, -0.5, 4.5, 5, -2.5, 2.5);
 
   ugmtPtvsEta = ibooker.book2D("ugmtPtvsEta", "uGMT p_{T} vs #eta", 447, -223.5, 223.5, 511, -0.5, 510.5);
   ugmtPtvsPhi = ibooker.book2D("ugmtPtvsPhi", "uGMT p_{T} vs #phi", 576, -0.5, 575.5, 511, -0.5, 510.5);

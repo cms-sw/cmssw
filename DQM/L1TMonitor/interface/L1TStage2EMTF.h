@@ -30,8 +30,11 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::EMTFOutputCollection> emtfToken;
   std::string monitorDir;
   bool verbose;
+
+  MonitorElement* emtfChamberOccupancy;
  
   MonitorElement* emtfnTracks;
+  MonitorElement* emtfnLCTs;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackEta;
