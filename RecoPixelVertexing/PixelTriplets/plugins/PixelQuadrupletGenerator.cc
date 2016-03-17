@@ -63,7 +63,7 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
   declareDynArray(KDTreeLinkerAlgo<unsigned int>, size, hitTree);
   float rzError[size]; //save maximum errors
 
-  ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
+  declareDynArray(ThirdHitRZPrediction<PixelRecoLineRZ>, size, preds);
 
   // Build KDtrees
   for(size_t il=0; il!=size; ++il) {
@@ -109,8 +109,7 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
 
     const double curvature = predictionRPhi.curvature(ThirdHitPredictionFromCircle::Vector2D(gp1.x(), gp1.y()));
 
-    constexpr float nSigmaRZ = std::sqrt(12.f);
-
+    constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
 
     SeedingHitSet::ConstRecHitPointer selectedHit = nullptr;
     float selectedChi2 = std::numeric_limits<float>::max();
