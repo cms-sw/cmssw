@@ -39,17 +39,17 @@ bool UCTTower::process() {
   towerData = calibratedECALET + calibratedHCALET;
   if(towerData > etMask) towerData = etMask;
   uint32_t er = 0;
-  if(ecalET == 0 || hcalET == 0) {
+  if(calibratedECALET == 0 || calibratedHCALET == 0) {
     er = 0;
     towerData |= zeroFlagMask;
-    if(hcalET == 0 && ecalET != 0)
+    if(calibratedHCALET == 0 && calibratedECALET != 0)
       towerData |= eohrFlagMask;
   }
-  else if(ecalET == hcalET) {
+  else if(calibratedECALET == calibratedHCALET) {
     er = 0;
     towerData |= eohrFlagMask;
   }
-  else if(ecalET > hcalET) {
+  else if(calibratedECALET > calibratedHCALET) {
     er = logECALET - logHCALET;
     if(er > erMaxV) er = erMaxV;
     towerData |= eohrFlagMask;
