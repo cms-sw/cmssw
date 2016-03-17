@@ -140,21 +140,27 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   toaFromToT.fill( 0.f );
 
 #ifdef EDM_ML_DEBUG
-  constexpr bool debug(true);
+  constexpr bool debug_state(true);
 #else
-  constexpr bool debug(false);
+  constexpr bool debug_state(false);
 #endif
 
+  bool debug = debug_state;
+
   //first identify bunches which will trigger ToT
-  if(debug) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;  
+  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;  
   for(int it=0; it<(int)(chargeColl.size()); ++it)
     {
+      debug = debug_state;
       //if already flagged as busy it can't be re-used to trigger the ToT
       if(busyFlags[it]) continue;
 
       //if below TDC onset will be handled by SARS ADC later
       float charge = chargeColl[it];
-      if(charge < tdcOnset_fC_)  continue;
+      if(charge < tdcOnset_fC_)  {
+        debug = false;
+        continue;
+      }
 
       //raise TDC mode
       float toa    = toaColl[it];
@@ -186,7 +192,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         const float charge_mod = charge_kfC - charge_offset;
         const float newIntegTime = ( ( tdcChargeDrainParameterisation_[poffset]*charge_mod + 
                                        tdcChargeDrainParameterisation_[poffset+1]            )*charge_mod +
-                                     tdcChargeDrainParameterisation_[poffset+2] );
+                                       tdcChargeDrainParameterisation_[poffset+2] );
                                       
           
         
