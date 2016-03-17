@@ -9,24 +9,24 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Geometry.HGCalCommonData.testTB160XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
 process.load('Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
-process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('SimG4CMS.HGCalTestBeam.DigiHGCalTB160_cff')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 # Input source
@@ -48,11 +48,12 @@ process.configurationMetadata = cms.untracked.PSet(
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('file:junk.root'),
+#    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+    outputCommands = cms.untracked.vstring('keep *'),
+    fileName = cms.untracked.string('file:gensimdigi.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
+        dataTier = cms.untracked.string('GEN-SIM-DIGI')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
@@ -60,6 +61,9 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string('TBGenSimDigi.root')
+                                   )
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
@@ -83,27 +87,25 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
 )
 process.VtxSmeared.MeanZ = 10
 process.VtxSmeared.SigmaZ = 0
-delattr(process.theDigitizers,"castor")
-delattr(process.theDigitizers,"pixel")
-delattr(process.theDigitizers,"strip")
-delattr(process.theDigitizers,"ecal")
-delattr(process.theDigitizers,"hcal")
-process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
-process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
-process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
-
-process.mix.digitizers = cms.PSet(process.theDigitizers)
+process.HGCalTBAnalyzer.DoRecHits = False
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.digitisation_step = cms.Path(process.pdigi_valid)
+process.digitisation_step = cms.Path(process.mix)
+process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.analysis_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+
+for label, prod in process.producers_().iteritems():
+        if prod.type_() == "OscarMTProducer":
+            # ugly hack
+            prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
+
