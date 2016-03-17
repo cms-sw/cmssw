@@ -608,7 +608,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 #
 from Configuration.StandardSequences.Eras import eras
 eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )
-eras.Run2_2017.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2_2017 )
+eras.muonTrigger2017.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2_2017 )
 eras.phase2_muon.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2_2017 )
 eras.phase2_muon.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2GE11 )
 eras.phase2dev_muon.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2_2017 )
