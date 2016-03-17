@@ -5,9 +5,7 @@ SherpaWeightsBlock = cms.PSet(
                   'Weight',
                   'MEWeight',
                   'WeightNormalisation',
-                  'NTrials',
-                  'PSWeight',
-                  'MuR2'
+                  'NTrials'
     ),
     SherpaVariationWeights = cms.vstring(
                   'MUR0.5_MUF0.5_PDF260000',
