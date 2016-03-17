@@ -117,19 +117,17 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	if(matchPFCandidate(&(*itPF),*itPho)) pWeight = weight_;
       }
     } else { 
-      int iPho = -1; 
+      int iPho = -1;
       for(std::vector<uint16_t>::const_iterator itPho = phoIndx.begin(); itPho!=phoIndx.end(); itPho++) {
-	iPho++;
-	if(pupCol->refAt(iPF).key() != *itPho) continue;
-	pWeight = weight_;
-	if(!useValueMap_) { 
-	  double pCorr = phoCands[iPho]->pt()/itPF->pt();
-	  pWeight = pWeight*pCorr;
-	}
-	foundPhoIndex.push_back(iPho);
-      }
+        iPho++;
+        if(pupCol->refAt(iPF).key() != *itPho) continue;
+        pWeight = weight_;
+        if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
+        foundPhoIndex.push_back(iPho);      }
     }
-    pVec.SetPxPyPzE(itPF->px()*pWeight,itPF->py()*pWeight,itPF->pz()*pWeight,itPF->energy()*pWeight);
+
+    if(itPF->pt() != 0) pVec.SetPxPyPzE(itPF->px()*pWeight,itPF->py()*pWeight,itPF->pz()*pWeight,itPF->energy()*pWeight);
+
     lWeights.push_back(pWeight);
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
