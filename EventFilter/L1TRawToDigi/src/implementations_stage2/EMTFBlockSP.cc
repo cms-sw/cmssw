@@ -130,13 +130,18 @@ namespace l1t {
 	mu_.setHwQual          ( GetHexBits(SP1c,  9, 12) );
 	SP_.set_bx             ( GetHexBits(SP1c, 13, 14) );
 
-	SP_.set_pt_int         ( GetHexBits(SP1d,  0,  8) );
-	mu_.setHwPt            ( GetHexBits(SP1d,  0,  8) );
-	SP_.set_me1_ID         ( GetHexBits(SP1d,  9, 14) );
+	SP_.set_pt_int          ( GetHexBits(SP1d,  0,   8) );
+	mu_.setHwPt             ( GetHexBits(SP1d,  0,   8) );
+	SP_.set_me1_trk_stub_num( GetHexBits(SP1d,  9,   9) );
+	SP_.set_me1_csc_id      ( GetHexBits(SP1d, 10,  13) );
+	SP_.set_me1_subsector   ( GetHexBits(SP1d, 14,  14) );
 
-	SP_.set_me2_ID         ( GetHexBits(SP2a,  0,  4) );
-	SP_.set_me3_ID         ( GetHexBits(SP2a,  5,  9) );
-	SP_.set_me4_ID         ( GetHexBits(SP2a, 10, 14) );
+	SP_.set_me2_trk_stub_num( GetHexBits(SP2a,  0, 0 ) );
+	SP_.set_me2_csc_id      ( GetHexBits(SP2a,  1, 4 ) );
+	SP_.set_me3_trk_stub_num( GetHexBits(SP2a,  5, 5 ) );
+	SP_.set_me3_csc_id      ( GetHexBits(SP2a,  6, 9 ) );
+	SP_.set_me4_trk_stub_num( GetHexBits(SP2a, 10, 10) );
+	SP_.set_me4_csc_id      ( GetHexBits(SP2a, 11, 14) );
 
 	SP_.set_me1_TBIN       ( GetHexBits(SP2b,  0,  2) );
 	SP_.set_me2_TBIN       ( GetHexBits(SP2b,  3,  5) );
