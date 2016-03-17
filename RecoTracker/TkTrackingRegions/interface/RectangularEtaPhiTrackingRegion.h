@@ -21,7 +21,6 @@
 
 
 class OuterHitPhiPrediction;
-class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
@@ -183,8 +182,8 @@ private:
       const edm::EventSetup&iSetup,
       const DetLayer* outerlayer) const;
 
-  std::unique_ptr<OuterEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
-  std::unique_ptr<OuterEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
 
   OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;
