@@ -41,6 +41,9 @@ public:
                         const HcalElectronicsMap* emap,
                         HcalTrigPrimDigiCollection & result);
   void setPeakFinderAlgorithm(int algo);
+  void setNCTScaleShift(int);
+  void setRCTScaleShift(int);
+
  private:
 
   /// adds the signal to the map
@@ -77,6 +80,8 @@ public:
   int numberOfPresamplesHF_;
   uint32_t minSignalThreshold_;
   uint32_t PMT_NoiseThreshold_; 
+  int NCTScaleShift;
+  int RCTScaleShift;  
 
   // Algo1: isPeak = TS[i-1] < TS[i] && TS[i] >= TS[i+1]
   // Algo2: isPeak = TSS[i-1] < TSS[i] && TSS[i] >= TSS[i+1],

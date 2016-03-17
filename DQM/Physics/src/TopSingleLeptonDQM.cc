@@ -138,24 +138,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     // corresponding working points
     includeBTag_ = jetExtras.existsAs<edm::ParameterSet>("jetBTaggers");
     if (includeBTag_) {
-      edm::ParameterSet btagEff =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("trackCountingEff");
-      btagEff_ = iC.consumes<reco::JetTagCollection>(
-          btagEff.getParameter<edm::InputTag>("label"));
-      btagEffWP_ = btagEff.getParameter<double>("workingPoint");
-      edm::ParameterSet btagPur =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("trackCountingPur");
-      btagPur_ = iC.consumes<reco::JetTagCollection>(
-          btagPur.getParameter<edm::InputTag>("label"));
-      btagPurWP_ = btagPur.getParameter<double>("workingPoint");
-      edm::ParameterSet btagVtx =
-          jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("secondaryVertex");
-      btagVtx_ = iC.consumes<reco::JetTagCollection>(
-          btagVtx.getParameter<edm::InputTag>("label"));
-      btagVtxWP_ = btagVtx.getParameter<double>("workingPoint");
+
       edm::ParameterSet btagCSV =
           jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
               .getParameter<edm::ParameterSet>("cvsVertex");
@@ -267,12 +250,12 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   hists_["elecRelIso_"] = ibooker.book1D("ElecRelIso", "Iso_{Rel}(e)", 50, 0., 1.);
   // multiplicity of btagged jets (for track counting high efficiency) with
   // pt(L2L3)>30
-  hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
-      "N_{30}(TCHE)", 10, 0., 10.);
+ // hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
+  //    "N_{30}(TCHE)", 10, 0., 10.);
   // btag discriminator for track counting high efficiency for jets with
   // pt(L2L3)>30
-  hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
-      "Disc_{TCHE}(jet)", 100, 0., 10.);
+  //hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
+  //    "Disc_{TCHE}(jet)", 100, 0., 10.);
   // eta of the 1. leading jet (corrected to L2+L3)
   hists_["jet1Eta_"] = ibooker.book1D("Jet1Eta", "#eta_{L2L3}(jet1)", 60, -3., 3.);
   // pt of the 1. leading jet (corrected to L2+L3)
@@ -330,19 +313,7 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   // decay channel)
   hists_["elecPhIso_"] = ibooker.book1D("ElectronPhIsoComp",
       "Photon_{IsoComponent}(e)", 50, 0., 5.);
-  // multiplicity of btagged jets (for track counting high purity) with
-  // pt(L2L3)>30
-  hists_["jetMultBPur_"] = ibooker.book1D("JetMultBPur",
-      "N_{30}(TCHP)", 10, 0., 10.);
-  // btag discriminator for track counting high purity
-  hists_["jetBDiscPur_"] = ibooker.book1D("JetBDiscPur",
-      "Disc_{TCHP}(Jet)", 100, 0., 10.);
-  // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
-  hists_["jetMultBVtx_"] = ibooker.book1D("JetMultBVtx",
-      "N_{30}(SSVHE)", 10, 0., 10.);
-  // btag discriminator for simple secondary vertex
-  hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
-      "Disc_{SSVHE}(Jet)", 35, -1., 6.);
+ 
   // multiplicity for combined secondary vertex
   hists_["jetMultCSVtx_"] = ibooker.book1D("JetMultCSV", "N_{30}(CSV)", 10, 0., 10.);
   // btag discriminator for combined secondary vertex
@@ -546,9 +517,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   // check availability of the btaggers
   edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
   if (includeBTag_) {
-    if (!event.getByToken(btagEff_, btagEff)) return;
-    if (!event.getByToken(btagPur_, btagPur)) return;
-    if (!event.getByToken(btagVtx_, btagVtx)) return;
+
     if (!event.getByToken(btagCSV_, btagCSV)) return;
   }
   // load jet corrector if configured such
@@ -588,7 +557,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   // loop jet collection
   std::vector<reco::Jet> correctedJets;
   std::vector<double> JetTagValues;
-  unsigned int mult = 0, multBEff = 0, multBPur = 0, multBVtx = 0, multCSV = 0;
+  unsigned int mult = 0, multCSV = 0;
 
   edm::Handle<edm::View<reco::Jet> > jets;
   if (!event.getByToken(jets_, jets)) {
@@ -636,12 +605,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     if (includeBTag_) {
       // fill b-discriminators
       edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
-      fill("jetBDiscEff_", (*btagEff)[jetRef]);
-      if ((*btagEff)[jetRef] > btagEffWP_) ++multBEff;
-      fill("jetBDiscPur_", (*btagPur)[jetRef]);
-      if ((*btagPur)[jetRef] > btagPurWP_) ++multBPur;
-      fill("jetBDiscVtx_", (*btagVtx)[jetRef]);
-      if ((*btagVtx)[jetRef] > btagVtxWP_) ++multBVtx;
+
       fill("jetBCVtx_", (*btagCSV)[jetRef]);
       if ((*btagCSV)[jetRef] > btagCSVWP_) ++multCSV;
 
@@ -672,9 +636,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     }
   }
   fill("jetMult_", mult);
-  fill("jetMultBEff_", multBEff);
-  fill("jetMultBPur_", multBPur);
-  fill("jetMultBVtx_", multBVtx);
+
   fill("jetMultCSVtx_", multCSV);
 
   /*

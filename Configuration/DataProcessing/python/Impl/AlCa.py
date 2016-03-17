@@ -14,6 +14,9 @@ from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harv
 import FWCore.ParameterSet.Config as cms
 
 class AlCa(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
+
     """
     _AlCa_
 
@@ -37,7 +40,7 @@ class AlCa(Scenario):
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
-        process = cms.Process('RECO')
+        process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
@@ -65,7 +68,7 @@ class AlCa(Scenario):
 
         options.triggerResultsProcess = 'RECO'
         
-        process = cms.Process('ALCA')
+        process = cms.Process('ALCA', self.eras)
         cb = ConfigBuilder(options, process = process)
 
         # Input source
@@ -92,7 +95,7 @@ class AlCa(Scenario):
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()

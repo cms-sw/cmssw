@@ -24,6 +24,8 @@
 
 #include "HcalHardcodeCalibrations.h"
 
+//#define DebugLog
+
 // class decleration
 //
 
@@ -36,10 +38,10 @@ namespace {
     int maxDepthHB=hcaltopology.maxDepthHB();
     int maxDepthHE=hcaltopology.maxDepthHE();
 
-  /*
-  std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepthHB, maxDepthHE = " 
-	    <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
-  */
+#ifdef DebugLog
+    std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepthHB, maxDepthHE = " 
+	      <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
+#endif
 
     if (result.size () <= 0) {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
@@ -48,14 +50,14 @@ namespace {
           for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
             for (int det = 1; det <= HcalForward; det++) {
 	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	      if (hcaltopology.valid(cell)) result.push_back (cell);
-
-	    /*
-            if (hcaltopology.valid(cell))  
-	      std::cout << " HcalHardcodedCalibrations: det, eta, phi, depth = "
-			<< det << ",  " << eta << ", " << phi << " , "
-			<< depth << std::endl;  
-	    */
+	      if (hcaltopology.valid(cell)) {
+		result.push_back (cell);
+#ifdef DebugLog
+		std::cout << " HcalHardcodedCalibrations: det|eta|phi|depth = "
+			  << det << "|" << eta << "|" << phi << "|"
+			  << depth << std::endl;  
+#endif
+	      }
 	    }
 	  }
 	}
@@ -95,7 +97,14 @@ namespace {
                eta <= HcalTrigTowerDetId::kHcalEtaMask; eta++) {
             for (int phi = 1; phi <= HcalTrigTowerDetId::kHcalPhiMask; phi++) {
               HcalTrigTowerDetId cell(eta, phi,depth,vers); 
-              if (hcaltopology.validHT(cell)) result.push_back (cell);
+              if (hcaltopology.validHT(cell)) {
+		result.push_back (cell);
+#ifdef DebugLog
+		std::cout << " HcalHardcodedCalibrations: eta|phi|depth|vers = "
+			  << eta << "|" << phi << "|" << depth << "|" << vers
+			  << std::endl;  
+#endif
+	      }
 	    }
 	  }
 	}
@@ -106,7 +115,9 @@ namespace {
 
 }
 
-HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0) {
+HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
+	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0), testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"))
+{
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
   if ( iConfig.exists("GainWidthsForTrigPrims") ) 
@@ -128,12 +139,17 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     }
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
-    //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
+#ifdef DebugLog
+    std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
+#endif
   }
 
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
+#ifdef DebugLog
+    std::cout << "Load parameters for " << *objectName << std::endl;
+#endif
     if ((*objectName == "Pedestals") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
@@ -351,7 +367,7 @@ std::auto_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes (const Hca
     std::auto_ptr<HcalQIETypes> result (new HcalQIETypes (topo));
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIEType item(cell->rawId(),0);
+    HcalQIEType item = HcalDbHardcode::makeQIEType(*cell,testHFQIE10);
     result->addValues(item);
   }
   return result;
@@ -743,4 +759,18 @@ std::auto_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianc
     result->addValues(item);
   }
   return result;
+}
+
+void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
+	edm::ParameterSetDescription desc;
+	desc.add<double>("iLumi",-1.);
+	desc.add<bool>("HERecalibration",false);
+	desc.add<double>("HEreCalibCutoff",20.);
+	desc.add<bool>("HFRecalibration",false);
+	desc.add<bool>("GainWidthsForTrigPrims",false);
+	desc.add<bool>("testHFQIE10",false);
+	desc.addUntracked<std::vector<std::string>>("toGet",std::vector<std::string>());
+	desc.addUntracked<bool>("fromDDD",false);
+	
+	descriptions.addDefault(desc);
 }

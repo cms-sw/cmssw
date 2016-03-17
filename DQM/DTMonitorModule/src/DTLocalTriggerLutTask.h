@@ -58,7 +58,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   ///BeginRun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
-  /// Find best (highest qual) DCC trigger segments
+  /// Find best (highest qual) TM trigger segments
   void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
 
   /// Analyze

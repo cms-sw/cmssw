@@ -92,4 +92,5 @@ jetMETDQMOfflineSource = cms.Sequence(goodOfflinePrimaryVerticesDQM*AnalyzeSUSYD
                                       jetDQMAnalyzerAk4CaloCleanedMC*jetDQMAnalyzerAk4PFUncleanedMC*jetDQMAnalyzerAk4PFCleanedMC*jetDQMAnalyzerAk4PFCHSCleanedMC*
                                       HBHENoiseFilterResultProducer*caloMetDQMAnalyzerMC*pfMetDQMAnalyzerMC*pfMetT1DQMAnalyzerMC)
 
-jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)
+jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD)
+jetMETDQMOfflineSourceMiniAOD = cms.Sequence(jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)

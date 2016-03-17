@@ -303,7 +303,7 @@ FEVTDEBUGEventContent = cms.PSet(
 FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(1*1024*1024)
+    eventAutoFlushCompressedSize=cms.untracked.int32(10*1024*1024)
 )
 
 #
@@ -359,6 +359,7 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep HBHEDataFramesSorted_hcalDigis_*_*',
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
                                                'keep HODataFramesSorted_hcalDigis_*_*',
+                                               'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_*_*',
                                                'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                'keep CastorDataFramesSorted_castorDigis_*_*',
                                                'keep EBDigiCollection_ecalDigis_*_*',

@@ -60,14 +60,15 @@ private:
   };
 
   struct HFCellParameters {
-    HFCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_rMin, float f_rMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), rMin(f_rMin), rMax(f_rMax)
+    HFCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_nPhi, int f_dPhi, float f_zMin, float f_zMax, float f_rMin, float f_rMax)
+    : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), nPhi(f_nPhi), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), rMin(f_rMin), rMax(f_rMax)
     {}
  
     int eta;
     int depth;
     int phiFirst;
     int phiStep;
+    int nPhi;
     int dphi;
     float zMin;
     float zMax;
@@ -79,7 +80,7 @@ private:
   std::vector <HBHOCellParameters> makeHOCells ();
   std::vector <HECellParameters> makeHECells (const HcalDDDRecConstants& hcons);
   std::vector <HECellParameters> makeHECells_H2 ();
-  std::vector <HFCellParameters> makeHFCells ();
+  std::vector <HFCellParameters> makeHFCells (const HcalDDDRecConstants& hcons);
 
   void fillHBHO (CaloSubdetectorGeometry* fGeometry, const std::vector <HBHOCellParameters>& fCells, bool fHB);
   void fillHE (CaloSubdetectorGeometry* fGeometry, const std::vector <HECellParameters>& fCells);

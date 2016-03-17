@@ -266,7 +266,7 @@ ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
 	)
 
 ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
+	responsible = 'Sunanda Banerjee',
 	name = 'HcalCalIsoTrk',
 	paths  = (pathALCARECOHcalCalIsoTrk),
 	content = OutALCARECOHcalCalIsoTrk.outputCommands,

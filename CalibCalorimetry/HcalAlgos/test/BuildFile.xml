@@ -3,9 +3,6 @@
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
 <bin file="HcalShapeIntegrator.cpp"/>

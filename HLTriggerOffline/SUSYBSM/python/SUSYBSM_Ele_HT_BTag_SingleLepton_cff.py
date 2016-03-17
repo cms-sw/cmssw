@@ -6,7 +6,7 @@ SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                    muonCollection = cms.InputTag(''),
                                                    pfMetCollection = cms.InputTag('pfMet'),
                                                    pfJetCollection = cms.InputTag('ak4PFJets'),
-                                                   jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexBJetTags'),
+                                                   jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexV2BJetTags'),
 
                                                    vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
                                                    conversionCollection = cms.InputTag('conversions'),
@@ -53,3 +53,6 @@ SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericCli
                                                                   resolution = cms.vstring('')
                                                                   )
 
+# fastsim has no conversion collection (yet)
+from Configuration.StandardSequences.Eras import eras
+eras.fastSim.toModify(SUSY_HLT_Ele_HT_BTag_SingleLepton,conversionCollection=cms.InputTag(''))

@@ -32,7 +32,7 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector & iC) :
   initialised(false) {
 
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
-  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("source"));
+  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("rawDataCollector"));
 }
 //
 // -- Destructor

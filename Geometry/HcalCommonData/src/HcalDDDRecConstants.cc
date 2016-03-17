@@ -7,6 +7,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
+
 enum { kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728 } ;
 
 HcalDDDRecConstants::HcalDDDRecConstants(const HcalParameters* hp,
@@ -34,32 +35,41 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
   for (int ieta = iEtaMin[type]; ieta <= iEtaMax[type]; ++ieta) {
     int nfi = (int)((20.001*nModule[itype]*CLHEP::deg)/phibin[ieta-1]);
     HcalDDDRecConstants::HcalEtaBin etabin = HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
+    int n = (ieta == iEtaMax[type]) ? 0 : 1;
+    HcalDDDRecConstants::HcalEtaBin etabin0= HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta+n], nfi, hpar->phioff[type], phibin[ieta-1]);
+    etabin0.depthStart = hcons.getDepthEta29(0)+1;
     int dstart = -1;
-    if (layerGroupSize( ieta-1 ) > 0) {
+    if (layerGroupSize(ieta-1) > 0) {
       int lmin(0), lmax(0);
-      int dep = layerGroup( ieta-1, 0 );
-      if (type == 1 && ieta == iEtaMin[type]) dep = 3;
-      unsigned lymx0 = (layerGroupSize( ieta-1 ) > lymax) ? lymax : layerGroupSize( ieta-1 );
+      int dep = layerGroup(ieta-1, 0);
+      if (type == 1 && ieta == iEtaMin[1]) dep = hcons.getDepthEta16(1);
+      unsigned lymx0 = (layerGroupSize(ieta-1) > lymax) ? lymax : layerGroupSize(ieta-1);
       for (unsigned int l=0; l<lymx0; ++l) {
-	if ((int)layerGroup( ieta-1, l ) == dep) {
+	if ((int)layerGroup( ieta-1, l) == dep) {
 	  if (lmin == 0) lmin = l + 1;
 	  lmax = l + 1;
 	} else if ((int)layerGroup( ieta-1, l ) > dep) {
 	  if (dstart < 0) dstart = dep;
-	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  if (type == 1 && ieta+1 == hpar->noff[1] && dep > hcons.getDepthEta29(0)) {
+	    etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  } else {
+	    etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  }
 	  lmin = (l + 1);
 	  lmax = l;
-	  dep  = layerGroup( ieta-1, l );
+	  dep  = layerGroup(ieta-1, l);
 	}
-	if (type == 0 && ieta == iEtaMax[type] && dep > 2) break;
+	if (type == 0 && ieta == iEtaMax[type] && dep > hcons.getDepthEta16(0)) break;
+	if (type == 1 && ieta == hpar->noff[1] && dep > hcons.getDepthEta29(0)){
+	  lmax = lymx0;
+	  break;
+	}
       }
       if (lmax >= lmin) {
 	if (ieta+1 == hpar->noff[1]) {
-	} else if (ieta == hpar->noff[1]) {
-	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta-1, etaTable[ieta-2], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
-	  etabin0.depthStart = dep;
 	  etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  bins.push_back(etabin0);
+	} else if (ieta == hpar->noff[1]) {
 	} else {
 	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  if (dstart < 0) dstart = dep;
@@ -101,7 +111,7 @@ HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
     eta         = 0.5*(etaTable[ietaAbs-1]+etaTable[ietaAbs]);
     phi         = foff + (kphi-0.5)*phibin[ietaAbs-1];
   } else {
-    ietaAbs    -= iEtaMin[3];
+    ietaAbs    -= iEtaMin[2];
     int unit    = (int)(hpar->phitable[ietaAbs-1]/fiveDegInRad+0.5);
     int kphi    = (unit == 4) ? ((iphi-3)/4 + 1) : ((iphi-1)/2 + 1);
     double foff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
@@ -127,7 +137,7 @@ HcalDDDRecConstants::getHCID(int subdet, int ieta, int iphi, int lay,
     subdet= static_cast<int>(HcalOuter);
     depth = 4;
   } else if (subdet == static_cast<int>(HcalBarrel) || 
-      subdet == static_cast<int>(HcalEndcap)) {
+	     subdet == static_cast<int>(HcalEndcap)) {
     eta      = ietaMap[ieta-1];
     int unit = phiUnitS[ieta-1];
     int phi0 = (iphi-1)/(hpar->phigroup[eta-1]);
@@ -144,9 +154,9 @@ HcalDDDRecConstants::getHCID(int subdet, int ieta, int iphi, int lay,
     depth    = layerGroup( eta-1, lay-1 );
     if (eta == iEtaMin[1]) {
       if (subdet == static_cast<int>(HcalBarrel)) {
-	if (depth > 2) depth = 2;
+	if (depth > hcons.getDepthEta16(0)) depth = hcons.getDepthEta16(0);
       } else {
-	if (depth < 3) depth = 3;
+	if (depth < hcons.getDepthEta16(1)) depth = hcons.getDepthEta16(1);
       }
     } else if (eta == hpar->noff[0] && lay > 1) {
       int   kphi   = phi + int((hpar->phioff[3]+0.1)/phibin[eta-1]);
@@ -164,6 +174,77 @@ HcalDDDRecConstants::getHCID(int subdet, int ieta, int iphi, int lay,
   return HcalDDDRecConstants::HcalID(subdet,eta,phi,depth);
 }
 
+std::vector<HcalDDDRecConstants::HFCellParameters> 
+HcalDDDRecConstants::getHFCellParameters() const {
+
+  std::vector<HcalDDDRecConstants::HFCellParameters> cells;
+  unsigned int nEta = hcons.getPhiTableHF().size();
+  if (maxDepth[2] > 0) {
+    for (unsigned int k=0; k<nEta; ++k) {
+      int ieta = iEtaMin[2] + k;
+      int dphi = (int)(0.001 + hcons.getPhiTableHF()[k]/(5.0*CLHEP::deg));
+      int iphi = (dphi == 4) ? 3 : 1;
+      int nphi = 72/dphi;
+      double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
+      double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
+      HcalDDDRecConstants::HFCellParameters cell1( ieta,1,iphi,dphi,nphi,rMin,rMax);
+      cells.push_back(cell1);
+      HcalDDDRecConstants::HFCellParameters cell2(-ieta,1,iphi,dphi,nphi,rMin,rMax);
+      cells.push_back(cell2);
+    }
+  }
+  if (maxDepth[2] > 2) {
+    if (hcons.getIdHF2QIE().size() > 0) {
+      for (unsigned int k=0; k<hcons.getIdHF2QIE().size(); ++k) {
+	int ieta = hcons.getIdHF2QIE()[k].ieta();
+	int ind  = std::abs(ieta) - iEtaMin[2];
+	int dphi = (int)(0.001 + hcons.getPhiTableHF()[ind]/(5.0*CLHEP::deg));
+	int iphi = hcons.getIdHF2QIE()[k].iphi();
+	double rMin = hcons.getRTableHF()[nEta-ind-1]/CLHEP::cm;
+	double rMax = hcons.getRTableHF()[nEta-ind]/CLHEP::cm;
+	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,1,rMin,rMax);
+	cells.push_back(cell1);
+      }
+    } else {
+      for (unsigned int k=0; k<nEta; ++k) {
+	int ieta = iEtaMin[2] + k;
+	int dphi = (int)(0.001 + hcons.getPhiTableHF()[k]/(5.0*CLHEP::deg));
+	int iphi = (dphi == 4) ? 3 : 1;
+	int nphi = 72/dphi;
+	double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
+	double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
+	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,nphi,rMin,rMax);
+	cells.push_back(cell1);
+	HcalDDDRecConstants::HFCellParameters cell2(-ieta,3,iphi,dphi,nphi,rMin,rMax);
+	cells.push_back(cell2);
+      }
+    }
+  }
+#ifdef DebugLog
+  std::cout << "HcalDDDRecConstants returns " << cells.size() 
+	    << " HF cell parameters" << std::endl;
+  for (unsigned int k=0; k<cells.size(); ++k)
+    std::cout << "Cell[" << k <<"] : (" << cells[k].ieta <<", "<< cells[k].depth
+	      << ", " << cells[k].firstPhi << ", " << cells[k].stepPhi << ", "
+	      << cells[k].nPhi << ", " << cells[k].rMin << ", "
+	      << cells[k].rMax << ")" << std::endl;
+#endif
+  return cells;
+}
+
+int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
+
+  int lmax(0);
+  unsigned int type  = (itype == 0) ? 0 : 1;
+  unsigned int lymax = (type == 0) ? 17 : 19;
+  if (layerGroupSize(ieta-1) > 0) {
+    if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
+    lmax = (int)(layerGroup(ieta-1, lymax-1));
+    if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16(0);
+    if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29(0);
+  }
+  return lmax;
+}
 
 double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 
@@ -323,7 +404,7 @@ unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
   } else if (subdet == HcalOuter) {
     return kHOSizePreLS1;
   } else if (subdet == HcalForward) {
-    return kHFSizePreLS1;
+    return (unsigned int)(hcons.numberOfCells(subdet));
   } else {
     return 0;
   }
@@ -413,7 +494,7 @@ void HcalDDDRecConstants::initialize(void) {
     int laymax = (imx > 0) ? layerGroup(i,imx-1) : 0;
     if (i < iEtaMax[0]) {
       int laymax0 = (imx > 16) ? layerGroup(i,16) : laymax;
-      if (i+1 == iEtaMax[0] && laymax0 > 2) laymax0 = 2;
+      if (i+1 == iEtaMax[0]) laymax0 = hcons.getDepthEta16(0);
 #ifdef DebugLog
       std::cout << "HB " << i << " " << imx << " " << laymax << " " << laymax0 << std::endl;
 #endif
@@ -461,44 +542,32 @@ void HcalDDDRecConstants::initialize(void) {
 #endif
 }
 
-unsigned int
-HcalDDDRecConstants::layerGroupSize( unsigned int eta ) const
-{
+unsigned int HcalDDDRecConstants::layerGroupSize( unsigned int eta ) const {
   unsigned int k = 0;
-  for( auto const & it : hpar->layerGroupEtaRec )
-  {
-    if( it.layer == eta + 1 )
-    {
+  for( auto const & it : hpar->layerGroupEtaRec ) {
+    if( it.layer == eta + 1 ) {
       return it.layerGroup.size();
     }
-    if( it.layer > eta + 1 )
-      break;
+    if( it.layer > eta + 1 ) break;
     k = it.layerGroup.size();
   }
   return k;
 }
 
-unsigned int
-HcalDDDRecConstants::layerGroup( unsigned int eta, unsigned int i ) const
-{
+unsigned int HcalDDDRecConstants::layerGroup(unsigned int eta, 
+					     unsigned int i) const {
   unsigned int k = 0;
-  for( auto const & it :  hpar->layerGroupEtaRec )
-  {
-    if( it.layer == eta + 1 )
-    {
+  for( auto const & it :  hpar->layerGroupEtaRec ) {
+    if( it.layer == eta + 1 )  {
       return it.layerGroup.at( i );
     }
-    if( it.layer > eta + 1 )
-      break;
-
+    if( it.layer > eta + 1 ) break;
     k = it.layerGroup.at( i );
   }
   return k;
 }
 
-const std::vector<int> &
-HcalDDDRecConstants::getDepth(const unsigned int i) const
-{
+const std::vector<int> & HcalDDDRecConstants::getDepth(const unsigned int i) const {
   std::vector<HcalParameters::LayerItem>::const_iterator last = hpar->layerGroupEtaRec.begin();
   for( std::vector<HcalParameters::LayerItem>::const_iterator it = hpar->layerGroupEtaRec.begin(); it != hpar->layerGroupEtaRec.end(); ++it ) {
     if( it->layer == i + 1 )

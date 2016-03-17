@@ -173,10 +173,10 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(std::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
-         TFile* file_;
+         mutable TFile* file_;
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
@@ -191,8 +191,8 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::EventAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::EventAuxiliary* pAux_;
-         edm::EventAux* pOldAux_;
+         edm::EventAuxiliary const* pAux_;
+         edm::EventAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;

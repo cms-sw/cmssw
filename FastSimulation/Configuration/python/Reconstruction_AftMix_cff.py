@@ -98,10 +98,10 @@ _reco.trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenEle
 _reco.trackerDrivenElectronSeeds.idCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
 
 # replace the ECAL driven electron track candidates with the FastSim emulated ones
-import FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff
-_reco.electronGSGsfTrackCandidates = FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff.electronGSGsfTrackCandidates
-_reco.electronGsfTracking.replace(_reco.electronCkfTrackCandidates,_reco.electronGSGsfTrackCandidates)
-_reco.electronGsfTracks.src = "electronGSGsfTrackCandidates"
+import FastSimulation.Tracking.electronCkfTrackCandidates_cff
+_reco.fastElectronCkfTrackCandidates = FastSimulation.Tracking.electronCkfTrackCandidates_cff.electronCkfTrackCandidates.clone()
+_reco.electronGsfTracking.replace(_reco.electronCkfTrackCandidates,_reco.fastElectronCkfTrackCandidates)
+_reco.electronGsfTracks.src = "fastElectronCkfTrackCandidates"
 
 # FastSim has no template fit on tracker hits
 _reco.electronGsfTracks.TTRHBuilder = "WithoutRefit"
@@ -170,14 +170,11 @@ _reco.tevMuons.RefitterParameters.Propagator = "SmartPropagatorAny"
 ##########################################
 # FastSim changes to jet/met reconstruction
 ##########################################
-# not commisoned and not relevant in FastSim (?):
-_reco.jetHighLevelReco.remove(_reco.recoJetAssociationsExplicit)
-
-# not commisoned and not relevant in FastSim (?):
-_reco.metreco.remove(_reco.BeamHaloId)
-
-# not commisoned and not relevant in FastSim (?):
-_reco.metrecoPlusHCALNoise.remove(_reco.hcalnoise)
+# CSCHaloData depends on cosmic muons, not available in fastsim
+_reco.BeamHaloId.remove(_reco.CSCHaloData)
+# GlobalHaloData and BeamHaloSummary depend on CSCHaloData
+_reco.BeamHaloId.remove(_reco.GlobalHaloData)
+_reco.BeamHaloId.remove(_reco.BeamHaloSummary)
 
 ############################################
 # deleting modules to avoid clashes with part of reconstruction run before mixing

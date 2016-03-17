@@ -1,50 +1,81 @@
 #include <memory>
 #include <vector>
-#include <iostream>
-#include <fstream>
 #include <utility>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationProducer.h"
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
-ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg) 
-  : _verbose(cfg.getParameter<bool>("verbose")),
-    _pixelSimLinkSrc(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc")),
-    _stripSimLinkSrc(cfg.getParameter<edm::InputTag>("stripSimLinkSrc")),
-    _pixelClusterSrc(cfg.getParameter<edm::InputTag>("pixelClusterSrc")),
-    _stripClusterSrc(cfg.getParameter<edm::InputTag>("stripClusterSrc")),
-    _trackingParticleSrc(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))
+class ClusterTPAssociationProducer : public edm::global::EDProducer<>
 {
+public:
+  typedef std::vector<OmniClusterRef> OmniClusterCollection;
 
-  sipixelSimLinksToken_ = consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"));
-  sistripSimLinksToken_ = consumes<edm::DetSetVector<StripDigiSimLink> >(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"));
-  pixelClustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"));
-  stripClustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"));
-  trackingParticleToken_ = consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"));
+  explicit ClusterTPAssociationProducer(const edm::ParameterSet&);
+  ~ClusterTPAssociationProducer();
 
-  produces<ClusterTPAssociationList>();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  template <typename T>
+  std::vector<std::pair<uint32_t, EncodedEventId> >
+  getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks, const DetId& detId, uint32_t channel) const;
+
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinksToken_;
+  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > sistripSimLinksToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
+};
+
+ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg)
+  : sipixelSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"))),
+    sistripSimLinksToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"))),
+    pixelClustersToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
+    stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
+    trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc")))
+{
+  produces<ClusterTPAssociation>();
 }
 
 ClusterTPAssociationProducer::~ClusterTPAssociationProducer() {
 }
+
+void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("simTrackSrc",     edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
+  desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
+  desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
+  desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
+  descriptions.add("tpClusterProducer", desc);
+}
 		
-void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& es) {
-  auto clusterTPList = std::make_unique<ClusterTPAssociationList>();
- 
+void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
   //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
@@ -66,6 +97,8 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
   // TrackingParticle
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   iEvent.getByToken(trackingParticleToken_,TPCollectionH);
+
+  auto clusterTPList = std::make_unique<ClusterTPAssociation>(TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
   std::map<std::pair<size_t, EncodedEventId>, TrackingParticleRef> mapping;
@@ -111,7 +144,7 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
 	  auto ipos = mapping.find(*iset);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
+	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
 	  }
 	}
       }
@@ -146,14 +179,14 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
 	  auto ipos = mapping.find(*iset);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
+	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
 	  } 
 	}
       } 
     }
   }
 
-  std::sort(clusterTPList->begin(), clusterTPList->end(), clusterTPAssociationListGreater);
+  clusterTPList->sort();
   iEvent.put(std::move(clusterTPList));
 }
 

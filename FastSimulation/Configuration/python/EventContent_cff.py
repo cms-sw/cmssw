@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def dropSimDigis(outputCommands):
     outputCommands.append("drop *_sim*Digis*_*_*")
+    outputCommands.append("drop *_gmtDigis*_*_*")
  
 extraPremixContent = ['keep *_mix_generalTracks_*']
 

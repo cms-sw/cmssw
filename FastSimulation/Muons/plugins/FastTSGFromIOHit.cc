@@ -14,7 +14,6 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
 
 FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) 
 {

@@ -18,6 +18,7 @@
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 class HcalDDDSimConstants {
 
@@ -29,6 +30,8 @@ public:
   HcalCellType::HcalCell    cell(int det, int zside, int depth, int etaR, 
 				 int iphi) const;
   std::vector<std::pair<double,double> > getConstHBHE(const int type) const;
+  int                       getDepthEta16(int i) const {return ((i==1) ? depthEta16[1] : depthEta16[0]);}
+  int                       getDepthEta29(int i) const {return ((i==1) ? depthEta29[1] : depthEta29[0]);}
   std::pair<int,double>     getDetEta(double eta, int depth);
   int                       getEta(int det,int lay, double hetaR);
   std::pair<int,int>        getEtaDepth(int det, int etaR, int phi, int depth,
@@ -40,14 +43,16 @@ public:
   unsigned int              findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
   const std::vector<double> &  getLayer0Wt() const {return hpar->Layer0Wt;}
+  int                       getMaxDepth(const int type) const {return maxDepth[type];}
   std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::pair<double,double>  getPhiCons(int det, int ieta);
+  const std::vector<HcalDetId> & getIdHF2QIE() const {return idHF2QIE;}
   const std::vector<double> &  getPhiTableHF() const {return hpar->phitable;}
   const std::vector<double> &  getRTableHF()   const {return hpar->rTable;}
-  std::vector<HcalCellType> HcalCellTypes() const;
+  std::vector<HcalCellType> HcalCellTypes()    const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
-  int                       getMaxDepth(const int type) const {return maxDepth[type];}
+  int                       maxHFDepth(int ieta, int iphi) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   int                       phiNumber(int phi, int unit) const;
   void                      printTiles() const;
@@ -81,6 +86,9 @@ private:
   double              zVcal;    // Z-position  of the front of HF
   double              dzVcal;   // Half length of the HF
   double              dlShort;  // Diference of length between long and short
+  int                 depthEta16[2]; // depth index of ieta=16 for HBmax, HEMin
+  int                 depthEta29[2]; // maximum depth index for ieta=29
+  std::vector<HcalDetId> idHF2QIE;   // DetId's of HF modules with 2 QIE's
 };
 
 #endif

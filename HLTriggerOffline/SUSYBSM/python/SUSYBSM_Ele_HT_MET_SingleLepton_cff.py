@@ -52,3 +52,7 @@ SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClie
                                                                  resolution = cms.vstring('')
                                                                  )
 
+
+# fastsim has no conversion collection (yet)
+from Configuration.StandardSequences.Eras import eras
+eras.fastSim.toModify(SUSY_HLT_Ele_HT_MET_SingleLepton,conversionCollection=cms.InputTag(''))

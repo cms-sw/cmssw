@@ -230,8 +230,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i=qie10s.begin(); i!=qie10s.end(); i++) {
       const QIE10DigiCollection& c=*(*i);
       
-      for (int j=0; j < c.size(); j++)
-	cout << c[j] << std::endl;
+      for (unsigned j=0; j < c.size(); j++)
+	cout << QIE10DataFrame(c[j]) << std::endl;
     }
   } catch (...) {
   }
@@ -242,8 +242,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i=qie11s.begin(); i!=qie11s.end(); i++) {
       const QIE11DigiCollection& c=*(*i);
       
-      for (int j=0; j < c.size(); j++)
-	cout << c[j] << std::endl;
+      for (unsigned j=0; j < c.size(); j++)
+	cout << QIE11DataFrame(c[j]) << std::endl;
     }
   } catch (...) {
   }

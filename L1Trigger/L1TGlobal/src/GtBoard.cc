@@ -105,7 +105,7 @@ l1t::GtBoard::GtBoard() :
 // destructor
 l1t::GtBoard::~GtBoard() {
 
-    reset();
+    //reset();
     delete m_candL1Mu;
     delete m_candL1EG;
     delete m_candL1Tau;
@@ -817,24 +817,51 @@ void l1t::GtBoard::runGTL(
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-            // set object map
-            L1GlobalTriggerObjectMap objMap;
+	  std::vector<ObjectTypeInCond> otypes;	  
+	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
+	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
+	    int myChip = -1;
+	    int found =0;
+	    ObjectTypeInCond otype;	      
+	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
+	      myChip++;
+	      auto match = imap->find(iop->tokenName);
+	      
+	      if (match != imap->end()){
+		found = 1;
+		//cout << "DEBUG: found match for " << iop->tokenName << " at " << match->first << "\n";
+		otype = match->second->objectType();
+		for (auto itype = otype.begin(); itype != otype.end() ; itype++){
+		  //cout << "type:  " << *itype << "\n";
+		}
+	      }	      
+	    }
+	    if (!found){
+	      edm::LogWarning("l1t|Global") << "\n Failed to find match for operand token " << iop->tokenName << "\n";
+	    } else {
+	      otypes.push_back(otype);
+	    }
+	  }
 
-            objMap.setAlgoName(itAlgo->first);
-            objMap.setAlgoBitNumber(algBitNumber);
-            objMap.setAlgoGtlResult(algResult);
-            objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
-            objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
-	    // gtAlg is empty now...
+	  // set object map
+	  L1GlobalTriggerObjectMap objMap;
+	  
+	  objMap.setAlgoName(itAlgo->first);
+	  objMap.setAlgoBitNumber(algBitNumber);
+	  objMap.setAlgoGtlResult(algResult);
+	  objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
+	  objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
+	  // gtAlg is empty now...
+	  objMap.swapObjectTypeVector(otypes);
+	  
+	  if (m_verbosity && m_isDebugEnabled) {
+	    std::ostringstream myCout1;
+	    objMap.print(myCout1);
+	    
+	    LogTrace("l1t|Global") << myCout1.str() << std::endl;
+	  }
 
-            if (m_verbosity && m_isDebugEnabled) {
-                std::ostringstream myCout1;
-                objMap.print(myCout1);
-
-                LogTrace("l1t|Global") << myCout1.str() << std::endl;
-            }
-
-            objMapVec.push_back(objMap);
+	  objMapVec.push_back(objMap);
 
         }
 

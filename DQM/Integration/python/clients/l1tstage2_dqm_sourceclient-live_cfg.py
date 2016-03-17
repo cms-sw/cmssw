@@ -1,156 +1,109 @@
-# L1 Trigger DQM sequence (L1T)
-#
-#   authors previous versions - see CVS
-#
-#   Esmaeel Eskandari Tadavani revised version of L1 Trigger DQM
-
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
 
+#--------------------------------------------------
+# Event Source and Condition
 
-#----------------------------
-# Event Source
-#
-# for live online DQM in P5
+# Live Online DQM in P5
 #process.load("DQM.Integration.config.inputsource_cfi")
-#
-# for testing in lxplus
-process.load("DQM.Integration.config.fileinputsource_cfi")
-
-#----------------------------
-# DQM Environment
- 
-process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'L1T2016'
-process.dqmSaver.tag = 'L1T2016'
-#
-#
-# references needed
-#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
-
-# Condition for P5 cluster
 #process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-#es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
-#process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag.globaltag = cms.string('74X_dataRun2_HLT_v1') 
+# Testing in lxplus
+process.load("DQM.Integration.config.fileinputsource_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
-#-------------------------------------
-# sequences needed for L1 trigger DQM
-#
+#--------------------------------------------------
+# DQM Environment
 
-# standard unpacking sequence 
-#process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
+process.load("DQM.Integration.config.environment_cfi")
 
-# L1 Trigger sequences 
-
-# l1tMonitor and l1tMonitorEndPathSeq
-
-process.load("DQM.L1TMonitor.L1TStage2_cff") 
-
-#process.load("DQM.L1TMonitor.L1TMonitor_cff")
-# L1 trigger synchronization module - it uses also HltHighLevel filter
-
-
-#-------------------------------------
-# paths & schedule for L1 Trigger DQM
-# TODO define a L1 trigger L1TriggerRawToDigi in the standard sequence 
-# to avoid all these remove
-
-#process.rawToDigiPath = cms.Path(process.RawToDigi)
-#process.RawToDigi.remove("siPixelDigis")
-#process.RawToDigi.remove("siStripDigis")
-#process.RawToDigi.remove("scalersRawToDigi")
-#process.RawToDigi.remove("castorDigis")
-#process.L1TMuonEmulation.remove("emptyCaloCollsProducer")
-#process.emptyCaloCollsProducer.InputLabel = cms.InputTag("rawDataCollector")
-
-# for GCT, unpack all five samples
-#process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
-
-#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-#process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
-#else:
-#process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
-
-process.l1tMonitorPath = cms.Path(process.l1tStage2online)
-
-# separate L1TSync path due to the use of the HltHighLevel filter
-
-#process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
+process.dqmEnv.subSystemFolder = "L1T2016"
+process.dqmSaver.tag = "L1T2016"
+#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 process.dqmEndPath = cms.EndPath(
-                                 process.dqmEnv *
-                                 process.dqmSaver
-                                 )
+    process.dqmEnv *
+    process.dqmSaver
+)
 
-process.schedule = cms.Schedule(#process.rawToDigiPath,
-                                process.l1tMonitorPath,
-                                #process.l1tMonitorEndPath,
-                                process.dqmEndPath
-                                )
+#--------------------------------------------------
+# Standard Unpacking Path
 
-#---------------------------------------------
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
-# examples for quick fixes in case of troubles 
-# please do not modify the commented lines
-# turn on verbosity in L1TEventInfoClient
+process.rawToDigiPath = cms.Path(process.RawToDigi)
 
-# process.l1tEventInfoClient.verbose = cms.untracked.bool(True)
+# For GCT, unpack all five samples.
+process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
-# remove module(s) or system sequence from l1tMonitorPath
-#        quality test disabled also
+process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
-#process.l1tMonitorOnline.remove(process.bxTiming)
-#process.l1tMonitorOnline.remove(process.bxTiming)
-#process.l1tMonitorOnline.remove(process.l1tBPTX)
-#process.l1tMonitorOnline.remove(process.l1tLtc)
-#process.l1tMonitorOnline.remove(process.l1Dttf)
-#process.l1tMonitorOnline.remove(process.l1tCsctf) 
-#process.l1tMonitorOnline.remove(process.l1tRpctf)
-#process.l1tMonitorOnline.remove(process.l1tGmt)
-#process.l1tMonitorOnline.remove(process.l1tGt) 
-#process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
-#process.l1tMonitorOnline.remove(process.l1tRate)
-#process.l1tMonitorOnline.remove(process.l1tRctRun1)
-#process.l1tMonitorOnline.remove(process.l1tGctSeq)
+#--------------------------------------------------
+# Legacy DQM Paths
 
-# remove module(s) or system sequence from l1tMonitorEndPath
+process.load("DQM.L1TMonitor.L1TMonitor_cff")
+process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
-#process.l1tMonitorEndPathSeq.remove(process.l1s)
-#process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
-#process.schedule.remove(process.l1tSyncPath)
+#--------------------------------------------------
+# Stage2 DQM Paths
+
+process.load("DQM.L1TMonitor.L1TStage2_cff")
+process.l1tMonitorPath = cms.Path(process.l1tStage2online)
+
+# Remove Subsystem Modules
+#process.l1tStage2online.remove(process.l1tLayer1)
+#process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
+#process.l1tStage2online.remove(process.l1tStage2uGMT)
+#process.l1tStage2online.remove(process.l1tStage2Emtf)
+
+#--------------------------------------------------
+# Stage2 Unpacking Path
+
+process.stage2UnpackPath = cms.Path(
+    process.l1tCaloLayer1Digis +
+    process.caloStage2Digis +
+    process.gmtStage2Digis +
+    process.emtfStage2Digis
+)
+
+#--------------------------------------------------
+# L1 Trigger DQM Schedule
+
+process.schedule = cms.Schedule(
+    process.rawToDigiPath,
+    process.stage2UnpackPath,
+    process.l1tMonitorPath,
+    #process.l1tMonitorClientPath,
+    #process.l1tMonitorEndPath,
+    #process.l1tMonitorClientEndPath,
+    process.dqmEndPath
+)
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
 print "Running with run type = ", process.runType.getRunType()
-#process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-#process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-#process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-#process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
-#process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-#process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-#process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-#process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
-#process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-#process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-#process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-#process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-#process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-#process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
-#process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-#process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
-#process.l1s.fedRawData = cms.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.csctfDigis.producer = cms.InputTag("rawDataCollector")
+process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
+process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
+process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
+process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
+process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
+process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
+process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
+process.l1s.fedRawData = cms.InputTag("rawDataCollector")
     
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -171,7 +124,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
 
-### process customizations included here
+#--------------------------------------------------
+# Process Customizations
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+

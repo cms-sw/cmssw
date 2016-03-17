@@ -26,6 +26,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -100,7 +101,7 @@ namespace fwlite {
       Long64_t eventIndex() const { return eventIndex_; }
       virtual Long64_t fileIndex() const { return eventIndex_; }
 
-      void setGetter(std::shared_ptr<edm::EDProductGetter> getter){
+      void setGetter(std::shared_ptr<edm::EDProductGetter const> getter){
          event_->setGetter(getter);
       }
 
@@ -137,11 +138,11 @@ namespace fwlite {
       void switchToFile(Long64_t);
       // ---------- member data --------------------------------
       std::vector<std::string> fileNames_;
-      std::shared_ptr<TFile> file_;
-      std::shared_ptr<Event> event_;
+      edm::propagate_const<std::shared_ptr<TFile>> file_;
+      edm::propagate_const<std::shared_ptr<Event>> event_;
       Long64_t eventIndex_;
       std::vector<Long64_t> accumulatedSize_;
-      std::shared_ptr<edm::EDProductGetter> getter_;
+      edm::propagate_const<std::shared_ptr<edm::EDProductGetter>> getter_;
 
 };
 

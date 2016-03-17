@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "HLTrigger/Muon/interface/HLTMuonL1TFilter.h"
 #include "HLTrigger/Muon/interface/HLTMuonL1Filter.h"
 #include "HLTrigger/Muon/interface/HLTMuonL1RegionalFilter.h"
 #include "HLTrigger/Muon/interface/HLTMuonL2PreFilter.h"
@@ -15,6 +16,7 @@
 #include "HLTrigger/Muon/interface/HLTMuonTrkFilter.h"
 #include "HLTrigger/Muon/interface/HLTL1MuonSelector.h"
 #include "HLTrigger/Muon/interface/HLTScoutingMuonProducer.h"
+DEFINE_FWK_MODULE(HLTMuonL1TFilter);
 DEFINE_FWK_MODULE(HLTMuonL1Filter);
 DEFINE_FWK_MODULE(HLTMuonL1RegionalFilter);
 DEFINE_FWK_MODULE(HLTMuonL2PreFilter);

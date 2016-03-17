@@ -191,3 +191,5 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PixelTracksProducer);

@@ -102,7 +102,7 @@ namespace fwlite {
                     return 0U;
                 }
 
-                Event* event_;
+                Event const* event_;
         };
     }
 //
@@ -119,9 +119,9 @@ namespace fwlite {
   fileVersion_(-1),
   parameterSetRegistryFilled_(false),
   dataHelper_(branchMap_.getEventTree(),
-              std::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
+              std::make_shared<EventHistoryGetter>(this),
               std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-              std::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
+              std::make_shared<internal::ProductGetter>(this),
               true) {
     if(nullptr == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
@@ -159,7 +159,7 @@ namespace fwlite {
     if(fileVersion_ >= 7 && fileVersion_ < 17) {
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
     }
-    runFactory_ =  std::shared_ptr<RunFactory>(new RunFactory());
+    runFactory_ =  std::make_shared<RunFactory>();
 
 }
 

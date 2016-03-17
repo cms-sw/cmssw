@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <fstream>
 #include <cmath>
+#include <stdlib.h>
 
 // data dirs
 TString theDirName = "Images";
@@ -33,16 +34,25 @@ TProfile* prof_x0_str_ELE;
 TProfile* prof_x0_str_OTH;
 TProfile* prof_x0_str_AIR;
 //
+TProfile* prof_l0_det_total;
+//
 TProfile2D* prof2d_x0_det_total;
 //
 unsigned int iFirst = 1;
 unsigned int iLast  = 9;
 //
 
+//forward declaration of functions
+void createPlots(TString plot);
+void create2DPlots(TString plot);
+void createRatioPlots(TString plot);
+void drawEtaValues();
+void makeColorTable();
+
 using namespace std;
 
 // Main
-MaterialBudget(TString detector) {
+void MaterialBudget(TString detector) {
 
   //
   gROOT->SetStyle("Plain");
@@ -58,7 +68,7 @@ MaterialBudget(TString detector) {
      && theDetector!="InnerTracker"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
-    break;
+    exit(0);
   }
   //
   
@@ -156,7 +166,7 @@ void createPlots(TString plot) {
   prof_x0_det_ELE   = (TProfile*)theDetectorFile->Get(Form("%u", 500 + plotNumber));
   prof_x0_det_OTH   = (TProfile*)theDetectorFile->Get(Form("%u", 600 + plotNumber));
   prof_x0_det_AIR   = (TProfile*)theDetectorFile->Get(Form("%u", 700 + plotNumber));
-  
+
   // histos
   TH1D* hist_x0_total = (TH1D*)prof_x0_det_total->ProjectionX();
   TH1D* hist_x0_SUP   = (TH1D*)prof_x0_det_SUP->ProjectionX();
@@ -165,7 +175,7 @@ void createPlots(TString plot) {
   TH1D* hist_x0_COL   = (TH1D*)prof_x0_det_COL->ProjectionX();
   TH1D* hist_x0_ELE   = (TH1D*)prof_x0_det_ELE->ProjectionX();
   TH1D* hist_x0_OTH   = (TH1D*)prof_x0_det_OTH->ProjectionX();
-  TH1D* hist_x0_AIR   = (TH1D*)prof_x0_det_AIR->ProjectionX();
+  TH1D* hist_x0_AIR   = (TH1D*)prof_x0_det_AIR->ProjectionX();  
   //
   if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
@@ -303,6 +313,7 @@ void create2DPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
+  TString quotaName = "dummy";
   Int_t zLog = 0;
   Int_t iDrawEta = 0;
   Int_t iRebin = 0; //Rebin
@@ -657,7 +668,7 @@ void createRatioPlots(TString plot) {
 void drawEtaValues(){
 
   //Add eta labels
-  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4., -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
+  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4, -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
   Float_t etax = 2940.;
   Float_t etay = 1240.;
   Float_t lineL = 100.;
@@ -676,16 +687,18 @@ void drawEtaValues(){
     TLine *linev = new TLine(0.,-10.,0.,10.); 
     linev->Draw();  
 
+    Float_t x1;
+    Float_t y1;
     if ( etas[ieta]>-1.6 && etas[ieta]<1.6 ){
-      Float_t x1 = etay/tan(th);
-      Float_t y1 = etay;
+      x1 = etay/tan(th);
+      y1 = etay;
     } else if ( etas[ieta]<=-1.6 ) {
-      Float_t x1 = -etax;
-      Float_t y1 = -etax*tan(th);
+      x1 = -etax;
+      y1 = -etax*tan(th);
       talign = 11;
     } else if ( etas[ieta]>=1.6 ){
-      Float_t x1 = etax;
-      Float_t y1 = etax*tan(th);
+      x1 = etax;
+      y1 = etax*tan(th);
       talign = 31;
     }
     Float_t x2 = x1+lineL*cos(th);
@@ -697,10 +710,11 @@ void drawEtaValues(){
     line1->Draw();  
     char text[20];
     int rc = sprintf(text, "%3.1f", etas[ieta]);
+    TLatex *t1;
     if ( etas[ieta] == 0 ) {
-      TLatex *t1 = new TLatex(xt,yt,"#eta = 0"); 
+      t1 = new TLatex(xt,yt,"#eta = 0"); 
     } else {
-      TLatex *t1 = new TLatex(xt,yt,text); 
+      t1 = new TLatex(xt,yt,text); 
     }
     t1->SetTextSize(0.03);
     t1->SetTextAlign(talign);
