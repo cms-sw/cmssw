@@ -13,6 +13,7 @@ process = cms.Process("DQM")
 process.load("DQM.Integration.config.fileinputsource_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
+# Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #--------------------------------------------------
