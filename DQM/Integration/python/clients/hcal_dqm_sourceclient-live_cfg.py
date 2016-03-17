@@ -104,7 +104,7 @@ process.load("DQM.HcalTasks.RecHitTask")
 process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
-process.load('DQM.HcalHarvesting.HcalHarvesting')
+process.load('DQM.HcalTasks.HcalHarvesting')
 
 #-------------------------------------
 #	To force using uTCA

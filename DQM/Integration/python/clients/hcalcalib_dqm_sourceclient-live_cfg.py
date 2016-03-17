@@ -102,7 +102,7 @@ process.load("DQM.HcalTasks.LEDTask")
 process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.PedestalTask")
 process.load('DQM.HcalTasks.RadDamTask')
-process.load('DQM.HcalHarvesting.HcalCalibHarvesting')
+process.load('DQM.HcalTasks.HcalCalibHarvesting')
 
 #-------------------------------------
 #	To force using uTCA

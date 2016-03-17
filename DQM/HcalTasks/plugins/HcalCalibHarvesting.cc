@@ -1,4 +1,4 @@
-#include "DQM/HcalHarvesting/interface/HcalCalibHarvesting.h"
+#include "DQM/HcalTasks/interface/HcalCalibHarvesting.h"
 
 HcalCalibHarvesting::HcalCalibHarvesting(edm::ParameterSet const& ps) :
 	DQHarvester(ps), _reportSummaryMap(NULL)
