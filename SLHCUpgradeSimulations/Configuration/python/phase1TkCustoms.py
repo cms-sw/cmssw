@@ -261,6 +261,16 @@ def customise_harvesting(process):
 
     # Tracking DQM needs to be migrated for phase1
     process.DQMHarvestTracking.remove(process.TrackingOfflineDQMClient)
+    # Pixel DQM needs to be updated for phase1
+    #old = process.PixelOfflineDQMClientNoDataCertification
+    process.load('DQM.SiPixelPhase1Common.SiPixelPhase1OfflineDQM_harvesting_cff')
+    process.PixelOfflineDQMClientNoDataCertification.insert(1, process.siPixelPhase1OfflineDQM_harvesting)
+    #idx = process.DQMOffline_SecondStep_PreDPG.index(old)
+    #print "+++++++ Index 1: ", idx 
+    #process.DQMOffline_SecondStep_PreDPG.insert(idx, process.siPixelPhase1OfflineDQM_harvesting)
+    #idx = process.DQMHarvestCommon.index(old)
+    #print "+++++++ Index 2: ", idx 
+    #process.DQMHarvestCommon.insert(idx, process.siPixelPhase1OfflineDQM_harvesting)
 
     # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     process.DQMOffline_SecondStep.remove(process.HLTMonitoringClient)
