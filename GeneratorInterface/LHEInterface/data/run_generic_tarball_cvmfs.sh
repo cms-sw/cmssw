@@ -7,6 +7,9 @@
 # on frontier)
 #J.Bendavid
 
+#exit on first error
+set -e
+
 echo "   ______________________________________     "
 echo "         Running Generic Tarball/Gridpack     "
 echo "   ______________________________________     "

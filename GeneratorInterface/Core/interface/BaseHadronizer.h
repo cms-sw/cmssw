@@ -20,6 +20,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
@@ -27,6 +28,10 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
 
 // foward declarations
 namespace edm {
@@ -48,7 +53,8 @@ namespace gen {
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
     HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
     GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
-
+    virtual GenLumiInfoHeader *getGenLumiInfoHeader() const;
+    
     void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
     void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }
 
@@ -66,6 +72,14 @@ namespace gen {
     void setRandomEngine(CLHEP::HepRandomEngine* v) { doSetRandomEngine(v); }
 
     std::vector<std::string> const& sharedResources() const { return doSharedResources(); }
+    
+    int randomIndex() const { return randomIndex_; }
+    const std::string &randomInitConfigDescription() const { return randomInitConfigDescriptions_[randomIndex_]; }
+    const std::string &gridpackPath() const { return gridpackPaths_[std::max(randomIndex_,0)]; }
+    
+    void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    void cleanLHE();
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
@@ -74,6 +88,8 @@ namespace gen {
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
+    int randomIndex_;
+    std::string lheFile_;
 
   private:
 
@@ -91,6 +107,11 @@ namespace gen {
     edm::Event                          *edmEvent_;
 
     static const std::vector<std::string> theSharedResources;
+
+    std::vector<double> randomInitWeights_;
+    std::vector<std::string> randomInitConfigDescriptions_;
+    std::vector<std::string> gridpackPaths_;
+        
   };
 
 } // namespace gen
