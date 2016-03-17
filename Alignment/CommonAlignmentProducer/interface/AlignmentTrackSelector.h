@@ -68,7 +68,8 @@ class AlignmentTrackSelector
   ComparePt ptComparator;
 
   const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
-  const bool seedOnlyFromAbove_, applyIsolation_, chargeCheck_ ;
+  const int seedOnlyFromAbove_;
+  const bool applyIsolation_, chargeCheck_;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
   const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
   const double ptMin_,ptMax_,pMin_,pMax_,etaMin_,etaMax_,phiMin_,phiMax_;
