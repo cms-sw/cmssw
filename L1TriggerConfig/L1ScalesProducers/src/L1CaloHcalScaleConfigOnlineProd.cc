@@ -192,6 +192,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     std::vector< std::string > channelStrings;
     channelStrings.push_back("IPHI");
     channelStrings.push_back("IETA");
+    channelStrings.push_back("DEPTH");
     channelStrings.push_back("LUT_GRANULARITY");
     channelStrings.push_back("OUTPUT_LUT_THRESHOLD");
     channelStrings.push_back("OBJECTNAME");
@@ -209,6 +210,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     coral::AttributeList myresult; 
     myresult.extend("IPHI", typeid(int)); 
     myresult.extend("IETA", typeid(int)); 
+    myresult.extend("DEPTH", typeid(int)); 
     myresult.extend("LUT_GRANULARITY", typeid(int)); 
     myresult.extend("OUTPUT_LUT_THRESHOLD", typeid(int)); 
     myresult.extend( ob,typeid(std::string));//, typeid(std::string)); 
@@ -247,28 +249,29 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        chanResults.fillVariableFromRow("OBJECTNAME",i, objectName);
        //       int
        if(objectName == "HcalTrigTowerDetId") { //trig tower
-	 int ieta, iphi, lutGranularity, threshold;
+	 int ieta, iphi, depth, lutGranularity, threshold;
 	 
 	 
 	 chanResults.fillVariableFromRow("LUT_GRANULARITY",i,lutGranularity);
 	 chanResults.fillVariableFromRow("IPHI",i,iphi);
 	 chanResults.fillVariableFromRow("IETA",i,ieta);
+	 chanResults.fillVariableFromRow("DEPTH",i,depth);
 	 chanResults.fillVariableFromRow("OUTPUT_LUT_THRESHOLD",i,threshold);
 	 
 
 	 unsigned int outputLut[1024];
 
-	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	 const int tp_version = depth / 10;
+	 uint32_t lutId = caloTPG->getOutputLUTId(ieta, iphi, tp_version);
 
 	 double eta_low = 0., eta_high = 0.;
-	 const int version_of_hcal_TPs = 0;
-	 theTrigTowerGeometry->towerEtaBounds(ieta,version_of_hcal_TPs, eta_low,eta_high); 
+	 theTrigTowerGeometry->towerEtaBounds(ieta, tp_version, eta_low, eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 
-	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
+	 if (!caloTPG->HTvalid(ieta, iphi, tp_version)) continue;
 	 double factor = 0.;
-	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs))
+	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(tp_version))
 	   factor = rctlsb;
 	 else 
 	   factor = nominal_gain / cosh_ieta * lutGranularity;
@@ -276,7 +279,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   outputLut[k] = 0;
 	 
          for (unsigned int k = threshold; k < 1024; ++k)
-	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs)) ? analyticalLUT[k] : identityLUT[k];
+	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(tp_version)) ? analyticalLUT[k] : identityLUT[k];
 	 
 
 	   // tpg - compressed value
@@ -298,6 +301,8 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      
 
 
+     // XXX L1CaloHcalScale is only setup for 2x3 TP
+     const int tp_version = 0;
      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta ){
        for(int pos = 0; pos <=1; pos++){
 	 for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank ){
@@ -310,9 +315,9 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   
 
 	   for(int iphi = 1; iphi<=72; iphi++){
-	     if(!caloTPG->HTvalid(ieta, iphi))
+	     if(!caloTPG->HTvalid(ieta, iphi, tp_version))
 	       continue;
-	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi, tp_version);
 	     nphi++;
 	     etvalue += (double) hcaluncomp[lutId][irank];
 
