@@ -71,10 +71,10 @@ public:
         std::string deltaPhiRange;
         unsigned int deltaPhiMaxbits;
 
-	//BLW these might require further modification temp to start
-	//TO DO They need to be made integers when we have proper scales.
-	double minCutValue;
-	double maxCutValue; 
+	
+	//Cut values in hardware
+	int minCutValue;
+	int maxCutValue; 
 
         //Requirement on charge of legs (currently only Mu-Mu).	
 	unsigned int chargeCorrelation;

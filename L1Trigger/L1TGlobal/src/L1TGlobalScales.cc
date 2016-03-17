@@ -36,7 +36,7 @@ l1t::L1TGlobalScales::~L1TGlobalScales() {
 std::string l1t::L1TGlobalScales::getScalesName() const { return m_ScaleSetName;}
 
 
-void l1t::L1TGlobalScales::setLUT_CaloMuEta(std::string lutName, std::vector<long long> lut)
+void l1t::L1TGlobalScales::setLUT_CalMuEta(std::string lutName, std::vector<long long> lut)
 {
      if (m_lut_CalMuEta.count(lutName) != 0) {
         LogTrace("L1TGlobalScales") << "      LUT \"" << lutName
@@ -52,7 +52,7 @@ void l1t::L1TGlobalScales::setLUT_CaloMuEta(std::string lutName, std::vector<lon
 }
 
 
-void l1t::L1TGlobalScales::setLUT_CaloMuPhi(std::string lutName, std::vector<long long> lut)
+void l1t::L1TGlobalScales::setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut)
 {
      if (m_lut_CalMuPhi.count(lutName) != 0) {
         LogTrace("L1TGlobalScales") << "      LUT \"" << lutName
@@ -141,6 +141,171 @@ void l1t::L1TGlobalScales::setLUT_Cos(std::string lutName, std::vector<long long
 
     return;
 
+}
+
+
+long long l1t::L1TGlobalScales::getLUT_CalMuEta(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_CalMuEta.find(lutName)->second.size()) {
+     value = m_lut_CalMuEta.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for CalMuEta LUT (" << lutName <<") size = " << m_lut_CalMuEta.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_CalMuPhi(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_CalMuPhi.find(lutName)->second.size()) {
+     value = m_lut_CalMuPhi.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for CalMuPhi LUT (" << lutName <<") size = " << m_lut_CalMuPhi.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_DeltaEta(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_DeltaEta.find(lutName)->second.size()) {
+     value = m_lut_DeltaEta.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for DeltaEta LUT (" << lutName <<") size = " << m_lut_DeltaEta.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_DeltaPhi(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_DeltaPhi.find(lutName)->second.size()) {
+     value = m_lut_DeltaPhi.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for DeltaPhi LUT (" << lutName <<") size = " << m_lut_DeltaPhi.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_Pt(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_Pt.find(lutName)->second.size()) {
+     value = m_lut_Pt.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for Pt LUT (" << lutName <<") size = " << m_lut_Pt.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_Cosh(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_Cosh.find(lutName)->second.size()) {
+     value = m_lut_Cosh.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for Cosh LUT (" << lutName <<") size = " << m_lut_Cosh.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+long long l1t::L1TGlobalScales::getLUT_Cos(std::string lutName, int element) const
+{
+   long long value = 0;
+    
+   if(element < (int)m_lut_Cos.find(lutName)->second.size()) {
+     value = m_lut_Cos.find(lutName)->second.at(element); 
+   } else {
+     std::cout << "Warning: Element Requested " << element << " too large for Cos LUT (" << lutName <<") size = " << m_lut_Cos.find(lutName)->second.size() << std::endl; 
+   } 
+   return value;
+}
+
+
+void l1t::L1TGlobalScales::dumpAllLUTs(std::ostream& myCout) const
+{
+
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuEta.begin(); itr != m_lut_CalMuEta.end(); itr++) { 
+       dumpLUT(myCout,1,itr->first);
+    }
+ 
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuPhi.begin(); itr != m_lut_CalMuPhi.end(); itr++) { 
+       dumpLUT(myCout,2,itr->first);
+    }
+
+
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaEta.begin(); itr != m_lut_DeltaEta.end(); itr++) { 
+       dumpLUT(myCout,3,itr->first);
+    }
+
+
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaPhi.begin(); itr != m_lut_DeltaPhi.end(); itr++) { 
+       dumpLUT(myCout,4,itr->first);
+    }
+
+
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cosh.begin(); itr != m_lut_Cosh.end(); itr++) { 
+       dumpLUT(myCout,5,itr->first);
+    }
+
+
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cos.begin(); itr != m_lut_Cos.end(); itr++) { 
+       dumpLUT(myCout,6,itr->first);
+    }
+   
+   
+    for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Pt.begin(); itr != m_lut_Pt.end(); itr++) { 
+        dumpLUT(myCout,7,itr->first);
+    }
+}
+
+void l1t::L1TGlobalScales::dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const
+{
+    std::vector<long long> dumpV;
+    switch(LUTtype) {
+       case 1: {
+          dumpV = m_lut_CalMuEta.find(name)->second;
+          break;
+       } 
+       case 2: {
+          dumpV = m_lut_CalMuPhi.find(name)->second;
+          break;
+       } 
+       case 3: {
+          dumpV = m_lut_DeltaEta.find(name)->second;
+          break;
+       } 
+       case 4: {
+          dumpV = m_lut_DeltaPhi.find(name)->second;
+          break;
+       } 
+       case 5: {
+          dumpV = m_lut_Cosh.find(name)->second;
+          break;
+       } 
+       case 6: {
+          dumpV = m_lut_Cos.find(name)->second;
+          break;
+       } 
+       case 7: {
+          dumpV = m_lut_Pt.find(name)->second;
+          break;
+       }                                           
+    }
+    
+    myCout << "=========================================" << std::endl;
+    myCout << "   LUT: " << LUTtype << "  Table: " << name << "   Size = " << dumpV.size() << std::endl;
+    myCout << "=========================================" << std::endl;
+    for(int i=0; i<(int)dumpV.size(); i++) {
+      myCout << " Element " << i << " " << dumpV.at(i) << std::endl;
+    }
 }
 
 void l1t::L1TGlobalScales::print(std::ostream& myCout) const
