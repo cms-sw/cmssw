@@ -92,8 +92,9 @@
 
 	<!-- GenRunInfoProduct -->
 
-	<class name="GenRunInfoProduct" ClassVersion="10">
+	<class name="GenRunInfoProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="3638379298"/>
+  <version ClassVersion="11" checksum="2740704535"/>
  </class>
 	<class name="GenRunInfoProduct::XSec" ClassVersion="10">
   <version ClassVersion="10" checksum="658524022"/>
