@@ -154,6 +154,7 @@ def miniAOD_customizeCommon(process):
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
+    process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
@@ -250,6 +251,7 @@ def miniAOD_customizeCommon(process):
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
     
     process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
+    process.patJetsPuppi.userData.userInts.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
