@@ -5,7 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 from Configuration.StandardSequences.Eras import eras
 
-SiPixelPhase1Digis = cms.EDAnalyzer("SiPixelPhase1Digis",
+SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1DigisAnalyzer",
+	TopFolderName = cms.string('PixelPhase1'),
+        src = cms.InputTag("simSiPixelDigis")
+)
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
 	TopFolderName = cms.string('PixelPhase1'),
         src = cms.InputTag("simSiPixelDigis")
 )

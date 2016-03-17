@@ -48,9 +48,10 @@ public:
   // Initiate the geometry extraction and book all required frames. Requires the specs to be set.
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
 
-  // For step2, we need something here that that takes the spec and the DQMStore
-  // and executes the rest of the spec. This may need a lot of information to
-  // reconstruct the folder names used before... we'll see.
+  // These functions perform step2, for online (per lumisection) or offline (endRun) respectively.
+  // TODO: we need a EventSetup in offline as well. we'll see.:q
+  void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
+  void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
   void setName(std::string name) {this->name = name;};
   void setTitle(std::string title) {this->title = title;};
