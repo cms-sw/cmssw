@@ -26,6 +26,9 @@ DEFINE_FWK_MODULE(L1TRPCTF);
 #include <DQM/L1TMonitor/interface/L1TGMT.h>
 DEFINE_FWK_MODULE(L1TGMT);
 
+#include <DQM/L1TMonitor/interface/L1TLayer1.h>
+DEFINE_FWK_MODULE(L1TLayer1);
+
 #include <DQM/L1TMonitor/interface/L1TStage2CaloLayer2.h>
 DEFINE_FWK_MODULE(L1TStage2CaloLayer2);
 

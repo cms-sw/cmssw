@@ -39,7 +39,6 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackPhi;
-  MonitorElement* emtfTrackPhiFull;
   MonitorElement* emtfTrackOccupancy;
 };
 

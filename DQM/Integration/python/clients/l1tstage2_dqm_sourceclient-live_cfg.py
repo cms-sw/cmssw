@@ -13,6 +13,8 @@ process = cms.Process("DQM")
 process.load("DQM.Integration.config.fileinputsource_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+
 #--------------------------------------------------
 # DQM Environment
 
@@ -52,6 +54,7 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
 
 # Remove Subsystem Modules
+#process.l1tStage2online.remove(process.l1tLayer1)
 #process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
 #process.l1tStage2online.remove(process.l1tStage2uGMT)
 #process.l1tStage2online.remove(process.l1tStage2Emtf)
@@ -60,6 +63,7 @@ process.l1tMonitorPath = cms.Path(process.l1tStage2online)
 # Stage2 Unpacking Path
 
 process.stage2UnpackPath = cms.Path(
+    process.l1tCaloLayer1Digis +
     process.caloStage2Digis +
     process.gmtStage2Digis +
     process.emtfStage2Digis
@@ -69,7 +73,7 @@ process.stage2UnpackPath = cms.Path(
 # L1 Trigger DQM Schedule
 
 process.schedule = cms.Schedule(
-    #process.rawToDigiPath,
+    process.rawToDigiPath,
     process.stage2UnpackPath,
     process.l1tMonitorPath,
     #process.l1tMonitorClientPath,
