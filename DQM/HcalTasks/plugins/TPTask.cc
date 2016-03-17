@@ -230,6 +230,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		int soiEt_d = hddigi->SOI_compressedEt();
 		int soiFG_d = hddigi->SOI_fineGrain() ? 1 : 0;
 		HcalTrigTowerDetId tid = hddigi->id();
+		//	NOTE: skip1x1 should've done that - in the emap it's depth10
+		//	in data in 80X it's 0 for some reason!!!
+		//	skip using version number
+		if (tid.version()>0)
+			continue;
 
 		//	tmp
 		if (hddigi->id().depth()==1)

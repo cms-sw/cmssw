@@ -74,6 +74,7 @@ MicroEventContentMC.outputCommands += [
         'keep LHEEventProduct_*_*_*',
         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
         'keep GenFilterInfo_*_*_*',
+        'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
         # RUN

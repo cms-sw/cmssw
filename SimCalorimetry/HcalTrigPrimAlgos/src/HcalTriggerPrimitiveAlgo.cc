@@ -27,6 +27,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    numberOfPresamplesHF_(numberOfPresamplesHF),
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
+						   NCTScaleShift(0), RCTScaleShift(0),
                                                    peak_finder_algorithm_(2)
 {
    //No peak finding setting (for Fastsim)
@@ -78,20 +79,14 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
 
    // VME produces additional bits on the front used by lumi but not the
    // trigger, this shift corrects those out by right shifting over them.
-   int hf_lumi_shift = 0;
-   if (0.2 <= rctlsb && rctlsb < 0.3) {
-      hf_lumi_shift = 2;
-   } else if (0.3 <= rctlsb) {
-      hf_lumi_shift = 3;
-   }
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
       if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
          if (detId.version() == 0) {
-            analyzeHF(mapItr->second, result.back(), hf_lumi_shift);
+            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back(), hf_lumi_shift, LongvrsShortCut);
+            analyzeHFV1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
             // Things are going to go poorly
          }
@@ -508,4 +503,12 @@ void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo){
    if (algo <=0 && algo>2)
       throw cms::Exception("ERROR: Only algo 1 & 2 are supported.") << std::endl;
    peak_finder_algorithm_ = algo;
+}
+
+void HcalTriggerPrimitiveAlgo::setNCTScaleShift(int shift){
+   NCTScaleShift = shift;
+}
+
+void HcalTriggerPrimitiveAlgo::setRCTScaleShift(int shift){
+   RCTScaleShift = shift;
 }

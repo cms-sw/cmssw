@@ -54,13 +54,13 @@ PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   reportSummaryMapTH2->GetXaxis()->SetBinLabel(3, "Total");
   reportSummaryMapTH2->GetYaxis()->SetBinLabel(1, "InvMassTest");
 
-  float EBResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel",
+  float EBResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel",
       "invMassIsolatedPhotonsEB", igetter);
 
-  float EEResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap",
+  float EEResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap",
       "invMassIsolatedPhotonsEE", igetter);
 
-  float AllResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons",
+  float AllResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons",
       "invMassAllIsolatedPhotons", igetter);
 
   if (verbose_) {

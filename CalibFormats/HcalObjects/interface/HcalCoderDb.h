@@ -22,6 +22,7 @@ public:
   virtual void adc2fC(const ZDCDataFrame& df, CaloSamples& lf) const;
   virtual void adc2fC(const HcalCalibDataFrame& df, CaloSamples& lf) const;
   virtual void adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const;
+  virtual void adc2fC(const QIE10DataFrame& df, CaloSamples& lf) const;
 
   virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const;
   virtual void fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffset) const;
@@ -29,6 +30,7 @@ public:
   virtual void fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const;
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const;
   virtual void fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const;
+  virtual void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const;
 
 private:
   template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;

@@ -12,7 +12,7 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
    process.MessageLogger.cerr.FwkReport.reportEvery = 100
-   process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+   process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
    process.options.allowUnscheduled = cms.untracked.bool(True)
    process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(inFileNames))
    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -67,6 +67,9 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    # make photon candidate conversions for P-wave studies
    process.load('HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi')
 
+   # add v0 with tracks embed
+   process.load('HeavyFlavorAnalysis.Onia2MuMu.OniaAddV0TracksProducer_cfi')
+
    # Pick branches you want to keep
    SlimmedEventContent = [
                      'keep recoVertexs_offlinePrimaryVertices_*_*',
@@ -78,6 +81,7 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
                      'keep *_PhotonCandidates_*_*',
                      'keep *_onia2MuMuPAT_*_*',
                      'keep *_generalV0Candidates_*_*',
+                     'keep *_oniaV0Tracks_*_*',
                      'keep PileupSummaryInfos_*_*_*'
    ]
 

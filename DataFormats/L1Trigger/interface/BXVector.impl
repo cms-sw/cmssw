@@ -257,6 +257,73 @@ if (itrs_[indexFromBX(bx)]==itrs_[indexFromBX(bx+1)])
 return false;
 }
 
+// edm::View support
+template <class T>
+inline
+void BXVector<T>::fillView(edm::ProductID const& id,
+			   std::vector<void const*>& pointers,
+			   edm::FillViewHelperVector& helpers) const {
+  edm::detail::reallyFillView(*this,id,pointers,helpers);
+}
+//
+namespace edm {
+  template <class T>
+  inline
+  void
+  fillView(BXVector<T> const& obj,
+	   edm::ProductID const& id,
+	   std::vector<void const*>& pointers,
+	   edm::FillViewHelperVector& helpers) {
+    obj.fillView(id, pointers, helpers);
+  }
+  template <class T>
+  struct has_fillView<BXVector<T> >
+  {
+    static bool const value = true;
+  };
+}
+
+// edm::Ptr support
+template <class T>
+inline
+void BXVector<T>::setPtr(std::type_info const& toType,
+			 unsigned long index,
+			 void const*& ptr) const {
+  edm::detail::reallySetPtr<BXVector<T> >(*this, toType, index, ptr);
+}
+template <class T>
+inline
+void BXVector<T>::fillPtrVector(std::type_info const& toType,
+				std::vector<unsigned long> const& indices,
+                                std::vector<void const*>& ptrs) const {
+  edm::detail::reallyfillPtrVector(*this, toType, indices, ptrs);
+}
+//
+template <class T>
+inline
+void
+setPtr(BXVector<T> const& obj,
+       std::type_info const& toType,
+       unsigned long index,
+       void const*& ptr) {
+  obj.setPtr(toType, index, ptr);
+}
+template <class T>
+inline
+void
+fillPtrVector(BXVector<T> const& obj,
+	      std::type_info const& toType,
+	      std::vector<unsigned long> const& indices,
+	      std::vector<void const*>& ptrs) {
+  obj.fillPtrVector(toType, indices, ptrs);
+}
+namespace edm {
+  template <class T>
+  struct has_setPtr<BXVector<T> > {
+    static bool const value = true;
+  };
+}
+
 // Local Variables:
 // mode: c++
 // End:

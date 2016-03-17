@@ -48,8 +48,9 @@ from L1Trigger.L1TGlobal.StableParameters_cff import *
 from L1Trigger.L1TGlobal.TriggerMenu_cff import *
 TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
 
-#
-# BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
+
+# ####################################################
+# BEGIN L1T UNPACKER-EMULTATOR SEQUENCE FOR STAGE 2
 #
 
 process.hltGtStage2Digis = cms.EDProducer(
@@ -71,35 +72,15 @@ process.hltGmtStage2Digis = cms.EDProducer(
 )
 
 process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
-    GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
+    MuonInputTag = cms.InputTag("hltGmtStage2Digis","Muon"),
     ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
-    CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+    EtSumInputTag = cms.InputTag("hltCaloStage2Digis", "EtSum"),
+    EGammaInputTag = cms.InputTag("hltCaloStage2Digis", "EGamma"),
+    TauInputTag = cms.InputTag("hltCaloStage2Digis", "Tau"),
+    JetInputTag = cms.InputTag("hltCaloStage2Digis", "Jet"),
     AlgorithmTriggersUnprescaled = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(True),
 )
-
-
-process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
-    saveTags = cms.bool( True ),
-    L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
-    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
-    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
-    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
-    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
-    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
-    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
-)
-
-
-#process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    #processName = cms.string( "@" )
-#)
-process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
-
-
 
 process.HLTL1UnpackerSequence = cms.Sequence(
  process.hltGtStage2Digis +
@@ -108,14 +89,47 @@ process.HLTL1UnpackerSequence = cms.Sequence(
  process.hltGtStage2ObjectMap)
 
 #
-# END HLT UNPACKER SEQUENCE FOR STAGE 2
-#
+# END L1T UNPACKER-EMULATOR SEQUENCE FOR STAGE 2
+# ####################################################
 
-# HLT testing sequence
+
+# ####################################################
+# BEGIN HLT SEED SEQUENCE FOR STAGE 2
+#
+process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
+    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
+    L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis","Muon"),
+    L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis","EGamma"),
+    L1JetInputTag        = cms.InputTag("hltCaloStage2Digis","Jet"),
+    L1TauInputTag        = cms.InputTag("hltCaloStage2Digis","Tau"),
+    L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis","EtSum"),
+)
+
+#process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    #processName = cms.string( "@" )
+#)
+process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+    processName = cms.string( "@" )
+)
 process.HLTTesting  = cms.Sequence( 
     process.hltL1TSeed + 
     process.hltTriggerSummaryRAW 
 )
+#
+# END HLT SEED SEQUENCE FOR STAGE 2
+# ####################################################
+# work-around for upstream problems with Calo packer/unpacker sequence, pending fix.
+process.hltL1TSeed.L1GlobalInputTag = cms.InputTag("simGtStage2Digis")
+process.hltL1TSeed.L1ObjectMapInputTag = cms.InputTag("simGtStage2Digis")
+
+# temp for testing
+# process.simGtStage2Digis.PrescaleSet = cms.uint32(4)
+#process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
+
+
 
 
 process.maxEvents = cms.untracked.PSet(

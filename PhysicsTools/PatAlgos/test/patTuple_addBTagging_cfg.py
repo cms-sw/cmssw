@@ -13,7 +13,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
 # b-tag discriminators
 btagDiscriminators = [
-     # legacy framework (supported with RECO/AOD but not MiniAOD)
+     # legacy framework (no longer supported, work with RECO/AOD but not MiniAOD)
      'jetBProbabilityBJetTags'
     ,'jetProbabilityBJetTags'
     ,'positiveOnlyJetBProbabilityBJetTags'
@@ -40,6 +40,8 @@ btagDiscriminators = [
     ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'combinedMVAV2BJetTags'
+    ,'negativeCombinedMVAV2BJetTags'
+    ,'positiveCombinedMVAV2BJetTags'
      # new candidate-based framework (supported with RECO/AOD/MiniAOD)
     ,'pfJetBProbabilityBJetTags'
     ,'pfJetProbabilityBJetTags'
@@ -47,13 +49,19 @@ btagDiscriminators = [
     ,'pfPositiveOnlyJetProbabilityBJetTags'
     ,'pfNegativeOnlyJetBProbabilityBJetTags'
     ,'pfNegativeOnlyJetProbabilityBJetTags'
+    ,'pfTrackCountingHighPurBJetTags'
     ,'pfTrackCountingHighEffBJetTags'
     ,'pfNegativeTrackCountingHighPurBJetTags'
     ,'pfNegativeTrackCountingHighEffBJetTags'
     ,'pfSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighPurBJetTags'
     ,'pfNegativeSimpleSecondaryVertexHighEffBJetTags'
     ,'pfNegativeSimpleSecondaryVertexHighPurBJetTags'
-     ,'pfCombinedSecondaryVertexV2BJetTags'
+    ,'pfSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'pfNegativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'pfNegativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'pfCombinedSecondaryVertexV2BJetTags'
     ,'pfPositiveCombinedSecondaryVertexV2BJetTags'
     ,'pfNegativeCombinedSecondaryVertexV2BJetTags'
     ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
@@ -84,10 +92,12 @@ btagDiscriminators = [
     ,'negativeSoftPFElectronByIP3dBJetTags'
     ,'negativeSoftPFElectronByIP2dBJetTags'
     ,'pfCombinedMVAV2BJetTags'
-    #CTagging
+    ,'pfNegativeCombinedMVAV2BJetTags'
+    ,'pfPositiveCombinedMVAV2BJetTags'
+     # CTagging
     ,'pfCombinedCvsLJetTags'
     ,'pfCombinedCvsBJetTags'
-    #ChargeTagging
+     # ChargeTagging
     ,'pfChargeBJetTags'
 ]
 

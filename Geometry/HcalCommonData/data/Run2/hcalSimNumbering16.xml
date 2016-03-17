@@ -67,8 +67,8 @@
   </Vector>
   <Vector name="noff" type="numeric" nEntries="42">
     15, 29,  4, 10,  5,  2,  4, 18, 19, 11, 12, 13, 14,  2,  3,  2,  1, 12,
-    29, 35, 30, 35, 31, 35, 32, 35, 33, 35, 34, 35, 35, 35, 36, 35,
-    37, 35, 38, 35, 39, 35, 41, 35
+    29, 39, 30, 39, 31, 39, 32, 39, 33, 39, 34, 39, 35, 39, 36, 39,
+    37, 39, 38, 39, 39, 39, 41, 39
   </Vector>
   <Vector name="Layer0Wt" type="numeric" nEntries="2">
     0.5, 0.5
@@ -86,7 +86,7 @@
     0, 0, 0, 0
   </Vector>
   <Vector name="HFGains" type="numeric" nEntries="4">
-    2.840, 2.090, 0.000, 0.000
+    2.840, 2.090, 2.840, 2.090
   </Vector>
   <Vector name="HFShift" type="numeric" nEntries="4">
     0, 0, 0, 0

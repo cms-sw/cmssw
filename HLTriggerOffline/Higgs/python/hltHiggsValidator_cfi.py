@@ -383,11 +383,17 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p026_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p014_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v",
+
 	    # old csv version
             "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
             "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
+
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),

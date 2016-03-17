@@ -8,9 +8,12 @@ import FWCore.ParameterSet.Config as cms
 # cfi uGT emulator
 
 simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
-    GmtInputTag = cms.InputTag("simGmtStage2Digis"),
+    MuonInputTag = cms.InputTag("simGmtStage2Digis"),
     ExtInputTag = cms.InputTag("none"),
-    CaloInputTag = cms.InputTag("simCaloStage2Digis"),
+    EGammaInputTag = cms.InputTag("simCaloStage2Digis"),
+    TauInputTag = cms.InputTag("simCaloStage2Digis"),
+    JetInputTag = cms.InputTag("simCaloStage2Digis"),
+    EtSumInputTag = cms.InputTag("simCaloStage2Digis"),
     AlgorithmTriggersUnmasked = cms.bool(False),    
     AlgorithmTriggersUnprescaled = cms.bool(False),
 )

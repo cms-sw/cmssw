@@ -144,6 +144,21 @@ ecalTimingClient = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Distribution of per-channel timing mean. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        TrendMean = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/TimingClient %(prefix)s timing mean'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of timing mean. Plots simple average of all channel timing means at each lumisection.')
+        ),
+        TrendRMS = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/TimingClient %(prefix)s timing rms'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of timing rms. Plots simple average of all channel timing rms at each lumisection.')
         )
     )
 )
+

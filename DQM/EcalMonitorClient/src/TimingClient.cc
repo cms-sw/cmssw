@@ -64,6 +64,9 @@ namespace ecaldqm
     MESet::iterator rItr(meRMSMap);
     MESet::const_iterator tItr(sTimeMap);
 
+    float EBentries(0.), EEentries(0.);
+    float EBmean(0.), EEmean(0.);
+    float EBrms(0.), EErms(0.);
     for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       tItr = qItr;
@@ -129,6 +132,31 @@ namespace ecaldqm
         qItr->setBinContent(doMask ? kMBad : kBad);
       else
         qItr->setBinContent(doMask ? kMGood : kGood);
+
+      // For Trend plots:
+      // Keep running count of timing mean, rms, and N_hits
+      if ( id.subdetId() == EcalBarrel ) {
+        EBmean += mean;
+        EBrms += rms;
+        EBentries += entries;
+      } else {
+        EEmean += mean;
+        EErms += rms;
+        EEentries += entries;
+      }
+
+    } // channel loop
+
+    // Fill Timing Trend plots at each LS
+    MESet& meTrendMean(MEs_.at("TrendMean"));
+    MESet& meTrendRMS(MEs_.at("TrendRMS"));
+    if ( EBentries > 0. ) {
+      if ( abs(EBmean) > 0. ) meTrendMean.fill( EcalBarrel, double(timestamp_.iLumi), EBmean/EBentries );
+      if ( abs(EBrms ) > 0. ) meTrendRMS.fill ( EcalBarrel, double(timestamp_.iLumi), EBrms/EBentries  );
+    }
+    if ( EEentries > 0. ) {
+      if ( abs(EEmean) > 0. ) meTrendMean.fill( EcalEndcap, double(timestamp_.iLumi), EEmean/EEentries );
+      if ( abs(EErms ) > 0. ) meTrendRMS.fill ( EcalEndcap, double(timestamp_.iLumi), EErms/EEentries  );
     }
 
     MESet::iterator qsEnd(meQualitySummary.end());
@@ -184,13 +212,13 @@ namespace ecaldqm
         if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
           quality = doMask ? kMBad : kBad;
         else{
-	  towerMean /= towerEntries;
-	  towerMean2 /= towerEntries;
+          towerMean /= towerEntries;
+          towerMean2 /= towerEntries;
 
-	  float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
+          float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
 
-	  if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
-	    quality = doMask ? kMBad : kBad;
+          if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
+            quality = doMask ? kMBad : kBad;
           else
             quality = doMask ? kMGood : kGood;
         }

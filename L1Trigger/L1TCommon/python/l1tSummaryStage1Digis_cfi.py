@@ -17,5 +17,5 @@ l1tSummaryStage1Digis = cms.EDAnalyzer(
     tauTokens  = cms.VInputTag(["caloStage1FinalDigis:rlxTaus","caloStage1FinalDigis:isoTaus"]),
     jetToken   = cms.InputTag("caloStage1FinalDigis"),
     sumToken   = cms.InputTag("caloStage1FinalDigis"),
-    #muonToken = cms.InputTag("gmtStage2Digis",""),
+    #muonToken = cms.InputTag(""),
 )

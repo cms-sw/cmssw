@@ -18,7 +18,7 @@ namespace l1t {
 
             virtual void fillDescription(edm::ParameterSetDescription& desc) override {
 	      desc.addOptional<edm::InputTag>("TowerInputLabel")->setComment("for stage 2");
-};
+	    };
 
             virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
@@ -38,11 +38,11 @@ namespace l1t {
             };
 
             virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
-               prod.produces<CaloTowerBxCollection>();
-               prod.produces<EGammaBxCollection>();
-               prod.produces<EtSumBxCollection>();
-               prod.produces<JetBxCollection>();
-               prod.produces<TauBxCollection>();
+               prod.produces<CaloTowerBxCollection>("CaloTower");
+               prod.produces<EGammaBxCollection>("EGamma");
+               prod.produces<EtSumBxCollection>("EtSum");
+               prod.produces<JetBxCollection>("Jet");
+               prod.produces<TauBxCollection>("Tau");
 
                prod.produces<EtSumBxCollection>("MP");
                prod.produces<JetBxCollection>("MP");

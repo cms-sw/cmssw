@@ -148,7 +148,10 @@ private:
     edm::EDGetTokenT<BXVector<l1t::Muon>> m_muInputToken;
 
     /// input tag for calorimeter collections from GCT
-    edm::InputTag m_caloInputTag;
+    edm::InputTag m_egInputTag;
+    edm::InputTag m_tauInputTag;
+    edm::InputTag m_jetInputTag;
+    edm::InputTag m_sumInputTag;
     edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
     edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
     edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;

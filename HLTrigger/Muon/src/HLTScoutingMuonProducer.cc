@@ -130,5 +130,5 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
                                 "hltMuonTkRelIsolationCut0p09Map:combinedRelativeIsoDeposits"));
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
-    descriptions.add("scoutingMuonProducer", desc);
+    descriptions.add("hltScoutingMuonProducer", desc);
 }

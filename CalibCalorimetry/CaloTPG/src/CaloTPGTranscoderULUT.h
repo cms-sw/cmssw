@@ -34,7 +34,7 @@ public:
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual const std::vector<unsigned int>& getCompressionLUT(const HcalTrigTowerDetId& id) const;
-  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&);
+  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
   virtual int getOutputLUTId(const int ieta, const int iphi) const;
 
@@ -50,15 +50,13 @@ public:
   static const unsigned int TPGMAX = 256;
   static const bool newHFphi = true;
 
-  static constexpr float LSB_HBHE = 0.25f;
-  static constexpr float LSB_HF = 0.5f;
-
   // Member functions
   void loadHCALCompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical compression tables
 
   // Member Variables
   double nominal_gain_;
   double rctlsb_factor_;
+  double nctlsb_factor_;
   std::string compressionFile_;
   std::string decompressionFile_;
   std::vector<int> ietal;
