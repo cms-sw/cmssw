@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -29,12 +30,16 @@ class DQMProtobufReader : public edm::InputSource {
       edm::LuminosityBlockPrincipal& lbCache) override;
   virtual void readEvent_(edm::EventPrincipal&) override;
 
+  // actual reading will happen here
+  virtual void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
+
   void logFileAction(char const* msg, char const* fileName) const;
   bool prepareNextFile();
 
   bool flagSkipFirstLumis_;
   bool flagEndOfRunKills_;
   bool flagDeleteDatFiles_;
+  bool flagLoadFiles_;
 
   std::unique_ptr<double> streamReader_;
   DQMFileIterator fiterator_;

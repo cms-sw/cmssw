@@ -146,7 +146,7 @@ void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
   StreamME m = streams_[label];
 
   // decode json and fill in some histograms
-  LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, -1);
+  LumiEntry lumi_jsn = LumiEntry::load_json(runPath_, fn, lumi, -1);
   m.eventsAccepted->setBinContent(lumi, lumi_jsn.n_events_accepted);
   m.eventsProcessed->setBinContent(lumi, lumi_jsn.n_events_processed);
 
