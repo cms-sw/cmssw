@@ -64,14 +64,5 @@ def autoCondHLT(autoCond):
            autoCond[key] = ( autoCond[val[0]] )
         else:
            autoCond[key] = ( autoCond[val[0]],) + val[1]
-#
-    for key in ('run2_mc', 'run2_data', 'run2_data_relval', 'run2_hlt', 'run2_hlt_relval'):
-        old = autoCond[key]
-        autoCond[key] = ( old, ) + l1Menus['GRun']
 
-    for key in ('run2_mc_hi', 'run2_hlt_hi'):
-        old = autoCond[key]
-        autoCond[key] = ( old, ) + l1Menus['HIon']
-
-#
     return autoCond
