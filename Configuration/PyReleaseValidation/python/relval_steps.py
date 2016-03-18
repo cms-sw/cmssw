@@ -1520,7 +1520,7 @@ for k in upgradeKeys:
         k2=k[:-2]
     geom=upgradeGeoms[k2]
     gt=upgradeGTs[k2]
-    cust=upgradeCustoms[k2]
+    cust=upgradeCustoms.get(k2, None)
     era=upgradeEras.get(k2, None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,

@@ -11,16 +11,6 @@ from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as custo
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
-from Configuration.StandardSequences.Eras import eras
-
-def cust_2017(process):
-    # To allow simulatenous use of customisation and era while the era migration is in progress
-    if not eras.run2_common.isChosen():
-        process=customisePostLS1(process,displayDeprecationWarning=False)
-    process=customisePhase1Tk(process)
-    #process=customise_HcalPhase0(process)
-    return process
-
 
 def cust_2023sim(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
