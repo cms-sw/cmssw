@@ -50,25 +50,17 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     geometryInterface.load(iSetup, iConfig);
   }
 
-  // TODO: this should go into GeometryInterface?
-  edm::ESHandle<TrackerGeometry> tg;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tg);
-  auto detector = tg->detIds();
-
   // TODO: We need 2 passes, one to count the elements for EXTEND-ranges, one for actual booking.
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
-    for (DetId id : detector) {
-      auto iq = GeometryInterface::InterestingQuantities{
-	id, nullptr, 0, 0 // TODO: for fine geometry, iterate over all sane values here
-      };
+    for (auto iq : geometryInterface.allModules()) {
       auto dimensions = this->dimensions;
-      std::stringstream name(this->name);
-      std::stringstream dir("");
-      std::stringstream title(this->title);
-      std::stringstream xlabel(this->xlabel);
-      std::stringstream ylabel(this->ylabel);
+      std::ostringstream name(this->name, std::ostringstream::ate);
+      std::ostringstream dir("");
+      std::ostringstream title(this->title, std::ostringstream::ate);
+      std::ostringstream xlabel(this->xlabel, std::ostringstream::ate);
+      std::ostringstream ylabel(this->ylabel, std::ostringstream::ate);
       auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
@@ -89,7 +81,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	title << ";" << xlabel.str();
       	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), 100, 0.0, 300.0);
       } else if (dimensions == 2) {
-	title << ";" << xlabel << ";" << ylabel;
+	title << ";" << xlabel.str() << ";" << ylabel.str();
 	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 100, 0.0, 300.0, 100, 0.0, 300.0);
       } else {
 	std::cout << "Booking " << dimensions << " dimensions not supported.\n";
