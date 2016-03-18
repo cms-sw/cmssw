@@ -43,6 +43,7 @@ int mask_[9][9] = {
   { 1,1,1,1,1,1,1,1,2 },
 };
 
+
 std::vector<l1t::Jet>::iterator start_, end_;
 
 l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper* params) :
@@ -52,28 +53,30 @@ l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(
 l1t::Stage2Layer2JetAlgorithmFirmwareImp1::~Stage2Layer2JetAlgorithmFirmwareImp1() {}
 
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
-							     std::vector<l1t::Jet> & jets, std::vector<l1t::Jet> & alljets) {
+							     std::vector<l1t::Jet> & jets,
+							     std::vector<l1t::Jet> & alljets) {
   
   // find jets
   create(towers, jets, alljets, params_->jetPUSType());
 
   // jet energy corrections
   calibrate(jets, 0); // pass the jet collection and the hw threshold above which to calibrate
+  calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
   
 }
 
 
-void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::Jet> & jets, 
-						       std::vector<l1t::Jet> & alljets, std::string PUSubMethod) {
-  
-  int etaMax=36, etaMin=1, phiMax=72, phiMin=1;
+void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::CaloTower> & towers,
+						       std::vector<l1t::Jet> & jets, 
+						       std::vector<l1t::Jet> & alljets, 
+						       std::string PUSubMethod) {
   
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
     
     // the 4 groups of rings
     std::vector<int> ringGroup1, ringGroup2, ringGroup3, ringGroup4;
-    for (int i=etaMin; i<=etaMax; i++) {
+    for (int i=1; i<=CaloTools::kHFEnd; i++) {
       if      ( ! ((i-1)%4) ) ringGroup1.push_back( i * etaSide );
       else if ( ! ((i-2)%4) ) ringGroup2.push_back( i * etaSide );
       else if ( ! ((i-3)%4) ) ringGroup3.push_back( i * etaSide );
@@ -99,7 +102,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	std::vector<l1t::Jet> jetsRing;
 	
 	// loop over phi in the ring
-	for ( int iphi=phiMin; iphi<=phiMax; ++iphi ) {
+	for ( int iphi=1; iphi<=CaloTools::kHBHENrPhi; ++iphi ) {
 	  
 	  // no more than 18 jets per ring
 	  if (jetsRing.size()==18) break;
@@ -123,8 +126,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	      int iphiTest = iphi+dphi;
 	      
 	      // wrap around phi
-	      while ( iphiTest > phiMax ) iphiTest -= phiMax;
-	      while ( iphiTest < phiMin ) iphiTest += phiMax;
+	      while ( iphiTest > CaloTools::kHBHENrPhi ) iphiTest -= CaloTools::kHBHENrPhi;
+	      while ( iphiTest < 1 ) iphiTest += CaloTools::kHBHENrPhi;
 	      
 	      // wrap over eta=0
 	      if (ieta > 0 && ietaTest <=0) ietaTest -= 1;
@@ -206,26 +209,26 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 //A function to return the value for donut subtraction around an ieta and iphi position for donut subtraction
 //Also pass it a vector to store the individual values of the strip for later testing
 //The size is the number of ieta/iphi units out the ring is (ie for 9x9 jets, we want the 11x11 for PUS therefore we want to go 5 out, so size is 5)
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta, int jetPhi, int size, const std::vector<l1t::CaloTower> & towers){
-
-  //Declare the range to carry out the algorithm over
-  int etaMax=40, etaMin=-40, phiMax=72, phiMin=1;
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta, 
+							       int jetPhi, 
+							       int size, 
+							       const std::vector<l1t::CaloTower> & towers){
 
   //ring is a vector with 4 ring strips, one for each side of the ring
   std::vector<int> ring(4,0);
 
   int iphiUp = jetPhi + size;
-  while ( iphiUp > phiMax ) iphiUp -= phiMax;
+  while ( iphiUp > CaloTools::kHBHENrPhi ) iphiUp -= CaloTools::kHBHENrPhi;
   int iphiDown = jetPhi - size;
-  while ( iphiDown < phiMin ) iphiDown += phiMax;
+  while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
-  int ietaUp = (jetEta + size > etaMax) ? 999 : jetEta+size;
-  int ietaDown = (jetEta - size < etaMin) ? 999 : jetEta-size;
+  int ietaUp = (jetEta + size > CaloTools::kHFEnd) ? 999 : jetEta+size;
+  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd) ? 999 : jetEta-size;
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
 
-    if (ieta > etaMax || ieta < etaMin) continue;
+    if (abs(ieta) > CaloTools::kHFEnd || abs(ieta) < 1) continue;
     int towerEta;
 
     if (jetEta > 0 && ieta <=0){
@@ -250,8 +253,8 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta, int j
   {
 
     int towerPhi = iphi;
-    while ( towerPhi > phiMax ) towerPhi -= phiMax;
-    while ( towerPhi < phiMin ) towerPhi += phiMax;
+    while ( towerPhi > CaloTools::kHBHENrPhi ) towerPhi -= CaloTools::kHBHENrPhi;
+    while ( towerPhi < 1 ) towerPhi += CaloTools::kHBHENrPhi;
 
     const CaloTower& tow = CaloTools::getTower(towers, ietaUp, towerPhi);
     int towEt = tow.hwPt();
@@ -268,10 +271,10 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta, int j
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta, int jetPhi, int size, const std::vector<l1t::CaloTower> & towers){
-
-  // the range to carry out the algorithm over
-  int etaMax=40, etaMin=-40, phiMax=72, phiMin=1;
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta, 
+								     int jetPhi, 
+								     int size, 
+								     const std::vector<l1t::CaloTower> & towers){
 
   // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
@@ -285,8 +288,8 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 
     int iphiUp   = jetPhi + size + stripIt;
     int iphiDown = jetPhi - size - stripIt;
-    while ( iphiUp > phiMax )   iphiUp   -= phiMax;
-    while ( iphiDown < phiMin ) iphiDown += phiMax;
+    while ( iphiUp > CaloTools::kHBHENrPhi )   iphiUp   -= CaloTools::kHBHENrPhi;
+    while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
     int ietaUp   = jetEta + size + stripIt;
     int ietaDown = jetEta - size - stripIt;
@@ -296,7 +299,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (ieta>etaMax || ieta<etaMin) continue;
+      if (abs(ieta)>CaloTools::kHFEnd) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
@@ -315,16 +318,15 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (ietaUp<=etaMax) {    
+      if (ietaUp<=CaloTools::kHFEnd) {    
         int towPhi = iphi;
-        while ( towPhi > phiMax ) towPhi -= phiMax;
-        while ( towPhi < phiMin ) towPhi += phiMax;
+        while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
+        while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 
         const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
       }else{
-        ring[2] = 0;
         break;
       }
       
@@ -333,16 +335,15 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (ietaDown>=etaMin) {
+      if (abs(ietaDown)<=CaloTools::kHFEnd) {
         int towPhi = iphi;
-        while ( towPhi > phiMax ) towPhi -= phiMax;
-        while ( towPhi < phiMin ) towPhi += phiMax;
+        while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
+        while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 	
         const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
       }else{
-        ring[3] = 0;
         break;
       }
       
@@ -377,39 +378,13 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       return;
     }
 
-    //Make a map for the trigger towers eta to the RCT region eta
-    //80 TT to 22 RCT regions
-    //For UPGRADED HF, where 3 TT = 1 region.
-    //If you want to use this with legacy,
-    //you must adjust the mapping to use 64 TTs instead, otherwise it will
-    //associate the wrong TT with wrong region
-    int ttToRct[80];
-    int tt=0;
-    for(int rct=0; rct<22; rct++){
-      if(rct<4 || rct>17){
-        for(int i=0; i<3; i++){
-          ttToRct[tt] = rct;
-          tt++;
-        }
-      }else{
-        for(int i=0; i<4; i++){
-          ttToRct[tt] = rct;
-          tt++;
-        }
-      }
-    }
-
     //Loop over jets and apply corrections
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
       //Check jet is above the calibration threshold, if not do nothing
       if(jet->hwPt() < calibThreshold) continue;
 
-      int etaBin;
-      if(jet->hwEta() < 0) //Account for a lack of 0
-        etaBin = ttToRct[ jet->hwEta() + 40 ];
-      else 
-        etaBin = ttToRct[ jet->hwEta() + 39 ];
+      int etaBin = CaloTools::regionEta( jet->hwEta() );
 
       //Get the parameters from the vector
       //Each 6 values are the parameters for an eta bin

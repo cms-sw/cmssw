@@ -31,7 +31,7 @@ class OMTFProcessor{
   bool configure(XMLConfigReader *aReader);
 
   ///Fill GP map with patterns from CondFormats object
-  bool configure(std::shared_ptr<L1TMuonOverlapParams> omtfParams);
+  bool configure(const L1TMuonOverlapParams* omtfParams);
 
   ///Process input data from a single event
   ///Input data is represented by hits in logic layers expressed in local coordinates
@@ -42,12 +42,6 @@ class OMTFProcessor{
 
   ///Return map of GoldenPatterns
   const std::map<Key,GoldenPattern*> & getPatterns() const;
-
-  ///Shift phi values in input to fit the 11 bits
-  ///range. For each processor the global phi beggining-511 
-  ///is added, so it starts at -551
-  OMTFinput shiftInput(unsigned int iProcessor,
-		       const OMTFinput & aInput);
 
   ///Fill counts for a GoldenPattern of this
   ///processor unit. Pattern key is selcted according 

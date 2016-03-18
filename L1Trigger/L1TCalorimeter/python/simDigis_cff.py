@@ -41,8 +41,14 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
 # Stage-2 Trigger
 #
 if eras.stage2L1Trigger.isChosen():
+    from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
     print "L1TCalorimeter Sequence configured for Stage-2 (2016) trigger. "
+    # select one of the following two options:
+    # - layer1 from L1Trigger/L1TCalorimeter package
     from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
+    # - layer1 from L1Trigger/L1TCaloLayer1 package
+    #from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
     from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
     SimL1TCalorimeter = cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis )
 
+    
