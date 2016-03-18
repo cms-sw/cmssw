@@ -20,44 +20,41 @@
 struct AbstractHistogram {
 
   void fill(double x, double y) {
-    assert(!vec1d);
-    count++;
     if (me) {
       me->Fill(x, y);
       return;
+    } else if (th1) {
+      th1->Fill(x, y);
+    } else {
+      assert(!"New Th1 needed but parameters missing");
+      //th1 = new TH2D(..);
     } 
-    if (!vec2d) {
-      vec2d = new std::vector<std::pair<double,double>>();
-    }
-    vec2d->push_back(std::make_pair(x, y));
   }; 
   
   void fill(double x) {
-    assert(!vec2d);
-    count++;
     if (me) {
       me->Fill(x);
       return;
-    } 
-    if (!vec1d) {
-      vec1d = new std::vector<double>();
+    } else if (th1) {
+      th1->Fill(x);
+    } else {
+      assert(!"New Th1 needed but parameters missing");
+      //th1 = new TH1D(..);
     }
-    vec1d->push_back(x);
   };
   
   void fill() {
-    assert(!me  && !vec1d && !vec2d);
-    count++;
+    assert(!me && !th1);
+    value++;
   };
   
-  int count = 0;
+  double value = 0;
   MonitorElement* me = nullptr;
-  std::vector<double> *vec1d = nullptr;
-  std::vector<std::pair<double, double>> *vec2d = nullptr;
+  TH1* th1 = nullptr;
 
   ~AbstractHistogram() {
-    if (vec1d) delete vec1d;
-    if (vec2d) delete vec2d;
+    // if both are set the ME should own the TH1
+    if (th1 && !me) delete th1;
   };
 
 };
