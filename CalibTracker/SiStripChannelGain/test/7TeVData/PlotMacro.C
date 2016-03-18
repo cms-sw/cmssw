@@ -7,7 +7,6 @@
 #include "TMath.h"
 #include "TLegend.h"
 #include "TGraph.h"
-#include "TString.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
@@ -20,40 +19,40 @@
 #include "tdrstyle.C"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/ChainEvent.h"
+//#include "DataFormats/FWLite/interface/Handle.h"
+//#include "DataFormats/FWLite/interface/Event.h"
+//#include "DataFormats/FWLite/interface/ChainEvent.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-using namespace fwlite;
+//using namespace fwlite;
 using namespace std;
-using namespace edm;
+//using namespace edm;
 #endif
 
 
 
 
-void PlotMacro_Core(string input, string moduleName, string modeName, string output, string TextToPrint);
+void PlotMacro_Core(std::string input, std::string moduleName, std::string modeName, std::string output, std::string TextToPrint);
 TF1*  getLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
-TH1D* ChargeToMPV(TH2* InputHisto, string Name, bool DivideByX);
+TH1D* ChargeToMPV(TH2* InputHisto, std::string Name, bool DivideByX);
 
 
 
-void PlotMacro(string modeName="IsoBunch", string TextToPrint_="CMS Preliminary 2015"){
+void PlotMacro(std::string modeName="IsoBunch", std::string TextToPrint_="CMS Preliminary 2015"){
    system("mkdir Pictures");
-   printf("Plotting histograms for %s calibration", modeName.c_str());   
+   printf("Plotting histograms for %s calibration\n", modeName.c_str());   
    PlotMacro_Core("file:Gains_Tree.root"     , "SiStripCalib/"          , modeName, "Pictures/Gains"     , TextToPrint_ + "  -  Particle Gain");
    PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", modeName, "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
 }
 
 
-void PlotMacro_Core(string input, string moduleName, string modeName, string output, string TextToPrint)
+void PlotMacro_Core(std::string input, std::string moduleName, std::string modeName, std::string output, std::string TextToPrint)
 {
    FILE* pFile;
    TCanvas* c1;
    TObject** Histos = new TObject*[10];                
-   std::vector<string> legend;
+   std::vector<std::string> legend;
 
    unsigned int  tree_Index;
    unsigned int  tree_DetId;
@@ -983,7 +982,7 @@ TF1* getLandau(TH1* InputHisto, double* FitResults, double LowRange, double High
    return MyLandau;
 }
 
-TH1D* ChargeToMPV(TH2* InputHisto, string Name,  bool DivideByX)
+TH1D* ChargeToMPV(TH2* InputHisto, std::string Name,  bool DivideByX)
 {
    TH1D* toReturn = new TH1D(Name.c_str(),Name.c_str(),InputHisto->GetXaxis()->GetNbins(), InputHisto->GetXaxis()->GetXmin(), InputHisto->GetXaxis()->GetXmax() );
    double Results[5];

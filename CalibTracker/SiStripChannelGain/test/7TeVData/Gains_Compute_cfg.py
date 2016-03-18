@@ -40,7 +40,7 @@ process.SiStripCalib.calibrationMode     = cms.untracked.string( 'XXX_CALMODE_XX
 if(XXX_PCL_XXX):
    process.SiStripCalib.AlgoMode = cms.untracked.string('PCL')
    process.SiStripCalib.harvestingMode = cms.untracked.bool(True)
-   process.SiStripCalib.splitDQMstat   = cms.untracked.bool(True)
+   process.SiStripCalib.DQMdir         = cms.untracked.string('XXX_DQMDIR_XXX')
    process.source = cms.Source("PoolSource",
        secondaryFileNames = cms.untracked.vstring(),
        fileNames = calibTreeList,
@@ -83,27 +83,17 @@ if(XXX_PCL_XXX):
 
    from DQMServices.Components.EDMtoMEConverter_cfi import *
 
-   process.EDMtoMEConvertSiStripGainsAllBunch = EDMtoMEConverter.clone()
-   process.EDMtoMEConvertSiStripGainsAllBunch.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAllBunch","MEtoEDMConverterLumi")
-   process.EDMtoMEConvertSiStripGainsAllBunch.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAllBunch","MEtoEDMConverterRun")
+   process.EDMtoMEConvertSiStripGains = EDMtoMEConverter.clone()
+   process.EDMtoMEConvertSiStripGains.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi")
+   process.EDMtoMEConvertSiStripGains.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
 
-   process.EDMtoMEConvertSiStripGainsAllBunch0T = EDMtoMEConverter.clone()
-   process.EDMtoMEConvertSiStripGainsAllBunch0T.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAllBunch0T","MEtoEDMConverterLumi")
-   process.EDMtoMEConvertSiStripGainsAllBunch0T.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAllBunch0T","MEtoEDMConverterRun")
-
-   process.EDMtoMEConvertSiStripGainsIsoBunch = EDMtoMEConverter.clone()
-   process.EDMtoMEConvertSiStripGainsIsoBunch.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsIsoBunch","MEtoEDMConverterLumi")
-   process.EDMtoMEConvertSiStripGainsIsoBunch.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsIsoBunch","MEtoEDMConverterRun")
-
-   process.EDMtoMEConvertSiStripGainsIsoBunch0T = EDMtoMEConverter.clone()
-   process.EDMtoMEConvertSiStripGainsIsoBunch0T.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsIsoBunch0T","MEtoEDMConverterLumi")
-   process.EDMtoMEConvertSiStripGainsIsoBunch0T.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsIsoBunch0T","MEtoEDMConverterRun")
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap = EDMtoMEConverter.clone()
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAfterAbortGap","MEtoEDMConverterLumi")
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAfterAbortGap","MEtoEDMConverterRun")
 
 
-   ConvertersSiStripGains = cms.Sequence( process.EDMtoMEConvertSiStripGainsAllBunch +
-                                          process.EDMtoMEConvertSiStripGainsAllBunch0T +
-                                          process.EDMtoMEConvertSiStripGainsIsoBunch +
-                                          process.EDMtoMEConvertSiStripGainsIsoBunch0T)
+   ConvertersSiStripGains = cms.Sequence( process.EDMtoMEConvertSiStripGains +
+                                          process.EDMtoMEConvertSiStripGainsAfterAbortGap )
 
    process.p = cms.Path( ConvertersSiStripGains * process.SiStripCalib * process.dqmSaver)
 

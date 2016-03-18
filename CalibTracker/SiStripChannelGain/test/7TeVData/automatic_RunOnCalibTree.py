@@ -54,12 +54,14 @@ maxNEvents = 2000000
 if(firstRun!=-1 or lastRun!=-1): automatic = False
 
 
+DQM_dir = "AlCaReco/SiStripGains" if "AagBunch" not in opt.calMode else "AlCaReco/SiStripGainsAfterAbortGap"
+
 print "firstRun = " +str(firstRun)
 print "lastRun  = " +str(lastRun)
 print "publish  = " +str(publish)
 print "usePCL   = " +str(usePCL)
 print "calMode  = " + calMode
-
+print "DQM_dir  = " + DQM_dir
 
 
 #go to parent directory = test directory
@@ -174,6 +176,7 @@ os.system("sed -i 's|XXX_LASTRUN_XXX|"+str(lastRun)+"|g' "+newDirectory+"/*_cfg.
 os.system("sed -i 's|XXX_GT_XXX|"+globaltag+"|g' "+newDirectory+"/*_cfg.py")
 os.system("sed -i 's|XXX_PCL_XXX|"+str(usePCL)+"|g' "+newDirectory+"/*_cfg.py")
 os.system("sed -i 's|XXX_CALMODE_XXX|"+calMode+"|g' "+newDirectory+"/*_cfg.py")
+os.system("sed -i 's|XXX_DQMDIR_XXX|"+DQM_dir+"|g' "+newDirectory+"/*_cfg.py")
 os.chdir(newDirectory);
 if(os.system("sh sequence.sh \"" + name + "\" \"" + calMode + "\" \"CMS Preliminary  -  Run " + str(firstRun) + " to " + str(lastRun) + "\"")!=0):
 	os.system('echo "Gain calibration failed" | mail -s "Gain calibration failed ('+name+')" ' + mail)        
