@@ -35,7 +35,7 @@ void BasicFrameworkTest::beginRun(const edm::Run&  run, const edm::EventSetup& s
 
   histoman.addSpec() // ndigis over time
      .groupBy("Lumisection")
-     .reduce("COUNT")
+     .count()
      .groupBy("", "EXTEND_X")
      .save();
 
@@ -49,7 +49,7 @@ void BasicFrameworkTest::beginRun(const edm::Run&  run, const edm::EventSetup& s
 
   histoman.addSpec() // FED Digi count vs. lumisection
      .groupBy("FED/Lumisection")
-     .reduce("COUNT")
+     .count()
      .groupBy("FED", "EXTEND_X")
      .groupBy("", "EXTEND_Y")
      .save();
