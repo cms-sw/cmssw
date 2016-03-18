@@ -68,6 +68,168 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackOccupancy = ibooker.book2D("emtfTrackOccupancy", "EMTF Track Occupancy", 100, -2.5, 2.5, 126, -3.15, 3.15);
   emtfTrackOccupancy->setAxisTitle("#eta", 1);
   emtfTrackOccupancy->setAxisTitle("#phi", 2);
+ 
+ 
+ 
+  emtf_strip_ME11_POS = ibooker.book1D("emtf_strip_ME11_POS", "EMTF Strip ME+1/1", 150, 0, 230);
+  emtf_strip_ME11_POS->setAxisTitle("HalfStrip, ME+1/1", 1);
+  
+  emtf_wire_ME11_POS = ibooker.book1D("emtf_wire_ME11_POS", "EMTF Wire ME+1/1", 150, 0, 120);
+  emtf_wire_ME11_POS->setAxisTitle("Wire, ME+1/1", 1);
+    
+  emtf_strip_ME12_POS = ibooker.book1D("emtf_strip_ME12_POS", "EMTF Strip ME+1/2", 150, 0, 230);
+  emtf_strip_ME12_POS->setAxisTitle("HalfStrip, ME+1/2", 1);
+  
+  emtf_wire_ME12_POS = ibooker.book1D("emtf_wire_ME12_POS", "EMTF Wire ME+1/2", 150, 0, 120);
+  emtf_wire_ME12_POS->setAxisTitle("Wire, ME+1/2", 1);
+    
+  emtf_strip_ME13_POS = ibooker.book1D("emtf_strip_ME13_POS", "EMTF Strip ME+1/3", 150, 0, 230);
+  emtf_strip_ME13_POS->setAxisTitle("HalfStrip, ME+1/3", 1);
+  
+  emtf_wire_ME13_POS = ibooker.book1D("emtf_wire_ME13_POS", "EMTF Wire ME+1/3", 150, 0, 120);
+  emtf_wire_ME13_POS->setAxisTitle("Wire, ME+1/3", 1);
+  
+  emtf_strip_ME21_POS = ibooker.book1D("emtf_strip_ME21_POS", "EMTF Strip ME+2/1", 150, 0, 230);
+  emtf_strip_ME21_POS->setAxisTitle("HalfStrip, ME+2/1", 1);
+  
+  emtf_wire_ME21_POS = ibooker.book1D("emtf_wire_ME21_POS", "EMTF Wire ME+2/1", 150, 0, 120);
+  emtf_wire_ME21_POS->setAxisTitle("Wire, ME+2/1", 1);
+  
+  emtf_strip_ME22_POS = ibooker.book1D("emtf_strip_ME22_POS", "EMTF Strip ME+2/2", 150, 0, 230);
+  emtf_strip_ME22_POS->setAxisTitle("HalfStrip, ME+2/2", 1);
+  
+  emtf_wire_ME22_POS = ibooker.book1D("emtf_wire_ME22_POS", "EMTF Wire ME+2/2", 150, 0, 120);
+  emtf_wire_ME22_POS->setAxisTitle("Wire, ME+2/2", 1);
+  
+  emtf_strip_ME31_POS = ibooker.book1D("emtf_strip_ME31_POS", "EMTF Strip ME+3/1", 150, 0, 230);
+  emtf_strip_ME31_POS->setAxisTitle("HalfStrip, ME+3/1", 1);
+  
+  emtf_wire_ME31_POS = ibooker.book1D("emtf_wire_ME31_POS", "EMTF Wire ME+3/1", 150, 0, 120);
+  emtf_wire_ME31_POS->setAxisTitle("Wire, ME+3/1", 1);
+  
+  emtf_strip_ME32_POS = ibooker.book1D("emtf_strip_ME32_POS", "EMTF Strip ME+3/2", 150, 0, 230);
+  emtf_strip_ME32_POS->setAxisTitle("HalfStrip, ME+3/2", 1);
+  
+  emtf_wire_ME32_POS = ibooker.book1D("emtf_wire_ME32_POS", "EMTF Wire ME+3/2", 150, 0, 120);
+  emtf_wire_ME32_POS->setAxisTitle("Wire, ME+3/2", 1);
+    
+  emtf_strip_ME41_POS = ibooker.book1D("emtf_strip_ME41_POS", "EMTF Strip ME+4/1", 150, 0, 230);
+  emtf_strip_ME41_POS->setAxisTitle("HalfStrip, ME+4/1", 1);
+  
+  emtf_wire_ME41_POS = ibooker.book1D("emtf_wire_ME41_POS", "EMTF Wire ME+4/1", 150, 0, 120);
+  emtf_wire_ME41_POS->setAxisTitle("Wire, ME+4/1", 1);
+  
+  emtf_strip_ME42_POS = ibooker.book1D("emtf_strip_ME42_POS", "EMTF Strip ME+4/2", 150, 0, 230);
+  emtf_strip_ME42_POS->setAxisTitle("HalfStrip, ME+4/2", 1);
+  
+  emtf_wire_ME42_POS = ibooker.book1D("emtf_wire_ME42_POS", "EMTF Wire ME+4/2", 150, 0, 120);
+  emtf_wire_ME42_POS->setAxisTitle("Wire, ME+4/2", 1); 
+  
+  
+  emtf_strip_ME11_NEG = ibooker.book1D("emtf_strip_ME11_NEG", "EMTF Strip ME-1/1", 150, 0, 230);
+  emtf_strip_ME11_NEG->setAxisTitle("HalfStrip, ME-1/1", 1);
+  
+  emtf_wire_ME11_NEG = ibooker.book1D("emtf_wire_ME11_NEG", "EMTF Wire ME-1/1", 150, 0, 120);
+  emtf_wire_ME11_NEG->setAxisTitle("Wire, ME-1/1", 1);
+    
+  emtf_strip_ME12_NEG = ibooker.book1D("emtf_strip_ME12_NEG", "EMTF Strip ME-1/2", 150, 0, 230);
+  emtf_strip_ME12_NEG->setAxisTitle("HalfStrip, ME-1/2", 1);
+  
+  emtf_wire_ME12_NEG = ibooker.book1D("emtf_wire_ME12_NEG", "EMTF Wire ME-1/2", 150, 0, 120);
+  emtf_wire_ME12_NEG->setAxisTitle("Wire, ME-1/2", 1);
+    
+  emtf_strip_ME13_NEG = ibooker.book1D("emtf_strip_ME13_NEG", "EMTF Strip ME-1/3", 150, 0, 230);
+  emtf_strip_ME13_NEG->setAxisTitle("HalfStrip, ME-1/3", 1);
+  
+  emtf_wire_ME13_NEG = ibooker.book1D("emtf_wire_ME13_NEG", "EMTF Wire ME-1/3", 150, 0, 120);
+  emtf_wire_ME13_NEG->setAxisTitle("Wire, ME-1/3", 1);
+  
+  emtf_strip_ME21_NEG = ibooker.book1D("emtf_strip_ME21_NEG", "EMTF Strip ME-2/1", 150, 0, 230);
+  emtf_strip_ME21_NEG->setAxisTitle("HalfStrip, ME-2/1", 1);
+  
+  emtf_wire_ME21_NEG = ibooker.book1D("emtf_wire_ME21_NEG", "EMTF Wire ME-2/1", 150, 0, 120);
+  emtf_wire_ME21_NEG->setAxisTitle("Wire, ME-2/1", 1);
+  
+  emtf_strip_ME22_NEG = ibooker.book1D("emtf_strip_ME22_NEG", "EMTF Strip ME-2/2", 150, 0, 230);
+  emtf_strip_ME22_NEG->setAxisTitle("HalfStrip, ME-2/2", 1);
+  
+  emtf_wire_ME22_NEG = ibooker.book1D("emtf_wire_ME22_NEG", "EMTF Wire ME-2/2", 150, 0, 120);
+  emtf_wire_ME22_NEG->setAxisTitle("Wire, ME-2/2", 1);
+  
+  emtf_strip_ME31_NEG = ibooker.book1D("emtf_strip_ME31_NEG", "EMTF Strip ME-3/1", 150, 0, 230);
+  emtf_strip_ME31_NEG->setAxisTitle("HalfStrip, ME-3/1", 1);
+  
+  emtf_wire_ME31_NEG = ibooker.book1D("emtf_wire_ME31_NEG", "EMTF Wire ME-3/1", 150, 0, 120);
+  emtf_wire_ME31_NEG->setAxisTitle("Wire, ME-3/1", 1);
+  
+  emtf_strip_ME32_NEG = ibooker.book1D("emtf_strip_ME32_NEG", "EMTF Strip ME-3/2", 150, 0, 230);
+  emtf_strip_ME32_NEG->setAxisTitle("HalfStrip, ME-3/2", 1);
+  
+  emtf_wire_ME32_NEG = ibooker.book1D("emtf_wire_ME32_NEG", "EMTF Wire ME-3/2", 150, 0, 120);
+  emtf_wire_ME32_NEG->setAxisTitle("Wire, ME-3/2", 1);
+    
+  emtf_strip_ME41_NEG = ibooker.book1D("emtf_strip_ME41_NEG", "EMTF Strip ME-4/1", 150, 0, 230);
+  emtf_strip_ME41_NEG->setAxisTitle("HalfStrip, ME-4/1", 1);
+  
+  emtf_wire_ME41_NEG = ibooker.book1D("emtf_wire_ME41_NEG", "EMTF Wire ME-4/1", 150, 0, 120);
+  emtf_wire_ME41_NEG->setAxisTitle("Wire, ME-4/1", 1);
+  
+  emtf_strip_ME42_NEG = ibooker.book1D("emtf_strip_ME42_NEG", "EMTF Strip ME-4/2", 150, 0, 230);
+  emtf_strip_ME42_NEG->setAxisTitle("HalfStrip, ME-4/2", 1);
+  
+  emtf_wire_ME42_NEG = ibooker.book1D("emtf_wire_ME42_NEG", "EMTF Wire ME-4/2", 150, 0, 120);
+  emtf_wire_ME42_NEG->setAxisTitle("Wire, ME-4/2", 1);
+  
+  
+  emtf_chamberstrip_ME21_POS = ibooker.book2D("emtf_chamberstrip_ME21_POS", "EMTF Strip ME+2/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME21_POS->setAxisTitle("Chamber, ME+2/1", 1);
+  emtf_chamberstrip_ME21_POS->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME22_POS = ibooker.book2D("emtf_chamberstrip_ME22_POS", "EMTF Strip ME+2/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME22_POS->setAxisTitle("Chamber, ME+2/2", 1);
+  emtf_chamberstrip_ME22_POS->setAxisTitle("HalfStrip ME", 2);
+  
+  emtf_chamberstrip_ME31_POS = ibooker.book2D("emtf_chamberstrip_ME31_POS", "EMTF Strip ME+3/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME31_POS->setAxisTitle("Chamber, ME+3/1", 1);
+  emtf_chamberstrip_ME31_POS->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME32_POS = ibooker.book2D("emtf_chamberstrip_ME32_POS", "EMTF Strip ME+3/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME32_POS->setAxisTitle("Chamber, ME+3/2", 1);
+  emtf_chamberstrip_ME32_POS->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME41_POS = ibooker.book2D("emtf_chamberstrip_ME41_POS", "EMTF Strip ME+4/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME41_POS->setAxisTitle("Chamber, ME+4/1", 1);
+  emtf_chamberstrip_ME41_POS->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME42_POS = ibooker.book2D("emtf_chamberstrip_ME42_POS", "EMTF Strip ME+4/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME42_POS->setAxisTitle("Chamber, ME+4/2", 1);
+  emtf_chamberstrip_ME42_POS->setAxisTitle("HalfStrip", 2);  
+  
+    
+  emtf_chamberstrip_ME21_NEG = ibooker.book2D("emtf_chamberstrip_ME21_NEG", "EMTF Strip ME-2/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME21_NEG->setAxisTitle("Chamber, ME-2/1", 1);
+  emtf_chamberstrip_ME21_NEG->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME22_NEG = ibooker.book2D("emtf_chamberstrip_ME22_NEG", "EMTF Strip ME-2/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME22_NEG->setAxisTitle("Chamber, ME-2/2", 1);
+  emtf_chamberstrip_ME22_NEG->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME31_NEG = ibooker.book2D("emtf_chamberstrip_ME31_NEG", "EMTF Strip ME-3/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME31_NEG->setAxisTitle("Chamber, ME-3/1", 1);
+  emtf_chamberstrip_ME31_NEG->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME32_NEG = ibooker.book2D("emtf_chamberstrip_ME32_NEG", "EMTF Strip ME-3/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME32_NEG->setAxisTitle("Chamber, ME-3/2", 1);
+  emtf_chamberstrip_ME32_NEG->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME41_NEG = ibooker.book2D("emtf_chamberstrip_ME41_NEG", "EMTF Strip ME-4/1", 18, .5, 18.5, 160, 0, 160);
+  emtf_chamberstrip_ME41_NEG->setAxisTitle("Chamber, ME-4/1", 1);
+  emtf_chamberstrip_ME41_NEG->setAxisTitle("HalfStrip", 2);
+  
+  emtf_chamberstrip_ME42_NEG = ibooker.book2D("emtf_chamberstrip_ME42_NEG", "EMTF Strip ME-4/2", 36, .5, 36.5, 160, 0, 160);
+  emtf_chamberstrip_ME42_NEG->setAxisTitle("Chamber, ME-4/2", 1);
+  emtf_chamberstrip_ME42_NEG->setAxisTitle("HalfStrip", 2);
+  
 }
 
 void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -90,15 +252,129 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     l1t::emtf::MECollection MECollection = EMTFOutput->GetMECollection();
 
     for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection.begin(); ME != MECollection.end(); ++ME) {
-      int CSCID = ME->CSC_ID();
+      int CSCID = ME->CSC_ID() + 1;
       int Station = ME->Station();
       int CSCID_offset = (Sector - 1) * 9;
+      int strip = ME->CLCT_key_half_strip();
+      int wire = ME->Key_wire_group();
+      int CSCID_offset_ring1 = (CSCID + (3*(Sector-1))); //sectors start at 1. CSCID starts at 1
+      int CSCID_offset_ring2 = (CSCID + (6*(Sector-1))-3);
+      
 
       if (Endcap < 0) {
         emtfChamberOccupancy->Fill(CSCID + CSCID_offset, Station * -1);
       } else {
         emtfChamberOccupancy->Fill(CSCID + CSCID_offset, Station + 1);
       }
+
+
+//For Pos Endcap, Ring 1
+      if (Endcap > 0 && CSCID<4) {
+        if (Station<2){emtf_strip_ME11_POS->Fill(strip);
+			emtf_wire_ME11_POS->Fill(wire);
+	}
+        if (Station==2){emtf_strip_ME21_POS->Fill(strip);
+			emtf_wire_ME21_POS->Fill(wire);
+	}
+        if (Station==3){emtf_strip_ME31_POS->Fill(strip);
+			emtf_wire_ME31_POS->Fill(wire);
+	}
+        if (Station==4){emtf_strip_ME41_POS->Fill(strip);
+			emtf_wire_ME41_POS->Fill(wire);
+	}
+      }
+      
+//For Pos Endcap, Station 1
+      if (Endcap > 0 && Station==1) {
+        if (CSCID>3 && CSCID<7){
+		emtf_strip_ME12_POS->Fill(strip);
+		emtf_wire_ME12_POS->Fill(wire);
+	}
+	if (CSCID>6){
+		emtf_strip_ME13_POS->Fill(strip);
+		emtf_wire_ME13_POS->Fill(wire);
+	}
+      }
+      
+//For Pos Endcap, Ring 2
+      if (Endcap > 0 && CSCID>3) {
+        if (Station==2)emtf_strip_ME22_POS->Fill(strip);
+			emtf_wire_ME22_POS->Fill(wire);
+        if (Station==3)emtf_strip_ME32_POS->Fill(strip);
+			emtf_wire_ME32_POS->Fill(wire);
+        if (Station==4)emtf_strip_ME42_POS->Fill(strip);
+			emtf_wire_ME42_POS->Fill(wire);
+      }
+      
+//For Neg Endcap, Ring 1
+      if (Endcap < 0 && CSCID<4) {
+        if (Station<2){emtf_strip_ME11_NEG->Fill(strip);
+			emtf_wire_ME11_NEG->Fill(wire);
+	}
+        if (Station==2){emtf_strip_ME21_NEG->Fill(strip);
+			emtf_wire_ME21_NEG->Fill(wire);
+	}
+        if (Station==3){emtf_strip_ME31_NEG->Fill(strip);
+			emtf_wire_ME31_NEG->Fill(wire);
+	}
+        if (Station==4){emtf_strip_ME41_NEG->Fill(strip);
+			emtf_wire_ME41_NEG->Fill(wire);
+	}
+      }
+      
+//For Neg Endcap, Station 1
+      if (Endcap < 0 && Station==1) {
+        if (CSCID>3 && CSCID<7){
+		emtf_strip_ME12_NEG->Fill(strip);
+		emtf_wire_ME12_NEG->Fill(wire);
+	}
+	if (CSCID>6){
+		emtf_strip_ME13_NEG->Fill(strip);
+		emtf_wire_ME13_NEG->Fill(wire);
+	}
+      }
+      
+//For Neg Endcap, Ring 2
+      if (Endcap < 0 && CSCID>3) {
+        if (Station==2)emtf_strip_ME22_NEG->Fill(strip);
+			emtf_wire_ME22_NEG->Fill(wire);
+        if (Station==3)emtf_strip_ME32_NEG->Fill(strip);
+			emtf_wire_ME32_NEG->Fill(wire);
+        if (Station==4)emtf_strip_ME42_NEG->Fill(strip);
+			emtf_wire_ME42_NEG->Fill(wire);
+      }
+   
+      
+//For Pos Endcap      
+        if (Endcap > 0 && CSCID<4) {
+	std::cout<<"cscid less than 4, Ring 1: "<<CSCID_offset_ring1<<std::endl;
+	if (Station==2) emtf_chamberstrip_ME21_POS->Fill(CSCID_offset_ring1,strip);
+	if (Station==3) emtf_chamberstrip_ME31_POS->Fill(CSCID_offset_ring1,strip);
+	if (Station==4) emtf_chamberstrip_ME41_POS->Fill(CSCID_offset_ring1,strip);
+      }
+      
+      if (Endcap > 0 && CSCID>3) {
+      	std::cout<<"cscid greater than 3, Ring 2: "<<CSCID_offset_ring2<<std::endl;
+	if (Station==2) emtf_chamberstrip_ME22_POS->Fill(CSCID_offset_ring2,strip);
+	if (Station==3) emtf_chamberstrip_ME32_POS->Fill(CSCID_offset_ring2,strip);
+	if (Station==4) emtf_chamberstrip_ME42_POS->Fill(CSCID_offset_ring2,strip);
+      }   
+      
+//For Neg Endcap      
+      if (Endcap < 0 && CSCID<4) {
+	std::cout<<"cscid less than 4, Ring 1: "<<CSCID_offset_ring1<<std::endl;
+	if (Station==2) emtf_chamberstrip_ME21_NEG->Fill(CSCID_offset_ring1,strip);
+	if (Station==3) emtf_chamberstrip_ME31_NEG->Fill(CSCID_offset_ring1,strip);
+	if (Station==4) emtf_chamberstrip_ME41_NEG->Fill(CSCID_offset_ring1,strip);
+      }
+      
+      if (Endcap < 0 && CSCID>3) {
+      	std::cout<<"cscid greater than 3, Ring 2: "<<CSCID_offset_ring2<<std::endl;
+	if (Station==2) emtf_chamberstrip_ME22_NEG->Fill(CSCID_offset_ring2,strip);
+	if (Station==3) emtf_chamberstrip_ME32_NEG->Fill(CSCID_offset_ring2,strip);
+	if (Station==4) emtf_chamberstrip_ME42_NEG->Fill(CSCID_offset_ring2,strip);
+      }   
+      
     }
 
     // SP Output Data Record
@@ -107,8 +383,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (std::vector<l1t::emtf::SP>::const_iterator SP = SPCollection.begin(); SP != SPCollection.end(); ++SP) {
       int Quality = SP->Quality();
       float Eta_GMT = SP->Eta_GMT();
+  //    float Phi_GMT = SP->Phi_GMT();
       float Phi_GMT_global_rad = SP->Phi_GMT_global() * (M_PI/180);
       if (Phi_GMT_global_rad > M_PI) Phi_GMT_global_rad -= 2*M_PI;
+      
 
       switch (Quality) {
         case 0: {

@@ -41,6 +41,60 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiFull;
   MonitorElement* emtfTrackOccupancy;
+  MonitorElement* emtf_dphideta;
+  MonitorElement* emtf_strip_ME11_NEG;
+  MonitorElement* emtf_wire_ME11_NEG;
+  MonitorElement* emtf_strip_ME12_NEG;
+  MonitorElement* emtf_wire_ME12_NEG;
+  MonitorElement* emtf_strip_ME13_NEG;
+  MonitorElement* emtf_wire_ME13_NEG;
+  MonitorElement* emtf_strip_ME21_NEG;
+  MonitorElement* emtf_wire_ME21_NEG;
+  MonitorElement* emtf_strip_ME22_NEG;
+  MonitorElement* emtf_wire_ME22_NEG;
+  MonitorElement* emtf_strip_ME31_NEG;
+  MonitorElement* emtf_wire_ME31_NEG;
+  MonitorElement* emtf_strip_ME32_NEG;
+  MonitorElement* emtf_wire_ME32_NEG;
+  MonitorElement* emtf_strip_ME41_NEG;
+  MonitorElement* emtf_wire_ME41_NEG;
+  MonitorElement* emtf_strip_ME42_NEG;
+  MonitorElement* emtf_wire_ME42_NEG;
+  
+  MonitorElement* emtf_strip_ME11_POS;
+  MonitorElement* emtf_wire_ME11_POS;
+  MonitorElement* emtf_strip_ME12_POS;
+  MonitorElement* emtf_wire_ME12_POS;
+  MonitorElement* emtf_strip_ME13_POS;
+  MonitorElement* emtf_wire_ME13_POS;
+  MonitorElement* emtf_strip_ME21_POS;
+  MonitorElement* emtf_wire_ME21_POS;
+  MonitorElement* emtf_strip_ME22_POS;
+  MonitorElement* emtf_wire_ME22_POS;
+  MonitorElement* emtf_strip_ME31_POS;
+  MonitorElement* emtf_wire_ME31_POS;
+  MonitorElement* emtf_strip_ME32_POS;
+  MonitorElement* emtf_wire_ME32_POS;
+  MonitorElement* emtf_strip_ME41_POS;
+  MonitorElement* emtf_wire_ME41_POS;
+  MonitorElement* emtf_strip_ME42_POS;
+  MonitorElement* emtf_wire_ME42_POS;
+  
+  
+  MonitorElement* emtf_chamberstrip_ME21_NEG;
+  MonitorElement* emtf_chamberstrip_ME22_NEG;
+  MonitorElement* emtf_chamberstrip_ME31_NEG;
+  MonitorElement* emtf_chamberstrip_ME32_NEG;
+  MonitorElement* emtf_chamberstrip_ME41_NEG;
+  MonitorElement* emtf_chamberstrip_ME42_NEG;
+  
+  MonitorElement* emtf_chamberstrip_ME21_POS;
+  MonitorElement* emtf_chamberstrip_ME22_POS;
+  MonitorElement* emtf_chamberstrip_ME31_POS;
+  MonitorElement* emtf_chamberstrip_ME32_POS;
+  MonitorElement* emtf_chamberstrip_ME41_POS;
+  MonitorElement* emtf_chamberstrip_ME42_POS;
+
 };
 
 #endif
