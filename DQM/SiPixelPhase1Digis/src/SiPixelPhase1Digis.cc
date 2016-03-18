@@ -23,16 +23,32 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig),
   src_(iConfig.getParameter<edm::InputTag>("src"))
 {
-  histoman.setName("adc");
-  histoman.setTitle("Digi ADC values");
-  histoman.setXlabel("adc readout");
-  histoman.setDimensions(1);
-  histoman.addSpec()
+  histo[ADC].setName("adc");
+  histo[ADC].setTitle("Digi ADC values");
+  histo[ADC].setXlabel("adc readout");
+  histo[ADC].setDimensions(1);
+  histo[ADC].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
     .save();
-  histoman.addSpec()
+  histo[ADC].addSpec()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
     .save();
+  histo[NDIGIS].setName("ndigis");
+  histo[NDIGIS].setTitle("Number of Digis");
+  histo[NDIGIS].setXlabel("digi");
+  histo[NDIGIS].setDimensions(1);
+  histo[NDIGIS].addSpec()
+    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
+    .save()
+    .reduce("MEAN")
+    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer", "EXTEND_X")
+    .save()
+    .groupBy("P1PXBBarrel/P1PXBHalfBarrel", "EXTEND_X")
+    .save()
+    .groupBy("P1PXBBarrel", "EXTEND_X")
+    .save();
+
+
 } 
 
 template<class Consumer>
@@ -51,9 +67,12 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   edm::DetSetVector<PixelDigi>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
+    int ndigis = 0;
     for(PixelDigi const& digi : *it) {
-      histoman.fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
+      histo[ADC].fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
+      ndigis++;
     }
+    histo[NDIGIS].fill((double) ndigis, DetId(it->detId()), &iEvent);
   }
 }
 
