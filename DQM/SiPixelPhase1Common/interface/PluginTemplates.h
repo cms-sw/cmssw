@@ -35,12 +35,11 @@
 // normal HistogramManager this should be perfect.
 // Note that this does not derive from FWCore, even though the interface looks
 // a lot like a FWCore plugin.
-template<int NQuantities = 1>
 class SiPixelPhase1Base {
   public:
   
   // You should add a constructor that sets up the specs.
-  SiPixelPhase1Base(const edm::ParameterSet& iConfig) {
+  SiPixelPhase1Base(const edm::ParameterSet& iConfig, int NQuantities = 1) {
     for (int i = 0; i < NQuantities; i++) 
       histo.emplace_back(HistogramManager(iConfig));
   };

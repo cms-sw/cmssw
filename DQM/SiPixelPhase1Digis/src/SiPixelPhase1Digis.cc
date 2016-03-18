@@ -20,23 +20,24 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig),
+  SiPixelPhase1Base(iConfig, MAX_HIST),
   src_(iConfig.getParameter<edm::InputTag>("src"))
 {
-  histo[ADC].setName("adc");
-  histo[ADC].setTitle("Digi ADC values");
-  histo[ADC].setXlabel("adc readout");
-  histo[ADC].setDimensions(1);
+  histo[ADC].setName("adc")
+    .setTitle("Digi ADC values")
+    .setXlabel("adc readout")
+    .setDimensions(1);
   histo[ADC].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
     .save();
   histo[ADC].addSpec()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
     .save();
-  histo[NDIGIS].setName("ndigis");
-  histo[NDIGIS].setTitle("Number of Digis");
-  histo[NDIGIS].setXlabel("digi");
-  histo[NDIGIS].setDimensions(1);
+
+  histo[NDIGIS].setName("ndigis")
+    .setTitle("Number of Digis")
+    .setXlabel("#digis")
+    .setDimensions(1);
   histo[NDIGIS].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
     .save()
