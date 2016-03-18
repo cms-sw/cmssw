@@ -61,6 +61,8 @@ class GeometryInterface {
     return out;
   };
 
+  std::vector<InterestingQuantities> const& allModules() { return all_modules; };
+
 
   private:
   void loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
@@ -68,6 +70,7 @@ class GeometryInterface {
   static GeometryInterface instance;
   bool is_loaded = false;
   std::map<Column, std::function<Value(InterestingQuantities const& iq)>> extractors;
+  std::vector<InterestingQuantities> all_modules;
 };
 
 
