@@ -246,19 +246,6 @@ def miniAOD_customizeCommon(process):
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
-
-
-    process.load('RecoJets.JetProducers.ak8PFJetsPuppi_cfi')
-
-    process.ak8PFJetsPuppi.doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
-
-    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
-    process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
-        j2tParametersVX,
-        jets = cms.InputTag("ak8PFJetsPuppi")
-    )
-
-
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
