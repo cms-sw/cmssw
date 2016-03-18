@@ -664,7 +664,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 
     //Start with the Cal - Muon Eta LUTS
     //----------------------------------
-    parseCalMuEta_LUTS(scaleMap, "EG",  "MU");
+    parseCalMuEta_LUTS(scaleMap, "EG",  "MU");  
     parseCalMuEta_LUTS(scaleMap, "JET", "MU");
     parseCalMuEta_LUTS(scaleMap, "TAU", "MU");
     
@@ -724,7 +724,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     parseDeltaPhi_Cos_LUTS(scaleMap,"MU","HTM",precisions["PRECISION-MU-HTM-Delta"],precisions["PRECISION-MU-HTM-Math"]);
     parseDeltaPhi_Cos_LUTS(scaleMap,"MU","MU", precisions["PRECISION-MU-MU-Delta"], precisions["PRECISION-MU-MU-Math"]);
 
-
+    //m_gtScales.dumpAllLUTs(std::cout);
 
   }
 
@@ -756,7 +756,7 @@ void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventset
     lutName += "-";
     lutName += obj2;
     std::cout << " LutName: " << lutName.c_str() << std::endl;
-    m_gtScales.setLUT_CaloMuEta(lutName,lut_cal_2_mu_eta);
+    m_gtScales.setLUT_CalMuEta(lutName,lut_cal_2_mu_eta);
         
 
 }
@@ -782,7 +782,7 @@ void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventset
     lutName += "-";
     lutName += obj2;
     std::cout << " LutName: " << lutName.c_str() << std::endl;
-    m_gtScales.setLUT_CaloMuPhi(lutName,lut_cal_2_mu_phi);
+    m_gtScales.setLUT_CalMuPhi(lutName,lut_cal_2_mu_phi);
         
 
 }
@@ -2509,8 +2509,30 @@ bool l1t::TriggerMenuParser::parseCorrelation(
         } else {
 	  //keep the type from what the correlation is.
           corrParameter.corrCutType = cut.getCutType();
-	  corrParameter.minCutValue = cut.getMinimum().value;
-	  corrParameter.maxCutValue = cut.getMaximum().value;
+//	  corrParameter.minCutValue = cut.getMinimum().index;
+//	  corrParameter.maxCutValue = cut.getMaximum().index;
+// 
+//  Unitl utm has method to calculate these, do the integer value calculation with precision.
+//
+          double minV = cut.getMinimum().value;
+	  double maxV = cut.getMaximum().value;
+	  
+	  //Scale down very large numbers out of xml
+	  if(maxV > 1.0e6) maxV = 1.0e6;
+	  
+	  if(cut.getCutType() == esCutType::DeltaEta) {
+	     corrParameter.minCutValue = (long long)(minV * 1000.); 
+	     corrParameter.maxCutValue = (long long)(maxV * 1000.); 
+	  } else if (cut.getCutType() == esCutType::DeltaPhi) {
+	     corrParameter.minCutValue = (long long)(minV * 1000.); 
+	     corrParameter.maxCutValue = (long long)(maxV * 1000.); 
+	  } else if (cut.getCutType() == esCutType::DeltaR) {
+	     corrParameter.minCutValue = (long long)(minV*minV * 1000.); 
+	     corrParameter.maxCutValue = (long long)(maxV*maxV * 1000.); 
+	  } else if (cut.getCutType() == esCutType::Mass) {	  
+	     corrParameter.minCutValue = (long long)(0.5*minV*minV * 10.); 
+	     corrParameter.maxCutValue = (long long)(0.5*maxV*maxV * 10.); 
+          }
 	}  
 
       }
