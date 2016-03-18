@@ -91,12 +91,102 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 }
 
 void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup) {
+  // this should also give us the GeometryInterface for offline, though it is a bit dirty and might explode.
+  if (!geometryInterface.loaded()) {
+    geometryInterface.load(iSetup, iConfig);
+  }
   std::cout << "+++ HistogramManager: Step2 online\n";
 }
 
 void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   std::cout << "+++ HistogramManager: Step2 offline\n";
 
+  // This is esentially the booking code if step1, to reconstruct the ME names.
+  // Once we have a name we load the ME and put it into the table.
+  for (unsigned int i = 0; i < specs.size(); i++) {
+    auto& s = specs[i];
+    auto& t = tables[i];
+    for (auto iq : geometryInterface.allModules()) {
+      std::ostringstream name(this->name, std::ostringstream::ate);
+      std::ostringstream dir(topFolderName + "/", std::ostringstream::ate);
+      auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
+      for (SummationStep step : s.steps) {
+	if (step.stage == SummationStep::STAGE1) {
+	  //TODO: change labels, dimensionality, range, colums as fits
+	}
+      }
+
+      AbstractHistogram& histo = t[significantvalues];
+      for (auto c : s.steps[0].columns) {
+	dir << c << "_" << std::hex << significantvalues[c] << "/";
+      }
+      histo.me = iGetter.get(dir.str() + name.str());
+      if (!histo.me) {
+	std::cout << "+++ ME " << dir.str() + name.str() << " not found\n";
+      } else {
+	histo.th1 = histo.me->getTH1();
+      }
+    }
+    
+    // now execute step2.
+    for (SummationStep step : s.steps) {
+      if (step.stage == SummationStep::STAGE2) {
+
+	//TODO: change labels, dimensionality, range, colums as fits
+	
+	// SAVE: traverse the table, book a ME for every TH1.
+	// TODO: title and labels have to be recorded per-histo, in AbstractHistogram?
+	if (step.type == SummationStep::SAVE) {
+	  for (auto& e : t) {
+	    if (e.second.me) continue; // if there is a ME already, nothing to do
+	    GeometryInterface::Values vals = e.first;
+	    std::ostringstream dir("");
+	    for (auto c : s.steps[0].columns) {
+	      if (vals.find(c) != vals.end())
+		dir << c << "_" << std::hex << vals[c] << "/";
+	    }
+	    iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
+	    // TODO veery broken
+	    if (e.second.th1->GetDimension() == 1) {
+	      TAxis* ax = e.second.th1->GetXaxis();
+	      e.second.me = iBooker.book1D(this->name, this->title, ax->GetNbins(), ax->GetXmin(), ax->GetXmax());
+	    } else {
+	      assert(!"NIY");
+	    }
+	    e.second.me->getTH1()->Add(e.second.th1);
+	    //delete e.second.th1;
+	    e.second.th1 = e.second.me->getTH1(); 
+	  }
+	}
+
+	// Simple grouping. Drop colums, add histos if one is already present.
+	if (step.type == SummationStep::GROUPBY) {
+	  Table out;
+	  for (auto& e : t) {
+	    GeometryInterface::Values old_vals = e.first;
+	    TH1 *th1 = e.second.th1;
+	    GeometryInterface::Values new_vals;
+	    for (auto col : step.columns) {
+	      auto it = old_vals.find(col);
+	      if (it != old_vals.end()) {
+		new_vals.insert(*it);
+	      }
+	    }
+	    AbstractHistogram& new_histo = out[new_vals];
+	    if (!new_histo.th1) {
+	      new_histo.th1 = (TH1*) th1->Clone();
+	    } else {
+	      new_histo.th1->Add(th1);
+	    }
+	  }
+	  t.swap(out);
+	}
+
+	// TODO: more.
+
+      }
+    }
+  }
 }
 
 
