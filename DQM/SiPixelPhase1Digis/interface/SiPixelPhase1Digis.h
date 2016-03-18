@@ -15,7 +15,8 @@
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/PluginTemplates.h"
 
-class SiPixelPhase1Digis : public SiPixelPhase1Base {
+enum {ADC, NDIGIS, MAX_HIST};
+class SiPixelPhase1Digis : public SiPixelPhase1Base<MAX_HIST> {
 
   public:
   explicit SiPixelPhase1Digis(const edm::ParameterSet& conf);
