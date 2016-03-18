@@ -75,10 +75,15 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
   std::map<align::StructureType, BitInfo> infos;
 
   struct {
-    void traverseAlignables(Alignable* compositeAlignable, std::map<align::StructureType, BitInfo>& infos) {
+    void traverseAlignables(Alignable* compositeAlignable, std::map<align::StructureType, BitInfo>& infos, std::vector<InterestingQuantities>& all_modules) {
       //std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << " " << std::hex << compositeAlignable->id() << "\n";
-	
       auto alignable = compositeAlignable;
+
+      if(alignable->alignableObjectId() == align::AlignableDetUnit) {
+	// this is a Module
+	all_modules.push_back(InterestingQuantities{.sourceModule = alignable->id()});
+      }
+
       auto& info = infos[alignable->alignableObjectId()];
       // default values -- sort of a constructor for BitInfo
       if (info.characteristicBits == 0) {
@@ -107,12 +112,12 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	if (info.variableMask != leafVariableMask) info.variableMask &= ~leafVariableMask;
       }
       for (auto* alignable : compositeAlignable->components()) {
-	traverseAlignables(alignable, infos);
+	traverseAlignables(alignable, infos, all_modules);
       }
     }
   } alignableIterator;
 
-  alignableIterator.traverseAlignables(trackerAlignables, infos);
+  alignableIterator.traverseAlignables(trackerAlignables, infos, all_modules);
 
   for (auto el : infos) {
     auto info = el.second;
