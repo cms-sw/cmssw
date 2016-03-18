@@ -14,13 +14,18 @@
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
-void rates(){
-  nevents=1000;
+void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1UpgradeEmuTree/L1UpgradeTree"){
+  nevents=10000;
 
   // make trees
-  TFile * file = new TFile("l1t_stage2.root");
-  //TFile * file = new TFile("all/combined.root");
-  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
+  TFile * file = new TFile(rootfile);
+  TTree * treeL1Up  = (TTree*) file->Get(treepath);
+  if (! treeL1Up){
+    cout << "ERROR: could not open tree\n";
+    return;
+  }
+
+
   treeL1Up->Print();
 
   // set branch addresses
@@ -114,7 +119,7 @@ void rates(){
       //cout << "INFO:  " << upgrade_->nMuons << "\n";
       //cout << "INFO:  " << upgrade_->muonEt.size() << "\n";
       //cout << "INFO:  " << upgrade_->muonQual.size() << "\n";
-      if (upgrade_->muonQual[it+offset]==0) continue;
+      if (upgrade_->muonQual[it+offset]<8) continue;
       hMuEt->Fill(upgrade_->muonEt[it]);
       muEt = upgrade_->muonEt[it] > muEt ?  upgrade_->muonEt[it]  : muEt;
     }
@@ -159,8 +164,8 @@ void rates(){
       if (upgrade_->sumType[it] == L1Analysis::kMissingEt) metSum = et;
       if (upgrade_->sumType[it] == L1Analysis::kMissingHt) mhtSum = et;
     }
-    std::cout << "mht:  " << mhtSum << "\n";
-    std::cout << "ht sum:  " << htSum << "\n";
+    //std::cout << "mht:  " << mhtSum << "\n";
+    //std::cout << "ht sum:  " << htSum << "\n";
 
     hEtSum->Fill(0.5*etSum);
     //std::cout << "et sum = " << etSum << std::endl;
@@ -313,7 +318,14 @@ void rates(){
   gMuRate->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
 
-  leg1->Draw();
+
+  TLegend* leg2 = new TLegend(0.5,0.73,0.7,0.88);
+  leg2->SetFillColor(0);
+  leg2->AddEntry(gMuRate,"Muon","lp");
+  leg2->SetBorderSize(0);
+  leg2->SetFillStyle(0);
+  leg2->Draw();
+  leg2->Draw();
   n3.DrawLatex(0.5, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.5, 0.55, "Zero Bias");
 
@@ -349,13 +361,13 @@ void rates(){
   mgSums->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
   
-  TLegend* leg2 = new TLegend(0.7,0.78,0.9,0.88);
-  leg2->SetFillColor(0);
-  leg2->AddEntry(gEtSumRate,"E_{T}^{total}","lp");
-  leg2->AddEntry(gHtSumRate,"H_{T}","lp");
-  leg2->SetBorderSize(0);
-  leg2->SetFillStyle(0);
-  leg2->Draw("same");
+  TLegend* leg3 = new TLegend(0.7,0.78,0.9,0.88);
+  leg3->SetFillColor(0);
+  leg3->AddEntry(gEtSumRate,"E_{T}^{total}","lp");
+  leg3->AddEntry(gHtSumRate,"H_{T}","lp");
+  leg3->SetBorderSize(0);
+  leg3->SetFillStyle(0);
+  leg3->Draw("same");
 
   n3.DrawLatex(0.6, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.6, 0.25, "Zero Bias");
@@ -396,13 +408,13 @@ void rates(){
   mgMsums->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
   
-  TLegend* leg3 = new TLegend(0.7,0.78,0.9,0.88);
-  leg3->SetFillColor(0);
-  leg3->AddEntry(gMetSumRate,"E_{T}^{miss}","lp");
-  leg3->AddEntry(gMhtSumRate,"H_{T}^{miss}","lp");
-  leg3->SetBorderSize(0);
-  leg3->SetFillStyle(0);
-  leg3->Draw("same");
+  TLegend* leg4 = new TLegend(0.7,0.78,0.9,0.88);
+  leg4->SetFillColor(0);
+  leg4->AddEntry(gMetSumRate,"E_{T}^{miss}","lp");
+  leg4->AddEntry(gMhtSumRate,"H_{T}^{miss}","lp");
+  leg4->SetBorderSize(0);
+  leg4->SetFillStyle(0);
+  leg4->Draw("same");
 
   n3.DrawLatex(0.3, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.3, 0.25, "Zero Bias");
