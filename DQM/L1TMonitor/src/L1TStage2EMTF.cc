@@ -68,112 +68,112 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfChamberOccupancy->setBinLabel(9, "ME+3", 2);
   emtfChamberOccupancy->setBinLabel(10, "ME+4", 2);
   
-  emtf_strip_ME11_POS = ibooker.book1D("emtf_strip_ME11_POS", "EMTF Strip ME+1/1", 150, 0, 230);
+  emtf_strip_ME11_POS = ibooker.book1D("emtf_strip_ME11_POS", "EMTF Strip ME+1/1", 230, 0, 230);
   emtf_strip_ME11_POS->setAxisTitle("HalfStrip, ME+1/1", 1);
   
-  emtf_wire_ME11_POS = ibooker.book1D("emtf_wire_ME11_POS", "EMTF Wire ME+1/1", 150, 0, 120);
+  emtf_wire_ME11_POS = ibooker.book1D("emtf_wire_ME11_POS", "EMTF Wire ME+1/1", 120, 0, 120);
   emtf_wire_ME11_POS->setAxisTitle("Wire, ME+1/1", 1);
     
-  emtf_strip_ME12_POS = ibooker.book1D("emtf_strip_ME12_POS", "EMTF Strip ME+1/2", 150, 0, 230);
+  emtf_strip_ME12_POS = ibooker.book1D("emtf_strip_ME12_POS", "EMTF Strip ME+1/2", 230, 0, 230);
   emtf_strip_ME12_POS->setAxisTitle("HalfStrip, ME+1/2", 1);
   
-  emtf_wire_ME12_POS = ibooker.book1D("emtf_wire_ME12_POS", "EMTF Wire ME+1/2", 150, 0, 120);
+  emtf_wire_ME12_POS = ibooker.book1D("emtf_wire_ME12_POS", "EMTF Wire ME+1/2", 120, 0, 120);
   emtf_wire_ME12_POS->setAxisTitle("Wire, ME+1/2", 1);
     
-  emtf_strip_ME13_POS = ibooker.book1D("emtf_strip_ME13_POS", "EMTF Strip ME+1/3", 150, 0, 230);
+  emtf_strip_ME13_POS = ibooker.book1D("emtf_strip_ME13_POS", "EMTF Strip ME+1/3", 230, 0, 230);
   emtf_strip_ME13_POS->setAxisTitle("HalfStrip, ME+1/3", 1);
   
-  emtf_wire_ME13_POS = ibooker.book1D("emtf_wire_ME13_POS", "EMTF Wire ME+1/3", 150, 0, 120);
+  emtf_wire_ME13_POS = ibooker.book1D("emtf_wire_ME13_POS", "EMTF Wire ME+1/3", 120, 0, 120);
   emtf_wire_ME13_POS->setAxisTitle("Wire, ME+1/3", 1);
   
-  emtf_strip_ME21_POS = ibooker.book1D("emtf_strip_ME21_POS", "EMTF Strip ME+2/1", 150, 0, 230);
+  emtf_strip_ME21_POS = ibooker.book1D("emtf_strip_ME21_POS", "EMTF Strip ME+2/1", 230, 0, 230);
   emtf_strip_ME21_POS->setAxisTitle("HalfStrip, ME+2/1", 1);
   
-  emtf_wire_ME21_POS = ibooker.book1D("emtf_wire_ME21_POS", "EMTF Wire ME+2/1", 150, 0, 120);
+  emtf_wire_ME21_POS = ibooker.book1D("emtf_wire_ME21_POS", "EMTF Wire ME+2/1", 120, 0, 120);
   emtf_wire_ME21_POS->setAxisTitle("Wire, ME+2/1", 1);
   
-  emtf_strip_ME22_POS = ibooker.book1D("emtf_strip_ME22_POS", "EMTF Strip ME+2/2", 150, 0, 230);
+  emtf_strip_ME22_POS = ibooker.book1D("emtf_strip_ME22_POS", "EMTF Strip ME+2/2", 230, 0, 230);
   emtf_strip_ME22_POS->setAxisTitle("HalfStrip, ME+2/2", 1);
   
-  emtf_wire_ME22_POS = ibooker.book1D("emtf_wire_ME22_POS", "EMTF Wire ME+2/2", 150, 0, 120);
+  emtf_wire_ME22_POS = ibooker.book1D("emtf_wire_ME22_POS", "EMTF Wire ME+2/2", 120, 0, 120);
   emtf_wire_ME22_POS->setAxisTitle("Wire, ME+2/2", 1);
   
-  emtf_strip_ME31_POS = ibooker.book1D("emtf_strip_ME31_POS", "EMTF Strip ME+3/1", 150, 0, 230);
+  emtf_strip_ME31_POS = ibooker.book1D("emtf_strip_ME31_POS", "EMTF Strip ME+3/1", 230, 0, 230);
   emtf_strip_ME31_POS->setAxisTitle("HalfStrip, ME+3/1", 1);
   
-  emtf_wire_ME31_POS = ibooker.book1D("emtf_wire_ME31_POS", "EMTF Wire ME+3/1", 150, 0, 120);
+  emtf_wire_ME31_POS = ibooker.book1D("emtf_wire_ME31_POS", "EMTF Wire ME+3/1", 120, 0, 120);
   emtf_wire_ME31_POS->setAxisTitle("Wire, ME+3/1", 1);
   
-  emtf_strip_ME32_POS = ibooker.book1D("emtf_strip_ME32_POS", "EMTF Strip ME+3/2", 150, 0, 230);
+  emtf_strip_ME32_POS = ibooker.book1D("emtf_strip_ME32_POS", "EMTF Strip ME+3/2", 230, 0, 230);
   emtf_strip_ME32_POS->setAxisTitle("HalfStrip, ME+3/2", 1);
   
-  emtf_wire_ME32_POS = ibooker.book1D("emtf_wire_ME32_POS", "EMTF Wire ME+3/2", 150, 0, 120);
+  emtf_wire_ME32_POS = ibooker.book1D("emtf_wire_ME32_POS", "EMTF Wire ME+3/2", 120, 0, 120);
   emtf_wire_ME32_POS->setAxisTitle("Wire, ME+3/2", 1);
     
-  emtf_strip_ME41_POS = ibooker.book1D("emtf_strip_ME41_POS", "EMTF Strip ME+4/1", 150, 0, 230);
+  emtf_strip_ME41_POS = ibooker.book1D("emtf_strip_ME41_POS", "EMTF Strip ME+4/1", 230, 0, 230);
   emtf_strip_ME41_POS->setAxisTitle("HalfStrip, ME+4/1", 1);
   
-  emtf_wire_ME41_POS = ibooker.book1D("emtf_wire_ME41_POS", "EMTF Wire ME+4/1", 150, 0, 120);
+  emtf_wire_ME41_POS = ibooker.book1D("emtf_wire_ME41_POS", "EMTF Wire ME+4/1", 120, 0, 120);
   emtf_wire_ME41_POS->setAxisTitle("Wire, ME+4/1", 1);
   
-  emtf_strip_ME42_POS = ibooker.book1D("emtf_strip_ME42_POS", "EMTF Strip ME+4/2", 150, 0, 230);
+  emtf_strip_ME42_POS = ibooker.book1D("emtf_strip_ME42_POS", "EMTF Strip ME+4/2", 230, 0, 230);
   emtf_strip_ME42_POS->setAxisTitle("HalfStrip, ME+4/2", 1);
   
-  emtf_wire_ME42_POS = ibooker.book1D("emtf_wire_ME42_POS", "EMTF Wire ME+4/2", 150, 0, 120);
+  emtf_wire_ME42_POS = ibooker.book1D("emtf_wire_ME42_POS", "EMTF Wire ME+4/2", 120, 0, 120);
   emtf_wire_ME42_POS->setAxisTitle("Wire, ME+4/2", 1); 
     
-  emtf_strip_ME11_NEG = ibooker.book1D("emtf_strip_ME11_NEG", "EMTF Strip ME-1/1", 150, 0, 230);
+  emtf_strip_ME11_NEG = ibooker.book1D("emtf_strip_ME11_NEG", "EMTF Strip ME-1/1", 230, 0, 230);
   emtf_strip_ME11_NEG->setAxisTitle("HalfStrip, ME-1/1", 1);
   
-  emtf_wire_ME11_NEG = ibooker.book1D("emtf_wire_ME11_NEG", "EMTF Wire ME-1/1", 150, 0, 120);
+  emtf_wire_ME11_NEG = ibooker.book1D("emtf_wire_ME11_NEG", "EMTF Wire ME-1/1", 120, 0, 120);
   emtf_wire_ME11_NEG->setAxisTitle("Wire, ME-1/1", 1);
     
-  emtf_strip_ME12_NEG = ibooker.book1D("emtf_strip_ME12_NEG", "EMTF Strip ME-1/2", 150, 0, 230);
+  emtf_strip_ME12_NEG = ibooker.book1D("emtf_strip_ME12_NEG", "EMTF Strip ME-1/2", 230, 0, 230);
   emtf_strip_ME12_NEG->setAxisTitle("HalfStrip, ME-1/2", 1);
   
-  emtf_wire_ME12_NEG = ibooker.book1D("emtf_wire_ME12_NEG", "EMTF Wire ME-1/2", 150, 0, 120);
+  emtf_wire_ME12_NEG = ibooker.book1D("emtf_wire_ME12_NEG", "EMTF Wire ME-1/2", 120, 0, 120);
   emtf_wire_ME12_NEG->setAxisTitle("Wire, ME-1/2", 1);
     
-  emtf_strip_ME13_NEG = ibooker.book1D("emtf_strip_ME13_NEG", "EMTF Strip ME-1/3", 150, 0, 230);
+  emtf_strip_ME13_NEG = ibooker.book1D("emtf_strip_ME13_NEG", "EMTF Strip ME-1/3", 230, 0, 230);
   emtf_strip_ME13_NEG->setAxisTitle("HalfStrip, ME-1/3", 1);
   
-  emtf_wire_ME13_NEG = ibooker.book1D("emtf_wire_ME13_NEG", "EMTF Wire ME-1/3", 150, 0, 120);
+  emtf_wire_ME13_NEG = ibooker.book1D("emtf_wire_ME13_NEG", "EMTF Wire ME-1/3", 120, 0, 120);
   emtf_wire_ME13_NEG->setAxisTitle("Wire, ME-1/3", 1);
   
-  emtf_strip_ME21_NEG = ibooker.book1D("emtf_strip_ME21_NEG", "EMTF Strip ME-2/1", 150, 0, 230);
+  emtf_strip_ME21_NEG = ibooker.book1D("emtf_strip_ME21_NEG", "EMTF Strip ME-2/1", 230, 0, 230);
   emtf_strip_ME21_NEG->setAxisTitle("HalfStrip, ME-2/1", 1);
   
-  emtf_wire_ME21_NEG = ibooker.book1D("emtf_wire_ME21_NEG", "EMTF Wire ME-2/1", 150, 0, 120);
+  emtf_wire_ME21_NEG = ibooker.book1D("emtf_wire_ME21_NEG", "EMTF Wire ME-2/1", 120, 0, 120);
   emtf_wire_ME21_NEG->setAxisTitle("Wire, ME-2/1", 1);
   
-  emtf_strip_ME22_NEG = ibooker.book1D("emtf_strip_ME22_NEG", "EMTF Strip ME-2/2", 150, 0, 230);
+  emtf_strip_ME22_NEG = ibooker.book1D("emtf_strip_ME22_NEG", "EMTF Strip ME-2/2", 230, 0, 230);
   emtf_strip_ME22_NEG->setAxisTitle("HalfStrip, ME-2/2", 1);
   
-  emtf_wire_ME22_NEG = ibooker.book1D("emtf_wire_ME22_NEG", "EMTF Wire ME-2/2", 150, 0, 120);
+  emtf_wire_ME22_NEG = ibooker.book1D("emtf_wire_ME22_NEG", "EMTF Wire ME-2/2", 120, 0, 120);
   emtf_wire_ME22_NEG->setAxisTitle("Wire, ME-2/2", 1);
   
-  emtf_strip_ME31_NEG = ibooker.book1D("emtf_strip_ME31_NEG", "EMTF Strip ME-3/1", 150, 0, 230);
+  emtf_strip_ME31_NEG = ibooker.book1D("emtf_strip_ME31_NEG", "EMTF Strip ME-3/1", 230, 0, 230);
   emtf_strip_ME31_NEG->setAxisTitle("HalfStrip, ME-3/1", 1);
   
-  emtf_wire_ME31_NEG = ibooker.book1D("emtf_wire_ME31_NEG", "EMTF Wire ME-3/1", 150, 0, 120);
+  emtf_wire_ME31_NEG = ibooker.book1D("emtf_wire_ME31_NEG", "EMTF Wire ME-3/1", 120, 0, 120);
   emtf_wire_ME31_NEG->setAxisTitle("Wire, ME-3/1", 1);
   
-  emtf_strip_ME32_NEG = ibooker.book1D("emtf_strip_ME32_NEG", "EMTF Strip ME-3/2", 150, 0, 230);
+  emtf_strip_ME32_NEG = ibooker.book1D("emtf_strip_ME32_NEG", "EMTF Strip ME-3/2", 230, 0, 230);
   emtf_strip_ME32_NEG->setAxisTitle("HalfStrip, ME-3/2", 1);
   
-  emtf_wire_ME32_NEG = ibooker.book1D("emtf_wire_ME32_NEG", "EMTF Wire ME-3/2", 150, 0, 120);
+  emtf_wire_ME32_NEG = ibooker.book1D("emtf_wire_ME32_NEG", "EMTF Wire ME-3/2", 120, 0, 120);
   emtf_wire_ME32_NEG->setAxisTitle("Wire, ME-3/2", 1);
     
-  emtf_strip_ME41_NEG = ibooker.book1D("emtf_strip_ME41_NEG", "EMTF Strip ME-4/1", 150, 0, 230);
+  emtf_strip_ME41_NEG = ibooker.book1D("emtf_strip_ME41_NEG", "EMTF Strip ME-4/1", 230, 0, 230);
   emtf_strip_ME41_NEG->setAxisTitle("HalfStrip, ME-4/1", 1);
   
-  emtf_wire_ME41_NEG = ibooker.book1D("emtf_wire_ME41_NEG", "EMTF Wire ME-4/1", 150, 0, 120);
+  emtf_wire_ME41_NEG = ibooker.book1D("emtf_wire_ME41_NEG", "EMTF Wire ME-4/1", 120, 0, 120);
   emtf_wire_ME41_NEG->setAxisTitle("Wire, ME-4/1", 1);
   
-  emtf_strip_ME42_NEG = ibooker.book1D("emtf_strip_ME42_NEG", "EMTF Strip ME-4/2", 150, 0, 230);
+  emtf_strip_ME42_NEG = ibooker.book1D("emtf_strip_ME42_NEG", "EMTF Strip ME-4/2", 230, 0, 230);
   emtf_strip_ME42_NEG->setAxisTitle("HalfStrip, ME-4/2", 1);
   
-  emtf_wire_ME42_NEG = ibooker.book1D("emtf_wire_ME42_NEG", "EMTF Wire ME-4/2", 150, 0, 120);
+  emtf_wire_ME42_NEG = ibooker.book1D("emtf_wire_ME42_NEG", "EMTF Wire ME-4/2", 120, 0, 120);
   emtf_wire_ME42_NEG->setAxisTitle("Wire, ME-4/2", 1);
     
   emtf_chamberstrip_ME21_POS = ibooker.book2D("emtf_chamberstrip_ME21_POS", "EMTF Strip ME+2/1", 18, .5, 18.5, 160, 0, 160);

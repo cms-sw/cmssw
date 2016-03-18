@@ -77,6 +77,7 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtBXvsLink;
 
   MonitorElement* ugmtMuonBX;
+  MonitorElement* ugmtMuonIndex;
   MonitorElement* ugmtMuonhwPt;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
@@ -84,10 +85,6 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonhwChargeValid;
   MonitorElement* ugmtMuonhwQual;
   MonitorElement* ugmtMuonhwIso;
-
-  MonitorElement* ugmtMuonhwPtvshwEta;
-  MonitorElement* ugmtMuonhwPtvshwPhi;
-  MonitorElement* ugmtMuonhwPhivshwEta;
 
   MonitorElement* ugmtMuonPt;
   MonitorElement* ugmtMuonEta;
