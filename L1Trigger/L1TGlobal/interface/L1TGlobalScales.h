@@ -77,6 +77,16 @@ public:
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
 
+    inline ScaleParameters getMUScales() const { return m_muScales; }
+    inline ScaleParameters getEGScales() const { return m_egScales; }
+    inline ScaleParameters getTAUScales() const { return m_tauScales; }
+    inline ScaleParameters getJETScales() const { return m_jetScales; }
+    inline ScaleParameters getETTScales() const { return m_ettScales; }
+    inline ScaleParameters getETMScales() const { return m_etmScales; }
+    inline ScaleParameters getHTTScales() const { return m_httScales; }
+    inline ScaleParameters getHTMScales() const { return m_htmScales; }
+
+
     long long getLUT_CalMuEta(std::string lutName, int element) const;
     long long getLUT_CalMuPhi(std::string lutName, int element) const;
     long long getLUT_DeltaEta(std::string lutName, int element) const;

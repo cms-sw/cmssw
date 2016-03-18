@@ -31,6 +31,7 @@ l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
     static const l1t::L1TGtObjectStringToEnum l1TGtObjectStringToEnumMap[] = {
             {"Mu",  gtMu},
             {"EG",  gtEG},
+	    {"Tau", gtTau},
             {"Jet", gtJet},
             {"ETM", gtETM},
             {"ETT", gtETT},
@@ -80,6 +81,11 @@ std::string l1t::l1TGtObjectEnumToString(const L1TGtObject& gtObject) {
 
         case gtEG: {
             gtObjectString = "EG";
+        }
+            break;
+
+        case gtTau: {
+            gtObjectString = "Tau";
         }
             break;
 
