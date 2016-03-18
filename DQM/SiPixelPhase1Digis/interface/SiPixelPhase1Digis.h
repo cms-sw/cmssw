@@ -1,4 +1,4 @@
-#ifndef SiPixelPhase1Digis_h // Can we use #pagma once?
+#ifndef SiPixelPhase1Digis_h // Can we use #pragma once?
 #define SiPixelPhase1Digis_h
 // -*- C++ -*-
 //
@@ -15,9 +15,14 @@
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/PluginTemplates.h"
 
-enum {ADC, NDIGIS, MAX_HIST};
-class SiPixelPhase1Digis : public SiPixelPhase1Base<MAX_HIST> {
+class SiPixelPhase1Digis : public SiPixelPhase1Base {
+  // List of quantities to be plotted. 
+  enum {
+    ADC, // digi ADC readouts
+    NDIGIS, // number of digis per event and module
 
+    MAX_HIST // a sentinel that gives the number of quantities (not a plot).
+  };
   public:
   explicit SiPixelPhase1Digis(const edm::ParameterSet& conf);
 
