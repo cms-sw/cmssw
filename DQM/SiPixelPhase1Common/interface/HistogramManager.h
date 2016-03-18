@@ -53,11 +53,11 @@ public:
   void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
   void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
-  void setName(std::string name) {this->name = name;};
-  void setTitle(std::string title) {this->title = title;};
-  void setXlabel(std::string xlabel) {this->xlabel = xlabel;};
-  void setYlabel(std::string ylabel) {this->ylabel = ylabel;};
-  void setDimensions(int dimensions) {this->dimensions = dimensions;};
+  HistogramManager& setName(std::string name) {this->name = name; return *this;};
+  HistogramManager& setTitle(std::string title) {this->title = title; return *this;};
+  HistogramManager& setXlabel(std::string xlabel) {this->xlabel = xlabel; return *this;};
+  HistogramManager& setYlabel(std::string ylabel) {this->ylabel = ylabel; return *this;};
+  HistogramManager& setDimensions(int dimensions) {this->dimensions = dimensions; return *this;};
 
 //private: // we need a bit more access for testing
   const edm::ParameterSet& iConfig;
