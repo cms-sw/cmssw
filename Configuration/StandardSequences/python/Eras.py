@@ -67,8 +67,8 @@ class Eras (object):
 
         # 2017 scenarios with customized tracking for expert use
         # Will be used as reference points for 2017 tracking development
-        self.Run2_2017_trackingPhase1PU70 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.trackingPhase1PU70 )
-        self.Run2_2017_trackingRun2 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel ) # no tracking-era = Run2 tracking
+        self.Run2_2017_trackingPhase1PU70 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.trackingPhase1PU70, self.muonTrigger2017 )
+        self.Run2_2017_trackingRun2 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.muonTrigger2017 ) # no tracking-era = Run2 tracking
         
         # The only thing this collection is used for is for cmsDriver to
         # warn the user if they specify an era that is discouraged from being
