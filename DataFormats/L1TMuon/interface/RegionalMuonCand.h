@@ -8,12 +8,14 @@ namespace l1t {
 class RegionalMuonCand {
   public:
     /// Enum to identify the individual parts of the BMTF track address
+    /// Update kNumBmtfSubAddr if you add additional enums
     enum bmtfAddress {
-        kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5, kSegSelStat1=6, kSegSelStat2=7, kSegSelStat3=8, kSegSelStat4=9
+        kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5, kSegSelStat1=6, kSegSelStat2=7, kSegSelStat3=8, kSegSelStat4=9, kNumBmtfSubAddr=10
     };
     /// Enum to identify the individual parts of the EMTF track address
+    /// Update kNumEmtfSubAddr if you add additional enums
     enum emtfAddress {
-        kSectorId=0, kME1=1, kME1SubSecId=2, kME1Order=3, kME2=4, kME2SubSecId=5, kME2Order=6, kME3=7, kME3SubSecId=8, kME3Order=9, kME4=10, kME4SubSecId=11, kME4Order=12
+        kSectorId=0, kME1=1, kME1SubSecId=2, kME1Order=3, kME2=4, kME2SubSecId=5, kME2Order=6, kME3=7, kME3SubSecId=8, kME3Order=9, kME4=10, kME4SubSecId=11, kME4Order=12, kNumEmtfSubAddr=13
     };
 
 
