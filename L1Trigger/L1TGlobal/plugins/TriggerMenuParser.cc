@@ -654,7 +654,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   getPrecisions(precisions, scaleMap);
   for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++)
   {
-    std::cout << cit->first << " = " << cit->second << "\n";
+    //std::cout << cit->first << " = " << cit->second << "\n";
     hasPrecision = true;
   }
 
@@ -745,7 +745,6 @@ void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventset
     scLabel1 += "-ETA";
     std::string scLabel2 = obj2; 
     scLabel2 += "-ETA";    
-    std::cout << scLabel1.c_str() << " " << scLabel2.c_str();
     const esScale* scale1 = &scaleMap.find(scLabel1)->second;
     const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
 
@@ -755,7 +754,6 @@ void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventset
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    std::cout << " LutName: " << lutName.c_str() << std::endl;
     m_gtScales.setLUT_CalMuEta(lutName,lut_cal_2_mu_eta);
         
 
@@ -771,7 +769,6 @@ void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventset
     scLabel1 += "-PHI";
     std::string scLabel2 = obj2; 
     scLabel2 += "-PHI";    
-    std::cout << scLabel1.c_str() << " " << scLabel2.c_str();
     const esScale* scale1 = &scaleMap.find(scLabel1)->second;
     const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
 
@@ -781,7 +778,6 @@ void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventset
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    std::cout << " LutName: " << lutName.c_str() << std::endl;
     m_gtScales.setLUT_CalMuPhi(lutName,lut_cal_2_mu_phi);
         
 
@@ -814,7 +810,6 @@ void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeve
     scLabel1 += "-ETA";
     std::string scLabel2 = obj2; 
     scLabel2 += "-ETA";    
-    std::cout << scLabel1.c_str() << " " << scLabel2.c_str() << " prec1 " << prec1 << " prec2 " << prec2;
     const esScale* scale1 = &scaleMap.find(scLabel1)->second;
     const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
     std::vector<double> val_delta_eta;
@@ -824,7 +819,6 @@ void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeve
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    std::cout << " LutName: " << lutName.c_str() << std::endl;
     m_gtScales.setLUT_DeltaEta(lutName,lut_delta_eta);
         
     // Second Get the Cosh for this delta Eta Set
@@ -845,7 +839,6 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeven
     scLabel1 += "-PHI";
     std::string scLabel2 = obj2; 
     scLabel2 += "-PHI";    
-    std::cout << scLabel1.c_str() << " " << scLabel2.c_str() << " prec1 " << prec1 << " prec2 " << prec2;
     const esScale* scale1 = &scaleMap.find(scLabel1)->second;
     const esScale* scale2 = &scaleMap.find(scLabel2)->second;   
     std::vector<double> val_delta_phi;
@@ -855,7 +848,6 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeven
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    std::cout << " LutName: " << lutName.c_str() << std::endl;
     m_gtScales.setLUT_DeltaPhi(lutName,lut_delta_phi);
         
     // Second Get the Cosh for this delta phi Set
@@ -1044,7 +1036,6 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 	       }break;
 	       
 	     case esCutType::Charge:
-               std::cout << "Found Charge Cut " << std::endl;
 	       if( cut.getData()=="positive" ) charge = 0;
                else if( cut.getData()=="negative" ) charge = 1;
 	       else charge = -1;
@@ -1270,7 +1261,6 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 	   }break;
 
 	 case esCutType::Charge:
-	   std::cout << "Found Charge Cut " << std::endl;  
 	   if( cut.getData()=="positive" ) charge = 0;
            else if( cut.getData()=="negative" ) charge = 1;
 	   else charge = -1; 
@@ -2496,7 +2486,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
     corrParameter.chargeCorrelation = 1; //ignore charge correlation
 
 // Get the correlation Cuts on the legs
-        
+      int cutType = 0;  
       const std::vector<esCut>& cuts = corrCond.getCuts();      
       for (size_t jj = 0; jj < cuts.size(); jj++)
       {
@@ -2508,7 +2498,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	   else corrParameter.chargeCorrelation = 1; //ignore charge correlation
         } else {
 	  //keep the type from what the correlation is.
-          corrParameter.corrCutType = cut.getCutType();
+//        corrParameter.corrCutType = cut.getCutType();
 //	  corrParameter.minCutValue = cut.getMinimum().index;
 //	  corrParameter.maxCutValue = cut.getMaximum().index;
 // 
@@ -2521,22 +2511,26 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  if(maxV > 1.0e6) maxV = 1.0e6;
 	  
 	  if(cut.getCutType() == esCutType::DeltaEta) {
-	     corrParameter.minCutValue = (long long)(minV * 1000.); 
-	     corrParameter.maxCutValue = (long long)(maxV * 1000.); 
+	     corrParameter.minEtaCutValue = (long long)(minV * 1000.); 
+	     corrParameter.maxEtaCutValue = (long long)(maxV * 1000.); 
+	     cutType = cutType | 0x1;
 	  } else if (cut.getCutType() == esCutType::DeltaPhi) {
-	     corrParameter.minCutValue = (long long)(minV * 1000.); 
-	     corrParameter.maxCutValue = (long long)(maxV * 1000.); 
+	     corrParameter.minPhiCutValue = (long long)(minV * 1000.); 
+	     corrParameter.maxPhiCutValue = (long long)(maxV * 1000.); 
+	     cutType = cutType | 0x2;
 	  } else if (cut.getCutType() == esCutType::DeltaR) {
-	     corrParameter.minCutValue = (long long)(minV*minV * 1000.); 
-	     corrParameter.maxCutValue = (long long)(maxV*maxV * 1000.); 
+	     corrParameter.minDRCutValue = (long long)(minV*minV * 1000.); 
+	     corrParameter.maxDRCutValue = (long long)(maxV*maxV * 1000.);
+	     cutType = cutType | 0x4; 
 	  } else if (cut.getCutType() == esCutType::Mass) {	  
-	     corrParameter.minCutValue = (long long)(0.5*minV*minV * 10.); 
-	     corrParameter.maxCutValue = (long long)(0.5*maxV*maxV * 10.); 
+	     corrParameter.minMassCutValue = (long long)(0.5*minV*minV * 10.); 
+	     corrParameter.maxMassCutValue = (long long)(0.5*maxV*maxV * 10.);
+	     cutType = cutType | 0x8; 
           }
 	}  
 
       }
-
+      corrParameter.corrCutType = cutType;
 
 // Get the two objects that form the legs
       const std::vector<esObject>& objects = corrCond.getObjects();

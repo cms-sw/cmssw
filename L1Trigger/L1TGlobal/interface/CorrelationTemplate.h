@@ -66,15 +66,19 @@ public:
     /// typedef for correlation parameters
     struct CorrelationParameter
     {
-        std::string deltaEtaRange;
-
-        std::string deltaPhiRange;
-        unsigned int deltaPhiMaxbits;
-
 	
 	//Cut values in hardware
-	int minCutValue;
-	int maxCutValue; 
+	long long minEtaCutValue;
+	long long maxEtaCutValue; 
+
+	long long minPhiCutValue;
+	long long maxPhiCutValue; 
+
+	long long minDRCutValue;
+	long long maxDRCutValue; 
+
+	long long minMassCutValue;
+	long long maxMassCutValue; 
 
         //Requirement on charge of legs (currently only Mu-Mu).	
 	unsigned int chargeCorrelation;

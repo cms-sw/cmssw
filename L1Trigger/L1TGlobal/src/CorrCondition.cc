@@ -46,10 +46,6 @@
 l1t::CorrCondition::CorrCondition() :
     ConditionEvaluation() {
 
-/*  //BLW comment out for now
-    m_ifCaloEtaNumberBits = -1;
-    m_corrParDeltaPhiNrBins = 0;
-*/
 }
 
 //     from base template condition (from event setup usually)
@@ -122,22 +118,6 @@ void l1t::CorrCondition::setScales(const L1TGlobalScales* sc)
     m_gtScales = sc;
 }
 
-/* //BLW COmment out for now
-//   set the number of bits for eta of calorimeter objects
-void l1t::CorrCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsValue) {
-
-    m_ifCaloEtaNumberBits = ifCaloEtaNumberBitsValue;
-
-}
-
-//   set the maximum number of bins for the delta phi scales
-void l1t::CorrCondition::setGtCorrParDeltaPhiNrBins(
-        const int& corrParDeltaPhiNrBins) {
-
-    m_corrParDeltaPhiNrBins = corrParDeltaPhiNrBins;
-
-}
-*/
 
 
 // try all object permutations and check spatial correlations, if required
@@ -145,12 +125,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
     // std::cout << "m_isDebugEnabled = " << m_isDebugEnabled << std::endl;
     // std::cout << "m_verbosity = " << m_verbosity << std::endl;
-
-   
+    
 
     std::ostringstream myCout;
     m_gtCorrelationTemplate->print(myCout);
-    LogDebug("L1TGlobal") << "Correlation Condition Evaluation \n" << myCout.str() << std::endl;
+    LogDebug("L1TGlobal") 
+      << "Correlation Condition Evaluation \n" << myCout.str() << std::endl;
 
     bool condResult = false;
     bool reqObjResult = false;
@@ -165,6 +145,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     const GtConditionCategory cond0Categ = m_gtCorrelationTemplate->cond0Category();
     const GtConditionCategory cond1Categ = m_gtCorrelationTemplate->cond1Category();
 
+    //Decide if we have a mixed (muon + cal) condition
+    bool convertCaloScales = false;
+    if( (cond0Categ == CondMuon && (cond1Categ == CondCalo || cond1Categ == CondEnergySum) )  ||
+        (cond1Categ == CondMuon && (cond0Categ == CondCalo || cond0Categ == CondEnergySum) ) )
+	convertCaloScales = true;
+	
     const MuonTemplate* corrMuon = 0;
     const CaloTemplate* corrCalo = 0;
     const EnergySumTemplate* corrEnergySum = 0;
@@ -344,7 +330,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     const BXVector<const l1t::L1Candidate*>* candCaloVec  = 0;
     const BXVector<const l1t::EtSum*>*       candEtSumVec = 0;
 
-
+    bool etSumCond = false;
+    
     // make the conversions of the indices, depending on the combination of objects involved
     // (via pair index)
 
@@ -365,6 +352,24 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     
     int chrg0 = -1;
     int chrg1 = -1;
+
+// Determine the number of phi bins to get cutoff at pi
+    int phiBound = 0;
+    if(cond0Categ == CondMuon || cond1Categ == CondMuon) {
+        L1TGlobalScales::ScaleParameters par = m_gtScales->getMUScales();
+        phiBound = par.phiBins.size()/2;
+    } else {
+        //Assumes all calorimeter objects are on same phi scale
+        L1TGlobalScales::ScaleParameters par = m_gtScales->getEGScales();
+        phiBound = par.phiBins.size()/2;
+    }	
+    LogDebug("L1TGlobal") << "Phi Bound = " << phiBound << std::endl;
+    
+
+// Keep track of objects for LUTS
+    std::string lutObj0 = "NULL";
+    std::string lutObj1 = "NULL";
+
 
     LogTrace("L1TGlobal")
             << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
@@ -397,6 +402,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Collect the information on the first leg of the correlation
         switch (cond0Categ) {
             case CondMuon: {
+	        lutObj0 = "MU";
                 candMuVec = m_uGtB->getCandL1Mu();
                 phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
@@ -412,17 +418,21 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 // Calorimeter Objects (EG, Jet, Tau)
             case CondCalo: {
+	       
                switch(cndObjTypeVec[0]) {
 	         case gtEG: {
 		    candCaloVec = m_uGtB->getCandL1EG();
+		    lutObj0 = "EG";
 		 }
 		   break;
 		 case gtJet: {
 		    candCaloVec = m_uGtB->getCandL1Jet();
+		    lutObj0 = "JET";
 		 }
 		   break;
 		 case gtTau: {
 		    candCaloVec = m_uGtB->getCandL1Tau();
+		    lutObj0 = "TAU";
 		 }
 	           break;
 		 default: {
@@ -438,7 +448,23 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		phi0Phy = phiIndex0 * 4.3633231299858237E-02;
 		eta0Phy = etaIndex0 * 4.3633231299858237E-02;
 		et0Phy  = etIndex0  * 0.5;
+		
+                //If needed convert calo scales to muon scales for comparison
+                if(convertCaloScales) {
+                  int element = etaIndex0;
+		  if(element<0) element = 0xff + (element+1); //twos complement 
+		  std::string lutName = lutObj0;
+		  lutName += "-MU";
+		  long long tst = m_gtScales->getLUT_CalMuEta(lutName,element);
+		  LogDebug("L1TGlobal") << lutName <<"  EtaCal = " << etaIndex0 << " EtaMu = " << tst << std::endl; 
+		  etaIndex0 = tst;
+		  
 
+		  tst = m_gtScales->getLUT_CalMuPhi(lutName,phiIndex0);
+		  LogDebug("L1TGlobal") << lutName <<"  PhiCal = " << phiIndex0 << " PhiMu = " << tst << std::endl;
+		  phiIndex0 = tst;
+		   		  
+                }
  
             }
                 break;
@@ -446,20 +472,25 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Energy Sums		
             case CondEnergySum: {
 
+                etSumCond = true;
 		//Stupid mapping between enum types for energy sums.
 		l1t::EtSum::EtSumType type;
 		switch( cndObjTypeVec[0] ){
 		case gtETM:
 		  type = l1t::EtSum::EtSumType::kMissingEt;
+		  lutObj0 = "ETM";
 		  break;
 		case gtETT:
 		  type = l1t::EtSum::EtSumType::kTotalEt;
+		  lutObj0 = "ETT"; 
 		  break;
 		case gtHTM:
 		  type = l1t::EtSum::EtSumType::kMissingHt;
+		  lutObj0 = "HTM";
 		  break;
 		case gtHTT:
 		  type = l1t::EtSum::EtSumType::kTotalHt;
+		  lutObj0 = "HTT";
 		  break;
 		default:
 		  edm::LogError("L1TGlobal")
@@ -471,7 +502,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  break;
 		}
 
-
+                candEtSumVec = m_uGtB->getCandL1EtSum();
+		
                 for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                     phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
@@ -482,7 +514,18 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    phi0Phy = phiIndex0 * 1.0908307824964559E-02;
 		    eta0Phy = 0.; //No Eta for Energy Sums
 		    et0Phy  = etIndex0 * 0.5;
+		    
+                    //If needed convert calo scales to muon scales for comparison (only phi for energy sums)
+                    if(convertCaloScales) {
 
+		       std::string lutName = lutObj0;
+		       lutName += "-MU";
+		       long long tst = m_gtScales->getLUT_CalMuPhi(lutName,phiIndex0);
+		       LogDebug("L1TGlobal") << lutName <<"  PhiCal = " << phiIndex0 << " PhiMu = " << tst << std::endl;
+		       phiIndex0 = tst;
+
+                    }
+ 
                   } //check it is the EtSum we want   
                 } // loop over Etsums
 		
@@ -492,7 +535,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		
             default: {
                 // should not arrive here, there are no correlation conditions defined for this object
-		LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::cout;
+		LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::endl;
                 return false;
             }
                 break;
@@ -502,6 +545,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         for (std::vector<SingleCombInCond>::const_iterator it1Comb =
                 cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
 
+            LogDebug("L1TGlobal") << "Looking at second Condition" << std::endl;  
             // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
             // ... but add protection to not crash
             int obj1Index = -1;
@@ -526,6 +570,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
             switch (cond1Categ) {
                 case CondMuon: {
+		   lutObj1 = "MU"; 
                    candMuVec = m_uGtB->getCandL1Mu();
                    phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                    etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
@@ -542,14 +587,17 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         	   switch(cndObjTypeVec[1]) {
 	             case gtEG: {
 			candCaloVec = m_uGtB->getCandL1EG();
+			lutObj1 = "EG";
 		     }
 		       break;
 		     case gtJet: {
 			candCaloVec = m_uGtB->getCandL1Jet();
+			lutObj1 = "JET";
 		     }
 		       break;
 		     case gtTau: {
 			candCaloVec = m_uGtB->getCandL1Tau();
+			lutObj1 = "TAU";
 		     }
 	               break;
 		     default: {
@@ -561,6 +609,24 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
 		   etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt(); 
 
+                   //If needed convert calo scales to muon scales for comparison
+                   if(convertCaloScales) {
+                     int element = etaIndex1;
+		     if(element<0) element = 0xff + (element+1); //twos complement 
+		     std::string lutName = lutObj1;
+		     lutName += "-MU";
+		     long long tst = m_gtScales->getLUT_CalMuEta(lutName,element);
+		     LogDebug("L1TGlobal") << lutName <<"  EtaCal = " << etaIndex1 << " EtaMu = " << tst << std::endl; 
+		     etaIndex1 = tst;
+
+
+		     tst = m_gtScales->getLUT_CalMuPhi(lutName,phiIndex1);
+		     LogDebug("L1TGlobal") << lutName <<"  PhiCal = " << phiIndex1 << " PhiMu = " << tst << std::endl;
+		     phiIndex1 = tst;
+
+                   }
+
+
 		   //Scales need to come from the Menu (FIX ME)
 		   phi1Phy = phiIndex1 * 4.3633231299858237E-02;
 		   eta1Phy = etaIndex1 * 4.3633231299858237E-02;
@@ -569,20 +635,27 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 case CondEnergySum: {
 
-                   //Stupid mapping between enum types for energy sums.
+                   LogDebug("L1TGlobal") << "Looking at second Condition as Energy Sum: " << cndObjTypeVec[1] << std::endl;
+                   etSumCond = true;
+		   
+		   //Stupid mapping between enum types for energy sums.
 		   l1t::EtSum::EtSumType type;
 		   switch( cndObjTypeVec[1] ){
 		   case gtETM:
 		     type = l1t::EtSum::EtSumType::kMissingEt;
+		     lutObj1 = "ETM";
 		     break;
 		   case gtETT:
 		     type = l1t::EtSum::EtSumType::kTotalEt;
+		     lutObj1 = "ETT";
 		     break;
 		   case gtHTM:
 		     type = l1t::EtSum::EtSumType::kMissingHt;
+		     lutObj1 = "HTM";
 		     break;
 		   case gtHTT:
 		     type = l1t::EtSum::EtSumType::kTotalHt;
+		     lutObj1 = "HTT";
 		     break;
 		   default:
 		     edm::LogError("L1TGlobal")
@@ -593,7 +666,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     type = l1t::EtSum::EtSumType::kTotalEt;
 		     break;
 		   }
-
+                   
+		   
+		   candEtSumVec = m_uGtB->getCandL1EtSum();
+		    
+		   LogDebug("L1TGlobal") << "obj " << lutObj1 << " Vector Size " << candEtSumVec->size(bxEval) << std::endl; 
                    for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                        phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
@@ -605,6 +682,18 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		       eta1Phy = 0.; //No Eta for Energy Sums
 		       et1Phy  = etIndex1 * 0.5;
 
+                       //If needed convert calo scales to muon scales for comparison (only phi for energy sums)   
+                       if(convertCaloScales) {
+
+			 std::string lutName = lutObj1;
+			 lutName += "-MU";
+			 long long tst = m_gtScales->getLUT_CalMuPhi(lutName,phiIndex1);
+			 LogDebug("L1TGlobal") << lutName <<"  PhiCal = " << phiIndex1 << " PhiMu = " << tst << std::endl;
+			 phiIndex1 = tst;
+
+                       }
+
+
                      } //check it is the EtSum we want   
                    } // loop over Etsums
 
@@ -612,7 +701,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 default: {
                     // should not arrive here, there are no correlation conditions defined for this object
-		    LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::cout;
+		    LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::endl;
                     return false;
                 }
                     break;
@@ -631,8 +720,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             }
 
 
-// Now perform the desired correlation on these two objects
-            bool reqResult = false;
+// Now perform the desired correlation on these two objects. Assume true until we find a contradition
+            bool reqResult = true;
 	    
             // clear the indices in the combination
             objectsInComb.clear();
@@ -650,90 +739,99 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	    if(deltaPhiPhy> M_PI) deltaPhiPhy = 2.*M_PI - deltaPhiPhy;
             double deltaEtaPhy  = fabs(eta1Phy - eta0Phy); 
 
-// Switch on the different types of correlation conditions:
-            switch(corrPar.corrCutType) {
+// Determine the integer based delta eta and delta phi
+            int deltaPhiFW = abs(phiIndex0 - phiIndex1);
+	    if(deltaPhiFW>=phiBound) deltaPhiFW = 2*phiBound - deltaPhiFW;
+            std::string lutName = lutObj0;
+            lutName += "-";
+	    lutName += lutObj1;
+	    long long deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName,deltaPhiFW);
 
-	       case 6: {
-	       
+            //  
+	    LogDebug("L1TGlobal") << "Obj0 phiFW = " << phiIndex0 << " Obj1 phiFW = " << phiIndex1 << std::endl
+	    << "    DeltaPhiFW = " << deltaPhiFW << std::endl
+	    << "    LUT Name = " << lutName << "  DeltaPhiLUT = " << deltaPhiLUT << std::endl;
+	    
+	    int deltaEtaFW = abs(etaIndex0 - etaIndex1);
+	    long long deltaEtaLUT = 0;
+	    if(!etSumCond) deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName,deltaEtaFW);
+
+            //  
+	    LogDebug("L1TGlobal") << "Obj0 etaFW = " << etaIndex0 << " Obj1 etaFW = " << etaIndex1 << std::endl
+	     << "    DeltaEtaFW = " << deltaEtaFW << std::endl
+	     << "    LUT Name = " << lutName << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
+
+
+            // If there is a delta eta, check it.
+            if(corrPar.corrCutType & 0x1) {
 		  
-		  LogDebug("L1TGlobal") << "    Testing Delta Eta Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "] \n"
-					   << "    deltaEta = " << deltaEtaPhy  << std::endl; 		      
+		  LogDebug("L1TGlobal")  << "    Testing Delta Eta Cut [" << corrPar.minEtaCutValue 
+		                           << "," << corrPar.maxEtaCutValue << "] \n"
+					   << "    deltaEta = " << deltaEtaLUT  << std::endl; 		      
 		  
-		  if( deltaEtaPhy > corrPar.minCutValue &&
-		      deltaEtaPhy < corrPar.maxCutValue ) {
+		  if( deltaEtaLUT >= corrPar.minEtaCutValue &&
+		      deltaEtaLUT <= corrPar.maxEtaCutValue ) {
 
-
-		     LogDebug("L1TGlobal") << "    Passed Delta Eta Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-
+		     LogDebug("L1TGlobal") << "    Passed Delta Eta Cut [" << corrPar.minEtaCutValue 
+		                           << "," << corrPar.maxEtaCutValue << "]" << std::endl;		      
 		       		  
-                        reqResult = true;
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Delta Eta Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-		    
+		     LogDebug("L1TGlobal")  << "    Failed Delta Eta Cut [" << corrPar.minEtaCutValue 
+		                           << "," << corrPar.maxEtaCutValue << "]" << std::endl;		      
+		     reqResult = false;
 		 }	
-	       }
-	         break;   	 
-
-	       case 7: {
-	       
+	     }
+	          	 
+             //if there is a delta phi check it.
+	     if(corrPar.corrCutType & 0x2) {
+	       		  
+		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut [" << corrPar.minPhiCutValue 
+		                           << "," << corrPar.maxPhiCutValue << "] \n"
+					   << "    deltaPhi = " << deltaPhiLUT  << std::endl; 		      
 		  
-		  LogDebug("L1TGlobal") << "    Testing Delta Phi Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "] \n"
-					   << "    deltaPhi = " << deltaPhiPhy  << std::endl; 		      
-		  
-		  if( deltaPhiPhy > corrPar.minCutValue &&
-		      deltaPhiPhy < corrPar.maxCutValue ) {
+		  if( deltaPhiLUT >= corrPar.minPhiCutValue &&
+		      deltaPhiLUT <= corrPar.maxPhiCutValue ) {
 
-
-		     LogDebug("L1TGlobal") << "    Passed Delta Phi Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-
-		       		  
-                        reqResult = true;
+		     LogDebug("L1TGlobal")  << "    Passed Delta Phi Cut [" << corrPar.minPhiCutValue 
+		                           << "," << corrPar.maxPhiCutValue << "]" << std::endl;		      
+                    
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Delta Phi Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-		    
+		     LogDebug("L1TGlobal") << "    Failed Delta Phi Cut [" << corrPar.minPhiCutValue 
+		                           << "," << corrPar.maxPhiCutValue << "]" << std::endl;		      
+		     reqResult = false;
 		 }	
-	       }
-	         break;   	 
+	     }
+	            	 
 
-	       case 8: {
-	       
+	     if(corrPar.corrCutType & 0x4) {
+	       		  
+		  //double deltaRSq = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
+		  long long deltaRSq = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;		  
+				  
+		  LogDebug("L1TGlobal") << "    Testing Delta R Cut [" << corrPar.minDRCutValue 
+		                           << "," << corrPar.maxDRCutValue << "] \n"
+					   << "    deltaPhiPhy = " << deltaPhiLUT << "\n"
+					   << "    deltaEtaPhy = " << deltaEtaLUT << "\n"
+					   << "    deltaRSq    = " << deltaRSq <<  std::endl; 		      
 		  
-		  double deltaRSq = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
-		  
-		  LogDebug("L1TGlobal") << "    Testing Delta R Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "] \n"
-					   << "    deltaPhiPhy = " << deltaPhiPhy << "\n"
-					   << "    deltaEtaPhy = " << deltaEtaPhy << "\n"
-					   << "    deltaRSq    = " << deltaRSq << "  sqrt(|deltaRSq|) = "<< sqrt(fabs(deltaRSq)) << std::endl; 		      
-		  
-		  if( deltaRSq > (corrPar.minCutValue * corrPar.minCutValue) &&
-		      deltaRSq < (corrPar.maxCutValue * corrPar.maxCutValue) ) {
+		  if( deltaRSq >= corrPar.minDRCutValue &&
+		      deltaRSq <= corrPar.maxDRCutValue ) {
 
-
-		     LogDebug("L1TGlobal") << "    Passed Delta R Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-
-		       		  
-                        reqResult = true;
+		     LogDebug("L1TGlobal") << "    Passed Delta R Cut [" << corrPar.minDRCutValue 
+		                           << "," << corrPar.maxDRCutValue << "]" << std::endl;		      
+                        
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Delta R Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-		    
+		     LogDebug("L1TGlobal") << "    Failed Delta R Cut [" << corrPar.minDRCutValue 
+		                           << "," << corrPar.maxDRCutValue << "]" << std::endl;		      
+		     reqResult = false;
 		 }	
-	       }
-	         break;   	 
+	    }  	 
 
 	       
-	       case 9: {
+	    if(corrPar.corrCutType & 0x8) {
 	       
 	          //invariant mass calculation based on 
 		  // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
@@ -745,37 +843,27 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		  double massSq = 2.0*et0Phy*et1Phy*(coshDeltaEta - cosDeltaPhi);
 		  
-		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "] \n"
+		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass [" << corrPar.minMassCutValue 
+		                           << "," << corrPar.maxMassCutValue << "] \n"
 					   << "    deltaPhiPhy = " << deltaPhiPhy << "  cos() = " << cosDeltaPhi << "\n"
 					   << "    deltaEtaPhy = " << deltaEtaPhy << "  cosh()= " << coshDeltaEta << "\n"
 					   << "    massSq   = " << massSq << "  sqrt(|massSq|) = "<< sqrt(fabs(massSq)) << std::endl; 		      
 		  
 		  if(  massSq > 0. &&
-		      (int)massSq > (corrPar.minCutValue * corrPar.minCutValue) &&
-		      (int)massSq < (corrPar.maxCutValue * corrPar.maxCutValue) ) {
+		      (int)massSq >= corrPar.minMassCutValue &&
+		      (int)massSq <= corrPar.maxMassCutValue  ) {
 
-
-		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-
-		       		  
-                        reqResult = true;
+		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << corrPar.minMassCutValue 
+		                           << "," << corrPar.maxMassCutValue << "]" << std::endl;		      
+                        
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut [" << corrPar.minCutValue 
-		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
-		    
+		     LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut [" << corrPar.minMassCutValue 
+		                           << "," << corrPar.maxMassCutValue << "]" << std::endl;		      
+		     reqResult = false;
 		 }	
-	       }
-	         break;   	 
+	    } 
 		 
-	       default: {
-	          reqResult = false;
-	       } 
-	         break; 
-	       
-	    } //end switch statment
 
 // For Muon-Muon Correlation Check the Charge Correlation if requested
             bool chrgCorrel = true;
@@ -802,7 +890,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
     if (m_verbosity  && condResult) {
         LogDebug("L1TGlobal") << " pass(es) the correlation condition.\n"
-                << std::endl;
+                 << std::endl;
     }    
     
       
