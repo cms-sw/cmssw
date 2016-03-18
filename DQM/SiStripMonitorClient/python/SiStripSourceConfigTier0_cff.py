@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 # FED integrity Check
 from DQM.SiStripMonitorHardware.siStripFEDCheck_cfi import *
@@ -142,6 +143,9 @@ SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
     *dqmInfoSiStrip)
+eras.phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
@@ -152,6 +156,9 @@ SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
     *dqmInfoSiStrip)
+eras.phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 
 
