@@ -7,12 +7,17 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/ValidationFormats"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="Geometry/Records"/>
 <use name="DQMServices/Core"/>
 <use name="DetectorDescription/Core"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Watcher"/>
 <use name="SimG4CMS/Calo"/>
+<use name="geant4core"/>
+<use name="clhep"/>
 <use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>
