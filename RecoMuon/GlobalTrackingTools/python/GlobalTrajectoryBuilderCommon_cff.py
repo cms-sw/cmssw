@@ -68,3 +68,12 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
 	RefitFlag = cms.bool(True)
         ),
 )
+
+# This customization will be removed once we get the templates for
+# phase1 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase1Pixel.toModify(GlobalTrajectoryBuilderCommon, # FIXME
+    TrackerRecHitBuilder = 'WithTrackAngle',
+    TrackTransformer = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
+    GlbRefitterParameters = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
+)

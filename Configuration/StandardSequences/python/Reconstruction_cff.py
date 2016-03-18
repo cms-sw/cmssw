@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
@@ -58,6 +59,10 @@ globalreco_tracking = cms.Sequence(offlineBeamSpot*
                           standalonemuontracking*
                           trackingGlobalReco*
                           vertexreco)
+_globalreco_tracking_Phase1PU70 = globalreco_tracking.copy()
+_globalreco_tracking_Phase1PU70.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
+eras.trackingPhase1.toReplaceWith(globalreco_tracking, _globalreco_tracking_Phase1PU70)
+
 globalreco = cms.Sequence(globalreco_tracking*
                           hcalGlobalRecoSequence*
                           particleFlowCluster*
@@ -117,6 +122,9 @@ noTrackingAndDependent.append(siPixelClusters)
 noTrackingAndDependent.append(clusterSummaryProducer)
 noTrackingAndDependent.append(siPixelRecHitsPreSplitting)
 noTrackingAndDependent.append(MeasurementTrackerEventPreSplitting)
+noTrackingAndDependent.append(PixelLayerTriplets)
+noTrackingAndDependent.append(pixelTracks)
+noTrackingAndDependent.append(pixelVertices)
 modulesToRemove.append(dt1DRecHits)
 modulesToRemove.append(dt1DCosmicRecHits)
 modulesToRemove.append(csc2DRecHits)

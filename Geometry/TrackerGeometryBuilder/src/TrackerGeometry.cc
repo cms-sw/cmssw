@@ -44,33 +44,6 @@ public:
   
 };
 }
-
-enum class TrackerGeometry::ModuleType {
-  UNKNOWN, 
-  PXB, 
-  PXF, 
-  IB1, 
-  IB2, 
-  OB1, 
-  OB2, 
-  W1A, 
-  W2A, 
-  W3A, 
-  W1B, 
-  W2B, 
-  W3B, 
-  W4, 
-  W5, 
-  W6, 
-  W7, 
-  Ph1PXB, 
-  Ph1PXF, 
-  Ph2PXB, 
-  Ph2PXF, 
-  Ph2PSP, 
-  Ph2PSS, 
-  Ph2SS
-};
  
 
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
@@ -338,9 +311,12 @@ float TrackerGeometry::getDetectorThickness(DetId detid) const {
 }
 
 TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name) const {
-  if ( name.find("PixelBarrel") != std::string::npos) return ModuleType::Ph1PXB;
-  else if (name.find("PixelForward") != std::string::npos) return ModuleType::Ph1PXF;
-  else if ( name.find("TIB") != std::string::npos) {
+  if ( name.find("Pixel") != std::string::npos ){
+    if ( name.find("BarrelActive") != std::string::npos) return ModuleType::Ph1PXB;
+    else if ( name.find("ForwardSensor") != std::string::npos) return ModuleType::Ph1PXF;
+    else if ( name.find("BModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos ) return ModuleType::Ph2PXB;
+    else if ( name.find("EModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos ) return ModuleType::Ph2PXF;
+  } else if ( name.find("TIB") != std::string::npos) {
     if ( name.find("0") != std::string::npos) return ModuleType::IB1;
     else return ModuleType::IB2;
   } else if ( name.find("TOB") != std::string::npos) {

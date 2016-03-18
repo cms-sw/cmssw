@@ -1,5 +1,5 @@
 #ifndef Geometry_ForwardGeometry_ZdcGeometry_h
-#define Geometry_ForwardGeometry_ZDcGeometry_h
+#define Geometry_ForwardGeometry_ZdcGeometry_h
 
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
@@ -77,5 +77,5 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 };
 
 
-#endif
+#endif // Geometry_ForwardGeometry_ZdcGeometry_h
 

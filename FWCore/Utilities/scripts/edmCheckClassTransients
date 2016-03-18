@@ -59,11 +59,9 @@ oparser.add_option("-f","--rootmap", dest="rmfiles", action="append", default=[]
 (options,args)=oparser.parse_args()
 
 #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
-# The only way to do that is to pass -n from the command line
-import sys
-sys.argv.append("-n")
-
 import ROOT
+ROOT.PyConfig.DisableRootLogon = True
+
 #Keep ROOT from trying to use X11
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")

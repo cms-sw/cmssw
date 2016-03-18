@@ -61,34 +61,36 @@
 #define N2D 500
 
 #include <vector>
-#include "boost/multi_array.hpp"
 
 
-namespace SiPixelTemplateReco 
- {
- 
-    typedef boost::multi_array<float, 2> array_2d;
+namespace SiPixelTemplateReco {
 
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
-				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+     struct ClusMatrix {
+      float & operator()(int x, int y) { return matrix[mcol*x+y];} 
+      float operator()(int x, int y) const { return matrix[mcol*x+y];} 
+      float * matrix;
+      bool const * xdouble;
+      bool const * ydouble;
+      int mrow, mcol;
+     };
+
+	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster, 
 				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, 
+                                std::vector<std::pair<int, int> >& zeropix,
 				float& probQ);
 
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
-				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster,
 				SiPixelTemplate& templ, 
 				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
 				float& probQ);
 	 
-	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-						 std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
 						 SiPixelTemplate& templ, 
 						 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
 						 float& probQ);
 	 
-	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-								std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
 								SiPixelTemplate& templ, 
 								float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
  }

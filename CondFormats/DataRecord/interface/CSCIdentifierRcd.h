@@ -1,6 +1,6 @@
-#ifndef CSCINDENTIFIERSRCD_H
+#ifndef CSCIDENTIFIERRCD_H
 #define CSCIDENTIFIERRCD_H
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class CSCIdentifierRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCIdentifierRcd> {};
-#endif
+#endif // CSCIDENTIFIERRCD_H

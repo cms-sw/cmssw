@@ -52,7 +52,7 @@ class SmartPropagator final : public Propagator {
     virtual ~SmartPropagator() ;
 
     ///Virtual constructor (using copy c'tor)
-    virtual SmartPropagator* clone() const {
+    virtual SmartPropagator* clone() const override {
       return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
     }
 
@@ -102,7 +102,7 @@ class SmartPropagator final : public Propagator {
     ///return the propagator used outside tracker
     const Propagator* getGenPropagator() const ;
     ///return the magneticField
-    virtual const MagneticField* magneticField() const {return theField;}
+    virtual const MagneticField* magneticField() const override {return theField;}
 
   private:
     ///build the tracker volume

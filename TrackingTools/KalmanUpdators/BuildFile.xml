@@ -1,6 +1,4 @@
 <flags   CXXFLAGS="-Ofast -funroll-all-loops"/>
-
-<flags   CXXFLAGS="-O3"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>

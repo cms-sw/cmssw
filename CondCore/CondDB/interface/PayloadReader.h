@@ -1,5 +1,5 @@
 #ifndef CondCore_CondDB_PayloadReader_h
-#define CondCore_CondDB_PyloadReader_h
+#define CondCore_CondDB_PayloadReader_h
 //
 // Package:     CondDB
 // Class  :     PayloadReader
@@ -71,4 +71,4 @@ namespace cond {
 
   }
 }
-#endif
+#endif // CondCore_CondDB_PayloadReader_h

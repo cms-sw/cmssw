@@ -1,5 +1,5 @@
 #ifndef RecoLocalTracker_ESProducers_SiTrackerMultiRecHitUpdatorESProducer_h
-#define RecoLocalTracker_ESProducers_ESProducers_SiTrackerMultiRecHitUpdatorESProducer_h
+#define RecoLocalTracker_ESProducers_SiTrackerMultiRecHitUpdatorESProducer_h
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,8 +19,4 @@ class  SiTrackerMultiRecHitUpdatorESProducer: public edm::ESProducer{
 };
 
 
-#endif
-
-
-
-
+#endif // RecoLocalTracker_ESProducers_SiTrackerMultiRecHitUpdatorESProducer_h

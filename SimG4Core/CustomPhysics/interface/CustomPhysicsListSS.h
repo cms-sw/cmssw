@@ -25,7 +25,6 @@ private:
 
   static G4ThreadLocal G4Decay* fDecayProcess;
   static G4ThreadLocal G4ProcessHelper* myHelper;
-  static G4ThreadLocal bool fInitialized;
 
   bool fHadronicInteraction;
 

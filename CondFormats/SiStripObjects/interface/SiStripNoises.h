@@ -68,11 +68,13 @@ class SiStripNoises
     return  0.1f*float(decode(strip,range));
   }
 
+  static void verify(uint16_t strip, const Range& range);
+  static float getNoise(uint16_t strip, const Range& range) {
 #ifdef EDM_ML_DEBUG
-  static float getNoise(uint16_t strip, const Range& range);
-#else
-  static float getNoise(uint16_t strip, const Range& range) { return getNoiseFast(strip,range);}
+     verify(strip,range);
 #endif
+     return getNoiseFast(strip,range);
+  }
 
 
   void    allNoises (std::vector<float> & noises, const Range& range) const;

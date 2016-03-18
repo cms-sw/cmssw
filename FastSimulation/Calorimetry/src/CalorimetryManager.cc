@@ -1293,7 +1293,8 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
 
 void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int trackID, float corr)
 {
-  std::vector<double> hfcorr = myHDResponse_->getCorrHF();
+  std::vector<double> hfcorrEm = myHDResponse_->getCorrHFem();
+  std::vector<double> hfcorrHad = myHDResponse_->getCorrHFhad();
   std::map<CaloHitID,float>::const_iterator mapitr;
   std::map<CaloHitID,float>::const_iterator endmapitr=hitMap.end();
   HMapping_.reserve(HMapping_.size()+hitMap.size());
@@ -1315,8 +1316,11 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
 	time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
       }
       else if (hdetid.subdetId()== HcalForward){
-	if(useShowerLibrary) {
-	  if(useCorrectionSL) energy *= hfcorr[hdetid.ietaAbs()-29];
+        if(useShowerLibrary) {
+ 	  if(useCorrectionSL) {
+             if(hdetid.depth()== 1) energy *= hfcorrEm[hdetid.ietaAbs()-29];
+             if(hdetid.depth()== 2) energy *= hfcorrHad[hdetid.ietaAbs()-29];
+          }
 	} else {
 	  if(hdetid.depth()== 1) energy *= samplingHF_[0];
 	  if(hdetid.depth()== 2) energy *= samplingHF_[1];
@@ -1372,9 +1376,7 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
   c.reserve(c.size()+HMapping_.size());
   for(unsigned i=0; i<HMapping_.size(); i++) {
-    uint32_t id = HMapping_[i].first.unitID();
-    theHFShowerLibrary->modifyDepth(id);
-    c.push_back(PCaloHit(DetId(id),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID()));
+    c.push_back(PCaloHit(DetId(HMapping_[i].first.unitID()),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID()));
   }
 }
 

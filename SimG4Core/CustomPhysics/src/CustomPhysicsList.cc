@@ -18,9 +18,8 @@
 
 using namespace CLHEP;
 
-G4ThreadLocal G4Decay* CustomPhysicsList::fDecayProcess = 0;
-G4ThreadLocal G4ProcessHelper* CustomPhysicsList::myHelper = 0;
-G4ThreadLocal bool CustomPhysicsList::fInitialized = false;
+G4ThreadLocal G4Decay* CustomPhysicsList::fDecayProcess = nullptr;
+G4ThreadLocal G4ProcessHelper* CustomPhysicsList::myHelper = nullptr;
 
 CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  
   :  G4VPhysicsConstructor(name) 
@@ -45,19 +44,19 @@ void CustomPhysicsList::ConstructParticle(){
  
 void CustomPhysicsList::ConstructProcess() {
   
-  //if(fInitialized) { return; }
-  //fInitialized = true;
-
   edm::LogInfo("SimG4CoreCustomPhysics") 
     <<"CustomPhysicsList: adding CustomPhysics processes "
     << "for the list of particles";
 
   fDecayProcess = new G4Decay();
+  
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   aParticleIterator->reset();
+  G4ParticleDefinition* particle;
 
   while((*aParticleIterator)()) {
-    G4ParticleDefinition* particle = aParticleIterator->value();
+    particle = aParticleIterator->value();
     if(CustomParticleFactory::isCustomParticle(particle)) {
       CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
       G4ProcessManager* pmanager = particle->GetProcessManager();
@@ -67,11 +66,11 @@ void CustomPhysicsList::ConstructProcess() {
 	<< "  Mass= " << particle->GetPDGMass()/GeV  <<" GeV.";
       if(cp && pmanager) {
 	if(particle->GetPDGCharge() != 0.0) {
-	  pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
-	  pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
+	  ph->RegisterProcess(new G4hMultipleScattering, particle);
+	  ph->RegisterProcess(new G4hIonisation, particle);
 	}
 	if(fDecayProcess->IsApplicable(*particle)) {
-	  pmanager->AddProcess(new G4Decay, 0, -1, 3);
+	  ph->RegisterProcess(fDecayProcess, particle);
 	}
 	if(cp->GetCloud() && fHadronicInteraction && 
 	   CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
@@ -80,7 +79,7 @@ void CustomPhysicsList::ConstructProcess() {
 	    <<" CloudMass= " <<cp->GetCloud()->GetPDGMass()/GeV
 	    <<" GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass()/GeV<<" GeV.";
        
-	  if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
+          if(!myHelper) { myHelper = new G4ProcessHelper(myConfig); }
 	  pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
 	}
       }

@@ -484,8 +484,6 @@ namespace edm {
 
   void
   InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-    rp.setEndTime(time_);
-    rp.setComplete();
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
     run.commit_();
@@ -500,8 +498,6 @@ namespace edm {
 
   void
   InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
-    lbp.setEndTime(time_);
-    lbp.setComplete();
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
     lb.commit_();

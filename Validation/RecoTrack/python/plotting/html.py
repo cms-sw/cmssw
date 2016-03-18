@@ -12,6 +12,7 @@ _sampleName = {
     "RelValQCD_FlatPt_15_3000": "QCD Flat Pt 15 to 3000",
     "RelValZMM": "ZMuMu",
     "RelValWjet_Pt_3000_3500": "Wjet Pt 3000 to 3500",
+    "RelValH125GGgluonfusion": "Higgs to gamma gamma",
     "RelValSingleElectronPt35": "Single Electron Pt 35",
     "RelValSingleElectronPt10": "Single Electron Pt 10",
     "RelValSingleMuPt10": "Single Muon Pt 10",
@@ -21,11 +22,12 @@ _sampleName = {
 _sampleFileName = {
     "RelValMinBias": "minbias",
     "RelValTTbar": "ttbar",
-    "RelValQCD_Pt600_800": "qcd600",
-    "RelValQCD_Pt3000_3500": "qcd3000",
+    "RelValQCD_Pt_600_800": "qcd600",
+    "RelValQCD_Pt_3000_3500": "qcd3000",
     "RelValQCD_FlatPt_15_3000": "qcdflat",
     "RelValZMM": "zmm",
     "RelValWjet_Pt_3000_3500": "wjet3000",
+    "RelValH125GGgluonfusion": "hgg",
     "RelValSingleElectronPt35": "ele35",
     "RelValSingleElectronPt10": "ele10",
     "RelValSingleMuPt10": "mu10",
@@ -36,6 +38,7 @@ _allTPEfficName = "All tracks (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
 _conversionName = "Tracks for conversions"
+_gsfName = "Electron GSF tracks"
 _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
@@ -65,7 +68,8 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("fromPVAllTP2_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName).replace("PV", "PV v2")),
     ("fromPVAllTP2_Pt", _fromPVAllTPName.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
     ("fromPVAllTP2_highPurityPt", "High purity "+_lowerFirst(_fromPVAllTPName).replace("tracks", "tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
-    ("conversion_", _conversionName)
+    ("conversion_", _conversionName),
+    ("gsf_", _gsfName),
 ])
 
 _trackAlgoName = {
@@ -103,6 +107,7 @@ _trackAlgoOrder = [
     'conversionStep',
     'ckfInOutFromConversions',
     'ckfOutInFromConversions',
+    'electronGsf',
     'iter0',
     'iter1',
     'iter2',
@@ -136,6 +141,7 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("fromPVAllTP", _fromPVAllTPName),
     ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
     ("conversion", _conversionName),
+    ("gsf", _gsfName),
     # These are for vertices
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),

@@ -548,7 +548,7 @@ namespace edm {
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
     }
-    // initialize the subprocess, if there is one
+    // initialize the subprocesses, if there are any
     if(hasSubProcesses) {
       if(subProcesses_ == nullptr) {
         subProcesses_ = std::make_unique<std::vector<SubProcess> >();
@@ -1687,6 +1687,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      runPrincipal.setEndTime(input_->timestamp());
+      runPrincipal.setComplete();
       input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -1788,6 +1790,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      lumiPrincipal.setEndTime(input_->timestamp());
+      lumiPrincipal.setComplete();
       input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }

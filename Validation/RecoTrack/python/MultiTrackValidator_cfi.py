@@ -34,6 +34,8 @@ multiTrackValidator = cms.EDAnalyzer(
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp_effic_refvector = cms.bool(False),
+    label_tp_fake_refvector = cms.bool(False),
     label_tv = cms.InputTag("mix","MergedTrackTruth"),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     sim = cms.VInputTag(
@@ -53,6 +55,10 @@ multiTrackValidator = cms.EDAnalyzer(
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),          # collision like tracks
     # parametersDefiner = cms.string('CosmicParametersDefinerForTP'),     # cosmics tracks
     simHitTpMapTag = cms.InputTag("simHitTPAssocProducer"),               # needed by CosmicParametersDefinerForTP
+
+    label_tp_nlayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "trackerLayers"),
+    label_tp_npixellayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "pixelLayers"),
+    label_tp_nstripstereolayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"),
 
     ### reco input configuration ###
     label = cms.VInputTag(cms.InputTag("generalTracks")),

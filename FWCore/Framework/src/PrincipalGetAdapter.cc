@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
@@ -163,12 +163,12 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token,
                                    ModuleCallingContext const* mcc) const {
-    ProductHolderIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,branchType(),id);
-    ProductHolderIndex index = indexAndBit.productHolderIndex();
+    ProductResolverIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,branchType(),id);
+    ProductResolverIndex index = indexAndBit.productResolverIndex();
     bool skipCurrentProcess = indexAndBit.skipCurrentProcess();
-    if( unlikely(index == ProductHolderIndexInvalid)) {
+    if( unlikely(index == ProductResolverIndexInvalid)) {
       return makeFailToGetException(kindOfType,id,token);
-    } else if( unlikely(index == ProductHolderIndexAmbiguous)) {
+    } else if( unlikely(index == ProductResolverIndexAmbiguous)) {
       // This deals with ambiguities where the process is specified
       throwAmbiguousException(id, token);
     }
@@ -222,22 +222,31 @@ namespace edm {
   BranchDescription const&
   PrincipalGetAdapter::getBranchDescription(TypeID const& type,
                                             std::string const& productInstanceName) const {
-    ProductHolderIndexHelper const& productHolderIndexHelper = principal_.productLookup();
-    ProductHolderIndex index = productHolderIndexHelper.index(PRODUCT_TYPE, type, md_.moduleLabel().c_str(),productInstanceName.c_str(), md_.processName().c_str());
-    if(index == ProductHolderIndexInvalid) {
+    ProductResolverIndexHelper const& productResolverIndexHelper = principal_.productLookup();
+    ProductResolverIndex index = productResolverIndexHelper.index(PRODUCT_TYPE, type, md_.moduleLabel().c_str(),productInstanceName.c_str(), md_.processName().c_str());
+    if(index == ProductResolverIndexInvalid) {
+      std::ostringstream str;
+      for(auto branchDescription: principal_.productRegistry().allBranchDescriptions()) {
+        if (branchDescription->moduleLabel() == md_.moduleLabel() and branchDescription->processName() == md_.processName()) {
+          str << *branchDescription<< "-----\n";
+        }
+      }
       throw edm::Exception(edm::errors::InsertFailure)
-	<< "Illegal attempt to 'put' an unregistered product.\n"
-	<< "No product is registered for\n"
-	<< "  product friendly class name: '" << type.friendlyClassName() << "'\n"
-  << "  module label:                '" << md_.moduleLabel() << "'\n"
-	<< "  product instance name:       '" << productInstanceName << "'\n"
-  << "  process name:                '" << md_.processName() << "'\n"
+      << "Illegal attempt to 'put' an unregistered product.\n"
+      << "No product is registered for\n"
+      << "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+      << "  module label:                '" << md_.moduleLabel() << "'\n"
+      << "  product instance name:       '" << productInstanceName << "'\n"
+      << "  process name:                '" << md_.processName() << "'\n"
 
-	<< "The ProductRegistry contains:\n"
-	<< principal_.productRegistry()
-	<< '\n';
+      << "The following data products are registered for production by "<<md_.moduleLabel()<<":\n"
+      << str.str()
+      << '\n'
+      << "To correct the problem:\n"
+      "   1) make sure the proper 'produce' call is being made in the module's constructor,\n"
+      "   2) if 'produce' exists and uses a product instance name make sure that same name is used during the 'put' call.";
     }
-    ProductHolderBase const*  phb = principal_.getProductHolderByIndex(index);
+    ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
     assert(phb != nullptr);
     return phb->branchDescription();
   }

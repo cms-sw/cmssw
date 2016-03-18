@@ -224,11 +224,8 @@ if __name__ == '__main__':
     (options,args)=oparser.parse_args()
 
     #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
-    # The only way to do that is to pass -n from the command line
-    import sys
-    sys.argv.append("-n")
-
     import ROOT
+    ROOT.PyConfig.DisableRootLogon = True
     if options.library is None:
         if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
             raise RuntimeError("failed to load libFWCoreFWLite")
