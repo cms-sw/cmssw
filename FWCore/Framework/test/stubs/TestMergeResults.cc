@@ -324,7 +324,7 @@ namespace edmtest {
       e.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 11);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
@@ -403,7 +403,7 @@ namespace edmtest {
       run.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 100001);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
@@ -472,7 +472,7 @@ namespace edmtest {
       lumi.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 1001);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.

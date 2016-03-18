@@ -767,7 +767,7 @@ namespace edm {
       if(productResolver->singleProduct() && productResolver->provenanceAvailable() && !productResolver->branchDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
-        if(productResolver->provenance()->product().present()) {
+        if(productResolver->provenance()->branchDescription().present()) {
            provenances.push_back(productResolver->provenance());
         }
       }

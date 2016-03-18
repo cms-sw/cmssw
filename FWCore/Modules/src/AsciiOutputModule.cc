@@ -61,9 +61,8 @@ namespace edm {
     // Write out non-EDProduct contents...
 
     // ... list of process-names
-    for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
-        it != itEnd; ++it) {
-      LogAbsolute("AsciiOut") << it->processName() << " ";
+    for (auto const& process : e.processHistory()) {
+      LogAbsolute("AsciiOut") << process.processName() << " ";
     }
 
     // ... collision id
@@ -73,13 +72,10 @@ namespace edm {
 
     std::vector<Provenance const*> provs;
     e.getAllProvenance(provs);
-    for(std::vector<Provenance const*>::const_iterator i = provs.begin(),
-         iEnd = provs.end();
-         i != iEnd;
-         ++i) {
-      BranchDescription const& desc = (*i)->product();
+    for(auto const& prov : provs) {
+      BranchDescription const& desc = prov->branchDescription();
       if (selected(desc)) {
-        LogAbsolute("AsciiOut") << **i << '\n';
+        LogAbsolute("AsciiOut") << *prov << '\n';
       }
     }
   }
