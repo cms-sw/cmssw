@@ -5,6 +5,7 @@
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/L1CaloTrigger"/>
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <flags EDM_PLUGIN="1"/>

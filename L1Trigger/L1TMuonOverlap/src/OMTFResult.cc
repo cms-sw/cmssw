@@ -14,6 +14,13 @@ OMTFResult::OMTFResult(){
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////
+
+void OMTFResult::setRefPhiRHits(unsigned int iRefLayer, int iRefPhiRHit){
+      refPhiRHit1D[iRefLayer] = iRefPhiRHit;
+}
+////////////////////////////////////////////
+////////////////////////////////////////////
+
 void OMTFResult::addResult(unsigned int iRefLayer,
 			   unsigned int iLayer,
 			   unsigned int val,
@@ -35,6 +42,7 @@ void OMTFResult::clear(){
   refPhi1D.assign(OMTFConfiguration::nRefLayers,1024);
   refEta1D.assign(OMTFConfiguration::nRefLayers,1024);
   hitsBits.assign(OMTFConfiguration::nRefLayers,0);  
+  refPhiRHit1D.assign(OMTFConfiguration::nRefLayers,1024);
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////
