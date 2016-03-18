@@ -10,9 +10,3 @@ ak8PFJetsPuppiSoftDropMass = cms.EDProducer("RecoJetDeltaRValueMapProducer",
                                          value = cms.string('mass')  
                         )
 
-ak8PFJetsPuppiSoftDropMassFromCHS = cms.EDProducer("RecoJetDeltaRValueMapProducer",
-                                         src = cms.InputTag("ak8PFJetsCHS"),
-                                         matched = cms.InputTag("ak8PFJetsPuppiSoftDrop"),                                         
-                                         distMax = cms.double(0.8),
-                                         value = cms.string('mass')  
-                        )

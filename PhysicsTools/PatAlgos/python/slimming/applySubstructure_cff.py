@@ -19,6 +19,19 @@ def applySubstructure( process ) :
     process.selectedPatJetsAK8.cut = cms.string("pt > 170")
 
 
+    process.load('RecoJets.JetProducers.ak8PFJetsPuppi_cfi')
+    process.ak8PFJetsPuppi.doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak8PFJetsPuppi")
+    )
+    process.patJetPuppiCharge = cms.EDProducer("JetChargeProducer",
+        src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
+        var = cms.string('Pt'),
+        exp = cms.double(1.0)
+    )
 
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed, ak8PFJetsPuppiSoftDrop
@@ -28,8 +41,7 @@ def applySubstructure( process ) :
     process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass','ak8PFJetsPuppiSoftDropMassFromCHS']
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
     process.patJetsAK8.addTagInfos = cms.bool(True)
 
 
@@ -42,6 +54,82 @@ def applySubstructure( process ) :
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 
 
+
+
+    #add AK8 from PUPPI
+
+    process.load('RecoJets.JetProducers.ak8PFJetsPuppi_cfi')
+    process.ak8PFJetsPuppi.doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+
+        
+    addJetCollection(process, labelName = 'AK8Puppi',
+                     jetSource = cms.InputTag('ak8PFJetsPuppi'),
+                     algo= 'AK', rParam = 0.8,
+                     jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+                     genJetCollection = cms.InputTag('slimmedGenJetsAK8')
+                     )
+    process.patJetsAK8Puppi.userData.userFloats.src = [] # start with empty list of user floats
+    process.selectedPatJetsAK8Puppi.cut = cms.string("pt > 170")
+
+
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak8PFJetsPuppi")
+    )
+    process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
+        src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
+        var = cms.string('Pt'),
+        exp = cms.double(1.0)
+    )
+
+    ## AK8 groomed masses
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
+    process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
+    process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
+    process.patJetsAK8Puppi.userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass']
+    process.patJetsAK8Puppi.addTagInfos = cms.bool(True)
+
+
+
+    # add Njetiness
+    process.NjettinessAK8Puppi = process.Njettiness.clone()
+    process.NjettinessAK8Puppi.src = cms.InputTag("ak8PFJetsPuppi")
+    process.NjettinessAK8Puppi.cone = cms.double(0.8)
+    process.patJetsAK8Puppi.userData.userFloats.src += ['NjettinessAK8Puppi:tau1','NjettinessAK8Puppi:tau2','NjettinessAK8Puppi:tau3']
+
+
+
+
+    process.ak8PFJetsPuppiValueMap = cms.EDProducer("RecoJetToPatJetDeltaRValueMapProducer",
+                                            src = cms.InputTag("ak8PFJetsCHS"),
+                                            matched = cms.InputTag("patJetsAK8Puppi"),                                         
+                                            distMax = cms.double(0.8),
+                                            values = cms.vstring([
+                                                'userFloat("NjettinessAK8Puppi:tau1")',
+                                                'userFloat("NjettinessAK8Puppi:tau2")',
+                                                'userFloat("NjettinessAK8Puppi:tau3")',
+                                                'pt','eta','phi','mass'
+                                            ]),
+                                            valueLabels = cms.vstring( [
+                                                'NjettinessAK8PuppiTau1',
+                                                'NjettinessAK8PuppiTau2',
+                                                'NjettinessAK8PuppiTau3',
+                                                'pt','eta','phi','mass'
+                                            ])
+                        )
+    #process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
+
+    process.patJetsAK8.userData.userFloats.src += [cms.InputTag('ak8PFJetsPuppiValueMap','NjettinessAK8PuppiTau1'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','NjettinessAK8PuppiTau2'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','NjettinessAK8PuppiTau3'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','pt'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','eta'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','phi'),
+                                                   cms.InputTag('ak8PFJetsPuppiValueMap','mass'),
+                                                   ]
+
+    
     ## PATify pruned fat jets
     addJetCollection(
         process,
@@ -67,7 +155,7 @@ def applySubstructure( process ) :
         fatJets=cms.InputTag('ak8PFJetsCHS'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsCHSSoftDrop') # needed for subjet flavor clustering
     )
-    process.selectedPatJetsAK8PFCHSSoftDrop.cut = cms.string("pt > 170")
+    #process.selectedPatJetsAK8PFCHSSoftDrop.cut = cms.string("pt > 170")
     
     process.slimmedJetsAK8PFCHSSoftDropSubjets = cms.EDProducer("PATJetSlimmer",
         src = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropSubjets"),
@@ -117,7 +205,7 @@ def applySubstructure( process ) :
         fatJets=cms.InputTag('ak8PFJetsPuppi'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsPuppiSoftDrop') # needed for subjet flavor clustering
     )
-    process.selectedPatJetsAK8PFPuppiSoftDrop.cut = cms.string("pt > 170")
+    #process.selectedPatJetsAK8PFPuppiSoftDrop.cut = cms.string("pt > 170")
     
     process.slimmedJetsAK8PFPuppiSoftDropSubjets = cms.EDProducer("PATJetSlimmer",
         src = cms.InputTag("selectedPatJetsAK8PFPuppiSoftDropSubjets"),
@@ -146,8 +234,7 @@ def applySubstructure( process ) :
             algoTags = cms.VInputTag(
                 # NOTE: For an optimal storage of the AK8 jet daughters, the first subjet collection listed here should be
                 #       derived from AK8 jets, i.e., subjets should contain either all or a subset of AK8 constituents.
-                #       The CMSTopTag subjets are derived from CA8 jets later matched to AK8 jets and could in principle
-                #       contain extra constituents not clustered inside AK8 jets.
+                #       The PUPPI collection has its own pointers to its own PUPPI constituents. 
                 cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
                 cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked")
             ),
