@@ -29,10 +29,10 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setDimensions(1);
   histo[ADC].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
-    .save();
+    .saveAll();
   histo[ADC].addSpec()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
-    .save();
+    .saveAll();
 
   histo[NDIGIS].setName("ndigis")
     .setTitle("Number of Digis")
