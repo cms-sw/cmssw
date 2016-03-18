@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -36,34 +37,44 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   std::string monitorDir;
   bool verbose;
 
+  MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFhwPt;
   MonitorElement* ugmtBMTFhwEta;
   MonitorElement* ugmtBMTFhwPhi;
+  MonitorElement* ugmtBMTFglbPhi;
   MonitorElement* ugmtBMTFhwSign;
   MonitorElement* ugmtBMTFhwSignValid;
   MonitorElement* ugmtBMTFhwQual;
   MonitorElement* ugmtBMTFlink;
 
+  MonitorElement* ugmtOMTFBX;
   MonitorElement* ugmtOMTFhwPt;
   MonitorElement* ugmtOMTFhwEta;
-  MonitorElement* ugmtOMTFhwPhi;
+  MonitorElement* ugmtOMTFhwPhiPos;
+  MonitorElement* ugmtOMTFhwPhiNeg;
+  MonitorElement* ugmtOMTFglbPhiPos;
+  MonitorElement* ugmtOMTFglbPhiNeg;
   MonitorElement* ugmtOMTFhwSign;
   MonitorElement* ugmtOMTFhwSignValid;
   MonitorElement* ugmtOMTFhwQual;
   MonitorElement* ugmtOMTFlink;
 
+  MonitorElement* ugmtEMTFBX;
   MonitorElement* ugmtEMTFhwPt;
   MonitorElement* ugmtEMTFhwEta;
-  MonitorElement* ugmtEMTFhwPhi;
+  MonitorElement* ugmtEMTFhwPhiPos;
+  MonitorElement* ugmtEMTFhwPhiNeg;
+  MonitorElement* ugmtEMTFglbPhiPos;
+  MonitorElement* ugmtEMTFglbPhiNeg;
   MonitorElement* ugmtEMTFhwSign;
   MonitorElement* ugmtEMTFhwSignValid;
   MonitorElement* ugmtEMTFhwQual;
   MonitorElement* ugmtEMTFlink;
 
-  MonitorElement* ugmtBMTFBX;
-  MonitorElement* ugmtOMTFBX;
-  MonitorElement* ugmtEMTFBX;
-  MonitorElement* ugmtLinkBX;
+  MonitorElement* ugmtBMTFBXvsProcessor;
+  MonitorElement* ugmtOMTFBXvsProcessor;
+  MonitorElement* ugmtEMTFBXvsProcessor;
+  MonitorElement* ugmtBXvsLink;
 
   MonitorElement* ugmtMuonBX;
   MonitorElement* ugmtMuonhwPt;
@@ -82,6 +93,10 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonCharge;
+
+  MonitorElement* ugmtMuonPtvsEta;
+  MonitorElement* ugmtMuonPtvsPhi;
+  MonitorElement* ugmtMuonPhivsEta;
 
   MonitorElement* ugmtMuonBXvshwPt;
   MonitorElement* ugmtMuonBXvshwEta;
