@@ -3,6 +3,7 @@
 
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -28,30 +29,67 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
 
  private:  
 
-  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken;
+  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken;
   std::string monitorDir;
   bool verbose;
 
-  MonitorElement* ugmtBX;
-  MonitorElement* ugmtPt;
-  MonitorElement* ugmtEta;
-  MonitorElement* ugmtPhi;
-  MonitorElement* ugmtCharge;
-  MonitorElement* ugmtChargeValid;
-  MonitorElement* ugmtQual;
-  MonitorElement* ugmtIso;
+  MonitorElement* ugmtBMTFhwPt;
+  MonitorElement* ugmtBMTFhwEta;
+  MonitorElement* ugmtBMTFhwPhi;
+  MonitorElement* ugmtBMTFhwSign;
+  MonitorElement* ugmtBMTFhwSignValid;
+  MonitorElement* ugmtBMTFhwQual;
+  MonitorElement* ugmtBMTFlink;
 
-  MonitorElement* ugmtBXvsPt;
-  MonitorElement* ugmtBXvsEta;
-  MonitorElement* ugmtBXvsPhi;
-  MonitorElement* ugmtBXvsCharge;
-  MonitorElement* ugmtBXvsChargeValid;
-  MonitorElement* ugmtBXvsQual;
-  MonitorElement* ugmtBXvsIso;
+  MonitorElement* ugmtOMTFhwPt;
+  MonitorElement* ugmtOMTFhwEta;
+  MonitorElement* ugmtOMTFhwPhi;
+  MonitorElement* ugmtOMTFhwSign;
+  MonitorElement* ugmtOMTFhwSignValid;
+  MonitorElement* ugmtOMTFhwQual;
+  MonitorElement* ugmtOMTFlink;
 
-  MonitorElement* ugmtPtvsEta;
-  MonitorElement* ugmtPtvsPhi;
-  MonitorElement* ugmtPhivsEta;
+  MonitorElement* ugmtEMTFhwPt;
+  MonitorElement* ugmtEMTFhwEta;
+  MonitorElement* ugmtEMTFhwPhi;
+  MonitorElement* ugmtEMTFhwSign;
+  MonitorElement* ugmtEMTFhwSignValid;
+  MonitorElement* ugmtEMTFhwQual;
+  MonitorElement* ugmtEMTFlink;
+
+  MonitorElement* ugmtBMTFBX;
+  MonitorElement* ugmtOMTFBX;
+  MonitorElement* ugmtEMTFBX;
+  MonitorElement* ugmtLinkBX;
+
+  MonitorElement* ugmtMuonBX;
+  MonitorElement* ugmtMuonhwPt;
+  MonitorElement* ugmtMuonhwEta;
+  MonitorElement* ugmtMuonhwPhi;
+  MonitorElement* ugmtMuonhwCharge;
+  MonitorElement* ugmtMuonhwChargeValid;
+  MonitorElement* ugmtMuonhwQual;
+  MonitorElement* ugmtMuonhwIso;
+
+  MonitorElement* ugmtMuonhwPtvshwEta;
+  MonitorElement* ugmtMuonhwPtvshwPhi;
+  MonitorElement* ugmtMuonhwPhivshwEta;
+
+  MonitorElement* ugmtMuonPt;
+  MonitorElement* ugmtMuonEta;
+  MonitorElement* ugmtMuonPhi;
+  MonitorElement* ugmtMuonCharge;
+
+  MonitorElement* ugmtMuonBXvshwPt;
+  MonitorElement* ugmtMuonBXvshwEta;
+  MonitorElement* ugmtMuonBXvshwPhi;
+  MonitorElement* ugmtMuonBXvshwCharge;
+  MonitorElement* ugmtMuonBXvshwChargeValid;
+  MonitorElement* ugmtMuonBXvshwQual;
+  MonitorElement* ugmtMuonBXvshwIso;
 };
 
 #endif

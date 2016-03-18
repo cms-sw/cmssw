@@ -56,7 +56,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackBX->setBinLabel(13, "6 (+)", 1);
   emtfTrackBX->setAxisTitle("Track BX", 2);
   
-  emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 256, 0.5, 256.5);
+  emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 256, -0.5, 255.5);
   emtfTrackPt->setAxisTitle("Track p_{T} [GeV]", 1);
 
   emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
