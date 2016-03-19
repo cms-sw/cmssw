@@ -105,8 +105,7 @@ namespace cms
     rndEngine_ = &(rng->getEngine(lumi.index()));
 
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
     
     if (theTkDigiGeomWatcher.check(iSetup)) {
       iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
@@ -224,10 +223,10 @@ namespace cms
     TrackerGeometry::ModuleType mType = pDD_->getDetectorType(detId);    
     switch(mType){
 
-    case TrackerGeometry::ModuleType::Ph2PXB:
+    case TrackerGeometry::ModuleType::Ph1PXB:
       algotype = AlgorithmType::InnerPixel;
       break;
-    case TrackerGeometry::ModuleType::Ph2PXF:
+    case TrackerGeometry::ModuleType::Ph1PXF:
       algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph2PSP:
