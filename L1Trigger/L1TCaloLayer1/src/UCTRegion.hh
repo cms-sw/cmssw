@@ -8,7 +8,9 @@
 
 namespace l1tcalo {
   constexpr uint32_t RegionETMask{ 0x000003FF};
+  constexpr uint32_t RegionEGVeto{ 0x00000400};
   constexpr uint32_t RegionLocBits{0x0000F000};
+  constexpr uint32_t RegionTauVeto{0x00000800};
   constexpr uint32_t LocationShift{12};
 }
 
@@ -33,7 +35,7 @@ public:
   // Packed data access
 
   const uint32_t rawData() const {return regionSummary;}
-  const uint32_t location() const {return ((regionSummary & l1tcalo::RegionLocBits) >> l1tcalo::LocationShift);}
+  const uint32_t location() const {return ((regionSummary & RegionLocBits) >> LocationShift);}
 
   const int hitCaloEta() const {
     uint32_t highestTowerLocation = location();
@@ -59,7 +61,9 @@ public:
   // Access functions for convenience
   // Note that the bit fields are limited in hardware
 
-  const uint32_t et() const {return (l1tcalo::RegionETMask & regionSummary);}
+  const uint32_t et() const {return (RegionETMask & regionSummary);}
+  const bool isEGammaLike() const {return !((RegionEGVeto & regionSummary) == RegionEGVeto);}
+  const bool isTauLike() const {return !((RegionTauVeto & regionSummary) == RegionTauVeto);}
 
   // More access functions
 
