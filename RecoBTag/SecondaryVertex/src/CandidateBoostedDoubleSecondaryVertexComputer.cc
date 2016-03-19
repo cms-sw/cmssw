@@ -360,7 +360,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
               tau1_flightDistance2dSig =svTagInfo.flightDistance(vtx,true).significance();
               tau1_vertexDeltaR = reco::deltaR(svTagInfo.flightDirection(vtx),currentAxes[0]);
             }
-            etaRelToTauAxis(vertex, currentAxes[1], tau1_trackEtaRels);
+            etaRelToTauAxis(vertex, currentAxes[0], tau1_trackEtaRels);
             tau1_nSecondaryVertices += 1.;
     }
 
