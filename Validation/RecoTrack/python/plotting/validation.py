@@ -124,10 +124,32 @@ _globalTags = {
     "CMSSW_8_0_0_pre6": {"default": "80X_mcRun2_asymptotic_v4"},
     "CMSSW_8_0_0_pre6_phase1": {"default": "80X_upgrade2017_design_v3_UPG17"},
     "CMSSW_8_0_0_pre6_MT": {"default": "80X_mcRun2_asymptotic_v4_multiCoreResub"},
+    "CMSSW_8_0_0": {"default": "80X_mcRun2_asymptotic_v4"},
+    "CMSSW_8_0_0_patch1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17"},
+    "CMSSW_8_0_0_patch1_phase1_rereco": {"default": "80X_upgrade2017_design_v4_UPG17_rereco"},
+    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT"},
+    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT"},
+#    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT"},
+#    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT"},
+    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT_resub"},
+    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT_resub"},
+    "CMSSW_8_0_1": {"default": "80X_mcRun2_asymptotic_v6"},
+    "CMSSW_8_0_1_71XGENSIM": {"default": "80X_mcRun2_asymptotic_v6_gs7120p2"},
+    "CMSSW_8_0_1_gcc530": {"default": "80X_mcRun2_asymptotic_v6_gcc530"},
+    "CMSSW_8_0_3_71XGENSIM": {"default": "80X_mcRun2_asymptotic_2016_v3_gs7120p2NewGTv3"},
+    "CMSSW_8_0_3_71XGENSIM_hcal": {"default": "80X_mcRun2_asymptotic_2016_v3_gs71xNewGtHcalCust"},
+    "CMSSW_8_0_3_71XGENSIM_tec": {"default": "80X_mcRun2_asymptotic_SiStripBad_TEC_CL62_for2016_v1_mc_gs7120p2TrkCoolLoop"},
+    "CMSSW_8_0_5": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_0_5_pmx": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2_resub", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
+    "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
+    "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
+    "CMSSW_8_1_0_pre2_phase1": {"default": "80X_upgrade2017_design_v9_UPG17designGT", "fullsim_25ns": "80X_upgrade2017_design_v9_UPG17PU35designGT"},
+    "CMSSW_8_1_0_pre2_phase1_realGT": {"default": "80X_upgrade2017_realistic_v1_UPG17realGT", "fullsim_25ns": "80X_upgrade2017_realistic_v1_UPG17PU35realGT"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1", "_ecal15fb", "_ecal30fb"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -160,11 +182,12 @@ def _getGlobalTag(sample, release):
             if "25ns" in puType:
                 return gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
+        fsgt = gtmap.get("fastsim", gtmap["default"])
         if sample.hasPileup():
             puType = sample.pileupType()
             if "25ns" in puType:
-                return gtmap.get("fastsim_25ns", gtmap["default"])
-        return gtmap.get("fastsim", gtmap["default"])
+                return gtmap.get("fastsim_25ns", fsgt)
+        return fsgt
     return gtmap["default"]
 
 # Mapping from release series to RelVal download URLs
@@ -178,6 +201,7 @@ _relvalUrls = {
     "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
     "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
     "8_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_0_x/",
+    "8_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_1_x/",
 }
 
 def _getRelValUrl(release):
