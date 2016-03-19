@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V30 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/HIon/V31 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V30')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V31')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1649,16 +1649,16 @@ fragment.StableParameters = cms.ESProducer( "StableParametersTrivialProducer",
   IfMuEtaNumberBits = cms.uint32( 6 ),
   NumberL1TauJet = cms.uint32( 4 ),
   NumberL1Mu = cms.uint32( 4 ),
-  NumberConditionChips = cms.uint32( 2 ),
+  NumberConditionChips = cms.uint32( 1 ),
   NumberPsbBoards = cms.int32( 7 ),
   NumberL1CenJet = cms.uint32( 4 ),
   NumberPhysTriggers = cms.uint32( 512 ),
-  PinsOnConditionChip = cms.uint32( 96 ),
+  PinsOnConditionChip = cms.uint32( 512 ),
   NumberL1NoIsoEG = cms.uint32( 4 ),
   NumberTechnicalTriggers = cms.uint32( 64 ),
   NumberPhysTriggersExtended = cms.uint32( 64 ),
   WordLength = cms.int32( 64 ),
-  OrderConditionChip = cms.vint32( 2, 1 )
+  OrderConditionChip = cms.vint32( 1 )
 )
 fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
