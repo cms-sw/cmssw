@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V31 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/HIon/V32 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V31')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V32')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1514,11 +1514,6 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
-)
-process.L1TUtmTriggerMenuRcdSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "L1TUtmTriggerMenuRcd" ),
-    firstValid = cms.vuint32( 1 )
 )
 process.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
