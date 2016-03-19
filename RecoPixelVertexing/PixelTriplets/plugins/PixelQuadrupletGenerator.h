@@ -22,7 +22,7 @@ public:
 
   virtual void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
                                const edm::Event & ev, const edm::EventSetup& es,
-                               SeedingLayerSetsHits::SeedingLayerSet tripletLayers,
+                               const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers) override;
 
 private:
