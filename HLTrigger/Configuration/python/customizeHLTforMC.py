@@ -251,8 +251,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuonCSCDigis",
       "hltMuonDTDigis",
       "hltMuonRPCDigis",
-      "hltGtDigis",
-#      "hltL1GtTrigReport",
+#     "hltGtDigis",
+#     "hltL1GtTrigReport",
       #   "hltCsc2DRecHits",
       #   "hltDt1DRecHits",
       #   "hltRpcRecHits",
@@ -417,8 +417,8 @@ def customizeHLTforMC(process,_fastSim=False):
 # Update InputTags
 
     InputTags = (
-      ('hltGtDigis','gtDigis'),
-      ('hltL1GtObjectMap','gtDigis'),
+#     ('hltGtDigis','gtDigis'),
+#     ('hltL1GtObjectMap','gtDigis'),
       ('hltEcalDigis:ebDigis','ecalDigis:ebDigis'),
       ('hltEcalDigis:eeDigis','ecalDigis:eeDigis'),
       ('hltMuonCSCDigis','muonCSCDigis'),
@@ -479,7 +479,7 @@ def customizeHLTforMC(process,_fastSim=False):
 
 # Update top-level named parameters
     NamedParameters = (
-      ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
+#     ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
       ('killDeadChannels',cms.bool(True),cms.bool(False)),
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
