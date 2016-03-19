@@ -537,7 +537,8 @@ class Validation:
                 else:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
-                raise Exception("Did not find compatible FullSim sample for FastSim sample %s %s" % (fast.name(), fast.pileup()))
+                print "WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup())
+                continue
 
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
