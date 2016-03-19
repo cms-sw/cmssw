@@ -67,7 +67,7 @@ def testbeam2006(process):
             ETtotMax = cms.untracked.double(400.),
             EHCalMax = cms.untracked.double(400.),
             beamEnergy = cms.untracked.double(50.),
-            TimeLimit  = cms.double(500.),
+            TimeLimit  = cms.double(180.),
             EcalWidth  = cms.double(0.362),
             HcalWidth  = cms.double(0.640),
             EcalFactor = cms.double(1.),
