@@ -78,7 +78,7 @@ def L1THLT(process):
             process.schedule.append(process.HLTAnalyzerEndpath)
 
         if 'hltGtStage2ObjectMap' in process.__dict__:
-            from HLTrigger.Configuration.HLT_Fake_cff import fragment
+            from HLTrigger.Configuration.HLT_FULL_cff import fragment
             process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
             process.hltTrigReport = fragment.hltTrigReport
             process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
