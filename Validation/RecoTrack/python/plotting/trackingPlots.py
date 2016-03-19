@@ -313,11 +313,11 @@ _possibleTrackingColls = [
     'initialStepPreSplitting',
     'initialStep',
     'highPtTripletStep', # phase1
+    'detachedQuadStep', # phase1
+    'detachedTripletStep',
     'lowPtQuadStep', # phase1
     'lowPtTripletStep',
     'pixelPairStep',
-    'detachedQuadStep', # phase1
-    'detachedTripletStep',
     'mixedTripletStepA', # seeds
     'mixedTripletStepB', # seeds
     'mixedTripletStep',
