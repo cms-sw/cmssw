@@ -375,7 +375,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         if(emulDecision != initDecision) {
 
-          edm::LogWarning("HLTL1TSeed") 
+          LogTrace("HLTL1TSeed") 
           << "L1T decision (emulated vs. unpacked initial) is not the same:"
           << "\n\tbit = " << std::setw(3) << bit 
           << std::setw(40) << objMaps[imap].algoName() 
