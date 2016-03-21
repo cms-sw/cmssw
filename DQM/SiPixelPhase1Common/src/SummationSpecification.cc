@@ -21,10 +21,10 @@ SummationSpecificationBuilder::groupBy(const char* cols, const char* mode) {
   boost::split(cs, cols, boost::is_any_of("/"), boost::token_compress_on);
   auto step = SummationStep();
   step.stage = state;
-  step.columns = cs;
   auto modename = std::string(mode);
   if (modename == "SUM") {
     step.type = SummationStep::GROUPBY;
+    step.columns = cs;
     activeColums.clear();
     activeColums.insert(cs.begin(), cs.end());
   } else if (modename == "EXTEND_X" || modename == "EXTEND_Y") {
@@ -127,5 +127,6 @@ SummationSpecificationBuilder::saveAll() {
       activeColums.erase(c);
     }
   }
+  save();
   return *this;
 }

@@ -47,7 +47,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     geometryInterface.load(iSetup, iConfig);
   }
 
-  // TODO: We need 2 passes, one to count the elements for EXTEND-ranges, one for actual booking.
+    // TODO: We need 2 passes, one to count the elements for EXTEND-ranges, one for actual booking.
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
@@ -93,11 +93,15 @@ void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMSt
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup, iConfig);
   }
-  std::cout << "+++ HistogramManager: Step2 online\n";
 }
 
 void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   std::cout << "+++ HistogramManager: Step2 offline\n";
+  // Debug output
+  for (auto& s : specs) {
+    std::cout << "+++ " << name << " ";
+    s.dump(std::cout);
+  }
 
   // This is esentially the booking code if step1, to reconstruct the ME names.
   // Once we have a name we load the ME and put it into the table.
@@ -137,17 +141,20 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	if (step.type == SummationStep::SAVE) {
 	  for (auto& e : t) {
 	    if (e.second.me) continue; // if there is a ME already, nothing to do
-	    GeometryInterface::Values vals = e.first;
+	    GeometryInterface::Values vals(e.first);
 	    std::ostringstream dir("");
 	    for (auto c : s.steps[0].columns) {
 	      if (vals.find(c) != vals.end())
 		dir << c << "_" << std::hex << vals[c] << "/";
 	    }
 	    iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
-	    // TODO veery broken
+	    if (!e.second.th1) {
+	      // This is 0D or broken.
+	      assert(!"Cannot save 0D data.");
+	    }
 	    if (e.second.th1->GetDimension() == 1) {
 	      TAxis* ax = e.second.th1->GetXaxis();
-	      e.second.me = iBooker.book1D(this->name, this->title, ax->GetNbins(), ax->GetXmin(), ax->GetXmax());
+	      e.second.me = iBooker.book1D(this->name, e.second.th1->GetTitle(), ax->GetNbins(), ax->GetXmin(), ax->GetXmax());
 	    } else {
 	      assert(!"NIY");
 	    }
@@ -161,7 +168,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	if (step.type == SummationStep::GROUPBY) {
 	  Table out;
 	  for (auto& e : t) {
-	    GeometryInterface::Values old_vals = e.first;
+	    GeometryInterface::Values const& old_vals(e.first);
 	    TH1 *th1 = e.second.th1;
 	    GeometryInterface::Values new_vals;
 	    for (auto col : step.columns) {
@@ -180,6 +187,79 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	  t.swap(out);
 	}
 
+        if (step.type == SummationStep::REDUCE) {
+	  Table out;
+	  for (auto& e : t) {
+	    GeometryInterface::Values const& vals(e.first);
+	    TH1 *th1 = e.second.th1;
+	    AbstractHistogram& new_histo = out[vals];
+	    double reduced_quantity = 0;
+	    if (step.arg == "MEAN") {
+	      reduced_quantity = th1->GetMean();
+	    } else if (step.arg == "COUNT") {
+	      reduced_quantity = th1->GetEntries();
+	    } else if (step.arg == "ONE") {
+	      reduced_quantity = 1;
+	    } else /* if (step.arg) == ... TODO */ {
+              std::cout << "+++ Reduction '" << step.arg << " not yet implemented\n";
+	    }
+	    new_histo.value = reduced_quantity;
+	  }
+	  t.swap(out);
+	}
+
+        if (step.type == SummationStep::EXTEND_X) {
+	  // first pass determines the range.
+	  std::map<GeometryInterface::Values, int> nbins;
+          for (auto& e : t) {
+	    GeometryInterface::Values new_vals(e.first);
+	    new_vals.erase(step.columns.at(0));
+	    TH1 *th1 = e.second.th1;
+	    int& n = nbins[new_vals];
+
+            n += th1 ? th1->GetXaxis()->GetNbins() : 1; 
+	  }
+	   
+	  Table out;
+	  for (auto& e : t) {
+	    GeometryInterface::Values const& old_vals(e.first);
+	    GeometryInterface::Values new_vals(old_vals);
+	    //GeometryInterface::Value xval = new_vals[step.columns.at(0)]; // We rely on correct ordering
+	    new_vals.erase(step.columns.at(0));
+	    TH1 *th1 = e.second.th1;
+
+	    AbstractHistogram& new_histo = out[new_vals];
+	    if (!new_histo.th1) {
+	      // We need to book. Two cases here: 1D or 2D.
+	      if (!th1 || th1->GetDimension() == 1) {
+		// Output is 1D
+	        new_histo.th1 = (TH1*) new TH1D(this->name.c_str(), (this->title + " over " + step.columns.at(0)).c_str(), 
+		                                nbins[new_vals], 0, nbins[new_vals]);
+		new_histo.value = 1; // abused as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
+		// TODO: actually we should use the label of the input histograms. But for 0D we dont have anything there...
+	      } else {
+                // output is 2D, input is 2D histograms.
+		assert(!"2D NIY");
+	      }
+	    } 
+
+	    // now add data.
+	    if (!th1) { // 0D case
+	      new_histo.th1->SetBinContent((int) new_histo.value, e.second.value);
+	      new_histo.value += 1; 
+	    } else if (th1->GetDimension() == 1) {
+	      for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
+		// TODO Error etc.?
+		new_histo.th1->SetBinContent((int) new_histo.value, th1->GetBinContent(i)); 
+		new_histo.value += 1; 
+	      }
+	    } else {
+	      // 2D case.
+	      assert(!"2D histo concat NIY");
+	    }
+	  }
+	  t.swap(out);
+	}
 	// TODO: more.
 
       }
