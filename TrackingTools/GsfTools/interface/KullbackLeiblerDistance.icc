@@ -9,8 +9,22 @@ namespace KullbackLeiblerDistanceDetails {
   using Vector = ROOT::Math::SVector<double, N>;
   using Matrix = ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N>>;
 
-    // a = b+c; does not vectorize for SMatrix...
      
+
+    const Vector& mu1 = sgs1.mean();
+    const Matrix& V1 = sgs1.covariance();
+    const Vector& mu2 = sgs2.mean();
+    const Matrix& V2 = sgs2.covariance();
+
+    const Matrix& G1 = sgs1.weightMatrix();
+    const Matrix& G2 = sgs2.weightMatrix();
+    Vector mudiff = mu1 - mu2;
+    Matrix Vdiff = V1 - V2;
+    Matrix Gdiff = G2 - G1;
+    Matrix Gsum = G1 + G2;
+
+
+/*  for sse above is faster (less instructions, less CPI) for avx2 equivelent maybe below faster
     Vector mudiff = sgs1.mean();
     Matrix Vdiff = sgs1.covariance();
     const Vector& mu2 = sgs2.mean();
@@ -22,7 +36,8 @@ namespace KullbackLeiblerDistanceDetails {
     Vdiff -= V2;
     Matrix Gdiff = G2 - Gsum;
     Gsum += G2;
-    
+*/  
+  
     //   double dist = (Vdiff * Gdiff).trace() + Gsum.similarity(mudiff);
     double dist = GsfMatrixTools::trace(Vdiff,Gdiff) +
       ROOT::Math::Similarity(mudiff,Gsum);
