@@ -101,7 +101,7 @@ typename CloseComponentsMerger<N>::MinDistResult
 CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmergedComp) const {
 // template <unsigned int N>
 // std::pair<SingleGaussianState<N>, 
-// 	  typename std::multimap<double, boost::shared_ptr< MultiGaussianState<N> > >::iterator>
+// 	  typename std::multimap<double, std::shared_ptr< MultiGaussianState<N> > >::iterator>
 // CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmergedComp) const {
   double large = DBL_MAX;
   double minDist = large;

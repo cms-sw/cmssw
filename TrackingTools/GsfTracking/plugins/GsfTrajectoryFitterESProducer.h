@@ -14,7 +14,7 @@ class  GsfTrajectoryFitterESProducer: public edm::ESProducer{
  public:
   GsfTrajectoryFitterESProducer(const edm::ParameterSet & p);
   virtual ~GsfTrajectoryFitterESProducer(); 
-  boost::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
+  std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;
 };

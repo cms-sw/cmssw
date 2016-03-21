@@ -12,15 +12,15 @@ namespace GaussianStateConversions {
   {
     if ( !tsos.isValid() )  return MultiGaussianState<5>();
 
-    using SingleStatePtr = boost::shared_ptr<SingleGaussianState<5>>;
+    using SingleStatePtr = std::shared_ptr<SingleGaussianState<5>>;
     auto const & components = tsos.components();
     MultiGaussianState<5>::SingleStateContainer singleStates;
     singleStates.reserve(components.size());
     for (auto const & ic : components) {
       if ( ic.isValid() ) {
-	SingleStatePtr sgs(new SingleGaussianState<5>(ic.localParameters().vector(),
+	auto sgs = std::make_shared<SingleGaussianState<5>>(ic.localParameters().vector(),
 							      ic.localError().matrix(),
-							      ic.weight()));
+							      ic.weight());
 	singleStates.push_back(sgs);
       }
     }

@@ -17,9 +17,6 @@ MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
   if (theComponents.empty()) {
     throw cms::Exception("LogicError") 
       << "MultiGaussianStateCombiner:: state container to collapse is empty";
-//     return SingleState(SingleState::Vector(),SingleState::Matrix(),0.);
-//     return SingleState(typename SingleState::Vector(),
-// 		       typename SingleState::Matrix(),0.);
     return SingleStatePtr();
   }
 
@@ -33,7 +30,7 @@ MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
   double weightSum = 0.;
   double weight;
   typename SingleState::Matrix measCovar1, measCovar2;
-  for ( typename VSC::const_iterator mixtureIter1 = theComponents.begin();
+  for ( auto mixtureIter1 = theComponents.begin();
   	mixtureIter1 != theComponents.end(); mixtureIter1++ ) {
     weight = (*mixtureIter1)->weight();
     weightSum += weight;
@@ -42,17 +39,9 @@ MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
     meanMean += weight * mean1;
     measCovar1 += weight * (**mixtureIter1).covariance();
 
-    for ( typename VSC::const_iterator mixtureIter2 = mixtureIter1+1;
+    for (auto mixtureIter2 = mixtureIter1+1;
   	mixtureIter2 != theComponents.end(); mixtureIter2++ ) {
       typename SingleState::Vector posDiff = mean1 - (**mixtureIter2).mean();
-//       SingleState::Matrix s(1,1); //stupid trick to make CLHEP work decently
-//       measCovar2 +=weight * (*mixtureIter2).weight() *
-//       				s.similarity(posDiff.T().T());
-//       typename SingleState::Matrix mat;
-//       for ( unsigned int i1=0; i1<N; i1++ ) {
-// 	for ( unsigned int i2=0; i2<=i1; i2++ )  mat(i1,i2) = posDiff(i1)*posDiff(i2);
-//       }
-//       measCovar2 += weight * (*mixtureIter2).weight() * mat;
       // 
       // TensorProd yields a general matrix - need to convert to a symm. matrix
       ROOT::Math::SMatrix<double,N,N> covGen = ROOT::Math::TensorProd(posDiff,posDiff);
@@ -69,12 +58,12 @@ MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
     meanMean *= 0.;
     weightSum = 0.;
   } else {
-    meanMean /= weightSum;
-    measCovar1 *= (1./weightSum);
-    measCovar2 *= (1./weightSum/weightSum);
+    auto wsInv = 1./weightSum;
+    meanMean *= wsInv;
+    measCovar1 *= wsInv;
+    measCovar2 *= wsInv*wsInv; 
     measCovar = measCovar1 + measCovar2;
-//     measCovar = measCovar1/weightSum + measCovar2/weightSum/weightSum;
   }
 
-  return SingleStatePtr(new SingleState(meanMean, measCovar, weightSum));
+  return std::make_shared<SingleState>(meanMean, measCovar, weightSum);
 }
