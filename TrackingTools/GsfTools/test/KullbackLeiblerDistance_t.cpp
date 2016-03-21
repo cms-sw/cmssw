@@ -128,6 +128,20 @@ int main(int argc, char * argv[]) {
 
   std:: cout << res << " " << res2 << std::endl;
 
+   res=0;
+   st();
+   edm::HRTimeType s= edm::hrRealTime();
+   for (int i=0; i<100;	++i) 
+   for ( auto const & s : vgs)
+     res+= d(vgs.front(),s);
+   edm::HRTimeType e = edm::hrRealTime();
+   en();
+ 
+   std::cout << e-s << std::endl;
+ 
+  std:: cout << res << std::endl;
+
+
   return 0;
 
 }

@@ -12,41 +12,16 @@
 
 template <unsigned int N> class SingleGaussianState {
 public:
-  typedef ROOT::Math::SVector<double, N> Vector;
-  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > Matrix;
+  using Vector = ROOT::Math::SVector<double, N>;
+  using Matrix = ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N>>;
   
 public:
-  SingleGaussianState() :
-    theHasWeightMatrix(false) {
-//     ++instances_;++maxInstances_;
-  }
+  SingleGaussianState() {}
 
-//   SingleGaussianState(const SingleGaussianState<N>& rhs) :
-//     theWeight(rhs.theWeight), theMean(rhs.theMean), theCovariance(rhs.theCovariance),
-//     theHasWeightMatrix(rhs.theHasWeightMatrix), theWeightMatrix(rhs.theWeightMatrix) {
-//     ++instances_;++maxInstances_;
-//   }
-  
   SingleGaussianState(const Vector& aMean,
 		      const Matrix& aCovariance, 
 		      double aWeight = 1.) : 
-    theCovariance(aCovariance), theMean(aMean), theWeight(aWeight), 
-    theHasWeightMatrix(false) {
-//     ++instances_;++maxInstances_;
-  }
-  
-  ~SingleGaussianState() {
-//     --instances_;
-  }
-  
-  //   /**
-//    * Creates a new single-state with the given information.
-//    * For this base class, no information is passed from the initial 
-//    * instance.
-//    */
-//   SingleGaussianState 
-//   	createState(const AlgebraicVector & aMean, 
-// 		       const AlgebraicSymMatrix & aCovariance, double aWeight = 1) const;
+    theCovariance(aCovariance), theMean(aMean), theWeight(aWeight) {}  
 
   /// weight
   inline double weight() const {return theWeight;}
@@ -61,24 +36,15 @@ public:
   /// change weight
   void rescaleWeight (double scale) {theWeight *= scale;}
 
-// protected:
 private:
   Matrix theCovariance;
   Vector theMean;
   double theWeight;
 
   mutable Matrix theWeightMatrix = ROOT::Math::SMatrixNoInit();
-  mutable bool theHasWeightMatrix;
-
-// public:
-//   static int instances_;
-//   static int maxInstances_;
-//   static int constructsWeightMatrix_;
+  mutable bool theHasWeightMatrix = false;
 };
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.icc"
 
-// template <unsigned int N> int SingleGaussianState<N>::instances_ = 0;
-// template <unsigned int N> int SingleGaussianState<N>::maxInstances_ = 0;
-// template <unsigned int N> int SingleGaussianState<N>::constructsWeightMatrix_ = 0;
 #endif

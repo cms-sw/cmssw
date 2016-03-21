@@ -6,6 +6,5 @@ SingleGaussianState<N>::weightMatrix () const {
       invertPosDefMatrix(theCovariance,theWeightMatrix);
     theHasWeightMatrix = true;
   }
-    //     ++constructsWeightMatrix_;
-    return theWeightMatrix;
+  return theWeightMatrix;
 }
