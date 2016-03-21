@@ -156,7 +156,7 @@ TrackerTopology * SiStripCondObjBuilderFromDb::buildTrackerTopology() {
 // -----------------------------------------------------------------------------
 /** */
 bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label){
-
+  // DEPRECATED. Superseded by SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& typeInfo).
 
   //get current config DB parameter
       
@@ -198,21 +198,22 @@ std::string SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& t
     SiStripPartition partition=ipart->second;
     output << "%%" << "Partition: " << partition.partitionName();
 
-    if(typeInfo==typeid(SiStripLatency)){
-      // Latency only depends on FecVersion
-      output << " FecVersion: " << partition.fecVersion().first << "." << partition.fecVersion().second;
+    // Make everything depend on cabVersion and maskVersion!
+    output << " CablingVersion: " << partition.cabVersion().first << "." << partition.cabVersion().second;
+    output << " MaskVersion: " << partition.maskVersion().first << "." << partition.maskVersion().second;
+
+    if(typeInfo==typeid(SiStripFedCabling)){
+      // Do nothing. FedCabling only depends on cabVersion and maskVersion.
     }
-    else{
-      output << " CablingVersion: " << partition.cabVersion().first << "." << partition.cabVersion().second;
-      output << " MaskVersion: " << partition.maskVersion().first << "." << partition.maskVersion().second;
-      // FedCabling only depends on cabVersion and maskVersion
-      if(typeInfo!=typeid(SiStripFedCabling)){
-        // BadStrip, Noises, Pedestals and Thresholds are FED related, but the payloads also depend on cabling
-        output << " FedVersion: " << partition.fedVersion().first << "." << partition.fedVersion().second;
-        if(typeInfo==typeid(SiStripApvGain)){
-          // Not used in O2O.
-          output << " ApvTimingVersion: " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
-        }
+    else if(typeInfo==typeid(SiStripLatency)){
+      // Latency is FEC related, add fecVersion.
+      output << " FecVersion: " << partition.fecVersion().first << "." << partition.fecVersion().second;
+    }else{
+      // BadStrip, Noises, Pedestals and Thresholds are FED related, add fecVersion.
+      output << " FedVersion: " << partition.fedVersion().first << "." << partition.fedVersion().second;
+      if(typeInfo==typeid(SiStripApvGain)){
+        // Not used in O2O.
+        output << " ApvTimingVersion: " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
       }
     }
   }
