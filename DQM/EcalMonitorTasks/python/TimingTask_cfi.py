@@ -8,8 +8,8 @@ chi2ThresholdEE = 50.
 chi2ThresholdEB = 16.
 energyThresholdEE = 3.
 energyThresholdEB = 1.
-timeWindow = 12.5
-summaryTimeWindow = 7.
+timeWindow = 30.
+summaryTimeWindow = 25.
 
 ecalTimingTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
