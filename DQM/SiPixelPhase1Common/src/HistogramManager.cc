@@ -62,6 +62,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
 	  //TODO: change labels, dimensionality, range, colums as fits
+	  if (step.type == SummationStep::SAVE) continue; // this happens automatically
+	  assert(!"step1 specs are NYI.");
 	}
       }
 
@@ -79,6 +81,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), range_nbins, range_min, range_max);
       } else if (dimensions == 2) {
 	title << ";" << xlabel.str() << ";" << ylabel.str();
+	// TODO: proper 2D range.
 	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 
 	                          range_nbins, range_min, range_max, range_nbins, range_min, range_max);
       } else {
@@ -96,12 +99,12 @@ void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMSt
 }
 
 void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
-  std::cout << "+++ HistogramManager: Step2 offline\n";
+  //std::cout << "+++ HistogramManager: Step2 offline\n";
   // Debug output
-  for (auto& s : specs) {
-    std::cout << "+++ " << name << " ";
-    s.dump(std::cout);
-  }
+  //for (auto& s : specs) {
+    //std::cout << "+++ " << name << " ";
+    //s.dump(std::cout);
+  //}
 
   // This is esentially the booking code if step1, to reconstruct the ME names.
   // Once we have a name we load the ME and put it into the table.
@@ -137,10 +140,11 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	//TODO: change labels, dimensionality, range, colums as fits
 	
 	// SAVE: traverse the table, book a ME for every TH1.
-	// TODO: title and labels have to be recorded per-histo, in AbstractHistogram?
 	if (step.type == SummationStep::SAVE) {
 	  for (auto& e : t) {
 	    if (e.second.me) continue; // if there is a ME already, nothing to do
+	    assert(e.second.th1 || !"Missing histogram. Something is broken.");
+
 	    GeometryInterface::Values vals(e.first);
 	    std::ostringstream dir("");
 	    for (auto c : s.steps[0].columns) {
@@ -148,16 +152,16 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 		dir << c << "_" << std::hex << vals[c] << "/";
 	    }
 	    iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
-	    if (!e.second.th1) {
-	      // This is 0D or broken.
-	      assert(!"Cannot save 0D data.");
-	    }
+
 	    if (e.second.th1->GetDimension() == 1) {
 	      TAxis* ax = e.second.th1->GetXaxis();
-	      e.second.me = iBooker.book1D(this->name, e.second.th1->GetTitle(), ax->GetNbins(), ax->GetXmin(), ax->GetXmax());
+	      e.second.me = iBooker.book1D(e.second.th1->GetName(), e.second.th1->GetTitle(), ax->GetNbins(), ax->GetXmin(), ax->GetXmax());
+	      e.second.me->setAxisTitle(ax->GetTitle());
+	      e.second.me->setAxisTitle(e.second.th1->GetYaxis()->GetTitle(), 2);
 	    } else {
 	      assert(!"NIY");
 	    }
+
 	    e.second.me->getTH1()->Add(e.second.th1);
 	    //delete e.second.th1;
 	    e.second.th1 = e.second.me->getTH1(); 
@@ -194,16 +198,23 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    TH1 *th1 = e.second.th1;
 	    AbstractHistogram& new_histo = out[vals];
 	    double reduced_quantity = 0;
+	    std::string label = "";
+	    std::string name = this->name;
+	    // TODO: meaningful semantics in 2D case, errors
 	    if (step.arg == "MEAN") {
 	      reduced_quantity = th1->GetMean();
+	      label = label + "mean of " + th1->GetXaxis()->GetTitle();
+	      name = "mean_" + name;
 	    } else if (step.arg == "COUNT") {
 	      reduced_quantity = th1->GetEntries();
-	    } else if (step.arg == "ONE") {
-	      reduced_quantity = 1;
-	    } else /* if (step.arg) == ... TODO */ {
+	      label = label + "# of " + th1->GetXaxis()->GetTitle() + " entries";
+	      name = "num_" + name;
+	    } else /* if (step.arg) == ... TODO: more */ {
               std::cout << "+++ Reduction '" << step.arg << " not yet implemented\n";
 	    }
-	    new_histo.value = reduced_quantity;
+	    new_histo.is0d = true;
+	    new_histo.th1 = new TH1D(name.c_str(), (";;" + label).c_str(), 1, 0, 1); 
+	    new_histo.th1->SetBinContent(1, reduced_quantity);
 	  }
 	  t.swap(out);
 	}
@@ -216,8 +227,8 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    new_vals.erase(step.columns.at(0));
 	    TH1 *th1 = e.second.th1;
 	    int& n = nbins[new_vals];
-
-            n += th1 ? th1->GetXaxis()->GetNbins() : 1; 
+	    assert(th1 || !"invalid histogram");
+            n += th1->GetXaxis()->GetNbins(); 
 	  }
 	   
 	  Table out;
@@ -231,11 +242,14 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    AbstractHistogram& new_histo = out[new_vals];
 	    if (!new_histo.th1) {
 	      // We need to book. Two cases here: 1D or 2D.
-	      if (!th1 || th1->GetDimension() == 1) {
+	      if (th1->GetDimension() == 1) {
 		// Output is 1D
-	        new_histo.th1 = (TH1*) new TH1D(this->name.c_str(), (this->title + " over " + step.columns.at(0)).c_str(), 
+	        new_histo.th1 = (TH1*) new TH1D(th1->GetName(), (std::string("") 
+		                                + th1->GetYaxis()->GetTitle() + " per " + step.columns.at(0) 
+		                                + ";" + step.columns.at(0) + "/" + th1->GetXaxis()->GetTitle()
+						+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
 		                                nbins[new_vals], 0, nbins[new_vals]);
-		new_histo.value = 1; // abused as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
+		new_histo.count = 1; // used as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
 		// TODO: actually we should use the label of the input histograms. But for 0D we dont have anything there...
 	      } else {
                 // output is 2D, input is 2D histograms.
@@ -244,14 +258,11 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    } 
 
 	    // now add data.
-	    if (!th1) { // 0D case
-	      new_histo.th1->SetBinContent((int) new_histo.value, e.second.value);
-	      new_histo.value += 1; 
-	    } else if (th1->GetDimension() == 1) {
+	    if (th1->GetDimension() == 1) {
 	      for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
 		// TODO Error etc.?
-		new_histo.th1->SetBinContent((int) new_histo.value, th1->GetBinContent(i)); 
-		new_histo.value += 1; 
+		new_histo.th1->SetBinContent(new_histo.count, th1->GetBinContent(i)); 
+		new_histo.count += 1; 
 	      }
 	    } else {
 	      // 2D case.

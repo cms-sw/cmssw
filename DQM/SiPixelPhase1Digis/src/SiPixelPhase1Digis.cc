@@ -50,6 +50,14 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .save()
     .groupBy("P1PXBBarrel", "EXTEND_X")
     .save();
+  histo[NDIGIS].addSpec()
+    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
+    .save()
+    .reduce("MEAN")
+    .save()
+    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk", "EXTEND_X")
+    .saveAll();
+
 
 
 } 
