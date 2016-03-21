@@ -38,6 +38,15 @@ struct SummationStep {
 
 struct SummationSpecification {
   std::vector<SummationStep> steps;
+
+  template<class stream>
+  void dump(stream& out) {
+    for (auto& s : steps) {
+      out << "Step: type " << s.type << " stage " << s.stage << " col ";
+      for (auto c : s.columns) out << c << " ";
+      out << " arg " << s.arg << "\n";
+    }
+  }
 };
 
 // The builder gets the empty spec passed in,then a chain of methods is called 
