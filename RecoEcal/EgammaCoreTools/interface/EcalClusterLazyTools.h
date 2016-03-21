@@ -50,7 +50,7 @@ class EcalClusterLazyToolsBase {
   // mapping for preshower rechits
   std::map<DetId, EcalRecHit> rechits_map_;
   // get Preshower hit array
-  std::vector<float> getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology *topology_p, int row=0, int plane=1);
+  std::vector<float> getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology const *topology_p, int row=0, int plane=1);
   // get Preshower hit shape
   float getESShape(const std::vector<float>& ESHits0);
   // get Preshower effective sigmaRR
@@ -77,6 +77,8 @@ class EcalClusterLazyToolsBase {
   const EcalRecHitCollection *esRecHits_;
   
   edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_, esRHToken_;
+
+  std::shared_ptr<CaloSubdetectorTopology const> ecalPS_topology_;
 
   //const EcalIntercalibConstantMap& icalMap;
   edm::ESHandle<EcalIntercalibConstants> ical;
