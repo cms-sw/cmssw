@@ -23,6 +23,8 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'miniAODDQM': ['DQMOfflineMiniAOD',
                         'DQMHarvestMiniAOD'],
             'standardDQM': ['DQMOffline',
-                            'dqmHarvesting']
+                            'dqmHarvesting'],
+            'triggerDQM': ['triggerOfflineDQMSource',
+                           'hltOfflineDQMClient']
             }
 

@@ -932,10 +932,10 @@ step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relva
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
 
-steps['DIGIUP15_reHLT']={'-s'     :'DIGI,L1,DIGI2RAW',
+steps['DIGIUP15_reHLT']={'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions'  :'auto:run2_mc_'+autoHLT['relval25ns'],
-                 '--datatier'    :'RAWSIM',
-                 '--eventcontent':'RAWSIM',
+                 '--datatier'    :'FEVTDEBUGHLT',
+                 '--eventcontent':'FEVTDEBUGHLT',
                  '--era'         :'Run2_25ns',
                  '-n'            :'10'
                   }
@@ -1143,20 +1143,20 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 
 steps['RECOUP15_reHLT'] = {
-    '-s':'RAW2DIGI,RECO,EI',
+    '-s':'RAW2DIGI,L1Reco,RECO,EI',
     '--runUnscheduled':'',
     '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
     '-n':'10',
-    '--datatier':'RAWAODSIM',
-    '--eventcontent':'RAWAODSIM',
+    '--datatier':'FEVTDEBUGHLT',
+    '--eventcontent':'FEVTDEBUGHLT',
     '--era' : 'Run2_25ns'
     }
 
 steps['REHLTUP15_reHLT'] = {
-      '-s':'L1REPACK,HLT:@relval25ns',
+      '-s':'L1REPACK:GT2,HLT:@relval25ns',
       '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
-      '--datatier':'AODSIM',
-      '--eventcontent':'AODSIM',
+      '--datatier':'FEVTDEBUGHLT',
+      '--eventcontent':'FEVTDEBUGHLT',
       '--era' : 'Run2_25ns',
       '-n':'10',
      }
@@ -1413,7 +1413,7 @@ steps['HARVESTUP15']={
     }
 
 steps['HARVESTMINIAODUP15_reHLT']={
-    '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+    '-s':'HARVESTING:@miniAODValidation+@triggerValidation+@miniAODDQM+@triggerDQM',
     '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
     '--mc':'',
     '--era' : 'Run2_25ns',
@@ -1551,7 +1551,7 @@ steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'
 
 steps['MINIAODUP15_reHLT'] = {
                  '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
-                 '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
+                 '-s':'PAT,DQM:@miniAODDQM+@triggerDQM,VALIDATION:@miniAODValidation+@triggerValidation',
                  '--runUnscheduled':'',
                  '--datatier' : 'MINIAODSIM,DQMIO',
                  '--eventcontent':'MINIAODSIM,DQM',
