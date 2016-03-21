@@ -541,6 +541,3 @@ void L1TBPTX::doFractionInSync(bool iForce,bool iBad){
 void L1TBPTX::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iValue){
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TBPTX);

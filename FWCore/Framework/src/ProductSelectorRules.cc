@@ -37,8 +37,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
   //--------------------------------------------------  
   // Class Rule is used to determine whether or not a given branch
-  // (really a ProductHolder, as described by the BranchDescription object
-  // that specifies that ProductHolder) matches a 'rule' specified by the
+  // (really a ProductResolver, as described by the BranchDescription object
+  // that specifies that ProductResolver) matches a 'rule' specified by the
   // configuration. Each Rule is configured with a single std::string from
   // the configuration file.
   //

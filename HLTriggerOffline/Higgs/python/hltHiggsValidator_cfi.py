@@ -275,8 +275,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     VBFHbb_2btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq200_v",
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq240_v",
+            "HLT_QuadPFJet_BTagCSV_p037_p11_VBF_Mqq200_v",
+            "HLT_QuadPFJet_BTagCSV_p037_p11_VBF_Mqq240_v",
 	    # old csv version
 	    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
             "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v"

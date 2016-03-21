@@ -8,7 +8,7 @@
 */
 
 #ifndef DQMLUMIMONITOR_H
-#define DQMLUMIMONITORH
+#define DQMLUMIMONITOR_H
 
 #include <string>
 #include <vector>
@@ -65,4 +65,4 @@ private:
   unsigned long long m_cacheID_;
 };
 
-#endif
+#endif // DQMLUMIMONITOR_H

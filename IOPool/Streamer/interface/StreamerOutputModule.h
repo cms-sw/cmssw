@@ -27,8 +27,8 @@ namespace edm {
     virtual void stop() override;
     virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
     virtual void doOutputEvent(EventMsgBuilder const& msg) override;
-    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
     edm::propagate_const<std::unique_ptr<Consumer>> c_;
@@ -72,11 +72,11 @@ namespace edm {
 
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) {}
+  StreamerOutputModule<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const&) {}
 
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) {}
+  StreamerOutputModule<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const&) {}
 
   template<typename Consumer>
   void

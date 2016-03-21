@@ -1,6 +1,8 @@
 
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include <TBranch.h>
 
@@ -9,24 +11,27 @@
 
 class ProductInfo {
    public:
-      ProductInfo(const edm::Provenance &prov, TBranch & branch);
+      ProductInfo(const edm::Provenance &prov, TBranch & branch, edm::EDGetToken const& token);
 
       Long64_t size() const {return m_size;}
       const edm::InputTag & tag() const { return m_tag;}
-      const std::string & className() const { return m_className;}
+      const edm::TypeID& type() const { return m_type;}
+      const edm::EDGetToken& token() const { return m_token;}
       static bool sort(const ProductInfo &x, const ProductInfo &y);
 
    private:
       static void addBranchSizes(TBranch & branch, Long64_t &size);
 
-      std::string m_className;
       edm::InputTag m_tag;
+      edm::TypeID m_type;
+      edm::EDGetToken m_token;
       Long64_t m_size;
 };
 
-ProductInfo::ProductInfo(const edm::Provenance &prov, TBranch & branch) :
-    m_className(prov.className()),
+ProductInfo::ProductInfo(const edm::Provenance &prov, TBranch & branch, edm::EDGetToken const& token) :
     m_tag(prov.moduleLabel(), prov.productInstanceName(), prov.processName()),
+    m_type(prov.branchDescription().unwrappedTypeID()),
+    m_token(token),
     m_size(0)
 {
    addBranchSizes(branch, m_size);

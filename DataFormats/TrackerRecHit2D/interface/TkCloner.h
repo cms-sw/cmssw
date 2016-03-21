@@ -4,7 +4,6 @@
 #include <memory>
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/Utilities/interface/HideStdUniquePtrFromRoot.h"
 
 class SiPixelRecHit;
 class SiStripRecHit2D;

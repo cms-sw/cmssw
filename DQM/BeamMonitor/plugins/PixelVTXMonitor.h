@@ -8,7 +8,7 @@
 */
 
 #ifndef PIXELVTXMONITOR_H
-#define PIXELVTXMONITORH
+#define PIXELVTXMONITOR_H
 
 #include <string>
 #include <vector>
@@ -68,7 +68,7 @@ private:
   std::map<std::string, PixelMEs> histoMap_;
 };
 
-#endif
+#endif // PIXELVTXMONITOR_H
 
 // Local Variables:
 // show-trailing-whitespace: t

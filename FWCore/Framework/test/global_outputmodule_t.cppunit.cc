@@ -98,13 +98,13 @@ private:
     BasicOutputModule(edm::ParameterSet const& iPSet): edm::global::OutputModuleBase(iPSet),edm::global::OutputModule<>(iPSet){}
     unsigned int m_count = 0;
     
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
 
@@ -115,13 +115,13 @@ private:
     using edm::global::OutputModuleBase::doPreallocate;
     FileOutputModule(edm::ParameterSet const& iPSet) : edm::global::OutputModuleBase(iPSet), edm::global::OutputModule<edm::WatchInputFiles>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
     

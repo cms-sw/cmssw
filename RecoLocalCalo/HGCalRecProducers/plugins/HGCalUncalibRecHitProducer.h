@@ -29,5 +29,6 @@ class HGCalUncalibRecHitProducer : public edm::stream::EDProducer<> {
   const std::string hebHitCollection_; // instance name of HGCHEB collection of hits
   
   std::unique_ptr<HGCalUncalibRecHitWorkerBaseClass> worker_;
+  bool isEE_, isHEF_, isHEB_;
 };
 #endif

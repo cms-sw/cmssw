@@ -51,5 +51,5 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
    // --------------------- Member Functions --------------------------
 
 };
-#endif
+#endif // FWPFPATJETLEGOPROXYBUILDER
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

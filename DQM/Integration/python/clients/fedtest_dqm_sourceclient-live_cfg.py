@@ -35,8 +35,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Global tag
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
-# Need for test in lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi")
+# Need for test in lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 
 #-----------------------------

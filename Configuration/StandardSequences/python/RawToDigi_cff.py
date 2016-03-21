@@ -4,9 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # scenarios. In this case it makes changes for Run 2.
 from Configuration.StandardSequences.Eras import eras
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
@@ -79,9 +76,8 @@ muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
 
 
-if eras.phase1Pixel.isChosen() :
-    RawToDigi.remove(siPixelDigis)
-    RawToDigi.remove(castorDigis)
+# Remove siPixelDigis until we have phase1 pixel digis
+eras.phase1Pixel.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
 
 
 

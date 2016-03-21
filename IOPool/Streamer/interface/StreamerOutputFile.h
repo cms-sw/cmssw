@@ -47,7 +47,7 @@ class StreamerOutputFile
       Performs write on EventMsgBuilder type,
       Header + Blob, both are written out.
       RETURNS the Offset in Stream while at
-              which Event was written.
+              which EventForOutputwas written.
      */
      uint64 write(const EventMsgView&);
 

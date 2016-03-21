@@ -12,6 +12,10 @@ duplicateDisplacedTrackCandidates = DuplicateTrackMerger.clone(
     useInnermostState  = cms.bool(True),
     ttrhBuilderName    = cms.string("WithAngleAndTemplate")
     )
+# This customization will be removed once we get the templates for
+# phase1 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase1Pixel.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
 #for displaced global muons
 mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
@@ -19,7 +23,7 @@ mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 
 
 #for displaced global muons
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 duplicateDisplacedTrackClassifier = TrackCutClassifier.clone()
 duplicateDisplacedTrackClassifier.src='mergedDuplicateDisplacedTracks'
 duplicateDisplacedTrackClassifier.mva.minPixelHits = [0,0,0]
