@@ -124,13 +124,13 @@ namespace edm {
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
-                        DocFormatHelper & dfh) {
+                        DocFormatHelper & dfh) const {
       printBase(os, optional, writeToCfi, dfh, switch_.label(), switch_.isTracked(), parameterTypeEnumToString(switch_.type()));
     }
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & dfh) {
+                                     DocFormatHelper & dfh) const {
 
       DocFormatHelper new_dfh(dfh);
       printNestedContentBase(os, dfh, new_dfh, switch_.label());

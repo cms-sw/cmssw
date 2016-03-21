@@ -42,12 +42,12 @@ namespace edm {
                    bool isTracked,
                    std::string const& typeString) const;
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() const;
 
     void printNestedContentBase(std::ostream & os,
                                 DocFormatHelper & dfh,
                                 DocFormatHelper & new_dfh,
-                                std::string const& switchLabel);
+                                std::string const& switchLabel) const;
 
     template <typename T>
     static void printCaseT(std::pair<T, edm::value_ptr<ParameterDescriptionNode> > const& p,

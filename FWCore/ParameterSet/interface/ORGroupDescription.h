@@ -51,15 +51,15 @@ namespace edm {
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
-                        DocFormatHelper & dfh);
+                        DocFormatHelper & dfh) const;
 
-    virtual bool hasNestedContent_() {
+    virtual bool hasNestedContent_() const {
       return true;
     }
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & dfh);
+                                     DocFormatHelper & dfh) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 
