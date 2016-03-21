@@ -26,8 +26,7 @@ struct AbstractHistogram {
     } else if (th1) {
       th1->Fill(x, y);
     } else {
-      assert(!"New Th1 needed but parameters missing");
-      //th1 = new TH2D(..);
+      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
     } 
   }; 
   
@@ -38,17 +37,12 @@ struct AbstractHistogram {
     } else if (th1) {
       th1->Fill(x);
     } else {
-      assert(!"New Th1 needed but parameters missing");
-      //th1 = new TH1D(..);
+      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
     }
   };
   
-  void fill() {
-    assert(!me && !th1);
-    value++;
-  };
-  
-  double value = 0;
+  int count = 0; // how many things where inserted already. For concat.
+  bool is0d = false; // for a 0D histogram we still have a TH1D, with 1 bin and metadata on the y-Axis.
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
 
