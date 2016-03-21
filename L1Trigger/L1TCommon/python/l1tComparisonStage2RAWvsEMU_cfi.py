@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 l1tComparisonStage2RAWvsEMU = cms.EDAnalyzer(
     "L1TComparison",
     tag        = cms.string("Stage 2 Unpacked Digis"),
-    egCheck    = cms.bool(True),
+    egCheck    = cms.bool(False),
     tauCheck   = cms.bool(True),
     jetCheck   = cms.bool(True),
-    sumCheck   = cms.bool(True),
+    sumCheck   = cms.bool(False),
     muonCheck  = cms.bool(True),
     algCheck   = cms.bool(False),
     bxZeroOnly = cms.bool(True),
@@ -19,10 +19,10 @@ l1tComparisonStage2RAWvsEMU = cms.EDAnalyzer(
     algTagA    =  cms.InputTag("simGtStage2Digis",""),
 
     # for initial module testing compared unpacked to unpacked!!!
-    egTagB     = cms.InputTag("caloStage2Digis"),
-    tauTagB    = cms.InputTag("caloStage2Digis"),
-    jetTagB    = cms.InputTag("caloStage2Digis"),
-    sumTagB    = cms.InputTag("caloStage2Digis"),
-    muonTagB   =  cms.InputTag("gmtStage2Digis",""),
+    egTagB     = cms.InputTag("caloStage2Digis","EGamma"),
+    tauTagB    = cms.InputTag("caloStage2Digis","Tau"),
+    jetTagB    = cms.InputTag("caloStage2Digis","Jet"),
+    sumTagB    = cms.InputTag("caloStage2Digis","EtSum"),
+    muonTagB   =  cms.InputTag("gmtStage2Digis","Muon"),
     algTagB    =  cms.InputTag("gtStage2Digis",""),
 )
