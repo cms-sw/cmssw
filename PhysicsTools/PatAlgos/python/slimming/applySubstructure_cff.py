@@ -34,14 +34,14 @@ def applySubstructure( process ) :
     )
 
     ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed, ak8PFJetsPuppiSoftDrop
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsPuppiSoftDrop #ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed,
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
     process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
-    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
-    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
+    #process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
+    #process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass']  #,'ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
     process.patJetsAK8.addTagInfos = cms.bool(True)
 
 
@@ -155,7 +155,7 @@ def applySubstructure( process ) :
         fatJets=cms.InputTag('ak8PFJetsCHS'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsCHSSoftDrop') # needed for subjet flavor clustering
     )
-    #process.selectedPatJetsAK8PFCHSSoftDrop.cut = cms.string("pt > 170")
+    process.selectedPatJetsAK8PFCHSSoftDrop.cut = cms.string("pt > 170")
     
     process.slimmedJetsAK8PFCHSSoftDropSubjets = cms.EDProducer("PATJetSlimmer",
         src = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropSubjets"),
@@ -205,7 +205,7 @@ def applySubstructure( process ) :
         fatJets=cms.InputTag('ak8PFJetsPuppi'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsPuppiSoftDrop') # needed for subjet flavor clustering
     )
-    #process.selectedPatJetsAK8PFPuppiSoftDrop.cut = cms.string("pt > 170")
+    process.selectedPatJetsAK8PFPuppiSoftDrop.cut = cms.string("pt > 170")
     
     process.slimmedJetsAK8PFPuppiSoftDropSubjets = cms.EDProducer("PATJetSlimmer",
         src = cms.InputTag("selectedPatJetsAK8PFPuppiSoftDropSubjets"),
