@@ -26,6 +26,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   histo[ADC].setName("adc")
     .setTitle("Digi ADC values")
     .setXlabel("adc readout")
+    .setRange(300, 0, 300)
     .setDimensions(1);
   histo[ADC].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
@@ -37,6 +38,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   histo[NDIGIS].setName("ndigis")
     .setTitle("Number of Digis")
     .setXlabel("#digis")
+    .setRange(30, 0, 30)
     .setDimensions(1);
   histo[NDIGIS].addSpec()
     .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
@@ -64,8 +66,6 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return; 
 
-  std::cout << "+++ Data valid.\n";
-  
   edm::DetSetVector<PixelDigi>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     int ndigis = 0;

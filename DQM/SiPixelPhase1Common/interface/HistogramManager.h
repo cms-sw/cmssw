@@ -40,7 +40,6 @@ public:
   // This allows for a fluent interface, where the spec is constructed as a chain of builder-calls.
   SummationSpecificationBuilder addSpec();
 
-
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
   void fill(double value, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
   // TODO: we need multi-dimensional version, but probably a hardcoded fill2 for 2D will do.
@@ -58,6 +57,7 @@ public:
   HistogramManager& setXlabel(std::string xlabel) {this->xlabel = xlabel; return *this;};
   HistogramManager& setYlabel(std::string ylabel) {this->ylabel = ylabel; return *this;};
   HistogramManager& setDimensions(int dimensions) {this->dimensions = dimensions; return *this;};
+  HistogramManager& setRange(int nbins, double min, double max) {range_nbins = nbins; range_min = min; range_max = max; return *this; };
 
 //private: // we need a bit more access for testing
   const edm::ParameterSet& iConfig;
@@ -76,9 +76,10 @@ public:
   std::string title;
   std::string xlabel;
   std::string ylabel;
-  int dimensions;
-
-
+  int dimensions = 1;
+  int range_nbins  = 100;
+  double range_min = 0;
+  double range_max = 1000;
 };
 
 

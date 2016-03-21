@@ -15,8 +15,7 @@
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
   topFolderName(iconfig.getParameter<std::string>("TopFolderName"))
-{
-}
+{ }
 
 void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
@@ -41,8 +40,6 @@ void HistogramManager::fill(double value, DetId sourceModule, const edm::Event *
     // Step1 steps are those that have s.stage = SummationStep::STAGE1, and step[0].
     t[significantvalues].fill(value);
   }
-
-  
 }
   
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
@@ -79,10 +76,11 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 
       if (dimensions == 1) {
 	title << ";" << xlabel.str();
-      	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), 100, 0.0, 300.0);
+      	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), range_nbins, range_min, range_max);
       } else if (dimensions == 2) {
 	title << ";" << xlabel.str() << ";" << ylabel.str();
-	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 100, 0.0, 300.0, 100, 0.0, 300.0);
+	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 
+	                          range_nbins, range_min, range_max, range_nbins, range_min, range_max);
       } else {
 	std::cout << "Booking " << dimensions << " dimensions not supported.\n";
       }
