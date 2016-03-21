@@ -264,18 +264,18 @@ _pulls = PlotGroup("pulls", [
 )
 _common = {"title": "", "ylog": True, "xtitle": "TP #eta (PCA to beamline)", "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsEta = PlotGroup("resolutionsEta", [
-    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
     Plot("cotThetares_vs_eta_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
-    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
-    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
+    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
 _common = {"title": "", "ylog": True, "xlog": True, "xtitle": "TP p_{T} (PCA to beamline)", "xmin": 0.1, "xmax": 1000, "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsPt = PlotGroup("resolutionsPt", [
-    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
     Plot("cotThetares_vs_pt_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
-    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
-    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
+    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
 
