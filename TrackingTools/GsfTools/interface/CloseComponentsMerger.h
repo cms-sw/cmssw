@@ -21,7 +21,7 @@ class CloseComponentsMerger : public MultiGaussianStateMerger<N> {
  private:
   typedef SingleGaussianState<N> SingleState;
   typedef MultiGaussianState<N> MultiState;
-  typedef boost::shared_ptr<SingleState> SingleStatePtr;
+  typedef std::shared_ptr<SingleState> SingleStatePtr;
 
  public:
 
