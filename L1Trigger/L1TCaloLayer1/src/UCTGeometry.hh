@@ -156,7 +156,7 @@ public:
   UCTTowerIndex getUCTTowerIndex(UCTRegionIndex r, uint32_t iEta = 0, uint32_t iPhi = 0);
 
   double getUCTTowerEta(int caloEta);
-  double getUCTTowerPhi(int caloPhi, int caloEta);
+  double getUCTTowerPhi(int caloPhi);
 
 private:
   double twrEtaValues[29];

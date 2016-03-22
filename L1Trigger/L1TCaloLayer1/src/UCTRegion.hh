@@ -7,11 +7,19 @@
 #include "UCTTower.hh"
 
 namespace l1tcalo {
-  constexpr uint32_t RegionETMask{ 0x000003FF};
-  constexpr uint32_t RegionEGVeto{ 0x00000400};
-  constexpr uint32_t RegionLocBits{0x0000F000};
-  constexpr uint32_t RegionTauVeto{0x00000800};
-  constexpr uint32_t LocationShift{12};
+  constexpr uint32_t RegionETMask { 0x000003FF};
+  constexpr uint32_t RegionEGVeto { 0x00000400};
+  constexpr uint32_t RegionTauVeto{ 0x00000800};
+  constexpr uint32_t HitTowerBits { 0x0000F000};
+  constexpr uint32_t RegionNoBits { 0x000F0000};
+  constexpr uint32_t CardNoBits   { 0x00700000};
+  constexpr uint32_t CrateNoBits  { 0x01800000};
+  constexpr uint32_t NegEtaBit    { 0x80000000};
+  constexpr uint32_t LocationBits { 0xFFFFF000};
+  constexpr uint32_t LocationShift{ 12};
+  constexpr uint32_t RegionNoShift{ 16};
+  constexpr uint32_t CardNoShift  { 20};
+  constexpr uint32_t CrateNoShift { 23};
 }
 
 class UCTRegion {
@@ -35,10 +43,10 @@ public:
   // Packed data access
 
   const uint32_t rawData() const {return regionSummary;}
-  const uint32_t location() const {return ((regionSummary & RegionLocBits) >> LocationShift);}
+  const uint32_t location() const {return ((regionSummary & l1tcalo::LocationBits) >> l1tcalo::LocationShift);}
 
   const int hitCaloEta() const {
-    uint32_t highestTowerLocation = location();
+    uint32_t highestTowerLocation = (location() & 0xF);
     return towers[highestTowerLocation]->caloEta();
   }
 
@@ -61,9 +69,9 @@ public:
   // Access functions for convenience
   // Note that the bit fields are limited in hardware
 
-  const uint32_t et() const {return (RegionETMask & regionSummary);}
-  const bool isEGammaLike() const {return !((RegionEGVeto & regionSummary) == RegionEGVeto);}
-  const bool isTauLike() const {return !((RegionTauVeto & regionSummary) == RegionTauVeto);}
+  const uint32_t et() const {return (l1tcalo::RegionETMask & regionSummary);}
+  const bool isEGammaLike() const {return !((l1tcalo::RegionEGVeto & regionSummary) == l1tcalo::RegionEGVeto);}
+  const bool isTauLike() const {return !((l1tcalo::RegionTauVeto & regionSummary) == l1tcalo::RegionTauVeto);}
 
   // More access functions
 

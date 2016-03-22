@@ -14,7 +14,7 @@ using std::string;
 
 #include "UCTTower.hh"
 
-using l1tcalo;
+using namespace l1tcalo;
 
 // Activity fraction to determine how active a tower compared to a region is
 // To avoid ratio calculation, one can use comparison to bit-shifted RegionET
@@ -133,7 +133,7 @@ bool UCTRegion::process() {
 	if(towerET > activityLevel) {
 	  activeTower[iEta][iPhi] = true;
 	  nActiveTowers++;
-	  activeTowerET += towers[iEta*nEta+iPhi]->et();
+	  activeTowerET += towers[iEta*nPhi+iPhi]->et();
 	}
 	else
 	  activeTower[iEta][iPhi] = false;
@@ -174,6 +174,13 @@ bool UCTRegion::process() {
     if(tauVeto) regionSummary |= RegionTauVeto;
 
     regionSummary |= (highestTowerLocation << LocationShift);
+
+    // Extra bits, not in readout, but implicit from their location in data packet for full location information
+
+    if(negativeEta) regionSummary |= NegEtaBit;  // Used top bit for +/- eta-side
+    regionSummary |= (region << RegionNoShift);  // Max region number 14, so 4 bits needed
+    regionSummary |= (card   << CardNoShift);    // Max card number is 6, so 3 bits needed
+    regionSummary |= (crate  << CrateNoShift);   // Max crate number is 2, so 2 bits needed
 
   }
 
