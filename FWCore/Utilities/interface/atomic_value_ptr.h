@@ -11,7 +11,7 @@
 // describes the functionality of value_ptr.
 //
 // This allows the value of the pointer to be changed atomically.
-// Note that copy/move construction amd copy/move assignment
+// Note that copy/move construction and copy/move assignment
 // are *not* atomic, as an object of type T must be copied or moved.
 // ----------------------------------------------------------------------
 

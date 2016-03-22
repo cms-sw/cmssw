@@ -40,7 +40,7 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps)
   iEta = tfile->make<TH1D>("iEta",  "Eta at incidence     ",   300,   0.,  3.);
   iPhi = tfile->make<TH1D>("iPhi",  "Phi at incidence     ",   300,  -1.,  1.);
   edepS= tfile->make<TH1D>("edepS", "Energy deposit == Total",4000, 0., em1);
-  edecS= tfile->make<TH1D>("edecS", "Energy deposit == ECal ",4000, 0., em1);
+  edecS= tfile->make<TH1D>("edecS", "Energy deposit == ECal ",300, -2., 28.);
   edhcS= tfile->make<TH1D>("edhcS", "Energy deposit == HCal ",4000, 0., em2);
   edepN= tfile->make<TH1D>("edepN", "Etot/Ebeam   ", 200, -2.5, 2.5);
   edecN= tfile->make<TH1D>("edecN", "Eecal/Ebeam  ", 200, -2.5, 2.5);

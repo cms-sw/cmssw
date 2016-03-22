@@ -44,7 +44,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
     //run the shaper to create a new data frame
     DFr rawDataFrame( it->first );
     myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine);
-    
+
     //update the output according to the final shape
     updateOutput(coll,rawDataFrame);
   }  
@@ -59,16 +59,14 @@ void HGCDigitizerBase<DFr>::updateOutput(std::auto_ptr<HGCDigitizerBase::DColl> 
   DFr dataFrame( rawDataFrame.id() );
   dataFrame.resize(5);
   bool putInEvent(false);
-  HGCSample singleSample;
   for(int it=0;it<5; it++) {    
-    singleSample.set(rawDataFrame[itIdx-2+it].threshold(),
-                     rawDataFrame[itIdx-2+it].mode(),
-                     rawDataFrame[itIdx-2+it].toa(),
-                     rawDataFrame[itIdx-2+it].data());
-    dataFrame.setSample(it, singleSample);
-    if(it==2) { putInEvent=rawDataFrame[itIdx-2+it].threshold(); }
+    dataFrame.setSample(it, rawDataFrame[itIdx-2+it]);
+    if(it==2) putInEvent = rawDataFrame[itIdx-2+it].threshold(); 
   }
-  if(putInEvent) coll->push_back(dataFrame);
+
+  if(putInEvent) {
+    coll->push_back(dataFrame);    
+  }
 }
 
 // cause the compiler to generate the appropriate code

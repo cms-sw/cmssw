@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.AlCa.autoCond import autoCond
 
 process = cms.Process("GeometryWriter")
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.source = cms.Source("EmptyIOVSource",
@@ -19,6 +19,7 @@ process.GeometryTester = cms.EDAnalyzer("GeometryTester",
                                         TrackerTest = cms.untracked.bool(True),
                                         EcalTest = cms.untracked.bool(True),
                                         HcalTest = cms.untracked.bool(True),
+                                        HGCalTest = cms.untracked.bool(False),
                                         CaloTowerTest = cms.untracked.bool(True),
                                         CastorTest = cms.untracked.bool(True),
                                         ZDCTest = cms.untracked.bool(True),

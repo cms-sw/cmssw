@@ -24,7 +24,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/ProductHolderIndexAndSkipBit.h"
+#include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
 
@@ -41,7 +41,7 @@
 
 namespace edm {
   class ModuleDescription;
-  class ProductHolderIndexHelper;
+  class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
@@ -62,15 +62,15 @@ namespace edm {
     EDConsumerBase& operator=(EDConsumerBase&&) = default;
 
     // ---------- const member functions ---------------------
-    ProductHolderIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+    ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
 
-    void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
-    void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+    void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+    void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
-    std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const { return itemsToGetFromEvent_; }
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const { return itemsToGetFromEvent_; }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
-    bool registeredToConsume(ProductHolderIndex, bool, BranchType) const;
+    bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
     
     ///\return true of TypeID corresponds to a type specified in a consumesMany call
     bool registeredToConsumeMany(TypeID const&, BranchType) const;
@@ -78,7 +78,7 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType,
-                      ProductHolderIndexHelper const&);
+                      ProductResolverIndexHelper const&);
     
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
@@ -159,12 +159,12 @@ namespace edm {
 
     struct TokenLookupInfo {
       TokenLookupInfo(edm::TypeID const& iID,
-                      ProductHolderIndex iIndex,
+                      ProductResolverIndex iIndex,
                       bool skipCurrentProcess,
                       BranchType iBranch):
         m_type(iID),m_index(iIndex, skipCurrentProcess), m_branchType(iBranch){}
       edm::TypeID m_type;
-      ProductHolderIndexAndSkipBit m_index;
+      ProductResolverIndexAndSkipBit m_index;
       BranchType m_branchType;
     };
 
@@ -188,7 +188,7 @@ namespace edm {
     // for each of the 3 labels needed to id the data
     std::vector<char> m_tokenLabels;
 
-    std::vector<ProductHolderIndexAndSkipBit> itemsToGetFromEvent_;
+    std::vector<ProductResolverIndexAndSkipBit> itemsToGetFromEvent_;
 
     bool frozen_;
   };

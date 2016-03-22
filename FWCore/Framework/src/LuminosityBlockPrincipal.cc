@@ -1,10 +1,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 
@@ -13,8 +9,9 @@ namespace edm {
       std::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender,
-      unsigned int index) :
-    Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender),
+      unsigned int index,
+      bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
         runPrincipal_(),
         aux_(aux),
         index_(index),

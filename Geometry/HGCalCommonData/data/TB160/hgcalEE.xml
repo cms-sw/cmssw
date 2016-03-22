@@ -3,7 +3,7 @@
 
 <ConstantsSection label="hgcalEE.xml" eval="true">
   <Constant name="rMinFine"   value="0.0*fm"/>
-  <Constant name="rMaxFine"   value="75.0*cm"/>
+  <Constant name="rMaxFine"   value="0.0*cm"/>
   <Constant name="rMaxMiddle" value="120.0*cm"/>
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
 </ConstantsSection>
@@ -13,33 +13,57 @@
     <rParent name="hgcal:HGCalEE"/>
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="12">
+    <Vector name="MaterialNames" type="string" nEntries="15">
       materials:Carbon_fibre_str_Upgrade2, materials:Tungsten,
       materials:Tungsten, materials:Tungsten, hgcal:WCu, hgcal:WCu,
       hgcal:WCu, materials:Copper, materials:Copper, materials:Air, 
-      materials:M_NEMA FR4 plate, materials:Air</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="12">
+      materials:G10, materials:M_NEMA FR4 plate, materials:Kapton,
+      materials:Air, materials:Graph.Epoxy Sup.</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="15">
       EEModule,    EEAbsorber1, EEAbsorber2, EEAbsorber3,  EEAbsorber4, 
       EEAbsorber5, EEAbsorber6, EECuFrame,   EEHeatShield, EESensitive,
-      EEPCB,       EEAirGap</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="12">
+      EEPCB,       EECover,     EEKapton,    EEAirGap,     EEGlue</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="15">
       0.5*mm, 2.0*mm,  2.8*mm,  4.2*mm,  0.6*mm,  1.2*mm, 2.2*mm, 
-      0.5*mm, 6.0*mm,  0.1*mm,  2.0*mm,  2.0*mm</Vector>
-    <Vector name="Layers" type="numeric" nEntries="4"> 
-      18, 18, 18, 18</Vector>
-    <Vector name="LayerThick" type="numeric" nEntries="4"> 
-      19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="72"> 
-      0, 1, 0, 7, 11, 10, 9, 9, 9, 4, 8, 4, 9, 9, 9, 10, 11, 7,
-      0, 1, 0, 7, 11, 10, 9, 9, 9, 4, 8, 4, 9, 9, 9, 10, 11, 7,
-      0, 1, 0, 7, 11, 10, 9, 9, 9, 4, 8, 4, 9, 9, 9, 10, 11, 7,
-      0, 1, 0, 7, 11, 10, 9, 9, 9, 4, 8, 4, 9, 9, 9, 10, 11, 7
+      0.5*mm, 6.0*mm, 0.10*mm,  1.2*mm,  0.5*mm, 0.01*mm, 1.0*mm,
+      0.5*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="14"> 
+      21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="14"> 
+      16.24*mm, 16.24*mm, 16.24*mm, 16.24*mm, 16.24*mm, 18.24*mm, 18.24*mm,
+      18.24*mm, 18.24*mm, 18.24*mm, 21.64*mm, 21.64*mm, 21.64*mm, 21.64*mm
     </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="72">
-      0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0
+    <Vector name="LayerType" type="numeric" nEntries="294"> 
+      1, 13, 11, 14, 10, 12, 9, 9, 9, 12, 4, 8, 4, 14, 10, 12, 9, 9, 9, 12, 13,
+      1, 13, 11, 14, 10, 12, 9, 9, 9, 12, 4, 8, 4, 14, 10, 12, 9, 9, 9, 12, 13,
+      1, 13, 11, 14, 10, 12, 9, 9, 9, 12, 4, 8, 4, 14, 10, 12, 9, 9, 9, 12, 13,
+      1, 13, 11, 14, 10, 12, 9, 9, 9, 12, 4, 8, 4, 14, 10, 12, 9, 9, 9, 12, 13,
+      1, 13, 11, 14, 10, 12, 9, 9, 9, 12, 4, 8, 4, 14, 10, 12, 9, 9, 9, 12, 13,
+      2, 13, 11, 14, 10, 12, 9, 9, 9, 12, 5, 8, 5, 14, 10, 12, 9, 9, 9, 12, 13,
+      2, 13, 11, 14, 10, 12, 9, 9, 9, 12, 5, 8, 5, 14, 10, 12, 9, 9, 9, 12, 13,
+      2, 13, 11, 14, 10, 12, 9, 9, 9, 12, 5, 8, 5, 14, 10, 12, 9, 9, 9, 12, 13,
+      2, 13, 11, 14, 10, 12, 9, 9, 9, 12, 5, 8, 5, 14, 10, 12, 9, 9, 9, 12, 13,
+      2, 13, 11, 14, 10, 12, 9, 9, 9, 12, 5, 8, 5, 14, 10, 12, 9, 9, 9, 12, 13,
+      3, 13, 11, 14, 10, 12, 9, 9, 9, 12, 6, 8, 6, 14, 10, 12, 9, 9, 9, 12, 13,
+      3, 13, 11, 14, 10, 12, 9, 9, 9, 12, 6, 8, 6, 14, 10, 12, 9, 9, 9, 12, 13,
+      3, 13, 11, 14, 10, 12, 9, 9, 9, 12, 6, 8, 6, 14, 10, 12, 9, 9, 9, 12, 13,
+      3, 13, 11, 14, 10, 12, 9, 9, 9, 12, 6, 8, 6, 14, 10, 12, 9, 9, 9, 12, 13
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="294">
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0,
+      0,  0,  0,  0,  0,  0, 1, 1, 1,  0, 0, 0, 0,  0,  0,  0, 1, 1, 1,  0,  0
     </Vector>
     <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>

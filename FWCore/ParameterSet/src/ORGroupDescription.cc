@@ -102,7 +102,7 @@ namespace edm {
   print_(std::ostream & os,
          bool optional,
          bool writeToCfi,
-         DocFormatHelper & dfh) {
+         DocFormatHelper & dfh) const {
 
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();
@@ -154,7 +154,7 @@ namespace edm {
   ORGroupDescription::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();

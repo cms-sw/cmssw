@@ -109,7 +109,7 @@ namespace edm {
   print_(std::ostream & os,
          bool optional,
          bool writeToCfi,
-         DocFormatHelper & dfh) {
+         DocFormatHelper & dfh) const {
 
     if (dfh.pass() == 1) {
 
@@ -154,7 +154,7 @@ namespace edm {
   IfExistsDescription::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     int indentation = dfh.indentation();
     if (dfh.parent() != DocFormatHelper::TOP) {

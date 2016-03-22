@@ -103,7 +103,7 @@ namespace edm {
   ParameterDescriptionNode::print(std::ostream& os,
                                   bool optional,
                                   bool writeToCfi,
-                                  DocFormatHelper& dfh) {
+                                  DocFormatHelper& dfh) const {
     if (hasNestedContent()) {
       dfh.incrementCounter();
     }
@@ -113,7 +113,7 @@ namespace edm {
   void
   ParameterDescriptionNode::printNestedContent(std::ostream& os,
                                                bool optional,
-                                               DocFormatHelper& dfh) {
+                                               DocFormatHelper& dfh) const {
     if (hasNestedContent()) {
       dfh.incrementCounter();
       printNestedContent_(os, optional, dfh);
