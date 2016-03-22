@@ -12,12 +12,17 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-process = cms.Process("test")
+process = cms.Process("DCSO2O")
 
 # -----------------------------------------------------------------------------
 # Load our message logger
 # -----------------------------------------------------------------------------
-process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
+# process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
+process.MessageLogger = cms.Service( "MessageLogger",
+                                     debugModules = cms.untracked.vstring( "*" ),
+                                     cout = cms.untracked.PSet( threshold = cms.untracked.string( "DEBUG" ) ),
+                                     destinations = cms.untracked.vstring( "cout" )
+                                     )
 
 # -----------------------------------------------------------------------------
 # These lines are needed to run an EDAnalyzer without events.  We need to
@@ -57,8 +62,8 @@ process.SiStripDetVOffBuilder = cms.Service(
     #The Tmin and Tmax indicated here drive the ManualO2O.py script setting the overall interval
     #By default this is broken into 1 hour O2O jobs (1 cmsRun cfg per hour interval)
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
-    Tmin = cms.vint32(2010, 8, 11,  4,  0, 0, 000),
-    Tmax = cms.vint32(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, 000),
+    Tmin = cms.vint32(_TMIN_),
+    Tmax = cms.vint32(_TMAX_),
     
     # Do NOT change this unless you know what you are doing!
     TSetMin = cms.vint32(2007, 11, 26, 0, 0, 0, 0),
@@ -118,12 +123,13 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.siStripPopConDetVOff = cms.EDAnalyzer( "SiStripO2ODetVOff",
                                      process.CondDB,
                                      # Get the last IOV from conditionDatabase.
+#                                     conditionDatabase = cms.string("oracle://cms_orcon_prod/CMS_CONDITIONS"),
                                      # Leave empty for manual restart (will then get the last IOV from sqlite condDbFile). 
-                                     conditionDatabase = cms.string("oracle://cms_orcon_prod/CMS_CONDITIONS"),
-                                     condDbFile = cms.string("sqlite:%s" % "OUTPUT_DBFILE"),
-                                     targetTag = cms.string("TARGETTAG"),
-                                     # max length of seconds before a new IOV is started for the same payload (use -1 to disable this)
-                                     maxTimeBeforeNewIOV = cms.untracked.int32(86400)
+                                     conditionDatabase = cms.string(""),
+                                     condDbFile = cms.string("sqlite:%s" % "_DBFILE_"),
+                                     targetTag = cms.string("_TAG_"),
+                                     # max length (in hours) before a new IOV is started for the same payload (use -1 to disable this)
+                                     maxTimeBeforeNewIOV = cms.untracked.int32(168)
                                      )
 
 # -----------------------------------------------------------------------------

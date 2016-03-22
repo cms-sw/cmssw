@@ -35,7 +35,7 @@ SiStripDetVOffHandler::SiStripDetVOffHandler(const edm::ParameterSet& iConfig):
     m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
     m_localCondDbFile( iConfig.getParameter< std::string >("condDbFile") ),
     m_targetTag( iConfig.getParameter< std::string >("targetTag") ),
-    maxTimeBeforeNewIOV_( iConfig.getUntrackedParameter< int >("maxTimeBeforeNewIOV", 86400) ){
+    maxTimeBeforeNewIOV_( iConfig.getUntrackedParameter< int >("maxTimeBeforeNewIOV", 24) ){
   m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
   m_connectionPool.configure();
   // get last IOV from local sqlite file if "conditionDatabase" is empty
@@ -93,7 +93,7 @@ void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup
       forceNewIOV = false;
     else {
       auto deltaT = cond::time::to_boost(newPayloads[0].second) - cond::time::to_boost(lastIov);
-      forceNewIOV = deltaT.total_seconds() > maxTimeBeforeNewIOV_;
+      forceNewIOV = deltaT > boost::posix_time::hours(maxTimeBeforeNewIOV_);
     }
     if ( !forceNewIOV ){
       newPayloads.erase(newPayloads.begin());
