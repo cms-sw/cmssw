@@ -16,6 +16,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <functional>
 #include <map>
@@ -52,7 +53,7 @@ class GeometryInterface {
       auto ex = extractors.find(col);
       if (ex == extractors.end()) {
 	// we have never heard about this. This is a typo for sure.
-	std::cout << "Undefined column used: " << col << ". Check your spelling.\n";
+	edm::LogError("GeometryInterface") << "Undefined column used: " << col << ". Check your spelling.\n";
       } else {
         auto val = ex->second(iq);
 	out[col] = val;

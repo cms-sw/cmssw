@@ -12,6 +12,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+// Logger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
   topFolderName(iconfig.getParameter<std::string>("TopFolderName"))
@@ -85,7 +88,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 
 	                          range_nbins, range_min, range_max, range_nbins, range_min, range_max);
       } else {
-	std::cout << "Booking " << dimensions << " dimensions not supported.\n";
+	edm::LogError("HistogramManager") << "Booking " << dimensions << " dimensions not supported.\n";
       }
     }
   }
@@ -99,12 +102,13 @@ void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMSt
 }
 
 void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
-  //std::cout << "+++ HistogramManager: Step2 offline\n";
+  //edm::LogTrace("HistogramManager") << "HistogramManager: Step2 offline\n";
   // Debug output
-  //for (auto& s : specs) {
-    //std::cout << "+++ " << name << " ";
-    //s.dump(std::cout);
-  //}
+  for (auto& s : specs) {
+    edm::LogInfo log("HistogramManager");
+    log << "Specs for " << name << " ";
+    s.dump(log);
+  }
 
   // This is esentially the booking code if step1, to reconstruct the ME names.
   // Once we have a name we load the ME and put it into the table.
@@ -127,7 +131,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
       }
       histo.me = iGetter.get(dir.str() + name.str());
       if (!histo.me) {
-	std::cout << "+++ ME " << dir.str() + name.str() << " not found\n";
+	edm::LogError("HistogramManager") << "ME " << dir.str() + name.str() << " not found\n";
       } else {
 	histo.th1 = histo.me->getTH1();
       }
@@ -210,7 +214,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	      label = label + "# of " + th1->GetXaxis()->GetTitle() + " entries";
 	      name = "num_" + name;
 	    } else /* if (step.arg) == ... TODO: more */ {
-              std::cout << "+++ Reduction '" << step.arg << " not yet implemented\n";
+              edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg << " not yet implemented\n";
 	    }
 	    new_histo.is0d = true;
 	    new_histo.th1 = new TH1D(name.c_str(), (";;" + label).c_str(), 1, 0, 1); 
