@@ -12,6 +12,8 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
+#include "TF1.h"
+
 namespace egPM {
   
   struct GausPlusConstFunc {
@@ -63,15 +65,12 @@ namespace egPM {
     virtual ~ParamBin(){}
     virtual bool pass(const ParamType&)const=0; 
     virtual float operator()(const ParamType&)const=0;
-    static std::function<float(float)> makeParamFunc(const edm::ParameterSet& config){
-      std::string type = config.getParameter<std::string>("funcType");
-      if(type=="GausPlusConst") return egPM::GausPlusConstFunc(config);
-      else if(type=="Pol0") return egPM::PolyFunc<0>(config);
-      else if(type=="Pol1") return egPM::PolyFunc<1>(config);
-      else if(type=="Pol2") return egPM::PolyFunc<2>(config);
-      else if(type=="Pol3") return egPM::PolyFunc<3>(config);
-      else if(type=="Pol4") return egPM::PolyFunc<4>(config);
-      else throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
+  protected:
+    //right now only TF1 is supported so short cut the function
+    //the FUNCTYPE::funcExpr is designed for future extensions
+    static std::string stripFuncId(const std::string& inStr){
+      if(inStr.substr(0,5)=="TF1:=") return inStr.substr(5);
+      else return std::string();
     }
   };
    
@@ -81,15 +80,21 @@ namespace egPM {
     size_t maxNrClus_; //inclusive
     float minEta_; //inclusive
     float maxEta_;//exclusive
-    std::function<float(float)> etaFunc_; 
+    //std::function<float(float)> etaFunc_; 
+    TF1 etaFunc_;
   public:
     
-    AbsEtaClusParamBin(const edm::ParameterSet& config) {
-      minNrClus_ = config.getParameter<int>("minNrClus");
-      maxNrClus_ = config.getParameter<int>("maxNrClus");
-      minEta_ = config.getParameter<double>("minEta");
-      maxEta_ = config.getParameter<double>("maxEta");
-      etaFunc_ = makeParamFunc(config.getParameter<edm::ParameterSet>("etaFunc"));
+    AbsEtaClusParamBin(const edm::ParameterSet& config):
+      minNrClus_(config.getParameter<int>("minNrClus")),
+      maxNrClus_(config.getParameter<int>("maxNrClus")),
+      minEta_(config.getParameter<double>("minEta")),
+      maxEta_(config.getParameter<double>("maxEta")),
+      etaFunc_("func",stripFuncId(config.getParameter<std::string>("funcType")).c_str(),0,3.)
+    {
+      const std::vector<double> params = config.getParameter<std::vector<double>>("funcParams");
+      for(size_t paraNr=0;paraNr<params.size();paraNr++){
+	etaFunc_.SetParameter(paraNr,params[paraNr]);
+      }
     }
 
     bool pass(const egPM::AbsEtaNrClus& seed)const override {
@@ -99,7 +104,7 @@ namespace egPM {
     
     float operator()(const egPM::AbsEtaNrClus& seed)const override{
       if(!pass(seed)) return 0;
-      else return etaFunc_(seed.absEta);	
+      else return etaFunc_.Eval(seed.absEta);	
     }
   };
 
