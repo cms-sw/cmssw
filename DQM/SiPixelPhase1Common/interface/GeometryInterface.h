@@ -63,14 +63,19 @@ class GeometryInterface {
   };
 
   std::vector<InterestingQuantities> const& allModules() { return all_modules; };
+  Value maxValue(Column const& c) { return max_value[c]; }; 
 
 
   private:
   void loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
 
   static GeometryInterface instance;
   bool is_loaded = false;
+  // This holds closures that compute the column values in step1.
   std::map<Column, std::function<Value(InterestingQuantities const& iq)>> extractors;
+  // An estimate of the max value for a column. Used for step1 EXTEND (but not step2)
+  std::map<Column, Value> max_value;
   std::vector<InterestingQuantities> all_modules;
 };
 
