@@ -439,6 +439,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Energy Sums		
             case CondEnergySum: {
 
+                candEtSumVec = m_uGtB->getCandL1EtSum();
                 for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		  // this is clearly a bug:
 		  //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
@@ -539,6 +540,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 case CondEnergySum: {
 
+                   candEtSumVec = m_uGtB->getCandL1EtSum();
                    for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		     // this is clearly a bug:		     
 		     //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
