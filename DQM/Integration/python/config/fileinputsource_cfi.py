@@ -17,6 +17,12 @@ source = cms.Source(
         #"/store/data/Commissioning2014/Cosmics/RAW//v3/000/224/380/00000/E05943D1-1227-E411-BB8E-02163E00F0C4.root"
         #"/store/data/Commissioning2014/Cosmics/RAW/v3/000/224/380/00000/68FDADE5-1227-E411-8AA6-02163E00A10C.root"
     )
+ 
+    # For .dat files, use the following block instead.   
+    #"NewEventStreamFileReader",
+    #fileNames = cms.untracked.vstring(
+    #    "/store/t0streamer/Data/ExpressCosmics/000/267/410/run267410_ls0001_streamExpressCosmics_StorageManager.dat",
+    #)
 )
 
 maxEvents = cms.untracked.PSet(
