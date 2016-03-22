@@ -34,6 +34,12 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   histo[ADC].addSpec()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
     .saveAll();
+  histo[ADC].addSpec()
+    .groupBy("BX")
+    .reduce("COUNT")
+    .groupBy("", "EXTEND_X")
+    .save();
+
 
   histo[NDIGIS].setName("ndigis")
     .setTitle("Number of Digis")
@@ -57,7 +63,6 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .save()
     .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk", "EXTEND_X")
     .saveAll();
-
 
 
 } 

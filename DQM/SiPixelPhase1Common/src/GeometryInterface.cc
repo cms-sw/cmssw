@@ -35,6 +35,10 @@ GeometryInterface GeometryInterface::instance;
 
 void GeometryInterface::load(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   loadFromAlignment(iSetup, iConfig);
+  loadTimebased(iSetup, iConfig);
+  edm::LogInfo log("GeometryInterface");
+  log << "Known colum names:\n";
+  for (auto& e : extractors) log << "+++ column: " << e.first << " max " << max_value[e.first] << "\n";
   is_loaded = true;
 }
 
@@ -131,9 +135,12 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
               << "+++ Type " << info.characteristicBits << " "
                                   << info.characteristicMask << " "
                                   << info.variableMask << " " << type << "\n";
+    int variable_shift = 0;
+    while (info.variableMask && ((info.variableMask >> variable_shift) & 1) == 0) variable_shift++;
+    max_value[type] = info.variableMask >> variable_shift;
     extractors.insert(std::make_pair(
       type,
-      [info] (InterestingQuantities const& iq) {
+      [info, variable_shift] (InterestingQuantities const& iq) {
 	//auto it = info.examples.find(iq.sourceModule.rawId());
 	//if (it == info.examples.end()) {
 	  //return Value(UNDEFINED);
@@ -142,8 +149,8 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	//}
 	uint32_t id = iq.sourceModule.rawId();
 	if ((id & info.characteristicMask) == (info.characteristicBits & info.characteristicMask)) {
-	  uint32_t pos = id & info.variableMask;
-	  return Value(pos); // TODO: shift out zreo lsbs
+	  uint32_t pos = (id & info.variableMask) >> variable_shift;
+	  return Value(pos); 
 	} else {
 	  return Value(UNDEFINED);
 	}
@@ -154,3 +161,21 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
   delete trackerAlignables;
 }
 
+void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  // extractors for quantities that are rouchly time-based. We cannot book plots based on these; they have to
+  // be grouped away in step1.
+  max_value["Lumisection"] = 5000;
+  extractors.insert(std::make_pair("Lumisection",
+    [] (InterestingQuantities const& iq) {
+      if(!iq.sourceEvent) return UNDEFINED;
+      return Value(iq.sourceEvent->luminosityBlock());
+    })
+  );
+  max_value["BX"] = 3600; // TODO: put actual max. BX
+  extractors.insert(std::make_pair("BX",
+    [] (InterestingQuantities const& iq) {
+      if(!iq.sourceEvent) return UNDEFINED;
+      return Value(iq.sourceEvent->bunchCrossing());
+    })
+  );
+}

@@ -61,25 +61,18 @@ SummationSpecificationBuilder::save() {
 }
 
 SummationSpecificationBuilder& 
-SummationSpecificationBuilder::count() {
-  assert(state != SummationStep::FIRST || !"First statement must be groupBy.");
-  auto step = SummationStep();
-  step.stage = state;
-  step.type = SummationStep::COUNT;
-  spec.steps.push_back(step);
-  return *this;
-}
-
-SummationSpecificationBuilder& 
 SummationSpecificationBuilder::reduce(std::string sort) {
   assert(state != SummationStep::FIRST || !"First statement must be groupBy.");
-  // TODO: we need to special case the reduce() that should be allowed in step1 (COUNT, ONE)
-  //assert(state != SummationStep::STAGE1 || !"Reduce can only appear in Harvesting (after save()).");
   auto step = SummationStep();
   step.stage = state;
   step.type = SummationStep::REDUCE;
-  assert(sort == "MEAN" || sort == "COUNT" || sort == "ONE"); 
+  assert(sort == "MEAN" || sort == "COUNT"); 
   step.arg = sort;
+  if (state == SummationStep::STAGE1) {
+    // for step1, we don't want to look at the string arg.
+    assert(sort == "COUNT");
+    step.type = SummationStep::COUNT;
+  }
   spec.steps.push_back(step);
   return *this;
 }
