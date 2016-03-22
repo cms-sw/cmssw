@@ -68,7 +68,6 @@ struct SummationSpecificationBuilder {
   SummationSpecificationBuilder& save();
   // Reduce a higher-dimensional hisotgram to a lower (typ. single number) one.
   SummationSpecificationBuilder& reduce(std::string sort);
-  SummationSpecificationBuilder& count(); // special case of reduce
   // Save all parents, summed up like in the last grouping, in the hierarchy 
   // as specified.
   SummationSpecificationBuilder& saveAll();
