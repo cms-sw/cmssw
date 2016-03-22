@@ -127,7 +127,9 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event& evt, const edm::Event
       vLVOffPercent.push_back( 1.0*payload->getLVoffCounts()/num_modules );
       // debug
       std::cout << boost::posix_time::to_simple_string(cond::time::to_boost((*iiov).since))
-          << ", # HV Off=" << std::setw(6) << payload->getHVoffCounts() << ", # LV Off=" << std::setw(6) << payload->getLVoffCounts() << std::endl;
+          << " (" << (*iiov).since <<  ")"
+          << ", # HV Off=" << std::setw(6) << payload->getHVoffCounts()
+          << ", # LV Off=" << std::setw(6) << payload->getLVoffCounts() << std::endl;
       ++iiov;
       ++niov;
     }
@@ -201,6 +203,7 @@ void SiStripDetVOffTrendPlotter::prepGraph(TGraph* gr, TString name, TString tit
   gr->SetMarkerStyle(20);
   gr->SetMarkerColor(color);
   gr->GetXaxis()->SetTimeDisplay(1);
+  gr->GetXaxis()->SetTimeOffset(0, "gmt");
   gr->GetYaxis()->SetRangeUser(0, 1.01);
 }
 
