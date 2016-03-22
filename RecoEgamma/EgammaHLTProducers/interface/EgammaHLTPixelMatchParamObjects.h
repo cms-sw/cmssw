@@ -13,22 +13,121 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
 #include "TF1.h"
+#include "TF2.h"
+#include "TF3.h"
 
 namespace egPM {
-  
+  template<typename T>
+  struct ConfigType{
+    typedef T type;
+  };
+  template<>
+  struct ConfigType<size_t>{
+    typedef int type;
+  };
+  template<>
+  struct ConfigType<float>{
+    typedef double type;
+  };
+
   struct AbsEtaNrClus{
-    float absEta;
-    size_t nrClus;
+    float x;
+    size_t y;
     
     AbsEtaNrClus(const reco::ElectronSeed& seed){
       reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
-      absEta = std::abs(scRef->eta());
-      nrClus = scRef->clustersSize();
+      x = std::abs(scRef->eta());
+      y = scRef->clustersSize();
     }
     AbsEtaNrClus(float iEta,size_t iNrClus): //iEta= input eta
-      absEta(std::abs(iEta)),nrClus(iNrClus){}
+      x(std::abs(iEta)),y(iNrClus){}
+    
+    bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax)const{
+      return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax;
+    }
   };
   
+  template<typename ParamType,bool=true>
+  struct TF1Wrap{
+  private:
+    TF1 func_;
+  public:
+    TF1Wrap(const std::string& funcExpr,const std::vector<double>& params):
+      func_("func",funcExpr.c_str()){
+      for(size_t paraNr=0;paraNr<params.size();paraNr++){
+	func_.SetParameter(paraNr,params[paraNr]);
+      }
+    }
+    float operator()(const ParamType& obj){
+      return func_.Eval(obj.x);
+    };
+  };
+  template<typename ParamType>
+  class TF1Wrap<ParamType,false>{
+  public:
+    TF1Wrap(const std::string& funcExpr,const std::vector<double>& params){}
+    float operator()(const ParamType& obj){return 1.;};
+  };
+    
+  template<typename ParamType,bool=true>
+  struct TF2Wrap{
+  private:
+    TF2 func_;
+  public:
+    TF2Wrap(const std::string& funcExpr,const std::vector<double>& params):
+      func_("func",funcExpr.c_str()){
+      for(size_t paraNr=0;paraNr<params.size();paraNr++){
+	func_.SetParameter(paraNr,params[paraNr]);
+      }
+    }      
+    float operator()(const ParamType& obj){
+      return func_.Eval(obj.x,obj.y);
+    };
+  };
+  template<typename ParamType>
+  class TF2Wrap<ParamType,false>{
+  public:
+    TF2Wrap(const std::string& funcExpr,const std::vector<double>& params){}
+    float operator()(const ParamType& obj){return 1.;};
+  };
+
+  template<typename ParamType,bool=true>
+  struct TF3Wrap{
+  private:
+    TF3 func_;
+  public:
+    TF3Wrap(const std::string& funcExpr,const std::vector<double>& params):
+      func_("func",funcExpr.c_str()){
+      for(size_t paraNr=0;paraNr<params.size();paraNr++){
+	func_.SetParameter(paraNr,params[paraNr]);
+      }
+    }      
+    float operator()(const ParamType& obj){
+      return func_.Eval(obj.x,obj.y,obj.z);
+    };
+  };
+  template<typename ParamType>
+  class TF3Wrap<ParamType,false>{
+  public:
+    TF3Wrap(const std::string& funcExpr,const std::vector<double>& params){}
+    float operator()(const ParamType& obj){return 1.;};
+  };
+      
+
+
+  template<typename T>
+  constexpr auto has1D(int) -> decltype(T::x,bool()){return true;}
+  template<typename T>
+  constexpr bool has1D(...){return false;}
+  template<typename T>
+  constexpr auto has2D(int) -> decltype(T::y,bool()){return true;}
+  template<typename T>
+  constexpr bool has2D(...){return false;}
+  template<typename T>
+  constexpr auto has3D(int) -> decltype(T::z,bool()){return true;}
+  template<typename T>
+  constexpr bool has3D(...){return false;}
+
   template<typename ParamType>
   class ParamBin {
   public:
@@ -37,62 +136,108 @@ namespace egPM {
     virtual bool pass(const ParamType&)const=0; 
     virtual float operator()(const ParamType&)const=0;
   protected:
-    //right now only TF1 is supported so short cut the function
-    //the FUNCTYPE::funcExpr is designed for future extensions
-    static std::string stripFuncId(const std::string& inStr){
-      if(inStr.substr(0,5)=="TF1:=") return inStr.substr(5);
-      else return std::string();
+    //the FUNCTYPE:=funcExpr is designed for future extensions
+    static std::pair<std::string,std::string> readFuncStr(const std::string& inStr){
+      std::cout <<"str "<<inStr<<" "<<inStr.substr(5)<<std::endl;
+      size_t pos=inStr.find(":=");
+      if(pos!=std::string::npos) return std::make_pair(inStr.substr(0,pos),inStr.substr(pos+2));
+      else return std::make_pair(inStr,std::string(""));
+    }
+    std::function<float(const ParamType&)> makeFunc(const edm::ParameterSet& config){
+      auto funcType = readFuncStr(config.getParameter<std::string>("funcType"));
+      auto funcParams = config.getParameter<std::vector<double> >("funcParams");
+      if(funcType.first=="TF1" && has1D<ParamType>(0)) return TF1Wrap<ParamType,has1D<ParamType>(0)>(funcType.second,funcParams);
+      else if(funcType.first=="TF2" && has2D<ParamType>(0)) return TF2Wrap<ParamType,has2D<ParamType>(0)>(funcType.second,funcParams);
+      else if(funcType.first=="TF3" && has3D<ParamType>(0)) return TF3Wrap<ParamType,has3D<ParamType>(0)>(funcType.second,funcParams);
+      else throw cms::Exception("InvalidConfig") << " type "<<funcType.first<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
+    }
+  };
+
+  template<typename ParamType>
+  class ParamBin1D : ParamBin<ParamType> {
+  private:
+    using XType = decltype(ParamType::x);
+    XType xMin_,xMax_;
+    std::function<float(const ParamType&)> func_;
+  public: 
+    ParamBin1D(const edm::ParameterSet& config):
+      xMin_(config.getParameter<typename ConfigType<XType>::type >("xMin")),
+      xMax_(config.getParameter<typename ConfigType<XType>::type >("xMax")),
+      func_(ParamBin<ParamType>::makeFunc(config))
+    {
+    }
+    bool pass(const ParamType& seed)const override {
+      return seed.pass(xMin_,xMax_);
+    }
+    float operator()(const ParamType& seed)const override{
+      if(!pass(seed)) return 0;
+      else return func_(seed);
+    }
+  };
+    
+    
+    
+  template<typename ParamType>
+  class ParamBin2D : public ParamBin<ParamType> {
+  private:
+    using XType = decltype(ParamType::x);
+    using YType = decltype(ParamType::y);
+    XType xMin_,xMax_;
+    YType yMin_,yMax_;
+    std::function<float(const ParamType&)> func_;
+  public:
+    ParamBin2D(const edm::ParameterSet& config):
+      xMin_(config.getParameter<typename ConfigType<XType>::type >("xMin")),
+      xMax_(config.getParameter<typename ConfigType<XType>::type >("xMax")),
+      yMin_(config.getParameter<typename ConfigType<YType>::type >("yMin")),
+      yMax_(config.getParameter<typename ConfigType<YType>::type >("yMax")),
+      func_(ParamBin<ParamType>::makeFunc(config))
+    {
+    }
+
+    bool pass(const ParamType& seed)const override {
+      return seed.pass(xMin_,xMax_,yMin_,yMax_);
+    }  
+    float operator()(const ParamType& seed)const override{
+      if(!pass(seed)) return 0;
+      else return func_(seed);
+    }
+  };
+  
+
+  template<typename ParamType>
+  class ParamBin3D : ParamBin<ParamType> {
+    using XType = decltype(ParamType::x);
+    using YType = decltype(ParamType::y);
+    using ZType = decltype(ParamType::z);
+
+    XType xMin_,xMax_;
+    YType yMin_,yMax_;
+    ZType zMin_,zMax_;
+    std::function<float(const ParamType&)> func_;
+  public:
+    ParamBin3D(const edm::ParameterSet& config):
+      xMin_(config.getParameter<typename ConfigType<XType>::type >("xMin")),
+      xMax_(config.getParameter<typename ConfigType<XType>::type >("xMax")),      
+      yMin_(config.getParameter<typename ConfigType<YType>::type >("yMin")),
+      yMax_(config.getParameter<typename ConfigType<YType>::type >("yMax")),
+      zMin_(config.getParameter<typename ConfigType<ZType>::type >("zMin")),
+      zMax_(config.getParameter<typename ConfigType<ZType>::type >("zMax")),
+      func_(ParamBin<ParamType>::makeFunc(config))
+    {
+    }
+
+    bool pass(const ParamType& seed)const override {
+      return seed.pass(xMin_,xMax_,yMin_,yMax_,zMin_,zMax_);
+    }  
+    float operator()(const ParamType& seed)const override{
+      if(!pass(seed)) return 0;
+      else return func_(seed);
     }
   };
    
 
-  class AbsEtaClusParamBin : public ParamBin<egPM::AbsEtaNrClus>  {
-    size_t minNrClus_; //inclusive
-    size_t maxNrClus_; //inclusive
-    float minEta_; //inclusive
-    float maxEta_;//exclusive
-    //std::function<float(float)> etaFunc_; 
-    TF1 etaFunc_;
-  public:
-    
-    AbsEtaClusParamBin(const edm::ParameterSet& config):
-      minNrClus_(config.getParameter<int>("minNrClus")),
-      maxNrClus_(config.getParameter<int>("maxNrClus")),
-      minEta_(config.getParameter<double>("minEta")),
-      maxEta_(config.getParameter<double>("maxEta")),
-      etaFunc_("func",stripFuncId(config.getParameter<std::string>("funcType")).c_str(),0,3.)
-    {
-      const std::vector<double> params = config.getParameter<std::vector<double>>("funcParams");
-      for(size_t paraNr=0;paraNr<params.size();paraNr++){
-	etaFunc_.SetParameter(paraNr,params[paraNr]);
-      }
-    }
-
-    bool pass(const egPM::AbsEtaNrClus& seed)const override {
-      return seed.absEta>=minEta_ && seed.absEta<maxEta_ &&
-	seed.nrClus>=minNrClus_ && seed.nrClus<=maxNrClus_;
-    }
-    
-    float operator()(const egPM::AbsEtaNrClus& seed)const override{
-      if(!pass(seed)) return 0;
-      else return etaFunc_.Eval(seed.absEta);	
-    }
-  };
-
-  class AbsEtaClusWithClusCorrParamBin : public AbsEtaClusParamBin  {
-    float corrPerClus_;
-    int clusNrOffset_;
-  public:
-    AbsEtaClusWithClusCorrParamBin(const edm::ParameterSet& config): 
-      AbsEtaClusParamBin(config),
-      corrPerClus_(config.getParameter<double>("corrPerClus")),
-      clusNrOffset_(config.getParameter<int>("clusNrOffset")){}
-    float operator()(const egPM::AbsEtaNrClus& seed)const override{
-      return corrPerClus_*std::max(static_cast<int>(seed.nrClus)-clusNrOffset_,0)+AbsEtaClusParamBin::operator()(seed);
-    }
-  };
-
-
+ 
   
   template<typename ParamType>
   class Param {
@@ -114,8 +259,7 @@ namespace egPM {
   private:
     std::unique_ptr<ParamBin<ParamType> > createParamBin_(const edm::ParameterSet& config){
       std::string type = config.getParameter<std::string>("binType");
-      if(type=="AbsEtaClus") return std::make_unique<AbsEtaClusParamBin>(config);
-      else if(type=="AbsEtaClusWithClusCorr") return std::make_unique<AbsEtaClusWithClusCorrParamBin>(config);
+      if(type=="AbsEtaClus") return std::make_unique<ParamBin2D<AbsEtaNrClus>>(config);
       else throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
     }
   };
