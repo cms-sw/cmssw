@@ -2497,10 +2497,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	   else if( cut.getData()=="os" ) corrParameter.chargeCorrelation = 4;
 	   else corrParameter.chargeCorrelation = 1; //ignore charge correlation
         } else {
-	  //keep the type from what the correlation is.
-//        corrParameter.corrCutType = cut.getCutType();
-//	  corrParameter.minCutValue = cut.getMinimum().index;
-//	  corrParameter.maxCutValue = cut.getMaximum().index;
+
 // 
 //  Unitl utm has method to calculate these, do the integer value calculation with precision.
 //
@@ -2511,20 +2508,24 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  if(maxV > 1.0e6) maxV = 1.0e6;
 	  
 	  if(cut.getCutType() == esCutType::DeltaEta) {
-	     corrParameter.minEtaCutValue = (long long)(minV * 1000.); 
-	     corrParameter.maxEtaCutValue = (long long)(maxV * 1000.); 
+	     //std::cout << "DeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minEtaCutValue = (long long)(minV * pow(10.,cut.getMinimum().index)); 
+	     corrParameter.maxEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 	     
 	     cutType = cutType | 0x1;
 	  } else if (cut.getCutType() == esCutType::DeltaPhi) {
-	     corrParameter.minPhiCutValue = (long long)(minV * 1000.); 
-	     corrParameter.maxPhiCutValue = (long long)(maxV * 1000.); 
+	     //std::cout << "DeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minPhiCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxPhiCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
 	     cutType = cutType | 0x2;
 	  } else if (cut.getCutType() == esCutType::DeltaR) {
-	     corrParameter.minDRCutValue = (long long)(minV*minV * 1000.); 
-	     corrParameter.maxDRCutValue = (long long)(maxV*maxV * 1000.);
+	     //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minDRCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxDRCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
 	     cutType = cutType | 0x4; 
-	  } else if (cut.getCutType() == esCutType::Mass) {	  
-	     corrParameter.minMassCutValue = (long long)(0.5*minV*minV * 10.); 
-	     corrParameter.maxMassCutValue = (long long)(0.5*maxV*maxV * 10.);
+	  } else if (cut.getCutType() == esCutType::Mass) {
+	     //std::cout << "Mass Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;	  
+	     corrParameter.minMassCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxMassCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
 	     cutType = cutType | 0x8; 
           }
 	}  
