@@ -206,27 +206,6 @@ process = customizeHLTforCMSSW(process,"%s")
         if not self.config.fragment:
           self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
 
-#    if self.config.type in ('HIon', ):
-#      self.data += """
-## Disable HF Noise filters in HIon menu
-#if 'hltHfreco' in %(dict)s:
-#    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-#"""
-#    else:
-#      self.data += """
-## Enable HF Noise filters in non-HIon menu
-#if 'hltHfreco' in %(dict)s:
-#    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-#"""
-
-#    self.data += """
-## untracked parameters with NO default in the code
-#if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-#    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-#if 'hltDt4DSegments' in %(dict)s:
-#    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
-#"""
-
     # if requested, remove the HLT prescales
     self.fixPrescales()
 
@@ -239,44 +218,11 @@ process = customizeHLTforCMSSW(process,"%s")
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
 
-#    if self.config.type not in ('Fake','FULL') :
-#      procfrag = self.labels['process'].split('.')[0]
-#      if '50ns_5e33_v1' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 50ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif '25ns14e33_v1' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 25ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-#%s = loadL1menu(%s)
-#""" %(procfrag,procfrag)
-#      elif '50ns' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 50ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v4 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif 'HIon' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for HIon
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif 'LowPU' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for LowPU
-#from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      else :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-#%s = loadL1menu(%s)
-#""" %(procfrag,procfrag)
+    # if requested, override the L1 self from the GlobalTag (Xml)
+    self.overrideL1MenuXml()
+
+    # if requested, run the L1 emulator
+    self.runL1Emulator()
 
     if self.config.fragment:
       self.data += """
@@ -301,15 +247,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
-
-      # if requested, override the L1 self from the GlobalTag (Xml)
-      self.overrideL1MenuXml()
-
-      # if requested, add snippet to run on new L1 skim
-      self.switchToNewL1Skim()
-
-      # if requested, run (part of) the L1 emulator
-      self.runL1Emulator()
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
@@ -450,7 +387,7 @@ if 'GlobalTag' in %(dict)s:
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
-      self.config.l1.record = 'L1GtTriggerMenuRcd'
+      self.config.l1.record = 'L1TUtmTriggerMenuRcd'
       self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
@@ -479,138 +416,24 @@ if 'GlobalTag' in %(dict)s:
     self.data += text
 
   def overrideL1MenuXml(self):
-    # if requested, override the L1 menu from the GlobalTag (Xml file)
+    # if requested, override the GlobalTag's L1T menu from an Xml file
     if self.config.l1Xml.XmlFile:
       text = """
-# override the L1 menu from an Xml file
-%%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('%(LumiDir)s'),
-  DefXmlFile = cms.string('%(XmlFile)s'),
-  VmeXmlFile = cms.string('')
-)
-%%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-%%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-"""
-      self.data += text % self.config.l1Xml.__dict__
-
-  def runL1EmulatorGT(self):
-    # if requested, run (part of) the L1 emulator, then repack the data into a new RAW collection, to be used by the HLT
-    if not self.config.emulator:
-      return
-
-    if self.config.emulator != 'gt':
-      # only the GT emulator is currently supported
-      return
-
-    # run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
-    text = """
-# run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
-"""
-    if self.config.fragment:
-      # FIXME in a cff, should also update the HLTSchedule
-      text += "import Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff\n"
-    else:
-      text += "process.load( 'Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff' )\n"
-
-    if not 'hltBoolFalse' in self.data:
-      # add hltBoolFalse
-      text += """
-%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
-)
-"""
-    text += "process.L1Emulator = cms.Path( process.SimL1Emulator + process.hltBoolFalse )\n\n"
-
-    self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
-
+# override the GlobalTag's L1T menu from an Xml file
+from HLTrigger.Configuration.CustomConfigs import L1XML
+process = L1XML(process,"%s")
+""" % (self.config.l1Xml.XmlFile) 
+      self.data += text
 
   def runL1Emulator(self):
-    # if requested, run (part of) the L1 emulator
-    if self.config.emulator:
-      # FIXME this fragment used "process" explicitly
-      emulator = {
-        'RawToDigi': '',
-        'CustomL1T': '',
-        'CustomHLT': ''
-      }
-
-      if self.config.data:
-        emulator['RawToDigi'] = 'RawToDigi_Data_cff'
-      else:
-        emulator['RawToDigi'] = 'RawToDigi_cff'
-
-      if self.config.emulator == 'gt':
-        emulator['CustomL1T'] = 'customiseL1GtEmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGtDigis'
-      elif self.config.emulator == 'gct,gt':
-        emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGctGtDigis'
-      elif self.config.emulator == 'gmt,gt':
-        # XXX currently unsupported
-        emulator['CustomL1T'] = 'customiseL1MuonAndGtEmulatorsFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGtDigis'
-      elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
-      elif self.config.emulator in ('stage1,gt'):
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimStage1Digis'
-      else:
-        # unsupported argument, default to running the whole emulator
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
-
-      self.data += """
-# customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
-process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
-process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
-import L1Trigger.Configuration.L1Trigger_custom
-#
-""" % emulator
-
-      if (self.config.emulator).find("stage1")>-1:
-        self.data += """
-# 2015 Run2 emulator
-import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
-process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
-""" % emulator
-      else:
-        self.data += """
-# Run1 Emulator
-process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
-""" % emulator
-
-      self.data += """
-#
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-# customize the HLT to use the emulated results
-import HLTrigger.Configuration.customizeHLTforL1Emulator
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
-""" % emulator
-
-  def switchToNewL1Skim(self):
-    # add snippet to switch to new L1 skim files
-    if self.config.l1skim:
-      self.data += """
-# Customize the menu to use information from new L1 emulator in the L1 skim files
-process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag("simGmtDigis::L1SKIM" )
-process.hltL1extraParticles.muonSource = cms.InputTag("simGmtDigis::L1SKIM" )
-for module in process.__dict__.itervalues():
-  if isinstance(module, cms._Module):
-    for parameter in module.__dict__.itervalues():
-      if isinstance(parameter, cms.InputTag):
-        if parameter.moduleLabel == 'hltGtDigis':
-          parameter.moduleLabel = "gtDigisFromSkim"
-        elif parameter.moduleLabel == 'hltL1GtObjectMap':
-          parameter.moduleLabel = "gtDigisFromSkim"
-        elif parameter.moduleLabel == 'hltGctDigis':
-          parameter.moduleLabel ="simCaloStage1LegacyFormatDigis"
+    # if requested, run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
+    if self.config.emulator == 'Full':
+      text = """
+# run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
+from HLTrigger.Configuration.CustomConfigs import L1REPACK
+process = L1REPACK(process)
 """
+      self.data += text
 
   def overrideOutput(self):
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's

@@ -39,6 +39,12 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if ("Fake" in menuType):
         return process
 
+#    if ( menuType in ("FULL","GRun","PIon")):
+#        from HLTrigger.Configuration.CustomConfigs import L1XML
+#        process = L1XML(process,"L1Menu_Collisions2016_dev_v2.xml")
+#        from HLTrigger.Configuration.CustomConfigs import L1REPACK
+#        process = L1REPACK(process)
+#
 #    _debug = False
 #
 #   special case
