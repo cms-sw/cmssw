@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V32 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/HIon/V33 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V32')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V33')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7087,7 +7087,7 @@ process.hltPreHISinglePhoton30Eta1p5 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIPhoton30Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 30.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 1.5 ),
@@ -7459,7 +7459,7 @@ process.hltHIEgammaR9IDDoublePhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLTEgam
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( 0.6 ),
     thrOverEEE = cms.double( -1.0 ),
@@ -7493,7 +7493,7 @@ process.hltHIEgammaHOverEDoublePhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLTEg
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
     thrOverEEE = cms.double( 0.25 ),
@@ -7522,7 +7522,7 @@ process.hltHIDoublePhoton15Eta2p150nsMultiFit = cms.EDFilter( "HLT1Photon",
     triggerType = cms.int32( 81 )
 )
 process.hltHIDoublePhoton15Eta2p1GlobalMass501000Filter = cms.EDFilter( "HLTPMMassFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     lowerMassCut = cms.double( 50.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -7539,7 +7539,7 @@ process.hltHIEgammaR9IDDoublePhoton15Eta2p150nsMultiFit = cms.EDFilter( "HLTEgam
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( 0.4 ),
     thrOverEEE = cms.double( -1.0 ),
@@ -7568,7 +7568,7 @@ process.hltHIDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLT1Photon",
     triggerType = cms.int32( 81 )
 )
 process.hltHIDoublePhoton15Eta2p5GlobalMass501000Filter = cms.EDFilter( "HLTPMMassFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     lowerMassCut = cms.double( 50.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -7585,7 +7585,7 @@ process.hltHIEgammaR9IDDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLTEgam
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( 0.5 ),
     thrOverEEE = cms.double( -1.0 ),
@@ -7609,7 +7609,7 @@ process.hltHIEgammaSigmaIEtaIEtaDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter(
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( 0.045 ),
     thrOverEEE = cms.double( -1.0 ),
@@ -7627,7 +7627,7 @@ process.hltHIEgammaHOverEDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLTEg
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
     thrOverEEE = cms.double( 0.2 ),
@@ -7657,7 +7657,7 @@ process.hltPreHIL2Mu3Eta2p5PuAK4CaloJet40Eta2p1 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3MinBiasHF1AND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -8202,7 +8202,7 @@ process.hltPreHIL2Mu3Eta2p5PuAK4CaloJet60Eta2p1 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3CenJet28Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3SingleCenJet28" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -8247,7 +8247,7 @@ process.hltPreHIL2Mu3Eta2p5PuAK4CaloJet80Eta2p1 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3CenJet40Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3SingleCenJet40" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -8318,7 +8318,7 @@ process.hltPreHIL2Mu3Eta2p5HIPhoton30Eta1p5 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3EG12Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3SingleEG12" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -8363,7 +8363,7 @@ process.hltPreHIL2Mu3Eta2p5HIPhoton40Eta1p5 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3EG20Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3SingleEG20" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -8524,7 +8524,7 @@ process.hltPreHIQ2Bottom005Centrality1030 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltGlobalSumETHfFilterCentrality1030 = cms.EDFilter( "HLTGlobalSumsCaloMET",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     observable = cms.string( "sumEt" ),
     MinN = cms.int32( 1 ),
     Min = cms.double( 1200.0 ),
@@ -8578,7 +8578,7 @@ process.hltPreHIQ2Bottom005Centrality3050 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltGlobalSumETHfFilterCentrality3050 = cms.EDFilter( "HLTGlobalSumsCaloMET",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     observable = cms.string( "sumEt" ),
     MinN = cms.int32( 1 ),
     Min = cms.double( 400.0 ),
@@ -8609,7 +8609,7 @@ process.hltPreHIQ2Bottom005Centrality5070 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltGlobalSumETHfFilterCentrality5070 = cms.EDFilter( "HLTGlobalSumsCaloMET",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     observable = cms.string( "sumEt" ),
     MinN = cms.int32( 1 ),
     Min = cms.double( 60.0 ),
@@ -9067,7 +9067,7 @@ process.hltPreHIL2Mu3NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu3HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3HFTower0" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -9715,7 +9715,7 @@ process.hltPreHIL2Mu5NHitQ102HF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu5MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu5MinBiasHF1AND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -9760,7 +9760,7 @@ process.hltPreHIL2Mu5NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu5HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu5HFTower0" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -9857,7 +9857,7 @@ process.hltPreHIL2Mu7NHitQ102HF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu7MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu7MinBiasHF1AND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -9902,7 +9902,7 @@ process.hltPreHIL2Mu7NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu7HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu7HFTower0" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -9999,7 +9999,7 @@ process.hltPreHIL2Mu15 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu12Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu12BptxAND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -10044,7 +10044,7 @@ process.hltPreHIL2Mu152HF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu12MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu12MinBiasHF1AND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -10089,7 +10089,7 @@ process.hltPreHIL2Mu152HF0 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu12HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu12HFTower0" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -10272,7 +10272,7 @@ process.hltPreHIL2Mu20 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu16Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu16BptxAND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -10317,7 +10317,7 @@ process.hltPreHIL2Mu202HF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu16MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu16MinBiasHF1AND" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -10362,7 +10362,7 @@ process.hltPreHIL2Mu202HF0 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHIL1SingleMu16HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu16HFTower0" ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -11538,7 +11538,7 @@ process.hltPreHICentralityVeto = cms.EDFilter( "HLTPrescaler",
 )
 process.hltPixelActivityFilterCentralityVeto = cms.EDFilter( "HLTPixelActivityFilter",
     maxClusters = cms.uint32( 1000 ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
     minClusters = cms.uint32( 3 )
 )
@@ -11704,7 +11704,7 @@ process.hltPixelCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandida
 )
 process.hltHISinglePixelTrackFilter = cms.EDFilter( "HLTPixlMBFilt",
     pixlTag = cms.InputTag( "hltPixelCandsForHITrackTrigger" ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinTrks = cms.uint32( 1 ),
     MinPt = cms.double( 0.0 ),
     MinSep = cms.double( 1.0 )
