@@ -125,18 +125,40 @@ def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDat
     return(process)
 
 def L1REPACK(process):
-#   Replace only the L1 parts and keep the rest
-    if 'DigiToRaw' in process.__dict__:
-        process.DigiToRaw = cms.Sequence(process.l1tDigiToRawSeq + process.l1GtPack + process.l1GtEvmPack + process.rawDataCollector)
-    if 'rawDataCollector' in process.__dict__:
-        process.rawDataCollector.RawCollectionList = cms.VInputTag(
-            cms.InputTag('gctDigiToRaw'),
-            cms.InputTag('l1tDigiToRaw'),
-            cms.InputTag('l1GtPack'),
-            cms.InputTag('l1GtEvmPack'),
-            cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
-        )
 
-    process=L1T(process)
+    from Configuration.StandardSequences.Eras import eras
+
+    l1repack = cms.Process('L1REPACK',eras.Run2_2016)
+    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff')
+
+    for module in l1repack.es_sources_():
+        if (not hasattr(process,module)):
+            setattr(process,module,getattr(l1repack,module))
+    for module in l1repack.es_producers_():
+        if (not hasattr(process,module)):
+            setattr(process,module,getattr(l1repack,module))
+
+    for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
+        setattr(process,module,getattr(l1repack,module))
+    process.SimL1Emulator = l1repack.SimL1Emulator
+
+    for path in process.paths_():
+        getattr(process,path).insert(0,process.SimL1Emulator)
+    for path in process.endpaths_():
+        getattr(process,path).insert(0,process.SimL1Emulator)
+
+    return process
+
+def L1XML(process,xmlFile=None):
+
+#   xmlFile="L1Menu_Collisions2016_dev_v3.xml"
+
+    if ((xmlFile is None) or (xmlFile=="")):
+        return process
+
+    process.L1TriggerMenu= cms.ESProducer("L1TUtmTriggerMenuESProducer",
+        L1TriggerMenuFile= cms.string(xmlFile)
+    )
+    process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","L1TriggerMenu")
 
     return process
