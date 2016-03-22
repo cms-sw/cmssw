@@ -35,7 +35,7 @@ hgceeDigitizer = cms.PSet(
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
             # raise threshold flag (~MIP/2)
-            adcThreshold_fC   = cms.double(1.175),
+            adcThreshold_fC   = cms.double(0.579),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns

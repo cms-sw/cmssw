@@ -185,7 +185,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     }
     //skip this hit if after ganging it is not valid
     std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
-    cell  = isSqr ? recoLayerCell.first : cell;
+    cell  = recoLayerCell.first;
     layer = recoLayerCell.second;
     if (layer<0 || cell<0) {
       hitRefs[i]=std::make_tuple( i, 0, 0.);

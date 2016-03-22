@@ -23,11 +23,12 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              geometryInstance = cms.string("HGCalEESensitive"),
              qualityTests = cms.VPSet( 
                 cms.PSet(
-                  name = cms.string("PFRecHitQTestThresholdInMIPs"),
+                  name = cms.string("PFRecHitQTestThresholdInThicknessNormalizedMIPs"),
                   thresholdInMIPs = cms.double(0.50),
-                  mipValueInkeV = cms.double(55.1),
+                  mipValueInkeV = cms.double(27.55),
                   recHitEnergyIs_keV = cms.bool(False),
-                  recHitEnergyMultiplier = cms.double(1.0)
+                  recHitEnergyMultiplier = cms.double(1.0),
+                  geometryInstance = cms.string("HGCalEESensitive")
                   )
                 )
            ),
@@ -37,26 +38,13 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              geometryInstance = cms.string("HGCalHESiliconSensitive"),
              qualityTests = cms.VPSet( 
                 cms.PSet(
-                  name = cms.string("PFRecHitQTestThresholdInMIPs"),
-                  thresholdInMIPs = cms.double(0.77),
-                  mipValueInkeV = cms.double(85.0),
+                  name = cms.string("PFRecHitQTestThresholdInThicknessNormalizedMIPs"),
+                  thresholdInMIPs = cms.double(0.50),
+                  mipValueInkeV = cms.double(27.55),
                   recHitEnergyIs_keV = cms.bool(False),
-                  recHitEnergyMultiplier = cms.double(1.0)
+                  recHitEnergyMultiplier = cms.double(1.0),
+                  geometryInstance = cms.string("HGCalHESiliconSensitive")
                   )                
-                )
-           ),
-           cms.PSet(
-             name = cms.string("PFHGCHEBRecHitCreator"),
-             src  = cms.InputTag("HGCalRecHit:HGCHEBRecHits"),
-             geometryInstance = cms.string("HGCalHEScintillatorSensitive"),
-             qualityTests = cms.VPSet( 
-                cms.PSet(
-                  name = cms.string("PFRecHitQTestThresholdInMIPs"),
-                  thresholdInMIPs = cms.double(1.01),
-                  mipValueInkeV = cms.double(1498.4),
-                  recHitEnergyIs_keV = cms.bool(False),
-                  recHitEnergyMultiplier = cms.double(1.0)
-                  )
                 )
            )
     )          
