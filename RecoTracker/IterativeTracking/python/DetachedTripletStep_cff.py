@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 ###############################################
 # Low pT and detached tracks from pixel triplets
@@ -17,12 +18,34 @@ detachedTripletStepClusters = trackClusterRemover.clone(
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
+eras.trackingPhase1.toModify(detachedTripletStepClusters,
+    trajectories                             = "detachedQuadStepTracks",
+    oldClusterRemovalInfo                    = "detachedQuadStepClusters",
+    trackClassifier                          = "detachedQuadStep:QualityMasks",
+)
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
+eras.trackingPhase1.toModify(detachedTripletStepSeedLayers,
+    layerList = [
+        'BPix1+BPix2+BPix3',
+        'BPix2+BPix3+BPix4',
+        'BPix1+BPix3+BPix4',
+        'BPix1+BPix2+BPix4',
+        'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
+        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
+        'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',
+        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
+        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
+        'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
+        'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
+        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
+        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
+    ]
+)
 
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *

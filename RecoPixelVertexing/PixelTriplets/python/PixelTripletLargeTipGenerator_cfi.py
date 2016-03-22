@@ -12,5 +12,5 @@ PixelTripletLargeTipGenerator = cms.PSet(
     extraHitRPhitolerance = cms.double(0.032),
     extraHitRZtolerance = cms.double(0.037)
 )
-eras.trackingPhase1.toModify(PixelTripletLargeTipGenerator, maxElement = 0)
+eras.trackingPhase1PU70.toModify(PixelTripletLargeTipGenerator, maxElement = 0)
 

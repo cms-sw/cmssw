@@ -26,15 +26,16 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
     )
     )
 initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
-eras.trackingPhase1.toModify(
-    initialStepSeeds,
+_SeedMergerPSet = cms.PSet(
+    layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
+    addRemainingTriplets = cms.bool(False),
+    mergeTriplets = cms.bool(True),
+    ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+)
+eras.trackingPhase1.toModify(initialStepSeeds, SeedMergerPSet = _SeedMergerPSet)
+eras.trackingPhase1PU70.toModify(initialStepSeeds,
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)),
-    SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-    )
+    SeedMergerPSet = _SeedMergerPSet
 )
 
 
@@ -52,7 +53,7 @@ initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 2,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
-eras.trackingPhase1.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
+eras.trackingPhase1PU70.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
 
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 initialStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
@@ -72,7 +73,7 @@ initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_c
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
     pTChargeCutThreshold = cms.double(15.)
 )
-eras.trackingPhase1.toModify(initialStepChi2Est,
+eras.trackingPhase1PU70.toModify(initialStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
 
@@ -85,7 +86,7 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
     )
-eras.trackingPhase1.toModify(initialStepTrajectoryBuilder, maxCand = 6)
+eras.trackingPhase1PU70.toModify(initialStepTrajectoryBuilder, maxCand = 6)
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
@@ -200,4 +201,4 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStep)
 _InitialStep_Phase1PU70 = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_Phase1PU70.replace(initialStep, initialStepSelector)
-eras.trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)
