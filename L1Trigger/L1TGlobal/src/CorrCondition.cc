@@ -127,10 +127,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     // std::cout << "m_verbosity = " << m_verbosity << std::endl;
     
 
-    std::ostringstream myCout;
-    m_gtCorrelationTemplate->print(myCout);
-    LogDebug("L1TGlobal") 
-      << "Correlation Condition Evaluation \n" << myCout.str() << std::endl;
+    //std::ostringstream myCout;
+    //m_gtCorrelationTemplate->print(myCout);
+    //LogDebug("L1TGlobal") 
+    //   << "Correlation Condition Evaluation \n" << myCout.str() << std::endl;
 
     bool condResult = false;
     bool reqObjResult = false;
@@ -767,7 +767,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  
 		  LogDebug("L1TGlobal")  << "    Testing Delta Eta Cut [" << corrPar.minEtaCutValue 
 		                           << "," << corrPar.maxEtaCutValue << "] \n"
-					   << "    deltaEta = " << deltaEtaLUT  << std::endl; 		      
+					   << "    deltaEta = " << deltaEtaLUT  
+					   << "    deltaEtaPhy = " <<  deltaEtaPhy << std::endl; 		      
 		  
 		  if( deltaEtaLUT >= corrPar.minEtaCutValue &&
 		      deltaEtaLUT <= corrPar.maxEtaCutValue ) {
@@ -788,7 +789,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       		  
 		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut [" << corrPar.minPhiCutValue 
 		                           << "," << corrPar.maxPhiCutValue << "] \n"
-					   << "    deltaPhi = " << deltaPhiLUT  << std::endl; 		      
+					   << "    deltaPhi = " << deltaPhiLUT  
+					   << "    deltaPhiPhy = " <<  deltaPhiPhy << std::endl;  		      
 		  
 		  if( deltaPhiLUT >= corrPar.minPhiCutValue &&
 		      deltaPhiLUT <= corrPar.maxPhiCutValue ) {
@@ -807,14 +809,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 	     if(corrPar.corrCutType & 0x4) {
 	       		  
-		  //double deltaRSq = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
-		  long long deltaRSq = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;		  
+		  double deltaRSqPhy = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
+		  long long deltaRSqHighPre = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;
+		  long long deltaRSq = deltaRSqHighPre/pow(10,3);		  
 				  
 		  LogDebug("L1TGlobal") << "    Testing Delta R Cut [" << corrPar.minDRCutValue 
 		                           << "," << corrPar.maxDRCutValue << "] \n"
-					   << "    deltaPhiPhy = " << deltaPhiLUT << "\n"
-					   << "    deltaEtaPhy = " << deltaEtaLUT << "\n"
-					   << "    deltaRSq    = " << deltaRSq <<  std::endl; 		      
+					   << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
+					   << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+					   << "    deltaRSqLUT = " << deltaRSq <<  "\n"
+					   << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;		      
 		  
 		  if( deltaRSq >= corrPar.minDRCutValue &&
 		      deltaRSq <= corrPar.maxDRCutValue ) {
@@ -835,23 +839,38 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       
 	          //invariant mass calculation based on 
 		  // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
-		  //
-		  // We probably need to revise this to line up with firmware calculation
-		  // placeholder for now
-                  double cosDeltaPhi  = cos(deltaPhiPhy);
-		  double coshDeltaEta = cosh(deltaEtaPhy);		  
+		  // but we calculate (1/2)M^2
+		  // 
+                  double cosDeltaPhiPhy  = cos(deltaPhiPhy);
+		  double coshDeltaEtaPhy = cosh(deltaEtaPhy);		  
+		  double massSqPhy = et0Phy*et1Phy*(coshDeltaEtaPhy - cosDeltaPhiPhy);
 
-		  double massSq = 2.0*et0Phy*et1Phy*(coshDeltaEta - cosDeltaPhi);
+                  long long cosDeltaPhiLUT = m_gtScales->getLUT_Cos(lutName,deltaPhiFW);
+                  long long coshDeltaEtaLUT = m_gtScales->getLUT_Cosh(lutName,deltaEtaFW);
+		  std::string lutName = lutObj0;
+		  lutName += "-ET";
+		  long long ptObj0 = m_gtScales->getLUT_Pt(lutName,etIndex0);
+		  lutName = lutObj1;
+		  lutName += "-ET";
+		  long long ptObj1 = m_gtScales->getLUT_Pt(lutName,etIndex1);
+		  
+		  long long massSqHighPre = (ptObj0*100)*(ptObj1*100)*(coshDeltaEtaLUT - cosDeltaPhiLUT);
+		  long long massSq = massSqHighPre/pow(10,8);
 		  
 		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass [" << corrPar.minMassCutValue 
 		                           << "," << corrPar.maxMassCutValue << "] \n"
-					   << "    deltaPhiPhy = " << deltaPhiPhy << "  cos() = " << cosDeltaPhi << "\n"
-					   << "    deltaEtaPhy = " << deltaEtaPhy << "  cosh()= " << coshDeltaEta << "\n"
-					   << "    massSq   = " << massSq << "  sqrt(|massSq|) = "<< sqrt(fabs(massSq)) << std::endl; 		      
+					   << "    deltaPhiLUT  = " << deltaPhiLUT << "  cosLUT  = " << cosDeltaPhiLUT << "\n"
+					   << "    deltaEtaLUT  = " << deltaEtaLUT << "  coshLUT = " << coshDeltaEtaLUT << "\n"
+					   << "    etIndex0     = " << etIndex0 << "    pt0LUT      = " << ptObj0 << " PhyEt0 = " << et0Phy  << "\n"
+					   << "    etIndex1     = " << etIndex1 << "    pt1LUT      = " << ptObj1 << " PhyEt1 = " << et1Phy  <<"\n"
+					   << "    massSq/2 (HP)= " << massSqHighPre << " massSq/2 = " << massSq << "\n" 		      
+					   << "    deltaPhiPhy  = " << deltaPhiPhy << "  cos() = " << cosDeltaPhiPhy << "\n"
+					   << "    deltaEtaPhy  = " << deltaEtaPhy << "  cosh()= " << coshDeltaEtaPhy << "\n"
+					   << "    massSqPhy/2  = " << massSqPhy << "  sqrt(|massSq|) = "<< sqrt(fabs(2.*massSqPhy)) << std::endl; 		      
 		  
 		  if(  massSq > 0. &&
-		      (int)massSq >= corrPar.minMassCutValue &&
-		      (int)massSq <= corrPar.maxMassCutValue  ) {
+		      massSq >= corrPar.minMassCutValue &&
+		      massSq <= corrPar.maxMassCutValue  ) {
 
 		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << corrPar.minMassCutValue 
 		                           << "," << corrPar.maxMassCutValue << "]" << std::endl;		      
