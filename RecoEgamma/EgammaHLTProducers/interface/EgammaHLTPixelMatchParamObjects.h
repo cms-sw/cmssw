@@ -16,35 +16,6 @@
 
 namespace egPM {
   
-  struct GausPlusConstFunc {
-    float constTerm_,norm_,mean_,sigma_;
-    constexpr static float kSqrt2Pi=std::sqrt(std::asin(1)*4);
-    GausPlusConstFunc(const edm::ParameterSet& config):
-      constTerm_(config.getParameter<double>("constTerm")),norm_(config.getParameter<double>("norm")),
-      mean_(config.getParameter<double>("mean")),sigma_(config.getParameter<double>("sigma")){}
-    float operator()(float x)const{return constTerm_+norm_*std::exp(-.5*(x-mean_)*(x-mean_)/(sigma_*sigma_))/(kSqrt2Pi*sigma_);}
-  };
-  
-  template<size_t order>
-  struct PolyFunc {
-    std::array<float,order+1> para_;
-    PolyFunc(const edm::ParameterSet& config){
-      for(size_t paraNr=0;paraNr<para_.size();paraNr++){
-	std::ostringstream paraName;
-	paraName<<"p"<<paraNr;
-	para_[paraNr]=config.getParameter<double>(paraName.str());
-      }
-    }
-    float operator()(float x)const{
-      float retVal=0.,xVal=1.;
-      for(size_t termOrder=0;termOrder<=order;termOrder++){
-	retVal+=xVal*para_[termOrder];
-	xVal*=x;
-      }
-      return retVal;
-    }
-  };
-
   struct AbsEtaNrClus{
     float absEta;
     size_t nrClus;
@@ -143,8 +114,8 @@ namespace egPM {
   private:
     std::unique_ptr<ParamBin<ParamType> > createParamBin_(const edm::ParameterSet& config){
       std::string type = config.getParameter<std::string>("binType");
-      if(type=="AbsEtaClusParamBin") return std::make_unique<AbsEtaClusParamBin>(config);
-      else if(type=="AbsEtaClusWithClusCorrParamBin") return std::make_unique<AbsEtaClusWithClusCorrParamBin>(config);
+      if(type=="AbsEtaClus") return std::make_unique<AbsEtaClusParamBin>(config);
+      else if(type=="AbsEtaClusWithClusCorr") return std::make_unique<AbsEtaClusWithClusCorrParamBin>(config);
       else throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
     }
   };

@@ -74,7 +74,31 @@ void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescripti
   
   edm::ParameterSetDescription varParamDesc;
   edm::ParameterSetDescription binParamDesc;
-  binParamDesc.setAllowAnything();
+  //binParamDesc.add<std::string>("binType");
+  
+  std::auto_ptr<edm::ParameterDescriptionCases<std::string>> binDescCases;
+  binDescCases = 
+    "AbsEtaClus" >> 
+    (edm::ParameterDescription<double>("minEta",0.0,true) and
+     edm::ParameterDescription<double>("maxEta",3.0,true) and
+     edm::ParameterDescription<double>("minNrClus",0,true) and
+     edm::ParameterDescription<double>("maxNrClus",99999,true) and
+     edm::ParameterDescription<std::string>("funcType","pol0",true) and
+     edm::ParameterDescription<std::vector<double>>("funcParams",{0.},true)) or
+    "AbsEtaClusWithClusCorr" >>
+    (edm::ParameterDescription<double>("minEta",0.0,true) and
+     edm::ParameterDescription<double>("maxEta",3.0,true) and
+     edm::ParameterDescription<double>("minNrClus",0,true) and
+     edm::ParameterDescription<double>("maxNrClus",99999,true) and
+     edm::ParameterDescription<std::string>("funcType","pol0",true) and
+     edm::ParameterDescription<std::vector<double> >("funcParams",{0.},true) and
+     edm::ParameterDescription<double>("corrPerClus",0.0,true) and
+     edm::ParameterDescription<double>("clusNrOffset",0.0,true));
+  
+    
+  binParamDesc.ifValue(edm::ParameterDescription<std::string>("binType","AbsEtaClus",true), binDescCases);
+  
+  
   varParamDesc.addVPSet("bins",binParamDesc);
   desc.add("dPhi1SParams",varParamDesc);
   desc.add("dPhi2SParams",varParamDesc);
