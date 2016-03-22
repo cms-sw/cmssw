@@ -35,7 +35,7 @@ PixelTrackReconstructionBlock = cms.PSet (
     )
 )
 
-eras.trackingPhase1.toModify(PixelTrackReconstructionBlock,
+eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
     SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
         addRemainingTriplets = cms.bool(False),

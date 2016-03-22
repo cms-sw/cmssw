@@ -45,7 +45,7 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                       TTRHBuilder = cms.string('WithTrackAngle')
                                                       )
                                                   )
-eras.trackingPhase1.toModify(photonConvTrajSeedFromSingleLeg,
+eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
         MaxNumberOfCosmicClusters = 1000000,
         MaxNumberOfPixelClusters = 100000,

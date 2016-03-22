@@ -18,7 +18,7 @@ _convClustersBase = _trackClusterRemover.clone(
 convClusters = _convClustersBase.clone(
   trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
 )
-eras.trackingPhase1.toReplaceWith(convClusters, _convClustersBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(convClusters, _convClustersBase.clone(
   overrideTrkQuals      = "tobTecStepSelector:tobTecStep",
 ))
 
@@ -207,7 +207,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     skipClusters = cms.InputTag('convClusters'),
                                     )
                                 )
-eras.trackingPhase1.toModify(convLayerPairs,
+eras.trackingPhase1PU70.toModify(convLayerPairs,
     layerList = [
         'BPix1+BPix2',
 
@@ -315,7 +315,7 @@ photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrimaryVertices')
 #photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
-eras.trackingPhase1.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
+eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
 
 # TRACKER DATA CONTROL
 
@@ -349,7 +349,7 @@ _convCkfTrajectoryBuilderBase = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuild
 convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
     estimator = cms.string('convStepChi2Est')
     )
-eras.trackingPhase1.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2,
 ))
 
