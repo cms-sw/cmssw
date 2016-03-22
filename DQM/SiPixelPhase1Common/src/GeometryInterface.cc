@@ -11,6 +11,7 @@
 
 // edm stuff
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Tracker Geometry/Topology  suff
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -76,7 +77,7 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 
   struct {
     void traverseAlignables(Alignable* compositeAlignable, std::map<align::StructureType, BitInfo>& infos, std::vector<InterestingQuantities>& all_modules) {
-      //std::cout << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << " " << std::hex << compositeAlignable->id() << "\n";
+      //edm::LogTrace("GeometryInterface") << "+++++ Alignable " << AlignableObjectId::idToString(compositeAlignable->alignableObjectId()) << " " << std::hex << compositeAlignable->id() << "\n";
       auto alignable = compositeAlignable;
 
       if(alignable->alignableObjectId() == align::AlignableDetUnit) {
@@ -126,7 +127,7 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
     // to normalize we set them to 0.
     info.characteristicBits &= info.characteristicMask;
 
-    std::cout << std::hex << std::setfill('0') << std::setw(8)
+    edm::LogInfo("GeometryInterface") << std::hex << std::setfill('0') << std::setw(8)
               << "+++ Type " << info.characteristicBits << " "
                                   << info.characteristicMask << " "
                                   << info.variableMask << " " << type << "\n";
