@@ -43,7 +43,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #	Central DQM Customization
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
-process.dqmSaver.tag = subsystem
+process.dqmSaver.tag = "Hcal2" # to have a file saved as DQM_V..._Hcal2...
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
