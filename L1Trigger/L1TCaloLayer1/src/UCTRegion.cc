@@ -8,6 +8,7 @@ using std::string;
 #include "UCTRegion.hh"
 
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 #include "UCTTower.hh"
 
@@ -54,13 +55,13 @@ bool UCTRegion::process() {
   uint32_t regionET = 0;
   for(uint32_t twr = 0; twr < towers.size(); twr++) {
     if(!towers[twr]->process()) {
-      std::cerr << "Tower level processing failed. Bailing out :(" << std::endl;
+      LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
       return false;
     }
     regionET += towers[twr]->et();
   }
   if(regionET > RegionETMask) {
-    std::cerr << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
+    LOG_ERROR << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
     regionET = RegionETMask;
   }
   regionSummary = (RegionETMask & regionET);

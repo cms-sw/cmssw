@@ -3,19 +3,20 @@
 #include <stdint.h>
 
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region, 
 				    uint32_t iEta, uint32_t iPhi) {
   if(checkRegion(region)) {
-    std::cerr << "Invalid region number: region = " << region << std::endl;
+    LOG_ERROR << "Invalid region number: region = " << region << std::endl;
     exit(1);
   }
   if(checkEtaIndex(region, iEta)) {
-    std::cerr << "Invalid eta index: iEta = " << iEta << std::endl;
+    LOG_ERROR << "Invalid eta index: iEta = " << iEta << std::endl;
     exit(1);
   }
   if(checkPhiIndex(region, iPhi)) {
-    std::cerr << "Invalid eta index: iPhi = " << iPhi << std::endl;
+    LOG_ERROR << "Invalid eta index: iPhi = " << iPhi << std::endl;
     exit(1);
   }
   uint32_t linkNumber = 0xDEADBEEF;
@@ -40,11 +41,11 @@ uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region,
 int UCTGeometry::getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iEta) {
 
   if(checkRegion(region)) {
-    std::cerr << "Invalid region number: region = " << region << std::endl;
+    LOG_ERROR << "Invalid region number: region = " << region << std::endl;
     exit(1);
   }
   if(checkEtaIndex(region, iEta)) {
-    std::cerr << "Invalid eta index: iEta = " << iEta << std::endl;
+    LOG_ERROR << "Invalid eta index: iEta = " << iEta << std::endl;
     exit(1);
   }
 
@@ -61,15 +62,15 @@ int UCTGeometry::getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iE
 int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card, 
 				 uint32_t region, uint32_t iPhi) {
   if(checkCrate(crate)) {
-    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
+    LOG_ERROR << "Invalid crate number: crate = " << crate << std::endl;
     exit(1);
   }
   if(checkCard(card)) {
-    std::cerr << "Invalid card number: card = " << card << std::endl;
+    LOG_ERROR << "Invalid card number: card = " << card << std::endl;
     exit(1);
   }
   if(checkPhiIndex(region, iPhi)) {
-    std::cerr << "Invalid phi index: iPhi = " << iPhi << std::endl;
+    LOG_ERROR << "Invalid phi index: iPhi = " << iPhi << std::endl;
     exit(1);
   }
   int caloPhiIndex = 0xDEADBEEF;
@@ -88,11 +89,11 @@ int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card,
 
 uint32_t UCTGeometry::getUCTRegionPhiIndex(uint32_t crate, uint32_t card) {
   if(checkCrate(crate)) {
-    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
+    LOG_ERROR << "Invalid crate number: crate = " << crate << std::endl;
     exit(1);
   }
   if(checkCard(card)) {
-    std::cerr << "Invalid card number: card = " << card << std::endl;
+    LOG_ERROR << "Invalid card number: card = " << card << std::endl;
     exit(1);
   }
   uint32_t uctRegionPhiIndex = 0xDEADBEEF;

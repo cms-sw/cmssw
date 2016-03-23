@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "UCTTower.hh"
+#include "UCTLogging.hh"
 
 bool UCTTower::process() {
   if(region >= NRegionsInCard) {
@@ -88,7 +89,7 @@ bool UCTTower::setECALData(bool eFG, uint32_t eET) {
   ecalFG = eFG;
   ecalET = eET;
   if(eET > etInputMax) {
-    std::cerr << "UCTTower::setData - ecalET too high " << eET << "; Pegged to etInputMax" << std::endl;
+    LOG_ERROR << "UCTTower::setData - ecalET too high " << eET << "; Pegged to etInputMax" << std::endl;
     ecalET = etInputMax;
   }
   return true;
@@ -98,11 +99,11 @@ bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
   if(hET > etInputMax) {
-    std::cerr << "UCTTower::setData - ecalET too high " << hET << "; Pegged to etInputMax" << std::endl;
+    LOG_ERROR << "UCTTower::setData - ecalET too high " << hET << "; Pegged to etInputMax" << std::endl;
     hcalET = etInputMax;
   }
   if(hFB > 0x3F) {
-    std::cerr << "UCTTower::setData - too many hcalFeatureBits " << std::hex << hFB 
+    LOG_ERROR << "UCTTower::setData - too many hcalFeatureBits " << std::hex << hFB 
 	      << "; Used only bottom 6 bits" << std::endl;
     hcalFB &= 0x3F;
   }
