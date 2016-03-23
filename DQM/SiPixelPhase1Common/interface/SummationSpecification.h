@@ -39,11 +39,11 @@ struct SummationStep {
 struct SummationSpecification {
   std::vector<SummationStep> steps;
 
-  template<class stream>
-  void dump(stream& out) {
+  template<class stream, class GI>
+  void dump(stream& out, GI& gi) {
     for (auto& s : steps) {
       out << "Step: type " << s.type << " stage " << s.stage << " col ";
-      for (auto c : s.columns) out << c << " ";
+      for (auto c : s.columns) out << gi.pretty(c) << " ";
       out << " arg " << s.arg << "\n";
     }
   }
@@ -55,11 +55,13 @@ struct SummationSpecification {
 // For step1, it might also convert the command to be processed easyly.
 struct SummationSpecificationBuilder {
   SummationSpecification& spec;
+  GeometryInterface& geometryInterface;
   // small state machine to check validity of the program.
   SummationStep::Stage state = SummationStep::FIRST;
   std::set<GeometryInterface::Column> activeColums;
 
-  SummationSpecificationBuilder(SummationSpecification& s) : spec(s) {};
+  SummationSpecificationBuilder(SummationSpecification& s, GeometryInterface& gi) 
+    : spec(s), geometryInterface(gi) {};
 
   // General grouping, pass in the columns that should remain and the mode of 
   // histogram summation.
@@ -71,6 +73,9 @@ struct SummationSpecificationBuilder {
   // Save all parents, summed up like in the last grouping, in the hierarchy 
   // as specified.
   SummationSpecificationBuilder& saveAll();
+
+  private:
+  GeometryInterface::Column parse_columns(std::string name);
 };
 
 
