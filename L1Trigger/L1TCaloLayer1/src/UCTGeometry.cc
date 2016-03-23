@@ -5,6 +5,20 @@
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
+void UCTGeometry::UCTGeometry() {
+  twrEtaValues[0] = 0;
+  for(unsigned int i = 0; i < 20; i++) {
+    twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
+  }
+  twrEtaValues[21] = 1.785;
+  twrEtaValues[22] = 1.880;
+  twrEtaValues[23] = 1.9865;
+  twrEtaValues[24] = 2.1075;
+  twrEtaValues[25] = 2.247;
+  twrEtaValues[26] = 2.411;
+  twrEtaValues[27] = 2.575;
+  twrEtaValues[28] = 2.825;
+}
 uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region, 
 				    uint32_t iEta, uint32_t iPhi) {
   if(checkRegion(region)) {
@@ -201,23 +215,6 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
 }
 
 double UCTGeometry::getUCTTowerEta(int caloEta) {
-  static bool first = true;
-  static double twrEtaValues[29];
-  if(first) {
-    twrEtaValues[0] = 0;
-    for(unsigned int i = 0; i < 20; i++) {
-      twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
-    }
-    twrEtaValues[21] = 1.785;
-    twrEtaValues[22] = 1.880;
-    twrEtaValues[23] = 1.9865;
-    twrEtaValues[24] = 2.1075;
-    twrEtaValues[25] = 2.247;
-    twrEtaValues[26] = 2.411;
-    twrEtaValues[27] = 2.575;
-    twrEtaValues[28] = 2.825;
-    first = false;
-  }
   uint32_t absCaloEta = abs(caloEta);
   if(absCaloEta <= 28) return twrEtaValues[absCaloEta];
   else return -999.;
