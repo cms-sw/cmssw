@@ -187,9 +187,9 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
       << "Query " << m_configMapDb << " to see if the payload is already in DB.";
 
-  // query the CONFIG_TO_PAYLOAD_MAP table
+  // query the STRIP_CONFIG_TO_PAYLOAD_MAP table
   cmDbSession->transaction().start( true );
-  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "CONFIG_TO_PAYLOAD_MAP" );
+  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "STRIP_CONFIG_TO_PAYLOAD_MAP" );
   std::unique_ptr<coral::IQuery> query( cmTable.newQuery() );
   query->addToOutputList( "PAYLOAD_HASH" );
   query->defineOutputType( "PAYLOAD_HASH", coral::AttributeSpecification::typeNameForType<std::string>() );
@@ -224,7 +224,7 @@ void SiStripPayloadHandler<SiStripPayload>::updateConfigMap(std::string configHa
       << "Updating the config to payload hash map...";
   // create a writable transaction
   cmDbSession->transaction().start( false );
-  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "CONFIG_TO_PAYLOAD_MAP" );
+  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "STRIP_CONFIG_TO_PAYLOAD_MAP" );
   coral::AttributeList insertData;
   insertData.extend<std::string>( "CONFIG_HASH" );
   insertData.extend<std::string>( "PAYLOAD_HASH" );
