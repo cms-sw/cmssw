@@ -58,12 +58,14 @@ class OMTFConfigMaker{
   void fillInputRange(unsigned int iConfigMaker,
 		      unsigned int iCone,
 		      unsigned int iRefLayer,
-		      unsigned int iHit);
+		      unsigned int iInput);
 
-  ///Map of phi starting points
+  ///Map of phi starting and ending points
+  ///for each logic region.
   ///First index: reference layer number
-  ///Second index: processor number
+  ///Second index: logic region number
   std::vector<std::vector<int> > minRefPhi2D;
+  std::vector<std::vector<int> > maxRefPhi2D;
     
 };
 
