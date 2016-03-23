@@ -21,7 +21,7 @@ template <unsigned int N> MultiGaussianState<N>
 CloseComponentsMerger<N>::merge (const MultiState& mgs) const
 {
 
-  auto oldRes = mergeOld(mgs);
+  //auto oldRes = mergeOld(mgs);
 
   typedef std::vector<SingleStatePtr>  SingleStateVector;
 
@@ -44,7 +44,8 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
     }
 
     auto cmp = [&](int i, int j) { return weights[i] > weights[j];};
-    std::priority_queue<int, std::vector<int>, decltype(cmp)> toMerge(cmp);
+    unInitDynArray(int,noComp,qst); // queue storage
+    std::priority_queue<int, DynArray<int>, decltype(cmp)> toMerge(cmp,std::move(qst));
     for (int i=0; i<noComp; ++i) toMerge.push(i);
 
     auto minDistToMax = [&]()->int {
