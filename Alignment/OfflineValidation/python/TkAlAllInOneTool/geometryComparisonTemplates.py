@@ -92,7 +92,7 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 
 process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
-process.TrackerGeometryCompare.moduleList = '.oO[moduleList]Oo.'
+process.TrackerGeometryCompare.moduleList = '.oO[moduleListBase]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  

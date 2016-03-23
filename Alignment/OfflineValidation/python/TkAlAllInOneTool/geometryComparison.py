@@ -2,7 +2,7 @@ import os
 import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
-from helperFunctions import replaceByMap
+from helperFunctions import replaceByMap, getCommandOutput2
 from TkAlExceptions import AllInOneError
 
 
@@ -87,7 +87,8 @@ class GeometryComparison(GenericValidation):
                                           #  if not compared to IDEAL
             "reference": referenceName,
             "referenceTitle": referenceTitle,
-	    "alignmentTitle": self.alignmentToValidate.title
+	    "alignmentTitle": self.alignmentToValidate.title,
+            "moduleListBase": os.path.basename(repMap["moduleList"]),
             })
         if not referenceName == "IDEAL":
             repMap["referenceGeometry"] = (".oO[reference]Oo."
@@ -254,8 +255,21 @@ class GeometryComparison(GenericValidation):
 
         repMap["CommandLine"]=""
         repMap["CommandLine"]+= \
-                 ("# copy module list required for comparison script \n"
-                 "rfcp .oO[moduleList]Oo. .\n")
+                 "# copy module list required for comparison script \n"
+        if repMap["moduleList"].startswith("/store"):
+            repMap["CommandLine"]+= \
+                 "xrdcp root://eoscms//eos/cms.oO[moduleList]Oo. .\n"
+        elif repMap["moduleList"].startswith("root://"):
+            repMap["CommandLine"]+= \
+                 "xrdcp .oO[moduleList]Oo. .\n"
+        else:
+            repMap["CommandLine"]+= \
+                     "rfcp .oO[moduleList]Oo. .\n"
+
+        try:
+            getCommandOutput2(replaceByMap("cd $(mktemp -d)\n.oO[CommandLine]Oo.\ncat .oO[moduleListBase]Oo.", repMap))
+        except RuntimeError:
+            raise AllInOneError(replaceByMap(".oO[moduleList]Oo. does not exist!", repMap))
 
         for cfg in self.configFiles:
             # FIXME: produce this line only for enabled dbOutput
