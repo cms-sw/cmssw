@@ -55,7 +55,7 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
       active[topI]=false;
       for (int i=0; i<noComp; ++i) {
          if (!active[i]) continue;
-         assert(weights[topI]<=weights[i]);
+         // assert(weights[topI]<=weights[i]);
          auto dist = (*theDistance)(tc,*ori[i]);
          if (dist<mind) {
            mind=dist; im = i;
@@ -78,21 +78,21 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
       --nComp;
       nAct-=2;
       merged.push_back(MultiGaussianStateCombiner<N>().combine(comp));
-      assert(toMerge.size()>=0);
-      assert(int(toMerge.size())>=nAct);   
+      // assert(toMerge.size()>=0);
+      // assert(int(toMerge.size())>=nAct);   
     }
 
-    std::cout << theMaxNumberOfComponents << ' ' << noComp << ' ' << nComp << ' ' << nAct << ' ' << toMerge.size() << std::endl;
+    // std::cout << theMaxNumberOfComponents << ' ' << noComp << ' ' << nComp << ' ' << nAct << ' ' << toMerge.size() << std::endl;
 
     if (nComp <= theMaxNumberOfComponents) { // end game
 
-        
+        /*
         {
           int kk=merged.size();
           for (int i=0; i<noComp; ++i) { if (active[i]) ++kk;}
           assert(kk==nComp);
         }
-        
+        */
  
       MultiGaussianStateAssembler<N> result;
 
@@ -101,14 +101,14 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
 
       auto res = result.combinedState();
       
-      
+      /*
       assert(res.components().size()==oldRes.components().size());
       std::cout << res.weight() << ' ' << oldRes.weight() << std::endl;
       for(auto const & c : res.components()) std::cout << c->weight() << '/';
       std::cout << std::endl;
       for(auto const & c : oldRes.components()) std::cout << c->weight() <<	'/';
       std::cout	<< std::endl;
-      
+      */
 
       return res;
     }
@@ -219,7 +219,7 @@ CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmerge
   for (typename SingleStateMap::iterator it = unmergedComp.begin();
        it != unmergedComp.end(); it++) {
     if (it != unmergedComp.begin()) {
-      assert(unmergedComp.begin()->first >=it->first);
+      // assert(unmergedComp.begin()->first >=it->first);
       double dist = (*theDistance)(*unmergedComp.begin()->second, *it->second);
       if (dist < minDist) {
 	iterMinDist = it;
