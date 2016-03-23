@@ -15,16 +15,16 @@ globalTag = {
 class ConnectionL1TMenu(object):
   def __init__(self, value):
     self.override = None
-    self.connect  = None
+    self.snapshotTime = None
 
     # extract the override tag and the connection string
     if value:
       if ',' in value:
         self.override = value.split(',')[0]
-        self.connect  = value.split(',')[1]
+        self.snapshotTime = value.split(',')[1]
       else:
         self.override = value
-        self.connect  = None
+        self.smapshotTime = None
 
 
 # type used to store a reference to an L1 menu

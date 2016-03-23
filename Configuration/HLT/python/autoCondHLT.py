@@ -65,6 +65,4 @@ def autoCondHLT(autoCond):
         else:
            autoCond[key] = ( autoCond[val[0]],) + val[1]
 
-    autoCond['phase1_2017_design'] = ( autoCond['phase1_2017_design'],) + l1Menus['GRun']
-
     return autoCond
