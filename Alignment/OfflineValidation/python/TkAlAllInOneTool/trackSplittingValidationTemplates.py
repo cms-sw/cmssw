@@ -86,7 +86,7 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
-process.AlignmentTrackSelector.minHitsPerSubDet.in.oO[subdetector]Oo. = 2
+.oO[subdetselection]Oo.
 #process.AlignmentTrackSelector.trackQualities = ["highPurity"]
 #process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=30.0
