@@ -15,6 +15,7 @@
 
 UCTLayer1::UCTLayer1() : uctSummary(0) {
   UCTGeometry g;
+  crates.reserve(g.getNCrates());
   for(uint32_t crate = 0; crate < g.getNCrates(); crate++) {
     crates.push_back(new UCTCrate(crate));
   }

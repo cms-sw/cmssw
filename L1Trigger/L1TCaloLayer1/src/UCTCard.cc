@@ -12,6 +12,7 @@ UCTCard::UCTCard(uint32_t crt, uint32_t crd) :
   card(crd),
   cardSummary(0) {
   UCTGeometry g;
+  regions.reserve(2*g.getNRegions());
   for(uint32_t rgn = 0; rgn < g.getNRegions(); rgn++) {
     // Negative eta side
     regions.push_back(new UCTRegion(crate, card, true, rgn));
@@ -76,8 +77,8 @@ bool UCTCard::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
 const UCTRegion* UCTCard::getRegion(UCTRegionIndex r) const {
   UCTGeometry g;
   UCTTowerIndex t = g.getUCTTowerIndex(r);
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   bool negativeEta = false;
   if(t.first < 0) negativeEta = true;
   return getRegion(negativeEta, absCaloEta, absCaloPhi);
