@@ -23,7 +23,7 @@ public:
   //
   // constructors
   //
-  MultiGaussianStateAssembler (const MultiState & state);
+  MultiGaussianStateAssembler() = default;
   
   /** Adds a new MultiGaussianState to the list 
    *  of components
@@ -64,12 +64,11 @@ private:
   void removeSmallWeights ();
 
 private:
-  const MultiState theInitialState;
-  double minFractionalWeight;
+  double minFractionalWeight = 1.e-16;
 
-  bool combinationDone;
+  bool combinationDone=false;
 
-  double theValidWeightSum;
+  double theValidWeightSum=0;
   SingleStateContainer theStates;
   
 };

@@ -3,12 +3,6 @@
 
 
 template <unsigned int N>
-MultiGaussianStateAssembler<N>::MultiGaussianStateAssembler (const MultiState & state) :
-  theInitialState(state), minFractionalWeight(1.e-16),
-  combinationDone(false), theValidWeightSum(0.)
-{}
-
-template <unsigned int N>
 void MultiGaussianStateAssembler<N>::addState (const SingleStatePtr& sgs)
 {
   //
