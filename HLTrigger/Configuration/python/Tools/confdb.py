@@ -39,10 +39,10 @@ class HLTProcess(object):
 
     self.labels = {}
     if self.config.fragment:
-      self.labels['process'] = 'fragment.'
+      self.labels['process'] = 'fragment'
       self.labels['dict']    = 'fragment.__dict__'
     else:
-      self.labels['process'] = 'process.'
+      self.labels['process'] = 'process'
       self.labels['dict']    = 'process.__dict__'
 
     if self.config.online:
@@ -185,12 +185,12 @@ _customInfo['globalTag' ]= "%s"
 _customInfo['inputFile' ]=  %s
 _customInfo['realData'  ]=  %s
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-process = customizeHLTforAll(process,"%s",_customInfo)
+%%(process)s = customizeHLTforAll(%%(process)s,"%s",_customInfo)
 """ % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.type)
 
     self.data += """
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process,"%s")
+%%(process)s = customizeHLTforCMSSW(%%(process)s,"%s")
 """ % (self.config.type)
 
   # customize the configuration according to the options
@@ -228,10 +228,10 @@ process = customizeHLTforCMSSW(process,"%s")
       self.data += """
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+    %(process)s.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
-    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+    %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
     else:
@@ -282,7 +282,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     # add global options
     self.data += """
 # limit the number of events to be processed
-%%(process)smaxEvents = cms.untracked.PSet(
+%%(process)s.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( %d )
 )
 """ % self.config.events
@@ -290,7 +290,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     if not self.config.profiling:
       self.data += """
 # enable the TrigReport and TimeReport
-%(process)soptions = cms.untracked.PSet(
+%(process)s.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 """
@@ -334,8 +334,8 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       self.data += """
 # force the use of a specific HLT prescale column
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.forceDefault     = True
-    %(process)sPrescaleService.lvl1DefaultLabel = '%(prescale)s'
+    %(process)s.PrescaleService.forceDefault     = True
+    %(process)s.PrescaleService.lvl1DefaultLabel = '%(prescale)s'
 """
 
 
@@ -398,20 +398,20 @@ if 'GlobalTag' in %(dict)s:
 
     if self.config.globaltag or self.config.l1cond:
       text += "    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag\n"
-      text += "    %(process)sGlobalTag = customiseGlobalTag(%(process)sGlobalTag"
+      text += "    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
       if self.config.l1cond:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
-    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-    for pset in process.GlobalTag.toGet.value():
+    text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
+    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
+    for pset in %(process)s.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
     # fix for multi-run processing
-    %(process)sGlobalTag.RefreshEachRun = cms.untracked.bool( False )
-    %(process)sGlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 """
     self.data += text
 
@@ -421,7 +421,7 @@ if 'GlobalTag' in %(dict)s:
       text = """
 # override the GlobalTag's L1T menu from an Xml file
 from HLTrigger.Configuration.CustomConfigs import L1XML
-process = L1XML(process,"%s")
+%(process)s = L1XML(%(process)s,"%s")
 """ % (self.config.l1Xml.XmlFile) 
       self.data += text
 
@@ -431,7 +431,7 @@ process = L1XML(process,"%s")
       text = """
 # run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
 from HLTrigger.Configuration.CustomConfigs import L1REPACK
-process = L1REPACK(process)
+%(process)s = L1REPACK(%(process)s)
 """
       self.data += text
 
@@ -439,7 +439,7 @@ process = L1REPACK(process)
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub(
       r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
-      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
+      r'%(process)s.hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
       self.data
     )
 
@@ -447,7 +447,7 @@ process = L1REPACK(process)
       # add a single "keep *" output
       self.data += """
 # add a single "keep *" output
-%(process)shltOutputFULL = cms.OutputModule( "PoolOutputModule",
+%(process)s.hltOutputFULL = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputFULL.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
@@ -456,7 +456,7 @@ process = L1REPACK(process)
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)sFULLOutput = cms.EndPath( %(process)shltOutputFULL )
+%(process)s.FULLOutput = cms.EndPath( %(process)s.hltOutputFULL )
 """
 
 
@@ -475,35 +475,35 @@ process = L1REPACK(process)
     self.data += """
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in %%(dict)s:
-    %%(process)shltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTMONOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-    %%(process)shltDQMHLTScalers.processname                      = '%(name)s'
+    %%(process)s.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltDQMHLTScalers.processname                      = '%(name)s'
 
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)shltDQML1SeedLogicScalers.processname              = '%(name)s'
+    %%(process)s.hltDQML1SeedLogicScalers.processname              = '%(name)s'
 """ % self.config.__dict__
 
 
@@ -511,11 +511,11 @@ if 'hltDQML1SeedLogicScalers' in %%(dict)s:
     # request summary informations from the MessageLogger
     self.data += """
 if 'MessageLogger' in %(dict)s:
-    %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
-    %(process)sMessageLogger.categories.append('L1GtTrigReport')
-    %(process)sMessageLogger.categories.append('L1TGlobalSummary')
-    %(process)sMessageLogger.categories.append('HLTrigReport')
-    %(process)sMessageLogger.categories.append('FastReport')
+    %(process)s.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    %(process)s.MessageLogger.categories.append('L1GtTrigReport')
+    %(process)s.MessageLogger.categories.append('L1TGlobalSummary')
+    %(process)s.MessageLogger.categories.append('HLTrigReport')
+    %(process)s.MessageLogger.categories.append('FastReport')
 """
 
 
@@ -526,7 +526,7 @@ if 'MessageLogger' in %(dict)s:
 if 'GlobalTag' in %%(dict)s:
 """ % comment
     for condition in conditions:
-      self.data += """    %%(process)sGlobalTag.toGet.append(
+      self.data += """    %%(process)s.GlobalTag.toGet.append(
         cms.PSet(
             record  = cms.string( '%(record)s' ),
             tag     = cms.string( '%(tag)s' ),
@@ -552,7 +552,7 @@ if 'GlobalTag' in %%(dict)s:
     # override a module's parameter if the module is present in the configuration
     self.data += "if '%s' in %%(dict)s:\n" % module
     for (parameter, value) in parameters:
-      self.data += "    %%(process)s%s.%s = %s\n" % (module, parameter, value)
+      self.data += "    %%(process)s.%s.%s = %s\n" % (module, parameter, value)
     self.data += "\n"
 
 
@@ -564,7 +564,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltGetRaw' in self.data:
         # add hltGetRaw
         text += """
-%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+%(process)s.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
 """
@@ -572,7 +572,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltGetConditions' in self.data:
         # add hltGetConditions
         text += """
-%(process)shltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
+%(process)s.hltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
     verbose = cms.untracked.bool( False ),
     toGet = cms.VPSet( )
 )
@@ -581,7 +581,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltBoolFalse' in self.data:
         # add hltBoolFalse
         text += """
-%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
+%(process)s.hltBoolFalse = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
 """
@@ -589,7 +589,7 @@ if 'GlobalTag' in %%(dict)s:
       # add the definition of HLTriggerFirstPath
       # FIXME in a cff, should also update the HLTSchedule
       text += """
-%(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
+%(process)s.HLTriggerFirstPath = cms.Path( %(process)s.hltGetRaw + %(process)s.hltGetConditions + %(process)s.hltBoolFalse )
 """
       self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
 
@@ -608,42 +608,42 @@ if 'GlobalTag' in %%(dict)s:
         self.data += '\n# configure the FastTimerService\n'
 
       self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
-%(process)sFastTimerService.useRealTimeClock          = True
+%(process)s.FastTimerService.useRealTimeClock          = True
 # enable specific features
-%(process)sFastTimerService.enableTimingPaths         = True
-%(process)sFastTimerService.enableTimingModules       = True
-%(process)sFastTimerService.enableTimingExclusive     = True
+%(process)s.FastTimerService.enableTimingPaths         = True
+%(process)s.FastTimerService.enableTimingModules       = True
+%(process)s.FastTimerService.enableTimingExclusive     = True
 # print a text summary at the end of the job
-%(process)sFastTimerService.enableTimingSummary       = True
+%(process)s.FastTimerService.enableTimingSummary       = True
 # skip the first path (disregard the time spent loading event and conditions data)
-%(process)sFastTimerService.skipFirstPath             = True
+%(process)s.FastTimerService.skipFirstPath             = True
 # enable DQM plots
-%(process)sFastTimerService.enableDQM                 = True
+%(process)s.FastTimerService.enableDQM                 = True
 # enable most per-path DQM plots
-%(process)sFastTimerService.enableDQMbyPathActive     = True
-%(process)sFastTimerService.enableDQMbyPathTotal      = True
-%(process)sFastTimerService.enableDQMbyPathOverhead   = False
-%(process)sFastTimerService.enableDQMbyPathDetails    = True
-%(process)sFastTimerService.enableDQMbyPathCounters   = True
-%(process)sFastTimerService.enableDQMbyPathExclusive  = True
+%(process)s.FastTimerService.enableDQMbyPathActive     = True
+%(process)s.FastTimerService.enableDQMbyPathTotal      = True
+%(process)s.FastTimerService.enableDQMbyPathOverhead   = False
+%(process)s.FastTimerService.enableDQMbyPathDetails    = True
+%(process)s.FastTimerService.enableDQMbyPathCounters   = True
+%(process)s.FastTimerService.enableDQMbyPathExclusive  = True
 # disable per-module DQM plots
-%(process)sFastTimerService.enableDQMbyModule         = False
-%(process)sFastTimerService.enableDQMbyModuleType     = False
+%(process)s.FastTimerService.enableDQMbyModule         = False
+%(process)s.FastTimerService.enableDQMbyModuleType     = False
 # enable per-event DQM sumary plots
-%(process)sFastTimerService.enableDQMSummary          = True
+%(process)s.FastTimerService.enableDQMSummary          = True
 # enable per-event DQM plots by lumisection
-%(process)sFastTimerService.enableDQMbyLumiSection    = True
-%(process)sFastTimerService.dqmLumiSectionsRange      = 2500
+%(process)s.FastTimerService.enableDQMbyLumiSection    = True
+%(process)s.FastTimerService.dqmLumiSectionsRange      = 2500
 # set the time resolution of the DQM plots
-%(process)sFastTimerService.dqmTimeRange              = 1000.
-%(process)sFastTimerService.dqmTimeResolution         =    5.
-%(process)sFastTimerService.dqmPathTimeRange          =  100.
-%(process)sFastTimerService.dqmPathTimeResolution     =    0.5
-%(process)sFastTimerService.dqmModuleTimeRange        =   40.
-%(process)sFastTimerService.dqmModuleTimeResolution   =    0.2
+%(process)s.FastTimerService.dqmTimeRange              = 1000.
+%(process)s.FastTimerService.dqmTimeResolution         =    5.
+%(process)s.FastTimerService.dqmPathTimeRange          =  100.
+%(process)s.FastTimerService.dqmPathTimeResolution     =    0.5
+%(process)s.FastTimerService.dqmModuleTimeRange        =   40.
+%(process)s.FastTimerService.dqmModuleTimeResolution   =    0.2
 # set the base DQM folder for the plots
-%(process)sFastTimerService.dqmPath                   = 'HLT/TimerService'
-%(process)sFastTimerService.enableDQMbyProcesses      = True
+%(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
+%(process)s.FastTimerService.enableDQMbyProcesses      = True
 """
 
 
@@ -658,9 +658,9 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
       dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-      dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
+      dqmstore += "%(process)s.DQMStore.enableMultiThread = True\n"
       dqmstore += """
-%(process)sdqmOutput = cms.OutputModule("DQMRootOutputModule",
+%(process)s.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 """
@@ -669,14 +669,14 @@ if 'GlobalTag' in %%(dict)s:
       other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
       if empty_path.search(self.data):
         # replace an empty DQMOutput path
-        self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
+        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n', self.data)
       elif other_path.search(self.data):
         # prepend the dqmOutput to the DQMOutput path
-        self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
+        self.data = other_path.sub(dqmstore + r'\g<1> %(process)s.dqmOutput +\g<3>', self.data)
       else:
         # ceate a new DQMOutput path with the dqmOutput module
         self.data += dqmstore
-        self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
+        self.data += '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n'
 
 
   @staticmethod
@@ -876,7 +876,7 @@ if 'GlobalTag' in %%(dict)s:
       self.parent = self.expand_filenames(self.config.parent)
 
     self.data += """
-%(process)ssource = cms.Source( "PoolSource",
+%(process)s.source = cms.Source( "PoolSource",
 """
     self.append_filenames("fileNames", self.source)
     if (self.parent):
