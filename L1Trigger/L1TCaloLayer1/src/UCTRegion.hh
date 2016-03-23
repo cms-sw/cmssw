@@ -6,9 +6,11 @@
 
 #include "UCTTower.hh"
 
-#define RegionETMask  0x000003FF
-#define RegionLocBits 0x0000F000
-#define LocationShift 12
+namespace {
+  constexpr uint32_t RegionETMask{ 0x000003FF};
+  constexpr uint32_t RegionLocBits{0x0000F000};
+  constexpr uint32_t LocationShift{12};
+}
 
 class UCTRegion {
 public:

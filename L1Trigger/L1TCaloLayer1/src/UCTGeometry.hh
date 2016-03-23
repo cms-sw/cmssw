@@ -36,36 +36,38 @@
 
 #include <utility>
 
-#define NCrates 3
-#define NCardsInCrate 6
-#define NRegionsInCard 7
-#define NEtaInRegion 4
-#define NPhiInRegion 4
-#define NPhiInCard NPhiInRegion // For convenience of Layer-2 we always have the same number of phi divisions
+namespace {
+  constexpr uint32_t NCrates{3};
+  constexpr uint32_t NCardsInCrate{6};
+  constexpr uint32_t NRegionsInCard{7};
+  constexpr uint32_t NEtaInRegion{4};
+  constexpr uint32_t NPhiInRegion{4};
+  constexpr uint32_t NPhiInCard{NPhiInRegion}; // For convenience of Layer-2 we always have the same number of phi divisions
 
-#define HFEtaOffset NRegionsInCard * NEtaInRegion + 1
-#define NHFRegionsInCard 6
-#define NHFEtaInRegion 2
+  constexpr uint32_t HFEtaOffset{NRegionsInCard * NEtaInRegion + 1};
+  constexpr uint32_t NHFRegionsInCard{6};
+  constexpr uint32_t NHFEtaInRegion{2};
 
-#define NSides 2  // Positive and Negative Eta sides
-#define NEta NRegionsInCard * NEtaInRegion
-#define NPhi NCrates * NCardsInCrate * NPhiInRegion
-#define NHFEta NHFRegionsInCard * NHFEtaInRegion
-#define NHFPhi NCrates * NCardsInCrate * NPhiInRegion
+  constexpr uint32_t NSides{2};  // Positive and Negative Eta sides
+  constexpr uint32_t NEta{NRegionsInCard * NEtaInRegion};
+  constexpr uint32_t NPhi{NCrates * NCardsInCrate * NPhiInRegion};
+  constexpr uint32_t NHFEta{NHFRegionsInCard * NHFEtaInRegion};
+  constexpr uint32_t NHFPhi{NCrates * NCardsInCrate * NPhiInRegion};
 
-#define MaxCrateNumber (NCrates - 1)
-#define MaxCardNumber (NCardsInCrate - 1)
-#define MaxRegionNumber (NRegionsInCard - 1)
-#define MaxEtaInRegion (NEtaInRegion - 1)
-#define MaxPhiInRegion (NPhiInRegion - 1)
+  constexpr uint32_t MaxCrateNumber{(NCrates - 1)};
+  constexpr uint32_t MaxCardNumber{(NCardsInCrate - 1)};
+  constexpr uint32_t MaxRegionNumber{(NRegionsInCard - 1)};
+  constexpr uint32_t MaxEtaInRegion{(NEtaInRegion - 1)};
+  constexpr uint32_t MaxPhiInRegion{(NPhiInRegion - 1)};
 
-#define MaxCaloEta 41
-#define MaxCaloPhi 72
-#define CaloHFRegionStart 7
-#define CaloVHFRegionStart 12
+  constexpr int MaxCaloEta{41};
+  constexpr int MaxCaloPhi{72};
+  constexpr uint32_t CaloHFRegionStart{7};
+  constexpr uint32_t CaloVHFRegionStart{12};
 
-#define MaxUCTRegionsPhi MaxCaloPhi / NPhiInRegion
-#define MaxUCTRegionsEta 2 * (NRegionsInCard + NHFRegionsInCard)
+  constexpr uint32_t MaxUCTRegionsPhi{MaxCaloPhi / NPhiInRegion};
+  constexpr uint32_t MaxUCTRegionsEta{2 * (NRegionsInCard + NHFRegionsInCard)};
+}
 
 typedef std::pair<int, uint32_t> UCTRegionIndex;
 typedef std::pair<int, int> UCTTowerIndex;
