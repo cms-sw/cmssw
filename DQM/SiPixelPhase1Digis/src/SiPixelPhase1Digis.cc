@@ -29,10 +29,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setRange(300, 0, 300)
     .setDimensions(1);
   histo[ADC].addSpec()
-    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
-    .saveAll();
-  histo[ADC].addSpec()
-    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade")
     .saveAll();
   histo[ADC].addSpec()
     .groupBy("BX")
@@ -47,21 +44,10 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setRange(30, 0, 30)
     .setDimensions(1);
   histo[NDIGIS].addSpec()
-    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer/P1PXBLadder")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade")
     .save()
     .reduce("MEAN")
-    .groupBy("P1PXBBarrel/P1PXBHalfBarrel/P1PXBLayer", "EXTEND_X")
-    .save()
-    .groupBy("P1PXBBarrel/P1PXBHalfBarrel", "EXTEND_X")
-    .save()
-    .groupBy("P1PXBBarrel", "EXTEND_X")
-    .save();
-  histo[NDIGIS].addSpec()
-    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk/P1PXECBlade")
-    .save()
-    .reduce("MEAN")
-    .save()
-    .groupBy("P1PXECEndcap/P1PXECHalfCylinder/P1PXECHalfDisk", "EXTEND_X")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
     .saveAll();
 
 
