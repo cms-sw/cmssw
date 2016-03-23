@@ -38,7 +38,8 @@ void GeometryInterface::load(edm::EventSetup const& iSetup, const edm::Parameter
   loadTimebased(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto& e : extractors) log << "+++ column: " << e.first << " max " << max_value[e.first] << "\n";
+  for (auto e : ids) log << "+++ column: " << e.first 
+    << " ok " << bool(extractors[e.second]) << " max " << max_value[e.second] << "\n";
   is_loaded = true;
 }
 
@@ -137,16 +138,9 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
                                   << info.variableMask << " " << type << "\n";
     int variable_shift = 0;
     while (info.variableMask && ((info.variableMask >> variable_shift) & 1) == 0) variable_shift++;
-    max_value[type] = info.variableMask >> variable_shift;
-    extractors.insert(std::make_pair(
-      type,
+    addExtractor(
+      intern(type),
       [info, variable_shift] (InterestingQuantities const& iq) {
-	//auto it = info.examples.find(iq.sourceModule.rawId());
-	//if (it == info.examples.end()) {
-	  //return Value(UNDEFINED);
-	//} else {
-	  //return Value(std::distance(info.examples.begin(), it));
-	//}
 	uint32_t id = iq.sourceModule.rawId();
 	if ((id & info.characteristicMask) == (info.characteristicBits & info.characteristicMask)) {
 	  uint32_t pos = (id & info.variableMask) >> variable_shift;
@@ -154,7 +148,8 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 	} else {
 	  return Value(UNDEFINED);
 	}
-      })
+      },
+      info.variableMask >> variable_shift
     );
 
   }
@@ -162,20 +157,20 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
 }
 
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  // extractors for quantities that are rouchly time-based. We cannot book plots based on these; they have to
+  // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.
-  max_value["Lumisection"] = 5000;
-  extractors.insert(std::make_pair("Lumisection",
+  addExtractor(intern("Lumisection"),
     [] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->luminosityBlock());
-    })
+    },
+    5000
   );
-  max_value["BX"] = 3600; // TODO: put actual max. BX
-  extractors.insert(std::make_pair("BX",
+  addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->bunchCrossing());
-    })
+    },
+    3600 // TODO: put actual max. BX
   );
 }
