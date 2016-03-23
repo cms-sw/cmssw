@@ -387,12 +387,13 @@ if 'GlobalTag' in %(dict)s:
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
-      self.config.l1.record = 'L1TUtmTriggerMenuRcd'
-      self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
-      if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
-      self.config.l1cond = '%(tag)s,%(record)s,%(connect)s' % self.config.l1.__dict__
+      self.config.l1.record = 'L1TUtmTriggerMenuRcd'
+      self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
+      self.config.l1.label  = ''
+      if not self.config.l1.snapshotTime:
+        self.config.l1.snapshotTime = '9999-12-31 23:59:59.000'
+      self.config.l1cond = '%(tag)s,%(record)s,%(connect)s,%(label)s,%(snapshotTime)s' % self.config.l1.__dict__
     else:
       self.config.l1cond = None
 
