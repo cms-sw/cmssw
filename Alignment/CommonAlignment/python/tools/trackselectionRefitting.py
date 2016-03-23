@@ -49,14 +49,13 @@ def getSequence(process, collection,
         "trackQualities": ["highPurity"],
         "filter": True,
         "etaMin": -3.0,
-        "etaMax": 3.0
+        "etaMax": 3.0,
+        "pMin": 8.0
         }
     options["TrackSelector"]["Alignment"] = {
         "filter": True,
         "pMin": 3.0,
         "nHitMin2D": 2,        
-        "applyMultiplicityFilter": False,
-        "maxMultiplicity": 1,
         "d0Min": -50.0,
         "d0Max": 50.0,
         "etaMin": -3.0,
@@ -81,8 +80,7 @@ def getSequence(process, collection,
         "rejectLowAngleHits": True,
         "usePixelQualityFlag": usePixelQualityFlag,
         "StoNcommands": cms.vstring("ALL 12.0"),
-        "TrackAngleCut": 0.087,
-        "detsToIgnore": [344070404, 402672394, 352459012, 344070404, 369125398, 369141862, 470116592]
+        "TrackAngleCut": 0.087
         }
     options["TrackFitter"]["HitFilteredTracks"] = {
         "NavigationSchool": "",
@@ -112,11 +110,11 @@ def getSequence(process, collection,
                     })
         if cosmicsZeroTesla:
             options["TrackHitFilter"]["Tracker"].update({
-                    "TrackAngleCut": 0.087 # Run-I: 0.087 for 0T
+                    "TrackAngleCut": 0.1 # Run-I: 0.087 for 0T
                     })
         else:
             options["TrackHitFilter"]["Tracker"].update({
-                    "TrackAngleCut": 0.35 # Run-I: 0.35 for 3.8T
+                    "TrackAngleCut": 0.1 # Run-I: 0.35 for 3.8T
                     })
         options["TrackSelector"]["Alignment"].update({
                 "pMin": 4.0,
@@ -130,6 +128,8 @@ def getSequence(process, collection,
                 ("minHitsPerSubDet", "inPIXEL"): 1,
                 "ptMin": 5.0,
                 "nHitMin": 10,
+                "applyMultiplicityFilter": True,
+                "maxMultiplicity": 1,
                 })
     elif collection is "ALCARECOTkAlZMuMu":
         options["TrackSelector"]["Alignment"].update({
