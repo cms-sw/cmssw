@@ -76,7 +76,7 @@ class UCTGeometry {
 
 public:
 
-  UCTGeometry() {;}
+  UCTGeometry();
   ~UCTGeometry() {;}
 
   // Calorimeter indices are defined to be ints and do not count from zero
@@ -157,6 +157,8 @@ public:
   double getUCTTowerEta(int caloEta);
   double getUCTTowerPhi(int caloPhi, int caloEta);
 
+private:
+  double twrEtaValues[29];
 };
 
 #endif
