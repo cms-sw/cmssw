@@ -84,7 +84,7 @@ DoodadESSource::DoodadESSource(edm::ParameterSet const& pset)
 
 std::unique_ptr<Doodad> 
 DoodadESSource::produce(const GadgetRcd&) {
-   std::unique_ptr<Doodad> data(new Doodad());
+   auto data = std::make_unique<Doodad>();
    data->a = nCalls_;
    ++nCalls_;
    return data;

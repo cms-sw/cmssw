@@ -108,7 +108,7 @@ namespace edm {
   void
   StreamerOutputModuleBase::beginRun(RunForOutput const&) {
     start();
-    std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
+    std::unique_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
     serializeDataBuffer_.header_buf_.clear();
     serializeDataBuffer_.header_buf_.shrink_to_fit();
@@ -135,11 +135,11 @@ namespace edm {
 
   void
   StreamerOutputModuleBase::write(EventForOutput const& e) {
-    std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e);
+    std::unique_ptr<EventMsgBuilder> msg = serializeEvent(e);
     doOutputEvent(*msg); // You can't use msg in StreamerOutputModuleBase after this point
   }
 
-  std::auto_ptr<InitMsgBuilder>
+  std::unique_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
 
     serializer_.serializeRegistry(serializeDataBuffer_, *branchIDLists(), *thinnedAssociationsHelper());
@@ -182,13 +182,13 @@ namespace edm {
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
-    std::auto_ptr<InitMsgBuilder> init_message(
-        new InitMsgBuilder(&serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
+    auto init_message = std::make_unique<InitMsgBuilder>(
+                           &serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
                            run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serializeDataBuffer_.adler32_chksum()));
+                           (uint32)serializeDataBuffer_.adler32_chksum());
 
     // copy data into the destination message
     unsigned char* src = serializeDataBuffer_.bufferPointer();
@@ -245,7 +245,7 @@ namespace edm {
     if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
   }
 
-  std::auto_ptr<EventMsgBuilder>
+  std::unique_ptr<EventMsgBuilder>
   StreamerOutputModuleBase::serializeEvent(EventForOutput const& e) {
     //Lets Build the Event Message first
 
@@ -272,11 +272,11 @@ namespace edm {
     unsigned int new_size = src_size + 50000;
     if(serializeDataBuffer_.bufs_.size() < new_size) serializeDataBuffer_.bufs_.resize(new_size);
 
-    std::auto_ptr<EventMsgBuilder>
-      msg(new EventMsgBuilder(&serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
+    auto msg = std::make_unique<EventMsgBuilder>(
+                              &serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_, 0,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
-                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_) );
+                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_);
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message

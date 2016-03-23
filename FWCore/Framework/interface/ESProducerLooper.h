@@ -51,7 +51,7 @@ namespace edm {
         
       //use this to 'snoop' on what records are being used by the Producer
       virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                          std::auto_ptr<eventsetup::ProxyFactoryBase>& iFactory,
+                                          std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
                                           const std::string& iLabel= std::string() );
 private:
       ESProducerLooper(const ESProducerLooper&); // stop default

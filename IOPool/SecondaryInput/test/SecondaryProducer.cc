@@ -141,7 +141,7 @@ namespace edm {
     WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
-    std::unique_ptr<TC> thing(new TC(*tp));
+    auto thing = std::make_unique<TC>(*tp);
 
     // Put output into event
     e.put(std::move(thing));

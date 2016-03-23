@@ -155,15 +155,15 @@ void take_an_lvalue()
   Base* p = new Derived(100);
   v1.push_back(p);
 
-  assert(p == 0);
+  assert(p == nullptr);
 }
 
 void take_an_auto_ptr()
 {
   edm::OwnVector<Base> v1;
-  std::auto_ptr<Base> p(new Derived(100));
-  v1.push_back(p);
-  assert(p.get() == 0);
+  std::unique_ptr<Base> p = std::make_unique<Derived>(100);
+  v1.push_back(std::move(p));
+  assert(p.get() == nullptr);
 }
 
 void set_at_index()
@@ -172,13 +172,13 @@ void set_at_index()
   Base* p = new Derived(100);
   Base* backup = p;
   v1.push_back(p);
-  assert(p == 0);
+  assert(p == nullptr);
   assert(&v1[0] == backup);
   Base* p2 = new Derived(101);
   Base* backup2 = p2;
   assert(backup2 != backup);
   v1.set(0, p2);
-  assert(p2 == 0);
+  assert(p2 == nullptr);
   assert(&v1[0] == backup2);
 }
 
@@ -192,9 +192,9 @@ void insert_with_iter()
   v1.push_back(p[0]);
   v1.push_back(p[2]);
   v1.insert(v1.begin()+1, p[1]);
-  assert(p[0] == 0);
-  assert(p[1] == 0);
-  assert(p[2] == 0);
+  assert(p[0] == nullptr);
+  assert(p[1] == nullptr);
+  assert(p[2] == nullptr);
   assert(&v1[0] == backup[0]);
   assert(&v1[1] == backup[1]);
   assert(&v1[2] == backup[2]);
