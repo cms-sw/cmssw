@@ -67,31 +67,31 @@ void Tau::setIsMerged(bool isMerged) {
   isMerged_ = isMerged;
 }
 
-short int Tau::towerIEta() {
+short int Tau::towerIEta() const {
   return towerIEta_;
 }
 
-short int Tau::towerIPhi() {
+short int Tau::towerIPhi() const {
   return towerIPhi_;
 }
 
-short int Tau::rawEt() {
+short int Tau::rawEt() const {
   return rawEt_;
 }
 
-short int Tau::isoEt() {
+short int Tau::isoEt() const {
   return isoEt_;
 }
 
-short int Tau::nTT() {
+short int Tau::nTT() const {
   return nTT_;
 }
 
-bool Tau::hasEM() {
+bool Tau::hasEM() const {
   return hasEM_;
 }
 
-bool Tau::isMerged() {
+bool Tau::isMerged() const {
   return isMerged_;
 }
 
