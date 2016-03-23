@@ -348,8 +348,8 @@ L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std
     if(side == 0) negativeEta = true;
     for(uint32_t region = 0; region <= 6; region++) {
       uint32_t regionData = ctp7Data.getRegionSummary(negativeEta, region);
-      uint32_t lEta = region + 4; // GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
-      if(!negativeEta) lEta += 7;
+      uint32_t lEta = 10 - region; // GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
+      if(!negativeEta) lEta = region + 11;
       regions->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) lEta, (unsigned) lPhi, (int16_t) 0));
     }
   }
