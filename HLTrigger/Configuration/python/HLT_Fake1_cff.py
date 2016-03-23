@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake1/V7 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/Fake1/V8 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V7')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V8')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -160,7 +160,7 @@ fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-fragment.hltPreAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
+fragment.hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -189,7 +189,7 @@ fragment.HLT_Physics_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreP
 fragment.HLT_Random_v1 = cms.Path( fragment.hltRandomEventsFilter + fragment.hltGtDigis + fragment.hltPreRandom + fragment.HLTEndSequence )
 fragment.HLT_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1ZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtDigis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
-fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtDigis + fragment.hltPreAnalyzerEndpath + fragment.hltL1GtTrigReport + fragment.hltTrigReport )
+fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtDigis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1GtTrigReport + fragment.hltTrigReport )
 
 
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v1, fragment.HLT_Random_v1, fragment.HLT_ZeroBias_v1, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))

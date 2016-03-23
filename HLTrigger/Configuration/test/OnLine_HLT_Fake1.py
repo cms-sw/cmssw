@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake1/V7 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/Fake1/V8 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V7')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V8')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -324,7 +324,7 @@ process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-process.hltPreAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
+process.hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -375,7 +375,7 @@ process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhys
 process.HLT_Random_v1 = cms.Path( process.hltRandomEventsFilter + process.hltGtDigis + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltPreAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
+process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltPreHLTAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
 
 # load the DQMStore and DQMRootOutputModule
