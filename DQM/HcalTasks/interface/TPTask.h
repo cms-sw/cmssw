@@ -1,112 +1,131 @@
 #ifndef TPTask_h
 #define TPTask_h
 
-/*
- *	file:		TPTask.h
- *	Author:		Viktor Khristenko
- *	Date:		13.10.2015
+/**
+ *	file:
+ *	Author:
+ *	Description:
  */
 
 #include "DQM/HcalCommon/interface/DQTask.h"
+#include "DQM/HcalCommon/interface/Utilities.h"
+#include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
+#include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
-#include "DQM/HcalCommon/interface/Container2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
+#include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-	using namespace hcaldqm;
-	class TPTask : public DQTask
-	{
-		public:
-			TPTask(edm::ParameterSet const& ps);
-			virtual ~TPTask()
-			{}
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+class TPTask : public DQTask
+{
+	public:
+		TPTask(edm::ParameterSet const&);
+		virtual ~TPTask() {}
 
-			virtual void bookHistograms(DQMStore::IBooker &,
-				edm::Run const&, edm::EventSetup const&);
-			virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&);
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
-			enum TPFlag
-			{
-				fOccUniphi_Data = 0,
-				fOccUniphi_Emul = 1,
-				fLowOcp_Emul = 2,
-				fCorrRatio = 3,
-				fCorrUniphi = 4,
-				fMsmEtUniphi = 5,
-				fMsmEtNum = 6,
-				fMsnUniphi_Data = 7,
+		enum TPFlag
+		{
+			fOcpUniSlotData = 0,
+			fOcpUniSlotEmul = 1,
+			fEtMsmUniSlot = 2,
+			fFGMsmUniSlot = 3,
+			fMsnUniSlotData = 4,
+			fMsnUniSlotEmul = 5,
+			fEtCorrRatio = 6,
+			fEtMsmNumber = 7,
+			fFGMsmNumber = 8,
+			nTPFlag = 9
+		};
 
-				nTPFlag = 9
-			};
+	protected:
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(UpdateFreq);
 
-		protected:
-			//	protected funcs
-			virtual void _process(edm::Event const&, edm::EventSetup const&);
-			virtual void _resetMonitors(UpdateFreq);
+		edm::InputTag		_tagData;
+		edm::InputTag		_tagEmul;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
 
-			//	tags and tokens
-			edm::InputTag	_tagData;
-			edm::InputTag	_tagEmul;
-			edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
-			edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
+		//	switches
+		bool _skip1x1;
+		int _cutEt;
 
-			//	counters
-			int _nMsmEt[constants::TPSUBDET_NUM];
-			int _nMsmFG[constants::TPSUBDET_NUM];
-			int _nTPs_Data[constants::TPSUBDET_NUM];
-			int _nTPs_Emul[constants::TPSUBDET_NUM];
+		//	hashes/FEDs vectors
+		std::vector<uint32_t> _vhashFEDs;
 
-			// some tmp flags
-			bool	_skip1x1;
+		//	emap
+		HcalElectronicsMap const* _emap;
+		electronicsmap::ElectronicsMap _ehashmap;
 
-			//	dqm flags
-			std::vector<std::string> _fNames;
+		//	Filters
+		HashFilter _filter_VME;
+		HashFilter _filter_uTCA;
+		HashFilter _filter_depth0;
 
-			//	Et
-			Container1D		_cEtData_SubDet;
-			Container1D		_cEtEmul_SubDet;	
-			Container2D		_cEtCorr_TPSubDet;
-			ContainerProf1D	_cEtCorrRatiovsLS_TPSubDet;
-			Container1D		_cEtCorrRatio_TPSubDet;
-			ContainerProf1D _cEtCorrRatiovsiphi_TPSubDetPM;
-			ContainerSingle2D	_cEtMsm;
-			ContainerProf1D	_cNumEtMsmvsLS_TPSubDet;
-			Container1D		_cNumEtMsm_TPSubDet;
-			Container1D		_cNumEtMsmvsiphi_TPSubDetPM;
-			ContainerProf1D _cSumdEtvsLS_TPSubDet;
-			Container1D		_cSumdEt_TPSubDet;
+		//	Et/FG
+		Container1D _cEtData_TTSubdet;
+		Container1D _cEtEmul_TTSubdet;
+		Container2D	_cEtCorr_TTSubdet;
+		Container2D _cFGCorr_TTSubdet;
 
-			Container1D		_cEtData_SubDetPM_iphi;
-			Container1D		_cEtData_SubDet_ieta;
+		ContainerProf2D _cEtData_ElectronicsVME;
+		ContainerProf2D _cEtData_ElectronicsuTCA;
+		ContainerProf2D _cEtEmul_ElectronicsVME;
+		ContainerProf2D _cEtEmul_ElectronicsuTCA;
 
-			//	FG
-			Container2D		_cFGCorr_SubDet;
-			ContainerSingle2D	_cFGMsm;
+		//	depth like
+		ContainerSingleProf2D _cEtData_depthlike;
+		ContainerSingleProf2D _cEtEmul_depthlike;
 
-			//	Occupancy
-			ContainerSingle2D		_cOccupancyData;
-			ContainerSingle2D		_cOccupancyEmul;
-			Container1D				_cOccupancyDatavsiphi_TPSubDetPM;
-			Container1D				_cOccupancyEmulvsiphi_TPSubDetPM;
-			ContainerProf1D			_cOccupancyDatavsLS_TPSubDet;
-			ContainerProf1D			_cOccupancyEmulvsLS_TPSubDet;
-			ContainerSingle2D		_cMsData;
-			Container1D				_cMsDatavsiphi_TPSubDetPM;
-			ContainerSingle2D		_cMsEmul;
+		//	Et Correlation Ratio
+		ContainerProf2D _cEtCorrRatio_ElectronicsVME;
+		ContainerProf2D _cEtCorrRatio_ElectronicsuTCA;
+		ContainerSingleProf2D _cEtCorrRatio_depthlike;
 
-			//	Special
-			ContainerProf1D			_cDigiSizeDatavsLS_TPSubDet;
-			ContainerProf1D			_cDigiSizeEmulvsLS_TPSubDet;
+		//	Occupancies
+		Container2D _cOccupancyData_ElectronicsVME;
+		Container2D _cOccupancyData_ElectronicsuTCA;
+		Container2D _cOccupancyEmul_ElectronicsVME;
+		Container2D _cOccupancyEmul_ElectronicsuTCA;
+		
+		Container2D _cOccupancyCutData_ElectronicsVME;
+		Container2D _cOccupancyCutData_ElectronicsuTCA;
+		Container2D _cOccupancyCutEmul_ElectronicsVME;
+		Container2D _cOccupancyCutEmul_ElectronicsuTCA;
 
-			//	Summaries
-			ContainerSingle2D		_cSummary;
-			Container2D				_cSummaryvsLS_TPSubDet;
-	};
+		//	depth like
+		ContainerSingle2D _cOccupancyData_depthlike;
+		ContainerSingle2D _cOccupancyEmul_depthlike;
+		ContainerSingle2D _cOccupancyCutData_depthlike;
+		ContainerSingle2D _cOccupancyCutEmul_depthlike;
+
+		//	Mismatches: Et and FG
+		Container2D _cEtMsm_ElectronicsVME;
+		Container2D _cEtMsm_ElectronicsuTCA;
+		Container2D _cFGMsm_ElectronicsVME;
+		Container2D _cFGMsm_ElectronicsuTCA;
+		ContainerSingle2D _cEtMsm_depthlike;
+
+		//	Missing Data w.r.t. Emulator
+		Container2D _cMsnData_ElectronicsVME;
+		Container2D _cMsnData_ElectronicsuTCA;
+		ContainerSingle2D _cMsnData_depthlike;
+
+		//	Missing Emulator w.r.t. Data
+		Container2D _cMsnEmul_ElectronicsVME;
+		Container2D _cMsnEmul_ElectronicsuTCA;
+		ContainerSingle2D _cMsnEmul_depthlike;
+
+		ContainerSingle2D _cSummary;
+};
 
 #endif
-
-
-
-

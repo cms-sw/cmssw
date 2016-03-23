@@ -2,46 +2,59 @@
 
 namespace hcaldqm
 {
-	using namespace axis; 
-
 	ContainerSingleProf1D::ContainerSingleProf1D()
 	{
-		_xaxis = NULL;
-		_yaxis = NULL;
+		_qx = NULL;
+		_qy = NULL;
 	}
 
 	ContainerSingleProf1D::ContainerSingleProf1D(std::string const& folder,
-		std::string const& nametitle, axis::Axis *xaxis,
-		axis::Axis *yaxis):
-		ContainerSingle1D(folder, nametitle, xaxis, yaxis)
-	{}
+		Quantity *qx, Quantity *qy):
+		ContainerSingle1D(folder, qx, qy)
+	{
+		_qx->setAxisType(quantity::fXAxis);
+		_qy->setAxisType(quantity::fYAxis);
+	}
+
+	/* virtual */ void ContainerSingleProf1D::initialize(std::string const& 
+		folder, Quantity *qx, Quantity *qy,
+		int debug/*=0*/)
+	{
+		ContainerSingle1D::initialize(folder, qx, qy, debug);
+		_qx->setAxisType(quantity::fXAxis);
+		_qy->setAxisType(quantity::fYAxis);
+	}
 	
 	/* virtual */ void ContainerSingleProf1D::initialize(std::string const& 
-		folder,
-		std::string const& nametitle, axis::Axis *xaxis,
-		axis::Axis *yaxis, int debug/*=0*/)
+		folder, std::string const& qname,
+		Quantity *qx, Quantity *qy,
+		int debug/*=0*/)
 	{
-		ContainerSingle1D::initialize(folder, nametitle, xaxis, yaxis, debug);
+		ContainerSingle1D::initialize(folder, qname, qx, qy, debug);
+		_qx->setAxisType(quantity::fXAxis);
+		_qy->setAxisType(quantity::fYAxis);
 	}
 
 	/* virtual */ void ContainerSingleProf1D::book(DQMStore::IBooker& ib,
 		std::string subsystem, std::string aux)
 	{
-		ib.setCurrentFolder(subsystem+"/"+_folder+aux);
-		_me = ib.bookProfile(_name, _name,
-			_xaxis->_nbins, _xaxis->_min, _xaxis->_max,
-			_yaxis->_min, _yaxis->_max);
-		TObject *o = _me->getRootObject();
-		_xaxis->setLog(o);
-		_yaxis->setLog(o);
-		_xaxis->setBitAxisLS(o);
-		_yaxis->setBitAxisLS(o);
-		_xaxis->setBitAxisLS(o);
-		_yaxis->setBitAxisLS(o);
-		_me->setAxisTitle(_xaxis->_title, 1);
-		_me->setAxisTitle(_yaxis->_title, 1);
-		for (unsigned int i=0; i<_xaxis->_labels.size(); i++)
-			_me->setBinLabel(i+1, _xaxis->_labels[i], 1);
+		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
+		_me = ib.bookProfile(_qname+(aux==""?aux:"_"+aux), 
+			_qname+(aux==""?aux:" "+aux),
+			_qx->nbins(), _qx->min(), _qx->max(),
+			_qy->min(), _qy->max());
+		customize();
+	}
+
+	/* virtual */ void ContainerSingleProf1D::book(DQMStore *store,
+		std::string subsystem, std::string aux)
+	{
+		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
+		_me = store->bookProfile(_qname+(aux==""?aux:"_"+aux), 
+			_qname+(aux==""?aux:" "+aux),
+			_qx->nbins(), _qx->min(), _qx->max(),
+			_qy->min(), _qy->max());
+		customize();
 	}
 }
 

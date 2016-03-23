@@ -41,6 +41,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #	Central DQM Customization
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
+process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
@@ -101,6 +102,7 @@ process.load("DQM.HcalTasks.LEDTask")
 process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.PedestalTask")
 process.load('DQM.HcalTasks.RadDamTask')
+process.load('DQM.HcalTasks.HcalCalibHarvesting')
 
 #-------------------------------------
 #	To force using uTCA
@@ -132,12 +134,17 @@ process.tasksSequence = cms.Sequence(
 		*process.raddamTask
 )
 
+process.harvestingSequence = cms.Sequence(
+	process.hcalCalibHarvesting
+)
+
 #-------------------------------------
 #	Execution Sequence Definition
 #-------------------------------------
 process.p = cms.Path(
 					process.hcalDigis
 					*process.tasksSequence
+					*process.harvestingSequence
                     *process.dqmEnv
                     *process.dqmSaver)
 
