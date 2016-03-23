@@ -11,7 +11,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 
@@ -49,7 +49,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 

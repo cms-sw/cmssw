@@ -44,7 +44,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 
 # adding geometries
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 
 # for craft
 ## tracker alignment for craft...............................................................
