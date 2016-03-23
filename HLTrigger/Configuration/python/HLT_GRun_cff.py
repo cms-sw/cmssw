@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V33 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/GRun/V34 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V33')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V34')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3449,7 +3449,7 @@ fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxRadius = cms.double( 2.0 )
 )
 fragment.hltL1sL1SingleJet176ORSingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176 OR L1_SingleJet200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet180 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -7737,7 +7737,7 @@ fragment.hltBoolEnd = cms.EDFilter( "HLTBool",
     result = cms.bool( True )
 )
 fragment.hltL1sL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -9135,7 +9135,7 @@ fragment.hltSingleCaloJet500 = cms.EDFilter( "HLT1CaloJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_0_WdEta18" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_10_0_dEta_Max1p8" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -9335,7 +9335,7 @@ fragment.hltDisplacedmumuFilterDimuon20Jpsi = cms.EDFilter( "HLTDisplacedmumuFil
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1DoubleEG2210 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_22_10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_22_10 OR L1_DoubleEG_22_20 OR L1_DoubleEG_24_17" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -11132,7 +11132,7 @@ fragment.hltEle24Ele22WPLooseGsfleg2TrackIsoFilter = cms.EDFilter( "HLTEgammaGen
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG40OR35OR30OR25OR20ORL1DoubleEG2210ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_SingleEG30 OR L1_SingleEG25 OR L1_SingleEG20 OR L1_DoubleEG_22_10 OR L1_SingleJet200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG40 OR L1_SingleEG30 OR L1_SingleEG26 OR L1_SingleEG24 OR L1_DoubleEG_22_10 OR L1_DoubleEG_22_20 OR L1_DoubleEG_24_17 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -11613,7 +11613,7 @@ fragment.hltPreDoubleEle33CaloIdLGsfTrkIdVL = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sDoubleIsoTau28erORDoubleIsoTau32erORDoubleIsoTau36erORDoubleIsoTau40erORDoubleTau40er = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleIsoTau28er OR L1_DoubleIsoTau32er OR L1_DoubleIsoTau36er OR L1_DoubleIsoTau40er OR L1_DoubleTauJet40er" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleIsoTau28er OR L1_DoubleIsoTau32er OR L1_DoubleIsoTau36er OR L1_DoubleIsoTau40er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -15115,7 +15115,7 @@ fragment.hltL3fDimuonL1f0L2NVf16L3NoFiltersNoVtxDisplacedFiltered28 = cms.EDFilt
     MinPt = cms.double( 28.0 )
 )
 fragment.hltL1sL1DoubleMu0er16ORL1DoubleMu10MuOpen = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18 OR L1_DoubleMu0_Eta1p6_WdEta18_OS OR L1_DoubleMu_10_0_WdEta18" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0er1p6_dEta_Max1p8 OR L1_DoubleMu0er1p6_dEta_Max1p8_OS OR L1_DoubleMu_10_0_dEta_Max1p8" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18300,7 +18300,7 @@ fragment.hltMu7p5Track7UpsilonTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMas
     MinTrackP = cms.double( 3.5 )
 )
 fragment.hltL1sL1DoubleMu0er16NoOS = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0er1p6_dEta_Max1p8" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18372,7 +18372,7 @@ fragment.hltDimuon0JpsiNoOSL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinInvMass = cms.vdouble( 2.8 )
 )
 fragment.hltL1sL1DoubleMu0er16OS = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_Eta1p6_WdEta18_OS" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18475,7 +18475,7 @@ fragment.hltDimuon6JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinInvMass = cms.vdouble( 2.8 )
 )
 fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleJet200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG40 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -18622,7 +18622,7 @@ fragment.hltDiEG85HEUnseededFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleIsoEG20erORSingleIsoEG22erORSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG26" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -19079,7 +19079,7 @@ fragment.hltSingleEle22WPTightGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGeneri
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1IsoEG20erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_IsoEG20er_TauJet20er_NotWdEta0" ),
+    L1SeedsLogicalExpression = cms.string( "L1_IsoEG20er_Tau20er_dEta_Min0p2" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -20324,7 +20324,7 @@ fragment.hltOverlapFilterSingleIsoEle22WPLooseGsfLooseIsoPFTau20 = cms.EDFilter(
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sL1SingleEG25OrSingleIsoEG30er = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleIsoEG30er" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG26 OR L1_SingleIsoEG30er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -20793,7 +20793,7 @@ fragment.hltEle30WP60Ele8Mass55Filter = cms.EDFilter( "HLTPMMassFilter",
     nZcandcut = cms.int32( 1 )
 )
 fragment.hltL1sL1SingleEG20ORSingleIsoEG18erORSingleIsoEG20ORSingleIsoEG20erORSingleIsoEG22erORSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG24 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleEG26" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -21527,7 +21527,7 @@ fragment.hltWCand70NoEle23WPLooseMHTIDTight = cms.EDFilter( "HLT2PhotonMET",
     MinDphi = cms.double( -999.0 )
 )
 fragment.hltL1sL1SingleIsoEG20OrSingleEG20OrSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleEG20 OR L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG20er OR L1_SingleEG24 OR L1_SingleEG26" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -21774,7 +21774,7 @@ fragment.hltEle27noerWPLooseGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericF
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleIsoEG22erOrSingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleEG26" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -22668,7 +22668,7 @@ fragment.hltEle32WPTightGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericFilte
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG26" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -23119,7 +23119,7 @@ fragment.hltEle105CaloIdVTGsfTrkIdTGsfDphiFilter = cms.EDFilter( "HLTEgammaGener
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT220 OR L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24322,7 +24322,7 @@ fragment.hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09 = cms.EDF
     DepTag = cms.VInputTag( 'hltMuonTkRelIsolationCut0p09Map' )
 )
 fragment.hltL1sMu16erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_TauJet20er" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_Tau20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -24522,7 +24522,7 @@ fragment.hltOverlapFilterSingleIsoMu17LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonP
     MinDphi = cms.double( 0.0 )
 )
 fragment.hltL1sMu16erIsoTau28erORMu16erIsoTau32erORMu16erTauJet20er = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu16er_IsoTau28er OR L1_Mu16er_IsoTau32er OR L1_Mu16er_TauJet20er" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu18er_IsoTau28er OR L1_Mu18er_IsoTau32er OR L1_Mu16er_Tau20er" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -28634,7 +28634,7 @@ fragment.hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3 = 
     MinNstations = cms.vint32( 3 )
 )
 fragment.hltL1sL1QuadJetC36TauJet52 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC36_TauJet52" ),
+    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC36_Tau52" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -31787,7 +31787,7 @@ fragment.hltPreMu28NoFiltersNoVtxCentralCaloJet40 = cms.EDFilter( "HLTPrescaler"
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1HTT100ORL1HTT125ORL1HTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -31928,7 +31928,7 @@ fragment.hltPF4JetPt50HT750 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 750.0 )
 )
 fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT125ORHTT150ORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT160 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32019,7 +32019,7 @@ fragment.hltSinglePFJet40 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet36 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet35" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32060,7 +32060,7 @@ fragment.hltSinglePFJet60 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet52 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32101,7 +32101,7 @@ fragment.hltSinglePFJet80 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet92 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet92" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet90" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32142,7 +32142,7 @@ fragment.hltSinglePFJet140 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet128 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet120" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32183,7 +32183,7 @@ fragment.hltSinglePFJet200 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 85 )
 )
 fragment.hltL1sL1SingleJet128ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet120 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32444,7 +32444,7 @@ fragment.hltDiPFJetAve200 = cms.EDFilter( "HLTDiPFJetAveFilter",
     minDphi = cms.double( -1.0 )
 )
 fragment.hltL1sL1SingleJet128ORL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128 OR L1_SingleJet176" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet120 OR L1_SingleJet180" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32603,7 +32603,7 @@ fragment.hltDiPFJetAve80ForHFJEC = cms.EDFilter( "HLTDiPFJetAveEtaFilter",
     minDphi = cms.double( 2.5 )
 )
 fragment.hltL1sL1SingleJet68 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32682,7 +32682,7 @@ fragment.hltDiPFJetAve160ForHFJEC = cms.EDFilter( "HLTDiPFJetAveEtaFilter",
     minDphi = cms.double( 2.5 )
 )
 fragment.hltL1sL1SingleJet176 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet176" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet180" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -32976,7 +32976,7 @@ fragment.hltPFHT475 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 475.0 )
 )
 fragment.hltL1sL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM40OrETM50OrETM60OrETM70OrETM100 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_HTT320 OR L1_HTT350 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33019,7 +33019,7 @@ fragment.hltPFHT200PFAlphaT0p51 = cms.EDFilter( "HLTAlphaTPFJetFilter",
     minHt = cms.double( 200.0 )
 )
 fragment.hltL1sL1HTT75OrL1HTT100OrL1HTT125OrHTT150OrHTT175OrHTT200OrHTT250OrETM40OrETM50OrETM60OrETM70OrETM100 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT160 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_HTT320 OR L1_HTT350 OR L1_ETM40 OR L1_ETM50 OR L1_ETM60 OR L1_ETM70 OR L1_ETM100" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33717,7 +33717,7 @@ fragment.hltPrePFMET170 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1ETM70ORETM60ORETM50ORDoubleJetC56ETM60 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_ETM70 OR L1_DoubleJetC56_ETM60 OR L1_ETM60 OR L1_ETM50" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM70 OR L1_DoubleJetC60_ETM60 OR L1_ETM60 OR L1_ETM50" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -33911,7 +33911,7 @@ fragment.hltPreCaloMHTNoPU90PFMET90PFMHT90IDTight = cms.EDFilter( "HLTPrescaler"
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORL1TripleJet846848VBFORL1HTT100ORL1HTT125ORL1HTT150ORL1HTT175ORL1SingleJet128ORL1DoubleJetC84 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_TripleJet_84_68_48_VBF OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_DoubleJetC84" ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_TripleJet_84_68_48_VBF OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_SingleJet120 OR L1_DoubleJetC80" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34135,7 +34135,7 @@ fragment.hltPreL1TripleJetVBF = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1HTT175ORL1QuadJetC60ORL1HTT100ORL1HTT125ORL1HTT150ORL1QuadJetC40 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_QuadJetC60 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_QuadJetC40" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT300 OR L1_QuadJetC60 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_QuadJetC40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34192,7 +34192,7 @@ fragment.hltBTagCaloCSVp087Double = cms.EDFilter( "HLTCaloJetTag",
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORL1DoubleJetC100ORL1TripleJet846848VBFORL1DoubleJetC84ORL1HTT100ORL1HTT125ORL1HTT150ORL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_DoubleJetC100 OR L1_TripleJet_84_68_48_VBF OR L1_DoubleJetC84 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF OR L1_DoubleJetC100 OR L1_TripleJet_84_68_48_VBF OR L1_DoubleJetC80 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -34483,7 +34483,7 @@ fragment.hltEG135HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG20 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG24" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -35231,7 +35231,7 @@ fragment.hltEG300erEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     ncandcut = cms.int32( 1 )
 )
 fragment.hltL1sL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG35 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG40 OR L1_DoubleEG_22_10 OR L1_DoubleEG_22_20 OR L1_DoubleEG_24_17 OR L1_DoubleEG_15_10 OR L1_DoubleEG_18_17 OR L1_DoubleEG_20_18 OR L1_DoubleEG_23_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -37523,7 +37523,7 @@ fragment.hltEle33PFJet30EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     MaxAbsJetEta = cms.double( 2.5 )
 )
 fragment.hltL1sL1Mu3JetC16WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC16_WdEtaPhi2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC16_dEta_Max0p4_dPhi_Max0p4" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -37706,7 +37706,7 @@ fragment.hltBSoftMuonDiJet40L1FastJetMu5L3FilterByDR = cms.EDFilter( "HLTCaloJet
     MaxTag = cms.double( 99999.0 )
 )
 fragment.hltL1sL1Mu3JetC52WdEtaPhi2 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC52_WdEtaPhi2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu3_JetC52_dEta_Max0p4_dPhi_Max0p4" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -38339,7 +38339,7 @@ fragment.hltEle23Ele12CaloIdLTrackIdLIsoVLDZFilter = cms.EDFilter( "HLT2PhotonPh
     inputTag2 = cms.InputTag( "hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter" )
 )
 fragment.hltL1sL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_15_10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_15_10 OR L1_DoubleEG_18_17 OR L1_DoubleEG_20_18 OR L1_DoubleEG_23_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -41470,7 +41470,7 @@ fragment.hltPFHT140 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 140.0 )
 )
 fragment.hltL1sL1Mu6HTT100 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu6_HTT100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu6_HTT200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -42047,7 +42047,7 @@ fragment.hltEG36HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25ORL1SingleEG40 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG26 OR L1_SingleEG40" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -42202,7 +42202,7 @@ fragment.hltEG120HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sL1SingleEG25ORL1SingleEG40ORL1SingleJet200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG25 OR L1_SingleEG40 OR L1_SingleJet200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG26 OR L1_SingleEG40 OR L1_SingleJet200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -43125,7 +43125,7 @@ fragment.hltEG165R9Id90HE10IsoMTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericQ
     nonIsoTag = cms.InputTag( "" )
 )
 fragment.hltL1sSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG1510 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG25 OR L1_DoubleEG_22_10 OR L1_DoubleEG_15_10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG26 OR L1_DoubleEG_22_10 OR L1_DoubleEG_22_20 OR L1_DoubleEG_24_17 OR L1_DoubleEG_15_10 OR L1_DoubleEG_18_17 OR L1_DoubleEG_20_18 OR L1_DoubleEG_23_10" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44551,7 +44551,7 @@ fragment.hltVertexmumuFilterUpsilonMuonMuon = cms.EDFilter( "HLTDisplacedmumuFil
     MinLxySignificance = cms.double( 0.0 )
 )
 fragment.hltL1sL1HTT75to175OrSingleJet128OrSingleJet176OrSingleJet200OrDoubleJetC84OrDoubleJetC100OrQuadJetC40OrQuadJetC60 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_DoubleJetC84 OR L1_DoubleJetC100 OR L1_QuadJetC40 OR L1_QuadJetC60" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT160 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_SingleJet120 OR L1_SingleJet180 OR L1_SingleJet200 OR L1_DoubleJetC80 OR L1_DoubleJetC100 OR L1_QuadJetC40 OR L1_QuadJetC60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44733,7 +44733,7 @@ fragment.hlt4PFJet40 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 0 )
 )
 fragment.hltL1sL1HTT75ORL1HTT100ORL1HTT175ORSingleJet200ORDoubleJetC100ORQuadJetC60 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT175 OR L1_SingleJet200 OR L1_DoubleJetC100 OR L1_QuadJetC60" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT160 OR L1_HTT200 OR L1_HTT300 OR L1_SingleJet200 OR L1_DoubleJetC100 OR L1_QuadJetC60" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -44949,7 +44949,7 @@ fragment.hltBTagPFCSVp063DoubleMbb60200Ptb5030 = cms.EDFilter( "HLTPFJetHbbFilte
     maxTag = cms.double( 99999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT255 OR L1_HTT300 OR L1_HTT320" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45364,7 +45364,7 @@ fragment.hltL4DisplacedDijetFullTracksTightHLTCaloJetTagFilter = cms.EDFilter( "
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125ORHTT100ORHTT75 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT160 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_HTT320" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45509,7 +45509,7 @@ fragment.hltL4DisplacedDijetFullTracksHLTCaloJetTagFilterLowPt = cms.EDFilter( "
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1HTT150ORHTT175ORHTT200ORHTT125 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_HTT320" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -45549,7 +45549,7 @@ fragment.hltPreHT550DisplacedDijet40Inclusive = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1TripleJet927664VBFORHTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF  OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64_VBF  OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46259,7 +46259,7 @@ fragment.hltPreMonoCentralPFJet80PFMETNoMu120JetIdCleanedPFMHTNoMu120IDTight = c
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1EG25erHTT100orL1HTT125orL1HTT100 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_EG25er_HTT100 OR L1_HTT125 OR L1_HTT100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_EG27er_HTT200 OR L1_HTT220 OR L1_HTT200" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46586,7 +46586,7 @@ fragment.hltPFHT500 = cms.EDFilter( "HLTHtMhtFilter",
     minHt = cms.vdouble( 500.0 )
 )
 fragment.hltL1sL1Mu8HTT50orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Mu8_HTT50 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR  L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu8_HTT150 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR  L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -46900,7 +46900,7 @@ fragment.hltElectronMuonInvMassFilter8 = cms.EDFilter( "HLTElectronMuonInvMassFi
     elePrevCandTag = cms.InputTag( "hltMu8Ele8CaloIdMTrkIdMDPhiFilter" )
 )
 fragment.hltL1sL1DoubleEG6HTT150orL1HTT100orL1HTT125orL1HTT150orL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG6_HTT150 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG6_HTT255 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -47115,7 +47115,7 @@ fragment.hltPreDoubleEle8CaloIdMTrackIdMMass8PFHT300 = cms.EDFilter( "HLTPrescal
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1Jet32MuOpenMu10dPhiMuMu1 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Jet32_DoubleMu_Open_10_MuMuNotWdPhi23_JetMuWdPhi1" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Jet32_DoubleMuOpen_Mu10_dPhi_Jet_Mu0_Max1p05_dPhi_Mu_Mu_Min1p0" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -47191,7 +47191,7 @@ fragment.hltBTagPFCSVp13Single = cms.EDFilter( "HLTPFJetTag",
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sL1Jet32MuOpenEG10dPhiMuEG1 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_Jet32_MuOpen_EG10_MuEGNotWdPhi3_JetMuWdPhi1" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Jet32_MuOpen_EG10_dPhi_Jet_Mu_Max1p05_dPhi_Mu_EG_Min1p05" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -49419,7 +49419,7 @@ fragment.hltEle33NoIsoPFJet30EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilt
     MaxAbsJetEta = cms.double( 2.5 )
 )
 fragment.hltL1sL1HTT175 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT300" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -50239,7 +50239,7 @@ fragment.hlt1HighMult160 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MinSep = cms.double( 0.12 )
 )
 fragment.hltL1sL1HTT175OrETM70 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_ETM70" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT300 OR L1_ETM70" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53225,7 +53225,7 @@ fragment.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1197, 1198, 1199 )
 )
 fragment.hltL1sL1ZeroBiasORAlwaysTrue = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_AlwaysTrue" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53256,7 +53256,7 @@ fragment.hltEcalPhiSymFilter = cms.EDFilter( "HLTEcalPhiSymFilter",
     ampCut_barrelP = cms.vdouble( 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 )
 )
 fragment.hltL1sL1SingleIsoEG22erOrSingleIsoEG20OrSingleEG25OrSingleEG20 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleIsoEG20  OR L1_SingleEG25 OR L1_SingleEG20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG22er OR L1_SingleIsoEG20  OR L1_SingleEG26 OR L1_SingleEG24" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53524,7 +53524,7 @@ fragment.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     fedId = cms.int32( 813 )
 )
 fragment.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleJet36 OR L1_SingleJet68 OR L1_SingleMuOpen OR L1_ZeroBias" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG24 OR L1_SingleJet35 OR L1_SingleJet60 OR L1_SingleMuOpen OR L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53539,7 +53539,7 @@ fragment.hltPreHcalNZS = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sHcalPhiSym = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG20 OR L1_SingleMuOpen" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG24 OR L1_SingleMuOpen" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -53564,7 +53564,7 @@ fragment.hltPreHcalUTCA = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sL1AlwaysTrue = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_AlwaysTrue" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -55733,7 +55733,7 @@ fragment.hltIsolPixelTrackL3FilterHB = cms.EDFilter( "HLTPixelIsolTrackL1TFilter
     filterTrackEnergy = cms.bool( True )
 )
 fragment.hltL1sAlCaEcalPi0Eta = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100 OR L1_DoubleJetC112 OR L1_DoubleJetC52 OR L1_DoubleJetC84 OR L1_QuadJetC40 OR L1_QuadJetC60 OR L1_SingleJet128 OR L1_SingleJet176 OR L1_SingleJet200 OR L1_SingleJet36 OR L1_SingleJet52 OR L1_SingleJet68 OR L1_SingleJet92 OR L1_TripleJet_84_68_48_VBF OR L1_TripleJet_92_76_64_VBF OR L1_DoubleEG_15_10 OR L1_DoubleEG_22_10 OR L1_SingleEG5 OR L1_SingleEG10 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleEG30 OR L1_SingleEG35 OR L1_SingleEG40 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleIsoEG25 OR L1_SingleIsoEG25er OR L1_SingleIsoEG30er OR L1_HTT75 OR L1_HTT100 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_HTT200 OR L1_HTT250 OR L1_AlwaysTrue" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC100 OR L1_DoubleJetC112 OR L1_DoubleJetC50 OR L1_DoubleJetC80 OR L1_QuadJetC40 OR L1_QuadJetC60 OR L1_SingleJet120 OR L1_SingleJet180 OR L1_SingleJet200 OR L1_SingleJet35 OR L1_SingleJet60 OR L1_SingleJet60 OR L1_SingleJet90 OR L1_TripleJet_84_68_48_VBF OR L1_TripleJet_92_76_64_VBF OR L1_DoubleEG_15_10 OR L1_DoubleEG_18_17 OR L1_DoubleEG_20_18 OR L1_DoubleEG_23_10 OR L1_DoubleEG_22_10 OR L1_DoubleEG_22_20 OR L1_DoubleEG_24_17 OR L1_SingleEG5 OR L1_SingleEG10 OR L1_SingleEG15 OR L1_SingleEG24 OR L1_SingleEG26 OR L1_SingleEG30 OR L1_SingleEG40 OR L1_SingleEG40 OR L1_SingleIsoEG18er OR L1_SingleIsoEG20 OR L1_SingleIsoEG20er OR L1_SingleIsoEG22er OR L1_SingleIsoEG26 OR L1_SingleIsoEG26er OR L1_SingleIsoEG30er OR L1_HTT160 OR L1_HTT200 OR L1_HTT220 OR L1_HTT255 OR L1_HTT300 OR L1_HTT320 OR L1_HTT350 OR L1_ZeroBias" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
