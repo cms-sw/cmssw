@@ -341,6 +341,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 	dbe->setVerbose(10);
 
         //Set the monitoring element tag and store
+        dqm_tag_.reserve(7);
         dqm_tag_.clear();
         dqm_tag_.push_back( "StdBunch" );      // statistic collection from Standard Collision Bunch @ 3.8 T
         dqm_tag_.push_back( "StdBunch0T" );    // statistic collection from Standard Collision Bunch @ 0 T
