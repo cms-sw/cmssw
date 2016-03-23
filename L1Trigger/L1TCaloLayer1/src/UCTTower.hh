@@ -5,24 +5,26 @@
 
 #include <vector>
 
-#define etInputMax 0xFF
+namespace {
+  constexpr uint32_t etInputMax{0xFF};
 
-#define etMask 0x000001FF
-#define erMask 0x00000E00
-#define erMaxV 7
-#define erShift 9
-#define zeroFlagMask 0x00001000
-#define eohrFlagMask 0x00002000
-#define hcalFlagMask 0x00004000
-#define ecalFlagMask 0x00008000
-#define stg2BitsMask 0x0000FFFF
-#define miscBitsMask 0x0000F000
-#define miscShift 12
+  constexpr uint32_t etMask{0x000001FF};
+  constexpr uint32_t erMask{0x00000E00};
+  constexpr uint32_t erMaxV{7};
+  constexpr uint32_t erShift{9};
+  constexpr uint32_t zeroFlagMask{0x00001000};
+  constexpr uint32_t eohrFlagMask{0x00002000};
+  constexpr uint32_t hcalFlagMask{0x00004000};
+  constexpr uint32_t ecalFlagMask{0x00008000};
+  constexpr uint32_t stg2BitsMask{0x0000FFFF};
+  constexpr uint32_t miscBitsMask{0x0000F000};
+  constexpr uint32_t miscShift{12};
 
-#define ecalBitsMask 0x00FF0000
-#define ecalShift 16
-#define hcalBitsMask 0xFF000000
-#define hcalShift 24
+  constexpr uint32_t ecalBitsMask{0x00FF0000};
+  constexpr uint32_t ecalShift{16};
+  constexpr uint32_t hcalBitsMask{0xFF000000};
+  constexpr uint32_t hcalShift{24};
+}
 
 class UCTLayer1;
 
