@@ -140,23 +140,23 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		new quantity::QualityQuantity());
 
 	//	BOOK HISTOGRAMS
-	_cEvnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cBcnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cOrnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cEvnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME);
-	_cBcnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME);
-	_cOrnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME);
+	_cEvnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cBcnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOrnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEvnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cBcnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOrnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-	_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME);
+	_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-	_cBadQuality_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cBadQuality_depth.book(ib, _emap);
-	_cBadQualityvsLS.book(ib);
-	_cBadQualityvsBX.book(ib);
+	_cBadQuality_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cBadQuality_depth.book(ib, _emap, _subsystem);
+	_cBadQualityvsLS.book(ib, _subsystem);
+	_cBadQualityvsBX.book(ib, _subsystem);
 
-	_cSummary.book(ib);
+	_cSummary.book(ib, _subsystem);
 
 	//	initialize hash map
 	_ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);

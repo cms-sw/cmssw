@@ -116,13 +116,13 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		_cEt_TTSubdet[i].book(ib, _emap, _subsystem, aux);
 		_cFG_TTSubdet[i].book(ib, _emap, _subsystem, aux);
 	}
-	_cEtall_TTSubdet.book(ib, _emap);
-	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cEtMsm_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cFGMsm_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME);
+	_cEtall_TTSubdet.book(ib, _emap, _subsystem);
+	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEtMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cFGMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
 	_cMsnuTCA.book(ib, _subsystem, "uTCA");
 	_cMsnVME.book(ib, _subsystem, "VME");

@@ -10,9 +10,4 @@ hcalHarvesting = cms.EDAnalyzer(
 	ptype = cms.untracked.int32(0),
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string("Hcal"),
-
-	rawHarvesting = cms.untracked.bool(True),
-	digiHarvesting = cms.untracked.bool(True),
-	recoHarvesting = cms.untracked.bool(True),
-	tpHarvesting = cms.untracked.bool(True)
 )

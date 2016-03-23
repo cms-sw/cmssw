@@ -222,44 +222,44 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	sprintf(cutstr2, "_EHF%d", int(_cutE_HF));
 
 	//	Energy
-	_cEnergy_Subdet.book(ib, _emap);
-	_cEnergyTotal_Subdet.book(ib, _emap);
-	_cEnergyTotalPM_Subdet.book(ib, _emap);
-	_cEnergy_depth.book(ib, _emap);
-	_cEnergy_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cEnergy_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cEnergy_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cEnergy_ElectronicsuTCA.book(ib, _emap, _filter_VME);
+	_cEnergy_Subdet.book(ib, _emap, _subsystem);
+	_cEnergyTotal_Subdet.book(ib, _emap, _subsystem);
+	_cEnergyTotalPM_Subdet.book(ib, _emap, _subsystem);
+	_cEnergy_depth.book(ib, _emap, _subsystem);
+	_cEnergy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEnergy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEnergy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEnergy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
 	//	Timing
-	_cTimingCut_Subdet.book(ib, _emap);
-	_cTimingvsEnergy_SubdetPM.book(ib, _emap);
-	_cTimingCut_FEDSlot.book(ib, _emap);
-	_cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME);
-	_cTimingCut_HBHEPartition.book(ib, _emap);
-	_cTimingCut_depth.book(ib, _emap);
+	_cTimingCut_Subdet.book(ib, _emap, _subsystem);
+	_cTimingvsEnergy_SubdetPM.book(ib, _emap, _subsystem);
+	_cTimingCut_FEDSlot.book(ib, _emap, _subsystem);
+	_cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cTimingCut_HBHEPartition.book(ib, _emap, _subsystem);
+	_cTimingCut_depth.book(ib, _emap, _subsystem);
 
 	//	Occupancy
-	_cOccupancy_depth.book(ib, _emap);
-	_cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME);
-	_cOccupancyvsLS_Subdet.book(ib, _emap);
-	_cOccupancyCut_depth.book(ib, _emap);
-	_cOccupancyCut_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cOccupancyCut_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA);
-	_cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME);
-	_cOccupancyCutvsLS_Subdet.book(ib, _emap);
+	_cOccupancy_depth.book(ib, _emap, _subsystem);
+	_cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
+	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
+	_cOccupancyCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyCutvsLS_Subdet.book(ib, _emap, _subsystem);
 
-	_cMissing1LS_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cMissing1LS_FEDuTCA.book(ib, _emap, _filter_VME);
+	_cMissing1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMissing1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-	_cSummary.book(ib);
+	_cSummary.book(ib, _subsystem);
 
 	//	initialize hash map
 	_ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);

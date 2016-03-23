@@ -35,8 +35,9 @@ class HcalHarvesting : public DQHarvester
 			DQMStore::IGetter&);
 
 		//	flags to harvest...
-		bool _digiHarvesting;
+		int _modules[4];
 		bool _rawHarvesting;
+		bool _digiHarvesting;
 		bool _recoHarvesting;
 		bool _tpHarvesting;
 

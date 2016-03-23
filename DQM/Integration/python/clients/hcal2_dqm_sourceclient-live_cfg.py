@@ -13,7 +13,7 @@ import os, sys, socket, string
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
 process			= cms.Process('HCALDQM')
-subsystem		= 'Hcal'
+subsystem		= 'Hcal2'
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
 warnstr			= "### HcalDQM::cfg::WARN: "
@@ -162,11 +162,13 @@ process.digiComparisonTask.tagHBHE1 = cms.untracked.InputTag('primDigis')
 process.digiComparisonTask.tagHBHE2 = cms.untracked.InputTag('secDigis')
 process.digiComparisonTask.runkeyVal = runType
 process.digiComparisonTask.runkeyName = runTypeName
+process.digiComparisonTask.subsystem = cms.untracked.string(subsystem)
 
 process.tpComparisonTask.tag1 = cms.untracked.InputTag('primDigis')
 process.tpComparisonTask.tag2 = cms.untracked.InputTag('secDigis')
 process.tpComparisonTask.runkeyVal = runType
 process.tpComparisonTask.runkeyName = runTypeName
+process.tpComparisonTask.subsystem = cms.untracked.string(subsystem)
 
 #-------------------------------------
 #	Settigns for the Primary Modules
@@ -178,6 +180,9 @@ process.recHitTask.tagHF = cms.untracked.InputTag("hfreco")
 process.recHitTask.runkeyVal = runType
 process.recHitTask.runkeyName = runTypeName
 process.recHitTask.tagRaw = rawTagUntracked
+process.recHitTask.subsystem = cms.untracked.string(subsystem)
+
+process.hcalHarvesting.subsystem = cms.untracked.string(subsystem)
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition

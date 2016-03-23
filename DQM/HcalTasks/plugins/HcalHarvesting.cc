@@ -3,12 +3,6 @@
 HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 	DQHarvester(ps), _reportSummaryMap(NULL)
 {
-	//	get the flags 
-	_digiHarvesting = ps.getUntrackedParameter<bool>("digiHarvesting");
-	_rawHarvesting = ps.getUntrackedParameter<bool>("rawHarvesting");
-	_recoHarvesting = ps.getUntrackedParameter<bool>("recoHarvesting");
-	_tpHarvesting = ps.getUntrackedParameter<bool>("tpHarvesting");
-
 	//	set labels for summaries
 	_frawnames.push_back("EvnMsm");
 	_frawnames.push_back("BcnMsm");
@@ -39,16 +33,44 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 	DQMStore::IGetter& ig, edm::LuminosityBlock const&, 
 	edm::EventSetup const&)
 {
+	//	get the flags from DATA itself...
+	int ccc=0;
+	if (ig.get(_subsystem+"/DigiTask/Summary/Summary")!=NULL)
+	{_digiHarvesting = true;ccc++;}
+	else
+		_digiHarvesting = false;
+	if (ig.get(_subsystem+"/RecHitTask/Summary/Summary")!=NULL)
+	{_recoHarvesting = true; ccc++;}
+	else
+		_recoHarvesting = false;
+	if (ig.get(_subsystem+"/RawTask/Summary/Summary")!=NULL)
+	{_rawHarvesting = true; ccc++;}
+	else
+		_rawHarvesting = false;
+	if (ig.get(_subsystem+"/TPTask/Summary/Summary")!=NULL)
+	{_tpHarvesting = true;ccc++;}
+	else
+		_tpHarvesting = false;
+
 	//	Create the reportSummaryMap if needed
 	if (!_reportSummaryMap)
 	{
-		ig.setCurrentFolder("Hcal/EventInfo");
+		ig.setCurrentFolder(_subsystem+"/EventInfo");
 		_reportSummaryMap = ib.book2D("reportSummaryMap", "reportSummaryMap",
-			_vFEDs.size(), 0, _vFEDs.size(), 4, 0, 4);
-		_reportSummaryMap->setBinLabel(1, "RAW", 2);
-		_reportSummaryMap->setBinLabel(2, "DIGI", 2);
-		_reportSummaryMap->setBinLabel(3, "RECO", 2);
-		_reportSummaryMap->setBinLabel(4, "TP", 2);
+			_vFEDs.size(), 0, _vFEDs.size(), ccc, 0, ccc);
+		ccc = 1;
+		if (_rawHarvesting)
+		{_reportSummaryMap->setBinLabel(ccc, "RAW", 2);
+		_modules[0] = ccc; ccc++;}
+		if (_digiHarvesting)
+		{_reportSummaryMap->setBinLabel(ccc, "DIGI", 2);
+		_modules[1] = ccc;ccc++;}
+		if (_recoHarvesting)
+		{_reportSummaryMap->setBinLabel(ccc, "RECO", 2);
+		_modules[2] = ccc;ccc++;}
+		if (_tpHarvesting)
+		{_reportSummaryMap->setBinLabel(ccc, "TP", 2);
+		_modules[3] = ccc;ccc++;}
 		for (uint32_t i=0; i<_vFEDs.size(); i++)
 		{
 			char name[5];
@@ -56,20 +78,6 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			_reportSummaryMap->setBinLabel(i+1, name, 1);
 		}
 	}
-
-	//	get the flags from DATA itself...
-	ig.get("Hcal/DigiTask/Summary/Summary")!=NULL?
-		_digiHarvesting = true:
-		_digiHarvesting = false;
-	ig.get("Hcal/RecHitTask/Summary/Summary")!=NULL?
-		_recoHarvesting = true:
-		_recoHarvesting = false;
-	ig.get("Hcal/RawTask/Summary/Summary")!=NULL?
-		_rawHarvesting = true:
-		_rawHarvesting = false;
-	ig.get("Hcal/TPTask/Summary/Summary")!=NULL?
-		_tpHarvesting = true:
-		_tpHarvesting = false;
 
 	//	Initialize what you need
 	ContainerSingle2D rawSummary;
@@ -94,8 +102,8 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(_frawnames),
 			new quantity::QualityQuantity());
-		rawSummaryCopy.book(ib, "Hcal", name);
-		rawSummary.load(ig);
+		rawSummaryCopy.book(ib, _subsystem, name);
+		rawSummary.load(ig, _subsystem);
 	}
 	if (_digiHarvesting)
 	{
@@ -107,8 +115,8 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(_fdiginames),
 			new quantity::QualityQuantity());
-		digiSummaryCopy.book(ib, "Hcal", name);
-		digiSummary.load(ig);
+		digiSummaryCopy.book(ib, _subsystem, name);
+		digiSummary.load(ig, _subsystem);
 	}
 	if (_recoHarvesting)
 	{
@@ -120,8 +128,8 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(_freconames),
 			new quantity::QualityQuantity());
-		recoSummaryCopy.book(ib, "Hcal", name);
-		recoSummary.load(ig);
+		recoSummaryCopy.book(ib, _subsystem, name);
+		recoSummary.load(ig, _subsystem);
 	}
 	if (_tpHarvesting)
 	{
@@ -133,8 +141,8 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(_ftpnames),
 			new quantity::QualityQuantity());
-		tpSummaryCopy.book(ib, "Hcal", name);
-		tpSummary.load(ig);
+		tpSummaryCopy.book(ib, _subsystem, name);
+		tpSummary.load(ig, _subsystem);
 	}
 
 	//	process: put the quality into the copy and set the reportSummaryMap
@@ -159,8 +167,10 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			}
 		}
 		counter>0?
-			_reportSummaryMap->setBinContent(ifed+1, 1, quantity::fLow):
-			_reportSummaryMap->setBinContent(ifed+1, 1, quantity::fGood);
+			_reportSummaryMap->setBinContent(ifed+1, _modules[0], 
+				quantity::fLow):
+			_reportSummaryMap->setBinContent(ifed+1, _modules[0], 
+				quantity::fGood);
 
 		//	DIGI if set to harvest
 		counter=0;
@@ -176,8 +186,10 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			}
 		}
 		counter>0?
-			_reportSummaryMap->setBinContent(ifed+1, 2, quantity::fLow):
-			_reportSummaryMap->setBinContent(ifed+1, 2, quantity::fGood);
+			_reportSummaryMap->setBinContent(ifed+1, _modules[1], 
+				quantity::fLow):
+			_reportSummaryMap->setBinContent(ifed+1, _modules[1], 
+				quantity::fGood);
 
 		//	RECO
 		counter=0;
@@ -193,8 +205,10 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			}
 		}
 		counter>0?
-			_reportSummaryMap->setBinContent(ifed+1, 3, quantity::fLow):
-			_reportSummaryMap->setBinContent(ifed+1, 3, quantity::fGood);
+			_reportSummaryMap->setBinContent(ifed+1, _modules[2], 
+				quantity::fLow):
+			_reportSummaryMap->setBinContent(ifed+1, _modules[2], 
+				quantity::fGood);
 
 		//	TP
 		counter=0;
@@ -210,8 +224,10 @@ HcalHarvesting::HcalHarvesting(edm::ParameterSet const& ps) :
 			}
 		}
 		counter>0?
-			_reportSummaryMap->setBinContent(ifed+1, 4, quantity::fLow):
-			_reportSummaryMap->setBinContent(ifed+1, 4, quantity::fGood);
+			_reportSummaryMap->setBinContent(ifed+1, _modules[3], 
+				quantity::fLow):
+			_reportSummaryMap->setBinContent(ifed+1, _modules[3], 
+				quantity::fGood);
 
 		ifed++;
 	}

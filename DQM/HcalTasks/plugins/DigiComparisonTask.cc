@@ -96,15 +96,15 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		sprintf(aux, "TS%d", i);
 		_cADC_Subdet[i].book(ib, _emap, _subsystem, aux);
 	}
-	_cADCall_Subdet.book(ib, _emap);
-	_cADCMsnVME_Subdet.book(ib, _emap);
-	_cADCMsnuTCA_Subdet.book(ib, _emap);
-	_cMsm_depth.book(ib, _emap);
-	_cMsn_depth.book(ib, _emap);
-	_cMsm_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA);
-	_cMsm_FEDuTCA.book(ib, _emap, _filter_VME);
-	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME);
+	_cADCall_Subdet.book(ib, _emap, _subsystem);
+	_cADCMsnVME_Subdet.book(ib, _emap, _subsystem);
+	_cADCMsnuTCA_Subdet.book(ib, _emap, _subsystem);
+	_cMsm_depth.book(ib, _emap, _subsystem);
+	_cMsn_depth.book(ib, _emap, _subsystem);
+	_cMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
 	_ehashmapuTCA.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap,
 		_filter_VME);
