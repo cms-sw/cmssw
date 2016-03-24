@@ -304,11 +304,10 @@ BasicTrajectoryState::rescaleError(double factor) {
 
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-std::vector<TrajectoryStateOnSurface> 
+#include<iostream>
+BasicSingleTrajectoryState::Components const &
 BasicSingleTrajectoryState::components() const {
-  std::vector<TrajectoryStateOnSurface> result; result.reserve(1);
-  result.emplace_back(clone());
-  //  result.emplace_back(const_cast<BasicTrajectoryState*>(this));
-  return result;
+  std::cout << "who is calling me"<< std::endl;
+  assert(false);
 }
 

@@ -2,13 +2,12 @@
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
-#include "boost/shared_ptr.hpp"
 
 using namespace SurfaceSideDefinition;
 
 namespace GaussianStateConversions {
 
-  MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface tsos)
+  MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface & tsos)
   {
     if ( !tsos.isValid() )  return MultiGaussianState<5>();
 
@@ -28,7 +27,7 @@ namespace GaussianStateConversions {
   }
 
   TrajectoryStateOnSurface tsosFromMultiGaussianState (const MultiGaussianState<5>& multiState,
-							  const TrajectoryStateOnSurface refTsos)
+							  const TrajectoryStateOnSurface & refTsos)
   {
     if ( multiState.components().empty() )  return TrajectoryStateOnSurface();
     const Surface & surface = refTsos.surface();
