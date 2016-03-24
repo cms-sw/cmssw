@@ -20,6 +20,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   enum {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module
+    MAP, // digi hitmap per module
 
     MAX_HIST // a sentinel that gives the number of quantities (not a plot).
   };

@@ -36,6 +36,27 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .reduce("COUNT")
     .groupBy("", "EXTEND_X")
     .save();
+  histo[ADC].addSpec()
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade" "/row/col")
+    .reduce("COUNT")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade" "/row", "EXTEND_X")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_Y")
+    .saveAll();
+
+  histo[MAP].setName("hitmap")
+    .setTitle("Position of digis on module")
+    .setXlabel("col")
+    .setYlabel("row")
+    .setRange(200, 0, 200)
+    .setDimensions(2)
+    .addSpec()
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetUnit")
+      .save()
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_X")
+      .save()
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk", "SUM")
+      .saveAll();
+
 
 
   histo[NDIGIS].setName("ndigis")
@@ -70,6 +91,7 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
     int ndigis = 0;
     for(PixelDigi const& digi : *it) {
       histo[ADC].fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
+      histo[MAP].fill((double) digi.column(), (double) digi.row(), DetId(it->detId())); 
       ndigis++;
     }
     histo[NDIGIS].fill((double) ndigis, DetId(it->detId()), &iEvent);
