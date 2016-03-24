@@ -1,0 +1,19 @@
+<lcgdict>
+	<class name="TotemRawEvent"/>
+    <class name="edm::Wrapper<TotemRawEvent>"/>
+
+	<class name="TotemRawEvent::OptoRxMetaData"/>
+
+	<class name="TotemRawEvent::TriggerData"/>
+
+	<class name="TotemFramePosition"/>
+
+	<class name="TotemRawToDigiStatus"/>
+    <class name="edm::Wrapper<TotemRawToDigiStatus>"/>
+
+	<class name="TotemVFATStatus"/>
+	<class name="edm::Wrapper<TotemVFATStatus>"/>
+
+	<class name="std::bitset<8>"/>
+	<class name="edm::Wrapper<std::bitset<8> >"/>
+</lcgdict>

@@ -1,0 +1,6 @@
+<lcgdict>
+   <class name="TotemRPCCBits"/>
+   <class name="edm::Wrapper<TotemRPCCBits>"/>
+   <class name="std::vector<TotemRPCCBits>"/>
+   <class name="edm::Wrapper<std::vector<TotemRPCCBits> >"/>
+</lcgdict>
