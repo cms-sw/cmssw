@@ -4,7 +4,8 @@ process = cms.Process("Alignment")
 # "including" common configuration
 <COMMON>
 
-process.source = cms.Source("EmptySource")
+#process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(<iovrun>)) 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -25,5 +26,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/'
 process.AlignmentProducer.saveToDB = True
-
-
+process.AlignmentProducer.checkDbAlignmentValidity= False 
+process.AlignmentProducer.RunRangeSelection = [
+    cms.PSet(RunRanges = cms.vstring(
+            '<iovrun>'
+            )
+        )
+    ]
