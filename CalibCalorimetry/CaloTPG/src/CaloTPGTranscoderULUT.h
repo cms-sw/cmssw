@@ -54,8 +54,9 @@ public:
 
   // Member Variables
   double nominal_gain_;
-  double rctlsb_factor_;
-  double nctlsb_factor_;
+  double lsb_factor_;
+  int rct_factor_;
+  int nct_factor_;
   std::string compressionFile_;
   std::string decompressionFile_;
   std::vector<int> ietal;
