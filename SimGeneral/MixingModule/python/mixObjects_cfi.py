@@ -224,3 +224,7 @@ if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
     mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
     mixSimHits.subdets.append('MuonGEMHits')
     mixSimHits.crossingFrames.append('MuonGEMHits')
+
+    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+    mixSimHits.subdets.append('MuonME0Hits')
+    mixSimHits.crossingFrames.append('MuonME0Hits')
