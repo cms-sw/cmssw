@@ -51,6 +51,7 @@ class TTStubBuilder : public edm::EDProducer
     const StackedTrackerGeometry *theStackedTracker;
     edm::ESHandle< TTStubAlgorithm< T > > theStubFindingAlgoHandle;
     edm::InputTag TTClustersInputTag;
+    bool ForbidMultipleStubs;
 
     /// Mandatory methods
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -60,6 +61,7 @@ class TTStubBuilder : public edm::EDProducer
     /// Sorting method for stubs
     /// NOTE: this must be static!
     static bool SortStubBendPairs( const std::pair< unsigned int, double >& left, const std::pair< unsigned int, double >& right );
+    static bool SortStubsBend( const TTStub< T >& left, const TTStub< T >& right );
 
 }; /// Close class
 
@@ -75,6 +77,7 @@ template< typename T >
 TTStubBuilder< T >::TTStubBuilder( const edm::ParameterSet& iConfig )
 {
   TTClustersInputTag = iConfig.getParameter< edm::InputTag >( "TTClusters" );
+  ForbidMultipleStubs = iConfig.getParameter< bool >( "OnlyOnePerInputCluster" );
   produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubRejected" );
@@ -172,17 +175,14 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     if ( innerClusters.size() == 0 || outerClusters.size() == 0 )
       continue;
 
-/* IR 2014 04 20
- * from pointer to object to deallocate memory in the correct way
-*/
     /// Create the vectors of objects to be passed to the FastFillers
-    std::vector< TTCluster< T > > tempInner; // = new std::vector< TTCluster< T > >();
-    std::vector< TTCluster< T > > tempOuter; // = new std::vector< TTCluster< T > >();
-    std::vector< TTStub< T > >   tempOutput; // = new std::vector< TTStub< T > >();
-    //std::vector< TTStub< T > > tempRejected; // = new std::vector< TTStub< T > >();
+    std::vector< TTCluster< T > > tempInner;
+    std::vector< TTCluster< T > > tempOuter;
+    std::vector< TTStub< T > >   tempAccepted;
+    //std::vector< TTStub< T > > tempRejected;
     tempInner.clear();
     tempOuter.clear();
-    tempOutput.clear();
+    tempAccepted.clear();
     //tempRejected.clear();
 
     /// Get chip size information
@@ -197,6 +197,11 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           innerClusterIter != innerClusters.end();
           ++innerClusterIter )
     {
+      /// Temporary storage to allow only one stub per inner cluster
+      /// if requested in cfi
+      std::vector< TTStub< T > > tempOutput;
+      tempOutput.clear();
+
       for ( outerClusterIter = outerClusters.begin();
             outerClusterIter != outerClusters.end();
             ++outerClusterIter )
@@ -219,41 +224,79 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           tempTTStub.setTriggerDisplacement( thisDisplacement );
           tempTTStub.setTriggerOffset( thisOffset );
 
-          /// Put in the output
-          if ( maxStubs == 0 )
+          tempOutput.push_back( tempTTStub );
+
+        } /// Stub accepted
+        /* NP 2014 02 25
+         * this is commented to avoid memory exhaustion in hi PU events
+        else
+        {
+          tempRejected.push_back( tempTTStub );
+        } */ /// Stub rejected
+
+      } /// End of loop over outer clusters
+
+      /// Here tempOutput stores all the stubs from this inner cluster
+      /// Check if there is need to store only one (if only one already, skip this step)
+      if ( ForbidMultipleStubs && tempOutput.size() > 1 )
+      {
+        /// If so, sort the stubs by bend and keep only the first one (smallest bend)
+        std::sort( tempOutput.begin(), tempOutput.end(), TTStubBuilder< T >::SortStubsBend );
+
+        /// Get to the second element (the switch above ensures there are min 2)
+        typename std::vector< TTStub< T > >::iterator tempIter = tempOutput.begin();
+        ++tempIter;
+
+        /// tempIter points now to the second element
+
+        /// Copy all-but-the first one to the vector of rejected stubs
+        /* NP 2015 06 26
+         * this is commented to avoid memory exhaustion in hi PU events
+        tempRejected.insert( tempRejected.end(), tempIter, tempOutput.end() );
+        */
+
+        /// Delete all-but-the first one from tempOutput
+        tempOutput.erase( tempIter, tempOutput.end() );
+      }
+
+      /// Here, tempOutput is either of size 1 (if entering the switch)
+      /// either of size N with all the valid combinations ...
+
+      /// Now loop over the accepted stubs (1 or N) for this inner cluster
+      for ( unsigned int iTempStub = 0; iTempStub < tempOutput.size(); ++iTempStub )
+      {
+        /// Get the stub
+        TTStub< T > tempTTStub = tempOutput.at( iTempStub );
+
+        /// Put in the output
+        if ( maxStubs == 0 )
+        {
+          /// This means that ALL stubs go into the output
+          tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
+          tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
+          tempAccepted.push_back( tempTTStub );
+        }
+        else
+        {
+          /// This means that only some of them do
+          /// Put in the temporary output
+          int chip = tempTTStub.getTriggerPosition() / chipSize; /// Find out which ASIC
+          if ( moduleStubs.find( chip ) == moduleStubs.end() ) /// Already a stub for this ASIC?
           {
-            /// This means that ALL stubs go into the output
-            tempInner.push_back( *innerClusterIter );
-            tempOuter.push_back( *outerClusterIter );
-            tempOutput.push_back( tempTTStub );
+            /// No, so new entry
+            std::vector< TTStub< T > > tempStubs;
+            tempStubs.clear();
+            tempStubs.push_back( tempTTStub );
+            moduleStubs.insert( std::pair< int, std::vector< TTStub< T > > >( chip, tempStubs ) );
           }
           else
           {
-            /// This means that only some of them do
-            /// Put in the temporary output
-            int chip = tempTTStub.getTriggerPosition() / chipSize; /// Find out which ASIC
-            if ( moduleStubs.find( chip ) == moduleStubs.end() ) /// Already a stub for this ASIC?
-            {
-              /// No, so new entry
-              std::vector< TTStub< T > > tempStubs;
-              tempStubs.clear();
-              tempStubs.push_back( tempTTStub );
-              moduleStubs.insert( std::pair< int, std::vector< TTStub< T > > >( chip, tempStubs ) );
-            }
-            else
-            {
-              /// Already existing entry
-              moduleStubs[chip].push_back( tempTTStub );
-            }
+            /// Already existing entry
+            moduleStubs[chip].push_back( tempTTStub );
           }
-        } /// Stub accepted
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
-        else
-        {
-          tempRejected->push_back( tempTTStub );
-        } /// Stub rejected
-*/
+        } /// End of check on max number of stubs per module
+
+
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
 
@@ -272,7 +315,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           {
             tempInner.push_back( *(ts.getClusterRef(0)) );
             tempOuter.push_back( *(ts.getClusterRef(1)) );
-            tempOutput.push_back( ts );
+            tempAccepted.push_back( ts );
           }
         }
         else
@@ -290,16 +333,15 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             /// Put the highest momenta (lowest bend) stubs into the event
             tempInner.push_back( *(is.second[bendMap[i].first].getClusterRef(0)) );
             tempOuter.push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
-            tempOutput.push_back( is.second[bendMap[i].first] );
+            tempAccepted.push_back( is.second[bendMap[i].first] );
           }
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
+          /* NP 2014 02 25
+           * this is commented to avoid memory exhaustion in hi PU events
           for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
           {
             /// Reject the rest
-            tempRejected->push_back( is.second[bendMap[i].first] );
-          }
-*/
+            tempRejected.push_back( is.second[bendMap[i].first] );
+          }*/
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
@@ -327,30 +369,29 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         outerOutputFiller.abort();
     }
 
-    if ( tempOutput.size() > 0 )
+    if ( tempAccepted.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, DetId(Id.rawId()) );
-      for ( unsigned int m = 0; m < tempOutput.size(); m++ )
+      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempAcceptedFiller( *TTStubDSVForOutputTemp, DetId(Id.rawId()) );
+      for ( unsigned int m = 0; m < tempAccepted.size(); m++ )
       {
-        tempOutputFiller.push_back( tempOutput.at(m) );
+        tempAcceptedFiller.push_back( tempAccepted.at(m) );
       }
-      if ( tempOutputFiller.empty() )
-        tempOutputFiller.abort();
+      if ( tempAcceptedFiller.empty() )
+        tempAcceptedFiller.abort();
     }
 
-/* NP 2014 02 25
- * this is commented to avoid memory exhaustion in hi PU events
-    if ( tempRejected->size() > 0 )
+    /* NP 2014 02 25
+     * this is commented to avoid memory exhaustion in hi PU events
+    if ( tempRejected.size() > 0 )
     {
       typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
-      for ( unsigned int m = 0; m < tempRejected->size(); m++ )
+      for ( unsigned int m = 0; m < tempRejected.size(); m++ )
       {
-        rejectedOutputFiller.push_back( tempRejected->at(m) );
+        rejectedOutputFiller.push_back( tempRejected.at(m) );
       }
       if ( rejectedOutputFiller.empty() )
       rejectedOutputFiller.abort();
-    }
-*/
+    }*/
 
   } /// End of loop over detector elements
 
@@ -469,7 +510,14 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 template< typename T >
 bool TTStubBuilder< T >::SortStubBendPairs( const std::pair< unsigned int, double >& left, const std::pair< unsigned int, double >& right )
 {
-  return left.second < right.second;
+  return fabs(left.second) < fabs(right.second);
+}
+
+/// Analogous sorting routine directly from stubs
+template< typename T >
+bool TTStubBuilder< T >::SortStubsBend( const TTStub< T >& left, const TTStub< T >& right )
+{
+  return fabs(left.getTriggerBend()) < fabs(right.getTriggerBend());
 }
 
 #endif
