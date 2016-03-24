@@ -1,14 +1,34 @@
 //These objects allow an arbitary parameristisation to be used
 //design:
-// 1) the function and parameterisation can be changing without having to change the interface
+//    the function and parameterisation can be changing without having to change the interface
 //    or breaking backwards compatibiltiy with existing configs.
 //    This is vital for the HLT and the main driving force behind the design which otherwise 
 //    could have been a lot simplier
-
-// 2) An intermediate object, "AbsEtaNrClus" is used to pass in the eta and nr cluster variables
-//    as it allows the function to accept either a reco::ElectronSeed or an eta/nrClus pair.
-//    The former simplies the accessing of the eta/nrClus from the seed object and the later
-//    simplifies unit testing as one can generate all possible values of eta/nrClus easily
+//
+//usage:
+//    The variables used are defined by an intermediate object which defines the 
+//    variables x,y, and z. 1D objects only need to define x, 2D objects x,y, etc. 
+//    Example is "AbsEtaNrClus" which defines x as |supercluster eta| and y as #subclusters of the supercluster. It takes this from a ElectronSeed as well as a constructor
+//    where the values can be passed in directly. This second construction simplifies
+//    unit testing as one can generate all possible values of eta/nrClus easily
+//    The object also defines a pass function where it determines if x (and y,z) is 
+//    within the specificed xmin and xmax range. This is mainly done as individual 
+//    objects can decide whether this means min<=x<max or min<=x<=max 
+//
+//    These objects are used by the binning objects. The bins can currently be 1D, 2D,
+//    or 3D based on the intermediate object. Each bin has a function with it. 
+//    The function takes a ParmaType as an argument and returns a float.
+//    The function is defined by a string of format FUNCID:=ExtraConfigInfo
+//    FUNCID = function type which allows different functions to be selected
+//    while ExtraConfigInfo is any extra information needed to configure that func
+//    currently implimented types are TF1, TF2, TF3
+//    so to get a TF1 which is a pol3 just do TF1:=pol3
+//
+//future plans:
+//    Seperate out intermediate wrapper objects such as AbsEtaNrClus
+//    and put them in their own file. However some mechanism is needed to register them
+//    so for now this isnt done. Note we might move to the standard CMSSW of dealing 
+//    with this
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
@@ -17,18 +37,7 @@
 #include "TF3.h"
 
 namespace egPM {
-  template<typename T>
-  struct ConfigType{
-    typedef T type;
-  };
-  template<>
-  struct ConfigType<size_t>{
-    typedef int type;
-  };
-  template<>
-  struct ConfigType<float>{
-    typedef double type;
-  };
+  
 
   struct AbsEtaNrClus{
     float x;
@@ -88,6 +97,11 @@ namespace egPM {
     }
   };
   
+
+  //these structs wrap the TF1 object
+  //also if the ParamType doesnt have a high enough dimension
+  //(ie using only one with x,y for a TF3), then the second
+  //template parameter disables the function
   template<typename ParamType,bool=true>
   struct TF1Wrap{
   private:
@@ -153,9 +167,20 @@ namespace egPM {
     TF3Wrap(const std::string& funcExpr,const std::vector<double>& params){}
     float operator()(const ParamType& obj){return 1.;};
   };
-      
+  
+  //the following functions allow for the fact that the type in the CMSSW PSet does not 
+  //have floats do when it sees a float parameter, it retrieves a double
+  template<typename T>
+  struct ConfigType{
+    typedef T type;
+  };
+  template<>
+  struct ConfigType<float>{
+    typedef double type;
+  };
 
-
+  //helper functions to figure out what dimension the ParamType is
+  //and not generate functions which require a higher dimension
   template<typename T>
   constexpr auto has1D(int) -> decltype(T::x,bool()){return true;}
   template<typename T>
@@ -190,7 +215,7 @@ namespace egPM {
       if(funcType.first=="TF1" && has1D<ParamType>(0)) return TF1Wrap<ParamType,has1D<ParamType>(0)>(funcType.second,funcParams);
       else if(funcType.first=="TF2" && has2D<ParamType>(0)) return TF2Wrap<ParamType,has2D<ParamType>(0)>(funcType.second,funcParams);
       else if(funcType.first=="TF3" && has3D<ParamType>(0)) return TF3Wrap<ParamType,has3D<ParamType>(0)>(funcType.second,funcParams);
-      else throw cms::Exception("InvalidConfig") << " type "<<funcType.first<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
+      else throw cms::Exception("InvalidConfig") << " type "<<funcType.first<<" is not recognised or is imcompatable with the ParamType, configuration is invalid and needs to be fixed"<<std::endl;
     }
   };
 
@@ -301,6 +326,8 @@ namespace egPM {
     std::unique_ptr<ParamBin<ParamType> > createParamBin_(const edm::ParameterSet& config){
       std::string type = config.getParameter<std::string>("binType");
       if(type=="AbsEtaClus") return std::make_unique<ParamBin2D<AbsEtaNrClus>>(config);
+      else if(type=="AbsEtaClusPhi") return std::make_unique<ParamBin3D<AbsEtaNrClusPhi>>(config);
+      else if(type=="AbsEtaClusEt") return std::make_unique<ParamBin3D<AbsEtaNrClusEt>>(config);
       else throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
     }
   };
