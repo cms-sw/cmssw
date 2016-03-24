@@ -148,6 +148,7 @@ class GeometryInterface {
   private:
   void loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
   void loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
 
   static GeometryInterface instance;
   bool is_loaded = false;

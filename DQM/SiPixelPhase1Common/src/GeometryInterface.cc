@@ -36,6 +36,7 @@ GeometryInterface GeometryInterface::instance;
 void GeometryInterface::load(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   loadFromAlignment(iSetup, iConfig);
   loadTimebased(iSetup, iConfig);
+  loadModuleLevel(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
   for (auto e : ids) log << "+++ column: " << e.first 
@@ -173,4 +174,22 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     },
     3600 // TODO: put actual max. BX
   );
+}
+
+void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  // stuff that is within modules. Might require some phase0/phase1/strip switching later
+  addExtractor(intern("row"),
+    [] (InterestingQuantities const& iq) {
+      return Value(iq.row);
+    },
+    200 //TODO: use actual number of rows here. Where can we find that?
+  );
+  addExtractor(intern("col"),
+    [] (InterestingQuantities const& iq) {
+      return Value(iq.col);
+    },
+    200 //TODO: use actual number of cols here. Where can we find that?
+  );
+
+  // TODO: ROCs ans stuff here.
 }
