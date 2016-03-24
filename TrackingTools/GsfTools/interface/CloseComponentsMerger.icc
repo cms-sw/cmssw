@@ -36,10 +36,9 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
   while (true) {
     SingleStateVector merged; merged.reserve(noComp);
     
-    float weights[noComp];
-    bool active[noComp];
+    declareDynArray(float,noComp,weights);
+    initDynArray(bool,noComp,active,true);
     for (int i=0; i<noComp; ++i) {
-       active[i]=true;
        weights[i]=ori[i]->weight();
     }
 

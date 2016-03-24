@@ -1,4 +1,6 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -24,8 +26,9 @@ MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurf
   //  
   // 1D mode computation for px, py and pz
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in x, y and z
   std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);
   std::vector<SingleGaussianState1D> pyStates; pyStates.reserve(numb);
@@ -71,8 +74,10 @@ MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurf
   //  
   // 1D mode computation for x, y and z
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in x, y and z
   std::vector<SingleGaussianState1D> xStates; xStates.reserve(numb);
   std::vector<SingleGaussianState1D> yStates; yStates.reserve(numb);
@@ -263,8 +268,9 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
   //  
   // 1D mode computation for p, phi, eta
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in p, phi and eta
   std::vector<SingleGaussianState1D> pStates; pStates.reserve(numb);
   std::vector<SingleGaussianState1D> phiStates; phiStates.reserve(numb);

@@ -21,9 +21,9 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   if ( !surface.mediumProperties().isValid() )  return TSoS;
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   // single input state?
-  if ( TSoS.components().size()>1 )
+  if (!TSoS.singleState() )
     throw cms::Exception("LogicError") << "GsfMaterialEffectsUpdator::updateState used with MultiTSOS";
-  double weight = TSoS.weight();
+  auto weight = TSoS.weight();
   //
   // Get components (will force recalculation, if necessary)
   //
