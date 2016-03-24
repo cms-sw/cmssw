@@ -27,22 +27,68 @@ void HistogramManager::addSpec(SummationSpecification spec) {
 
 SummationSpecificationBuilder HistogramManager::addSpec() {
   addSpec(SummationSpecification());
-  return SummationSpecificationBuilder(specs[specs.size()-1]);
+  return SummationSpecificationBuilder(specs[specs.size()-1], geometryInterface);
 }
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
-void HistogramManager::fill(double value, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
+void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
   auto iq = GeometryInterface::InterestingQuantities{
               sourceModule, sourceEvent, col, row
 	    };							    
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
-    auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
-    // TODO: more step1 steps must be excuted here. Step1 steps can be applied per-sample.
-    // Step1 steps are those that have s.stage = SummationStep::STAGE1, and step[0].
-    t[significantvalues].fill(value);
+    // TODO: we could recycle the last Values if iq has not changed (This is common)
+    // row/col is a bit harder then (only pass if needed, for perf reasons)
+    // Caching has to happen per-spec, of course.
+    GeometryInterface::Values significantvalues; // TODO move this to a member 
+    geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
+    int dimensions = this->dimensions;
+    for (SummationStep step : s.steps) {
+      if (step.stage == SummationStep::STAGE1) {
+	switch(step.type) {
+	case SummationStep::SAVE: break; // this happens automatically
+	case SummationStep::COUNT:
+	  // this does not really do anything. ATM only COUNT/EXTEND is supported, and
+	  // this is handled below.
+	  x = 0.0; y = 0.0;
+	  dimensions = 0;
+	  break;
+	case SummationStep::EXTEND_X:
+	  assert((x == 0.0 && dimensions != 1) || !"Can only EXTEND on COUNTs in step1");
+	  x = significantvalues[step.columns.at(0)];
+	  significantvalues.erase(step.columns.at(0));
+	  dimensions = dimensions == 0 ? 1 : 2;
+	  break;
+	case SummationStep::EXTEND_Y:
+	  assert(y == 0.0 || !"Can only EXTEND on COUNTs in step1");
+	  y = significantvalues[step.columns.at(0)];
+	  significantvalues.erase(step.columns.at(0));
+	  dimensions = 2;
+	  break;
+	case SummationStep::GROUPBY: 
+	case SummationStep::REDUCE:
+	case SummationStep::NO_TYPE:
+	  assert(!"step1 spec step is NYI.");
+	}
+      }
+    }
+    if (dimensions == 0) {
+      t[significantvalues].fill(0);
+    } else if (dimensions == 1)
+      t[significantvalues].fill(x);
+    else /* dimensions == 2 */ {
+      t[significantvalues].fill(x, y);
+    }
   }
+}
+void HistogramManager::fill(double x, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
+  assert(this->dimensions == 1);
+  fill(x, 0.0, sourceModule, sourceEvent, col, row);
+}
+void HistogramManager::fill(DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
+  assert(this->dimensions == 0);
+  fill(0.0, 0.0, sourceModule, sourceEvent, col, row);
 }
   
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
@@ -50,45 +96,88 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     geometryInterface.load(iSetup, iConfig);
   }
 
-    // TODO: We need 2 passes, one to count the elements for EXTEND-ranges, one for actual booking.
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
     for (auto iq : geometryInterface.allModules()) {
       auto dimensions = this->dimensions;
-      std::ostringstream name(this->name, std::ostringstream::ate);
-      std::ostringstream dir("");
-      std::ostringstream title(this->title, std::ostringstream::ate);
-      std::ostringstream xlabel(this->xlabel, std::ostringstream::ate);
-      std::ostringstream ylabel(this->ylabel, std::ostringstream::ate);
-      auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
+      std::string name = this->name;
+      std::string title = this->title;
+      std::string xlabel = this->xlabel;
+      std::string ylabel = this->ylabel;
+      int range_x_nbins = this->range_nbins;
+      double range_x_min = this->range_min, range_x_max = this->range_max;
+	// TODO: proper 2D range.
+      int range_y_nbins = this->range_nbins;
+      double range_y_min = this->range_min, range_y_max = this->range_max;
+      GeometryInterface::Values significantvalues;
+      geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
-	  //TODO: change labels, dimensionality, range, colums as fits
-	  if (step.type == SummationStep::SAVE) continue; // this happens automatically
-	  assert(!"step1 specs are NYI.");
+	  GeometryInterface::Values new_vals;
+	  switch(step.type) {
+	  case SummationStep::SAVE: break; // this happens automatically
+	  case SummationStep::COUNT:
+	    dimensions = 0;
+	    title = "Count of " + title;
+	    name = "num_" + name;
+	    ylabel = "# of " + xlabel;
+	    xlabel = "";
+	    range_x_nbins = range_y_nbins = 1;
+	    range_x_min = range_y_min = 0;
+	    range_x_max = range_y_max = 1;
+	    break;
+	  case SummationStep::EXTEND_X: {
+	    GeometryInterface::Column col0 = significantvalues.get(step.columns.at(0)).first;
+	    std::string colname = geometryInterface.pretty(col0);
+	    assert(dimensions != 1 || !"1D to 1D reduce NYI");
+	    dimensions = dimensions == 0 ? 1 : 2;
+	    title = title + " per " + colname;
+	    name = name + "_per_" + colname;
+	    xlabel = colname;
+	    range_x_min = 0;
+	    range_x_nbins = geometryInterface.maxValue(col0[0]);
+	    range_x_max = range_x_nbins;
+	    significantvalues.erase(col0);
+	    break;}
+	  case SummationStep::EXTEND_Y: {
+	    GeometryInterface::Column col0 = significantvalues.get(step.columns.at(0)).first;
+	    std::string colname = geometryInterface.pretty(col0);
+	    assert(dimensions != 2 || !"2D to 2D reduce NYI");
+	    dimensions = 2;
+	    title = title + " per " + colname;
+	    name = name + "_per_" + colname;
+	    ylabel = colname;
+	    range_y_min = 0;
+	    range_y_nbins = geometryInterface.maxValue(col0[0]);
+	    range_y_max = range_y_nbins;
+	    significantvalues.erase(col0);
+	    break;}
+	  case SummationStep::GROUPBY:
+	  case SummationStep::REDUCE:
+	  case SummationStep::NO_TYPE:
+	    assert(!"step1 spec step is NYI.");
+	  }
 	}
       }
 
       AbstractHistogram& histo = t[significantvalues];
       if (histo.me) continue;
 
+      std::ostringstream dir("");
       for (auto c : s.steps[0].columns) {
-	dir << c << "_" << std::hex << significantvalues[c] << "/";
+	  auto entry = significantvalues.get(c);
+	  // col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
+	  if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
       }
 
       iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
 
-      if (dimensions == 1) {
-	title << ";" << xlabel.str();
-      	histo.me = iBooker.book1D(name.str().c_str(), title.str().c_str(), range_nbins, range_min, range_max);
+      if (dimensions == 0 || dimensions == 1) {
+      	histo.me = iBooker.book1D(name.c_str(), (title + ";" + xlabel).c_str(), range_x_nbins, range_x_min, range_x_max);
       } else if (dimensions == 2) {
-	title << ";" << xlabel.str() << ";" << ylabel.str();
-	// TODO: proper 2D range.
-	histo.me = iBooker.book2D(name.str().c_str(), title.str().c_str(), 
-	                          range_nbins, range_min, range_max, range_nbins, range_min, range_max);
-      } else {
-	edm::LogError("HistogramManager") << "Booking " << dimensions << " dimensions not supported.\n";
+	histo.me = iBooker.book2D(name.c_str(), (title + ";" + xlabel + ";" + ylabel).c_str(), 
+	                          range_x_nbins, range_x_min, range_x_max, range_y_nbins, range_y_min, range_y_max);
       }
     }
   }
@@ -107,7 +196,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
   for (auto& s : specs) {
     edm::LogInfo log("HistogramManager");
     log << "Specs for " << name << " ";
-    s.dump(log);
+    s.dump(log, geometryInterface);
   }
 
   // This is esentially the booking code if step1, to reconstruct the ME names.
@@ -116,22 +205,42 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
     auto& s = specs[i];
     auto& t = tables[i];
     for (auto iq : geometryInterface.allModules()) {
-      std::ostringstream name(this->name, std::ostringstream::ate);
-      std::ostringstream dir(topFolderName + "/", std::ostringstream::ate);
-      auto significantvalues = geometryInterface.extractColumns(s.steps[0].columns, iq);
+      std::string name = this->name;
+      GeometryInterface::Values significantvalues;
+      geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
-	  //TODO: change labels, dimensionality, range, colums as fits
+	  GeometryInterface::Values new_vals;
+	  switch(step.type) {
+	  case SummationStep::SAVE: break; // this happens automatically
+	  case SummationStep::COUNT:
+	    name = "num_" + name;
+	    break;
+	  case SummationStep::EXTEND_X:
+	  case SummationStep::EXTEND_Y:{
+	    GeometryInterface::Column col0 = significantvalues.get(step.columns.at(0)).first;
+	    std::string colname = geometryInterface.pretty(col0);
+	    name = name + "_per_" + colname;
+	    significantvalues.erase(col0);
+	    break;}
+	  case SummationStep::GROUPBY:
+	  case SummationStep::REDUCE:
+	  case SummationStep::NO_TYPE:
+	    assert(!"step1 spec step is NYI.");
+	  }
 	}
       }
 
       AbstractHistogram& histo = t[significantvalues];
+      std::ostringstream dir(topFolderName + "/", std::ostringstream::ate);
       for (auto c : s.steps[0].columns) {
-	dir << c << "_" << std::hex << significantvalues[c] << "/";
+	  auto entry = significantvalues.get(c);
+	  // col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
+	  if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
       }
-      histo.me = iGetter.get(dir.str() + name.str());
+      histo.me = iGetter.get(dir.str() + name);
       if (!histo.me) {
-	edm::LogError("HistogramManager") << "ME " << dir.str() + name.str() << " not found\n";
+	edm::LogError("HistogramManager") << "ME " << dir.str() + name << " not found\n";
       } else {
 	histo.th1 = histo.me->getTH1();
       }
@@ -152,8 +261,9 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    GeometryInterface::Values vals(e.first);
 	    std::ostringstream dir("");
 	    for (auto c : s.steps[0].columns) {
-	      if (vals.find(c) != vals.end())
-		dir << c << "_" << std::hex << vals[c] << "/";
+		auto entry = vals.get(c);
+		// col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
+		if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
 	    }
 	    iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
 
@@ -163,7 +273,13 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	      e.second.me->setAxisTitle(ax->GetTitle());
 	      e.second.me->setAxisTitle(e.second.th1->GetYaxis()->GetTitle(), 2);
 	    } else {
-	      assert(!"NIY");
+	      TAxis* axX = e.second.th1->GetXaxis();
+	      TAxis* axY = e.second.th1->GetYaxis();
+	      e.second.me = iBooker.book2D(e.second.th1->GetName(), e.second.th1->GetTitle(), 
+	        axX->GetNbins(), axX->GetXmin(), axX->GetXmax(),
+	        axY->GetNbins(), axY->GetXmin(), axY->GetXmax());
+	      e.second.me->setAxisTitle(axX->GetTitle());
+	      e.second.me->setAxisTitle(axY->GetTitle(), 2);
 	    }
 
 	    e.second.me->getTH1()->Add(e.second.th1);
@@ -179,12 +295,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    GeometryInterface::Values const& old_vals(e.first);
 	    TH1 *th1 = e.second.th1;
 	    GeometryInterface::Values new_vals;
-	    for (auto col : step.columns) {
-	      auto it = old_vals.find(col);
-	      if (it != old_vals.end()) {
-		new_vals.insert(*it);
-	      }
-	    }
+	    for (auto c : step.columns) new_vals.put(old_vals.get(c));
 	    AbstractHistogram& new_histo = out[new_vals];
 	    if (!new_histo.th1) {
 	      new_histo.th1 = (TH1*) th1->Clone();
@@ -240,7 +351,9 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	    GeometryInterface::Values const& old_vals(e.first);
 	    GeometryInterface::Values new_vals(old_vals);
 	    //GeometryInterface::Value xval = new_vals[step.columns.at(0)]; // We rely on correct ordering
-	    new_vals.erase(step.columns.at(0));
+	    GeometryInterface::Column col0 = new_vals.get(step.columns.at(0)).first;
+	    std::string colname = geometryInterface.pretty(col0);
+	    new_vals.erase(col0);
 	    TH1 *th1 = e.second.th1;
 
 	    AbstractHistogram& new_histo = out[new_vals];
@@ -249,16 +362,20 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	      if (th1->GetDimension() == 1) {
 		// Output is 1D
 	        new_histo.th1 = (TH1*) new TH1D(th1->GetName(), (std::string("") 
-		                                + th1->GetYaxis()->GetTitle() + " per " + step.columns.at(0) 
-		                                + ";" + step.columns.at(0) + "/" + th1->GetXaxis()->GetTitle()
+		                                + th1->GetYaxis()->GetTitle() + " per " + colname
+		                                + ";" + colname + "/" + th1->GetXaxis()->GetTitle()
 						+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
 		                                nbins[new_vals], 0, nbins[new_vals]);
-		new_histo.count = 1; // used as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
-		// TODO: actually we should use the label of the input histograms. But for 0D we dont have anything there...
 	      } else {
                 // output is 2D, input is 2D histograms.
-		assert(!"2D NIY");
+		new_histo.th1 = (TH1*) new TH2D(th1->GetName(), (std::string("") 
+		                                + th1->GetTitle() + " per " + colname
+		                                + ";" + colname + "/" + th1->GetXaxis()->GetTitle()
+						+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
+		                                nbins[new_vals], 0, nbins[new_vals],
+						th1->GetYaxis()->GetNbins(), 0, th1->GetYaxis()->GetNbins());
 	      }
+	      new_histo.count = 1; // used as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
 	    } 
 
 	    // now add data.
@@ -270,13 +387,17 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	      }
 	    } else {
 	      // 2D case.
-	      assert(!"2D histo concat NIY");
+	      for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
+		for (int j = 1; j <= th1->GetYaxis()->GetNbins(); j++) {
+		  // TODO Error etc.?
+		  new_histo.th1->SetBinContent(new_histo.count, j, th1->GetBinContent(i, j)); 
+		}
+		new_histo.count += 1; 
+	      }
 	    }
 	  }
 	  t.swap(out);
 	}
-	// TODO: more.
-
       }
     }
   }
