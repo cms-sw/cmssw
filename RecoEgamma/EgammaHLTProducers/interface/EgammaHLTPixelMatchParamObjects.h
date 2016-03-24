@@ -41,9 +41,50 @@ namespace egPM {
     }
     AbsEtaNrClus(float iEta,size_t iNrClus): //iEta= input eta
       x(std::abs(iEta)),y(iNrClus){}
-    
+
     bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax)const{
       return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax;
+    }
+  };
+  struct AbsEtaNrClusPhi{
+    float x;
+    size_t y;
+    float z;
+
+    AbsEtaNrClusPhi(const reco::ElectronSeed& seed){
+      reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
+      x = std::abs(scRef->eta());
+      y = scRef->clustersSize();
+      z = scRef->phi();
+    }
+    AbsEtaNrClusPhi(float iEta,size_t iNrClus,float iPhi): //iEta= input eta
+      x(std::abs(iEta)),y(iNrClus),z(iPhi){}
+
+    bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax,
+	      float phiMin,float phiMax)const{
+      return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax 
+	&& z>=phiMin && z < phiMax;
+    }
+  };
+
+  struct AbsEtaNrClusEt {
+    float x;
+    size_t y;
+    float z;
+
+    AbsEtaNrClusEt(const reco::ElectronSeed& seed){
+      reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
+      x = std::abs(scRef->eta());
+      y = scRef->clustersSize();
+      z = scRef->energy()*sin(scRef->position().Theta());
+    }
+    AbsEtaNrClusEt(float iEta,size_t iNrClus,float iEt): //iEta= input eta
+      x(std::abs(iEta)),y(iNrClus),z(iEt){}
+
+    bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax,
+	      float etMin,float etMax)const{
+      return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax 
+	&& z>=etMin && z < etMax;
     }
   };
   
