@@ -23,18 +23,32 @@ HIPAlignmentAlgorithm = cms.PSet(
     outfile2 = cms.string('HIPAlignmentAlignables.root'),
     algoName = cms.string('HIPAlignmentAlgorithm'),
     trueFile = cms.string('IOTruePositions.root'),
-    eventPrescale = cms.int32(20),
+    eventPrescale = cms.int32(1),
+
+#CY:test
+    UsePreSelection = cms.bool(False),
+    UseReweighting = cms.bool(True), 
+    Weight = cms.double(1.0),
+    UniformEta = cms.bool(False),
+    isCollision = cms.bool(True),
+    ScanDet = cms.int32(0),
+    CLAngleCut = cms.double(1.58),
+    CSAngleCut = cms.double(0.0),
+
     outfile = cms.string('HIPAlignmentEvents.root'),
-	surveyFile = cms.string('HIPSurveyResiduals.root'),
+    surveyFile = cms.string('HIPSurveyResiduals.root'),
     maxAllowedHitPull = cms.double(-1.0),
     surveyResiduals = cms.untracked.vstring(), ## no survey constraint
 
     misalignedFile = cms.string('IOMisalignedPositions.root'),
     minimumNumberOfHits = cms.int32(50),
     verbosity = cms.bool(False),
+		checkDbAlignmentValidity=cms.bool(False),
     # Dump tracks before and after refit
     debug = cms.bool(False),
     alignedFile = cms.string('IOAlignedPositions.root'),
+    multiIOV= cms.bool(False),
+		IOVrange=cms.vuint32(1,99999999),
     fillTrackMonitoring = cms.untracked.bool(False)
 )
 
