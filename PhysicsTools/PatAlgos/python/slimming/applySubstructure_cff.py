@@ -86,7 +86,7 @@ def applySubstructure( process ) :
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
     process.patJetsAK8Puppi.userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass']
-    process.patJetsAK8Puppi.addTagInfos = cms.bool(True)
+    process.patJetsAK8Puppi.addTagInfos = cms.bool(False)
 
 
 
