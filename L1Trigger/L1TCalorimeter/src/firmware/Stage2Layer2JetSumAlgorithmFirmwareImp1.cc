@@ -12,14 +12,12 @@
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
-  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
-  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
+  httJetThresholdHw_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
+  mhtJetThresholdHw_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
 
-  etSumEtaMinEt_ = params_->etSumEtaMin(1);
-  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
- 
-  etSumEtaMinMet_ = params_->etSumEtaMin(3);
-  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
+  httEtaMax_ = params_->etSumEtaMax(1);
+  mhtEtaMax_ = params_->etSumEtaMax(3);
+
 }
 
 
@@ -32,28 +30,20 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwa
 void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & alljets, std::vector<l1t::EtSum> & htsums) 
 {
 
-  int etaMax = etSumEtaMaxEt_ > etSumEtaMaxMet_ ? etSumEtaMaxEt_ : etSumEtaMaxMet_;
-  //  int etaMin = etSumEtaMinEt_ < etSumEtaMinMet_ ? etSumEtaMinEt_ : etSumEtaMinMet_;
-  int phiMax = CaloTools::kHBHENrPhi;
-  int phiMin = 1;
-  
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
     int32_t hx(0), hy(0), ht(0);
     
-    std::vector<int> rings;
-    for (int i=1; i<=etaMax; i++) rings.push_back(i*etaSide);
-
     // loop over rings    
-    for (unsigned etaIt=0; etaIt<rings.size(); etaIt++) {
+    for (unsigned absieta=1; absieta<CaloTools::kHFEnd; absieta++) {
 
-      int ieta = rings.at(etaIt);
+      int ieta = etaSide * absieta;
 
       int32_t ringHx(0), ringHy(0), ringHt(0); 
 
       // loop over phi
-      for (int iphi=phiMin; iphi<=phiMax; iphi++) {
+      for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 	
         // find the jet at this (eta,phi)
 	l1t::Jet thisJet;
@@ -66,12 +56,12 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 	}
 	if (!foundJet) continue;
 	
-	if (thisJet.hwPt()>etSumEtThresholdHwMet_ && abs(CaloTools::mpEta(thisJet.hwEta()))<=etSumEtaMaxMet_) {
+	if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
 	  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * cos ( 2 * M_PI * (72 - (iphi-1)) / 72.0 ) )) >> 9;
 	  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * (iphi-1) / 72.0 ) )) >> 9;
 	}
 	
-	if (thisJet.hwPt()>etSumEtThresholdHwEt_ && abs(CaloTools::mpEta(thisJet.hwEta()))<=etSumEtaMaxEt_) {
+	if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=httEtaMax_) {
 	  ringHt += thisJet.hwPt();
 	}
       }
