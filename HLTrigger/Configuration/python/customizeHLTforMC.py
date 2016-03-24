@@ -255,8 +255,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuonCSCDigis",
       "hltMuonDTDigis",
       "hltMuonRPCDigis",
-      "hltGtDigis",
-#      "hltL1GtTrigReport",
+#     "hltGtDigis",
+#     "hltL1GtTrigReport",
       #   "hltCsc2DRecHits",
       #   "hltDt1DRecHits",
       #   "hltRpcRecHits",
@@ -320,6 +320,8 @@ def customizeHLTforMC(process,_fastSim=False):
     import fnmatch,re
     ExplicitList = []
     HLTSchedule = tuple( path.label_() for path in process.HLTSchedule)
+    for path in HLTSchedule:
+      getattr(process,path).insert(1,process.HLTL1UnpackerSequence)
     for black in fastSimUnsupportedPaths:
       compiled = re.compile(fnmatch.translate(black))
       for path in HLTSchedule:
@@ -419,8 +421,8 @@ def customizeHLTforMC(process,_fastSim=False):
 # Update InputTags
 
     InputTags = (
-      ('hltGtDigis','gtDigis'),
-      ('hltL1GtObjectMap','gtDigis'),
+#     ('hltGtDigis','gtDigis'),
+#     ('hltL1GtObjectMap','gtDigis'),
       ('hltEcalDigis:ebDigis','ecalDigis:ebDigis'),
       ('hltEcalDigis:eeDigis','ecalDigis:eeDigis'),
       ('hltMuonCSCDigis','muonCSCDigis'),
@@ -481,7 +483,7 @@ def customizeHLTforMC(process,_fastSim=False):
 
 # Update top-level named parameters
     NamedParameters = (
-      ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
+#     ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
       ('killDeadChannels',cms.bool(True),cms.bool(False)),
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
@@ -504,6 +506,9 @@ def customizeHLTforMC(process,_fastSim=False):
     fastsim.extend(process)
     fastsim.setSchedule_(fastsim.schedule)
     fastsim.prune()
+
+    if hasattr(fastsim,'hltL1extraParticles'):
+      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
 
     return fastsim
 
