@@ -34,14 +34,12 @@ def applySubstructure( process ) :
     )
 
     ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsPuppiSoftDrop #ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed,
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsPuppiSoftDrop 
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
     process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
-    #process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
-    #process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass']  #,'ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass'] 
     process.patJetsAK8.addTagInfos = cms.bool(True)
 
 
