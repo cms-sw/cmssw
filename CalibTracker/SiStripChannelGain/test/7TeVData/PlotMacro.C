@@ -19,39 +19,40 @@
 #include "tdrstyle.C"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/ChainEvent.h"
+//#include "DataFormats/FWLite/interface/Handle.h"
+//#include "DataFormats/FWLite/interface/Event.h"
+//#include "DataFormats/FWLite/interface/ChainEvent.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-using namespace fwlite;
+//using namespace fwlite;
 using namespace std;
-using namespace edm;
+//using namespace edm;
 #endif
 
 
 
 
-void PlotMacro_Core(string input, string moduleName, string output, string TextToPrint);
+void PlotMacro_Core(std::string input, std::string moduleName, std::string modeName, std::string output, std::string TextToPrint);
 TF1*  getLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
-TH1D* ChargeToMPV(TH2* InputHisto, string Name, bool DivideByX);
+TH1D* ChargeToMPV(TH2* InputHisto, std::string Name, bool DivideByX);
 
 
 
-void PlotMacro(string TextToPrint_="CMS Preliminary 2015"){
+void PlotMacro(std::string modeName="IsoBunch", std::string TextToPrint_="CMS Preliminary 2015"){
    system("mkdir Pictures");
-   PlotMacro_Core("file:Gains_Tree.root"     , "SiStripCalib/"          , "Pictures/Gains"     , TextToPrint_ + "  -  Particle Gain");
-   PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
+   printf("Plotting histograms for %s calibration\n", modeName.c_str());   
+   PlotMacro_Core("file:Gains_Tree.root"     , "SiStripCalib/"          , modeName, "Pictures/Gains"     , TextToPrint_ + "  -  Particle Gain");
+   PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", modeName, "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
 }
 
 
-void PlotMacro_Core(string input, string moduleName, string output, string TextToPrint)
+void PlotMacro_Core(std::string input, std::string moduleName, std::string modeName, std::string output, std::string TextToPrint)
 {
    FILE* pFile;
    TCanvas* c1;
    TObject** Histos = new TObject*[10];                
-   std::vector<string> legend;
+   std::vector<std::string> legend;
 
    unsigned int  tree_Index;
    unsigned int  tree_DetId;
@@ -79,6 +80,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    TFile* f1     = new TFile(input.c_str());
    TTree *t1     = (TTree*)GetObjectFromPath(f1,moduleName+"APVGain");
 
+   if(t1==0) return;
+
    t1->SetBranchAddress("Index"             ,&tree_Index      );
    t1->SetBranchAddress("DetId"             ,&tree_DetId      );
    t1->SetBranchAddress("APVId"             ,&tree_APVId      );
@@ -102,20 +105,19 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    t1->SetBranchAddress("NEntries"          ,&tree_NEntries   );
    t1->SetBranchAddress("isMasked"          ,&tree_isMasked   );
 
+   TH2D* ChargeDistrib  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_"+modeName);
+   //TH2D* ChargeDistribA = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_Absolute_"+modeName);
 
-   TH2D* ChargeDistrib  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index");
-   TH2D* ChargeDistribA = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_Absolute");
-
-   TH2D* Charge_Vs_PathlengthTIB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIB");
-   TH2D* Charge_Vs_PathlengthTOB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTOB");
-   TH2D* Charge_Vs_PathlengthTIDP  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIDP");
-   TH2D* Charge_Vs_PathlengthTIDM  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIDM");
+   TH2D* Charge_Vs_PathlengthTIB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIB_"+modeName);
+   TH2D* Charge_Vs_PathlengthTOB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTOB_"+modeName);
+   TH2D* Charge_Vs_PathlengthTIDP  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIDP_"+modeName);
+   TH2D* Charge_Vs_PathlengthTIDM  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIDM_"+modeName);
    TH2D* Charge_Vs_PathlengthTID   = (TH2D*)Charge_Vs_PathlengthTIDP->Clone("Charge_Vs_PathlengthTID");
          Charge_Vs_PathlengthTID      ->Add(Charge_Vs_PathlengthTIDM);
-   TH2D* Charge_Vs_PathlengthTECP1 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECP1");
-   TH2D* Charge_Vs_PathlengthTECP2 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECP2");
-   TH2D* Charge_Vs_PathlengthTECM1 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECM1");
-   TH2D* Charge_Vs_PathlengthTECM2 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECM2");
+   TH2D* Charge_Vs_PathlengthTECP1 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECP1_"+modeName);
+   TH2D* Charge_Vs_PathlengthTECP2 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECP2_"+modeName);
+   TH2D* Charge_Vs_PathlengthTECM1 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECM1_"+modeName);
+   TH2D* Charge_Vs_PathlengthTECM2 = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTECM2_"+modeName);
    TH2D* Charge_Vs_PathlengthTECP  = (TH2D*)Charge_Vs_PathlengthTECP1->Clone("Charge_Vs_PathlengthTECP");
          Charge_Vs_PathlengthTECP     ->Add(Charge_Vs_PathlengthTECP2);
    TH2D* Charge_Vs_PathlengthTECM  = (TH2D*)Charge_Vs_PathlengthTECM1->Clone("Charge_Vs_PathlengthTECM");
@@ -219,7 +221,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    TH1D* ChargeTECP2    = new TH1D("ChargeTECP2"   ,"ChargeTECP2"   ,               2000, 0,4000);
    TH1D* ChargeTECM1    = new TH1D("ChargeTECM1"   ,"ChargeTECM1"   ,               2000, 0,4000);
    TH1D* ChargeTECM2    = new TH1D("ChargeTECM2"   ,"ChargeTECM2"   ,               2000, 0,4000);
-
+/*
    TH1D* ChargeAbsPIB   = new TH1D("ChargeAbsPIB"  ,"ChargeAbsPIB"  ,               1000, 0,4000);
    TH1D* ChargeAbsPIE   = new TH1D("ChargeAbsPIE"  ,"ChargeAbsPIE"  ,               1000, 0,4000);
    TH1D* ChargeAbsTIB   = new TH1D("ChargeAbsTIB"  ,"ChargeAbsTIB"  ,               1000, 0,4000);
@@ -236,7 +238,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    TH1D* ChargeAbsTECP2 = new TH1D("ChargeAbsTECP2","ChargeAbsTECP2",               1000, 0,4000);
    TH1D* ChargeAbsTECM1 = new TH1D("ChargeAbsTECM1","ChargeAbsTECM1",               1000, 0,4000);
    TH1D* ChargeAbsTECM2 = new TH1D("ChargeAbsTECM2","ChargeAbsTECM2",               1000, 0,4000);
-
+*/
    TH1D* DiffWRTPrevGainPIB      = new TH1D("DiffWRTPrevGainPIB"     ,"DiffWRTPrevGainPIB"     ,               250, 0,2);
    TH1D* DiffWRTPrevGainPIE      = new TH1D("DiffWRTPrevGainPIE"     ,"DiffWRTPrevGainPIE"     ,               250, 0,2);
    TH1D* DiffWRTPrevGainTIB      = new TH1D("DiffWRTPrevGainTIB"     ,"DiffWRTPrevGainTIB"     ,               250, 0,2);
@@ -260,7 +262,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
 
       int bin = ChargeDistrib->GetXaxis()->FindBin(tree_Index);
       TH1D* Proj         = ChargeDistrib ->ProjectionY("proj" ,bin, bin);
-      TH1D* ProjAbsolute = ChargeDistribA->ProjectionY("projA",bin, bin);
+      //TH1D* ProjAbsolute = ChargeDistribA->ProjectionY("projA",bin, bin);
 
       if(tree_SubDet>=3 && tree_FitMPV<0      ) NoMPV         ->Fill(tree_z ,tree_R);
       if(tree_SubDet>=3 && tree_FitMPV>=0){
@@ -321,7 +323,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
       if(tree_SubDet==6 && tree_Eta<0 && tree_Thickness>0.04) ChargeTECM2 ->Add(Proj,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeTECP1 ->Add(Proj,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness>0.04) ChargeTECP2 ->Add(Proj,1);
-
+/*
       if(tree_SubDet==1                       ) ChargeAbsPIB  ->Add(ProjAbsolute,1);
       if(tree_SubDet==2                       ) ChargeAbsPIE  ->Add(ProjAbsolute,1);
       if(tree_SubDet==3                       ) ChargeAbsTIB  ->Add(ProjAbsolute,1);
@@ -338,7 +340,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
       if(tree_SubDet==6 && tree_Eta<0 && tree_Thickness>0.04) ChargeAbsTECM2 ->Add(ProjAbsolute,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeAbsTECP1 ->Add(ProjAbsolute,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness>0.04) ChargeAbsTECP2 ->Add(ProjAbsolute,1);
-
+*/
       if(tree_SubDet==1                       ) DiffWRTPrevGainPIB  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==2                       ) DiffWRTPrevGainPIE  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==3                       ) DiffWRTPrevGainTIB  ->Fill(tree_Gain/tree_PrevGain);
@@ -357,7 +359,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
 
 
       delete Proj;
-      delete ProjAbsolute;
+      //delete ProjAbsolute;
    }printf("\n");
 
 
@@ -820,7 +822,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeTIDSide");
     delete c1;
-
+/*
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = ChargeAbsPIB;                      legend.push_back("PIB");
     Histos[1] = ChargeAbsPIE;                      legend.push_back("PIE");
@@ -872,7 +874,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeAbsTIDSide");
     delete c1;
-
+*/
 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = MPV_Vs_PathlengthThin;             legend.push_back("320 #mum");
@@ -980,7 +982,7 @@ TF1* getLandau(TH1* InputHisto, double* FitResults, double LowRange, double High
    return MyLandau;
 }
 
-TH1D* ChargeToMPV(TH2* InputHisto, string Name,  bool DivideByX)
+TH1D* ChargeToMPV(TH2* InputHisto, std::string Name,  bool DivideByX)
 {
    TH1D* toReturn = new TH1D(Name.c_str(),Name.c_str(),InputHisto->GetXaxis()->GetNbins(), InputHisto->GetXaxis()->GetXmin(), InputHisto->GetXaxis()->GetXmax() );
    double Results[5];
