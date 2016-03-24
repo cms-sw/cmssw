@@ -45,9 +45,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_HLT_v8', '')
+#process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+#process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
 
-process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
+# To get L1 CaloParams
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+# To get CaloTPGTranscoder
+process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 
 process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
 
@@ -59,6 +64,8 @@ process.simCaloStage2Layer1Digis.useLSB = cms.bool(True)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(False)
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
+
+process.load('EventFilter.RctRawToDigi.l1RctHwDigis_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -73,6 +80,6 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_L1TCaloLayer1Test')
 )
 
-process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis)
+process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis*process.rctDigis)
 
 process.e = cms.EndPath(process.out)
