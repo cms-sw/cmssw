@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="TotemRPDigi"/>
+  <class name="edm::DetSet<TotemRPDigi>"/>
+  <class name="std::vector<edm::DetSet<TotemRPDigi> >"/>
+  <class name="std::vector<TotemRPDigi>"/>
+  <class name="edm::DetSetVector<TotemRPDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
+</lcgdict>
