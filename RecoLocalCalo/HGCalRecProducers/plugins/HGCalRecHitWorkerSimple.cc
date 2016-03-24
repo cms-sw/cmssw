@@ -13,10 +13,12 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   constexpr float keV2GeV = 1e-6;
   // HGCee constants 
   HGCEE_keV2DIGI_   =  ps.getParameter<double>("HGCEE_keV2DIGI");
+  HGCEE_fCPerMIP_   =  ps.getParameter<std::vector<double> >("HGCEE_fCPerMIP");
   hgceeUncalib2GeV_ = keV2GeV/HGCEE_keV2DIGI_;
   
   // HGChef constants
   HGCHEF_keV2DIGI_   =  ps.getParameter<double>("HGCHEF_keV2DIGI");
+  HGCHEF_fCPerMIP_    =  ps.getParameter<std::vector<double> >("HGCHEF_fCPerMIP");
   hgchefUncalib2GeV_ = keV2GeV/HGCHEF_keV2DIGI_;
   
   // HGCheb constants
@@ -25,6 +27,13 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
+  edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
+  edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
+  es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle); 
+  es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
+  ddds_[0] = &(hgceeGeoHandle->topology().dddConstants());
+  ddds_[1] = &(hgchefGeoHandle->topology().dddConstants());
+  ddds_[2] = nullptr;  
 }
 
 
@@ -34,13 +43,16 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
   uint32_t recoFlag = 0;
+  const std::vector<double>* fCPerMIP = nullptr;
     
   switch( detid.subdetId() ) {
   case HGCEE:
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
+    fCPerMIP = &HGCEE_fCPerMIP_;
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
+    fCPerMIP = &HGCHEF_fCPerMIP_;
     break;
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
@@ -51,8 +63,16 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   }
   
   // make the rechit and put in the output collection
-  if (recoFlag == 0) {
+  if (recoFlag == 0) {    
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );    
+    HGCalDetId hid(detid);
+    if( fCPerMIP != nullptr ) {
+      const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+      // units out of rechit maker are MIP * (GeV/fC)
+      // so multiple
+      const double new_E = myrechit.energy()*(*fCPerMIP)[thk-1];
+      myrechit.setEnergy(new_E);
+    }    
     result.push_back(myrechit);
   }
 
