@@ -796,7 +796,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<double>("pedestal", 3.0);
 	desc_hb.add<double>("pedestalWidth", 0.55);
 	desc_hb.add<std::vector<double>>("qieOffset", std::vector<double>({-0.49, 1.8, 7.2, 37.9}));
-	desc_hb.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_hb.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.917, 0.922, 0.923}));
 	desc_hb.add<int>("qieType", 0);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
@@ -816,7 +816,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<double>("pedestal", 3.0);
 	desc_he.add<double>("pedestalWidth", 0.79);
 	desc_he.add<std::vector<double>>("qieOffset", std::vector<double>({-0.38, 2.0, 7.6, 39.6}));
-	desc_he.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_he.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.916, 0.92, 0.922}));
 	desc_he.add<int>("qieType", 0);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
@@ -836,7 +836,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<double>("pedestal", 3.0);
 	desc_hf.add<double>("pedestalWidth", 0.84);
 	desc_hf.add<std::vector<double>>("qieOffset", std::vector<double>({-0.87, 1.4, 7.8, -29.6}));
-	desc_hf.add<std::vector<double>>("qieSlope", std::vector<double>({0.36, 0.36, 0.36, 0.36}));
+	desc_hf.add<std::vector<double>>("qieSlope", std::vector<double>({0.359, 0.358, 0.36, 0.367}));
 	desc_hf.add<int>("qieType", 0);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
@@ -845,8 +845,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<std::vector<double>>("gainWidth", std::vector<double>({0.0, 0.0}));
 	desc_hfUpgrade.add<double>("pedestal", 13.33);
 	desc_hfUpgrade.add<double>("pedestalWidth", 3.33);
-	desc_hfUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({3.9, 3.3, 12.7, -667.8}));
-	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.3, 0.3, 0.3, 0.3}));
+	desc_hfUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0697, -0.7405, 12.38, -671.9}));
+	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.297, 0.298, 0.298, 0.313}));
 	desc_hfUpgrade.add<int>("qieType", 1);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
 
@@ -856,9 +856,10 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<double>("pedestal", 11.0);
 	desc_ho.add<double>("pedestalWidth", 0.57);
 	desc_ho.add<std::vector<double>>("qieOffset", std::vector<double>({-0.44, 1.4, 7.1, 38.5}));
-	desc_ho.add<std::vector<double>>("qieSlope", std::vector<double>({0.92, 0.92, 0.92, 0.92}));
+	desc_ho.add<std::vector<double>>("qieSlope", std::vector<double>({0.907, 0.915, 0.92, 0.921}));
 	desc_ho.add<int>("qieType", 0);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
+
 	
 	descriptions.addDefault(desc);
 }

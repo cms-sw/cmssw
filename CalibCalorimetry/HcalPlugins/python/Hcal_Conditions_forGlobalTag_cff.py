@@ -28,7 +28,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0.0),
         qieType       = cms.int32(0),
         qieOffset     = cms.vdouble(-0.49,1.8,7.2,37.9),
-        qieSlope      = cms.vdouble(0.92,0.92,0.92,0.92)
+        qieSlope      = cms.vdouble(0.912,0.917,0.922,0.923)
     ),
     he = cms.PSet(
         pedestal      = cms.double(3.0),
@@ -37,7 +37,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(0),
         qieOffset     = cms.vdouble(-0.38,2.0,7.6,39.6),
-        qieSlope      = cms.vdouble(0.92,0.92,0.92,0.92)
+        qieSlope      = cms.vdouble(0.912,0.916,0.920,0.922)
     ),
     hf = cms.PSet(
         pedestal      = cms.double(3.0),
@@ -46,7 +46,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0.0,0.0),
         qieType       = cms.int32(0),
         qieOffset     = cms.vdouble(-0.87,1.4,7.8,-29.6),
-        qieSlope      = cms.vdouble(0.36,0.36,0.36,0.36)
+        qieSlope      = cms.vdouble(0.359,0.358,0.360,0.367)
     ),
     ho = cms.PSet(
         pedestal      = cms.double(11.0),
@@ -55,7 +55,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0.0,0.0),
         qieType       = cms.int32(0),
         qieOffset     = cms.vdouble(-0.44,1.4,7.1,38.5),
-        qieSlope      = cms.vdouble(0.92,0.92,0.92,0.92)
+        qieSlope      = cms.vdouble(0.907,0.915,0.920,0.921)
     ),
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(18.),
@@ -81,8 +81,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gain          = cms.vdouble(0.14,0.135),
         gainWidth     = cms.vdouble(0.0,0.0),
         qieType       = cms.int32(1),
-        qieOffset     = cms.vdouble(3.9,3.3,12.7,-667.8),
-        qieSlope      = cms.vdouble(0.3,0.3,0.3,0.3)
+        qieOffset     = cms.vdouble(0.0697,-0.7405,12.38,-671.9),
+        qieSlope      = cms.vdouble(0.297,0.298,0.298,0.313)
     ),
 )
 
