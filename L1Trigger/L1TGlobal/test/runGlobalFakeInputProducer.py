@@ -182,14 +182,26 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 process.load('L1Trigger.L1TGlobal.StableParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v3.xml')
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
+
+## Fill External conditions
+process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
+process.simGtExtFakeProd.bxFirst = cms.int32(-2)
+process.simGtExtFakeProd.bxLast = cms.int32(2)
+process.simGtExtFakeProd.setBptxAND   = cms.bool(True)
+process.simGtExtFakeProd.setBptxPlus  = cms.bool(True)
+process.simGtExtFakeProd.setBptxMinus = cms.bool(True)
+process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 
 
 ## Run the Stage 2 uGT emulator
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
 process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
+process.simGtStage2Digis.extInputTag = cms.InputTag("simGtExtFakeProd")
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
@@ -200,7 +212,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
-		uGtExtInputTag = cms.InputTag("gtInput"),
+		uGtExtInputTag = cms.InputTag("simGtExtFakeProd"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(0),
 		maxBx          = cms.int32(0),
@@ -234,6 +246,7 @@ else:
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
+    *process.simGtExtFakeProd
     *process.simGtStage2Digis
     *process.dumpGTRecord
 #    +process.menuDumper
