@@ -422,7 +422,7 @@ if 'GlobalTag' in %(dict)s:
       text = """
 # override the GlobalTag's L1T menu from an Xml file
 from HLTrigger.Configuration.CustomConfigs import L1XML
-%(process)s = L1XML(%(process)s,"%s")
+%%(process)s = L1XML(%%(process)s,"%s")
 """ % (self.config.l1Xml.XmlFile) 
       self.data += text
 
