@@ -41,8 +41,9 @@ public:
   SummationSpecificationBuilder addSpec();
 
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
+  void fill(DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
   void fill(double value, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
-  // TODO: we need multi-dimensional version, but probably a hardcoded fill2 for 2D will do.
+  void fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
   
   // Initiate the geometry extraction and book all required frames. Requires the specs to be set.
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
