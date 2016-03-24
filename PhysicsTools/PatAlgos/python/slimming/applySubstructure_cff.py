@@ -40,7 +40,7 @@ def applySubstructure( process ) :
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
     process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass'] 
-    process.patJetsAK8.addTagInfos = cms.bool(True)
+    process.patJetsAK8.addTagInfos = cms.bool(False)
 
 
 
@@ -86,7 +86,7 @@ def applySubstructure( process ) :
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
     process.patJetsAK8Puppi.userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass']
-    process.patJetsAK8Puppi.addTagInfos = cms.bool(True)
+    process.patJetsAK8Puppi.addTagInfos = cms.bool(False)
 
 
 
