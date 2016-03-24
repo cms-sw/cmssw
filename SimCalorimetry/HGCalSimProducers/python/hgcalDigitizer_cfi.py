@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Base configurations for HGCal digitizers
+eV_per_eh_pair = 3.62
 
 # ECAL
 hgceeDigitizer = cms.PSet( 
@@ -9,13 +10,14 @@ hgceeDigitizer = cms.PSet(
     digiCollection    = cms.string("HGCDigisEE"),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
+    eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
-        keV2fC           = cms.double(0.021),
+        keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
         noise_fC         = cms.double(0.336),
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
@@ -34,8 +36,9 @@ hgceeDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
-            # raise threshold flag (~MIP/2)
-            adcThreshold_fC   = cms.double(0.579),
+            # raise threshold flag (~MIP/2) this is scaled 
+            # for different thickness
+            adcThreshold_fC   = cms.double(0.672),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
@@ -64,8 +67,8 @@ hgchefrontDigitizer = cms.PSet(
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
-    digiCfg = cms.PSet( 
-        keV2fC           = cms.double(0.021),
+    digiCfg = cms.PSet(        
+        keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
         noise_fC         = cms.double(0.336),                                                    
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
@@ -84,8 +87,9 @@ hgchefrontDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
-            # raise threshold flag (~MIP/2)
-            adcThreshold_fC   = cms.double(1.76),
+            # raise threshold flag (~MIP/2) this is scaled 
+            # for different thickness
+            adcThreshold_fC   = cms.double(0.672),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns

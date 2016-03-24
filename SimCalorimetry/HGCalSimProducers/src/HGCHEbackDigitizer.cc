@@ -29,7 +29,6 @@ void HGCHEbackDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiCo
 //
 void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
 {
-
   //switch to true if you want to print some details
   constexpr bool debug(false);
   
@@ -39,10 +38,10 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       it++)
     {
       chargeColl.fill(0.f);      
-      for(size_t i=0; i<it->second[0].size(); ++i)
+      for(size_t i=0; i<it->second.hit_info[0].size(); ++i)
 	{          
 	  //convert total energy keV->MIP, since converted to keV in accumulator
-	  float totalIniMIPs( (it->second)[0][i]*keV2MIP_ );
+	  float totalIniMIPs( (it->second).hit_info[0][i]*keV2MIP_ );
           //std::cout << "energy in MIP: " << std::scientific << totalIniMIPs << std::endl;
 
 	  //generate random number of photon electrons
@@ -66,13 +65,13 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  
 	  //add noise (in MIPs)
 	  chargeColl[i] = totalMIPs+std::max( CLHEP::RandGaussQ::shoot(engine,0.,noise_MIP_), 0. );
-	  if(debug && (it->second)[0][i]>0) 
-	    std::cout << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << (it->second)[0][i] << " keV -> " << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs" << std::endl;          
+	  if(debug && (it->second).hit_info[0][i]>0) 
+	    std::cout << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << (it->second).hit_info[0][i] << " keV -> " << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs" << std::endl;          
 	}	
       
       //init a new data frame and run shaper
       HGCHEDataFrame newDataFrame( it->first );
-      myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl );
+      myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
 
       //prepare the output
       updateOutput(digiColl,newDataFrame);

@@ -11,10 +11,15 @@ namespace hgc_digi {
   
   typedef float HGCSimData_t;
   
-  typedef std::array<HGCSimData_t,nSamples> HGCSimHitData;
+  typedef std::array<HGCSimData_t,nSamples> HGCSimHitData;  
   
-  //1st array=energy, 2nd array=energy weighted time-of-flight
-  typedef std::unordered_map<uint32_t, std::array<HGCSimHitData,2> > HGCSimHitDataAccumulator; 
+  struct HGCCellInfo {
+    //1st array=energy, 2nd array=energy weighted time-of-flight
+    std::array<HGCSimHitData,2> hit_info;
+    int thickness;
+  };
+  
+  typedef std::unordered_map<uint32_t, HGCCellInfo > HGCSimHitDataAccumulator; 
 
 }
 #endif
