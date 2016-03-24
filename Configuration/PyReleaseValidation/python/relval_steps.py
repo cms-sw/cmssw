@@ -1172,11 +1172,11 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCA:SiStripCalZeroBias+TkAlMinBias+DtCalib+Hotline+LumiPixelsMinBias+PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiPixelAli',
+steps['ALCAEXP']={'-s':'ALCA:SiStripCalZeroBias+TkAlMinBias+DtCalib+Hotline+LumiPixelsMinBias+PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAfterAbortGap+PromptCalibProdSiPixelAli',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
-steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
+steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAfterAbortGap',
                   '--scenario':'HeavyIons'},steps['ALCAEXP']])
 
 # step4
@@ -1228,7 +1228,7 @@ steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
                     '--filein':'file:PromptCalibProdSiStrip.root'}
 steps['ALCAHARVD2HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD2']])
 
-steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
+steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains+SiStripGainsAfterAbortGap',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
