@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V35 (CMSSW_8_0_3)
+# /dev/CMSSW_8_0_0/PIon/V36 (CMSSW_8_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V35')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V36')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7311,7 +7311,7 @@ process.hltParticleFlowSuperClusterECALL1Seeded = cms.EDProducer( "PFECALSuperCl
     doSatelliteClusterMerge = cms.bool( False ),
     BeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     PFBasicClusterCollectionBarrel = cms.string( "hltParticleFlowBasicClusterECALBarrel" ),
-    useRegression = cms.bool( False ),
+    useRegression = cms.bool( True ),
     satelliteMajorityFraction = cms.double( 0.5 ),
     thresh_PFClusterEndcap = cms.double( 0.5 ),
     ESAssociation = cms.InputTag( "hltParticleFlowClusterECALL1Seeded" ),
@@ -7325,11 +7325,13 @@ process.hltParticleFlowSuperClusterECALL1Seeded = cms.EDProducer( "PFECALSuperCl
     useDynamicDPhiWindow = cms.bool( True ),
     PFSuperClusterCollectionBarrel = cms.string( "hltParticleFlowSuperClusterECALBarrel" ),
     regressionConfig = cms.PSet( 
-      regressionKeyEE = cms.string( "pfscecal_EECorrection_offline" ),
-      ecalRecHitsEE = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEE' ),
-      ecalRecHitsEB = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEB' ),
-      regressionKeyEB = cms.string( "pfscecal_EBCorrection_offline" ),
-      vertexCollection = cms.InputTag( "offlinePrimaryVertices" )
+      regressionKeyEE = cms.string( "pfscecal_EECorrection_online" ),
+      ecalRecHitsEE = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
+      ecalRecHitsEB = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
+      regressionKeyEB = cms.string( "pfscecal_EBCorrection_online" ),
+      isHLT = cms.bool( True ),
+      uncertaintyKeyEE = cms.string( "pfscecal_EEUncertainty_online" ),
+      uncertaintyKeyEB = cms.string( "pfscecal_EBUncertainty_online" )
     ),
     applyCrackCorrections = cms.bool( False ),
     satelliteClusterSeedThreshold = cms.double( 50.0 ),
