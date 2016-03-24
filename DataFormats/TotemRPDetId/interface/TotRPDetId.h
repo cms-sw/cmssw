@@ -102,7 +102,7 @@ class TotRPDetId : public DetId
   /// returs true it the raw ID is a TOTEM RP one
   static bool Check(unsigned int raw)
   {
-    return (((raw >>DetId::kDetOffset) & 0xF) == DetId::Totem &&
+    return (((raw >>DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
       ((raw >> DetId::kSubdetOffset) & 0x7) == totem_rp_subdet_id);
   }
 
@@ -116,7 +116,7 @@ class TotRPDetId : public DetId
   /// fast conversion Decimal to Raw ID
   static unsigned int DecToRawId(unsigned int dec)
     {
-      unsigned int i = (DetId::Totem << DetId::kDetOffset)
+      unsigned int i = (DetId::VeryForward << DetId::kDetOffset)
         | (totem_rp_subdet_id << DetId::kSubdetOffset);
       i &= 0xfe000000;
       i |= ((dec % 10) & 0xf) << startDetBit; dec /= 10;

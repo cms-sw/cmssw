@@ -13,11 +13,12 @@
 
 using namespace std;
 
-// TOTEM =7, RP = 3
 
-TotRPDetId::TotRPDetId():DetId(DetId::Totem,totem_rp_subdet_id)
-{}
+TotRPDetId::TotRPDetId():DetId(DetId::VeryForward, totem_rp_subdet_id)
+{
+}
 
+//----------------------------------------------------------------------------------------------------
 
 TotRPDetId::TotRPDetId(uint32_t id):DetId(id)
 {
@@ -30,9 +31,9 @@ TotRPDetId::TotRPDetId(uint32_t id):DetId(id)
     }
 }
 
+//----------------------------------------------------------------------------------------------------
 
-void TotRPDetId::init(unsigned int Arm, unsigned int Station,
-		      unsigned int RomanPot, unsigned int Detector)
+void TotRPDetId::init(unsigned int Arm, unsigned int Station, unsigned int RomanPot, unsigned int Detector)
 {
   if( Arm>=2 || Station>=3 || RomanPot>=6 || Detector>=10)
     {
@@ -54,14 +55,15 @@ void TotRPDetId::init(unsigned int Arm, unsigned int Station,
   id_ |= ((Detector&0xf) << startDetBit);
 }
 
+//----------------------------------------------------------------------------------------------------
 
-TotRPDetId::TotRPDetId(unsigned int Arm, unsigned int Station,
-		       unsigned int RomanPot, unsigned int Detector):       
-  DetId(DetId::Totem,totem_rp_subdet_id)
+TotRPDetId::TotRPDetId(unsigned int Arm, unsigned int Station, unsigned int RomanPot, unsigned int Detector):       
+  DetId(DetId::VeryForward,totem_rp_subdet_id)
 {
   this->init(Arm,Station,RomanPot,Detector);
 }
 
+//----------------------------------------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& os, const TotRPDetId& id )
 {
