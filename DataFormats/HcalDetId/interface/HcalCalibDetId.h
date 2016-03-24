@@ -22,12 +22,15 @@
   *     [10:7] ieta
   *     [6:0] Iphi
   *
+  *  For uMNqie channels:
+  *     [0] channel (two possible)
+  *
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2 };
+  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3 };
 
   /** Create a null det id */
   HcalCalibDetId();
