@@ -93,11 +93,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // and CLCT processors.
             if (stat==1 && ring==1 && isSLHC && isSsmartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (stat==1 && ring==1 isSLHC && && smartME1aME1b && runME11ILT_)
+            else if (stat==1 && ring==1 && isSLHC && smartME1aME1b && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf) );
-            else if (stat==2 && ring==1 isSLHC && && runME21ILT_)
+            else if (stat==2 && ring==1 && isSLHC && runME21ILT_)
 	      tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf) );
-            else if ((stat==3 || stat==4) && ring==1 isSLHC && && runME3141ILT_)
+            else if ((stat==3 || stat==4) && ring==1 && isSLHC && runME3141ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf) );
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
