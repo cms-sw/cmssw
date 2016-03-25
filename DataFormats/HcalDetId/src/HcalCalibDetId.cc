@@ -33,6 +33,11 @@ HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibrat
       |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
 }
 
+HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(HcalCalibration) {
+  id_|=(dt<<17);
+  id_|=value&0xFF;
+}
+
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
     throw cms::Exception("Invalid DetId") << "Cannot initialize HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
@@ -89,6 +94,8 @@ std::string HcalCalibDetId::cboxChannelString() const {
   }
 }
 
+int HcalCalibDetId::channel() const { return id_&0xFF; }
+
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   std::string sd;
   switch (id.hcalSubdet()) {
@@ -105,6 +112,8 @@ std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   case(HcalCalibDetId::HOCrosstalk):
     return s << "(HOCrosstalk "  << id.ieta() << "," << id.iphi() 
 	     << ')';
+  case (HcalCalibDetId::uMNqie):
+    return s << "(uMNqie " << id.channel() << ')';
   default: return s;
   };
 }

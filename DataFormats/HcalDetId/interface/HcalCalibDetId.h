@@ -9,7 +9,7 @@
 /** \class HcalCalibDetId
   *  
   *  Contents of the HcalCalibDetId :
-  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX)
+  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX, 3=uMNio/qie)
   *
   *  For CalibUnit:
   *     [16:14] Subdetector
@@ -23,7 +23,7 @@
   *     [6:0] Iphi
   *
   *  For uMNqie channels:
-  *     [0] channel (two possible)
+  *     [7:0] channel (typically just 0 or 1, but space for more if needed)
   *
   * \author J. Mans - Minnesota
   */
@@ -43,6 +43,8 @@ public:
   HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype);
   /** Construct an HO Crosstalk id  */
   HcalCalibDetId(int ieta, int iphi);
+  /** Construct a uMNqie id or other id which uses a single value plus a DetType */
+  HcalCalibDetId(CalibDetType dt, int value);
 
   /// get the flavor of this calibration detid
   CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
@@ -60,6 +62,8 @@ public:
   int cboxChannel() const;
   /// get the calibration box channel as a string (if relevant)
   std::string cboxChannelString() const;
+  /// get the channel (for uMNio/qie or similar)
+  int channel() const;
 
   /// get the sign of ieta (+/-1)
   int zside() const;
