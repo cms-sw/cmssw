@@ -8,9 +8,7 @@
 //usage:
 //    The variables used are defined by an intermediate object which defines the 
 //    variables x,y, and z. 1D objects only need to define x, 2D objects x,y, etc. 
-//    Example is "AbsEtaNrClus" which defines x as |supercluster eta| and y as #subclusters of the supercluster. It takes this from a ElectronSeed as well as a constructor
-//    where the values can be passed in directly. This second construction simplifies
-//    unit testing as one can generate all possible values of eta/nrClus easily
+//    Example is "AbsEtaNrClus" which defines x as |supercluster eta| and y as #subclusters of the supercluster. 
 //    The object also defines a pass function where it determines if x (and y,z) is 
 //    within the specificed xmin and xmax range. This is mainly done as individual 
 //    objects can decide whether this means min<=x<max or min<=x<=max 
@@ -37,7 +35,7 @@
 #include "TF3.h"
 
 namespace egPM {
-  
+
 
   struct AbsEtaNrClus{
     float x;
@@ -48,9 +46,6 @@ namespace egPM {
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
     }
-    AbsEtaNrClus(float iEta,size_t iNrClus): //iEta= input eta
-      x(std::abs(iEta)),y(iNrClus){}
-
     bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax)const{
       return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax;
     }
@@ -66,9 +61,6 @@ namespace egPM {
       y = scRef->clustersSize();
       z = scRef->phi();
     }
-    AbsEtaNrClusPhi(float iEta,size_t iNrClus,float iPhi): //iEta= input eta
-      x(std::abs(iEta)),y(iNrClus),z(iPhi){}
-
     bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax,
 	      float phiMin,float phiMax)const{
       return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax 
@@ -87,9 +79,6 @@ namespace egPM {
       y = scRef->clustersSize();
       z = scRef->energy()*sin(scRef->position().Theta());
     }
-    AbsEtaNrClusEt(float iEta,size_t iNrClus,float iEt): //iEta= input eta
-      x(std::abs(iEta)),y(iNrClus),z(iEt){}
-
     bool pass(float absEtaMin,float absEtaMax,size_t nrClusMin,size_t nrClusMax,
 	      float etMin,float etMax)const{
       return x>=absEtaMin && x<absEtaMax && y>=nrClusMin && y<=nrClusMax 
@@ -178,6 +167,11 @@ namespace egPM {
   struct ConfigType<float>{
     typedef double type;
   };
+  template<>
+  struct ConfigType<size_t>{
+    typedef int type;
+  };
+
 
   //helper functions to figure out what dimension the ParamType is
   //and not generate functions which require a higher dimension
@@ -194,22 +188,22 @@ namespace egPM {
   template<typename T>
   constexpr bool has3D(...){return false;}
 
-  template<typename ParamType>
+  template<typename InputType>
   class ParamBin {
   public:
     ParamBin(){}
     virtual ~ParamBin(){}
-    virtual bool pass(const ParamType&)const=0; 
-    virtual float operator()(const ParamType&)const=0;
+    virtual bool pass(const InputType&)const=0; 
+    virtual float operator()(const InputType&)const=0;
   protected:
     //the FUNCTYPE:=funcExpr is designed for future extensions
     static std::pair<std::string,std::string> readFuncStr(const std::string& inStr){
-      std::cout <<"str "<<inStr<<" "<<inStr.substr(5)<<std::endl;
       size_t pos=inStr.find(":=");
       if(pos!=std::string::npos) return std::make_pair(inStr.substr(0,pos),inStr.substr(pos+2));
       else return std::make_pair(inStr,std::string(""));
     }
-    std::function<float(const ParamType&)> makeFunc(const edm::ParameterSet& config){
+    template<typename ParamType>
+    static std::function<float(const ParamType&)> makeFunc(const edm::ParameterSet& config){
       auto funcType = readFuncStr(config.getParameter<std::string>("funcType"));
       auto funcParams = config.getParameter<std::vector<double> >("funcParams");
       if(funcType.first=="TF1" && has1D<ParamType>(0)) return TF1Wrap<ParamType,has1D<ParamType>(0)>(funcType.second,funcParams);
@@ -219,8 +213,8 @@ namespace egPM {
     }
   };
 
-  template<typename ParamType>
-  class ParamBin1D : ParamBin<ParamType> {
+  template<typename InputType,typename ParamType>
+  class ParamBin1D : public ParamBin<InputType> {
   private:
     using XType = decltype(ParamType::x);
     XType xMin_,xMax_;
@@ -229,22 +223,22 @@ namespace egPM {
     ParamBin1D(const edm::ParameterSet& config):
       xMin_(config.getParameter<typename ConfigType<XType>::type >("xMin")),
       xMax_(config.getParameter<typename ConfigType<XType>::type >("xMax")),
-      func_(ParamBin<ParamType>::makeFunc(config))
+      func_(ParamBin<InputType>::template makeFunc<ParamType>(config))
     {
     }
-    bool pass(const ParamType& seed)const override {
-      return seed.pass(xMin_,xMax_);
+    bool pass(const InputType& input)const override {
+      return ParamType(input).pass(xMin_,xMax_);
     }
-    float operator()(const ParamType& seed)const override{
-      if(!pass(seed)) return 0;
-      else return func_(seed);
+    float operator()(const InputType& input)const override{
+      if(!pass(input)) return 0;
+      else return func_(ParamType(input));
     }
   };
     
     
     
-  template<typename ParamType>
-  class ParamBin2D : public ParamBin<ParamType> {
+  template<typename InputType,typename ParamType>
+  class ParamBin2D : public ParamBin<InputType> {
   private:
     using XType = decltype(ParamType::x);
     using YType = decltype(ParamType::y);
@@ -257,22 +251,22 @@ namespace egPM {
       xMax_(config.getParameter<typename ConfigType<XType>::type >("xMax")),
       yMin_(config.getParameter<typename ConfigType<YType>::type >("yMin")),
       yMax_(config.getParameter<typename ConfigType<YType>::type >("yMax")),
-      func_(ParamBin<ParamType>::makeFunc(config))
+      func_(ParamBin<InputType>::template makeFunc<ParamType>(config))
     {
     }
 
-    bool pass(const ParamType& seed)const override {
-      return seed.pass(xMin_,xMax_,yMin_,yMax_);
+    bool pass(const InputType& input)const override {
+      return ParamType(input).pass(xMin_,xMax_,yMin_,yMax_);
     }  
-    float operator()(const ParamType& seed)const override{
-      if(!pass(seed)) return 0;
-      else return func_(seed);
+    float operator()(const InputType& input)const override{
+      if(!pass(input)) return 0;
+      else return func_(ParamType(input));
     }
   };
   
 
-  template<typename ParamType>
-  class ParamBin3D : ParamBin<ParamType> {
+  template<typename InputType,typename ParamType>
+  class ParamBin3D : public ParamBin<InputType> {
     using XType = decltype(ParamType::x);
     using YType = decltype(ParamType::y);
     using ZType = decltype(ParamType::z);
@@ -289,45 +283,43 @@ namespace egPM {
       yMax_(config.getParameter<typename ConfigType<YType>::type >("yMax")),
       zMin_(config.getParameter<typename ConfigType<ZType>::type >("zMin")),
       zMax_(config.getParameter<typename ConfigType<ZType>::type >("zMax")),
-      func_(ParamBin<ParamType>::makeFunc(config))
+      func_(ParamBin<InputType>::template makeFunc<ParamType>(config))
     {
     }
 
-    bool pass(const ParamType& seed)const override {
-      return seed.pass(xMin_,xMax_,yMin_,yMax_,zMin_,zMax_);
+    bool pass(const InputType& input)const override {
+      return ParamType(input).pass(xMin_,xMax_,yMin_,yMax_,zMin_,zMax_);
     }  
-    float operator()(const ParamType& seed)const override{
-      if(!pass(seed)) return 0;
-      else return func_(seed);
+    float operator()(const InputType& input)const override{
+      if(!pass(input)) return 0;
+      else return func_(ParamType(input));
     }
   };
    
 
  
   
-  template<typename ParamType>
+  template<typename InputType>
   class Param {
-    std::vector<std::unique_ptr<ParamBin<ParamType> > > bins_;
+    std::vector<std::unique_ptr<ParamBin<InputType> > > bins_;
   public:
     Param(const edm::ParameterSet& config){
       std::vector<edm::ParameterSet> binConfigs = config.getParameter<std::vector<edm::ParameterSet> >("bins");
       for(auto& binConfig : binConfigs) bins_.emplace_back(createParamBin_(binConfig));
-      std::cout<<" "<<std::endl;
-      for(auto& binConfig : binConfigs) std::cout <<"paraSets.push_back(edm::ParameterSet(\""<<binConfig.toString()<<"\"));"<<std::endl;
     }
-    float operator()(const ParamType& seed)const{
+    float operator()(const InputType& input)const{
       for(auto& bin : bins_){
-	if(bin->pass(seed)) return  (*bin)(seed);
+	if(bin->pass(input)) return  (*bin)(input);
       }
       return -1; //didnt find a suitable bin, just return -1 for now
     } 
 	
   private:
-    std::unique_ptr<ParamBin<ParamType> > createParamBin_(const edm::ParameterSet& config){
+    std::unique_ptr<ParamBin<InputType> > createParamBin_(const edm::ParameterSet& config){
       std::string type = config.getParameter<std::string>("binType");
-      if(type=="AbsEtaClus") return std::make_unique<ParamBin2D<AbsEtaNrClus>>(config);
-      else if(type=="AbsEtaClusPhi") return std::make_unique<ParamBin3D<AbsEtaNrClusPhi>>(config);
-      else if(type=="AbsEtaClusEt") return std::make_unique<ParamBin3D<AbsEtaNrClusEt>>(config);
+      if(type=="AbsEtaClus") return std::make_unique<ParamBin2D<InputType,AbsEtaNrClus>>(config);
+      else if(type=="AbsEtaClusPhi") return std::make_unique<ParamBin3D<InputType,AbsEtaNrClusPhi>>(config);
+      else if(type=="AbsEtaClusEt") return std::make_unique<ParamBin3D<InputType,AbsEtaNrClusEt>>(config);
       else throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, configuration is invalid and needs to be fixed"<<std::endl;
     }
   };

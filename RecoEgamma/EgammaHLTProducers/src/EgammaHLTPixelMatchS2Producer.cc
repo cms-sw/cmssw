@@ -40,9 +40,9 @@ private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateToken_;
   const edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedsToken_;
 
-  egPM::Param<egPM::AbsEtaNrClus> dPhi1Para_;
-  egPM::Param<egPM::AbsEtaNrClus> dPhi2Para_;
-  egPM::Param<egPM::AbsEtaNrClus> dRZ2Para_;
+  egPM::Param<reco::ElectronSeed> dPhi1Para_;
+  egPM::Param<reco::ElectronSeed> dPhi2Para_;
+  egPM::Param<reco::ElectronSeed> dRZ2Para_;
 
 };
 
@@ -74,28 +74,39 @@ void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescripti
   
   edm::ParameterSetDescription varParamDesc;
   edm::ParameterSetDescription binParamDesc;
-  //binParamDesc.add<std::string>("binType");
+  // binParamDesc.add<std::string>("binType");
+  // binParamDesc.add<std::string>("funcType");
+  // binParamDesc.add<std::vector<double>>("funcParams");
+  // binParamDesc.add<double>("xMin");
+  // binParamDesc.add<double>("xMax");
+  // binParamDesc.add<double>("yMin");
+  // binParamDesc.add<double>("yMax");
+  
   
   std::auto_ptr<edm::ParameterDescriptionCases<std::string>> binDescCases;
   binDescCases = 
     "AbsEtaClus" >> 
-    (edm::ParameterDescription<double>("minEta",0.0,true) and
-     edm::ParameterDescription<double>("maxEta",3.0,true) and
-     edm::ParameterDescription<int>("minNrClus",0,true) and
-     edm::ParameterDescription<int>("maxNrClus",99999,true) and
+    (edm::ParameterDescription<double>("xMin",0.0,true) and
+     edm::ParameterDescription<double>("xMax",3.0,true) and
+     edm::ParameterDescription<int>("yMin",0,true) and
+     edm::ParameterDescription<int>("yMax",99999,true) and
      edm::ParameterDescription<std::string>("funcType","pol0",true) and
      edm::ParameterDescription<std::vector<double>>("funcParams",{0.},true)) or
-    "AbsEtaClusWithClusCorr" >>
-    (edm::ParameterDescription<double>("minEta",0.0,true) and
-     edm::ParameterDescription<double>("maxEta",3.0,true) and
-     edm::ParameterDescription<int>("minNrClus",0,true) and
-     edm::ParameterDescription<int>("maxNrClus",99999,true) and
+    "AbsEtaClusPhi" >>
+    (edm::ParameterDescription<double>("xMin",0.0,true) and
+     edm::ParameterDescription<double>("xMax",3.0,true) and
+     edm::ParameterDescription<int>("yMin",0,true) and
+     edm::ParameterDescription<int>("yMax",99999,true) and
      edm::ParameterDescription<std::string>("funcType","pol0",true) and
-     edm::ParameterDescription<std::vector<double> >("funcParams",{0.},true) and
-     edm::ParameterDescription<double>("corrPerClus",0.0,true) and
-     edm::ParameterDescription<int>("clusNrOffset",0.0,true));
+     edm::ParameterDescription<std::vector<double>>("funcParams",{0.},true)) or 
+     "AbsEtaClusEt" >>
+    (edm::ParameterDescription<double>("xMin",0.0,true) and
+     edm::ParameterDescription<double>("xMax",3.0,true) and
+     edm::ParameterDescription<int>("yMin",0,true) and
+     edm::ParameterDescription<int>("yMax",99999,true) and
+     edm::ParameterDescription<std::string>("funcType","pol0",true) and
+     edm::ParameterDescription<std::vector<double>>("funcParams",{0.},true));
   
-    
   binParamDesc.ifValue(edm::ParameterDescription<std::string>("binType","AbsEtaClus",true), binDescCases);
   
   
