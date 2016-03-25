@@ -142,6 +142,11 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       setField (1, calibId.ieta());
       setField (2, calibId.iphi());
       setField (3, -999);
+    } else if (calibId.calibFlavor()==HcalCalibDetId::uMNqie) {
+      flavorName="UMNQIE";
+      setField (1, calibId.channel());
+      setField (2, -999);
+      setField (3, -999);
     }
   }
   else {
@@ -215,6 +220,10 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     int ieta=getField(1);
     int iphi=getField(2);
     mId = HcalCalibDetId (ieta,iphi);
+  }
+  else if (flavorName=="UMNQIE") {
+    int channel=getField(1);
+    mId = HcalCalibDetId (HcalCalibDetId::uMNqie,channel);
   }
   else if (flavorName == "NA") {
     mId = HcalDetId::Undefined;
