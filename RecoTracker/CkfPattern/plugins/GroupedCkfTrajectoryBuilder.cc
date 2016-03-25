@@ -708,8 +708,6 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   LayersInTraj layers[theTrajectories.size()];
   int ntraj=0;
   for ( auto & t :  theTrajectories) {
-    if ( t.isValid() && !t.lastMeasurement().recHitP())
-       std::cout << "missing hit in lastMeasurement????" << std::endl;
     if ( t.isValid() && t.lastMeasurement().recHitR().isValid() )
       layers[ntraj++].fill(t);
   }
