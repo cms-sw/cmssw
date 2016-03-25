@@ -58,17 +58,13 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   // convert eta to GT coordinates
   for(auto& jet : outputJets){
 
-    //int gtEta = CaloTools::gtEta(jet.hwEta());
-    //int gtPhi = CaloTools::gtPhi(jet.hwEta(),jet.hwPhi());
+    int gtEta = CaloTools::gtEta(jet.hwEta());
+    int gtPhi = CaloTools::gtPhi(jet.hwEta(),jet.hwPhi());
     
-    //jet.setHwEta(gtEta);
-    //jet.setHwPhi(gtPhi);
+    jet.setHwEta(gtEta);
+    jet.setHwPhi(gtPhi);
     
-    jet.setHwEta(CaloTools::mpEta(jet.hwEta())*2);
-    jet.setHwPhi(jet.hwPhi()*2);
-
-
   }
-
+  
 
 }
