@@ -91,7 +91,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
-            if (stat==1 && ring==1 && isSLHC && isSsmartME1aME1b && !runME11ILT_)
+            if (stat==1 && ring==1 && isSLHC && smartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
             else if (stat==1 && ring==1 && isSLHC && smartME1aME1b && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf) );
