@@ -15,12 +15,11 @@
 #include <sstream>
 
 // user include files
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -38,9 +37,9 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventPrincipal const& e, edm::ModuleCallingContext const*) override;
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-      virtual void writeRun(RunPrincipal const&, edm::ModuleCallingContext const*) override;
+      virtual void write(EventForOutput const& e) override;
+      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+      virtual void writeRun(RunForOutput const&) override;
    };
 
 //
@@ -79,37 +78,36 @@ namespace edm {
 //
 // member functions
 //
-   static void check(Principal const& p, std::string const& id, SelectedProducts const& iProducts, edm::ModuleCallingContext const* mcc) {
-     for(auto const& branchDescription : iProducts) {
-            TypeID const& tid(branchDescription->unwrappedTypeID());
-            BasicHandle bh = p.getByLabel(PRODUCT_TYPE, tid,
-                                          branchDescription->moduleLabel(),
-                                          branchDescription->productInstanceName(),
-                                          branchDescription->processName(),
-                                          nullptr, nullptr, mcc);
-            
-        if(0 != bh.provenance() && bh.provenance()->branchDescription().branchID() != branchDescription->branchID()) {
-           throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " getByLabel request for " << branchDescription->moduleLabel()
-              << " '" << branchDescription->productInstanceName() << "' " << branchDescription->processName()
-              << "\n should have returned BranchID " << branchDescription->branchID() << " but returned BranchID " << bh.provenance()->branchDescription().branchID() << "\n";
-        }
-       
-      }
+   template<typename T>
+   static
+   void check(T const& p, std::string const& id, SelectedProducts const& iProducts) {
+     for(auto const& product : iProducts) {
+       BranchDescription const* branchDescription = product.first;
+       TypeID const& tid = branchDescription->unwrappedTypeID();
+       EDGetToken const& token = product.second;
+       BasicHandle bh;
+       p.getByToken(token, tid, bh);
+       if(nullptr != bh.provenance() && bh.provenance()->branchDescription().branchID() != branchDescription->branchID()) {
+         throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " getByToken request for " << branchDescription->moduleLabel()
+            << " '" << branchDescription->productInstanceName() << "' " << branchDescription->processName()
+            << "\n should have returned BranchID " << branchDescription->branchID() << " but returned BranchID " << bh.provenance()->branchDescription().branchID() << "\n";
+       }
+     }
    }
-   void GetProductCheckerOutputModule::write(EventPrincipal const& e, edm::ModuleCallingContext const* mcc) {
+   void GetProductCheckerOutputModule::write(EventForOutput const& e) {
       std::ostringstream str;
       str << e.id();
-      check(e, str.str(), keptProducts()[InEvent], mcc);
+      check(e, str.str(), keptProducts()[InEvent]);
    }
-   void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& l, edm::ModuleCallingContext const* mcc) {
+   void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockForOutput const& l) {
       std::ostringstream str;
       str << l.id();
-      check(l, str.str(), keptProducts()[InLumi], mcc);
+      check(l, str.str(), keptProducts()[InLumi]);
    }
-   void GetProductCheckerOutputModule::writeRun(RunPrincipal const& r, edm::ModuleCallingContext const* mcc) {
+   void GetProductCheckerOutputModule::writeRun(RunForOutput const& r) {
       std::ostringstream str;
       str << r.id();
-      check(r, str.str(), keptProducts()[InRun], mcc);
+      check(r, str.str(), keptProducts()[InRun]);
    }
 
 //

@@ -11,7 +11,6 @@
 class InitMsgBuilder;
 class EventMsgBuilder;
 namespace edm {
-  class ModuleCallingContext;
   class ParameterSetDescription;
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
@@ -23,13 +22,13 @@ namespace edm {
     static void fillDescription(ParameterSetDescription & desc);
 
   private:
-    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*) override;
-    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void beginRun(RunForOutput const&) override;
+    virtual void endRun(RunForOutput const&) override;
     virtual void beginJob() override;
     virtual void endJob() override;
-    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeRun(RunForOutput const&) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+    virtual void write(EventForOutput const& e) override;
 
     virtual void start() = 0;
     virtual void stop() = 0;
@@ -37,9 +36,9 @@ namespace edm {
     virtual void doOutputEvent(EventMsgBuilder const& msg) = 0;
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
-    std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc); 
-    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
-    void setHltMask(EventPrincipal const& e, ModuleCallingContext const*);
+    std::auto_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e); 
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
+    void setHltMask(EventForOutput const& e);
     void setLumiSection();
 
   private:

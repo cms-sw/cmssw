@@ -41,6 +41,8 @@
 #include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 #include "TVector.h"
 
 #include <string>
@@ -64,7 +66,7 @@ namespace cms
 
     private:
 
-      reco::METCovMatrix getMETCovMatrix(const edm::Event& event, 
+      reco::METCovMatrix getMETCovMatrix(const edm::Event& event, const edm::EventSetup&, 
 					 const edm::View<reco::Candidate>& input) const;
 
 
@@ -78,6 +80,10 @@ namespace cms
 
       edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
       std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+      std::string jetSFType_;
+      std::string jetResPtType_;
+      std::string jetResPhiType_;
+      edm::EDGetTokenT<double> rhoToken_;
   };
 }
 

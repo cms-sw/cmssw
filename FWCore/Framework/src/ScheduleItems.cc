@@ -49,15 +49,18 @@ namespace edm {
     std::set<BranchID> keptBranches;
     SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for(auto const& item : keptVectorR) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorL = om.keptProducts()[InLumi];
     for(auto const& item : keptVectorL) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorE = om.keptProducts()[InEvent];
     for(auto const& item : keptVectorE) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     for(auto& item : preg_->productListUpdator()) {
       BranchDescription& prod = item.second;

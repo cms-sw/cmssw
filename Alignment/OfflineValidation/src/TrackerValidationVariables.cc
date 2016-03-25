@@ -310,6 +310,18 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                 const edm::EventSetup& eventSetup,
                                                 std::vector<AVTrackStruct> & v_avtrackout)
 {
+  fillTrackQuantities(event, 
+                      eventSetup,
+                      [](const reco::Track&) -> bool { return true; },
+                      v_avtrackout);
+}
+
+void
+TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
+                                                const edm::EventSetup& eventSetup,
+                                                std::function<bool(const reco::Track&)> trackFilter, 
+                                                std::vector<AVTrackStruct> & v_avtrackout)
+{
   edm::ESHandle<MagneticField> magneticField;
   eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
@@ -326,6 +338,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
     
     trajectory = &(*(*iPair).key);
     track = &(*(*iPair).val);
+    
+    if (!trackFilter(*track)) continue;
     
     AVTrackStruct trackStruct;
     
@@ -355,18 +369,3 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   }
 }
 
-void
-TrackerValidationVariables::fillHitQuantities(const edm::Event& event, std::vector<AVHitStruct> & v_avhitout)
-{
-  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  event.getByToken(trajCollectionToken_, trajCollectionHandle);
-  
-  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
-
-  for (std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
-       it!=itEnd;
-       ++it) {
-    
-    fillHitQuantities(&(*it), v_avhitout);
-  }
-}

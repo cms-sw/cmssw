@@ -62,7 +62,7 @@ int SiPixelFrameReverter::toCabling(
   for  (IT it = path.begin(); it != path.end(); ++it) {
     const PixelROC * roc = map_->findItem(*it);
     if (!roc) return -3;
-    if (! roc->rawId() == detector.rawId) return -4;
+    if (roc->rawId() != detector.rawId) return -4;
 
     GlobalPixel global = {detector.row, detector.col};
     LocalPixel local = roc->toLocal(global);

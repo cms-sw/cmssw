@@ -65,15 +65,12 @@ private:
 
 private:
   const MultiState theInitialState;
-//   bool sortStates;
   double minFractionalWeight;
 
   bool combinationDone;
 
   double theValidWeightSum;
   SingleStateContainer theStates;
-//   static TimingReport::Item * theTimerAdd;
-//   static TimingReport::Item * theTimerComb;
   
 };
 

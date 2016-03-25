@@ -60,9 +60,6 @@ public:
 
 private:
 
-    /// get the vector of object types for a condition cndName on the GTL chip chipNumber
-    //const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName) const;
-
     /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
     /// for a new L1 Trigger menu
     void inline updateAlgoLogicParser(const L1GtTriggerMenu*, const AlgorithmMap&) { };
@@ -72,37 +69,14 @@ private:
     void inline updateAlgoLogicParser(const std::vector<bool>& gtWord,
             const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition) { };
 
-    /// debug print grouped in a single function
-    /// can be called for a new menu (bool "true") or for a new event
-    //void debugPrint(bool) const;
-
-    /// seeding is done ignoring if a L1 object fired or not
-    /// if the event is selected at L1, fill all the L1 objects of types corresponding to the
-    /// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
-    /// directly from L1Extra and use them as seeds at HLT
-    /// method and filter return true if at least an object is filled
-    bool seedsAll(edm::Event &, trigger::TriggerFilterObjectWithRefs &) const;
-
     /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
-    bool seedsL1TriggerObjectMaps(
-            edm::Event &,
-            trigger::TriggerFilterObjectWithRefs &
-            //, const L1GtTriggerMask *,
-            //const L1GlobalTriggerReadoutRecord *,
-            //const int physicsDaqPartition
-            );
+    bool seedsL1TriggerObjectMaps( edm::Event &, trigger::TriggerFilterObjectWithRefs &);
 
 
     /// detailed print of filter content
     void dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs &) const;
 
 private:
-
-    // cached stuff
-
-    /// trigger menu
-    const L1GtTriggerMenu * m_utml1GtMenu;
-    unsigned long long m_l1GtMenuCacheID;
 
     /// logic parser for m_l1SeedsLogicalExpression
     L1GtLogicParser m_l1AlgoLogicParser;
@@ -119,25 +93,9 @@ private:
 
 private:
 
-    /// if true:
-    ///    seeding done via L1 trigger object maps, with objects that fired
-    ///    only objects from the central BxInEvent (L1A) are used
-    /// if false:
-    ///    seeding is done ignoring if a L1 object fired or not,
-    ///    adding all L1EXtra objects corresponding to the object types
-    ///    used in all conditions from the algorithms in logical expression
-    ///    for a given number of BxInEvent
-    bool m_l1UseL1TriggerObjectMaps;
-
     /// option used forL1UseL1TriggerObjectMaps = False only
     /// number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
     int m_l1NrBxInEvent;
-
-    /// seeding done via technical trigger bits, if value is "true"
-    bool m_l1TechTriggerSeeding;
-
-    /// seeding uses algorithm aliases instead of algorithm names, if value is "true"
-    bool m_l1UseAliasesForSeeding;
 
     /// logical expression for the required L1 algorithms
     /// the algorithms are specified by name
@@ -176,9 +134,6 @@ private:
     edm::InputTag m_l1EtSumCollectionsTag;
     edm::InputTag m_l1EtSumTag;
     edm::EDGetTokenT<l1t::EtSumBxCollection>   m_l1EtSumToken;
-
-    /// replace string "L1GlobalDecision" with bool to speed up the "if"
-    bool m_l1GlobalDecision;
 
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;

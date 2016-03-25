@@ -127,12 +127,6 @@ void L1GctEmulator::endJob()
 int L1GctEmulator::configureGct(const edm::EventSetup& c)
 {
   int success = 0;
-  if (&c==0) {
-    success = -1;
-    if (m_verbose) {
-      edm::LogWarning("L1GctConfigFailure") << "Cannot find EventSetup information." << std::endl;
-    }
-  }
 
   if (success == 0) {
     // get data from EventSetup

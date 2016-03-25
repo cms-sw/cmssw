@@ -6,7 +6,6 @@ def customise_HcalPhase0(process):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
 
-    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
@@ -47,7 +46,6 @@ def customise_HcalPhase1(process):
                 'CovarianceMatrices'
                 )
 
-    process.es_hardcode.HcalReLabel.RelabelHits=cms.untracked.bool(True)
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging

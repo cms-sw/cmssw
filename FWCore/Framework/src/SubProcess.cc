@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/SubProcess.h"
 
-#include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -10,9 +9,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -168,7 +168,8 @@ namespace edm {
                                                  thinnedAssociationsHelper(),
                                                  *processConfiguration_,
                                                  &(historyAppenders_[index]),
-                                                 index);
+                                                 index,
+                                                 false /*not primary process*/);
       ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -209,6 +210,12 @@ namespace edm {
 
   void
   SubProcess::beginJob() {
+    // If event selection is being used, the SubProcess class reads TriggerResults
+    // object(s) in the parent process from the event. This next call is needed for
+    // getByToken to work properly. Normally, this is done by the worker, but since
+    // a SubProcess is not a module, it has no worker.
+    updateLookup(InEvent, *parentPreg_->productLookup(InEvent));
+
     if(!droppedBranchIDToKeptBranchID().empty()) {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
@@ -295,8 +302,13 @@ namespace edm {
         keptProductsInEvent.insert(desc.branchID());
       }
     }
+    EDGetToken token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                     InputTag{desc.moduleLabel(),
+                     desc.productInstanceName(),
+                     desc.processName()});
+
     // Now put it in the list of selected branches.
-    keptProducts_[desc.branchType()].push_back(&desc);
+    keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
   }
 
   void
@@ -323,9 +335,9 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     /* BEGIN relevant bits from OutputModule::doEvent */
     if(!wantAllEvents_) {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      if(!selectors_.wantEvent(ep, nullptr)) {
+      EventForOutput e(ep, ModuleDescription(), nullptr);
+      e.setConsumer(this);
+      if(!selectors_.wantEvent(e)) {
         return;
       }
     }
@@ -376,7 +388,7 @@ namespace edm {
   SubProcess::beginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     auto aux = std::make_shared<RunAuxiliary>(principal.aux());
     aux->setProcessHistoryID(principal.processHistoryID());
-    auto rpp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index());
+    auto rpp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index(),false);
     auto & processHistoryRegistry = processHistoryRegistries_[historyRunOffset_+principal.index()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     rpp->fillRunPrincipal(processHistoryRegistry, principal.reader());
@@ -407,6 +419,7 @@ namespace edm {
   void
   SubProcess::endRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    rp.setComplete();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
@@ -452,7 +465,7 @@ namespace edm {
   SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     auto aux = std::make_shared<LuminosityBlockAuxiliary>(principal.aux());
     aux->setProcessHistoryID(principal.processHistoryID());
-    auto lbpp = std::make_shared<LuminosityBlockPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index());
+    auto lbpp = std::make_shared<LuminosityBlockPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index(),false);
     auto & processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_+principal.index()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry, principal.reader());
@@ -478,6 +491,7 @@ namespace edm {
   void
   SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+    lbp.setComplete();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
@@ -600,17 +614,14 @@ namespace edm {
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[type];
     for(auto const& item : keptVector) {
-      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(item->branchID());
-      if(parentProductHolder != nullptr) {
-        ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase* productHolder = principal.getModifiableProductHolder(item->branchID());
-        if(productHolder != nullptr) {
-          ProductData& thisData = productHolder->productData();
+      BranchDescription const& desc = *item.first;
+      ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
+      if(parentProductResolver != nullptr) {
+        ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
+        if(productResolver != nullptr) {
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
-          thisData.connectTo(parentData);
-          // Sets unavailable flag, if known that product is not available
-          (void)productHolder->productUnavailable();
+          productResolver->connectTo(*parentProductResolver, &parentPrincipal);
         }
       }
     }

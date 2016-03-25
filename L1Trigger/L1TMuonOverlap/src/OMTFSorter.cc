@@ -3,7 +3,7 @@
 #include <strstream>
 #include <algorithm>
 #include <bitset>
-
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -159,7 +159,7 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
 	it2 != refHitCleanCands.end(); ++it2){
       //do not accept candidates with similar phi (any charge combination)
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
-      if(std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins){
+      if(std::fabs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins){
 	isGhost=true;
 	break;
       }

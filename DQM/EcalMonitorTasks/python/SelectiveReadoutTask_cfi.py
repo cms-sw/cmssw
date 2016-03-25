@@ -19,7 +19,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
                 high = cms.untracked.double(60.0),
-                nbins = cms.untracked.int32(100),
+                nbins = cms.untracked.int32(120),
                 low = cms.untracked.double(-60.0),
                 title = cms.untracked.string('ADC counts*4')
             ),
@@ -73,7 +73,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
                 high = cms.untracked.double(60.0),
-                nbins = cms.untracked.int32(100),
+                nbins = cms.untracked.int32(120),
                 low = cms.untracked.double(-60.0),
                 title = cms.untracked.string('ADC counts*4')
             ),

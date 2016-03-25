@@ -10,7 +10,7 @@
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
-#include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -36,9 +36,9 @@ namespace edm {
       frozen_(false),
       productProduced_(),
       anyProductProduced_(false),
-      eventProductLookup_(new ProductHolderIndexHelper),
-      lumiProductLookup_(new ProductHolderIndexHelper),
-      runProductLookup_(new ProductHolderIndexHelper),
+      eventProductLookup_(new ProductResolverIndexHelper),
+      lumiProductLookup_(new ProductResolverIndexHelper),
+      runProductLookup_(new ProductResolverIndexHelper),
       eventNextIndexValue_(0),
       lumiNextIndexValue_(0),
       runNextIndexValue_(0),
@@ -55,9 +55,9 @@ namespace edm {
     anyProductProduced_ = false;
 
     // propagate_const<T> has no reset() function
-    eventProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
-    lumiProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
-    runProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
+    eventProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
+    lumiProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
+    runProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
 
     eventNextIndexValue_ = 0;
     lumiNextIndexValue_ = 0;
@@ -139,14 +139,14 @@ namespace edm {
     return false;
   }
 
-  std::shared_ptr<ProductHolderIndexHelper const>
+  std::shared_ptr<ProductResolverIndexHelper const>
   ProductRegistry::productLookup(BranchType branchType) const {
     if (branchType == InEvent) return transient_.eventProductLookup();
     if (branchType == InLumi) return transient_.lumiProductLookup();
     return transient_.runProductLookup();
   }
 
-  std::shared_ptr<ProductHolderIndexHelper>
+  std::shared_ptr<ProductResolverIndexHelper>
   ProductRegistry::productLookup(BranchType branchType) {
     if (branchType == InEvent) return transient_.eventProductLookup();
     if (branchType == InLumi) return transient_.lumiProductLookup();
@@ -337,7 +337,7 @@ namespace edm {
               } 
             }
           }
-          ProductHolderIndex index =
+          ProductResolverIndex index =
             productLookup(desc.branchType())->insert(typeID,
                                                      desc.moduleLabel().c_str(),
                                                      desc.productInstanceName().c_str(),
@@ -368,10 +368,10 @@ namespace edm {
     copy_all(missingDicts, std::back_inserter(missingDictionariesForUpdate()));
   }
 
-  ProductHolderIndex ProductRegistry::indexFrom(BranchID const& iID) const {
-    std::map<BranchID, ProductHolderIndex>::const_iterator itFind = transient_.branchIDToIndex_.find(iID);
+  ProductResolverIndex ProductRegistry::indexFrom(BranchID const& iID) const {
+    std::map<BranchID, ProductResolverIndex>::const_iterator itFind = transient_.branchIDToIndex_.find(iID);
     if(itFind == transient_.branchIDToIndex_.end()) {
-      return ProductHolderIndexInvalid;
+      return ProductResolverIndexInvalid;
     }
     return itFind->second;
   }
@@ -382,14 +382,14 @@ namespace edm {
     }
   }
 
-  ProductHolderIndex const&
+  ProductResolverIndex const&
   ProductRegistry::getNextIndexValue(BranchType branchType) const {
     if (branchType == InEvent) return transient_.eventNextIndexValue_;
     if (branchType == InLumi) return  transient_.lumiNextIndexValue_;
     return transient_.runNextIndexValue_;
   }
 
-  ProductHolderIndex&
+  ProductResolverIndex&
   ProductRegistry::nextIndexValue(BranchType branchType) {
     if (branchType == InEvent) return transient_.eventNextIndexValue_;
     if (branchType == InLumi) return  transient_.lumiNextIndexValue_;

@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_0_0_pre1'
+RefRelease='CMSSW_8_0_0_pre5'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_0_0_pre2'
+NewRelease='CMSSW_8_0_0_pre6'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -23,6 +23,7 @@ startupsamples= [
     Sample('RelValQCD_FlatPt_15_3000', append="HS", midfix="13"),
     Sample('RelValZMM', midfix="13"),
     Sample('RelValWjet_Pt_3000_3500', midfix="13"),
+    Sample('RelValH125GGgluonfusion', midfix="13"),
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
@@ -36,15 +37,16 @@ def putype(t):
 
 pileupstartupsamples = [
     Sample('RelValTTbar', putype=putype("25ns"), midfix="13"),
-    Sample('RelValTTbar', putype=putype("50ns"), midfix="13"),
+#    Sample('RelValTTbar', putype=putype("50ns"), midfix="13"),
     Sample('RelValZMM', putype=putype("25ns"), midfix="13"),
-    Sample('RelValZMM', putype=putype("50ns"), midfix="13")
+#    Sample('RelValZMM', putype=putype("50ns"), midfix="13")
 ]
 
 phase1samples = [
     Sample('RelValTenMuE_0_200'),
-    Sample("RelValTTbar", midfix="14TeV"),
-    Sample("RelValTTbar", midfix="14TeV", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="13"),
+    Sample('RelValQCD_Pt_600_800', midfix="13"),
+    Sample("RelValTTbar", midfix="13", putype=putype("25ns")),
 ]
 
 upgradesamples = [

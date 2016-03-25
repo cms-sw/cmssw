@@ -19,6 +19,7 @@
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="JetMETCorrections/Modules"/>
 <export>
   <lib   name="1"/>
 </export>

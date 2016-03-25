@@ -164,7 +164,7 @@ def setInputTags(process, subsys):
 
     if 'CALOL2' in subsys:
         if 'CALOL1' not in subsys:
-            process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis")
+            process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
 
 
 def modifySimL1EmulatorForReEmulation(SimL1Emulator_object, subsys=[]):

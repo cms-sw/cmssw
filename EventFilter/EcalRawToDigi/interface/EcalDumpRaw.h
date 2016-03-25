@@ -149,8 +149,6 @@ private:
   bool orbit0Set_;
   int bx_;
   int l1a_;
-  int l1amin_;
-  int l1amax_;
   int simpleTrigType_;
   int detailedTrigType_;
   //  PGHisto histo_;
