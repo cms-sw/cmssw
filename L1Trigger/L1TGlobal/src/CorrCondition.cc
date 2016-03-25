@@ -344,6 +344,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     double eta0Phy = 0.;
     int etaIndex1  = 0;
     double eta1Phy = 0.;
+    int etaBin0    = 0;
+    int etaBin1    = 0;
 
     int etIndex0  = 0;
     double et0Phy = 0.;
@@ -408,11 +410,19 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
 		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
 		chrg0     =  (candMuVec->at(bxEval,obj0Index))->hwCharge();
+		int etaBin0 = etaIndex0;
+		if(etaBin0<0) etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0; //twos complement		
+//		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
 		
-		//Scales need to come from the Menu (FIX ME)
-		phi0Phy = phiIndex0 * 1.0908307824964559E-02;
-		eta0Phy = etaIndex0 * 1.0908307824964559E-02;
-		et0Phy  = etIndex0  * 0.5;
+		// Determine Floating Pt numbers for floating point caluclation
+		std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex0);
+		phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		binEdges = m_gtScales->getMUScales().etaBins.at(etaBin0);
+		eta0Phy = 0.5*(binEdges.second + binEdges.first);		
+		binEdges = m_gtScales->getMUScales().etBins.at(etIndex0);
+		et0Phy = 0.5*(binEdges.second + binEdges.first);
+
+		LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;		
             }
                 break;
 
@@ -421,17 +431,61 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       
                switch(cndObjTypeVec[0]) {
 	         case gtEG: {
-		    candCaloVec = m_uGtB->getCandL1EG();
 		    lutObj0 = "EG";
+		    candCaloVec = m_uGtB->getCandL1EG();
+		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    etaBin0   = etaIndex0;
+		    if(etaBin0<0) etaBin0 = m_gtScales->getEGScales().etaBins.size() + etaBin0;
+//		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
+		    
+		    // Determine Floating Pt numbers for floating point caluclation
+		    std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex0);
+		    phi0Phy = 0.5*(binEdges.second + binEdges.first);					    
+		    binEdges = m_gtScales->getEGScales().etaBins.at(etaBin0);
+		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
+		    binEdges = m_gtScales->getEGScales().etBins.at(etIndex0);
+		    et0Phy = 0.5*(binEdges.second + binEdges.first);
+		    
 		 }
 		   break;
 		 case gtJet: {
-		    candCaloVec = m_uGtB->getCandL1Jet();
 		    lutObj0 = "JET";
+		    candCaloVec = m_uGtB->getCandL1Jet();
+		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    etaBin0 = etaIndex0;
+		    if(etaBin0<0) etaBin0 = m_gtScales->getJETScales().etaBins.size() + etaBin0;
+
+		    
+		    // Determine Floating Pt numbers for floating point caluclation
+		    std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex0);
+		    phi0Phy = 0.5*(binEdges.second + binEdges.first);			
+		    binEdges = m_gtScales->getJETScales().etaBins.at(etaBin0);
+		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
+		    binEdges = m_gtScales->getJETScales().etBins.at(etIndex0);
+		    et0Phy = 0.5*(binEdges.second + binEdges.first);
+		    
 		 }
 		   break;
 		 case gtTau: {
 		    candCaloVec = m_uGtB->getCandL1Tau();
+		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    etaBin0 = etaIndex0;
+		    if(etaBin0<0) etaBin0 = m_gtScales->getTAUScales().etaBins.size() + etaBin0;
+
+		    
+		    // Determine Floating Pt numbers for floating point caluclation
+		    std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex0);
+		    phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		    binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin0);
+		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
+		    binEdges = m_gtScales->getTAUScales().etBins.at(etIndex0);
+		    et0Phy = 0.5*(binEdges.second + binEdges.first);		    			
 		    lutObj0 = "TAU";
 		 }
 	           break;
@@ -439,24 +493,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		 }  
 	           break;
 	       } //end switch on calo type.
- 
-                phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-                etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-		etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt(); 
-
-		//Scales need to come from the Menu (FIX ME)
-		phi0Phy = phiIndex0 * 4.3633231299858237E-02;
-		eta0Phy = etaIndex0 * 4.3633231299858237E-02;
-		et0Phy  = etIndex0  * 0.5;
 		
                 //If needed convert calo scales to muon scales for comparison
                 if(convertCaloScales) {
-                  int element = etaIndex0;
-		  if(element<0) element = 0xff + (element+1); //twos complement 
 		  std::string lutName = lutObj0;
 		  lutName += "-MU";
-		  long long tst = m_gtScales->getLUT_CalMuEta(lutName,element);
-		  LogDebug("L1TGlobal") << lutName <<"  EtaCal = " << etaIndex0 << " EtaMu = " << tst << std::endl; 
+		  long long tst = m_gtScales->getLUT_CalMuEta(lutName,etaBin0);
+		  LogDebug("L1TGlobal") << lutName <<"  EtaCal = " << etaIndex0 << " etaBin0 = " << etaBin0 << " EtaMu = " << tst << std::endl; 
 		  etaIndex0 = tst;
 		  
 
@@ -510,10 +553,21 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
 
-		    //Scales need to come from the Menu (FIX ME)   
-		    phi0Phy = phiIndex0 * 1.0908307824964559E-02;
-		    eta0Phy = 0.; //No Eta for Energy Sums
-		    et0Phy  = etIndex0 * 0.5;
+                    //  Get the floating point numbers
+		    if(cndObjTypeVec[0] = gtETM) {
+		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
+		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		      eta0Phy = 0.; //No Eta for Energy Sums
+		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
+		      et0Phy = 0.5*(binEdges.second + binEdges.first);
+		    } else {
+		      std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex0);
+		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		      eta0Phy = 0.; //No Eta for Energy Sums
+		      binEdges = m_gtScales->getHTMScales().etBins.at(etIndex0);
+		      et0Phy = 0.5*(binEdges.second + binEdges.first);
+		    } 
+
 		    
                     //If needed convert calo scales to muon scales for comparison (only phi for energy sums)
                     if(convertCaloScales) {
@@ -576,27 +630,73 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
 		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
 		   chrg1     =  (candMuVec->at(bxEval,obj1Index))->hwCharge();
+		   etaBin1 = etaIndex1;
+		   if(etaBin1<0) etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;	   
+//		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
 		   
-		   //Scales need to come from the Menu (FIX ME)
-		   phi1Phy = phiIndex1 * 1.0908307824964559E-02;
-		   eta1Phy = etaIndex1 * 1.0908307824964559E-02;
-		   et1Phy  = etIndex1  * 0.5;		   
+		   // Determine Floating Pt numbers for floating point caluclation
+		   std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex1);
+		   phi1Phy = 0.5*(binEdges.second + binEdges.first);
+		   binEdges = m_gtScales->getMUScales().etaBins.at(etaBin1);
+		   eta1Phy = 0.5*(binEdges.second + binEdges.first);		
+		   binEdges = m_gtScales->getMUScales().etBins.at(etIndex1);
+		   et1Phy = 0.5*(binEdges.second + binEdges.first);		
+	   
                 }
                     break;
                 case CondCalo: {
         	   switch(cndObjTypeVec[1]) {
 	             case gtEG: {
 			candCaloVec = m_uGtB->getCandL1EG();
-			lutObj1 = "EG";
+			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			etaBin1   =   etaIndex1;
+			if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
+			
+			// Determine Floating Pt numbers for floating point caluclation
+		   	std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex1);
+		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
+			binEdges = m_gtScales->getEGScales().etaBins.at(etaBin1);
+			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
+			binEdges = m_gtScales->getEGScales().etBins.at(etIndex1);
+			et1Phy = 0.5*(binEdges.second + binEdges.first);
+		    	lutObj1 = "EG";
 		     }
 		       break;
 		     case gtJet: {
 			candCaloVec = m_uGtB->getCandL1Jet();
+			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			etaBin1 = etaIndex1;
+			if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
+			
+			// Determine Floating Pt numbers for floating point caluclation
+		   	std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex1);
+		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
+			binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
+			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
+			binEdges = m_gtScales->getJETScales().etBins.at(etIndex1);
+			et1Phy = 0.5*(binEdges.second + binEdges.first);
 			lutObj1 = "JET";
 		     }
 		       break;
 		     case gtTau: {
 			candCaloVec = m_uGtB->getCandL1Tau();
+			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			etaBin1 = etaIndex1;
+			if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
+						
+			// Determine Floating Pt numbers for floating point caluclation
+		   	std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex1);
+		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
+			binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin1);
+			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
+			binEdges = m_gtScales->getTAUScales().etBins.at(etIndex1);
+			et1Phy = 0.5*(binEdges.second + binEdges.first);	
 			lutObj1 = "TAU";
 		     }
 	               break;
@@ -605,17 +705,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	           break;
 	           } //end switch on calo type.
  
-                   phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-                   etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-		   etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt(); 
-
+                   
                    //If needed convert calo scales to muon scales for comparison
                    if(convertCaloScales) {
-                     int element = etaIndex1;
-		     if(element<0) element = 0xff + (element+1); //twos complement 
+		   
 		     std::string lutName = lutObj1;
 		     lutName += "-MU";
-		     long long tst = m_gtScales->getLUT_CalMuEta(lutName,element);
+		     long long tst = m_gtScales->getLUT_CalMuEta(lutName,etaBin1);
 		     LogDebug("L1TGlobal") << lutName <<"  EtaCal = " << etaIndex1 << " EtaMu = " << tst << std::endl; 
 		     etaIndex1 = tst;
 
@@ -627,10 +723,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    }
 
 
-		   //Scales need to come from the Menu (FIX ME)
-		   phi1Phy = phiIndex1 * 4.3633231299858237E-02;
-		   eta1Phy = etaIndex1 * 4.3633231299858237E-02;
-		   et1Phy  = etIndex1  * 0.5;
                 }
                     break;
                 case CondEnergySum: {
@@ -677,10 +769,22 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                        etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
 
-		       //Scales need to come from the Menu (FIX ME)
-		       phi1Phy = phiIndex1 * 1.0908307824964559E-02;
-		       eta1Phy = 0.; //No Eta for Energy Sums
-		       et1Phy  = etIndex1 * 0.5;
+		       // Determine Floating Pt numbers for floating point caluclation
+		       
+		       if(cndObjTypeVec[1] = gtETM) {
+		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
+			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			 eta1Phy = 0.; //No Eta for Energy Sums
+			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 et1Phy = 0.5*(binEdges.second + binEdges.first);
+		       } else {
+		         std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex1);
+			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			 eta1Phy = 0.; //No Eta for Energy Sums
+			 binEdges = m_gtScales->getHTMScales().etBins.at(etIndex1);
+			 et1Phy = 0.5*(binEdges.second + binEdges.first);
+		       } 
+
 
                        //If needed convert calo scales to muon scales for comparison (only phi for energy sums)   
                        if(convertCaloScales) {
@@ -737,7 +841,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // revise this to line up with firmware calculations.
 	    double deltaPhiPhy  = fabs(phi1Phy - phi0Phy);
 	    if(deltaPhiPhy> M_PI) deltaPhiPhy = 2.*M_PI - deltaPhiPhy;
-            double deltaEtaPhy  = fabs(eta1Phy - eta0Phy); 
+            double deltaEtaPhy  = fabs(eta1Phy - eta0Phy);
+	     
 
 // Determine the integer based delta eta and delta phi
             int deltaPhiFW = abs(phiIndex0 - phiIndex1);
@@ -746,30 +851,37 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             lutName += "-";
 	    lutName += lutObj1;
 	    long long deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName,deltaPhiFW);
-
-            //  
-	    LogDebug("L1TGlobal") << "Obj0 phiFW = " << phiIndex0 << " Obj1 phiFW = " << phiIndex1 << std::endl
-	    << "    DeltaPhiFW = " << deltaPhiFW << std::endl
-	    << "    LUT Name = " << lutName << "  DeltaPhiLUT = " << deltaPhiLUT << std::endl;
+	    unsigned int precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);
 	    
 	    int deltaEtaFW = abs(etaIndex0 - etaIndex1);
 	    long long deltaEtaLUT = 0;
-	    if(!etSumCond) deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName,deltaEtaFW);
+	    unsigned int precDeltaEtaLUT = 0;
+	    if(!etSumCond) {
+	      deltaEtaLUT = m_gtScales->getLUT_DeltaEta(lutName,deltaEtaFW);
+              precDeltaEtaLUT = m_gtScales->getPrec_DeltaEta(lutName);
+	    }
 
             //  
-	    LogDebug("L1TGlobal") << "Obj0 etaFW = " << etaIndex0 << " Obj1 etaFW = " << etaIndex1 << std::endl
-	     << "    DeltaEtaFW = " << deltaEtaFW << std::endl
-	     << "    LUT Name = " << lutName << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
+	    LogDebug("L1TGlobal") << "Obj0 phiFW = " << phiIndex0 << " Obj1 phiFW = " << phiIndex1 << "\n"
+	    << "    DeltaPhiFW = " << deltaPhiFW << "\n"
+	    << "    LUT Name = " << lutName << " Prec = " << precDeltaPhiLUT << "  DeltaPhiLUT = " << deltaPhiLUT << "\n"
+	    << "Obj0 etaFW = " << etaIndex0 << " Obj1 etaFW = " << etaIndex1 << "\n"
+	    << "    DeltaEtaFW = " << deltaEtaFW << "\n"
+	    << "    LUT Name = " << lutName << " Prec = " << precDeltaEtaLUT << "  DeltaEtaLUT = " << deltaEtaLUT << std::endl;
 
 
             // If there is a delta eta, check it.
             if(corrPar.corrCutType & 0x1) {
 		  
-		  LogDebug("L1TGlobal")  << "    Testing Delta Eta Cut [" << corrPar.minEtaCutValue 
-		                           << "," << corrPar.maxEtaCutValue << "] \n"
-					   << "    deltaEta = " << deltaEtaLUT  
+		  unsigned int preShift = precDeltaEtaLUT - corrPar.precEtaCut;
+		  LogDebug("L1TGlobal")    << "    Testing Delta Eta Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minEtaCutValue 
+		                           << "," << corrPar.maxEtaCutValue << "] with precision = " << corrPar.precEtaCut <<"\n"
+					   << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
+					   << "    Precision Shift = " << preShift << "\n"
+					   << "    deltaEta (shift)= " << (int)(deltaEtaLUT/pow(10,preShift)) << "\n"
 					   << "    deltaEtaPhy = " <<  deltaEtaPhy << std::endl; 		      
 		  
+		  if(preShift>0) deltaEtaLUT /= pow(10,preShift);
 		  if( deltaEtaLUT >= corrPar.minEtaCutValue &&
 		      deltaEtaLUT <= corrPar.maxEtaCutValue ) {
 
@@ -786,12 +898,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	          	 
              //if there is a delta phi check it.
 	     if(corrPar.corrCutType & 0x2) {
-	       		  
-		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut [" << corrPar.minPhiCutValue 
-		                           << "," << corrPar.maxPhiCutValue << "] \n"
-					   << "    deltaPhi = " << deltaPhiLUT  
+	       	
+		  unsigned int preShift = precDeltaPhiLUT - corrPar.precPhiCut;	  
+		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minPhiCutValue 
+		                           << "," << corrPar.maxPhiCutValue << "] with precision = " << corrPar.precPhiCut <<"\n"
+					   << "    deltaPhiLUT = " << deltaPhiLUT  << "\n"
+					   << "    Precision Shift = " << preShift << "\n"
+					   << "    deltaPhi (shift)= " << (int)(deltaPhiLUT/pow(10,preShift)) << "\n"
 					   << "    deltaPhiPhy = " <<  deltaPhiPhy << std::endl;  		      
 		  
+		  if(preShift>0) deltaPhiLUT /= pow(10,preShift);
 		  if( deltaPhiLUT >= corrPar.minPhiCutValue &&
 		      deltaPhiLUT <= corrPar.maxPhiCutValue ) {
 
@@ -808,18 +924,22 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	            	 
 
 	     if(corrPar.corrCutType & 0x4) {
-	       		  
+	       	
+		  //Assumes Delta Eta and Delta Phi LUTs have the same precision
+		  unsigned int preShift = 2*precDeltaPhiLUT  - corrPar.precDRCut;	  
 		  double deltaRSqPhy = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
-		  long long deltaRSqHighPre = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;
-		  long long deltaRSq = deltaRSqHighPre/pow(10,3);		  
+		  long long deltaRSq = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;
 				  
-		  LogDebug("L1TGlobal") << "    Testing Delta R Cut [" << corrPar.minDRCutValue 
-		                           << "," << corrPar.maxDRCutValue << "] \n"
+		  LogDebug("L1TGlobal") << "    Testing Delta R Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minDRCutValue 
+		                           << "," << corrPar.maxDRCutValue << "] with precision = " << corrPar.precDRCut <<"\n"
 					   << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
 					   << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
 					   << "    deltaRSqLUT = " << deltaRSq <<  "\n"
+					   << "    Precision Shift = " << preShift << "\n" 
+					   << "    deltaRSqLUT (shift)= " << (int)(deltaRSq/pow(10,preShift))	<< "\n"				   
 					   << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;		      
 		  
+		  if(preShift>0) deltaRSq /= pow(10,preShift);
 		  if( deltaRSq >= corrPar.minDRCutValue &&
 		      deltaRSq <= corrPar.maxDRCutValue ) {
 
@@ -836,7 +956,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 	       
 	    if(corrPar.corrCutType & 0x8) {
-	       
+	      
 	          //invariant mass calculation based on 
 		  // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
 		  // but we calculate (1/2)M^2
@@ -846,28 +966,42 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  double massSqPhy = et0Phy*et1Phy*(coshDeltaEtaPhy - cosDeltaPhiPhy);
 
                   long long cosDeltaPhiLUT = m_gtScales->getLUT_Cos(lutName,deltaPhiFW);
+		  unsigned int precCosLUT = m_gtScales->getPrec_Cos(lutName);
+		  
                   long long coshDeltaEtaLUT = m_gtScales->getLUT_Cosh(lutName,deltaEtaFW);
+		  unsigned int precCoshLUT = m_gtScales->getPrec_Cosh(lutName);
+		  if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+		  
 		  std::string lutName = lutObj0;
 		  lutName += "-ET";
 		  long long ptObj0 = m_gtScales->getLUT_Pt(lutName,etIndex0);
+		  unsigned int precPtLUTObj0 = m_gtScales->getPrec_Pt(lutName);
+		  
 		  lutName = lutObj1;
 		  lutName += "-ET";
 		  long long ptObj1 = m_gtScales->getLUT_Pt(lutName,etIndex1);
+		  unsigned int precPtLUTObj1 = m_gtScales->getPrec_Pt(lutName);
 		  
-		  long long massSqHighPre = (ptObj0*100)*(ptObj1*100)*(coshDeltaEtaLUT - cosDeltaPhiLUT);
-		  long long massSq = massSqHighPre/pow(10,8);
+		  // Pt and Angles are at different precission.
+		  long long massSq = ptObj0*ptObj1*(coshDeltaEtaLUT - cosDeltaPhiLUT);
 		  
-		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass [" << corrPar.minMassCutValue 
-		                           << "," << corrPar.maxMassCutValue << "] \n"
+		  //Note: There is an assumption here that Cos and Cosh have the same precission
+		  unsigned int preShift = precPtLUTObj0  + precPtLUTObj1 + precCosLUT - corrPar.precMassCut;	
+		  
+		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minMassCutValue 
+		                           << "," << corrPar.maxMassCutValue << "] with precision = " << corrPar.precMassCut <<"\n"
 					   << "    deltaPhiLUT  = " << deltaPhiLUT << "  cosLUT  = " << cosDeltaPhiLUT << "\n"
 					   << "    deltaEtaLUT  = " << deltaEtaLUT << "  coshLUT = " << coshDeltaEtaLUT << "\n"
 					   << "    etIndex0     = " << etIndex0 << "    pt0LUT      = " << ptObj0 << " PhyEt0 = " << et0Phy  << "\n"
 					   << "    etIndex1     = " << etIndex1 << "    pt1LUT      = " << ptObj1 << " PhyEt1 = " << et1Phy  <<"\n"
-					   << "    massSq/2 (HP)= " << massSqHighPre << " massSq/2 = " << massSq << "\n" 		      
+					   << "    massSq/2     = " << massSq <<  "\n" 
+					   << "    Precision Shift = " << preShift << "\n"	
+					   << "    massSq   (shift)= " << (int)(massSq/pow(10,preShift)) << "\n"	      
 					   << "    deltaPhiPhy  = " << deltaPhiPhy << "  cos() = " << cosDeltaPhiPhy << "\n"
 					   << "    deltaEtaPhy  = " << deltaEtaPhy << "  cosh()= " << coshDeltaEtaPhy << "\n"
 					   << "    massSqPhy/2  = " << massSqPhy << "  sqrt(|massSq|) = "<< sqrt(fabs(2.*massSqPhy)) << std::endl; 		      
 		  
+		  if(preShift>0) massSq /= pow(10,preShift);
 		  if(  massSq > 0. &&
 		      massSq >= corrPar.minMassCutValue &&
 		      massSq <= corrPar.maxMassCutValue  ) {
