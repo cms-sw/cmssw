@@ -68,11 +68,11 @@ public:
     
     virtual void setLUT_CalMuEta(std::string lutName, std::vector<long long> lut); 
     virtual void setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut);
-    virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut);
-    virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut); 
-    virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut);
-    virtual void setLUT_Cosh(std::string lutName, std::vector<long long> lut); 
-    virtual void setLUT_Cos(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut, unsigned int precision); 
+    virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Cosh(std::string lutName, std::vector<long long> lut, unsigned int precision); 
+    virtual void setLUT_Cos(std::string lutName, std::vector<long long> lut, unsigned int precision);
     
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
@@ -94,6 +94,13 @@ public:
     long long getLUT_Pt(std::string lutName, int element) const;
     long long getLUT_Cosh(std::string lutName, int element) const;
     long long getLUT_Cos(std::string lutName, int element) const;
+
+    unsigned int getPrec_DeltaEta(std::string lutName) const;
+    unsigned int getPrec_DeltaPhi(std::string lutName) const;
+    unsigned int getPrec_Pt(std::string lutName) const;
+    unsigned int getPrec_Cosh(std::string lutName) const;
+    unsigned int getPrec_Cos(std::string lutName) const;
+
     
     virtual void dumpAllLUTs(std::ostream& myCout) const;
     virtual void dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const;
@@ -127,6 +134,13 @@ private:
    std::map<std::string, std::vector<long long> > m_lut_Pt;
    std::map<std::string, std::vector<long long> > m_lut_Cosh;
    std::map<std::string, std::vector<long long> > m_lut_Cos;
+
+   //LUTs Precision
+   std::map<std::string, unsigned int > m_Prec_DeltaEta;
+   std::map<std::string, unsigned int > m_Prec_DeltaPhi;
+   std::map<std::string, unsigned int > m_Prec_Pt;
+   std::map<std::string, unsigned int > m_Prec_Cosh;
+   std::map<std::string, unsigned int > m_Prec_Cos;
             
 };
 

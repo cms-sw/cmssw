@@ -175,13 +175,17 @@ void CorrelationTemplate::print(std::ostream& myCout) const
     myCout << "    Cut Type:  " << m_correlationParameter.corrCutType << std::endl;
     myCout << "    minEtaCutValue        = " << std::dec << m_correlationParameter.minEtaCutValue << std::endl;
     myCout << "    maxEtaCutValue        = " << std::dec << m_correlationParameter.maxEtaCutValue << std::endl;
+    myCout << "    precEtaCut            = " << std::dec << m_correlationParameter.precEtaCut     << std::endl;
     myCout << "    minPhiCutValue        = " << std::dec << m_correlationParameter.minPhiCutValue << std::endl;
     myCout << "    maxPhiCutValue        = " << std::dec << m_correlationParameter.maxPhiCutValue << std::endl;
+    myCout << "    precPhiCut            = " << std::dec << m_correlationParameter.precPhiCut     << std::endl;
     myCout << "    minDRCutValue         = " << std::dec << m_correlationParameter.minDRCutValue  << std::endl;
     myCout << "    maxDRCutValue         = " << std::dec << m_correlationParameter.maxDRCutValue  << std::endl;
+    myCout << "    precDRCut             = " << std::dec << m_correlationParameter.precDRCut      << std::endl;
     myCout << "    minMassCutValue       = " << std::dec << m_correlationParameter.minMassCutValue<< std::endl;
     myCout << "    maxMassCutValue       = " << std::dec << m_correlationParameter.maxMassCutValue<< std::endl;
-
+    myCout << "    precMassCut           = " << std::dec << m_correlationParameter.precMassCut    << std::endl;
+ 
     myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output

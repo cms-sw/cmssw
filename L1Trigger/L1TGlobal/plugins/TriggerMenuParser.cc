@@ -608,10 +608,11 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		
 		//Get bin edges
 		const std::vector<esBin> binsV = scale.getBins();
+		scaleParam->etaBins.resize(pow(2,scale.getNbits()));
 		for(unsigned int i=0; i<binsV.size(); i++) {
 		   const esBin& bin = binsV.at(i); 
-		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
-		   scaleParam->etaBins.push_back(binLimits);
+		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);		   
+		   scaleParam->etaBins.at(bin.hw_index) = binLimits;
 		}
 	    }
 		break;
@@ -622,10 +623,11 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		
 		//Get bin edges
 		const std::vector<esBin> binsV = scale.getBins();
+		scaleParam->phiBins.resize(pow(2,scale.getNbits()));
 		for(unsigned int i=0; i<binsV.size(); i++) {
 		   const esBin& bin = binsV.at(i); 
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
-		   scaleParam->phiBins.push_back(binLimits);
+		   scaleParam->phiBins.at(bin.hw_index) = binLimits;
 		}
 	    }
 		break;				
@@ -725,6 +727,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     parseDeltaPhi_Cos_LUTS(scaleMap,"MU","MU", precisions["PRECISION-MU-MU-Delta"], precisions["PRECISION-MU-MU-Math"]);
 
     //m_gtScales.dumpAllLUTs(std::cout);
+    //m_gtScales.print(std::cout);
 
   }
 
@@ -795,7 +798,7 @@ void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::es
 
     std::vector<long long> lut_pt;
     getLut(lut_pt, scale1, prec);
-    m_gtScales.setLUT_Pt(scLabel1,lut_pt);
+    m_gtScales.setLUT_Pt(scLabel1,lut_pt,prec);
         
 
 }		
@@ -819,13 +822,13 @@ void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeve
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    m_gtScales.setLUT_DeltaEta(lutName,lut_delta_eta);
+    m_gtScales.setLUT_DeltaEta(lutName,lut_delta_eta,prec1);
         
     // Second Get the Cosh for this delta Eta Set
     std::vector<long long> lut_cosh;
     applyCosh(val_delta_eta, n);
     setLut(lut_cosh, val_delta_eta, prec2);
-    m_gtScales.setLUT_Cosh(lutName,lut_cosh);
+    m_gtScales.setLUT_Cosh(lutName,lut_cosh,prec2);
 
 }	
 
@@ -848,13 +851,13 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeven
     std::string lutName = obj1;
     lutName += "-";
     lutName += obj2;
-    m_gtScales.setLUT_DeltaPhi(lutName,lut_delta_phi);
+    m_gtScales.setLUT_DeltaPhi(lutName,lut_delta_phi,prec1);
         
     // Second Get the Cosh for this delta phi Set
     std::vector<long long> lut_cos;
     applyCos(val_delta_phi, n);
     setLut(lut_cos, val_delta_phi, prec2);
-    m_gtScales.setLUT_Cos(lutName,lut_cos);
+    m_gtScales.setLUT_Cos(lutName,lut_cos,prec2);
 
 }	
 
@@ -2510,22 +2513,26 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  if(cut.getCutType() == esCutType::DeltaEta) {
 	     //std::cout << "DeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minEtaCutValue = (long long)(minV * pow(10.,cut.getMinimum().index)); 
-	     corrParameter.maxEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 	     
+	     corrParameter.maxEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 
+	     corrParameter.precEtaCut     = cut.getMinimum().index;	     
 	     cutType = cutType | 0x1;
 	  } else if (cut.getCutType() == esCutType::DeltaPhi) {
 	     //std::cout << "DeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minPhiCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
 	     corrParameter.maxPhiCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precPhiCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x2;
 	  } else if (cut.getCutType() == esCutType::DeltaR) {
 	     //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minDRCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
 	     corrParameter.maxDRCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precDRCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x4; 
 	  } else if (cut.getCutType() == esCutType::Mass) {
 	     //std::cout << "Mass Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;	  
 	     corrParameter.minMassCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
 	     corrParameter.maxMassCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precMassCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x8; 
           }
 	}  
