@@ -285,7 +285,7 @@ sub test_mc_emul_reemul {
 	    return;
 	}
 
-	$status = long_command("cmsDriver.py L1REEMUL -s RAW2DIGI --era=Run2_2016 -n -1 --mc --no_exec --no_output --conditions=80X_mcRun2_asymptotic_v6 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulCaloAndGtFromRAW --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --filein=file:L1EMUL_DIGI_L1_DIGI2RAW.root --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML >& step_L1TReEmul.log");
+	$status = long_command("cmsDriver.py L1REEMUL -s L1REPACK:CALOuGT --era=Run2_2016 -n -1 --mc --no_exec --no_output --conditions=80X_mcRun2_asymptotic_v6 --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --filein=file:L1EMUL_DIGI_L1_DIGI2RAW.root --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML >& step_L1TReEmul.log");
 # --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 #
 	print "INFO: status of cmsDriver call is $status\n";
@@ -293,7 +293,7 @@ sub test_mc_emul_reemul {
 	    print "ERROR: abnormal status returned: $status\n";
 	    return;
 	}
-	$status = long_command("cmsRun L1REEMUL_RAW2DIGI.py >& CMSRUN_L1REEMUL.log");
+	$status = long_command("cmsRun L1REEMUL_L1REPACK.py >& CMSRUN_L1REEMUL.log");
 	print "INFO: status of cmsRun call is $status\n";
 	if ($status){
 	    print "ERROR: abnormal status returned: $status\n";
