@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<root>
+  <settings nodes="20" trees="64" learning_rate="0.3" loss_function="Least_Squares" prelim_fit="NONE" transform="INVERSE" var_word="2220022" vars="TrackEta:dPhi14:dEta14:CLCT1:cscid1" mode="9" use_charge="0"/>
+</root>
