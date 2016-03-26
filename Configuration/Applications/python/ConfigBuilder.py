@@ -955,6 +955,7 @@ class ConfigBuilder(object):
         self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
         self.L1REPACKDefaultSeq='GT'
+        self.L1REDefaultSeq='uGT'
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
         self.CFWRITERDefaultSeq=None
@@ -1509,6 +1510,15 @@ class ConfigBuilder(object):
                 print "L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported
                 raise Exception('unsupported feature')
 
+    def prepare_L1RE(self, sequence = None):
+            """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
+	    supported = ['CALOuGT','uGT']
+            if sequence in supported:
+                self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRe_%s_cff'%sequence)
+		self.scheduleSequence('SimL1Emulator')
+	    else:
+                print "L1RE with '",sequence,"' is not supported! Supported choices are: ",supported
+                raise Exception('unsupported feature')
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
