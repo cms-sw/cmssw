@@ -34,22 +34,14 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
   edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
   
-  edm::InputTag L1IsoPixelSeedsTag_; // input tag for the pixel seed - supercluster map
-  //edm::InputTag L1IsoPixelmapendcapTag_; // input tag for the pixel seed - supercluster map
-  edm::EDGetTokenT<reco::ElectronSeedCollection> L1IsoPixelSeedsToken_;
-  
-  edm::InputTag L1NonIsoPixelSeedsTag_; // input tag for the pixel seed - supercluster map
-  //edm::InputTag L1NonIsoPixelmapendcapTag_; // input tag for the pixel seed - supercluster map
-  edm::EDGetTokenT<reco::ElectronSeedCollection> L1NonIsoPixelSeedsToken_;
+  edm::InputTag l1PixelSeedsTag_; // input tag for the pixel seed - supercluster map
+  edm::EDGetTokenT<reco::ElectronSeedCollection> l1PixelSeedsToken_;
   
   double npixelmatchcut_;     // number of pixelmatch hits
   int    ncandcut_;           // number of electrons required
   
-  bool doIsolated_;
-  edm::InputTag L1IsoCollTag_; 
-  edm::InputTag L1NonIsoCollTag_;
+  edm::InputTag l1EGTag_;
   
-
   // cuts on s2
   float s2BarrelThres_ ;
   float s2InterThres_;

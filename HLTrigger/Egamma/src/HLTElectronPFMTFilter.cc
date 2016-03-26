@@ -5,19 +5,18 @@ template <typename T>
 HLTElectronPFMTFilter<T>::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   // MHT parameters
-  inputMetTag_ = iConfig.getParameter< edm::InputTag > ("inputMetTag");
-  minMht_      = iConfig.getParameter<double> ("minMht");
-  // Electron parameters
-  inputEleTag_ = iConfig.getParameter< edm::InputTag > ("inputEleTag");
-  lowerMTCut_  = iConfig.getParameter<double> ("lowerMTCut");
-  upperMTCut_  = iConfig.getParameter<double> ("upperMTCut");
-  relaxed_     = iConfig.getParameter<bool> ("relaxed");
-  minN_        = iConfig.getParameter<int>("minN");
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  inputMetTag_   = iConfig.getParameter< edm::InputTag > ("inputMetTag");
+  minMht_        = iConfig.getParameter<double> ("minMht");
 
-  inputMetToken_ = consumes<reco::METCollection>(inputMetTag_);
-  inputEleToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputEleTag_);
+  // Electron parameters
+  inputEleTag_   = iConfig.getParameter< edm::InputTag > ("inputEleTag");
+  lowerMTCut_    = iConfig.getParameter<double> ("lowerMTCut");
+  upperMTCut_    = iConfig.getParameter<double> ("upperMTCut");
+  minN_          = iConfig.getParameter<int>("minN");
+  l1EGTag_       = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+
+  inputMetToken_ = consumes<reco::METCollection> (inputMetTag_);
+  inputEleToken_ = consumes<trigger::TriggerFilterObjectWithRefs> (inputEleTag_);
 }
 
 template <typename T> 
@@ -27,15 +26,13 @@ template <typename T>
 void HLTElectronPFMTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltPFMHT"));
-  desc.add<edm::InputTag>("inputEleTag",edm::InputTag("hltEle25CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter"));
-  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-  desc.add<bool>("relaxed",true);
-  desc.add<int>("minN",0);
-  desc.add<double>("minMht",0.0);
-  desc.add<double>("lowerMTCut",0.0);
-  desc.add<double>("upperMTCut",9999.0);
+  desc.add<edm::InputTag>("inputMetTag", edm::InputTag("hltPFMHT"));
+  desc.add<edm::InputTag>("inputEleTag", edm::InputTag("hltEle25CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter"));
+  desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<int>("minN", 0);
+  desc.add<double>("minMht", 0.0);
+  desc.add<double>("lowerMTCut", 0.0);
+  desc.add<double>("upperMTCut", 9999.0);
   descriptions.add(defaultModuleLabel<HLTElectronPFMTFilter<T>>(), desc);
 }
 
@@ -49,8 +46,7 @@ bool  HLTElectronPFMTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSe
   // The filter object
   if (saveTags()) {
     filterproduct.addCollectionTag(inputMetTag_);
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
   
   // Get the Met collection
@@ -73,13 +69,13 @@ bool  HLTElectronPFMTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSe
   
   vector< Ref< vector<T> > > refEleCollection ;
 
-  PrevFilterOutput->getObjects(TriggerElectron,refEleCollection);
+  PrevFilterOutput->getObjects(TriggerElectron, refEleCollection);
   int trigger_type = trigger::TriggerElectron;
   if(refEleCollection.empty()){
-    PrevFilterOutput->getObjects(TriggerCluster,refEleCollection);
+    PrevFilterOutput->getObjects(TriggerCluster, refEleCollection);
     trigger_type = trigger::TriggerCluster;    
     if(refEleCollection.empty()){
-     PrevFilterOutput->getObjects(TriggerPhoton,refEleCollection);
+     PrevFilterOutput->getObjects(TriggerPhoton, refEleCollection);
      trigger_type = trigger::TriggerPhoton;
     }
   }    
