@@ -1,0 +1,12 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/L1TCalorimeter"/>
+<export>
+  <lib   name="1"/>
+</export>

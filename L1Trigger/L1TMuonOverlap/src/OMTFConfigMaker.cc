@@ -13,8 +13,11 @@
 ///////////////////////////////////////////////
 OMTFConfigMaker::OMTFConfigMaker(const edm::ParameterSet & theConfig){ 
 
-  std::vector<int> minRefPhi1D(6,2*OMTFConfiguration::nPhiBins);
-  minRefPhi2D.assign(OMTFConfiguration::nRefLayers,minRefPhi1D);
+  std::vector<int> refPhi1D(OMTFConfiguration::nLogicRegions,2*OMTFConfiguration::nPhiBins);
+  minRefPhi2D.assign(OMTFConfiguration::nRefLayers,refPhi1D);
+
+  refPhi1D = std::vector<int>(OMTFConfiguration::nLogicRegions,-2*OMTFConfiguration::nPhiBins);
+  maxRefPhi2D.assign(OMTFConfiguration::nRefLayers,refPhi1D);
 
 }
 ///////////////////////////////////////////////
@@ -31,32 +34,16 @@ void OMTFConfigMaker::fillCounts(unsigned int iProcessor,
 void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor,
 				  const OMTFinput & aInput){
 
-  ////Find starting iPhi for each processor and each referecne layer    
+  ////Find starting and ending iPhi of each input used for reference hits.
   for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
     const OMTFinput::vector1D & refLayerHits = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[iRefLayer]);	
     if(!refLayerHits.size()) continue;
-    for(auto itRefHit: refLayerHits){	
-      int phiRef = itRefHit;
-      if(phiRef>=(int)OMTFConfiguration::nPhiBins) continue;
-      if(phiRef<0) phiRef+=OMTFConfiguration::nPhiBins;
-      if(minRefPhi2D[iRefLayer][iProcessor]<0) minRefPhi2D[iRefLayer][iProcessor]+=OMTFConfiguration::nPhiBins;
-
-      if(iProcessor==0 || iProcessor==5){
-	phiRef+=OMTFConfiguration::nPhiBins/4;
-	minRefPhi2D[iRefLayer][iProcessor]+=OMTFConfiguration::nPhiBins/4;
-
-	if(phiRef>=(int)OMTFConfiguration::nPhiBins) phiRef-=OMTFConfiguration::nPhiBins;
-	if(minRefPhi2D[iRefLayer][iProcessor]>=(int)OMTFConfiguration::nPhiBins)minRefPhi2D[iRefLayer][iProcessor]-=OMTFConfiguration::nPhiBins;
-
-      }
-      
-      if(phiRef<minRefPhi2D[iRefLayer][iProcessor]) minRefPhi2D[iRefLayer][iProcessor] = phiRef;
-      
-      if( (iProcessor==0 || iProcessor==5) && 
-	 minRefPhi2D[iRefLayer][iProcessor]<(int)OMTFConfiguration::nPhiBins) minRefPhi2D[iRefLayer][iProcessor]-=OMTFConfiguration::nPhiBins/4;
-      if(minRefPhi2D[iRefLayer][iProcessor]<0) minRefPhi2D[iRefLayer][iProcessor]+=OMTFConfiguration::nPhiBins;	
-          
-      if(minRefPhi2D[iRefLayer][iProcessor]>(int)OMTFConfiguration::nPhiBins/2) minRefPhi2D[iRefLayer][iProcessor]-=OMTFConfiguration::nPhiBins;
+    for(unsigned int iInput=0;iInput<OMTFConfiguration::nInputs;++iInput){	
+      int phiRef = refLayerHits[iInput];
+      unsigned int iRegion = OMTFConfiguration::getRegionNumberFromMap(iInput,iRefLayer,phiRef);       
+      if(phiRef>=(int)OMTFConfiguration::nPhiBins) continue;      
+      if(phiRef<minRefPhi2D[iRefLayer][iRegion]) minRefPhi2D[iRefLayer][iRegion] = phiRef;      
+      if(phiRef>maxRefPhi2D[iRefLayer][iRegion]) maxRefPhi2D[iRefLayer][iRegion] = phiRef;      
     }
   }
 }
@@ -64,16 +51,24 @@ void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor,
 ///////////////////////////////////////////////
 void OMTFConfigMaker::printPhiMap(std::ostream & out){
   
+  out<<"min Phi in each logicRegion (X) in each ref Layer (Y): "<<std::endl; 
   for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-    for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-      out<<"          "<<minRefPhi2D[iRefLayer][iProcessor]<<"\t";
-
-      OMTFConfiguration::processorPhiVsRefLayer[iProcessor][iRefLayer] = minRefPhi2D[iRefLayer][iProcessor];
-
+    for(unsigned int iLogicRegion=0;iLogicRegion<OMTFConfiguration::nLogicRegions;++iLogicRegion){
+      out<<"          "<<minRefPhi2D[iRefLayer][iLogicRegion]<<"\t";
     }
     out<<std::endl;
   }
   out<<std::endl; 
+
+  out<<"max Phi in each logicRegion (X) in each ref Layer (Y): "<<std::endl;
+  for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+    for(unsigned int iLogicRegion=0;iLogicRegion<OMTFConfiguration::nLogicRegions;++iLogicRegion){
+      out<<"          "<<maxRefPhi2D[iRefLayer][iLogicRegion]<<"\t";
+    }
+    out<<std::endl;
+  }
+  out<<std::endl; 
+
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -88,11 +83,8 @@ void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor,
     //////////////////////
     for(unsigned int iInput=0;iInput<refLayerHits.size();++iInput){
       int phiRef = refLayerHits[iInput];
-      unsigned int iRegion = OMTFConfiguration::getRegionNumber(iProcessor,iRefLayer,phiRef);
-
-      //if(iRegion==0) std::cout<<aInput<<std::endl;
-      
-      if(iRegion>5) continue;      
+      unsigned int iRegion = OMTFConfiguration::getRegionNumberFromMap(iInput,iRefLayer,phiRef);     
+      if(iRegion>=OMTFConfiguration::nLogicRegions) continue;      
       fillInputRange(iProcessor,iRegion,aInput);
       fillInputRange(iProcessor,iRegion,iRefLayer,iInput);
       ///Always use two hits from a single chamber. 
@@ -109,9 +101,10 @@ void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
 				   const OMTFinput & aInput){
 
   for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::nLayers;++iLogicLayer){
-    for(unsigned int iHit=0;iHit<14;++iHit){
-      bool isHit = aInput.getLayerData(iLogicLayer)[iHit]<(int)OMTFConfiguration::nPhiBins;
-      OMTFConfiguration::measurements4D[iProcessor][iRegion][iLogicLayer][iHit]+=isHit;
+
+    for(unsigned int iInput=0;iInput<14;++iInput){
+      bool isHit = aInput.getLayerData(iLogicLayer)[iInput]<(int)OMTFConfiguration::nPhiBins;
+      OMTFConfiguration::measurements4D[iProcessor][iRegion][iLogicLayer][iInput]+=isHit;
     }
   }
 }
@@ -120,9 +113,9 @@ void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
 void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
 				   unsigned int iRegion,
 				   unsigned int iRefLayer,
-				   unsigned int iHit){
+				   unsigned int iInput){
 
-      ++OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iHit]; 
+  ++OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iInput]; 
 
 }
 ///////////////////////////////////////////////
