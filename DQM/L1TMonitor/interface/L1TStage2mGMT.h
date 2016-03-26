@@ -64,30 +64,41 @@ private:
   bool verbose ;
   edm::EDGetToken stage2mgmtToken ; 
 
-  MonitorElement* eta_mgmt;
-  MonitorElement* phi_mgmt;
-  MonitorElement* pt_mgmt;
-  MonitorElement* charge_mgmt;
-  MonitorElement* chargeVal_mgmt;
-  MonitorElement* qual_mgmt;
-  MonitorElement* iso_mgmt;
+  MonitorElement* hw_eta_ugmt;
+  MonitorElement* hw_phi_ugmt;
+  MonitorElement* hw_pt_ugmt;
 
-  MonitorElement* bx_mgmt;
+  MonitorElement* ph_eta_ugmt;
+  MonitorElement* ph_phi_ugmt;
+  MonitorElement* ph_pt_ugmt;
 
-  MonitorElement* etaVSbx_mgmt;
-  MonitorElement* phiVSbx_mgmt;
-  MonitorElement* ptVSbx_mgmt;
-  MonitorElement* chargeVSbx_mgmt;
-  MonitorElement* chargeValVSbx_mgmt;
-  MonitorElement* qualVSbx_mgmt;
-  MonitorElement* isoVSbx_mgmt;
+  MonitorElement* hw_etaVSphi_ugmt;
+  MonitorElement* hw_phiVSpt_ugmt;
+  MonitorElement* hw_etaVSpt_ugmt;
 
-  MonitorElement* etaVSphi_mgmt;
-  MonitorElement* phiVSpt_mgmt;
-  MonitorElement* etaVSpt_mgmt;
+  MonitorElement* ph_etaVSphi_ugmt;
+  MonitorElement* ph_phiVSpt_ugmt;
+  MonitorElement* ph_etaVSpt_ugmt;
 
+  MonitorElement* charge_ugmt;
+  MonitorElement* chargeVal_ugmt;
+  MonitorElement* qual_ugmt;
+  MonitorElement* iso_ugmt;
 
+  MonitorElement* bx_ugmt;
 
+  MonitorElement* hw_etaVSbx_ugmt;
+  MonitorElement* hw_phiVSbx_ugmt;
+  MonitorElement* hw_ptVSbx_ugmt;
+
+  MonitorElement* ph_etaVSbx_ugmt;
+  MonitorElement* ph_phiVSbx_ugmt;
+  MonitorElement* ph_ptVSbx_ugmt;
+
+  MonitorElement* chargeVSbx_ugmt;
+  MonitorElement* chargeValVSbx_ugmt;
+  MonitorElement* qualVSbx_ugmt;
+  MonitorElement* isoVSbx_ugmt;
 
 };
 
