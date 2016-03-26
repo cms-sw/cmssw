@@ -63,3 +63,47 @@ def L1TReEmulFromRAW(process):
         print process.L1TReEmul
         print process.schedule
         return process
+
+def L1TReEmulCaloAndGtFromRAW(process):
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+    process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
+
+    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+        cms.InputTag('hcalDigis'),
+        cms.InputTag('hcalDigis')
+    )
+
+    # re-emulate Hcal TPs and Calo+Gt
+    process.L1TReEmul = cms.Sequence(process.simHcalTriggerPrimitiveDigis * process.SimL1CaloAndGtEmulator)
+
+    if eras.stage2L1Trigger.isChosen():
+
+        process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+        process.schedule.append(process.L1TReEmulPath)
+        print "L1TReEmul sequence:  "
+        print process.L1TReEmul
+        print process.schedule
+        return process
+    else:
+        process.simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
+        process.simRctDigis.hcalDigis = cms.VInputTag('simHcalTriggerPrimitiveDigis')
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+        process.schedule.append(process.L1TReEmulPath)
+        print "L1TReEmul sequence:  "
+        print process.L1TReEmul
+        print process.schedule
+        return process
+
+def L1TReEmulGtFromRAW(process):
+    process.load('L1Trigger.Configuration.SimEmulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1GtEmulator)
+
+    # eras don't matter. simulate Gt from Calo(Gct) and Gmt
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+    process.schedule.append(process.L1TReEmulPath)
+    print "L1TReEmul sequence:  "
+    print process.L1TReEmul
+    print process.schedule
+    return process
