@@ -1,9 +1,9 @@
 # "PIon" menu (placeholder)
 
 HLT_CaloJet260_v*
-HLT_PFJet260_v*
+HLT_PFJet40_v*
 HLT_Photon20_CaloIdVL_IsoL_v*
-HLT_Ele27_WPLoose_Gsf_v*
+HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*
 HLT_Mu50_v*
 HLT_Physics_v*
 
@@ -14,5 +14,5 @@ HLTAnalyzerEndpath
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-RatesMonitoring
+RatesMonitoring				# only in 'online'
 DQMOutput
