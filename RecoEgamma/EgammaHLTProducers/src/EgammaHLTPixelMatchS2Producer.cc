@@ -43,7 +43,9 @@ private:
   egPM::Param<reco::ElectronSeed> dPhi1Para_;
   egPM::Param<reco::ElectronSeed> dPhi2Para_;
   egPM::Param<reco::ElectronSeed> dRZ2Para_;
-
+  
+  int productsToWrite_;
+  
 };
 
 EgammaHLTPixelMatchS2Producer::EgammaHLTPixelMatchS2Producer(const edm::ParameterSet& config) : 
@@ -51,14 +53,17 @@ EgammaHLTPixelMatchS2Producer::EgammaHLTPixelMatchS2Producer(const edm::Paramete
   pixelSeedsToken_(consumes<reco::ElectronSeedCollection>(config.getParameter<edm::InputTag>("pixelSeedsProducer"))),
   dPhi1Para_(config.getParameter<edm::ParameterSet>("dPhi1SParams")),
   dPhi2Para_(config.getParameter<edm::ParameterSet>("dPhi2SParams")),
-  dRZ2Para_(config.getParameter<edm::ParameterSet>("dRZ2SParams"))
+  dRZ2Para_(config.getParameter<edm::ParameterSet>("dRZ2SParams")),
+  productsToWrite_(config.getParameter<int>("productsToWrite"))
   
 {
-  //register your products
-  produces < reco::RecoEcalCandidateIsolationMap >("dPhi1BestS2");
-  produces < reco::RecoEcalCandidateIsolationMap >("dPhi2BestS2");
-  produces < reco::RecoEcalCandidateIsolationMap >("dzBestS2");
+  //register your products  
   produces < reco::RecoEcalCandidateIsolationMap >("s2");
+  if(productsToWrite_>=1){
+    produces < reco::RecoEcalCandidateIsolationMap >("dPhi1BestS2");
+    produces < reco::RecoEcalCandidateIsolationMap >("dPhi2BestS2");
+    produces < reco::RecoEcalCandidateIsolationMap >("dzBestS2");
+  }
 
 
 }
@@ -74,14 +79,6 @@ void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescripti
   
   edm::ParameterSetDescription varParamDesc;
   edm::ParameterSetDescription binParamDesc;
-  // binParamDesc.add<std::string>("binType");
-  // binParamDesc.add<std::string>("funcType");
-  // binParamDesc.add<std::vector<double>>("funcParams");
-  // binParamDesc.add<double>("xMin");
-  // binParamDesc.add<double>("xMax");
-  // binParamDesc.add<double>("yMin");
-  // binParamDesc.add<double>("yMax");
-  
   
   std::auto_ptr<edm::ParameterDescriptionCases<std::string>> binDescCases;
   binDescCases = 
@@ -114,6 +111,7 @@ void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescripti
   desc.add("dPhi1SParams",varParamDesc);
   desc.add("dPhi2SParams",varParamDesc);
   desc.add("dRZ2SParams",varParamDesc);
+  desc.add<int>("productsToWrite",0);
   descriptions.add(("hltEgammaHLTPixelMatchS2Producer"), desc);  
 }
 
@@ -155,17 +153,20 @@ void EgammaHLTPixelMatchS2Producer::produce(edm::StreamID sid, edm::Event& iEven
 
    
     s2Map->insert(candRef,bestS2[0]);
-    dPhi1BestS2Map->insert(candRef,bestS2[1]);
-    dPhi2BestS2Map->insert(candRef,bestS2[2]);
-    dzBestS2Map->insert(candRef,bestS2[3]);
+    if(productsToWrite_>=1){
+      dPhi1BestS2Map->insert(candRef,bestS2[1]);
+      dPhi2BestS2Map->insert(candRef,bestS2[2]);
+      dzBestS2Map->insert(candRef,bestS2[3]);
+    }
     
   }
 
   iEvent.put(s2Map,"s2");
-  iEvent.put(dPhi1BestS2Map,"dPhi1BestS2");
-  iEvent.put(dPhi2BestS2Map,"dPhi2BestS2");
-  iEvent.put(dzBestS2Map,"dzBestS2");
-  
+  if(productsToWrite_>=1){
+    iEvent.put(dPhi1BestS2Map,"dPhi1BestS2");
+    iEvent.put(dPhi2BestS2Map,"dPhi2BestS2");
+    iEvent.put(dzBestS2Map,"dzBestS2");
+  }
 }
 
 std::array<float,4> EgammaHLTPixelMatchS2Producer::calS2(const reco::ElectronSeed& seed,int charge)const
