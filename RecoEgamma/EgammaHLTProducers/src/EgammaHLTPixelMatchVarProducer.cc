@@ -24,11 +24,11 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchParamObjects.h"
 
-class EgammaHLTPixelMatchS2Producer : public edm::global::EDProducer<> {
+class EgammaHLTPixelMatchVarProducer : public edm::global::EDProducer<> {
 public:
 
-  explicit EgammaHLTPixelMatchS2Producer(const edm::ParameterSet&);
-  ~EgammaHLTPixelMatchS2Producer();
+  explicit EgammaHLTPixelMatchVarProducer(const edm::ParameterSet&);
+  ~EgammaHLTPixelMatchVarProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
@@ -48,7 +48,7 @@ private:
   
 };
 
-EgammaHLTPixelMatchS2Producer::EgammaHLTPixelMatchS2Producer(const edm::ParameterSet& config) : 
+EgammaHLTPixelMatchVarProducer::EgammaHLTPixelMatchVarProducer(const edm::ParameterSet& config) : 
   recoEcalCandidateToken_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
   pixelSeedsToken_(consumes<reco::ElectronSeedCollection>(config.getParameter<edm::InputTag>("pixelSeedsProducer"))),
   dPhi1Para_(config.getParameter<edm::ParameterSet>("dPhi1SParams")),
@@ -68,10 +68,10 @@ EgammaHLTPixelMatchS2Producer::EgammaHLTPixelMatchS2Producer(const edm::Paramete
 
 }
 
-EgammaHLTPixelMatchS2Producer::~EgammaHLTPixelMatchS2Producer()
+EgammaHLTPixelMatchVarProducer::~EgammaHLTPixelMatchVarProducer()
 {}
 
-void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void EgammaHLTPixelMatchVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
@@ -112,10 +112,10 @@ void EgammaHLTPixelMatchS2Producer::fillDescriptions(edm::ConfigurationDescripti
   desc.add("dPhi2SParams",varParamDesc);
   desc.add("dRZ2SParams",varParamDesc);
   desc.add<int>("productsToWrite",0);
-  descriptions.add(("hltEgammaHLTPixelMatchS2Producer"), desc);  
+  descriptions.add(("hltEgammaHLTPixelMatchVarProducer"), desc);  
 }
 
-void EgammaHLTPixelMatchS2Producer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
@@ -169,7 +169,7 @@ void EgammaHLTPixelMatchS2Producer::produce(edm::StreamID sid, edm::Event& iEven
   }
 }
 
-std::array<float,4> EgammaHLTPixelMatchS2Producer::calS2(const reco::ElectronSeed& seed,int charge)const
+std::array<float,4> EgammaHLTPixelMatchVarProducer::calS2(const reco::ElectronSeed& seed,int charge)const
 {
   const float dPhi1Const = dPhi1Para_(seed);	
   const float dPhi2Const = dPhi2Para_(seed);
@@ -184,4 +184,4 @@ std::array<float,4> EgammaHLTPixelMatchS2Producer::calS2(const reco::ElectronSee
 }
 
 
-DEFINE_FWK_MODULE(EgammaHLTPixelMatchS2Producer);
+DEFINE_FWK_MODULE(EgammaHLTPixelMatchVarProducer);
