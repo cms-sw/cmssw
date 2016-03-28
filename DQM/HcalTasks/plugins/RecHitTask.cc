@@ -59,15 +59,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_cEnergy_Subdet.initialize(_name, "Energy", hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fEnergy),
 		new quantity::ValueQuantity(quantity::fN, true));
-	_cEnergyTotal_Subdet.initialize(_name, "EnergyTotal", 
-		hashfunctions::fSubdet,
-		new quantity::ValueQuantity(quantity::fEnergyTotal, true),
-		new quantity::ValueQuantity(quantity::fN, true));
-	_cEnergyTotalPM_Subdet.initialize(_name, "EnergyTotalPM",
-		hashfunctions::fSubdet,
-		new quantity::ValueQuantity(quantity::fEnergyTotal, true),
-		new quantity::ValueQuantity(quantity::fEnergyTotal, true),
-		new quantity::ValueQuantity(quantity::fN, true));
 	_cEnergy_depth.initialize(_name, "Energy", hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
@@ -92,7 +83,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		new quantity::ValueQuantity(quantity::fEnergy));
 
 	//	Timing
-	_cTimingCut_Subdet.initialize(_name, "TimingCut", hashfunctions::fSubdet,
+	_cTimingCut_SubdetPM.initialize(_name, "TimingCut", 
+		hashfunctions::fSubdetPM,
 		new quantity::ValueQuantity(quantity::fTiming_ns),
 		new quantity::ValueQuantity(quantity::fN, true));
 	_cTimingvsEnergy_SubdetPM.initialize(_name, "TimingvsEnergy",
@@ -100,10 +92,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		new quantity::ValueQuantity(quantity::fEnergy, true),
 		new quantity::ValueQuantity(quantity::fTiming_ns),
 		new quantity::ValueQuantity(quantity::fN, true));
-	_cTimingCut_FEDSlot.initialize(_name, "TimingCut",
-		hashfunctions::fFEDSlot,
-		new quantity::ValueQuantity(quantity::fTiming_ns),
-		new quantity::ValueQuantity(quantity::fN));
 	_cTimingCut_FEDVME.initialize(_name, "TimingCut",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSpigot),
@@ -113,6 +101,10 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+		new quantity::ValueQuantity(quantity::fTiming_ns));
+	_cTimingCutvsLS_FED.initialize(_name, "TimingCutvsLS",
+		hashfunctions::fFED,
+		new quantity::LumiSection(_numLSstart),
 		new quantity::ValueQuantity(quantity::fTiming_ns));
 	_cTimingCut_ElectronicsVME.initialize(_name, "TimingCut",
 		hashfunctions::fElectronics,
@@ -223,8 +215,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	//	Energy
 	_cEnergy_Subdet.book(ib, _emap, _subsystem);
-	_cEnergyTotal_Subdet.book(ib, _emap, _subsystem);
-	_cEnergyTotalPM_Subdet.book(ib, _emap, _subsystem);
 	_cEnergy_depth.book(ib, _emap, _subsystem);
 	_cEnergy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cEnergy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
@@ -232,15 +222,15 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_cEnergy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
 	//	Timing
-	_cTimingCut_Subdet.book(ib, _emap, _subsystem);
+	_cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
 	_cTimingvsEnergy_SubdetPM.book(ib, _emap, _subsystem);
-	_cTimingCut_FEDSlot.book(ib, _emap, _subsystem);
 	_cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cTimingCut_HBHEPartition.book(ib, _emap, _subsystem);
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
+	_cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
 
 	//	Occupancy
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
@@ -341,9 +331,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 		if (energy>_cutE_HBHE)
 		{
-			_cTimingCut_Subdet.fill(did, timing);
-			_cTimingCut_FEDSlot.fill(eid, timing);
+			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_HBHEPartition.fill(did, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
 			if (eid.isVMEid())
@@ -372,10 +362,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		nChsHBCut);
 	_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), _currentLS, 
 		nChsHECut);
-	_cEnergyTotalPM_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), ehbp, ehbm);
-	_cEnergyTotalPM_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), ehep, ehem);
-	_cEnergyTotal_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), ehbp+ehbm);
-	_cEnergyTotal_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), ehep+ehem);
 
 	int nChsHO = 0; int nChsHOCut = 0;
 	double ehop = 0; double ehom = 0;
@@ -408,8 +394,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 		if (energy>_cutE_HO)
 		{
-			_cTimingCut_Subdet.fill(did, timing);
-			_cTimingCut_FEDSlot.fill(eid, timing);
+			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
 			if (eid.isVMEid())
@@ -434,8 +420,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		nChsHO);
 	_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS,
 		nChsHOCut);
-	_cEnergyTotalPM_Subdet.fill(HcalDetId(HcalOuter, 1, 1,4), ehop, ehom);
-	_cEnergyTotal_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), ehop+ehom);
 
 	int nChsHF = 0; int nChsHFCut = 0;
 	double ehfp = 0; double ehfm = 0;
@@ -468,8 +452,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 		if (energy>_cutE_HF)
 		{
-			_cTimingCut_Subdet.fill(did, timing);
-			_cTimingCut_FEDSlot.fill(eid, timing);
+			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
 			if (eid.isVMEid())
@@ -494,8 +478,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		nChsHF);
 	_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), _currentLS,
 		nChsHFCut);
-	_cEnergyTotalPM_Subdet.fill(HcalDetId(HcalForward, 1, 1,1), ehfp, ehfm);
-	_cEnergyTotal_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), ehfp+ehfm);
 }
 
 /* virtual */ void RecHitTask::endLuminosityBlock(edm::LuminosityBlock const& 

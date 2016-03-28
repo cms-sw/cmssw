@@ -133,6 +133,23 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
 		new quantity::ValueQuantity(quantity::fADC_5));
 
+	_cMissingvsLS_FED.initialize(_name, "MissingvsLS", 
+		hashfunctions::fFED,
+		new quantity::LumiSection(_numLSstart),
+		new quantity::ValueQuantity(quantity::fN));
+	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS", 
+		hashfunctions::fSubdet,
+		new quantity::LumiSection(_numLSstart),
+		new quantity::ValueQuantity(quantity::fN));
+	_cNBadMeanvsLS_FED.initialize(_name, "NBadMeanvsLS", 
+		hashfunctions::fFED,
+		new quantity::LumiSection(_numLSstart),
+		new quantity::ValueQuantity(quantity::fN));
+	_cNBadRMSvsLS_FED.initialize(_name, "NBadRMSvsLS", 
+		hashfunctions::fFED,
+		new quantity::LumiSection(_numLSstart),
+		new quantity::ValueQuantity(quantity::fN));
+
 	_cMissing_depth.initialize(_name, "Missing", hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
@@ -207,6 +224,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cMeanBad_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cMeanBad_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
+	_cMissingvsLS_FED.book(ib, _emap, _subsystem);
+	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
+	_cNBadMeanvsLS_FED.book(ib, _emap, _subsystem);
+	_cNBadRMSvsLS_FED.book(ib, _emap, _subsystem);
+
 	_cSummary.book(ib, _subsystem);
 	
 	//	book compact containers
@@ -253,12 +275,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 
 /* virtual */ void PedestalTask::endRun(edm::Run const& r, 
 	edm::EventSetup const&)
-{	
-	if (_ptype==fLocal)
-		if (r.runAuxiliary().run()==1)
-			return;
-	this->_dump();
-}
+{}
 
 /* virtual */ void PedestalTask::_dump()
 {
@@ -317,7 +334,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			continue;
 		}
 
-		//	if not missing
+		//	if not missing, fill the occupancy...
+		_cOccupancyvsLS_Subdet.fill(did, _currentLS);
 		sum/=n; double rms = sqrt(sum2/n-sum*sum);
 		double diffm = sum-refm;
 		double diffr = rms - refr;
@@ -383,6 +401,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		_xNBadRMS.get(eid)>0?
 			_cSummary.setBinContent(eid, fBadRMS, fLow):
 			_cSummary.setBinContent(eid, fBadRMS, fGood);
+
+		//	Fill per LS 
+		_cMissingvsLS_FED.fill(eid, _currentLS, _xNMsn.get(eid));
+		_cNBadMeanvsLS_FED.fill(eid, _currentLS, _xNBadMean.get(eid));
+		_cNBadRMSvsLS_FED.fill(eid, _currentLS, _xNBadRMS.get(eid));
 	}
 	_xNMsn.reset(); _xNBadMean.reset(); _xNBadRMS.reset();
 }

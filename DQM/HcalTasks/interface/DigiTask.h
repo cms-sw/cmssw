@@ -78,20 +78,20 @@ class DigiTask : public DQTask
 		Container1D _cfC_SubdetPM;
 		Container1D _cSumQ_SubdetPM;
 		ContainerProf2D	_cSumQ_depth;
-		ContainerProf1D _cSumQvsLS_FEDSlot;
+		ContainerProf1D _cSumQvsLS_FED;
 
 		//	Shape
 		Container1D _cShapeCut_FEDSlot;
 
 		//	Timing
-		Container1D		_cTimingCut_FEDSlot;
+		Container1D		_cTimingCut_SubdetPM;
 		ContainerProf2D _cTimingCut_FEDVME;
 		ContainerProf2D	_cTimingCut_FEDuTCA;
 		ContainerProf2D _cTimingCut_ElectronicsVME;
 		ContainerProf2D _cTimingCut_ElectronicsuTCA;
-		ContainerProf1D _cTimingCutvsLS_FEDSlot;
+		ContainerProf1D _cTimingCutvsLS_FED;
 
-		ContainerProf1D _cQ2Q12CutvsLS_FEDHFSlot;
+		ContainerProf1D _cQ2Q12CutvsLS_FEDHF;
 
 		Container2D _cOccupancy_FEDVME;
 		Container2D _cOccupancy_FEDuTCA;

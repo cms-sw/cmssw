@@ -92,11 +92,11 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCATPFiberChuTCATP),
 		new quantity::ValueQuantity(quantity::fN));
 
-	_cMsnuTCA.initialize(_name, "Missing",
+	_cMsn_ElectronicsuTCA.initialize(_name, "Missing", 
 		new quantity::TrigTowerQuantity(quantity::fTTieta),
 		new quantity::TrigTowerQuantity(quantity::fTTiphi),
 		new quantity::ValueQuantity(quantity::fN));
-	_cMsnVME.initialize(_name, "Missing",
+	_cMsn_ElectronicsVME.initialize(_name, "Missing",
 		new quantity::TrigTowerQuantity(quantity::fTTieta),
 		new quantity::TrigTowerQuantity(quantity::fTTiphi),
 		new quantity::ValueQuantity(quantity::fN));
@@ -124,8 +124,8 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-	_cMsnuTCA.book(ib, _subsystem, "uTCA");
-	_cMsnVME.book(ib, _subsystem, "VME");
+	_cMsn_ElectronicsuTCA.book(ib, _subsystem, std::string("uTCA"));
+	_cMsn_ElectronicsVME.book(ib, _subsystem, std::string("VME"));
 	_cEtMsm.book(ib, _subsystem);
 	_cFGMsm.book(ib, _subsystem);
 
@@ -179,7 +179,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 
 		if (it2==coll2->end())
 		{
-			_cMsnuTCA.fill(tid);
+			_cMsn_ElectronicsuTCA.fill(tid);
 			_cMsn_FEDuTCA.fill(eid2);
 			for (int i=0; i<it1->size(); i++)
 			{
@@ -232,7 +232,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		if (it1==coll1->end())
 		{
 			_cMsn_FEDVME.fill(eid);
-			_cMsnVME.fill(tid);
+			_cMsn_ElectronicsVME.fill(tid);
 			for (int i=0; i<it2->size(); i++)
 			{
 				_cEtall_TTSubdet.fill(tid, 

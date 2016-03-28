@@ -56,7 +56,7 @@ namespace hcaldqm
 			"Q", "Ratio", "N", "Energy", "N", "Et", "ADC", "BX"
 		};
 		double const min_value[nValueQuantityType] = {
-			0, 0, 0, -50, -0.5, -0.5, -0.5, 0, 0, 0, -0.5, 0, 0.5, 0,
+			-0.05, 0, 0, -50, -0.5, -0.5, -0.5, 0, 0, 0, -0.5, 0, 0.5, 0,
 			0, 0, 0, -0.5, -1, 0.5, 0, 0, -0.5, -0.5, -0.5, -0.5,
 			0, 0, 0, 0, -0.05, -2, -2, -0.5
 		};
@@ -135,7 +135,8 @@ namespace hcaldqm
 		class LumiSection : public ValueQuantity
 		{
 			public:
-				LumiSection() {}
+				LumiSection() : ValueQuantity(fLS), _n(4000)
+				{}
 				LumiSection(int n) : ValueQuantity(fLS), 
 					_n(n) 
 				{}

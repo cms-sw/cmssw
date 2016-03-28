@@ -79,16 +79,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
 		new quantity::ValueQuantity(quantity::ffC_10000));
-	_cSumQvsLS_FEDSlot.initialize(_name, "SumQvsLS",
-		hashfunctions::fFEDSlot,
+	_cSumQvsLS_FED.initialize(_name, "SumQvsLS",
+		hashfunctions::fFED,
 		new quantity::LumiSection(_numLSstart),
 		new quantity::ValueQuantity(quantity::ffC_10000));
 	_cShapeCut_FEDSlot.initialize(_name, "Shape",
 		hashfunctions::fFEDSlot,
 		new quantity::ValueQuantity(quantity::fTiming_TS),
 		new quantity::ValueQuantity(quantity::ffC_10000));
-	_cTimingCut_FEDSlot.initialize(_name, "Timing",
-		hashfunctions::fFEDSlot,
+	_cTimingCut_SubdetPM.initialize(_name, "Timing",
+		hashfunctions::fSubdetPM,
 		new quantity::ValueQuantity(quantity::fTiming_TS200),
 		new quantity::ValueQuantity(quantity::fN));
 	_cTimingCut_FEDVME.initialize(_name, "Timing",
@@ -111,14 +111,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new quantity::FEDQuantity(vFEDsuTCA),
 		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 		new quantity::ValueQuantity(quantity::fTiming_TS200));
-	_cTimingCutvsLS_FEDSlot.initialize(_name, "TimingvsLS",
-		hashfunctions::fFEDSlot,
+	_cTimingCutvsLS_FED.initialize(_name, "TimingvsLS",
+		hashfunctions::fFED,
 		new quantity::LumiSection(),
 		new quantity::ValueQuantity(quantity::fTiming_TS200));
 
 	//	Charge sharing
-	_cQ2Q12CutvsLS_FEDHFSlot.initialize(_name, "Q2Q12vsLS",
-		hashfunctions::fFEDSlot,
+	_cQ2Q12CutvsLS_FEDHF.initialize(_name, "Q2Q12vsLS",
+		hashfunctions::fFED,
 		new quantity::LumiSection(_numLSstart),
 		new quantity::ValueQuantity(quantity::fRatio_0to2));
 
@@ -255,18 +255,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cfC_SubdetPM.book(ib, _emap, _subsystem);
 	_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 	_cSumQ_depth.book(ib, _emap, _subsystem);
-	_cSumQvsLS_FEDSlot.book(ib, _emap, _subsystem);
+	_cSumQvsLS_FED.book(ib, _emap, _subsystem);
 
 	_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
 
-	_cTimingCut_FEDSlot.book(ib, _emap, _subsystem);
+	_cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
 	_cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cTimingCutvsLS_FEDSlot.book(ib, _emap, _subsystem);
+	_cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
 
-	_cQ2Q12CutvsLS_FEDHFSlot.book(ib, _emap, _filter_FEDHF, _subsystem);
+	_cQ2Q12CutvsLS_FEDHF.book(ib, _emap, _filter_FEDHF, _subsystem);
 
 	_cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
@@ -359,7 +359,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cSumQ_depth.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		_cSumQvsLS_FEDSlot.fill(eid, _currentLS, sumQ);
+		_cSumQvsLS_FED.fill(eid, _currentLS, sumQ);
 		if (eid.isVMEid())
 		{
 			_cOccupancy_FEDVME.fill(eid);
@@ -391,9 +391,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		{
 			double timing = utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0,
 				it->size()-1);
-			_cTimingCut_FEDSlot.fill(eid, timing);
+			_cTimingCut_SubdetPM.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
-			_cTimingCutvsLS_FEDSlot.fill(eid, _currentLS, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			if (eid.isVMEid())
 			{
 				_cTimingCut_FEDVME.fill(eid, timing);
@@ -436,7 +436,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cSumQ_depth.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		_cSumQvsLS_FEDSlot.fill(eid, _currentLS, sumQ);
+		_cSumQvsLS_FED.fill(eid, _currentLS, sumQ);
 		if (eid.isVMEid())
 		{
 			_cOccupancy_FEDVME.fill(eid);
@@ -469,8 +469,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			double timing = utilities::aveTS<HODataFrame>(*it, 8.5, 0,
 				it->size()-1);
 			_cOccupancyCut_depth.fill(did);
-			_cTimingCut_FEDSlot.fill(eid, timing);
-			_cTimingCutvsLS_FEDSlot.fill(eid, _currentLS, timing);
+			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			if (eid.isVMEid())
 			{
 				_cTimingCut_FEDVME.fill(eid, timing);
@@ -506,8 +506,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		HcalElectronicsId const& eid = it->elecId();
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
-		_cSumQ_depth.fill(did, sumQ);
-		_cSumQvsLS_FEDSlot.fill(eid, _currentLS, sumQ);
 		_cOccupancy_depth.fill(did);
 		if (eid.isVMEid())
 		{
@@ -543,11 +541,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			double q1 = it->sample(1).nominal_fC()-2.5;
 			double q2 = it->sample(2).nominal_fC()-2.5;
 			double q2q12 = q2/(q1+q2);
-			_cTimingCut_FEDSlot.fill(eid, timing);
-			_cTimingCutvsLS_FEDSlot.fill(eid, _currentLS, timing);
+			_cSumQ_depth.fill(did, sumQ);
+			_cSumQvsLS_FED.fill(eid, _currentLS, sumQ);
+			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			_cOccupancyCut_depth.fill(did);
 			if (!eid.isVMEid())
-				_cQ2Q12CutvsLS_FEDHFSlot.fill(eid, _currentLS, q2q12);
+				_cQ2Q12CutvsLS_FEDHF.fill(eid, _currentLS, q2q12);
 			if (eid.isVMEid())
 			{
 				_cTimingCut_FEDVME.fill(eid, timing);

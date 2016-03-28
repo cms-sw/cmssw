@@ -69,8 +69,6 @@ class RecHitTask : public DQTask
 
 		//	Energy
 		Container1D _cEnergy_Subdet;
-		Container1D _cEnergyTotal_Subdet;
-		Container2D _cEnergyTotalPM_Subdet;
 		ContainerProf2D _cEnergy_depth;
 		ContainerProf2D _cEnergy_FEDVME;
 		ContainerProf2D _cEnergy_FEDuTCA;
@@ -81,14 +79,14 @@ class RecHitTask : public DQTask
 		Container2D _cTimingvsEnergy_SubdetPM;
 
 		//	Timing
-		Container1D		_cTimingCut_Subdet;
-		Container1D		_cTimingCut_FEDSlot;
+		Container1D		_cTimingCut_SubdetPM;
 		Container1D		_cTimingCut_HBHEPartition;
 		ContainerProf2D _cTimingCut_FEDVME;
 		ContainerProf2D	_cTimingCut_FEDuTCA;
 		ContainerProf2D _cTimingCut_ElectronicsVME;
 		ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		ContainerProf2D _cTimingCut_depth;
+		ContainerProf1D _cTimingCutvsLS_FED;
 
 		Container2D _cOccupancy_depth;
 		Container2D _cOccupancy_FEDVME;
