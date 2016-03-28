@@ -102,7 +102,7 @@ __class__::produce(const recordname& iRecord)
     out1 = []
     out2 = []
     for dtype in __datatypes__:
-        out1.append("   std::auto_ptr<%s> p%s;" % (dtype, dtype))
+        out1.append("   std::unique_ptr<%s> p%s;" % (dtype, dtype))
         out2.append("p%s" % dtype)
     output  = '\n'.join(out1)
     output += "\n   return products(%s);\n" % ','.join(out2)

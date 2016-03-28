@@ -20,14 +20,14 @@ namespace edm {
     IfExistsDescription(ParameterDescriptionNode const& node_left,
                         ParameterDescriptionNode const& node_right);
 
-    IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+    IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                         ParameterDescriptionNode const& node_right);
 
     IfExistsDescription(ParameterDescriptionNode const& node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
-    IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+    IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
     virtual ParameterDescriptionNode* clone() const {
       return new IfExistsDescription(*this);

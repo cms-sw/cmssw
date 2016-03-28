@@ -18,24 +18,24 @@ namespace edm {
   }
 
   ANDGroupDescription::
-  ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+  ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                       ParameterDescriptionNode const& node_right) :
-    node_left_(node_left),
+    node_left_(std::move(node_left)),
     node_right_(node_right.clone()) {
   }
 
   ANDGroupDescription::
   ANDGroupDescription(ParameterDescriptionNode const& node_left,
-                      std::auto_ptr<ParameterDescriptionNode> node_right) :
+                      std::unique_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
-    node_right_(node_right) {
+    node_right_(std::move(node_right)) {
   }
 
   ANDGroupDescription::
-  ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                      std::auto_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left),
-    node_right_(node_right) {
+  ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                      std::unique_ptr<ParameterDescriptionNode> node_right) :
+    node_left_(std::move(node_left)),
+    node_right_(std::move(node_right)) {
   }
 
   void

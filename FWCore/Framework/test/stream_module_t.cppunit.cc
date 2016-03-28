@@ -123,7 +123,7 @@ private:
     static unsigned int m_count;
     
     static std::unique_ptr<int> initializeGlobalCache(edm::ParameterSet const&) {
-      return std::unique_ptr<int>{new int{1}};
+      return std::make_unique<int>(1);
     }
     GlobalProd(edm::ParameterSet const&, const int* iGlobal) { CPPUNIT_ASSERT(*iGlobal == 1); }
     

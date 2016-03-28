@@ -82,47 +82,47 @@ namespace edmtest {
     // the same content as was put in. Note that the particular values
     // used are arbitrary and have no meaning.
 
-    std::auto_ptr<AssocOneToOne> assoc1(new AssocOneToOne(&event.productGetter()));
+    auto assoc1 = std::make_unique<AssocOneToOne>(&event.productGetter());
     assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
                    edm::Ref<std::vector<int> >(inputCollection2, 1));
     assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    edm::Ref<std::vector<int> >(inputCollection2, 3));
-    event.put(assoc1);
+    event.put(std::move(assoc1));
 
-    std::auto_ptr<AssocOneToOne> assoc2(new AssocOneToOne(inputCollection1, inputCollection2));
+    auto assoc2 = std::make_unique<AssocOneToOne>(inputCollection1, inputCollection2);
     assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
                    edm::Ref<std::vector<int> >(inputCollection2, 1));
     assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    edm::Ref<std::vector<int> >(inputCollection2, 4));
-    event.put(assoc2, "twoArg");
+    event.put(std::move(assoc2), "twoArg");
 
-    std::auto_ptr<AssocOneToValue> assoc3(new AssocOneToValue(&event.productGetter()));
+    auto assoc3 = std::make_unique<AssocOneToValue>(&event.productGetter());
     assoc3->insert(edm::Ref<std::vector<int> >(inputCollection1, 0), 11.0);
     assoc3->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), 12.0);
-    event.put(assoc3);
+    event.put(std::move(assoc3));
 
-    std::auto_ptr<AssocOneToValue> assoc4(new AssocOneToValue(inputCollection1));
+    auto assoc4 = std::make_unique<AssocOneToValue>(inputCollection1);
     assoc4->insert(edm::Ref<std::vector<int> >(inputCollection1, 0), 21.0);
     assoc4->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), 22.0);
-    event.put(assoc4, "handleArg");
+    event.put(std::move(assoc4), "handleArg");
 
-    std::auto_ptr<AssocOneToMany> assoc5(new AssocOneToMany(&event.productGetter()));
+    auto assoc5 = std::make_unique<AssocOneToMany>(&event.productGetter());
     assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
                    edm::Ref<std::vector<int> >(inputCollection2, 1));
     assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    edm::Ref<std::vector<int> >(inputCollection2, 4));
     assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    edm::Ref<std::vector<int> >(inputCollection2, 6));
-    event.put(assoc5);
+    event.put(std::move(assoc5));
 
-    std::auto_ptr<AssocOneToManyWithQuality> assoc6(new AssocOneToManyWithQuality(&event.productGetter()));
+    auto assoc6 = std::make_unique<AssocOneToManyWithQuality>(&event.productGetter());
     assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 1), 31.0));
     assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 4), 32.0));
     assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 7), 33.0));
-    event.put(assoc6);
+    event.put(std::move(assoc6));
 
     edm::Handle<edm::View<int> > inputView1;
     event.getByToken(inputToken1V_, inputView1);
@@ -130,19 +130,17 @@ namespace edmtest {
     edm::Handle<edm::View<int> > inputView2;
     event.getByToken(inputToken2V_, inputView2);
 
-    std::auto_ptr<AssocOneToOneView> assoc7(new AssocOneToOneView(&event.productGetter()));
+    auto assoc7 = std::make_unique<AssocOneToOneView>(&event.productGetter());
     assoc7->insert(inputView1->refAt(0), inputView2->refAt(3));
     assoc7->insert(inputView1->refAt(2), inputView2->refAt(4));
-    event.put(assoc7);
+    event.put(std::move(assoc7));
 
-    std::auto_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
-      edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
-      edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
-    ));
+    auto assoc8 = std::make_unique<AssocOneToOneView>(edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
+                                                      edm::makeRefToBaseProdFrom(inputView2->refAt(0), event));
 
     assoc8->insert(inputView1->refAt(0), inputView2->refAt(5));
     assoc8->insert(inputView1->refAt(2), inputView2->refAt(6));
-    event.put(assoc8, "twoArg");
+    event.put(std::move(assoc8), "twoArg");
   }
 }
 using edmtest::AssociationMapProducer;

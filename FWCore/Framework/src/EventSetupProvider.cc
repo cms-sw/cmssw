@@ -105,7 +105,7 @@ EventSetupProvider::~EventSetupProvider()
 // member functions
 //
 void 
-EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::auto_ptr<EventSetupRecordProvider> iProvider)
+EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::unique_ptr<EventSetupRecordProvider> iProvider)
 {
    std::shared_ptr<EventSetupRecordProvider> temp(iProvider.release());
    providers_[iKey] = temp;

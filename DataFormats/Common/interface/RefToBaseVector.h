@@ -62,7 +62,7 @@ namespace edm {
     void push_back( const RefToBase<T> & );
 
     void fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
-    std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
+    std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
  
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
@@ -263,15 +263,15 @@ namespace edm {
   template <typename T>
   void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
     if ( holder_ == nullptr ) {
-      std::auto_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
+      std::unique_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
       holder_ = p.release();
     }
     holder_->push_back( r.holder_ );
   }
 
   template <typename T>
-  std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
-    return holder_ ? holder_->vectorHolder() : std::auto_ptr<reftobase::RefVectorHolderBase>();
+  std::unique_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
+    return holder_ ? holder_->vectorHolder() : std::unique_ptr<reftobase::RefVectorHolderBase>();
   }
 }
 
