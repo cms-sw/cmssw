@@ -125,8 +125,6 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-class MuonServiceProxy;
-
 namespace reco
 {
 class CSCHaloDataProducer : public edm::stream::EDProducer<> {
