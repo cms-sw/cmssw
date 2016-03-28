@@ -7,20 +7,18 @@ upgradeKeys=['2017',
 	     '2023sim',
 	     '2023LReco',
 	     '2023Reco' 
-	     	       
-	     
 	     ]
 
 
 upgradeGeoms={ '2017' : 'Extended2017',
-	     '2023' : 'Extended2023',   
-	     '2023dev' : 'Extended2023dev', 
-	     '2023sim' : 'Extended2023sim',
-	     '2023LReco': 'Extended2023LReco',
-	     '2023Reco' : 'Extended2023Reco'
+               '2023' : 'Extended2023',   
+               '2023dev' : 'Extended2023dev', 
+               '2023sim' : 'Extended2023sim',
+               '2023LReco': 'Extended2023LReco',
+               '2023Reco' : 'Extended2023Reco'
                }
 	       
-upgradeGTs={ '2017' : 'auto:phase1_2017_design',
+upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
 	     '2023' :  'auto:run2_mc',
 	     '2023dev' :  'auto:run2_mc',
 	     '2023sim' : 'auto:run2_mc',

@@ -34,11 +34,13 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '80X_dataRun2_HLTHI_frozen_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '80X_upgrade2017_design_v7',
+    'phase1_2017_design' :  '80X_upgrade2017_design_v8',
+    # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
+    'phase1_2017_realistic': '80X_upgrade2017_realistic_v0',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
+    'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
-    'phase2_design'     :   'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
+    'phase2_design'        : 'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
 }
 
 aliases = {
