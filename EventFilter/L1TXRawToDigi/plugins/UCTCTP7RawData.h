@@ -200,7 +200,7 @@ public:
   uint32_t getRegionSummary(bool negativeEta, uint32_t region) {
     uint32_t index = getSummaryIndex(negativeEta, region);
     const uint32_t data = myDataPtr[index];
-    return (data >> (16 * (region % 2)));
+    return ((data >> (16 * (region % 2))) & 0xFFFF);
   }
 
   uint32_t getRegionET(bool negativeEta, uint32_t region) {
