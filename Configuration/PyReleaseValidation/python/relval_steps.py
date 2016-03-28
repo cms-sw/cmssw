@@ -288,10 +288,10 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4-v1',      # 5 - fullSim PU 25ns premix for 800pre6
-    'CMSSW_8_0_0-PU50ns_80X_mcRun2_startup_v4-v1',         # 6 - fullSim PU 50ns premix for 800pre6
-    'CMSSW_8_0_0-80X_mcRun2_asymptotic_v4_FastSim-v1',         # 7 - fastSim MinBias for mixing for 800pre6
-    'CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4_FastSim-v2', # 8 - fastSim premixed MinBias for 800pre6 
+    'CMSSW_8_1_0_pre1-PU25ns_80X_mcRun2_asymptotic_v6-v1',      # 5 - fullSim PU 25ns premix for 
+    'CMSSW_8_1_0_pre1-PU50ns_80X_mcRun2_startup_v6-v1',         # 6 - fullSim PU 50ns premix for 
+    'CMSSW_8_1_0_pre1-80X_mcRun2_asymptotic_v6_FastSim-v1',         # 7 - fastSim MinBias for mixing
+    'CMSSW_8_1_0_pre1-PU25ns_80X_mcRun2_asymptotic_v6_FastSim-v1', # 8 - fastSim premixed MinBias 
     'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
@@ -351,7 +351,7 @@ steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200
 # activate GEN-SIM recycling once we'll have the first set of gen-sim
 steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['JpsiMuMu_Pt-8INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-8/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 steps['PhiToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhiToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['EtaBToJpsiJpsi_13INPUT']={'INPUT':InputInfo(dataSet='/RelValEtaBToJpsiJpsi_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -443,7 +443,7 @@ steps['ZpMM']=genS('ZpMM_8TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
 steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(17,190)) 
 steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(30000,150000))
-steps['JpsiMuMu_Pt-15']=gen2015('JpsiMuMu_Pt-15_forSTEAM_13TeV_cfi',Kby(11000,122000))
+steps['JpsiMuMu_Pt-8']=gen2015('JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(3100,100000))
 steps['WE_13']=gen2015('WE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
@@ -1465,7 +1465,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_8_0_0_patch1-80X_upgrade2017_design_v4_UPG17-v'
+defaultDataSets['2017']='CMSSW_8_1_0_pre1-80X_upgrade2017_design_v4_UPG17-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1487,6 +1487,8 @@ for ds in defaultDataSets:
     key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
     name=baseDataSetReleaseBetter[key]
     PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
 
 
 upgradeStepDict={}
