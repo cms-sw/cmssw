@@ -107,7 +107,7 @@ upgradeScenToRun={
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023dev':['GenSimFull'],#dev scenario
+		   '2023dev':['GenSimFull','DigiFull'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull'],#local reco scneario
 		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
