@@ -102,8 +102,7 @@ public:
    }
    std::unique_ptr<DummyData> produce(const DummyRecord&) {
       ++data_.value_;
-      std::unique_ptr<DummyData> ptr(new DummyData(data_));
-      return std::move(ptr);
+      return std::make_unique<DummyData>(data_);
    }
 private:
    DummyData data_;

@@ -285,7 +285,7 @@ namespace edm {
   // containing Products.
   std::unique_ptr<FileBlock>
   InputSource::readFile_() {
-    return std::unique_ptr<FileBlock>(new FileBlock);
+    return std::make_unique<FileBlock>();
   }
 
   void

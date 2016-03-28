@@ -55,9 +55,9 @@ namespace edm {
       // msg, and return false.
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
                                           std::string& msg) const = 0;
-      virtual std::auto_ptr<RefHolderBase> holder() const = 0;
+      virtual std::unique_ptr<RefHolderBase> holder() const = 0;
 
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
+      virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
 
       virtual EDProductGetter const* productGetter() const = 0;
 

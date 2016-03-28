@@ -20,14 +20,14 @@ namespace edm {
     ANDGroupDescription(ParameterDescriptionNode const& node_left,
                         ParameterDescriptionNode const& node_right);
 
-    ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+    ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                         ParameterDescriptionNode const& node_right);
 
     ANDGroupDescription(ParameterDescriptionNode const& node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
-    ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+    ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
     virtual ParameterDescriptionNode* clone() const {
       return new ANDGroupDescription(*this);

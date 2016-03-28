@@ -327,7 +327,7 @@ m_ep()
   proc_pset.addParameter<std::vector<std::string>>("@end_paths", endPaths);
 
   // Now create and setup the service
-  tnsptr_.reset(new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
+  tnsptr_.reset(new w_TNS(std::make_unique<TNS>(proc_pset)));
   
   serviceToken_ = edm::ServiceRegistry::createContaining(tnsptr_);
   

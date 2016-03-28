@@ -40,9 +40,8 @@ namespace callbacktest {
 
    struct AutoPtrProd {
       AutoPtrProd() : value_(0) {}
-      std::auto_ptr<Data> method(const Record&) {
-         std::auto_ptr<Data> temp(new Data(++value_));
-         return temp;
+      std::unique_ptr<Data> method(const Record&) {
+         return std::make_unique<Data>(++value_);
       }
       
       int value_;
@@ -128,14 +127,14 @@ void testCallback::constPtrTest()
    
 }
 
-typedef Callback<AutoPtrProd, std::auto_ptr<Data>, Record> AutoPtrCallback;
+typedef Callback<AutoPtrProd, std::unique_ptr<Data>, Record> AutoPtrCallback;
 
 void testCallback::autoPtrTest()
 {
    AutoPtrProd prod;
    
    AutoPtrCallback callback(&prod, &AutoPtrProd::method);
-   std::auto_ptr<Data> handle;
+   std::unique_ptr<Data> handle;
    
    
    callback.holdOntoPointer(&handle);

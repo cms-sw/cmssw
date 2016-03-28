@@ -97,7 +97,7 @@ namespace edm {
 
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    auto reg = std::make_shared<w_CPR>(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_)));
+    auto reg = std::make_shared<w_CPR>(std::make_unique<ConstProductRegistry>(*preg_));
     ServiceToken tempToken(ServiceRegistry::createContaining(reg,
                                                              token,
                                                              serviceregistry::kOverlapIsError));
@@ -108,7 +108,7 @@ namespace edm {
     typedef service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-    auto tnsptr = std::make_shared<w_TNS>(std::auto_ptr<TNS>(new TNS(parameterSet)));
+    auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(parameterSet));
 
     return ServiceRegistry::createContaining(tnsptr,
                                              tempToken,
@@ -130,13 +130,13 @@ namespace edm {
     return common;
   }
 
-  std::auto_ptr<Schedule>
+  std::unique_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
                               bool hasSubprocesses,
                               PreallocationConfiguration const& config,
                               ProcessContext const* processContext) {
-    std::auto_ptr<Schedule> schedule(
-        new Schedule(parameterSet,
+    return std::make_unique<Schedule>(
+                     parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
                      *preg_,
                      *branchIDListHelper_,
@@ -146,8 +146,7 @@ namespace edm {
                      processConfiguration(),
                      hasSubprocesses,
                      config,
-                     processContext));
-    return schedule;
+                     processContext);
   }
 
   void

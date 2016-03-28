@@ -234,7 +234,7 @@ namespace edm {
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
     try {
-      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
+      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
       filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
     }
     catch (cms::Exception const& e) {
@@ -259,7 +259,7 @@ namespace edm {
     if(!filePtr && (hasFallbackUrl)) {
       try {
         usedFallback_ = true;
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
+        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
         std::string fallbackFullName = gSystem->ExpandPathName(fallbackFileName().c_str());
         filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType));
       }

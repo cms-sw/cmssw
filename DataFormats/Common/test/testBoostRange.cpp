@@ -37,7 +37,7 @@ void testFill<edm::PtrVector<Dummy> >(edm::PtrVector<Dummy> &r) {
 }
 //template<>
 //void testFill<edm::OwnVector<Dummy> >(edm::OwnVector<Dummy> &r) {
-//    for(int i = 0; i < 12; ++i) { r.push_back(std::auto_ptr<Dummy>(new Dummy(i))); }
+//    for(int i = 0; i < 12; ++i) { r.push_back(std::make_unique<Dummy>(i)); }
 //}
 
 bool operator==(edm::Ref<Coll>  const& ref, int i) { return (int(ref.key()) == i) && (ref->id == i); }
