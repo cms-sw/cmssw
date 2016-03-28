@@ -324,12 +324,12 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 }
 
 
-bool HitPattern::hasValidHitInPixelLayer(bool inBarrel, uint16_t layer) const
+bool HitPattern::hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector det, uint16_t layer) const
 {
   for (int i = beginTrackHits; i < endTrackHits; ++i) {
     uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-    bool pixelHitFilter = ( (inBarrel && pixelBarrelHitFilter(pattern)) ||
-			    (!inBarrel && pixelEndcapHitFilter(pattern)) );
+    bool pixelHitFilter = ( (det==1 && pixelBarrelHitFilter(pattern)) ||
+			    (det==2 && pixelEndcapHitFilter(pattern)) );
     if (pixelHitFilter && (getLayer(pattern) == layer) && validHitFilter(pattern)) {
       return true;
     }

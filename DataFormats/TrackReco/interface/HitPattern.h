@@ -263,7 +263,7 @@ public:
     void print(HitCategory category, std::ostream &stream = std::cout) const;
 
     // has valid hit in PXB/PXF layer x 
-    bool hasValidHitInPixelLayer(bool inBarrel, uint16_t layer) const;
+    bool hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector, uint16_t layer) const;
     
     int numberOfHits(HitCategory category) const;                 // not-null
     int numberOfValidHits() const;                                // not-null, valid
