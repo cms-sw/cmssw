@@ -218,3 +218,9 @@ mixPCFHepMCProducts = cms.PSet(
     input = cms.VInputTag(cms.InputTag("CFWriter","generator")),
     type = cms.string('HepMCProductPCrossingFrame')
 )
+
+# Phase-2 GEM customs
+if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
+    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+    mixSimHits.subdets.append('MuonGEMHits')
+    mixSimHits.crossingFrames.append('MuonGEMHits')
