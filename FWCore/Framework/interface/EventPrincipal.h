@@ -49,7 +49,7 @@ namespace edm {
     typedef EventAuxiliary Auxiliary;
     typedef Principal Base;
 
-    typedef Base::ConstProductHolderPtr ConstProductHolderPtr;
+    typedef Base::ConstProductResolverPtr ConstProductResolverPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
@@ -58,7 +58,8 @@ namespace edm {
         std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int streamIndex = 0);
+        unsigned int streamIndex = 0,
+        bool isForPrimaryProcess = true);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
@@ -188,7 +189,7 @@ namespace edm {
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
 
-    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;
+    virtual void readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const override;
 
     virtual unsigned int transitionIndex_() const override;
     

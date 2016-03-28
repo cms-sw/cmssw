@@ -15,13 +15,14 @@ class HGCSample {
 public:
 
   enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff};
-  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 16,   kDataShift = 0};
+  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 13,   kDataShift = 0};
 
   /**
      @short CTOR
    */
  HGCSample() : value_(0) { }
  HGCSample(uint32_t value) : value_(value) { }
+ HGCSample( const HGCSample& o ) : value_(o.value_) { }
 
   /**
      @short setters
@@ -50,10 +51,10 @@ public:
      @short getters
   */
   uint32_t raw()  const      { return value_;                   }
-  bool threshold() const     { return ((value_ >> 31) & 0x1 );  }
-  bool mode() const          { return ((value_ >> 30) & 0x1 );  }
-  uint32_t toa()  const      { return ((value_ >> 16) & 0x3ff); }
-  uint32_t data()  const     { return ((value_ >> 0)  & 0xfff); }
+  bool threshold() const     { return ( (value_ >> kThreshShift) & kThreshMask );  }
+  bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   );  }
+  uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
+  uint32_t data()  const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
   uint32_t operator()()      { return value_;                   }
   
 private:

@@ -40,8 +40,7 @@ public:
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const = 0;
 
-  virtual double hcaletValue(const int& ieta, const int& compET) const = 0;  
-  virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const = 0;
+  virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const = 0;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const = 0; 
   boost::shared_ptr<const HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
   boost::shared_ptr<const EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }

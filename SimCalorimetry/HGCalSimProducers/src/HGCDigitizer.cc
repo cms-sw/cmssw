@@ -69,7 +69,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";      
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
@@ -174,7 +174,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   for(int i=0; i<nchits; i++) {
     int layer, cell, sec, subsec, zp;
     uint32_t simId = hits->at(i).id();
-    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+    const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
+    if (isSqr) {
       HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
     } else {
       int subdet;
@@ -184,7 +185,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     }
     //skip this hit if after ganging it is not valid
     std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
-    cell  = recoLayerCell.first;
+    cell  = isSqr ? recoLayerCell.first : cell;
     layer = recoLayerCell.second;
     if (layer<0 || cell<0) {
       hitRefs[i]=std::make_tuple( i, 0, 0.);

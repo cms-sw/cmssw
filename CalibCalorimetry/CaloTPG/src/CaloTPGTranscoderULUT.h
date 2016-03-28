@@ -29,14 +29,13 @@ public:
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const;
-  virtual double hcaletValue(const int& ieta, const int& compressedValue) const;
-  virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const;
+  virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
-  virtual bool HTvalid(const int ieta, const int iphi) const;
+  virtual bool HTvalid(const int ieta, const int iphi, const int version) const;
   virtual const std::vector<unsigned int>& getCompressionLUT(const HcalTrigTowerDetId& id) const;
   virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
-  virtual int getOutputLUTId(const int ieta, const int iphi) const;
+  virtual int getOutputLUTId(const int ieta, const int iphi, const int version) const;
 
  private:
   // Typedef
@@ -55,8 +54,9 @@ public:
 
   // Member Variables
   double nominal_gain_;
-  double rctlsb_factor_;
-  double nctlsb_factor_;
+  double lsb_factor_;
+  int rct_factor_;
+  int nct_factor_;
   std::string compressionFile_;
   std::string decompressionFile_;
   std::vector<int> ietal;

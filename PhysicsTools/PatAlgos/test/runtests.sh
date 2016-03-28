@@ -23,10 +23,6 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_addTriggerInfo_cfg.py || die 'Failure using pa
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addVertexInfo_cfg.py || die 'Failure using patTuple_addVertexInfo_cfg.py' $?
 
-# temporary: produce fastsim sample on the fly
-# can be removed as soon as relval samples are available with the new fastsim rechits
-cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi  --conditions auto:run2_mc --fast  -n 1 --eventcontent FEVTDEBUGHLT -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO --beamspot NominalCollision2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --fileout ttbarForFastSimTest.root
-
 cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_fastsim_cfg.py' $?
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_topSelection_cfg.py || die 'Failure using patTuple_topSelection_cfg.py' $?

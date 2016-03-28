@@ -34,11 +34,13 @@ process.load("CalibTracker.SiStripChannelGain.computeGain_cff")
 process.SiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 process.SiStripCalib.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 process.SiStripCalib.saveSummary         = cms.untracked.bool(True)
+process.SiStripCalib.calibrationMode     = cms.untracked.string( 'XXX_CALMODE_XXX' )
 
 
 if(XXX_PCL_XXX):
    process.SiStripCalib.AlgoMode = cms.untracked.string('PCL')
    process.SiStripCalib.harvestingMode = cms.untracked.bool(True)
+   process.SiStripCalib.DQMdir         = cms.untracked.string('XXX_DQMDIR_XXX')
    process.source = cms.Source("PoolSource",
        secondaryFileNames = cms.untracked.vstring(),
        fileNames = calibTreeList,
@@ -79,18 +81,21 @@ if(XXX_PCL_XXX):
    process.dqmSaver.convention = 'Offline'
    process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
 
-   process.EDMtoMEConvert = cms.EDAnalyzer("EDMtoMEConverter",
-       Frequency = cms.untracked.int32(50),
-       Name = cms.untracked.string('EDMtoMEConverter'),
-       Verbosity = cms.untracked.int32(0),
-       convertOnEndLumi = cms.untracked.bool(True),
-       convertOnEndRun = cms.untracked.bool(True),
-       lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi"),
-       runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
-   )
+   from DQMServices.Components.EDMtoMEConverter_cfi import *
 
-   process.p = cms.Path(process.EDMtoMEConvert * process.SiStripCalib * process.dqmSaver) 
+   process.EDMtoMEConvertSiStripGains = EDMtoMEConverter.clone()
+   process.EDMtoMEConvertSiStripGains.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi")
+   process.EDMtoMEConvertSiStripGains.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
 
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap = EDMtoMEConverter.clone()
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAfterAbortGap","MEtoEDMConverterLumi")
+   process.EDMtoMEConvertSiStripGainsAfterAbortGap.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGainsAfterAbortGap","MEtoEDMConverterRun")
+
+
+   ConvertersSiStripGains = cms.Sequence( process.EDMtoMEConvertSiStripGains +
+                                          process.EDMtoMEConvertSiStripGainsAfterAbortGap )
+
+   process.p = cms.Path( ConvertersSiStripGains * process.SiStripCalib * process.dqmSaver)
 
 else:
    process.p = cms.Path(process.SiStripCalib)

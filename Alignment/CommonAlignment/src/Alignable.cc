@@ -78,6 +78,35 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
 }
 
 //__________________________________________________________________________________________________
+bool Alignable::lastCompsWithParams(Alignables& paramComps) const
+{
+  bool isConsistent = true;
+  bool hasAliComp = false;
+  bool first = true;
+  const Alignables comps(this->components());
+  for (const auto& iComp: comps) {
+    const auto nCompsBefore = paramComps.size();
+    isConsistent = iComp->lastCompsWithParams(paramComps);
+    if (paramComps.size() == nCompsBefore) {
+      if (iComp->alignmentParameters()) {
+	paramComps.push_back(iComp);
+	if (!first && !hasAliComp) isConsistent = false;
+	hasAliComp = true;
+      }
+    } else {
+      if (hasAliComp) {
+	isConsistent = false;
+      }
+      if (!first && !hasAliComp) isConsistent = false;
+      hasAliComp = true;
+    }
+    first = false;
+  }
+
+  return isConsistent;
+}
+
+//__________________________________________________________________________________________________
 void Alignable::setAlignmentParameters( AlignmentParameters* dap )
 {
 

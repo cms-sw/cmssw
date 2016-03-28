@@ -33,6 +33,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAfterAbortGap_cff import *
 # AlCaReco for tracker calibration using ZeroBias events (noise)
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 
@@ -110,6 +111,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAfterAbortGap_cff import *
 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
@@ -136,6 +138,7 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
+pathALCARECOSiStripCalMinBiasAfterAbortGap = cms.Path(seqALCARECOSiStripCalMinBiasAfterAbortGap*ALCARECOSiStripCalMinBiasAfterAbortGapDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
 
 pathALCARECOLumiPixelsMinBias = cms.Path(seqALCARECOLumiPixelsMinBias)
@@ -190,6 +193,7 @@ pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMu
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
+pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAfterAbortGap)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 pathHotlineSkimSingleMuon = cms.Path(seqHotlineSkimSingleMuon)
@@ -289,6 +293,16 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamSiStripCalMinBiasAfterAbortGap = cms.FilteredStream(
+        responsible = 'Alessandro Di Mattia',
+        name = 'SiStripCalMinBiasAfterAbortGap',
+        paths  = (pathALCARECOSiStripCalMinBiasAfterAbortGap),
+        content = OutALCARECOSiStripCalMinBiasAfterAbortGap.outputCommands,
+        selectEvents = OutALCARECOSiStripCalMinBiasAfterAbortGap.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
 
 ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	responsible = 'Gordon Kaussen',
@@ -621,11 +635,20 @@ ALCARECOStreamPromptCalibProdSiStrip = cms.FilteredStream(
 ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'PromptCalibProdSiStripGains',
-	paths  = (pathALCARECOPromptCalibProdSiStripGains),
+        paths  = (pathALCARECOPromptCalibProdSiStripGains),
 	content = OutALCARECOPromptCalibProdSiStripGains.outputCommands,
 	selectEvents = OutALCARECOPromptCalibProdSiStripGains.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamPromptCalibProdSiStripGainsAfterAbortGap = cms.FilteredStream(
+        responsible = 'Alessandro Di Mattia',
+        name = 'PromptCalibProdSiStripGainsAfterAbortGap',
+        paths  = (pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap),
+        content = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.outputCommands,
+        selectEvents = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 
 

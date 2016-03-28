@@ -2,7 +2,8 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -43,6 +44,11 @@ namespace edm {
   void
   OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
+  }
+
+  void
+  OccurrenceForOutput::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
   ProcessHistory const&

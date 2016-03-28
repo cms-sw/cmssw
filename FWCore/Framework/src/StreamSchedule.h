@@ -89,6 +89,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <atomic>
 
 namespace edm {
 
@@ -343,7 +344,7 @@ namespace edm {
     //For each branch that has been marked for early deletion
     // keep track of how many modules are left that read this data but have
     // not yet been run in this event
-    std::vector<std::pair<BranchID,unsigned int>> earlyDeleteBranchToCount_;
+    std::vector<BranchToCount> earlyDeleteBranchToCount_;
     //NOTE the following is effectively internal data for each EarlyDeleteHelper
     // but putting it into one vector makes for better allocation as well as
     // faster iteration when used to reset the earlyDeleteBranchToCount_

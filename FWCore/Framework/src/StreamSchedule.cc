@@ -347,7 +347,7 @@ namespace edm {
         if(lastBranchName != branchAndWorker.first) {
           //have to put back the period we removed earlier in order to get the proper name
           BranchID bid(branchAndWorker.first+".");
-          earlyDeleteBranchToCount_.emplace_back(std::make_pair(bid,0U));
+          earlyDeleteBranchToCount_.emplace_back(bid,0U);
           lastBranchName = branchAndWorker.first;
         }
         auto found = alreadySeenWorkers.find(branchAndWorker.second);
@@ -359,9 +359,9 @@ namespace edm {
           size_t index = nextOpenIndex;
           size_t nIndices = reserveSizeForWorker[branchAndWorker.second];
           earlyDeleteHelperToBranchIndicies_[index]=earlyDeleteBranchToCount_.size()-1;
-          earlyDeleteHelpers_.emplace_back(EarlyDeleteHelper(beginAddress+index,
-                                                             beginAddress+index+1,
-                                                             &earlyDeleteBranchToCount_));
+          earlyDeleteHelpers_.emplace_back(beginAddress+index,
+                                           beginAddress+index+1,
+                                           &earlyDeleteBranchToCount_);
           branchAndWorker.second->setEarlyDeleteHelper(&(earlyDeleteHelpers_.back()));
           alreadySeenWorkers.insert(std::make_pair(branchAndWorker.second,&(earlyDeleteHelpers_.back())));
           nextOpenIndex +=nIndices;
@@ -731,11 +731,11 @@ namespace edm {
   StreamSchedule::resetEarlyDelete() {
     //must be sure we have cleared the count first
     for(auto& count:earlyDeleteBranchToCount_) {
-      count.second = 0;
+      count.count = 0;
     }
     //now reset based on how many helpers use that branch
     for(auto& index: earlyDeleteHelperToBranchIndicies_) {
-      ++(earlyDeleteBranchToCount_[index].second);
+      ++(earlyDeleteBranchToCount_[index].count);
     }
     for(auto& helper: earlyDeleteHelpers_) {
       helper.reset();

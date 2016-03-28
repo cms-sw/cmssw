@@ -167,15 +167,15 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0 += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0 += locals()[label]
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0 += locals()[label]
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0 += locals()[label]
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -187,15 +187,15 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0Common+=sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += locals()[label]
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += locals()[label]
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += locals()[label]
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -208,14 +208,14 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0MinBias += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += locals()[label]
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += locals()[label]
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += locals()[label]
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 

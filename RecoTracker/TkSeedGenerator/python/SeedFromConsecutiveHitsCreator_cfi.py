@@ -13,7 +13,7 @@ SeedFromConsecutiveHitsCreator = cms.PSet(
   TTRHBuilder = cms.string('WithTrackAngle'),
   forceKinematicWithRegionDirection = cms.bool(False)
 )
-eras.trackingPhase1.toModify(SeedFromConsecutiveHitsCreator,
+eras.trackingPhase1PU70.toModify(SeedFromConsecutiveHitsCreator,
         magneticField = '',
         propagator = 'PropagatorWithMaterial'
 )
