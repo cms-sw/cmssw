@@ -377,14 +377,14 @@ namespace edm{
     template<> bool mustPrefetchMayGet<edm::one::EDAnalyzerBase>() { return true;}
     template<> bool mustPrefetchMayGet<edm::one::OutputModuleBase>() { return true;}
 
-    template<> bool mustPrefetchMayGet<edm::global::EDProducerBase>() { return false;}
-    template<> bool mustPrefetchMayGet<edm::global::EDFilterBase>() { return false;}
-    template<> bool mustPrefetchMayGet<edm::global::EDAnalyzerBase>() { return false;}
-    template<> bool mustPrefetchMayGet<edm::global::OutputModuleBase>() { return false;}
+    template<> bool mustPrefetchMayGet<edm::global::EDProducerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::EDFilterBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::EDAnalyzerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::OutputModuleBase>() { return true;}
     
-    template<> bool mustPrefetchMayGet<edm::stream::EDProducerAdaptorBase>() { return false;}
-    template<> bool mustPrefetchMayGet<edm::stream::EDFilterAdaptorBase>() { return false;}
-    template<> bool mustPrefetchMayGet<edm::stream::EDAnalyzerAdaptorBase>() { return false;}
+    template<> bool mustPrefetchMayGet<edm::stream::EDProducerAdaptorBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::stream::EDFilterAdaptorBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::stream::EDAnalyzerAdaptorBase>() { return true;}
 
   }
   
