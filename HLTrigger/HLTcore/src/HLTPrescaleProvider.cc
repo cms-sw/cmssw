@@ -21,11 +21,11 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
                                const std::string& processName,
                                bool& changed) {
 
-  count[0]=0;
-  count[1]=0;
-  count[2]=0;
-  count[3]=0;
-  count[4]=0;
+  count_[0]=0;
+  count_[1]=0;
+  count_[2]=0;
+  count_[3]=0;
+  count_[4]=0;
 
   /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
   l1GtUtils_.getL1GtRunCache(iRun,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
@@ -45,8 +45,8 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
        (psfsiTech>=0) && (psfsiPhys>=0) && (psfsiTech==psfsiPhys) ) {
     return psfsiPhys;
   } else {
-    if (count[0]<2) {
-      count[0] += 1;
+    if (count_[0]<2) {
+      count_[0] += 1;
       /// error - notify user!
       edm::LogError("HLTConfigData")
 	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
@@ -96,8 +96,8 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     int               l1error(0);
     result.first = l1GtUtils_.prescaleFactor(iEvent,l1tname,l1error);
     if (l1error!=0) {
-      if (count[1]<2) {
-	count[1] += 1;
+      if (count_[1]<2) {
+	count_[1] += 1;
 	edm::LogError("HLTConfigData")
 	  << " Error in determining L1T prescale for HLT path: '"	<< trigger
 	  << "' with L1T seed: '" << l1tname
@@ -110,8 +110,8 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     }
   } else {
     /// error - can't handle properly multiple L1GTSeed modules
-    if (count[2]<2) {
-      count[2] += 1;
+    if (count_[2]<2) {
+      count_[2] += 1;
       std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
       for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
@@ -162,8 +162,8 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
       l1error += std::abs(errorCodes[i].second);
     }
     if (l1error!=0) {
-      if (count[3]<2) {
-	count[3] += 1;
+      if (count_[3]<2) {
+	count_[3] += 1;
 	std::ostringstream message;
 	message
 	  << " Error in determining L1T prescales for HLT path: '" << trigger
@@ -183,8 +183,8 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     }
   } else {
     /// error - can't handle properly multiple L1GTSeed modules
-    if (count[4]<2) {
-      count[4] += 1;
+    if (count_[4]<2) {
+      count_[4] += 1;
       std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
       for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
