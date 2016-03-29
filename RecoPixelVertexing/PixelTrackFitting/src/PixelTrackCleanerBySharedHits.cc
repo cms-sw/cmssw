@@ -9,7 +9,8 @@ using namespace std;
 using namespace reco;
 using namespace pixeltrackfitting;
 
-PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg)
+PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg):
+  useQuadrupletAlgo_(cfg.getParameter<bool>("useQuadrupletAlgo"))
 {}
 
 PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
@@ -59,12 +60,24 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
         }
 	if (commonRecHits > 1) break;
       }
-      
-      if (commonRecHits > 1) {
-	if (track1->pt() > track2->pt()) trackOk[iTrack2] = false;
-	else { trackOk[iTrack1] = false; break;}
-      }
 
+      auto cleanTrack = [&](){
+	if (track1->pt() > track2->pt()) { trackOk[iTrack2] = false; return false; }
+	trackOk[iTrack1] = false;
+        return true;
+      };
+
+      if(useQuadrupletAlgo_) {
+        if(commonRecHits >= 1) {
+          if     (recHits1.size() > recHits2.size()) trackOk[iTrack2] = false;
+          else if(recHits1.size() < recHits2.size()) trackOk[iTrack1] = false;
+          else if(recHits1.size() == 3) { if(cleanTrack()) break; } // same number of hits
+          else if(commonRecHits > 1) { if(cleanTrack()) break; }// same number of hits, size != 3 (i.e. == 4)
+        }
+      }
+      else if (commonRecHits > 1) {
+        if(cleanTrack()) break;
+      }
     }
   }
 
