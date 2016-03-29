@@ -69,7 +69,8 @@ class DigiComparisonTask : public DQTask
 		//	Missing Completely
 		Container1D			_cADCMsnuTCA_Subdet;
 		Container1D			_cADCMsnVME_Subdet;
-		Container2D			_cMsn_depth;
+		Container2D			_cMsnVME_depth;
+		Container2D			_cMsnuTCA_depth;
 		Container2D			_cMsn_FEDVME;
 		Container2D			_cMsn_FEDuTCA;
 };

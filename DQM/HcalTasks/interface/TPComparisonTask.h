@@ -71,8 +71,8 @@ class TPComparisonTask : public DQTask
 		//	Missing
 		Container2D			_cMsn_FEDVME;
 		Container2D			_cMsn_FEDuTCA;
-		ContainerSingle2D	_cMsn_ElectronicsVME;
-		ContainerSingle2D	_cMsn_ElectronicsuTCA;
+		ContainerSingle2D	_cMsnVME;
+		ContainerSingle2D	_cMsnuTCA;
 
 		//	mismatches
 		Container2D			_cEtMsm_FEDVME;

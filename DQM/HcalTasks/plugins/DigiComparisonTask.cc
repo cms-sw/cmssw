@@ -9,7 +9,7 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	_tagHBHE1 = ps.getUntrackedParameter<edm::InputTag>("tagHBHE1",
 		edm::InputTag("hcalDigis"));
 	_tagHBHE2 = ps.getUntrackedParameter<edm::InputTag>("tagHBHE2",
-		edm::InputTag("utcaDigis"));
+		edm::InputTag("vmeDigis"));
 	_tokHBHE1 = consumes<HBHEDigiCollection>(_tagHBHE1);
 	_tokHBHE2 = consumes<HBHEDigiCollection>(_tagHBHE2);
 }
@@ -73,7 +73,12 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
 		new quantity::ValueQuantity(quantity::fN));
-	_cMsn_depth.initialize(_name, "Missing",
+	_cMsnVME_depth.initialize(_name, "Missing",
+		hashfunctions::fdepth,
+		new quantity::DetectorQuantity(quantity::fieta),
+		new quantity::DetectorQuantity(quantity::fiphi),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnuTCA_depth.initialize(_name, "Missing",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
@@ -100,7 +105,8 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	_cADCMsnVME_Subdet.book(ib, _emap, _subsystem);
 	_cADCMsnuTCA_Subdet.book(ib, _emap, _subsystem);
 	_cMsm_depth.book(ib, _emap, _subsystem);
-	_cMsn_depth.book(ib, _emap, _subsystem);
+	_cMsnVME_depth.book(ib, _emap, _subsystem, std::string("VME"));
+	_cMsnuTCA_depth.book(ib, _emap, _subsystem, std::string("uTCA"));
 	_cMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
@@ -130,23 +136,29 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
 			+ _tagHBHE2.label() + " " + _tagHBHE2.instance());
 
-	//	always assume that coll1 is VME and coll2 is uTCA
+	//	assume that coll1 is primary(uTCA) and coll2 is secondary(VME)
+	//	uTCA is X and VME is Y axis
 	for (HBHEDigiCollection::const_iterator it1=chbhe1->begin();
 		it1!=chbhe1->end(); ++it1)
 	{
+		//	iterate thru the utca collection
+		//	get the same detid digi from vme collection
+		//	if missing - fill vme missing
+		//	else correlate
 		HcalDetId did = it1->id();
+		HcalElectronicsId eid1 = it1->elecId();
 		HBHEDigiCollection::const_iterator it2 = chbhe2->find(did);
 
-		//	get the eid for uTCA HBHE channel
-		HcalElectronicsId eid2 = HcalElectronicsId(_ehashmapuTCA.lookup(did));
+		//	get the eid for vme by did
+		HcalElectronicsId eid2 = HcalElectronicsId(_ehashmapVME.lookup(did));
 		if (it2==chbhe2->end())
 		{
 			//	fill the depth plot
-			_cMsn_depth.fill(did);
-			_cMsn_FEDuTCA.fill(eid2);
+			_cMsnVME_depth.fill(did);
+			_cMsn_FEDVME.fill(eid2);
 			for (int i=0; i<it1->size(); i++)
 			{
-				_cADCMsnuTCA_Subdet.fill(did, it1->sample(i).adc());
+				_cADCMsnVME_Subdet.fill(did, it1->sample(i).adc());
 				_cADCall_Subdet.fill(did, it1->sample(i).adc(), -2);
 				_cADC_Subdet[i].fill(did, it1->sample(i).adc(), -2);
 			}
@@ -163,23 +175,26 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 					//	fill depth, uTCA and VME as well for which guys
 					//	mismatches happen
 					_cMsm_depth.fill(did);
-					_cMsm_FEDuTCA.fill(eid2);
-					_cMsm_FEDVME.fill(it1->elecId());
+					_cMsm_FEDVME.fill(eid2);
+					_cMsm_FEDuTCA.fill(eid1);
 				}
 			}
 	}
 	for (HBHEDigiCollection::const_iterator it2=chbhe2->begin();
 		it2!=chbhe2->end(); ++it2)
 	{
+		//	itearte thru VME 
+		//	find utca digi by detid
+		//	check if present or missing
 		HcalDetId did = it2->id();
 		HBHEDigiCollection::const_iterator it1 = chbhe1->find(did);
-		HcalElectronicsId eid = HcalElectronicsId(_ehashmapVME.lookup(did));
 		if (it1==chbhe1->end())
 		{
-			_cMsn_FEDVME.fill(eid);
+			HcalElectronicsId eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(did));
+			_cMsn_FEDuTCA.fill(eid1);
 			for (int i=0; i<it2->size(); i++)
 			{
-				_cADCMsnVME_Subdet.fill(did, it2->sample(i).adc());
+				_cADCMsnuTCA_Subdet.fill(did, it2->sample(i).adc());
 				_cADCall_Subdet.fill(did, -2, it2->sample(i).adc());
 				_cADC_Subdet[i].fill(did, -2, it2->sample(i).adc());
 			}

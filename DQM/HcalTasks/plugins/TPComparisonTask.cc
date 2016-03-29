@@ -9,7 +9,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	_tag1 = ps.getUntrackedParameter<edm::InputTag>("tag1",
 		edm::InputTag("hcalDigis"));
 	_tag2 = ps.getUntrackedParameter<edm::InputTag>("tag2",
-		edm::InputTag("utcaDigis"));
+		edm::InputTag("vmeDigis"));
 	_tok1 = consumes<HcalTrigPrimDigiCollection>(_tag1);
 	_tok2 = consumes<HcalTrigPrimDigiCollection>(_tag2);
 
@@ -92,11 +92,11 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCATPFiberChuTCATP),
 		new quantity::ValueQuantity(quantity::fN));
 
-	_cMsn_ElectronicsuTCA.initialize(_name, "Missing", 
+	_cMsnuTCA.initialize(_name, "Missing", 
 		new quantity::TrigTowerQuantity(quantity::fTTieta),
 		new quantity::TrigTowerQuantity(quantity::fTTiphi),
 		new quantity::ValueQuantity(quantity::fN));
-	_cMsn_ElectronicsVME.initialize(_name, "Missing",
+	_cMsnVME.initialize(_name, "Missing",
 		new quantity::TrigTowerQuantity(quantity::fTTieta),
 		new quantity::TrigTowerQuantity(quantity::fTTiphi),
 		new quantity::ValueQuantity(quantity::fN));
@@ -124,8 +124,8 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-	_cMsn_ElectronicsuTCA.book(ib, _subsystem, std::string("uTCA"));
-	_cMsn_ElectronicsVME.book(ib, _subsystem, std::string("VME"));
+	_cMsnuTCA.book(ib, _subsystem, std::string("uTCA"));
+	_cMsnVME.book(ib, _subsystem, std::string("VME"));
 	_cEtMsm.book(ib, _subsystem);
 	_cFGMsm.book(ib, _subsystem);
 
@@ -159,10 +159,14 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 			"Collection HcalTrigPrimDigiCollection isn't available" + 
 			_tag2.label() + " " + _tag2.instance());
 
-	//	assume always coll1 is VME and coll2 is uTCA
+	//	assume always coll1 is primary (uTCA) and coll2 is secondary(VME)
 	for (HcalTrigPrimDigiCollection::const_iterator it1=coll1->begin();
 		it1!=coll1->end(); ++it1)
 	{
+		//	iterate thru utca collection
+		//	get the same detid digi from vme collection
+		//	if missing - fill vme missing
+		//	else correlate
 		//	tmp
 		if (_skip1x1)
 			if (it1->id().version()>0)
@@ -172,15 +176,16 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		HcalTrigTowerDetId tid = it1->id();
 		HcalTrigPrimDigiCollection::const_iterator it2=coll2->find(
 			HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
-		HcalElectronicsId eid2 = HcalElectronicsId(
-			_ehashmapuTCA.lookup(tid));
 		HcalElectronicsId eid1 = HcalElectronicsId(
+			_ehashmapuTCA.lookup(tid));
+		HcalElectronicsId eid2 = HcalElectronicsId(
 			_ehashmapVME.lookup(tid));
 
 		if (it2==coll2->end())
 		{
-			_cMsn_ElectronicsuTCA.fill(tid);
-			_cMsn_FEDuTCA.fill(eid2);
+			//	missing from VME collection
+			_cMsnVME.fill(tid);
+			_cMsn_FEDVME.fill(eid2);
 			for (int i=0; i<it1->size(); i++)
 			{
 				_cEtall_TTSubdet.fill(tid, 
@@ -204,15 +209,15 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 				if (it1->sample(i).compressedEt()!=
 					it2->sample(i).compressedEt())
 				{
-					_cEtMsm_FEDuTCA.fill(eid2);
-					_cEtMsm_FEDVME.fill(eid1);
+					_cEtMsm_FEDuTCA.fill(eid1);
+					_cEtMsm_FEDVME.fill(eid2);
 					_cEtMsm.fill(tid);
 				}
 				if (it1->sample(i).fineGrain()!=
 					it2->sample(i).fineGrain())
 				{
-					_cFGMsm_FEDuTCA.fill(eid2);
-					_cFGMsm_FEDVME.fill(eid1);
+					_cFGMsm_FEDuTCA.fill(eid1);
+					_cFGMsm_FEDVME.fill(eid2);
 					_cFGMsm.fill(tid);
 				}
 			}
@@ -220,19 +225,22 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	for (HcalTrigPrimDigiCollection::const_iterator it2=coll2->begin();
 		it2!=coll2->end(); ++it2)
 	{
+		//	itearte thru VME
+		//	find utca tp digi by detid
+		//	check if present of missing
 		HcalTrigTowerDetId tid = it2->id();
 		if (_skip1x1)
 			if (tid.version()>0)
 				continue;
 
-		HcalElectronicsId eid = HcalElectronicsId(
-			_ehashmapVME.lookup(tid));
 		HcalTrigPrimDigiCollection::const_iterator it1=coll1->find(
 			HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
 		if (it1==coll1->end())
 		{
-			_cMsn_FEDVME.fill(eid);
-			_cMsn_ElectronicsVME.fill(tid);
+			HcalElectronicsId eid1 = HcalElectronicsId(
+				_ehashmapuTCA.lookup(tid));
+			_cMsn_FEDuTCA.fill(eid1);
+			_cMsnuTCA.fill(tid);
 			for (int i=0; i<it2->size(); i++)
 			{
 				_cEtall_TTSubdet.fill(tid, 
