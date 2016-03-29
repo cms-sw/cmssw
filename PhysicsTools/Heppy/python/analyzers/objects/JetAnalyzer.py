@@ -156,7 +156,7 @@ class JetAnalyzer( Analyzer ):
                 for igj, gj in enumerate(self.genJets):
                     gj.index = igj
 #                self.matchJets(event, allJets)
-                self.matchJets(event, [ j for j in allJets if j.pt()>self.cfg_ana.jetPt ])
+                self.matchJets(event, [ j for j in allJets if j.pt()>self.cfg_ana.jetPt ]) # To match only jets above chosen threshold
             if getattr(self.cfg_ana, 'smearJets', False):
                 self.smearJets(event, allJets)
 
