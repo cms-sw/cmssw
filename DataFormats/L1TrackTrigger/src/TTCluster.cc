@@ -23,13 +23,12 @@ unsigned int TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2
     int row = 0;
     if ( this->getRows().size() == 0 )
     {
-      row = theHits.at(i)->row();
+      row = theHits[i]->row();
     }
     else
     {
-      row = this->getRows().at(i);
+      row = this->getRows()[i];
     }
-
     if ( row < rowMin )
       rowMin = row;
     if ( row > rowMax )
@@ -46,13 +45,13 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Ph
   /// to get the center of the pixel
   if ( this->getRows().size() == 0 || this->getCols().size() == 0 )
   {
-    MeasurementPoint mp( theHits.at(hitIdx)->row(), theHits.at(hitIdx)->column() );
+    MeasurementPoint mp( theHits[hitIdx]->row(), theHits[hitIdx]->column() );
     return mp;
   }
   else
   {
-    int row = this->getRows().at(hitIdx);
-    int col = this->getCols().at(hitIdx);
+    int row = this->getRows()[hitIdx];
+    int col = this->getCols()[hitIdx];
     MeasurementPoint mp( row, col );
     return mp;
   }
@@ -85,8 +84,8 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Ph
     {
       for ( unsigned int j = 0; j < theHits.size(); j++ )
       {
-        averageCol += theCols.at(j);
-        averageRow += theRows.at(j);
+        averageCol += theCols[j];
+        averageRow += theRows[j];
       }
       averageCol /= theHits.size();
       averageRow /= theHits.size();
@@ -100,9 +99,10 @@ template< >
 std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findRows() const
 {
   std::vector< int > temp;
+  temp.reserve(theHits.size());
   for ( unsigned int i = 0; i < theHits.size(); i++ )
   {
-    temp.push_back( theHits.at(i)->row() );
+    temp.push_back( theHits[i]->row() );
   }
   return temp;
 }
@@ -111,9 +111,10 @@ template< >
 std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findCols() const
 {
   std::vector< int > temp;
+  temp.reserve(theHits.size());
   for ( unsigned int i = 0; i < theHits.size(); i++ )
   {
-    temp.push_back( theHits.at(i)->column() );
+    temp.push_back( theHits[i]->column() );
   }
   return temp;
 }

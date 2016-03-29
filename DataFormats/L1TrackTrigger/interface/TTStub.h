@@ -33,9 +33,8 @@ class TTStub
     /// Helper methods: findABC( ... )
 
     /// Clusters composing the Stub
-    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > getClusterRefs() const { return theClusterRefs; }
     const edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >&         getClusterRef( unsigned int hitIdentifier ) const;
-    void addClusterRef( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aTTCluster ) { theClusterRefs.push_back( aTTCluster ); }
+    void addClusterRef( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aTTCluster );
 
     /// Detector element
     DetId getDetId() const         { return theDetId; }
@@ -59,8 +58,8 @@ class TTStub
   private:
     /// Data members
     DetId theDetId;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >
-        theClusterRefs;
+    edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > theClusterRef0;
+    edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > theClusterRef1;
     int theDisplacement;
     int theOffset;
 
@@ -79,7 +78,6 @@ TTStub< T >::TTStub()
 {
   /// Set default data members
   theDetId = 0;
-  theClusterRefs.clear();
   theDisplacement = 999999;
   theOffset = 0;
 }
@@ -92,7 +90,6 @@ TTStub< T >::TTStub( DetId aDetId )
   this->setDetId( aDetId );
 
   /// Set default data members
-  theClusterRefs.clear();
   theDisplacement = 999999;
   theOffset = 0;
 }
@@ -105,22 +102,14 @@ TTStub< T >::~TTStub(){}
 template< typename T >
 const edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >& TTStub< T >::getClusterRef( unsigned int hitIdentifier ) const
 {
-  /// Look for the TTCluster with the stack member corresponding to the argument
-  typename std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >::const_iterator clusIter;
-  for ( clusIter = theClusterRefs.begin();
-        clusIter != theClusterRefs.end();
-        ++clusIter )
-  {
-    if ( (*clusIter)->getStackMember() == hitIdentifier )
-    {
-      return *clusIter;
-    }
-  }
+  return hitIdentifier==0 ? theClusterRef0 : theClusterRef1;
+}
 
-  /// In case no TTCluster is found, return a NULL edm::Ref
-  /// (hopefully code doesn't reach this point)
-  edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >* tmpCluRef = new edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >();
-  return *tmpCluRef;
+template< typename T >
+void TTStub< T >::addClusterRef( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aTTCluster )
+{
+  if(aTTCluster->getStackMember() == 0) theClusterRef0 = aTTCluster;
+  else if (aTTCluster->getStackMember() == 1) theClusterRef1 = aTTCluster;
 }
 
 /// Trigger info
@@ -168,15 +157,10 @@ std::string TTStub< T >::print( unsigned int i ) const
   output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->getTriggerPosition();
   output << ", bend: " << this->getTriggerBend() << '\n';
   unsigned int iClu = 0;
-  typename std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >::const_iterator clusIter;
-  for ( clusIter = theClusterRefs.begin();
-        clusIter!= theClusterRefs.end();
-        ++clusIter )
-  {
-    output << padding << "cluster: " << iClu++ << ", member: " << (*clusIter)->getStackMember() << ", address: " << (*clusIter).get();
-    output << ", cluster size: " << (*clusIter)->getHits().size() << '\n';
-  }
-
+  output << padding << "cluster 0: address: " << theClusterRef0.get();
+  output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
+  output << padding << "cluster 1: address: " << theClusterRef1.get();
+  output << ", cluster size: " << theClusterRef1->getHits().size() << '\n';
   return output.str();
 }
 
