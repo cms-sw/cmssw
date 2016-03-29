@@ -78,7 +78,7 @@ public:
 
   HLTConfigProvider hltConfigProvider_;
   L1GtUtils l1GtUtils_;
-  unsigned int count_[5] = {0,0,0,0,0};
+  unsigned char count_[5] = {0,0,0,0,0};
 
 };
 
