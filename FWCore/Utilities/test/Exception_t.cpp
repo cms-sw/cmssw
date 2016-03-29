@@ -314,7 +314,7 @@ int main() {
     errorMessage(e7.explainSelf(),expected7_4);
     abort();
   }
-  std::auto_ptr<cms::Exception> ptr(e7.clone());
+  std::unique_ptr<cms::Exception> ptr(e7.clone());
   e7.clearMessage();
   std::string expected7_5("An exception of category 'DEF' occurred while\n"
                           "   [0] new3\n"

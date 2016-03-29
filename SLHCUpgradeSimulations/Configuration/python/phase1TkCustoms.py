@@ -137,21 +137,30 @@ def customise_DQM(process,pileup):
     #
     # The customizations are done here instead of in the central files
     # with era because they are temporary
+
+    # Tracking DQM needs to be migrated for phase1
     process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
-    process.DQMOfflinePrePOG.remove(process.muonMonitors)
-    process.DQMOfflinePrePOG.remove(process.jetMETDQMOfflineSource)
-    process.DQMOfflinePrePOG.remove(process.egammaDQMOffline)
-    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
-    process.DQMOfflinePrePOG.remove(process.bTagPlotsDATA)
-    process.DQMOfflinePrePOG.remove(process.alcaBeamMonitor)
-    process.DQMOfflinePrePOG.remove(process.dqmPhysics)
-    process.DQMOfflinePrePOG.remove(process.produceDenoms)
+    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
+
+    # Pixel DQM needs to be updated for phase1
+    process.DQMOfflinePreDPG.remove(process.siPixelOfflineDQM_source)
+
+    # Doesn't work because TriggerResults::HLT is missing
+    process.muonAnalyzer.remove(process.muonRecoOneHLT)
+
+    # Excessive printouts because 2017 doesn't have HLT yet
+    process.SiStripDQMTier0.remove(process.MonitorTrackResiduals)
+    process.SiStripDQMTier0MinBias.remove(process.MonitorTrackResiduals)
+    process.jetMETDQMOfflineSource.remove(process.jetDQMAnalyzerSequence)
+    process.jetMETDQMOfflineSource.remove(process.METDQMAnalyzerSequence)
+    process.dqmPhysics.remove(process.ewkMuDQM)
+    process.dqmPhysics.remove(process.ewkElecDQM)
+    process.dqmPhysics.remove(process.ewkMuLumiMonitorDQM)
     process.DQMOfflinePrePOG.remove(process.pfTauRunDQMValidation)
 
-    process.DQMOffline.remove(process.DQMOfflinePreDPG)
+    # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     process.DQMOffline.remove(process.HLTMonitoring)
-
-    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
+    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
 
     # Ok, this customization does not work currently at all
     # Need to be fixed before the tracking DQM can be enabled
@@ -189,46 +198,20 @@ def customise_Validation(process):
     #
     # The customizations are done here instead of in the central files
     # with era because they are temporary
-    process.globalPrevalidation.remove(process.photonPrevalidationSequence)
-    process.globalPrevalidation.remove(process.produceDenoms)
-    process.globalPrevalidation.remove(process.prebTagSequenceMC)
     # With era, would modify process.globalValidation
-    process.validation.remove(process.trackerHitsValidation)
-    process.validation.remove(process.trackerDigisValidation)
-    process.validation.remove(process.trackerRecHitsValidation)
-    process.validation.remove(process.trackingTruthValid)
-    process.validation.remove(process.trackingRecHitsValid)
-    process.validation.remove(process.ecalSimHitsValidationSequence)
-    process.validation.remove(process.ecalDigisValidationSequence)
-    process.validation.remove(process.ecalRecHitsValidationSequence)
-    process.validation.remove(process.ecalClustersValidationSequence)
-    process.validation.remove(process.hcalSimHitsValidationSequence)
-    process.validation.remove(process.hcaldigisValidationSequence)
-    process.validation.remove(process.hcalSimHitStudy)
-    process.validation.remove(process.hcalRecHitsValidationSequence)
-    process.validation.remove(process.calotowersValidationSequence)
-    process.validation.remove(process.validSimHit)
-    process.validation.remove(process.muondtdigianalyzer)
-    process.validation.remove(process.cscDigiValidation)
-    process.validation.remove(process.validationMuonRPCDigis)
-    process.validation.remove(process.recoMuonValidation)
-    process.validation.remove(process.muIsoVal_seq)
-    process.validation.remove(process.muonIdValDQMSeq)
-    process.validation.remove(process.mixCollectionValidation)
-    process.validation.remove(process.JetValidation)
-    process.validation.remove(process.METValidation)
-    process.validation.remove(process.egammaValidation)
-    process.validation.remove(process.pfJetValidationSequence)
-    process.validation.remove(process.pfMETValidationSequence)
-    process.validation.remove(process.pfElectronValidationSequence)
-    process.validation.remove(process.pfJetResValidationSequence)
-    process.validation.remove(process.pfMuonValidationSequence)
-    process.validation.remove(process.rpcRecHitValidation_step)
-    process.validation.remove(process.dtLocalRecoValidation_no2D)
-    process.validation.remove(process.pfTauRunDQMValidation)
-    process.validation.remove(process.bTagPlotsMCbcl)
-    process.validation.remove(process.L1Validator)
 
+    # Pixel validation needs to be migrated to phase1
+    process.trackingRecHitsValid.remove(process.PixelTrackingRecHitsValid)
+
+    # Excessive printouts because 2017 doesn't have HLT yet
+    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealData)
+    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealElectronsData)
+    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealMuonsData)
+    process.validation.remove(process.TauValNumeratorAndDenominatorRealData)
+    process.validation.remove(process.TauValNumeratorAndDenominatorRealElectronsData)
+    process.validation.remove(process.TauValNumeratorAndDenominatorRealMuonsData)
+
+    # No HLT yet for 2017, so no need to run the validation
     process.hltassociation = cms.Sequence()
     process.hltvalidation = cms.Sequence()
 
@@ -269,38 +252,26 @@ def customise_Validation_Trackingonly(process):
 def customise_harvesting(process):
     # FIXME
     #
-    # These should be added back once somebody checks that they work,
-    # and those that do not, get fixed
+    # These should be added back once they get fixed
     #
     # The customizations are done here instead of in the central files
     # with era because they are temporary
-    process.DQMOffline_SecondStep.remove(process.DQMOffline_SecondStep_PreDPG)
-    process.DQMOffline_SecondStep.remove(process.DQMOffline_SecondStep_PrePOG)
-    process.DQMOffline_SecondStep.remove(process.HLTMonitoringClient)
 
+    # Tracking DQM needs to be migrated for phase1
     process.DQMHarvestTracking.remove(process.TrackingOfflineDQMClient)
 
-    process.postValidation.remove(process.recoMuonPostProcessors)
-    process.postValidation.remove(process.MuIsoValPostProcessor)
-    process.postValidation.remove(process.calotowersPostProcessor)
-    process.postValidation.remove(process.hcalSimHitsPostProcessor)
-    process.postValidation.remove(process.hcaldigisPostProcessor)
-    process.postValidation.remove(process.hcalrechitsPostProcessor)
-    process.postValidation.remove(process.electronPostValidationSequence)
-    process.postValidation.remove(process.photonPostProcessor)
-    process.postValidation.remove(process.pfJetClient)
-    process.postValidation.remove(process.pfMETClient)
-    process.postValidation.remove(process.pfJetResClient)
-    process.postValidation.remove(process.pfElectronClient)
-    process.postValidation.remove(process.rpcRecHitPostValidation_step)
-    process.postValidation.remove(process.runTauEff)
-    process.postValidation.remove(process.makeBetterPlots)
-    process.postValidation.remove(process.bTagCollectorSequenceMCbcl)
-    process.postValidation.remove(process.METPostProcessor)
-    process.postValidation_preprod.remove(process.recoMuonPostProcessors)
-    process.postValidation_preprod.remove(process.MuIsoValPostProcessor)
-
+    # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+    process.DQMOffline_SecondStep.remove(process.HLTMonitoringClient)
+    process.DQMOffline_SecondStep_PrePOG.remove(process.hltOfflineDQMClient)
     process.hltpostvalidation = cms.Sequence()
+    process.crt_dqmoffline.remove(process.dqmOfflineTriggerCert)
+
+    # Excessive printouts because 2017 doesn't have HLT yet
+    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealData)
+    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealElectronsData)
+    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealMuonsData)
+    process.DQMOffline_SecondStep_PrePOG.remove(process.normalizePlotsRealMuonsData)
+    process.postValidation.remove(process.runTauEff)
 
     # these were migrated in #12440
     if eras.phase1Pixel.isChosen():
@@ -337,12 +308,12 @@ def customise_Reco(process,pileup):
     nPU=70
     if pileup>100: nPU=140
     
-    #use with latest pixel geometry
-    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
-    # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+    if not eras.phase1Pixel.isChosen():
+        #use with latest pixel geometry
+        process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+        # Need this line to stop error about missing siPixelDigis.
+        process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
-    if not eras.trackingPhase1.isChosen():
         # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
         process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                             'BPix2+BPix3+BPix4',
@@ -471,31 +442,19 @@ def customise_Reco(process,pileup):
         
         # End of new tracking configuration which can be removed if new Reconstruction is used.
 
-    # Needed to make the loading of recoFromSimDigis_cff below to work
-    process.InitialStepPreSplitting.remove(siPixelClusters)
+        process.InitialStepPreSplitting.remove(siPixelClusters)
 
+        process.reconstruction.remove(process.castorreco)
+        process.reconstruction.remove(process.CastorTowerReco)
+        process.reconstruction.remove(process.ak5CastorJets)
+        process.reconstruction.remove(process.ak5CastorJetID)
+        process.reconstruction.remove(process.ak7CastorJets)
+        #process.reconstruction.remove(process.ak7BasicJets)
+        process.reconstruction.remove(process.ak7CastorJetID)
 
-    process.reconstruction.remove(process.castorreco)
-    process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak5CastorJets)
-    process.reconstruction.remove(process.ak5CastorJetID)
-    process.reconstruction.remove(process.ak7CastorJets)
-    #process.reconstruction.remove(process.ak7BasicJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
+        # Need these until pixel templates are used
+        process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 
-    #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
-    
-    # Need these until pixel templates are used
-    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-    # CPE for other steps
-    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-
-    if not eras.phase1Pixel.isChosen():
         # Turn of template use in tracking
         # Iterations and the following ones are treated in the configs    
         process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
@@ -526,60 +485,55 @@ def customise_Reco(process,pileup):
         process.globalSETMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
         process.globalSETMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
-    # End of pixel template needed section
 
-    # Remove, for now, the pre-cluster-splitting clustering step
-    # To be enabled later together with or after the jet core step is enabled
-    # This snippet must be after the loading of recoFromSimDigis_cff
-    process.pixeltrackerlocalreco = cms.Sequence(
-        process.siPixelClusters +
-        process.siPixelRecHits
-    )
-    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # Enable, for now, pixel tracks and vertices
-    # To be removed later together with the cluster splitting
-    process.globalreco_tracking.replace(process.standalonemuontracking,
-                                        process.standalonemuontracking+process.recopixelvertexing)
-    process.initialStepSelector.vertices = "pixelVertices"
-    process.highPtTripletStepSelector.vertices = "pixelVertices"
-    process.lowPtQuadStepSelector.vertices = "pixelVertices"
-    process.lowPtTripletStepSelector.vertices = "pixelVertices"
-    process.detachedQuadStepSelector.vertices = "pixelVertices"
-    process.mixedTripletStepSelector.vertices = "pixelVertices"
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
-    process.pixelPairStepSelector.vertices = "pixelVertices"
-    process.tobTecStepSelector.vertices = "pixelVertices"
-    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
-    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
-    process.duplicateTrackClassifier.vertices = "pixelVertices"
-    process.convStepSelector.vertices = "pixelVertices"
-    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
-    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
-    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
-
-    # Make pixelTracks use quadruplets
-    process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+        # Remove the pre-cluster-splitting clustering step
+        # To be enabled later together with or after the jet core step is enabled
+        # This snippet must be after the loading of recoFromSimDigis_cff
+        process.pixeltrackerlocalreco = cms.Sequence(
+            process.siPixelClusters +
+            process.siPixelRecHits
         )
-    process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
-    process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+        process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+        process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+        process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # use defaults d.k. 2/16
-    #process.templates.DoLorentz=False
-    #process.templates.LoadTemplatesFromDB = cms.bool(False)
-    #process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+        # Enable, for now, pixel tracks and vertices
+        # To be removed later together with the cluster splitting
+        process.globalreco_tracking.replace(process.standalonemuontracking,
+                                            process.standalonemuontracking+process.recopixelvertexing)
+        process.initialStepSelector.vertices = "pixelVertices"
+        process.highPtTripletStepSelector.vertices = "pixelVertices"
+        process.lowPtQuadStepSelector.vertices = "pixelVertices"
+        process.lowPtTripletStepSelector.vertices = "pixelVertices"
+        process.detachedQuadStepSelector.vertices = "pixelVertices"
+        process.mixedTripletStepSelector.vertices = "pixelVertices"
+        process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+        process.pixelPairStepSelector.vertices = "pixelVertices"
+        process.tobTecStepSelector.vertices = "pixelVertices"
+        process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+        process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+        process.duplicateTrackClassifier.vertices = "pixelVertices"
+        process.convStepSelector.vertices = "pixelVertices"
+        process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
+        process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+        process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
 
-    # This probably breaks badly the "displaced muon" reconstruction,
-    # but let's do it for now, until the upgrade tracking sequences
-    # are modernized
-    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
-    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+        # Make pixelTracks use quadruplets
+        process.pixelTracks.SeedMergerPSet = cms.PSet(
+            layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+            addRemainingTriplets = cms.bool(False),
+            mergeTriplets = cms.bool(True),
+            ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+            )
+        process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
+        process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
+        process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+
+        # This probably breaks badly the "displaced muon" reconstruction,
+        # but let's do it for now, until the upgrade tracking sequences
+        # are modernized
+        process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+        process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
     return process

@@ -39,6 +39,7 @@ SiPixelTrackResidualSource_Cosmics.trajectoryInput = cms.string('ctfWithMaterial
 from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
 SiPixelHitEfficiencySource.saveFile = False
 SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
+from DQM.TrackerMonitorTrack.SiPixelMonitorTrackResiduals_cfi import *
 
 ##online/offline
 #RawDataErrors
@@ -125,7 +126,7 @@ dqmInfo = cms.EDAnalyzer("DQMEventInfo",
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
 SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity/')
 
-siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + dqmInfo)
+siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + SiPixelMonitorTrackResiduals + dqmInfo)
 
 siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 

@@ -163,7 +163,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),        
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
             "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
             "HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v",
             "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
@@ -275,8 +275,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     VBFHbb_2btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq200_v",
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq240_v",
+            "HLT_QuadPFJet_BTagCSV_p037_p11_VBF_Mqq200_v",
+            "HLT_QuadPFJet_BTagCSV_p037_p11_VBF_Mqq240_v",
 	    # old csv version
 	    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
             "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v"

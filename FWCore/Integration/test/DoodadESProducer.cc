@@ -83,7 +83,7 @@ DoodadESProducer::produce(GadgetRcd const& /*iRecord*/) {
 
    using namespace edmtest;
 
-   std::unique_ptr<Doodad> pDoodad(new Doodad) ;
+   auto pDoodad = std::make_unique<Doodad>();
 
    pDoodad->a = 1;
 

@@ -23,7 +23,7 @@ to use this plugin.
 #include <memory>
 
 // user include files
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
@@ -179,11 +179,11 @@ void
 IOExerciser::computeProducts(edm::EventForOutput const& e, TokenMap const& tokens)
 {
    using namespace edm;
-   typedef std::vector<Provenance const*> Provenances;
+   typedef std::vector<StableProvenance const*> Provenances;
 
    m_fetchedProducts = true;
    Provenances provenances;
-   e.getAllProvenance(provenances);
+   e.getAllStableProvenance(provenances);
 
    if (!m_eventsTree)
    {
@@ -205,7 +205,7 @@ IOExerciser::computeProducts(edm::EventForOutput const& e, TokenMap const& token
          LogWarning("IOExerciser") << "Ignoring missing branch " << branchName;
          continue;
       }
-      edm::BranchID bid = provenance->product().branchID();
+      edm::BranchID bid = provenance->branchID();
       auto const iter = m_tokens.find(bid);
       if (iter == m_tokens.end()) {
         // product not kept

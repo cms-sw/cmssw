@@ -37,7 +37,7 @@ namespace edm {
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& ref,
 					  std::string& msg) const = 0;
 
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
+      virtual std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
 
       /// Checks if product collection is in memory or available

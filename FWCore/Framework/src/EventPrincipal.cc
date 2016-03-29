@@ -10,10 +10,10 @@
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
@@ -34,8 +34,9 @@ namespace edm {
         std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int streamIndex) :
-    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
+        unsigned int streamIndex,
+        bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender,isForPrimaryProcess),
           aux_(),
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
@@ -165,9 +166,8 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp.get(), phb);
-    // ProductHolder assumes ownership
-    phb->putProduct(std::move(edp), productProvenance);
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
   }
 
   void
@@ -180,16 +180,12 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp.get(), phb);
-    // ProductHolder assumes ownership
-    phb->putProduct(std::move(edp), productProvenance);
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
   }
 
    void
-  EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(phb.product()) return; // nothing to do.
-    if(phb.productUnavailable()) return; // nothing to do.
+  EventPrincipal::readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
     if(!reader()) return; // nothing to do.
     
     // must attempt to load from persistent store
@@ -206,8 +202,7 @@ namespace edm {
       
       std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
       
-      // Now fix up the ProductHolder
-      checkUniquenessAndType(edp.get(), &phb);
+      // Now fix up the ProductResolver
       phb.putProduct(std::move(edp));
     }
   }
@@ -250,7 +245,7 @@ namespace edm {
     return streamID_.value();
   }
 
-  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductHolderPtr const phb) {
+  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductResolverPtr const phb) {
     ProductDeletedException exception;
     exception<<"get by product ID: The product with given id: "<<pid
     <<"\ntype: "<<phb->productType()
@@ -263,7 +258,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    ConstProductHolderPtr const phb = getProductHolder(bid);
+    ConstProductResolverPtr const phb = getProductResolver(bid);
     if(phb == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
@@ -279,7 +274,7 @@ namespace edm {
     }
     // Check for case where we tried on demand production and
     // it failed to produce the object
-    if(phb->onDemand()) {
+    if(phb->unscheduledWasNotRun()) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
         *whyFailed
@@ -288,10 +283,13 @@ namespace edm {
         return whyFailed;
       }));
     }
-    ProductHolderBase::ResolveStatus status;
-    phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    ProductResolverBase::ResolveStatus status;
+    auto data = phb->resolveProduct(status,*this,false,nullptr,nullptr);
 
-    return BasicHandle(phb->productData());
+    if(data) {
+      return BasicHandle(data->wrapper(), &(data->provenance()));
+    }
+    return BasicHandle(nullptr,nullptr);
   }
 
   WrapperBase const*
@@ -434,14 +432,14 @@ namespace edm {
   edm::ThinnedAssociation const*
   EventPrincipal::getThinnedAssociation(edm::BranchID const& branchID) const {
 
-    ConstProductHolderPtr const phb = getProductHolder(branchID);
+    ConstProductResolverPtr const phb = getProductResolver(branchID);
 
     if(phb == nullptr) {
       throw Exception(errors::LogicError)
-        << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductHolder cannot be found\n"
+        << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
         << "This should never happen. Contact a Framework developer";
     }
-    ProductHolderBase::ResolveStatus status;
+    ProductResolverBase::ResolveStatus status;
     ProductData const* productData = phb->resolveProduct(status,*this,false,nullptr,nullptr);
     if (productData == nullptr) {
       return nullptr;

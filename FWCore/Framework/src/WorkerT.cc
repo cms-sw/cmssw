@@ -371,7 +371,7 @@ namespace edm{
 
   template<typename T>
   void WorkerT<T>::updateLookup(BranchType iBranchType,
-                                ProductHolderIndexHelper const& iHelper) {
+                                ProductResolverIndexHelper const& iHelper) {
     module_->updateLookup(iBranchType,iHelper);
   }
 

@@ -292,7 +292,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
 
-    std::unique_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
+    auto branchIDListsAPtr = std::make_unique<BranchIDLists>();
     BranchIDLists* branchIDListsPtr = branchIDListsAPtr.get();
     if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
@@ -452,7 +452,7 @@ namespace edm {
       treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
     }
 
-    std::unique_ptr<ProductRegistry> newReg(new ProductRegistry);
+    auto newReg = std::make_unique<ProductRegistry>();
 
     // Do the translation from the old registry to the new one
     {
@@ -643,19 +643,19 @@ namespace edm {
 
   std::unique_ptr<FileBlock>
   RootFile::createFileBlock() const {
-    return std::unique_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
-                                                     eventTree_.tree(),
-                                                     eventTree_.metaTree(),
-                                                     lumiTree_.tree(),
-                                                     lumiTree_.metaTree(),
-                                                     runTree_.tree(),
-                                                     runTree_.metaTree(),
-                                                     whyNotFastClonable(),
-                                                     hasNewlyDroppedBranch(),
-                                                     file_,
-                                                     branchListIndexesUnchanged(),
-                                                     modifiedIDs(),
-                                                     branchChildren()));
+    return std::make_unique<FileBlock>(fileFormatVersion(),
+                                       eventTree_.tree(),
+                                       eventTree_.metaTree(),
+                                       lumiTree_.tree(),
+                                       lumiTree_.metaTree(),
+                                       runTree_.tree(),
+                                       runTree_.metaTree(),
+                                       whyNotFastClonable(),
+                                       hasNewlyDroppedBranch(),
+                                       file_,
+                                       branchListIndexesUnchanged(),
+                                       modifiedIDs(),
+                                       branchChildren());
   }
 
   std::string const&
@@ -1382,9 +1382,9 @@ namespace edm {
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one ProductHolder,
+  //   2. For each entry in the provenance, put in one ProductResolver,
   //      holding the Provenance for the corresponding EDProduct.
-  //   3. set up the the EventPrincipal to know about this ProductHolder.
+  //   3. set up the the EventPrincipal to know about this ProductResolver.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -1720,7 +1720,7 @@ namespace edm {
       }
 
       // Also delete the dropped associations from the ThinnedAssociationsHelper
-      std::unique_ptr<ThinnedAssociationsHelper> temp(new ThinnedAssociationsHelper);
+      auto temp = std::make_unique<ThinnedAssociationsHelper>();
       for(auto const& associationBranches : fileThinnedAssociationsHelper_->data()) {
         auto iter = keepAssociation.find(associationBranches.association());
         if(iter != keepAssociation.end() && iter->second) {
@@ -1781,16 +1781,16 @@ namespace edm {
   RootFile::makeProvenanceReaderMaker(InputType inputType) {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
       readParentageTree(inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
+      return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_);
     } else if(fileFormatVersion_.splitProductIDs()) {
       readParentageTree(inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
+      return std::make_unique<MakeFullProvenanceReader>();
     } else if(fileFormatVersion_.perEventProductIDs()) {
-      std::unique_ptr<EntryDescriptionMap> entryDescriptionMap(new EntryDescriptionMap);
+      auto entryDescriptionMap = std::make_unique<EntryDescriptionMap>();
       readEntryDescriptionTree(*entryDescriptionMap, inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader(std::move(entryDescriptionMap)));
+      return std::make_unique<MakeOldProvenanceReader>(std::move(entryDescriptionMap));
     } else {
-      return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
+      return std::make_unique<MakeDummyProvenanceReader>();
     }
   }
 
@@ -1975,21 +1975,21 @@ namespace edm {
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeDummyProvenanceReader::makeReader(RootTree&, DaqProvenanceHelper const*) const {
-     return std::unique_ptr<ProvenanceReaderBase>(new DummyProvenanceReader);
+     return std::make_unique<DummyProvenanceReader>();
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeOldProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, *entryDescriptionMap_, daqProvenanceHelper));
+    return std::make_unique<OldProvenanceReader>(&rootTree, *entryDescriptionMap_, daqProvenanceHelper);
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeFullProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new FullProvenanceReader(&rootTree, daqProvenanceHelper));
+    return std::make_unique<FullProvenanceReader>(&rootTree, daqProvenanceHelper);
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeReducedProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new ReducedProvenanceReader(&rootTree, parentageIDLookup_, daqProvenanceHelper));
+    return std::make_unique<ReducedProvenanceReader>(&rootTree, parentageIDLookup_, daqProvenanceHelper);
   }
 }

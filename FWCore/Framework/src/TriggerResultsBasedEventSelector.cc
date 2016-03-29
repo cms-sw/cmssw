@@ -91,7 +91,7 @@ namespace edm
       // is empty, we are to write all events. We have no need for any
       // EventSelectors.
       if(iPSet.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+        oSelector.setupDefault();
         return true;
       }
 
@@ -99,7 +99,7 @@ namespace edm
       iPSet.getParameter<std::vector<std::string> >("SelectEvents");
 
       if(path_specs.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+        oSelector.setupDefault();
         return true;
       }
 
@@ -117,18 +117,13 @@ namespace edm
     // typedef detail::NamedEventSelector NES;
 
     TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() :
-      selectors_()
+      selectors_(),
+      wantAllEvents_(false)
     { }
 
     void
-    TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& triggernames) {
-      // Set up one NamedEventSelector, with default configuration
-      // Since wantAllEvents will be true, wantEvent() will not be called,
-      // and therefore TriggerResults will not be consumed.
-      std::vector<std::string> paths;
-      EventSelector es(paths, triggernames);
-      selectors_.emplace_back("", es);
-      //selectors_.push_back(NES("", EventSelector("",triggernames)));
+    TriggerResultsBasedEventSelector::setupDefault() {
+      wantAllEvents_ = true;
     }
 
     void
@@ -165,6 +160,9 @@ namespace edm
 
     bool
     TriggerResultsBasedEventSelector::wantEvent(EventForOutput const& ev) {
+      if(wantAllEvents_) {
+        return true;
+      }
       for(auto& selector : selectors_) {
         Handle<TriggerResults> handle;
         ev.getByToken<TriggerResults>(selector.token(), handle);

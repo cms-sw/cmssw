@@ -132,7 +132,7 @@ namespace edm {
 
     std::string modtype(main_input->getParameter<std::string>("@module_type"));
 
-    std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+    std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
       ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
     ConfigurationDescriptions descriptions(filler->baseType());
     filler->fill(descriptions);
@@ -1255,7 +1255,7 @@ namespace edm {
   }
 
 
-  std::auto_ptr<statemachine::Machine>
+  std::unique_ptr<statemachine::Machine>
   EventProcessor::createStateMachine() {
     statemachine::FileMode fileMode;
     if(fileMode_.empty()) fileMode = statemachine::FULLMERGE;
@@ -1278,9 +1278,10 @@ namespace edm {
       << "Legal values are 'handleEmptyRunsAndLumis', 'handleEmptyRuns', and 'doNotHandleEmptyRunsAndLumis'.\n";
     }
     
-    std::auto_ptr<statemachine::Machine> machine(new statemachine::Machine(this,
+    auto machine = std::make_unique<statemachine::Machine>(
+                                             this,
                                              fileMode,
-                                             emptyRunLumiMode));
+                                             emptyRunLumiMode);
     
     machine->initiate();
     return machine;
@@ -1304,7 +1305,7 @@ namespace edm {
 
     StatusCode returnCode=epSuccess;
     asyncStopStatusCodeFromProcessingEvents_=epSuccess;
-    std::auto_ptr<statemachine::Machine> machine;
+    std::unique_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
       
@@ -1443,7 +1444,7 @@ namespace edm {
       
       catch (cms::Exception & e) {
         alreadyHandlingException_ = true;
-        terminateMachine(machine);
+        terminateMachine(std::move(machine));
         alreadyHandlingException_ = false;
         if (!exceptionMessageLumis_.empty()) {
           e.addAdditionalInfo(exceptionMessageLumis_);
@@ -1478,8 +1479,8 @@ namespace edm {
       }
       
     }
-    if(machine.get() != 0) {
-      terminateMachine(machine);
+    if(machine.get() != nullptr) {
+      terminateMachine(std::move(machine));
       throw Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
         << "Please report this error to the Framework group\n";
@@ -2169,8 +2170,8 @@ namespace edm {
     return alreadyHandlingException_;
   }
 
-  void EventProcessor::terminateMachine(std::auto_ptr<statemachine::Machine>& iMachine) {
-    if(iMachine.get() != 0) {
+  void EventProcessor::terminateMachine(std::unique_ptr<statemachine::Machine> iMachine) {
+    if(iMachine.get() != nullptr) {
       if(!iMachine->terminated()) {
         forceLooperToEnd_ = true;
         iMachine->process_event(statemachine::Stop());
@@ -2182,7 +2183,6 @@ namespace edm {
       if(iMachine->terminated()) {
         FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
       }
-      iMachine.reset();
     }
   }
 }

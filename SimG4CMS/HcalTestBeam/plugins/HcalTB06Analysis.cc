@@ -133,7 +133,6 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 
   unsigned int ne = 0;
   unsigned int nh = 0;
-
   if(EcalHits) {  
     ne = EcalHits->size();
     for (unsigned int i=0; i<ne; ++i) {
@@ -157,7 +156,8 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
       // 3x3 towers selection
       if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
       	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
-	 (*HcalHits)[i].time() < m_timeLimit) {
+	 (*HcalHits)[i].time() < m_timeLimit &&
+	 hcalid.subdet() != HcalOuter) {
 	ehcals += (*HcalHits)[i].energy();
       }
     }

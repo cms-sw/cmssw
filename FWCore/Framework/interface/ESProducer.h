@@ -210,7 +210,7 @@ class ESProducer : public ESProxyFactoryProducer
          void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
 	    typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.default_);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
          }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
@@ -224,7 +224,7 @@ class ESProducer : public ESProxyFactoryProducer
             }
 	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.labels_[IIndex]);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
          }
       
       // ---------- member data --------------------------------

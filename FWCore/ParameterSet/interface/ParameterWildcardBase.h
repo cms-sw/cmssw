@@ -57,7 +57,7 @@ namespace edm {
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
-                        DocFormatHelper & dfh);
+                        DocFormatHelper & dfh) const;
 
     virtual bool partiallyExists_(ParameterSet const& pset) const;
 

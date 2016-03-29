@@ -124,8 +124,7 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //Use the ExampleData to create an ExampleData2 which 
    // is put into the Event
-   std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(std::move(pOut));
+   iEvent.put(std::make_unique<ExampleData2>(*pIn));
 */
 
 /* this is an EventSetup example
@@ -141,7 +140,7 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_myparticle    iEvent.getByLabel( electronTags_, electrons );
 @example_myparticle    
 @example_myparticle    // create a new collection of Particle objects
-@example_myparticle    unique_ptr<MyParticleCollection> newParticles( new MyParticleCollection );
+@example_myparticle    auto newParticles = std::make_ unique<MyParticleCollection>();
 @example_myparticle 
 @example_myparticle    // if the number of electrons or muons is 4 (or 2 and 2), costruct a new particle
 @example_myparticle    if( muons->size() == 4 || electrons->size() == 4 || ( muons->size() == 2 && electrons->size() == 2 ) ) {

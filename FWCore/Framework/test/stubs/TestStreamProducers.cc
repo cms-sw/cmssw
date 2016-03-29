@@ -57,7 +57,7 @@ struct UnsafeCache {
 
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
       ++m_count;
-      return std::unique_ptr<Cache>{new Cache};
+      return std::make_unique<Cache>();
     }
 
     GlobalIntProducer(edm::ParameterSet const& p, const Cache* iGlobal)  {
