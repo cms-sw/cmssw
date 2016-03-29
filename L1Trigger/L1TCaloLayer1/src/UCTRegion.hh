@@ -6,7 +6,7 @@
 
 #include "UCTTower.hh"
 
-namespace {
+namespace l1tcalo {
   constexpr uint32_t RegionETMask{ 0x000003FF};
   constexpr uint32_t RegionLocBits{0x0000F000};
   constexpr uint32_t LocationShift{12};
@@ -33,7 +33,7 @@ public:
   // Packed data access
 
   const uint32_t rawData() const {return regionSummary;}
-  const uint32_t location() const {return ((regionSummary & RegionLocBits) >> LocationShift);}
+  const uint32_t location() const {return ((regionSummary & l1tcalo::RegionLocBits) >> l1tcalo::LocationShift);}
 
   const int hitCaloEta() const {
     uint32_t highestTowerLocation = location();
@@ -59,7 +59,7 @@ public:
   // Access functions for convenience
   // Note that the bit fields are limited in hardware
 
-  const uint32_t et() const {return (RegionETMask & regionSummary);}
+  const uint32_t et() const {return (l1tcalo::RegionETMask & regionSummary);}
 
   // More access functions
 

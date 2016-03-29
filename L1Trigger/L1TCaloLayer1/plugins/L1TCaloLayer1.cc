@@ -292,7 +292,7 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
 	vector<UCTTower*> towers = regions[rgn]->getTowers();
 	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(rgn < NRegionsInCard) {
+	  if(rgn < l1tcalo::NRegionsInCard) {
 	    towers[twr]->setECALLUT(&ecalLUT);
 	    towers[twr]->setHCALLUT(&hcalLUT);
 	  }

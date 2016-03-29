@@ -60,15 +60,15 @@ bool UCTRegion::process() {
     }
     regionET += towers[twr]->et();
   }
-  if(regionET > RegionETMask) {
+  if(regionET > l1tcalo::RegionETMask) {
     LOG_ERROR << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
-    regionET = RegionETMask;
+    regionET = l1tcalo::RegionETMask;
   }
-  regionSummary = (RegionETMask & regionET);
+  regionSummary = (l1tcalo::RegionETMask & regionET);
 
   // For central regions determine extra bits
 
-  if(region < NRegionsInCard) {
+  if(region < l1tcalo::NRegionsInCard) {
     uint32_t highestTowerET = 0;
     uint32_t highestTowerLocation = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
@@ -80,7 +80,7 @@ bool UCTRegion::process() {
 	}
       }
     }
-    regionSummary |= (highestTowerLocation << LocationShift);
+    regionSummary |= (highestTowerLocation << l1tcalo::LocationShift);
   }
   
   return true;

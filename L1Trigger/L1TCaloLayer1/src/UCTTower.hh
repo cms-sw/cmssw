@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace {
+namespace l1tcalo {
   constexpr uint32_t etInputMax{0xFF};
 
   constexpr uint32_t etMask{0x000001FF};
@@ -88,22 +88,22 @@ public:
   const uint32_t rawData() const {return towerData;}
   const uint16_t location() const;
   const uint64_t extendedData() const;
-  const uint16_t compressedData() const {return (uint16_t) (towerData & stg2BitsMask);}
+  const uint16_t compressedData() const {return (uint16_t) (towerData & l1tcalo::stg2BitsMask);}
 
   // Access functions for convenience
   // Note that the bit fields are limited in hardware
 
-  const uint32_t et() const {return (towerData & etMask);}
-  const uint32_t er() const {return ((towerData & erMask) >> erShift);}
-  const uint8_t miscBits() const {return (uint8_t) ((towerData & miscBitsMask) >> miscShift);}
+  const uint32_t et() const {return (towerData & l1tcalo::etMask);}
+  const uint32_t er() const {return ((towerData & l1tcalo::erMask) >> l1tcalo::erShift);}
+  const uint8_t miscBits() const {return (uint8_t) ((towerData & l1tcalo::miscBitsMask) >> l1tcalo::miscShift);}
 
-  const uint32_t getEcalET() const {return ((towerData & ecalBitsMask) >> ecalShift);}
-  const uint32_t getHcalET() const {return ((towerData & hcalBitsMask) >> hcalShift);}
+  const uint32_t getEcalET() const {return ((towerData & l1tcalo::ecalBitsMask) >> l1tcalo::ecalShift);}
+  const uint32_t getHcalET() const {return ((towerData & l1tcalo::hcalBitsMask) >> l1tcalo::hcalShift);}
 
-  const bool zeroFlag() const {return ((towerData & zeroFlagMask) == zeroFlagMask);}
-  const bool eohrFlag() const {return ((towerData & eohrFlagMask) == eohrFlagMask);}
-  const bool hcalFlag() const {return ((towerData & hcalFlagMask) == hcalFlagMask);}
-  const bool ecalFlag() const {return ((towerData & ecalFlagMask) == ecalFlagMask);}
+  const bool zeroFlag() const {return ((towerData & l1tcalo::zeroFlagMask) == l1tcalo::zeroFlagMask);}
+  const bool eohrFlag() const {return ((towerData & l1tcalo::eohrFlagMask) == l1tcalo::eohrFlagMask);}
+  const bool hcalFlag() const {return ((towerData & l1tcalo::hcalFlagMask) == l1tcalo::hcalFlagMask);}
+  const bool ecalFlag() const {return ((towerData & l1tcalo::ecalFlagMask) == l1tcalo::ecalFlagMask);}
 
   // More access functions
 

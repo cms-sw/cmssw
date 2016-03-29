@@ -10,87 +10,87 @@
 #include "UCTLogging.hh"
 
 bool UCTTower::process() {
-  if(region >= NRegionsInCard) {
+  if(region >= l1tcalo::NRegionsInCard) {
     return processHFTower();
   }
-  if(ecalET > etInputMax) ecalET = etInputMax;
-  if(hcalET > etInputMax) hcalET = etInputMax;
+  if(ecalET > l1tcalo::etInputMax) ecalET = l1tcalo::etInputMax;
+  if(hcalET > l1tcalo::etInputMax) hcalET = l1tcalo::etInputMax;
   uint32_t calibratedECALET = ecalET;
   uint32_t logECALET = (uint32_t) log2((double) ecalET);
-  if(logECALET > erMaxV) logECALET = erMaxV;
+  if(logECALET > l1tcalo::erMaxV) logECALET = l1tcalo::erMaxV;
   if(ecalLUT != 0) {
-    uint32_t etaAddress = region * NEtaInRegion + iEta;
+    uint32_t etaAddress = region * l1tcalo::NEtaInRegion + iEta;
     uint32_t fbAddress = 0;
     if(ecalFG) fbAddress = 1;
     uint32_t value = (*ecalLUT)[etaAddress][fbAddress][ecalET];
-    calibratedECALET = value & etInputMax;
+    calibratedECALET = value & l1tcalo::etInputMax;
     logECALET = (value & 0x7000) >> 12;
   }
   uint32_t calibratedHCALET = hcalET;
   uint32_t logHCALET = (uint32_t) log2((double) hcalET);
-  if(logHCALET > erMaxV) logHCALET = erMaxV;
+  if(logHCALET > l1tcalo::erMaxV) logHCALET = l1tcalo::erMaxV;
   if(hcalLUT != 0) {
-    uint32_t etaAddress = region * NEtaInRegion + iEta;
+    uint32_t etaAddress = region * l1tcalo::NEtaInRegion + iEta;
     uint32_t fbAddress = 0;
     if((hcalFB & 0x1) != 0) fbAddress = 1;
     uint32_t value = (*hcalLUT)[etaAddress][fbAddress][hcalET];
-    calibratedHCALET = value & etInputMax;
+    calibratedHCALET = value & l1tcalo::etInputMax;
     logHCALET = (value & 0x7000) >> 12;
   }
   towerData = calibratedECALET + calibratedHCALET;
-  if(towerData > etMask) towerData = etMask;
+  if(towerData > l1tcalo::etMask) towerData = l1tcalo::etMask;
   uint32_t er = 0;
   if(ecalET == 0 || hcalET == 0) {
     er = 0;
-    towerData |= zeroFlagMask;
+    towerData |= l1tcalo::zeroFlagMask;
     if(hcalET == 0 && ecalET != 0)
-      towerData |= eohrFlagMask;
+      towerData |= l1tcalo::eohrFlagMask;
   }
   else if(ecalET == hcalET) {
     er = 0;
-    towerData |= eohrFlagMask;
+    towerData |= l1tcalo::eohrFlagMask;
   }
   else if(ecalET > hcalET) {
     er = logECALET - logHCALET;
-    if(er > erMaxV) er = erMaxV;
-    towerData |= eohrFlagMask;
+    if(er > l1tcalo::erMaxV) er = l1tcalo::erMaxV;
+    towerData |= l1tcalo::eohrFlagMask;
   }
   else {
     er = logHCALET - logECALET;
-    if(er > erMaxV) er = erMaxV;
+    if(er > l1tcalo::erMaxV) er = l1tcalo::erMaxV;
   }
-  towerData |= (er << erShift);
+  towerData |= (er << l1tcalo::erShift);
   // Unfortunately, hcalFlag is presently bogus :(
   // It has never been studied nor used in Run-1
   // The same status persists in Run-2, but it is available usage
   // Currently, summarize all hcalFeatureBits in one flag bit
-  if((hcalFB & 0x1) != 0) towerData |= hcalFlagMask; // FIXME - ignore top bits if(hcalFB != 0)
-  if(ecalFG) towerData |= ecalFlagMask;
+  if((hcalFB & 0x1) != 0) towerData |= l1tcalo::hcalFlagMask; // FIXME - ignore top bits if(hcalFB != 0)
+  if(ecalFG) towerData |= l1tcalo::ecalFlagMask;
   // Store ecal and hcal calibrated ET in unused upper bits
-  towerData |= (calibratedECALET << ecalShift);
-  towerData |= (calibratedHCALET << hcalShift);
+  towerData |= (calibratedECALET << l1tcalo::ecalShift);
+  towerData |= (calibratedHCALET << l1tcalo::hcalShift);
   // All done!
   return true;
 }
 
 bool UCTTower::processHFTower() {
-  if(hcalET > etInputMax) hcalET = etInputMax;
+  if(hcalET > l1tcalo::etInputMax) hcalET = l1tcalo::etInputMax;
   if(hcalFB > 0x3) hcalFB = 0x3;
   uint32_t calibratedET = hcalET;
   if(hfLUT != 0) {
-    const std::vector< uint32_t > a = hfLUT->at((region - NRegionsInCard) * NHFEtaInRegion + iEta);
+    const std::vector< uint32_t > a = hfLUT->at((region - l1tcalo::NRegionsInCard) * l1tcalo::NHFEtaInRegion + iEta);
     calibratedET = a[hcalET];
   }
-  towerData = calibratedET + (hcalFB << miscShift) + (location() << ecalShift);
+  towerData = calibratedET + (hcalFB << l1tcalo::miscShift) + (location() << l1tcalo::ecalShift);
   return true;
 }
 
 bool UCTTower::setECALData(bool eFG, uint32_t eET) {
   ecalFG = eFG;
   ecalET = eET;
-  if(eET > etInputMax) {
-    LOG_ERROR << "UCTTower::setData - ecalET too high " << eET << "; Pegged to etInputMax" << std::endl;
-    ecalET = etInputMax;
+  if(eET > l1tcalo::etInputMax) {
+    LOG_ERROR << "UCTTower::setData - ecalET too high " << eET << "; Pegged to l1tcalo::etInputMax" << std::endl;
+    ecalET = l1tcalo::etInputMax;
   }
   return true;
 }
@@ -98,9 +98,9 @@ bool UCTTower::setECALData(bool eFG, uint32_t eET) {
 bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
-  if(hET > etInputMax) {
-    LOG_ERROR << "UCTTower::setData - ecalET too high " << hET << "; Pegged to etInputMax" << std::endl;
-    hcalET = etInputMax;
+  if(hET > l1tcalo::etInputMax) {
+    LOG_ERROR << "UCTTower::setData - ecalET too high " << hET << "; Pegged to l1tcalo::etInputMax" << std::endl;
+    hcalET = l1tcalo::etInputMax;
   }
   if(hFB > 0x3F) {
     LOG_ERROR << "UCTTower::setData - too many hcalFeatureBits " << std::hex << hFB 
