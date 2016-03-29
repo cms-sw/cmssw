@@ -50,9 +50,8 @@ class TTClusterBuilder : public edm::EDProducer
 
   private:
     /// Data members
-    //    const StackedTrackerGeometry             *theStackedTrackers;
-    edm::ESHandle< TTClusterAlgorithm< T > > theClusterFindingAlgoHandle; // Handles are needed in ::produce()
-    std::vector< edm::InputTag >             rawHitInputTags;
+    edm::ESHandle< TTClusterAlgorithm< T > > theClusterFindingAlgoHandle;
+    std::vector< edm::EDGetTokenT< edm::DetSetVector< Phase2TrackerDigi > > > rawHitTokens;
     unsigned int                             ADCThreshold;  
     bool                                     storeLocalCoord;
 
@@ -78,9 +77,14 @@ class TTClusterBuilder : public edm::EDProducer
 template< typename T >
 TTClusterBuilder< T >::TTClusterBuilder( const edm::ParameterSet& iConfig )
 {
-  rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   ADCThreshold     = iConfig.getParameter< unsigned int >("ADCThreshold");
   storeLocalCoord  = iConfig.getParameter< bool >("storeLocalCoord");
+
+  std::vector< edm::InputTag > rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
+  for ( auto it = rawHitInputTags.begin(); it != rawHitInputTags.end(); ++it ) {
+    rawHitTokens.push_back(consumes< edm::DetSetVector< Phase2TrackerDigi > >(*it));
+  }
+  
   produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterInclusive" );
 }
 

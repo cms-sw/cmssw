@@ -28,7 +28,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
   
   // Loop on the OT stacks
-  for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {     
+  for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {     
       DetId detid = (*gd)->geographicalId();
       if(detid.subdetId()==1 || detid.subdetId()==2 ) continue; // only run on OT
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
@@ -86,12 +86,12 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::RetrieveRawHits( std::map< DetI
 { 
   mRawHits.clear();
   /// Loop over the tags used to identify hits in the cfg file
-  std::vector< edm::InputTag >::iterator it;
-  for ( it = rawHitInputTags.begin(); it != rawHitInputTags.end(); ++it ) { 
+  std::vector< edm::EDGetTokenT< edm::DetSetVector< Phase2TrackerDigi > > >::iterator it;
+  for ( it = rawHitTokens.begin(); it != rawHitTokens.end(); ++it ) { 
 
     /// For each tag, get the corresponding handle
     edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > HitHandle;
-    iEvent.getByLabel( *it, HitHandle );
+    iEvent.getByToken( *it, HitHandle );
     edm::DetSetVector<Phase2TrackerDigi>::const_iterator detsIter;
     edm::DetSet<Phase2TrackerDigi>::const_iterator       hitsIter;
 

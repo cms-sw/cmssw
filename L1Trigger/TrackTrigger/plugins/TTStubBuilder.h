@@ -52,7 +52,7 @@ class TTStubBuilder : public edm::EDProducer
   private:
     /// Data members
     edm::ESHandle< TTStubAlgorithm< T > > theStubFindingAlgoHandle;
-    edm::InputTag TTClustersInputTag;
+    edm::EDGetTokenT< TTCluster< T > > clustersToken;
     
     /// Mandatory methods
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -76,7 +76,7 @@ class TTStubBuilder : public edm::EDProducer
 template< typename T >
 TTStubBuilder< T >::TTStubBuilder( const edm::ParameterSet& iConfig )
 {
-  TTClustersInputTag = iConfig.getParameter< edm::InputTag >( "TTClusters" );
+  clustersToken = consumes< TTCluster< T > >(iConfig.getParameter< edm::InputTag >( "TTClusters" ));
   produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubRejected" );
@@ -122,32 +122,30 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< T > > );
 
   /// Get the Clusters already stored away
-  edm::Handle< edmNew::DetSetVector< TTCluster< T > > > TTClusterHandle;
-  iEvent.getByLabel( TTClustersInputTag, TTClusterHandle );
+  edm::Handle< edmNew::DetSetVector< TTCluster< T > > > clusterHandle;
+  iEvent.getByToken( clustersToken, clusterHandle );
 
   /// Get the maximum number of stubs per ROC
   /// (CBC3-style)
   //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
   unsigned maxStubs = 3;
 
-  for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
+  for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
-      if(detid.subdetId()==1 || detid.subdetId()==2 ) continue; // only run on OT
+      if(detid.subdetId()!=StripSubdetector::TOB && detid.subdetId()!=StripSubdetector::TID ) continue; // only run on OT
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
       DetId lowerDetid = detid;
       DetId upperDetid = tTopo->partnerDetId(detid);
       DetId stackDetid = tTopo->stack(detid);
 
     /// Go on only if both detectors have Clusters
-    if ( TTClusterHandle->find( lowerDetid ) == TTClusterHandle->end() ||
-         TTClusterHandle->find( upperDetid ) == TTClusterHandle->end() )
+    if ( clusterHandle->find( lowerDetid ) == clusterHandle->end() ||
+         clusterHandle->find( upperDetid ) == clusterHandle->end() )
       continue;
 
     /// Get the DetSets of the Clusters
-    edmNew::DetSet< TTCluster< T > > lowerClusters = (*TTClusterHandle)[ lowerDetid ];
-    edmNew::DetSet< TTCluster< T > > upperClusters = (*TTClusterHandle)[ upperDetid ];
-
-    typename edmNew::DetSet< TTCluster< T > >::iterator lowerClusterIter, upperClusterIter;
+    edmNew::DetSet< TTCluster< T > > lowerClusters = (*clusterHandle)[ lowerDetid ];
+    edmNew::DetSet< TTCluster< T > > upperClusters = (*clusterHandle)[ upperDetid ];
 
     /// If there are Clusters in both sensors
     /// you can try and make a Stub
@@ -172,17 +170,17 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     std::map< int, std::vector< TTStub< T > > > moduleStubs; /// Temporary storage for stubs before max check
 
     /// Loop over pairs of Clusters
-    for ( lowerClusterIter = lowerClusters.begin();
-          lowerClusterIter != lowerClusters.end();
-          ++lowerClusterIter ) {
-      for ( upperClusterIter = upperClusters.begin();
-            upperClusterIter != upperClusters.end();
-            ++upperClusterIter ) {
+    for ( auto lowerClusterIter = lowerClusters.begin();
+               lowerClusterIter != lowerClusters.end();
+               ++lowerClusterIter ) {
+      for ( auto upperClusterIter = upperClusters.begin();
+                 upperClusterIter != upperClusters.end();
+                 ++upperClusterIter ) {
 
         /// Build a temporary Stub
         TTStub< T > tempTTStub( stackDetid );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, lowerClusterIter ) );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, upperClusterIter ) );
+        tempTTStub.addClusterRef( edmNew::makeRefTo( clusterHandle, lowerClusterIter ) );
+        tempTTStub.addClusterRef( edmNew::makeRefTo( clusterHandle, upperClusterIter ) );
 
         /// Check for compatibility
         bool thisConfirmation = false;
@@ -214,7 +212,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             {
               /// No, so new entry
               std::vector< TTStub< T > > tempStubs;
-              tempStubs.clear();
               tempStubs.push_back( tempTTStub );
               moduleStubs.insert( std::pair< int, std::vector< TTStub< T > > >( chip, tempStubs ) );
             }
@@ -250,6 +247,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         {
           /// Sort them and pick up only the first N.
           std::vector< std::pair< unsigned int, double > > bendMap;
+          bendMap.reserve(is.second.size());
           for ( unsigned int i = 0; i < is.second.size(); ++i )
           {
             bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
