@@ -374,6 +374,10 @@ def _trackingRefFileFallbackSLHC(path):
                        ("muonSeededStepOutIn", "iter10")]:
         path = path.replace(old, new)
     return path
+def _trackingSubFoldersFallbackFromPV(subfolder):
+    return subfolder.replace("trackingParticleRecoAsssociation", "trackingParticleRecoAsssociationSignal")
+def _trackingSubFoldersFallbackConversion(subfolder):
+    return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsConversion")
 
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
@@ -853,7 +857,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seed
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
     commonForTPF = dict(onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC])
-    common = dict(fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
+    common = dict(fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC, _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
     plotterExt.append(name, folders, TrackingPlotFolder(*_extendedPlots, **commonForTPF), **common)
 
