@@ -82,6 +82,8 @@ def customise_Reco(process,pileup):
     itIndex = process.pixeltrackerlocalreco.index(process.siPixelClustersPreSplitting)
     process.pixeltrackerlocalreco.insert(itIndex, process.siPhase2Clusters)
     process.pixeltrackerlocalreco.remove(process.siPixelClustersPreSplitting)
+    process.pixeltrackerlocalreco.remove(process.siPixelRecHitsPreSplitting)
+    process.trackerlocalreco.remove(process.clusterSummaryProducer)
     # keep new clusters
     alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
     for a in alist:
