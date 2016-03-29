@@ -135,7 +135,8 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
 
 void
 EDConsumerBase::updateLookup(BranchType iBranchType,
-                             ProductResolverIndexHelper const& iHelper)
+                             ProductResolverIndexHelper const& iHelper,
+                             bool iPrefetchMayGet)
 {
   frozen_ = true;
   {
@@ -188,6 +189,9 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 
   if(iBranchType == InEvent) {
     itemsToGet(iBranchType, itemsToGetFromEvent_);
+    if(iPrefetchMayGet) {
+      itemsMayGet(iBranchType, itemsToGetFromEvent_);
+    }
   }
 }
 

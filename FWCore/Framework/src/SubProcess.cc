@@ -216,7 +216,7 @@ namespace edm {
     // object(s) in the parent process from the event. This next call is needed for
     // getByToken to work properly. Normally, this is done by the worker, but since
     // a SubProcess is not a module, it has no worker.
-    updateLookup(InEvent, *parentPreg_->productLookup(InEvent));
+    updateLookup(InEvent, *parentPreg_->productLookup(InEvent),false);
 
     if(!droppedBranchIDToKeptBranchID().empty()) {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
