@@ -207,18 +207,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
 
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-    std::vector<std::string> StopReasonName;
-    StopReasonName.push_back("UNINITIALIZED");
-    StopReasonName.push_back("MAX_HITS");
-    StopReasonName.push_back("MAX_LOST_HITS");
-    StopReasonName.push_back("MAX_CONSECUTIVE_LOST_HITS");
-    StopReasonName.push_back("LOST_HIT_FRACTION");
-    StopReasonName.push_back("MIN_PT");
-    StopReasonName.push_back("CHARGE_SIGNIFICANCE");
-    StopReasonName.push_back("LOOPER");
-    StopReasonName.push_back("MAX_CCC_LOST_HITS");
-    StopReasonName.push_back("NO_SEGMENTS_FOR_VALID_LAYERS");
-    StopReasonName.push_back("NOT_STOPPED");
+    std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(histname+CatagoryName, histname+CatagoryName,StopReasonName.size(), 0., double(StopReasonName.size()));
