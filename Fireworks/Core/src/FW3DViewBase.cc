@@ -59,6 +59,7 @@ private:
    Clipsi& operator=(const Clipsi&); // Not implemented
 
    TGLVertex3 vtx[4];
+   TGLVertex3 appexOffset;
 
 public:
    Clipsi(TGLRnrCtx* ctx):TGLClip(* new TGLClipsiLogical, TGLMatrix(), fgColor), m_rnrCtx(ctx){}
@@ -70,14 +71,21 @@ public:
    {
       for (int i = 0; i < 4; ++i) {
          // vec[i].Dump();
-         vtx[i].Set(vec[i].fX, vec[i].fY, vec[i].fZ);
+         vtx[i].Set(vec[i].fX + appexOffset.X(), vec[i].fY + appexOffset.Y(), vec[i].fZ + appexOffset.Z());
       }
    }
+
+   void SetAppexOffset(TEveVector& vec)
+   {
+         appexOffset.Set(vec.fX, vec.fY, vec.fZ);
+   }
+
 
    using TGLClip::PlaneSet;
    virtual void PlaneSet(TGLPlaneSet_t & planeSet) const override
    {
-      TGLVertex3 o;
+      TGLVertex3 o = appexOffset;
+
       planeSet.push_back(TGLPlane(o, vtx[0], vtx[1]));
       planeSet.push_back(TGLPlane(o, vtx[1], vtx[2]));
       planeSet.push_back(TGLPlane(o, vtx[2], vtx[3]));
@@ -114,6 +122,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_clipPhi(this, "Clip Phi", 0.0, -2.0, 2.0),
    m_clipDelta1(this, "Clip Delta1", 0.2, 0.01, 2),
    m_clipDelta2(this, "Clip Delta2", 0.2, 0.01, 2),
+   m_clipAppexOffset(this, "Appex Offset", 10l, 0l, 50l),
    m_DMT(0),
    m_DMTline(0)
 {
@@ -147,6 +156,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
    m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
    m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipAppexOffset.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
 
 
     m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
@@ -343,8 +353,12 @@ FW3DViewBase::updateClipPlanes(bool resetCamera)
       for (int i = 0; i < 4; ++i)
           c[i] += in;
 
-      ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
+      TEveVector aOff = in; aOff.NegateXYZ();
+      aOff.Normalize(); aOff *= m_clipAppexOffset.value();
+      ((Clipsi*)m_glClip)->SetAppexOffset(aOff);
 
+
+      ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
 
       if (resetCamera) {
       TGLBoundingBox bbox;
@@ -435,6 +449,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
 {
    FWEveView::populateController(gui);
 
+  
    gui.requestTab("Detector").
       addParam(&m_showMuonBarrel).
       addParam(&m_showMuonEndcap).
@@ -444,13 +459,15 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showPixelEndcap).  
       addParam(&m_showEcalBarrel).  
       addParam(&m_rnrStyle).
-      addParam(&m_selectable).
-      separator().
+      addParam(&m_selectable);
+
+   gui.requestTab("Clipping").
       addParam(&m_clipEnable).
       addParam(&m_clipTheta).
       addParam(&m_clipPhi).
       addParam(&m_clipDelta1).
-      addParam(&m_clipDelta2);
+      addParam(&m_clipDelta2).
+      addParam(&m_clipAppexOffset);
 
 
    gui.requestTab("Style").separator();
