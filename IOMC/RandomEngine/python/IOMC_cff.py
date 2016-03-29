@@ -175,3 +175,7 @@ if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     )
+    RandomNumberGeneratorService.simMuonME0Digis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )

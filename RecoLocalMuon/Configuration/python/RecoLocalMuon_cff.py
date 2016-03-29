@@ -39,7 +39,7 @@ muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 
 # Upgrade configurations - adding gem and me0
 from Configuration.StandardSequences.Eras import eras
-if eras.phase2_muon.isChosen():
+if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
     from RecoLocalMuon.GEMRecHit.gemLocalReco_cff import *
     from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *
     muonlocalreco += gemLocalReco+me0LocalReco
