@@ -13,6 +13,7 @@ import FWCore.ParameterSet.Config as cms
 # Jim Brooke, 24 April 2008
 # Vasile Mihai Ghete, 2009
 # Jim Brooke, Michael Mulhearn, 2015
+# Vladimir Rekovic, 2016
 
 # Notes on Inputs:
 
@@ -42,8 +43,20 @@ SimL1EmulatorCore = cms.Sequence(
     SimL1TechnicalTriggers +
     SimL1TGlobal
     )
-
 SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
+
+SimL1CaloAndGtEmulatorCore = cms.Sequence(
+    SimL1TCalorimeter +
+    SimL1TechnicalTriggers +
+    SimL1TGlobal
+    )
+SimL1CaloAndGtEmulator = cms.Sequence( SimL1CaloAndGtEmulatorCore )
+
+SimL1GtEmulatorCore = cms.Sequence(
+    SimL1TechnicalTriggers +
+    SimL1TGlobal
+    )
+SimL1GtEmulator = cms.Sequence( SimL1GtEmulatorCore )
 
 #
 # Next we load ES producers for any conditions that are not yet in GT,

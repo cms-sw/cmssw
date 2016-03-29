@@ -188,6 +188,16 @@ RAWSIMHLTEventContent = cms.PSet(
 )
 #
 #
+# SIML1RAW Data Tier definition
+#
+#
+SIML1RAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
 # RAWRECOSIMHLT Data Tier definition
 #
 #
@@ -493,6 +503,18 @@ RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
+
+SIML1RAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+SIML1RAWEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+SIML1RAWEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
+SIML1RAWEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+SIML1RAWEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
+SIML1RAWEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
+SIML1RAWEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+SIML1RAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
+SIML1RAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
+SIML1RAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
+SIML1RAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 
 GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 GENRAWEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
