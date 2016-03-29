@@ -42,7 +42,7 @@ class __class__ : public edm::ESProducerLooper {
     if  len(__datatypes__) > 1:
         datatypes = []
         for dtype in __datatypes__:
-            datatypes.append("boost::auto_ptr<%s>" % dtype)
+            datatypes.append("std::unique_ptr<%s>" % dtype)
         print "      typedef edm::ESProducts<%s> ReturnType;" % ','.join(datatypes)
     elif len(__datatypes__) == 1:
         print "      typedef std::shared_ptr<%s> ReturnType;" % __datatypes__[0]

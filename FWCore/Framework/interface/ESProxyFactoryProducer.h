@@ -97,7 +97,7 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
       virtual void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
                                     KeyedProxies& aProxyList) ;
 
-      /** \param iFactory auto_ptr holding a new instance of a Factory
+      /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
          Producer takes ownership of the Factory and uses it create the appropriate
          Proxy which is then registered with the EventSetup.  If used, this method should
