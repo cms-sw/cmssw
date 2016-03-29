@@ -36,7 +36,7 @@
 
 #include <utility>
 
-namespace {
+namespace l1tcalo {
   constexpr uint32_t NCrates{3};
   constexpr uint32_t NCardsInCrate{6};
   constexpr uint32_t NRegionsInCard{7};
@@ -90,9 +90,9 @@ public:
   uint32_t getLinkNumber(bool negativeSide, uint32_t region, uint32_t iEta, uint32_t iPhi);
   uint32_t getChannelNumber(bool negativeSide, uint32_t iEta, uint32_t iPhi);
 
-  uint32_t getNCrates() {return NCrates;}
-  uint32_t getNCards() {return NCardsInCrate;}
-  uint32_t getNRegions() {return (NRegionsInCard+NHFRegionsInCard);}
+  uint32_t getNCrates() {return l1tcalo::NCrates;}
+  uint32_t getNCards() {return l1tcalo::NCardsInCrate;}
+  uint32_t getNRegions() {return (l1tcalo::NRegionsInCard+l1tcalo::NHFRegionsInCard);}
   uint32_t getNEta(uint32_t region);
   uint32_t getNPhi(uint32_t region);
 
@@ -102,17 +102,17 @@ public:
   uint32_t getiEta(int caloEta);
   uint32_t getiPhi(int caloPhi);
 
-  bool checkCrate(uint32_t crate) {return !(crate < NCrates);}
-  bool checkCard(uint32_t card) {return !(card < NCardsInCrate);}
-  bool checkRegion(uint32_t region) {return !(region < (NRegionsInCard + NHFRegionsInCard));}
+  bool checkCrate(uint32_t crate) {return !(crate < l1tcalo::NCrates);}
+  bool checkCard(uint32_t card) {return !(card < l1tcalo::NCardsInCrate);}
+  bool checkRegion(uint32_t region) {return !(region < (l1tcalo::NRegionsInCard + l1tcalo::NHFRegionsInCard));}
   bool checkEtaIndex(uint32_t region, uint32_t iEta) {
-    if(region < NRegionsInCard)
-      return !(iEta < NEtaInRegion);
+    if(region < l1tcalo::NRegionsInCard)
+      return !(iEta < l1tcalo::NEtaInRegion);
     else
-      return !(iEta < NHFEtaInRegion);
+      return !(iEta < l1tcalo::NHFEtaInRegion);
   }
   bool checkPhiIndex(uint32_t region, uint32_t iPhi) {
-    return !(iPhi < NPhiInRegion);
+    return !(iPhi < l1tcalo::NPhiInRegion);
   }
 
   // For summary card, we label regions by phi and eta indices
