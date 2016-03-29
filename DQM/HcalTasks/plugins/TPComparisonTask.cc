@@ -171,6 +171,8 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		if (_skip1x1)
 			if (it1->id().version()>0)
 				continue;
+		if (it1->id().ietaAbs()>=29)    //  skip HF
+			continue;
 		//	\tmp
 
 		HcalTrigTowerDetId tid = it1->id();
