@@ -21,8 +21,8 @@ def customise_HcalPhase0(process):
 
     return process
 
-def customise_HcalPhase1(process):
-    #common stuff
+#common stuff
+def load_HcalHardcode(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(
                 'GainWidths',
@@ -43,11 +43,31 @@ def customise_HcalPhase1(process):
                 'PFCorrs',
                 'ElectronicsMap',
                 'CholeskyMatrices',
-                'CovarianceMatrices'
+                'CovarianceMatrices',
+                'FlagHFDigiTimeParams',
                 )
 
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
+                
+    return process
+
+#intermediate customization ("Phase 0.5": HCAL 2017, HE and HF upgrades)
+def customise_HcalPhase0p5(process):
+    load_HcalHardcode(process)
+    
+    #for now, use HE run1 conditions - SiPM/QIE11 not ready
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
+    
+    # to get reco to run
+    if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.setNoiseFlags = cms.bool(False)
+    
+    return process
+    
+def customise_HcalPhase1(process):
+    load_HcalHardcode(process)
+
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
     process.es_hardcode.useHBUpgrade = cms.bool(True)
     process.es_hardcode.useHEUpgrade = cms.bool(True)
