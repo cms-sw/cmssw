@@ -30,14 +30,14 @@ const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId
     else return theDefaultParameters_;
   }
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward){
-    if(testHFQIE10_ && fId.isHcalDetId()){
+    if(useHFUpgrade_ && setHFUpgrade_) return theHFUpgradeParameters_;
+	else if(testHFQIE10_ && fId.isHcalDetId()){
         HcalDetId hid(fId);
         //special mixed case for HF 2016
         if(hid.iphi()==39 && hid.zside()==1 && (hid.depth()>=3 || (hid.depth()==2 && (hid.ieta()==30 || hid.ieta()==34))) && setHFUpgrade_) return theHFUpgradeParameters_;
         else if(setHF_) return theHFParameters_;
         else return theDefaultParameters_;
     }
-    else if(useHFUpgrade_ && setHFUpgrade_) return theHFUpgradeParameters_;
     else if(!useHFUpgrade_ && setHF_) return theHFParameters_;
     else return theDefaultParameters_;
   }
