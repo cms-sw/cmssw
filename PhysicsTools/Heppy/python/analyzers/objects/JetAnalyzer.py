@@ -155,7 +155,8 @@ class JetAnalyzer( Analyzer ):
             if self.cfg_ana.do_mc_match:
                 for igj, gj in enumerate(self.genJets):
                     gj.index = igj
-                self.matchJets(event, allJets)
+#                self.matchJets(event, allJets)
+                self.matchJets(event, [ j for j in allJets if j.pt()>self.cfg_ana.jetPt ])
             if getattr(self.cfg_ana, 'smearJets', False):
                 self.smearJets(event, allJets)
 
@@ -238,10 +239,12 @@ class JetAnalyzer( Analyzer ):
             else:
                 photons = [ g for g in event.selectedPhotons ] 
 
-        self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
+#        self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
+        self.gamma_cleanJetsAll = cleanNearestJetOnly(jetsEtaCut, photons+leptons, self.jetGammaDR)
         self.gamma_cleanJets    = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
-        self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.noIdCleanJetsAll, photons, self.jetGammaDR)
+#        self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.noIdCleanJetsAll, photons, self.jetGammaDR)
+        self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.jetsAllNoID, photons+leptons, self.jetGammaDR)
         self.gamma_noIdCleanJets    = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_noIdCleanJetsFwd = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         ###
