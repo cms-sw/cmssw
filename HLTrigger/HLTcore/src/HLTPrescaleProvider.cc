@@ -45,9 +45,9 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
        (psfsiTech>=0) && (psfsiPhys>=0) && (psfsiTech==psfsiPhys) ) {
     return psfsiPhys;
   } else {
+    /// error - notify user!
     if (count_[0]<2) {
       count_[0] += 1;
-      /// error - notify user!
       edm::LogError("HLTConfigData")
 	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
 	<< " Tech/Phys error = " << errorTech << "/" << errorPhys
