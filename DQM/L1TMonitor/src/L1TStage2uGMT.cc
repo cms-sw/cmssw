@@ -23,17 +23,27 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtBMTFBX = ibooker.book1D("ugmtBMTFBX", "uGMT BMTF Input BX", 5, -2.5, 2.5);
   ugmtBMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
 
+  ugmtBMTFnMuons = ibooker.book1D("ugmtBMTFnMuons", "uGMT BMTF Input Muon Multiplicity", 37, -0.5, 36.5);
+  ugmtBMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
+
   ugmtBMTFhwPt = ibooker.book1D("ugmtBMTFhwPt", "uGMT BMTF Input p_{T}", 512, -0.5, 511.5);
   ugmtBMTFhwPt->setAxisTitle("Hardware p_{T}", 1);
 
   ugmtBMTFhwEta = ibooker.book1D("ugmtBMTFhwEta", "uGMT BMTF Input #eta", 201, -100.5, 100.5);
   ugmtBMTFhwEta->setAxisTitle("Hardware #eta", 1);
   
-  ugmtBMTFhwPhi = ibooker.book1D("ugmtBMTFhwPhi", "uGMT BMTF Input #phi", 91, -15.5, 75.5);
+  ugmtBMTFhwPhi = ibooker.book1D("ugmtBMTFhwPhi", "uGMT BMTF Input #phi", 96, -20.5, 75.5);
   ugmtBMTFhwPhi->setAxisTitle("Hardware #phi", 1);
 
   ugmtBMTFglbPhi = ibooker.book1D("ugmtBMTFglbhwPhi", "uGMT BMTF Input #phi", 576, -0.5, 575.5);
   ugmtBMTFglbPhi->setAxisTitle("Global Hardware #phi", 1);
+
+  ugmtBMTFProcvshwPhi = ibooker.book2D("ugmtBMTFProcvshwPhi", "uGMT BMTF Processor vs #phi", 96, -20.5, 75.5, 12, 0, 12);
+  ugmtBMTFProcvshwPhi->setAxisTitle("Hardware #phi", 1);
+  ugmtBMTFProcvshwPhi->setAxisTitle("Wedge", 2);
+  for (int bin = 1; bin <= 12; ++bin) {
+    ugmtBMTFProcvshwPhi->setBinLabel(bin, std::to_string(bin), 2);
+  }
 
   ugmtBMTFhwSign = ibooker.book1D("ugmtBMTFhwSign", "uGMT BMTF Input Sign", 2, -0.5, 1.5);
   ugmtBMTFhwSign->setAxisTitle("Hardware Sign", 1);
@@ -53,6 +63,9 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtOMTFBX = ibooker.book1D("ugmtOMTFBX", "uGMT OMTF Input BX", 5, -2.5, 2.5);
   ugmtOMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
 
+  ugmtOMTFnMuons = ibooker.book1D("ugmtOMTFnMuons", "uGMT OMTF Input Muon Multiplicity", 37, -0.5, 36.5);
+  ugmtOMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
+
   ugmtOMTFhwPt = ibooker.book1D("ugmtOMTFhwPt", "uGMT OMTF Input p_{T}", 512, -0.5, 511.5);
   ugmtOMTFhwPt->setAxisTitle("Hardware p_{T}", 1);
 
@@ -70,6 +83,19 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtOMTFglbPhiNeg = ibooker.book1D("ugmtOMTFglbhwPhiNeg", "uGMT OMTF Input #phi, Negative Side", 576, -0.5, 575.5);
   ugmtOMTFglbPhiNeg->setAxisTitle("Global Hardware #phi", 1);
+
+  ugmtOMTFProcvshwPhiPos = ibooker.book2D("ugmtOMTFProcvshwPhiPos", "uGMT OMTF Processor vs #phi", 122, -16.5, 105.5, 6, 0, 6);
+  ugmtOMTFProcvshwPhiPos->setAxisTitle("Hardware #phi", 1);
+  ugmtOMTFProcvshwPhiPos->setAxisTitle("Sector (Positive Side)", 2);
+
+  ugmtOMTFProcvshwPhiNeg = ibooker.book2D("ugmtOMTFProcvshwPhiNeg", "uGMT OMTF Processor vs #phi", 122, -16.5, 105.5, 6, 0, 6);
+  ugmtOMTFProcvshwPhiNeg->setAxisTitle("Hardware #phi", 1);
+  ugmtOMTFProcvshwPhiNeg->setAxisTitle("Sector (Negative Side)", 2);
+
+  for (int bin = 1; bin <= 6; ++bin) {
+    ugmtOMTFProcvshwPhiPos->setBinLabel(bin, std::to_string(bin), 2);
+    ugmtOMTFProcvshwPhiNeg->setBinLabel(bin, std::to_string(bin), 2);
+  }
 
   ugmtOMTFhwSign = ibooker.book1D("ugmtOMTFhwSign", "uGMT OMTF Input Sign", 2, -0.5, 1.5);
   ugmtOMTFhwSign->setAxisTitle("Hardware Sign", 1);
@@ -89,6 +115,9 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtEMTFBX = ibooker.book1D("ugmtEMTFBX", "uGMT EMTF Input BX", 5, -2.5, 2.5);
   ugmtEMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
 
+  ugmtEMTFnMuons = ibooker.book1D("ugmtEMTFnMuons", "uGMT EMTF Input Muon Multiplicity", 37, -0.5, 36.5);
+  ugmtEMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
+
   ugmtEMTFhwPt = ibooker.book1D("ugmtEMTFhwPt", "uGMT EMTF p_{T}", 512, -0.5, 511.5);
   ugmtEMTFhwPt->setAxisTitle("Hardware p_{T}", 1);
 
@@ -107,6 +136,19 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtEMTFglbPhiNeg = ibooker.book1D("ugmtEMTFglbhwPhiNeg", "uGMT EMTF Input Global #phi, Negative Side", 576, -0.5, 575.5);
   ugmtEMTFglbPhiNeg->setAxisTitle("Global Hardware #phi", 1);
 
+  ugmtEMTFProcvshwPhiPos = ibooker.book2D("ugmtEMTFProcvshwPhiPos", "uGMT EMTF Processor vs #phi", 122, -16.5, 105.5, 6, 0, 6);
+  ugmtEMTFProcvshwPhiPos->setAxisTitle("Hardware #phi", 1);
+  ugmtEMTFProcvshwPhiPos->setAxisTitle("Sector (Positive Side)", 2);
+
+  ugmtEMTFProcvshwPhiNeg = ibooker.book2D("ugmtEMTFProcvshwPhiNeg", "uGMT EMTF Processor vs #phi", 122, -16.5, 105.5, 6, 0, 6);
+  ugmtEMTFProcvshwPhiNeg->setAxisTitle("Hardware #phi", 1);
+  ugmtEMTFProcvshwPhiNeg->setAxisTitle("Sector (Negative Side)", 2);
+
+  for (int bin = 1; bin <= 6; ++bin) {
+    ugmtEMTFProcvshwPhiPos->setBinLabel(bin, std::to_string(bin), 2);
+    ugmtEMTFProcvshwPhiNeg->setBinLabel(bin, std::to_string(bin), 2);
+  }
+
   ugmtEMTFhwSign = ibooker.book1D("ugmtEMTFhwSign", "uGMT EMTF Sign", 2, -0.5, 1.5);
   ugmtEMTFhwSign->setAxisTitle("Hardware Sign", 1);
 
@@ -124,14 +166,14 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtBMTFBXvsProcessor = ibooker.book2D("ugmtBMTFBXvsProcessor", "uGMT BMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
   ugmtBMTFBXvsProcessor->setAxisTitle("Wedge", 1);
-  for (int bin = 1; bin < 13; ++bin) {
+  for (int bin = 1; bin <= 12; ++bin) {
     ugmtBMTFBXvsProcessor->setBinLabel(bin, std::to_string(bin), 1);
   }
   ugmtBMTFBXvsProcessor->setAxisTitle("BX (Non-zero values prescaled by 107)", 2);
 
   ugmtOMTFBXvsProcessor = ibooker.book2D("ugmtOMTFBXvsProcessor", "uGMT OMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
   ugmtOMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
-  for (int bin = 1; bin < 7; ++bin) {
+  for (int bin = 1; bin <= 6; ++bin) {
     ugmtOMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
     ugmtOMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
   }
@@ -139,7 +181,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtEMTFBXvsProcessor = ibooker.book2D("ugmtEMTFBXvsProcessor", "uGMT EMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
   ugmtEMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
-  for (int bin = 1; bin < 7; ++bin) {
+  for (int bin = 1; bin <= 6; ++bin) {
     ugmtEMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
     ugmtEMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
   }
@@ -151,6 +193,9 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
  
   ugmtMuonBX = ibooker.book1D("ugmtMuonBX", "uGMT Muon BX", 5, -2.5, 2.5);
   ugmtMuonBX->setAxisTitle("BX", 1);
+
+  ugmtnMuons = ibooker.book1D("ugmtnMuons", "uGMT Muon Multiplicity", 8, -0.5, 8.5);
+  ugmtnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
 
   ugmtMuonIndex = ibooker.book1D("ugmtMuonIndex", "uGMT Input Muon Index", 108, -0.5, 107.5);
   ugmtMuonIndex->setAxisTitle("Index", 1);
@@ -200,6 +245,10 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonPhivsEta->setAxisTitle("#eta", 1);
   ugmtMuonPhivsEta->setAxisTitle("#phi", 2);
 
+  ugmtMuonBXvsLink = ibooker.book2D("ugmtMuonBXvsLink", "uGMT Muon BX vs Input Links", 36, 35.5, 71.5, 5, -2.5, 2.5);
+  ugmtMuonBXvsLink->setAxisTitle("Muon Input Links", 1);
+  ugmtMuonBXvsLink->setAxisTitle("BX", 2);
+
   ugmtMuonBXvshwPt = ibooker.book2D("ugmtMuonBXvshwPt", "uGMT Muon BX vs p_{T}", 256, -0.5, 511.5, 5, -2.5, 2.5);
   ugmtMuonBXvshwPt->setAxisTitle("Hardware p_{T}", 1);
   ugmtMuonBXvshwPt->setAxisTitle("BX", 2);
@@ -236,6 +285,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::RegionalMuonCandBxCollection> BMTFBxCollection;
   e.getByToken(ugmtBMTFToken, BMTFBxCollection);
 
+  ugmtBMTFnMuons->Fill(BMTFBxCollection->size(0));
+
   for (int itBX = BMTFBxCollection->getFirstBX(); itBX <= BMTFBxCollection->getLastBX(); ++itBX) {
     for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF = BMTFBxCollection->begin(itBX); BMTF != BMTFBxCollection->end(itBX); ++BMTF) {
       ugmtBMTFBX->Fill(itBX);
@@ -250,13 +301,16 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       int global_hw_phi = l1t::MicroGMTConfiguration::calcGlobalPhi(BMTF->hwPhi(), BMTF->trackFinderType(), BMTF->processor());
       ugmtBMTFglbPhi->Fill(global_hw_phi);
 
-      ugmtBMTFBXvsProcessor->Fill(BMTF->processor(), itBX);     
+      ugmtBMTFBXvsProcessor->Fill(BMTF->processor(), itBX);
+      ugmtBMTFProcvshwPhi->Fill(BMTF->hwPhi(), BMTF->processor());
       ugmtBXvsLink->Fill(BMTF->link(), itBX);
     }
   }
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> OMTFBxCollection;
   e.getByToken(ugmtOMTFToken, OMTFBxCollection);
+
+  ugmtOMTFnMuons->Fill(OMTFBxCollection->size(0));
 
   for (int itBX = OMTFBxCollection->getFirstBX(); itBX <= OMTFBxCollection->getLastBX(); ++itBX) {
     for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
@@ -273,13 +327,15 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       l1t::tftype trackFinderType = OMTF->trackFinderType();
 
       if (trackFinderType == l1t::omtf_neg) {
-        ugmtOMTFBXvsProcessor->Fill(OMTF->processor(), itBX);
+        ugmtOMTFBXvsProcessor->Fill(5 - OMTF->processor(), itBX);
         ugmtOMTFhwPhiNeg->Fill(OMTF->hwPhi());
         ugmtOMTFglbPhiNeg->Fill(global_hw_phi);
+        ugmtOMTFProcvshwPhiNeg->Fill(OMTF->hwPhi(), OMTF->processor());
       } else {
         ugmtOMTFBXvsProcessor->Fill(OMTF->processor() + 6, itBX);
         ugmtOMTFhwPhiPos->Fill(OMTF->hwPhi());
         ugmtOMTFglbPhiPos->Fill(global_hw_phi);
+        ugmtOMTFProcvshwPhiPos->Fill(OMTF->hwPhi(), OMTF->processor());
       }
 
       ugmtBXvsLink->Fill(OMTF->link(), itBX);
@@ -288,6 +344,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> EMTFBxCollection;
   e.getByToken(ugmtEMTFToken, EMTFBxCollection);
+
+  ugmtEMTFnMuons->Fill(EMTFBxCollection->size(0));
 
   for (int itBX = EMTFBxCollection->getFirstBX(); itBX <= EMTFBxCollection->getLastBX(); ++itBX) {
     for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF = EMTFBxCollection->begin(itBX); EMTF != EMTFBxCollection->end(itBX); ++EMTF) {
@@ -304,13 +362,15 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       l1t::tftype trackFinderType = EMTF->trackFinderType();
       
       if (trackFinderType == l1t::emtf_neg) {
-        ugmtEMTFBXvsProcessor->Fill(EMTF->processor(), itBX);
+        ugmtEMTFBXvsProcessor->Fill(5 - EMTF->processor(), itBX);
         ugmtEMTFhwPhiNeg->Fill(EMTF->hwPhi());
         ugmtEMTFglbPhiNeg->Fill(global_hw_phi);
+        ugmtEMTFProcvshwPhiNeg->Fill(EMTF->hwPhi(), EMTF->processor());
       } else {
         ugmtEMTFBXvsProcessor->Fill(EMTF->processor() + 6, itBX);
         ugmtEMTFhwPhiPos->Fill(EMTF->hwPhi());
         ugmtEMTFglbPhiPos->Fill(global_hw_phi);
+        ugmtEMTFProcvshwPhiPos->Fill(EMTF->hwPhi(), EMTF->processor());
       }
 
       ugmtBXvsLink->Fill(EMTF->link(), itBX);
@@ -319,6 +379,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<l1t::MuonBxCollection> MuonBxCollection;
   e.getByToken(ugmtMuonToken, MuonBxCollection);
+
+  ugmtnMuons->Fill(MuonBxCollection->size(0));
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
     for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
@@ -341,6 +403,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       ugmtMuonPtvsPhi->Fill(Muon->phi(), Muon->pt());
       ugmtMuonPhivsEta->Fill(Muon->eta(), Muon->phi());
 
+      ugmtMuonBXvsLink->Fill(int(Muon->tfMuonIndex()/3.) + 36, itBX);
       ugmtMuonBXvshwPt->Fill(Muon->hwPt(), itBX);
       ugmtMuonBXvshwEta->Fill(Muon->hwEta(), itBX);
       ugmtMuonBXvshwPhi->Fill(Muon->hwPhi(), itBX);
