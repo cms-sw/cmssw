@@ -1,4 +1,4 @@
-#include "DataFormats/TotemRPL1/interface/TotemRPCCBits.h"
+#include "DataFormats/L1TotemRP/interface/TotemRPCCBits.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <vector>

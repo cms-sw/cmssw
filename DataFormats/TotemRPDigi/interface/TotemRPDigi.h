@@ -7,37 +7,29 @@
 *
 ****************************************************************************/
 
-#ifndef DataFormats_TotemRPDigi_interface_TotemRPDigi_h
-#define DataFormats_TotemRPDigi_interface_TotemRPDigi_h
-
-#include "DataFormats/TotemRPDetId/interface/TotemRPIdTypes.h"
+#ifndef DataFormats_TotemRPDigi_TotemRPDigi
+#define DataFormats_TotemRPDigi_TotemRPDigi
 
 class TotemRPDigi
 {
   public:
-    TotemRPDigi(RPDetId det_id=0, unsigned short strip_no=0)
+    TotemRPDigi(unsigned short strip_no=0) : strip_no_(strip_no)
     {
-      det_id_=det_id; 
-      strip_no_=strip_no;
     };
 
-    inline RPDetId GetDetId() const {return det_id_;}
-    inline unsigned short GetStripNo() const {return strip_no_;}
+    unsigned short getStripNumber() const
+    {
+      return strip_no_;
+    }
   
   private:
-    RPDetId det_id_;
     unsigned short strip_no_;
 };
 
 
 inline bool operator< (const TotemRPDigi& one, const TotemRPDigi& other)
 {
-  if(one.GetDetId() < other.GetDetId())
-    return true;
-  else if(one.GetDetId() == other.GetDetId())
-    return one.GetStripNo() < other.GetStripNo();
-  else 
-    return false;
+  return one.getStripNumber() < other.getStripNumber();
 }
 
 #endif
