@@ -147,7 +147,6 @@ void OMTFReconstruction::getProcessorCandidates(unsigned int iProcessor, l1t::tf
 
   writeResultToXML(iProcessor, input, results);
 }
-
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFReconstruction::writeResultToXML(unsigned int iProcessor, const OMTFinput &input, 
@@ -169,3 +168,5 @@ void OMTFReconstruction::writeResultToXML(unsigned int iProcessor, const OMTFinp
     }
   }
 }
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////

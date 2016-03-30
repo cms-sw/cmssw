@@ -28,7 +28,6 @@ GoldenPattern::layerResult GoldenPattern::process1Layer1RefLayer(unsigned int iR
 
   ///Shift phidist, so 0 is at the middle of the range
   phiDist+=exp2(OMTFConfiguration::instance()->nPdfAddrBits-1);
-
   ///Check if phiDist is within pdf range
   ///in -64 +63 U2 code
   ///Find more elegant way to check this.
@@ -58,7 +57,6 @@ void GoldenPattern::addCount(unsigned int iRefLayer,
 
   int nHitsInLayer = 0;
   int phiDist = exp2(OMTFConfiguration::instance()->nPdfAddrBits);
-
   for(auto itHit: layerHits){
     if(itHit>=(int)OMTFConfiguration::instance()->nPhiBins) continue;
     if(abs(itHit-phiRefHit)<phiDist) phiDist = itHit-phiRefHit;
@@ -147,7 +145,6 @@ void GoldenPattern::reset(){
 
   pdf2D.assign(OMTFConfiguration::instance()->nRefLayers,pdf1D);
   pdfAllRef.assign(OMTFConfiguration::instance()->nLayers,pdf2D);
-
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

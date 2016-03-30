@@ -113,7 +113,6 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
        ) return false;
 
     aSector =  csc.chamber();   	
-
     aMin = OMTFConfiguration::instance()->endcap10DegMin[iProcessor];
     aMax = OMTFConfiguration::instance()->endcap10DegMax[iProcessor];
 
@@ -240,7 +239,6 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     
     auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
     unsigned int iLayer = iter->second;
-
     int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
@@ -278,11 +276,9 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
       unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(rawid);
       if(OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber)==OMTFConfiguration::instance()->hwToLogicLayer.end()) continue;
 
-
       //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];      
       auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
       unsigned int iLayer = iter->second;
-
       int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
       int iEta = myAngleConverter.getGlobalEta(rawid, *digi);
       ///Accept CSC digis only up to eta=1.26.

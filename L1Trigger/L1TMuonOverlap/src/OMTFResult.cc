@@ -52,7 +52,6 @@ void OMTFResult::finalise(){
     //unsigned int connectedLayer = OMTFConfiguration::instance()->logicToLogic[iLogicLayer];    
     auto iter = OMTFConfiguration::instance()->logicToLogic.find(iLogicLayer);
     unsigned int connectedLayer = iter->second;
-
     for(unsigned int iRefLayer=0;iRefLayer<results[iLogicLayer].size();++iRefLayer){
       ///If connected layer (POS or BEND) has not been fired, ignore this layer also
       unsigned int val = results[connectedLayer][iRefLayer]>0 ? results[iLogicLayer][iRefLayer]: 0;
@@ -68,7 +67,6 @@ void OMTFResult::finalise(){
 bool OMTFResult::empty() const{
 
   unsigned int nHits = 0;
-
   for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
     nHits+=hits1D[iRefLayer];
   }      

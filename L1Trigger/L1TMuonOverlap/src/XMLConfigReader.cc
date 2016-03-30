@@ -173,6 +173,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   int val = 0;
   unsigned int nLayers = aGPElement->getElementsByTagName(_toDOMS("Layer"))->getLength();
   assert(nLayers==m_omtf_config->nLayers);
+
   DOMNode *aNode = 0;
   DOMElement* aLayerElement = 0;
   DOMElement* aItemElement = 0;
@@ -235,7 +236,6 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
 
   OMTFinput::vector1D input1D(14,m_omtf_config->nPhiBins);
   OMTFinput::vector2D input2D(m_omtf_config->nLayers);
-
   unsigned int nElem = doc->getElementsByTagName(_toDOMS("OMTF_Events"))->getLength();
   assert(nElem==1);
  
@@ -278,14 +278,14 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
   unsigned int nLayersHit = aProcElement->getElementsByTagName(_toDOMS("Layer"))->getLength();    
   assert(nLayersHit<=m_omtf_config->nLayers);
   
-  input2D.assign(m_omtf_config->nLayers,input1D);
-  
+  input2D.assign(m_omtf_config->nLayers,input1D);  
   for(unsigned int iLayer=0;iLayer<nLayersHit;++iLayer){
     aNode = aProcElement->getElementsByTagName(_toDOMS("Layer"))->item(iLayer);
     aLayerElement = static_cast<DOMElement *>(aNode); 
     aLogicLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iLayer"))).c_str());
     nElem = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->getLength();     
     input1D.assign(14,m_omtf_config->nPhiBins);
+
     for(unsigned int iHit=0;iHit<nElem;++iHit){
       aNode = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->item(iHit);
       aHitElement = static_cast<DOMElement *>(aNode); 
@@ -559,6 +559,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
   
   m_omtf_config->endcap20DegMin =  std::vector<unsigned int>(6);
   m_omtf_config->endcap20DegMax =  std::vector<unsigned int>(6);
+
   
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("ConnectionMap"))->getLength();
   DOMElement* aConnectionElement = 0;
@@ -656,6 +657,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
     unsigned int iProcessor = std::atoi(_toString(aProcessorElement->getAttribute(_toDOMS("iProcessor"))).c_str());
     unsigned int nElem1 = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->getLength();
     assert(nElem1==m_omtf_config->nRefLayers);
+
     DOMElement* aRefLayerElement = 0;
     for(uint ii=0;ii<nElem1;++ii){
       aNode = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->item(ii);

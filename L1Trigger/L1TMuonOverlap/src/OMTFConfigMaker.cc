@@ -17,7 +17,6 @@ OMTFConfigMaker::OMTFConfigMaker(const edm::ParameterSet & theConfig, OMTFConfig
 
   refPhi1D = std::vector<int>(OMTFConfiguration::instance()->nLogicRegions,-2*OMTFConfiguration::instance()->nPhiBins);
   maxRefPhi2D.assign(OMTFConfiguration::instance()->nRefLayers,refPhi1D);
-
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
