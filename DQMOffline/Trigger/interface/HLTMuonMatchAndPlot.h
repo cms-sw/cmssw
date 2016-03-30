@@ -64,7 +64,7 @@ class HLTMuonMatchAndPlot
  public:
 
   /// Constructor
-  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,std::string);
+  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,std::string, bool);
 
   // Analyzer Methods
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
@@ -113,6 +113,7 @@ class HLTMuonMatchAndPlot
   unsigned int cutMinPt_;
   std::string hltPath_;
   std::string moduleLabel_;
+  bool isLastFilter_;
   std::map<std::string, MonitorElement *> hists_;
   
   // Selectors
