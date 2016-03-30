@@ -9,8 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v2', 
-    'HLT_IsoTrackHB_v1', 
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_IsoTrackHB_v1', 
     'HLT_IsoTrackHE_v1', 
     'HLT_L1SingleMuOpen_DT_v2', 
     'HLT_L1Tech_DT_GlobalOR_v2')
@@ -22,7 +21,7 @@ streamA_datasetDoubleEG_selector.throw      = cms.bool(False)
 streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v1', 
     'HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v1', 
     'HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_v1', 
-    'HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v1', 
+    'HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v1', 
     'HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v1', 
     'HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v2', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v3', 
@@ -207,6 +206,10 @@ streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_DoubleJet90
     'HLT_DoubleJet90_Double30_TripleBTagCSV_p087_v1', 
     'HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v1', 
     'HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v1', 
+    'HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v1', 
+    'HLT_DoubleJetsC100_SingleBTagCSV_p014_v1', 
+    'HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_v1', 
+    'HLT_DoubleJetsC100_SingleBTagCSV_p026_v1', 
     'HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_v1', 
     'HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_v1', 
     'HLT_QuadJet45_DoubleBTagCSV_p087_v1', 
@@ -370,7 +373,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET170_HBHECleaned_v2', 
     'HLT_PFMET170_JetIdCleaned_v2', 
     'HLT_PFMET170_NoiseCleaned_v3', 
-    'HLT_PFMET170_v2', 
+    'HLT_PFMET170_NotCleaned_v1', 
     'HLT_PFMET300_v1', 
     'HLT_PFMET400_v1', 
     'HLT_PFMET90_PFMHT90_IDTight_v2', 
