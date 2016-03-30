@@ -80,8 +80,7 @@ void EgammaHLTPixelMatchVarProducer::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription varParamDesc;
   edm::ParameterSetDescription binParamDesc;
   
-  std::auto_ptr<edm::ParameterDescriptionCases<std::string>> binDescCases;
-  binDescCases = 
+  auto binDescCases = 
     "AbsEtaClus" >> 
     (edm::ParameterDescription<double>("xMin",0.0,true) and
      edm::ParameterDescription<double>("xMax",3.0,true) and
@@ -104,7 +103,7 @@ void EgammaHLTPixelMatchVarProducer::fillDescriptions(edm::ConfigurationDescript
      edm::ParameterDescription<std::string>("funcType","pol0",true) and
      edm::ParameterDescription<std::vector<double>>("funcParams",{0.},true));
   
-  binParamDesc.ifValue(edm::ParameterDescription<std::string>("binType","AbsEtaClus",true), binDescCases);
+  binParamDesc.ifValue(edm::ParameterDescription<std::string>("binType","AbsEtaClus",true), std::move(binDescCases));
   
   
   varParamDesc.addVPSet("bins",binParamDesc);
