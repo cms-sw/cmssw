@@ -99,7 +99,8 @@ class GEMDetId :public DetId {
   static const int minChamberId=     0;
   static const int maxChamberId=     36;
 
-  static const int minLayerId=     1;
+  // LayerId = 0 is superChamber
+  static const int minLayerId=     0;
   static const int maxLayerId=     2;
 
   static const int minRollId=	  0;
