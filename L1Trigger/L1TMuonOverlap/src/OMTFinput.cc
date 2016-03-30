@@ -80,7 +80,6 @@ void OMTFinput::mergeData(const OMTFinput *aInput){
     if(!aPhiVec.size()) continue;
 
     OMTFinput::vector1D layerData = getLayerData(iLayer, false);
-    
     for(unsigned int iInput=0;iInput<14;++iInput){      
       addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
     }

@@ -80,7 +80,6 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
   const l1t::LUT* meanDistPhiLUT =  omtfParams->meanDistPhiLUT();
 
   unsigned int nGPs = OMTFConfiguration::instance()->nGoldenPatterns;
-
   unsigned int address = 0;
   unsigned int iEta, iPt, iCharge;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
@@ -214,11 +213,9 @@ void OMTFProcessor::shiftGP(GoldenPattern *aGP,
   ///Shift pdfs by differecne between original menaDistPhi, and
   ///the averaged value
   unsigned int nPdfBins =  exp2(OMTFConfiguration::instance()->nPdfAddrBits);
-
   GoldenPattern::vector3D pdfAllRef = aGP->getPdf();
 
   int indexShift = 0;
-
   for(unsigned int iLayer=0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
     for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
       indexShift = meanDistPhiOld[iLayer][iRefLayer] - meanDistPhiNew[iLayer][iRefLayer];

@@ -44,7 +44,6 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   double hsPhiPitch = 2*M_PI/OMTFConfiguration::instance()->nPhiBins; // width of phi Pitch, related to halfStrip at CSC station 2
   const int dummy = OMTFConfiguration::instance()->nPhiBins;
-
   int processor= iProcessor+1;                           // FIXME: get from OMTF name when available
   int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
 
@@ -78,7 +77,6 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   const double hsPhiPitch = 2*M_PI/OMTFConfiguration::instance()->nPhiBins; //
   const int dummy = OMTFConfiguration::instance()->nPhiBins;
-
   int processor= iProcessor+1;                           // FIXME: get from OMTF name when available
   int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
 
@@ -130,7 +128,6 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   const double hsPhiPitch = 2*M_PI/OMTFConfiguration::instance()->nPhiBins; //
   const int dummy = OMTFConfiguration::instance()->nPhiBins;
-
   int processor = iProcessor+1;
   const RPCRoll* roll = _georpc->roll(rollId);
   if (!roll) return dummy;
