@@ -194,7 +194,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonBX = ibooker.book1D("ugmtMuonBX", "uGMT Muon BX", 5, -2.5, 2.5);
   ugmtMuonBX->setAxisTitle("BX", 1);
 
-  ugmtnMuons = ibooker.book1D("ugmtnMuons", "uGMT Muon Multiplicity", 8, -0.5, 8.5);
+  ugmtnMuons = ibooker.book1D("ugmtnMuons", "uGMT Muon Multiplicity", 9, -0.5, 8.5);
   ugmtnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
 
   ugmtMuonIndex = ibooker.book1D("ugmtMuonIndex", "uGMT Input Muon Index", 108, -0.5, 107.5);
