@@ -44,6 +44,7 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v3', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v3', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v3', 
+    'HLT_Ele27_HighEta_Ele20_Mass55_v1', 
     'HLT_Ele30WP60_Ele8_Mass55_v2', 
     'HLT_Ele30WP60_SC4_Mass55_v3', 
     'HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v3', 
@@ -357,9 +358,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_MET60_IsoTrk35_Loose_v1', 
     'HLT_MET75_IsoTrk50_v2', 
     'HLT_MET90_IsoTrk50_v2', 
-    'HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v2', 
     'HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v1', 
-    'HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v3', 
     'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1', 
     'HLT_Mu14er_PFMET100_v1', 
     'HLT_Mu3er_PFHT140_PFMET125_v1', 
@@ -377,9 +376,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET300_v1', 
     'HLT_PFMET400_v1', 
     'HLT_PFMET90_PFMHT90_IDTight_v2', 
-    'HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v2', 
     'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v1', 
-    'HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v3', 
     'HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTau_selector
