@@ -23,9 +23,9 @@ namespace edm {
     template <typename T>
     class IndirectHolder : public BaseHolder<T> {
     public:
-      // It may be better to use auto_ptr<RefHolderBase> in
+      // It may be better to use unique_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
-      // sure if use of auto_ptr here causes any troubles elsewhere.
+      // sure if use of unique_ptr here causes any troubles elsewhere.
       IndirectHolder() : BaseHolder<T>(), helper_( nullptr ) { }
       IndirectHolder(std::shared_ptr<RefHolderBase> p);
       template< typename U>
