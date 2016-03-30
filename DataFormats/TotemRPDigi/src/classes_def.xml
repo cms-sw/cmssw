@@ -1,5 +1,8 @@
 <lcgdict>
-  <class name="TotemRPDigi"/>
+  <class name="TotemRPDigi" ClassVersion="2">
+    <version ClassVersion="2" checksum="3444194306"/>
+  </class>
+
   <class name="edm::DetSet<TotemRPDigi>"/>
   <class name="std::vector<edm::DetSet<TotemRPDigi> >"/>
   <class name="std::vector<TotemRPDigi>"/>

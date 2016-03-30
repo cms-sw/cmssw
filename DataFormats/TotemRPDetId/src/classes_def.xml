@@ -1,3 +1,5 @@
 <lcgdict>
-   <class name="TotRPDetId"/>
+  <class name="TotemRPDetId" ClassVersion="2">
+    <version ClassVersion="2" checksum="1856701727"/>
+  </class>
 </lcgdict>

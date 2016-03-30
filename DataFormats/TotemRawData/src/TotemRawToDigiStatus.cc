@@ -1,6 +1,5 @@
 /****************************************************************************
 *
-* This is a part of the TOTEM testbeam/monitoring software.
 * This is a part of TOTEM offline software.
 * Authors: 
 *   Maciej Wróbel (wroblisko@gmail.com)
@@ -9,6 +8,8 @@
 ****************************************************************************/
 
 #include "DataFormats/TotemRawData/interface/TotemRawToDigiStatus.h"
+
+#include <ostream>
 
 std::ostream& operator << (std::ostream& s, const TotemVFATStatus &st)
 {

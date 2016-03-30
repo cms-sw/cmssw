@@ -1,1 +1,7 @@
-#include "DataFormats/TotemRPDetId/interface/TotRPDetId.h"
+#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+
+namespace {
+  namespace {
+    TotemRPDetId dummy0;
+  }
+}
