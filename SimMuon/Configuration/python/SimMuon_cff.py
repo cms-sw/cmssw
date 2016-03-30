@@ -17,4 +17,6 @@ muonDigi = cms.Sequence(simMuonCSCDigis+simMuonDTDigis+simMuonRPCDigis)
 from Configuration.StandardSequences.Eras import eras
 if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
     from SimMuon.GEMDigitizer.muonGEMDigi_cff import *
+    from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import *
     muonDigi += muonGEMDigi
+    muonDigi += simMuonME0Digis

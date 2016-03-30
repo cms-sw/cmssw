@@ -29,6 +29,19 @@ RecoLocalMuonAOD = cms.PSet(
         'keep *_rpcRecHits_*_*')
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
+    RecoLocalMuonFEVT.outputCommands.append('keep *_gemRecHits_*_*')
+    RecoLocalMuonFEVT.outputCommands.append('keep *_me0RecHits_*_*')
+    RecoLocalMuonFEVT.outputCommands.append('keep *_me0Segments_*_*')
+
+    RecoLocalMuonRECO.outputCommands.append('keep *_gemRecHits_*_*')
+    RecoLocalMuonRECO.outputCommands.append('keep *_me0RecHits_*_*')
+    RecoLocalMuonRECO.outputCommands.append('keep *_me0Segments_*_*')
+
+    RecoLocalMuonAOD.outputCommands.append('keep *_gemRecHits_*_*')
+    RecoLocalMuonAOD.outputCommands.append('keep *_me0RecHits_*_*')
+    RecoLocalMuonAOD.outputCommands.append('keep *_me0Segments_*_*')
 
 # Upgrade configurations - adding gem and me0
 from Configuration.StandardSequences.Eras import eras

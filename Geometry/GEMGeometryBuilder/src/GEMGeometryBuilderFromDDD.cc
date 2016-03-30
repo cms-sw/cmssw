@@ -213,7 +213,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2 << std::endl;
 
     LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber out of chambers." << std::endl;
-    GEMSuperChamber* sch = new GEMSuperChamber(detIdL1, surf); 
+    GEMDetId detIdSC(detIdL1.region(),detIdL1.ring(),detIdL1.station(),0,detIdL1.chamber(),0);
+    GEMSuperChamber* sch = new GEMSuperChamber(detIdSC, surf); 
     sch->add(const_cast<GEMChamber*>(chambers.at(i)));
     sch->add(const_cast<GEMChamber*>(ch2));
 

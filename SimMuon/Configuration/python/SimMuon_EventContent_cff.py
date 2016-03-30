@@ -42,5 +42,6 @@ SimMuonAOD = cms.PSet(
 if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
     SimMuonFEVTDEBUG.outputCommands.append('keep *_simMuonGEMDigis_*_*')
     SimMuonFEVTDEBUG.outputCommands.append('keep *_simMuonGEMPadDigis_*_*')
+    SimMuonFEVTDEBUG.outputCommands.append('keep *_simMuonME0Digis_*_*')
     SimMuonRAW.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*')
     SimMuonRECO.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*')
