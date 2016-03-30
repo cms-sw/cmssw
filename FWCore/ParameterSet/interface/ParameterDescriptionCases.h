@@ -18,11 +18,8 @@
 
 // If one decided to save the value then one should be aware
 // the class has been optimized to minimize the number of copies made
-// while evaluating such an expression.  It contains an auto_ptr and
-// the class has copy semantics like an auto_ptr.  If you tried to use
-// this class directly you must be aware that if a copy is
-// made the original contains a null pointer. Then it would
-// be easy to write code that dereferences that null pointer.
+// while evaluating such an expression.  It contains a unique_ptr and
+// the class has move semantics like a unique_ptr.
 
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
