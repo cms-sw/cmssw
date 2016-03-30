@@ -57,7 +57,7 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 
   resetConfiguration();
 
-  myResults.assign(OMTFConfiguration::nTestRefHits,OMTFProcessor::resultsMap());
+  myResults.assign(omtf_config_->nTestRefHits,OMTFProcessor::resultsMap());
 
   const std::vector<GoldenPattern *> & aGPs = aReader->readPatterns();
   for(auto it: aGPs){
@@ -72,7 +72,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 
   resetConfiguration();
 
-  myResults.assign(OMTFConfiguration::nTestRefHits,OMTFProcessor::resultsMap());
+  myResults.assign(omtf_config_->nTestRefHits,OMTFProcessor::resultsMap());
   
   const l1t::LUT* chargeLUT =  omtfParams->chargeLUT();
   const l1t::LUT* etaLUT =  omtfParams->etaLUT();
@@ -80,7 +80,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
   const l1t::LUT* pdfLUT =  omtfParams->pdfLUT();
   const l1t::LUT* meanDistPhiLUT =  omtfParams->meanDistPhiLUT();
 
-  unsigned int nGPs = OMTFConfiguration::nGoldenPatterns;
+  unsigned int nGPs = omtf_config_->nGoldenPatterns;
   unsigned int address = 0;
   unsigned int iEta, iPt, iCharge;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
@@ -88,25 +88,25 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
     iEta = etaLUT->data(address);
     iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
-    GoldenPattern::vector2D meanDistPhi2D(OMTFConfiguration::nLayers);
-    GoldenPattern::vector1D pdf1D(exp2(OMTFConfiguration::nPdfAddrBits));
-    GoldenPattern::vector3D pdf3D(OMTFConfiguration::nLayers);
-    GoldenPattern::vector2D pdf2D(OMTFConfiguration::nRefLayers);
+    GoldenPattern::vector2D meanDistPhi2D(omtf_config_->nLayers);
+    GoldenPattern::vector1D pdf1D(exp2(omtf_config_->nPdfAddrBits));
+    GoldenPattern::vector3D pdf3D(omtf_config_->nLayers);
+    GoldenPattern::vector2D pdf2D(omtf_config_->nRefLayers);
     ///Mean dist phi data
-    for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
-      GoldenPattern::vector1D meanDistPhi1D(OMTFConfiguration::nRefLayers);
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-	address = iRefLayer + iLayer*OMTFConfiguration::nRefLayers + iGP*(OMTFConfiguration::nRefLayers*OMTFConfiguration::nLayers);
+    for(unsigned int iLayer=0;iLayer<omtf_config_->nLayers;++iLayer){
+      GoldenPattern::vector1D meanDistPhi1D(omtf_config_->nRefLayers);
+      for(unsigned int iRefLayer=0;iRefLayer<omtf_config_->nRefLayers;++iRefLayer){
+	address = iRefLayer + iLayer*omtf_config_->nRefLayers + iGP*(omtf_config_->nRefLayers*omtf_config_->nLayers);
 	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));	
       }
       meanDistPhi2D[iLayer] = meanDistPhi1D;    
       ///Pdf data
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-	pdf1D.assign(1<<OMTFConfiguration::nPdfAddrBits,0);
-	for(unsigned int iPdf=0;iPdf<(unsigned int)(1<<OMTFConfiguration::nPdfAddrBits);++iPdf){
-	  address = iPdf + iRefLayer*(1<<OMTFConfiguration::nPdfAddrBits) +
-	    iLayer*OMTFConfiguration::nRefLayers*(1<<OMTFConfiguration::nPdfAddrBits) +
-	    iGP*OMTFConfiguration::nLayers*OMTFConfiguration::nRefLayers*(1<<OMTFConfiguration::nPdfAddrBits);
+      for(unsigned int iRefLayer=0;iRefLayer<omtf_config_->nRefLayers;++iRefLayer){
+	pdf1D.assign(1<<omtf_config_->nPdfAddrBits,0);
+	for(unsigned int iPdf=0;iPdf<(unsigned int)(1<<omtf_config_->nPdfAddrBits);++iPdf){
+	  address = iPdf + iRefLayer*(1<<omtf_config_->nPdfAddrBits) +
+	    iLayer*omtf_config_->nRefLayers*(1<<omtf_config_->nPdfAddrBits) +
+	    iGP*omtf_config_->nLayers*omtf_config_->nRefLayers*(1<<omtf_config_->nPdfAddrBits);
 	  pdf1D[iPdf] = pdfLUT->data(address);
 	}
 	pdf2D[iRefLayer] = pdf1D;
@@ -182,8 +182,8 @@ void  OMTFProcessor::averagePatterns(int charge){
     GoldenPattern::vector2D meanDistPhi3  = aGP3->getMeanDistPhi();
     GoldenPattern::vector2D meanDistPhi4  = aGP4->getMeanDistPhi();
    
-    for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+    for(unsigned int iLayer=0;iLayer<omtf_config_->nLayers;++iLayer){
+      for(unsigned int iRefLayer=0;iRefLayer<omtf_config_->nRefLayers;++iRefLayer){
       	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi2[iLayer][iRefLayer];
       	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi3[iLayer][iRefLayer];
       	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi4[iLayer][iRefLayer];
@@ -214,13 +214,13 @@ void OMTFProcessor::shiftGP(GoldenPattern *aGP,
 
   ///Shift pdfs by differecne between original menaDistPhi, and
   ///the averaged value
-  unsigned int nPdfBins =  exp2(OMTFConfiguration::nPdfAddrBits);
+  unsigned int nPdfBins =  exp2(omtf_config_->nPdfAddrBits);
 
   GoldenPattern::vector3D pdfAllRef = aGP->getPdf();
 
   int indexShift = 0;
-  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+  for(unsigned int iLayer=0;iLayer<omtf_config_->nLayers;++iLayer){
+    for(unsigned int iRefLayer=0;iRefLayer<omtf_config_->nRefLayers;++iRefLayer){
       indexShift = meanDistPhiOld[iLayer][iRefLayer] - meanDistPhiNew[iLayer][iRefLayer];
       for(unsigned int iPdfBin=0;iPdfBin<nPdfBins;++iPdfBin) pdfAllRef[iLayer][iRefLayer][iPdfBin] = 0;
 	for(unsigned int iPdfBin=0;iPdfBin<nPdfBins;++iPdfBin){
@@ -246,22 +246,22 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
   std::bitset<128> refHitsBits = aInput.getRefHits(iProcessor);
   if(refHitsBits.none()) return myResults;
    
-  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+  for(unsigned int iLayer=0;iLayer<omtf_config_->nLayers;++iLayer){
     const OMTFinput::vector1D & layerHits = aInput.getLayerData(iLayer);
     if(!layerHits.size()) continue;
     ///Number of reference hits to be checked. 
     ///Value read from XML configuration
-    unsigned int nTestedRefHits = OMTFConfiguration::nTestRefHits;
-    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
+    unsigned int nTestedRefHits = omtf_config_->nTestRefHits;
+    for(unsigned int iRefHit=0;iRefHit<omtf_config_->nRefHits;++iRefHit){
       if(!refHitsBits[iRefHit]) continue;
       if(nTestedRefHits--==0) break;
-      const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
+      const RefHitDef & aRefHitDef = omtf_config_->refHitsDefs[iProcessor][iRefHit];
       
-      int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
-      int etaRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
+      int phiRef = aInput.getLayerData(omtf_config_->refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
+      int etaRef = aInput.getLayerData(omtf_config_->refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
       unsigned int iRegion = aRefHitDef.iRegion;
       
-      if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
+      if(omtf_config_->bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
       	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
@@ -272,8 +272,8 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
         //   std::cout <<  itGP.second->pdfValue(1,0,0) << std::endl;
              
       	int phiRefSt2 = itGP.second->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);       	
-      	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].setRefPhiRHits(aRefHitDef.iRefLayer, phiRef); 
-        myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
+      	myResults[omtf_config_->nTestRefHits-nTestedRefHits-1][itGP.second->key()].setRefPhiRHits(aRefHitDef.iRefLayer, phiRef); 
+        myResults[omtf_config_->nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
       												  aLayerResult.first,
       												  phiRefSt2,etaRef);	 
       }
@@ -300,11 +300,11 @@ OMTFinput::vector1D OMTFProcessor::restrictInput(unsigned int iProcessor,
 
   OMTFinput::vector1D myHits = layerHits;
   
-  unsigned int iStart = OMTFConfiguration::connections[iProcessor][iRegion][iLayer].first;
-  unsigned int iEnd = iStart + OMTFConfiguration::connections[iProcessor][iRegion][iLayer].second -1;
+  unsigned int iStart = omtf_config_->connections[iProcessor][iRegion][iLayer].first;
+  unsigned int iEnd = iStart + omtf_config_->connections[iProcessor][iRegion][iLayer].second -1;
 
   for(unsigned int iInput=0;iInput<14;++iInput){    
-    if(iInput<iStart || iInput>iEnd) myHits[iInput] = OMTFConfiguration::nPhiBins;
+    if(iInput<iStart || iInput>iEnd) myHits[iInput] = omtf_config_->nPhiBins;
   }  
   
   return myHits;
@@ -334,17 +334,17 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
   myStr<<aInput<<std::endl;
   edm::LogInfo("OMTF processor")<<myStr.str();
    
-  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+  for(unsigned int iLayer=0;iLayer<omtf_config_->nLayers;++iLayer){
     const OMTFinput::vector1D & layerHits = aInput.getLayerData(iLayer);
     if(!layerHits.size()) continue;
     ///Number of reference hits to be checked. 
     ///Value read from XML configuration
-    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
+    for(unsigned int iRefHit=0;iRefHit<omtf_config_->nRefHits;++iRefHit){
       if(!refHitsBits[iRefHit]) continue;
-      const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
-      int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
+      const RefHitDef & aRefHitDef = omtf_config_->refHitsDefs[iProcessor][iRefHit];
+      int phiRef = aInput.getLayerData(omtf_config_->refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
       unsigned int iRegion = aRefHitDef.iRegion;
-      if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
+      if(omtf_config_->bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){	
 	if(itGP.first.theCharge!=theCharge) continue;
