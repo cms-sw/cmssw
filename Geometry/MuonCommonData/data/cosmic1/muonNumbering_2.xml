@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="muonNumbering" eval="true">
+  <SpecPar name="cms">
+   <PartSelector path="//cmse"/>
+   <Parameter name="copyNumber" value="1"/>
+  </SpecPar>
+  <SpecPar name="cms">
+   <PartSelector path="//cmse"/>
+   <Parameter name="copyNumber" value="2"/>
+  </SpecPar>
+  <SpecPar name="cms">
+   <PartSelector path="//cmse"/>
+   <Parameter name="copyNumber" value="3"/>
+  </SpecPar>
+ </SpecParSection>
+ 
+ <SpecParSection label="muonNumbering" eval="true">
+  <SpecPar name="GEMBox">
+   <PartSelector path="//GEMBox11L"/>
+   <Parameter name="copyNumber" value="1"/>
+  </SpecPar>
+  <SpecPar name="GEMBox">
+   <PartSelector path="//GEMBox11S"/>
+   <Parameter name="copyNumber" value="2"/>
+  </SpecPar>
+  <SpecPar name="GEMBox">
+   <PartSelector path="//GEMBox11L"/>
+   <Parameter name="copyNumber" value="3"/>
+  </SpecPar>
+  <SpecPar name="GEMBox">
+   <PartSelector path="//GEMBox11S"/>
+   <Parameter name="copyNumber" value="4"/>
+  </SpecPar>
+  <SpecPar name="GEMBox">
+   <PartSelector path="//GEMBox11L"/>
+   <Parameter name="copyNumber" value="5"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMSector">
+   <PartSelector path="//GEMBox.*"/>
+   <Parameter name="copyNumber" value="1"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMChamber">
+   <PartSelector path="//GHA.*"/>
+   <Parameter name="copyNumber" value="1"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
