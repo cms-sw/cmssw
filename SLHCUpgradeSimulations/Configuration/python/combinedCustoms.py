@@ -10,6 +10,8 @@ from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customi
 from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
+
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 from Configuration.StandardSequences.Eras import eras
@@ -28,6 +30,11 @@ def cust_2023sim(process):
     return process
 
 def cust_2023dev(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK(process)
+    return process
+
+def cust_2023LReco(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     return process
 
