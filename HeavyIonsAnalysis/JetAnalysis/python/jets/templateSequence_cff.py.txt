@@ -6,6 +6,7 @@ from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 ALGO_SUB_RADIUS_OBJECT_match = patJetGenJetMatch.clone(
     src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
     matched = cms.InputTag("ALGO_RADIUS_GENJETS"),
+    resolveByMatchQuality = cms.bool(RESOLVEBYDIST_),
     maxDeltaR = 0.RADIUS_
     )
 
