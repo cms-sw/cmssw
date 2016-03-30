@@ -31,7 +31,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -88,7 +87,7 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
     double mPtThreshold;
     double mIPWidth;
     double mRowResolution;
@@ -109,7 +108,7 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
     virtual ~ES_TTStubAlgorithm_window(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       /// Get magnetic field
       edm::ESHandle< MagneticField > magnet;
@@ -130,7 +129,7 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
         new TTStubAlgorithm_window< T >( theTrackerGeom, theTrackerTopo, 
                                          mPtScalingFactor, mIPWidth, mRowResolution, mColResolution );
 
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 
 

@@ -24,7 +24,6 @@
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -99,7 +98,7 @@ class ES_TTClusterAlgorithm_2d : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTClusterAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTClusterAlgorithm< T > > _theAlgo;
     bool                                         mDoubleCountingTest;
 
   public:
@@ -114,12 +113,12 @@ class ES_TTClusterAlgorithm_2d : public edm::ESProducer
     virtual ~ES_TTClusterAlgorithm_2d(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
+    std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     {
       TTClusterAlgorithm< T >* TTClusterAlgo =
         new TTClusterAlgorithm_2d< T >( mDoubleCountingTest );
 
-      _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
+      _theAlgo = std::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;
     } 
 

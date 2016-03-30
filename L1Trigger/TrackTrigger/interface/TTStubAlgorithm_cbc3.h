@@ -22,7 +22,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -82,7 +81,7 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
     /// Z-matching
     bool  mPerformZMatching2S;
@@ -99,7 +98,7 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
     virtual ~ES_TTStubAlgorithm_cbc3(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -109,7 +108,7 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_cbc3< T >( theTrackerGeom, theTrackerTopo, mPerformZMatching2S );
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 
 

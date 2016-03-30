@@ -29,7 +29,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -94,7 +93,7 @@ class ES_TTStubAlgorithm_window2013 : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
     double mPtThreshold;
     bool   mPerformZMatchingPS;
     bool   mPerformZMatching2S;
@@ -114,7 +113,7 @@ class ES_TTStubAlgorithm_window2013 : public edm::ESProducer
     virtual ~ES_TTStubAlgorithm_window2013(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       /// Get magnetic field
       edm::ESHandle< MagneticField > magnet;
@@ -135,7 +134,7 @@ class ES_TTStubAlgorithm_window2013 : public edm::ESProducer
         new TTStubAlgorithm_window2013< T >( theTrackerGeom, theTrackerTopo,
                                              mPtScalingFactor, mPerformZMatchingPS, mPerformZMatching2S );
 
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }
 

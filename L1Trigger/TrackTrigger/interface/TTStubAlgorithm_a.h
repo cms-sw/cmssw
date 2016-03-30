@@ -23,7 +23,6 @@
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -63,7 +62,7 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
   public:
     /// Constructor
@@ -75,7 +74,7 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
     /// Destructor
     virtual ~ES_TTStubAlgorithm_a(){}
 
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -85,7 +84,7 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_a< T > (theTrackerGeom, theTrackerTopo);
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }
 

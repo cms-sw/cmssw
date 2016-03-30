@@ -29,7 +29,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -99,7 +98,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
     /// Windows
     std::vector< double >                setBarrelCut;
@@ -131,7 +130,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
     virtual ~ES_TTStubAlgorithm_tab2013(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -143,7 +142,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_tab2013< T >( theTrackerGeom, theTrackerTopo, 
 	                                       setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
 
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     } 
 

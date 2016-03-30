@@ -27,7 +27,6 @@
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
 
-#include <boost/shared_ptr.hpp>
 #include <string>
 #include <cstdlib>
 #include <map>
@@ -99,7 +98,7 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTClusterAlgorithm< T > > _theAlgo;    
+    std::shared_ptr< TTClusterAlgorithm< T > > _theAlgo;    
 
   public:
     /// Constructor
@@ -112,12 +111,12 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
     virtual ~ES_TTClusterAlgorithm_neighbor(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
+    std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
       TTClusterAlgorithm< T >* TTClusterAlgo =
         new TTClusterAlgorithm_neighbor< T >( );
 
-      _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
+      _theAlgo = std::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;
     }
 

@@ -25,7 +25,6 @@
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
 #include <map>
@@ -97,7 +96,7 @@ class  ES_TTStubAlgorithm_pixelray : public edm::ESProducer
 {
   private:
     /// Data members
-    boost::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
+    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
     double                                    mPtThreshold;
     double                                    mIPWidth;
 
@@ -114,7 +113,7 @@ class  ES_TTStubAlgorithm_pixelray : public edm::ESProducer
     virtual ~ES_TTStubAlgorithm_pixelray(){}
 
     /// Implement the producer
-    boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     {
       /// Get magnetic field
       edm::ESHandle< MagneticField > magnet;
@@ -132,7 +131,7 @@ class  ES_TTStubAlgorithm_pixelray : public edm::ESProducer
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_pixelray< T >( theTrackerGeom, theTrackerTopo, mCompatibilityScalingFactor, mIPWidth );
-      _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
+      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
     }
 
