@@ -46,13 +46,13 @@ public:
   const uint32_t location() const {return ((regionSummary & l1tcalo::LocationBits) >> l1tcalo::LocationShift);}
 
   const int hitCaloEta() const {
-    uint32_t highestTowerLocation = (location() & 0xF);
-    return towers[highestTowerLocation]->caloEta();
+    uint32_t hitTowerLocation = (location() & 0xF);
+    return towers[hitTowerLocation]->caloEta();
   }
 
   const int hitCaloPhi() const {
-    uint32_t highestTowerLocation = (location() & 0xF);
-    return towers[highestTowerLocation]->caloPhi();
+    uint32_t hitTowerLocation = (location() & 0xF);
+    return towers[hitTowerLocation]->caloPhi();
   }
 
   const UCTTowerIndex hitTowerIndex() const {

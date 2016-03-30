@@ -54,6 +54,26 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
 # To get CaloTPGTranscoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 
+process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
+
+process.load("Configuration.Geometry.GeometryExtended2016Reco_cff")
+
+process.es_pool = cms.ESSource("PoolDBESSource",
+     process.CondDBSetup,
+     timetype = cms.string('runnumber'),
+     toGet = cms.VPSet(
+         cms.PSet(record = cms.string("HcalLutMetadataRcd"),
+             tag = cms.string("HcalLutMetadata_HFTP_1x1")
+             ),
+         cms.PSet(record = cms.string("HcalElectronicsMapRcd"),
+             tag = cms.string("HcalElectronicsMap_HFTP_1x1")
+             )
+         ),
+     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+     authenticationMethod = cms.untracked.uint32(0)
+     )
+process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
+
 process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
 
 process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')

@@ -22,9 +22,9 @@ using namespace l1tcalo;
 // Cutting any tighter is rather dangerous
 // For the moment we use floating point arithmetic 
 
-const float activityFraction = 0.1;
-const float ecalActivityFraction = 0.1;
-const float miscActivityFraction = 0.1;
+const float activityFraction = 0.125;
+const float ecalActivityFraction = 0.125;
+const float miscActivityFraction = 0.125;
 
 bool vetoBit(bitset<4> etaPattern, bitset<4> phiPattern) {
 
@@ -94,26 +94,21 @@ bool UCTRegion::process() {
 
   // Process towers and calculate total ET for the region
   uint32_t regionET = 0;
+  uint32_t regionEcalET = 0;
   for(uint32_t twr = 0; twr < towers.size(); twr++) {
     if(!towers[twr]->process()) {
       LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
       return false;
     }
     regionET += towers[twr]->et();
+    // Calculate regionEcalET 
+    regionEcalET += towers[twr]->getEcalET();
   }
   if(regionET > RegionETMask) {
     LOG_ERROR << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
     regionET = RegionETMask;
   }
   regionSummary = (RegionETMask & regionET);
-
-  // Calculate regionEcalET 
-
-  uint32_t regionEcalET = 0;
-  const std::vector<UCTTower*> towerList = getTowers();
-  for(uint32_t twr = 0; twr < towerList.size(); twr++) {
-    regionEcalET += towerList[twr]->getEcalET();
-  }
   if(regionEcalET > RegionETMask) regionEcalET = RegionETMask;
 
   // For central regions determine extra bits
@@ -121,15 +116,18 @@ bool UCTRegion::process() {
   if(region < NRegionsInCard) {
     // Identify active towers
     // Tower ET must be a decent fraction of RegionET
+    // Also determine "hit" tower as weighted position of ET
     bool activeTower[nEta][nPhi];
     uint32_t activityLevel = ((uint32_t) ((float) regionET) * activityFraction);
     uint32_t nActiveTowers = 0;
     uint32_t activeTowerET = 0;
-    uint32_t highestTowerET = 0;
-    uint32_t highestTowerLocation = 0;
+    uint32_t sumETxIEta = 0;
+    uint32_t sumETxIPhi = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
       for(uint32_t iEta = 0; iEta < nEta; iEta++) {
 	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
+	sumETxIEta += iEta * towerET;
+	sumETxIPhi += iPhi * towerET;
 	if(towerET > activityLevel) {
 	  activeTower[iEta][iPhi] = true;
 	  nActiveTowers++;
@@ -137,13 +135,15 @@ bool UCTRegion::process() {
 	}
 	else
 	  activeTower[iEta][iPhi] = false;
-	if(highestTowerET < towerET ) {
-	  highestTowerET = towerET;
-	  highestTowerLocation = iEta*nPhi+iPhi;
-	}
       }
     }
     if(activeTowerET > RegionETMask) activeTowerET = RegionETMask;
+    uint32_t hitTowerLocation = 0;
+    if(regionET > 0) {
+      uint32_t hitIEta = sumETxIEta / regionET; hitIEta &= 0x3;
+      uint32_t hitIPhi = sumETxIPhi / regionET; hitIPhi &= 0x3;
+      hitTowerLocation = hitIEta * nPhi + hitIPhi;
+    }
     // Calculate (energy deposition) active tower pattern
     bitset<4> activeTowerEtaPattern = 0;
     for(uint32_t iEta = 0; iEta < nEta; iEta++) {
@@ -173,7 +173,7 @@ bool UCTRegion::process() {
     if(egVeto) regionSummary |= RegionEGVeto;
     if(tauVeto) regionSummary |= RegionTauVeto;
 
-    regionSummary |= (highestTowerLocation << LocationShift);
+    regionSummary |= (hitTowerLocation << LocationShift);
 
     // Extra bits, not in readout, but implicit from their location in data packet for full location information
 
@@ -242,9 +242,13 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
 
 std::ostream& operator<<(std::ostream& os, const UCTRegion& r) {
   if(r.negativeEta)
-    os << "UCTRegion Summary for negative eta " << r.region << " summary = "<< std:: hex << r.regionSummary << std::endl;
+    os << "UCTRegion Summary for negative eta " << r.region 
+       << " HitTower (eta, phi) = (" << std::dec << r.hitCaloEta() << ", " << r.hitCaloPhi() << ")"
+       << " summary = "<< std::hex << r.regionSummary << std::endl;
   else
-    os << "UCTRegion Summary for positive eta " << r.region << " summary = "<< std:: hex << r.regionSummary << std::endl;
+    os << "UCTRegion Summary for positive eta " << r.region 
+       << " HitTower (eta, phi) = (" << std::dec << r.hitCaloEta() << ", " << r.hitCaloPhi() << ")"
+       << " summary = "<< std::hex << r.regionSummary << std::endl;
 
   return os;
 }
