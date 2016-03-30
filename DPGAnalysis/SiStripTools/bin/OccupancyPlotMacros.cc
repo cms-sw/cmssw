@@ -134,8 +134,17 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
 
     TProfile* averadius = (TProfile*)gDirectory->Get("averadius"); 
     TProfile* avez = (TProfile*)gDirectory->Get("avez"); 
+    TProfile* corner1r = (TProfile*)gDirectory->Get("corner1r");
+    TProfile* corner1z = (TProfile*)gDirectory->Get("corner1z");
+    TProfile* corner2r = (TProfile*)gDirectory->Get("corner2r");
+    TProfile* corner2z = (TProfile*)gDirectory->Get("corner2z");
+    TProfile* corner3r = (TProfile*)gDirectory->Get("corner3r");
+    TProfile* corner3z = (TProfile*)gDirectory->Get("corner3z");
+    TProfile* corner4r = (TProfile*)gDirectory->Get("corner4r");
+    TProfile* corner4z = (TProfile*)gDirectory->Get("corner4z");
 
     std::cout << "pointers " << aveoccu << " " << avemult << " " << nchannels << " " << averadius << " " << avez << std::endl;
+    std::cout << "pointers " <<  corner1r << " " << corner1z << " " << corner2r << " " << corner2z << " " << corner3r << " " << corner3z << " " << corner4r << " " << corner4z << " " << std::endl;
 
     if(aveoccu && avemult && nchannels && averadius && avez) {
 
@@ -227,8 +236,8 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
       scale = &logarithm;
 
       
-      drawMap("multmap",havemult,averadius,avez,mmin,mmax,size,scale,color);
-      drawMap("occumap",haveoccu,averadius,avez,min,max,size,scale,color,"channel occupancy");
+      drawMap("multmap",havemult,averadius,avez,mmin,mmax,size,scale,color,"",corner1r,corner1z,corner2r,corner2z,corner3r,corner3z,corner4r,corner4z);
+      drawMap("occumap",haveoccu,averadius,avez,min,max,size,scale,color,"channel occupancy",corner1r,corner1z,corner2r,corner2z,corner3r,corner3z,corner4r,corner4z);
     }
 
 
