@@ -135,20 +135,6 @@ namespace edm {
     }
 
     // --------------------------------------------------
-    // Copy-like construct/assign from auto_ptr<>:
-    // --------------------------------------------------
-
-    value_ptr(std::auto_ptr<T> orig) :
-      myP(orig.release()) {
-    }
-
-    value_ptr& operator=(std::auto_ptr<T> orig) {
-      value_ptr<T> temp(orig);
-      swap(temp);
-      return *this;
-    }
-
-    // --------------------------------------------------
     // Move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
 
@@ -156,7 +142,7 @@ namespace edm {
       myP(orig.release()) { orig=nullptr; }
 
     value_ptr& operator=(std::unique_ptr<T> orig) {
-      value_ptr<T> temp(orig);
+      value_ptr<T> temp(std::move(orig));
       swap(temp);
       return *this;
     }

@@ -396,7 +396,7 @@ EDConsumerBase::modulesDependentUpon(std::string const& iProcessName,
         "' may consume product of type '" << info.m_type.className() << 
         "' with input tag '" << &(m_tokenLabels[start]) <<
         ':' << &(m_tokenLabels[start+labels.m_deltaToProductInstance]) <<
-        ':' << processName << "'";;
+        ':' << processName << "'";
       }
       if((not processName) or processName[0]==0 or iProcessName == processName) {
         uniqueModules.insert(&(m_tokenLabels[start]));

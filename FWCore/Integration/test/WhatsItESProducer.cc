@@ -103,7 +103,7 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
    edm::ESHandle<Doodad> doodad;
    iRecord.get(dataLabel_,doodad);
    
-   std::unique_ptr<WhatsIt> pWhatsIt(new WhatsIt) ;
+   auto pWhatsIt = std::make_unique<WhatsIt>() ;
 
    pWhatsIt->a = doodad->a;
 

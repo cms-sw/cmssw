@@ -37,7 +37,7 @@ namespace edm {
         return TypeID(typeid(void));
       }
       void* p = cl->New();
-      int offset = cl->GetBaseClassOffset(wbClass) + vtcOffset;;
+      int offset = cl->GetBaseClassOffset(wbClass) + vtcOffset;
       std::unique_ptr<ViewTypeChecker> checker = getAnyPtr<ViewTypeChecker>(p, offset);
       if(mayBeRefVector) {
         std::type_info const& ti = checker->memberTypeInfo(); 

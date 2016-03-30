@@ -97,6 +97,7 @@ private:
    FWDoubleParameter m_clipPhi;
    FWDoubleParameter m_clipDelta1;
    FWDoubleParameter m_clipDelta2;
+   FWLongParameter   m_clipAppexOffset;
 
 
    FW3DViewDistanceMeasureTool* m_DMT;

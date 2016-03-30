@@ -29,7 +29,7 @@ namespace edm {
     typedef typename std::map<T, edm::value_ptr<ParameterDescriptionNode> >::const_iterator CaseMapConstIter;
 
     ParameterSwitch(ParameterDescription<T> const& switchParameter,
-                    std::auto_ptr<ParameterDescriptionCases<T> > cases) :
+                    std::unique_ptr<ParameterDescriptionCases<T> > cases) :
       switch_(switchParameter),
       cases_(*cases->caseMap())
     {

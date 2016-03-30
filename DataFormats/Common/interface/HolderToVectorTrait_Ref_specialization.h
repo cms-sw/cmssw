@@ -32,11 +32,11 @@ namespace edm {
 
     template <typename T, typename REF>
     struct RefHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+      static  std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
         typedef RefVector<typename REF::product_type,
         typename REF::value_type,
         typename REF::finder_type> REFV;
-        return std::auto_ptr<BaseVectorHolder<T> >(new VectorHolder<T, REFV>);
+        return std::unique_ptr<BaseVectorHolder<T> >(new VectorHolder<T, REFV>);
       }
     };
 
@@ -47,11 +47,11 @@ namespace edm {
 
     template <typename REF>
     struct RefRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+      static std::unique_ptr<RefVectorHolderBase> makeVectorHolder() {
         typedef RefVector<typename REF::product_type,
         typename REF::value_type,
         typename REF::finder_type> REFV;
-        return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<REFV>);
+        return std::unique_ptr<RefVectorHolderBase>(new RefVectorHolder<REFV>);
       }
     };
 

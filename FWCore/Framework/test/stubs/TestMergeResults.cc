@@ -164,17 +164,17 @@ namespace edmtest {
     processHistoryIndex_(0),
     testAlias_(ps.getUntrackedParameter<bool>("testAlias", false)) {
 
-    std::unique_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
+    auto ap_thing = std::make_unique<edmtest::Thing>();
     edm::Wrapper<edmtest::Thing> w_thing(std::move(ap_thing));
     assert(!w_thing.isMergeable());
     assert(!w_thing.hasIsProductEqual());
 
-    std::unique_ptr<edmtest::ThingWithMerge> ap_thingwithmerge(new edmtest::ThingWithMerge);
+    auto ap_thingwithmerge = std::make_unique<edmtest::ThingWithMerge>();
     edm::Wrapper<edmtest::ThingWithMerge> w_thingWithMerge(std::move(ap_thingwithmerge));
     assert(w_thingWithMerge.isMergeable());
     assert(!w_thingWithMerge.hasIsProductEqual());
 
-    std::unique_ptr<edmtest::ThingWithIsEqual> ap_thingwithisequal(new edmtest::ThingWithIsEqual);
+    auto ap_thingwithisequal = std::make_unique<edmtest::ThingWithIsEqual>();
     edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(std::move(ap_thingwithisequal));
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());

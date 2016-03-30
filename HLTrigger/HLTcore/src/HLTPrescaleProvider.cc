@@ -21,6 +21,12 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
                                const std::string& processName,
                                bool& changed) {
 
+  count_[0]=0;
+  count_[1]=0;
+  count_[2]=0;
+  count_[3]=0;
+  count_[4]=0;
+
   /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
   l1GtUtils_.getL1GtRunCache(iRun,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
 
@@ -40,10 +46,13 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
     return psfsiPhys;
   } else {
     /// error - notify user!
-    edm::LogError("HLTConfigData")
-      << " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
-      << " Tech/Phys error = " << errorTech << "/" << errorPhys
-      << " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
+    if (count_[0]<2) {
+      count_[0] += 1;
+      edm::LogError("HLTConfigData")
+	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
+	<< " Tech/Phys error = " << errorTech << "/" << errorPhys
+	<< " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
+    }
     return -1;
   }
 }
@@ -87,26 +96,32 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     int               l1error(0);
     result.first = l1GtUtils_.prescaleFactor(iEvent,l1tname,l1error);
     if (l1error!=0) {
-      edm::LogError("HLTConfigData")
-	<< " Error in determining L1T prescale for HLT path: '"	<< trigger
-	<< "' with L1T seed: '" << l1tname
-	<< "' using L1GtUtils: error code = " << l1error << "." << std::endl
-	<< " Note: for this method ('prescaleValues'), only a single L1T name (and not a bit number) is allowed as seed!"
-        << std::endl
-	<< " For seeds being complex logical expressions, try the new method 'prescaleValuesInDetail'."<< std::endl;
+      if (count_[1]<2) {
+	count_[1] += 1;
+	edm::LogError("HLTConfigData")
+	  << " Error in determining L1T prescale for HLT path: '"	<< trigger
+	  << "' with L1T seed: '" << l1tname
+	  << "' using L1GtUtils: error code = " << l1error << "." << std::endl
+	  << " Note: for this method ('prescaleValues'), only a single L1T name (and not a bit number) is allowed as seed!"
+	  << std::endl
+	  << " For seeds being complex logical expressions, try the new method 'prescaleValuesInDetail'."<< std::endl;
+      }
       result.first = -1;
     }
   } else {
     /// error - can't handle properly multiple L1GTSeed modules
-    std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
-    for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
-      dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
+    if (count_[2]<2) {
+      count_[2] += 1;
+      std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
+      for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
+	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
+      }
+      edm::LogError("HLTConfigData")
+	<< " Error in determining L1T prescale for HLT path: '" << trigger
+	<< "' has multiple L1GTSeed modules, " << nL1GTSeedModules
+	<< ", with L1 seeds: " << dump
+	<< ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
     }
-    edm::LogError("HLTConfigData")
-      << " Error in determining L1T prescale for HLT path: '" << trigger
-      << "' has multiple L1GTSeed modules, " << nL1GTSeedModules
-      << ", with L1 seeds: " << dump
-      << ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
     result.first = -1;
   }
 
@@ -147,33 +162,39 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
       l1error += std::abs(errorCodes[i].second);
     }
     if (l1error!=0) {
-      std::ostringstream message;
-      message
-	<< " Error in determining L1T prescales for HLT path: '" << trigger
-	<< "' with complex L1T seed: '" << l1tname
-	<< "' using L1GtUtils: " << std::endl
-	<< " isValid=" << l1Logical.isValid()
-	<< " l1tname/error/prescale " << errorCodes.size()
-	<< std::endl;
-      for (unsigned int i=0; i< errorCodes.size(); ++i) {
-	message << " " << i << ":" << errorCodes[i].first << "/" << errorCodes[i].second << "/"
-                       << result.first[i].second;
+      if (count_[3]<2) {
+	count_[3] += 1;
+	std::ostringstream message;
+	message
+	  << " Error in determining L1T prescales for HLT path: '" << trigger
+	  << "' with complex L1T seed: '" << l1tname
+	  << "' using L1GtUtils: " << std::endl
+	  << " isValid=" << l1Logical.isValid()
+	  << " l1tname/error/prescale " << errorCodes.size()
+	  << std::endl;
+	for (unsigned int i=0; i< errorCodes.size(); ++i) {
+	  message << " " << i << ":" << errorCodes[i].first << "/" << errorCodes[i].second << "/"
+		  << result.first[i].second;
+	}
+	message << ".";
+	edm::LogError("HLTConfigData") << message.str();
       }
-      message << ".";
-      edm::LogError("HLTConfigData") << message.str();
       result.first.clear();
     }
   } else {
     /// error - can't handle properly multiple L1GTSeed modules
-    std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
-    for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
-      dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
+    if (count_[4]<2) {
+      count_[4] += 1;
+      std::string dump("'"+hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second+"'");
+      for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
+	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
+      }
+      edm::LogError("HLTConfigData")
+	<< " Error in determining L1T prescale for HLT path: '" << trigger
+	<< "' has multiple L1GTSeed modules, " << nL1GTSeedModules
+	<< ", with L1 seeds: " << dump
+	<< ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
     }
-    edm::LogError("HLTConfigData")
-      << " Error in determining L1T prescale for HLT path: '" << trigger
-      << "' has multiple L1GTSeed modules, " << nL1GTSeedModules
-      << ", with L1 seeds: " << dump
-      << ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
     result.first.clear();
   }
 

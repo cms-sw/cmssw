@@ -226,8 +226,8 @@ namespace edm {
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
-    void terminateMachine(std::auto_ptr<statemachine::Machine>&);
-    std::auto_ptr<statemachine::Machine> createStateMachine();
+    void terminateMachine(std::unique_ptr<statemachine::Machine>);
+    std::unique_ptr<statemachine::Machine> createStateMachine();
 
     void setupSignal();
 

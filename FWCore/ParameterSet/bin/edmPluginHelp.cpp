@@ -95,7 +95,7 @@ namespace {
 
     ++iPlugin;
 
-    std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler;
+    std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler;
 
     try {
       filler.reset(factory->create(pluginInfo.name_));
