@@ -11,6 +11,7 @@ from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customi
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
+from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -36,6 +37,7 @@ def cust_2023dev(process):
 
 def cust_2023LReco(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseFlatTK(process)
     return process
 
 
