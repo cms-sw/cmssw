@@ -347,7 +347,6 @@ bool DetIdSelector::isSelectedByWordsTOB(std::string label, const DetId& detid, 
     return false;
   }
 
-
   pos = label.find("Layer");                            //LayerXX_
   if(pos>=0){
     //LogTrace("OccupancyPlots") << "the label contains layer!!";
@@ -359,6 +358,13 @@ bool DetIdSelector::isSelectedByWordsTOB(std::string label, const DetId& detid, 
   if(pos>=0){
     //LogTrace("OccupancyPlots") << "the label contains ladder!!";
     isSelected = isSame(label, "Rod", tTopo->tobRod(detid.rawId()), 2);
+    if (!isSelected) return false;
+  }
+
+  pos = label.find("Side");                            //SideX_
+  if(pos>=0){
+    //LogTrace("OccupancyPlots") << "the label contains TOB side!!";
+    isSelected = isSame(label, "Side", tTopo->tobSide(detid.rawId()), 1);
     if (!isSelected) return false;
   }
 
@@ -629,10 +635,13 @@ bool DetIdSelector::isSame(std::string label, std::string selection, unsigned in
     //LogTrace("OccupancyPlots") << "check if the range exists after the selection " << label.substr(pos+n, 2*spaces+1);
     return isInRange(rangeSelected, comparison, spaces);
   }
+  std::string labelSelection = label.substr(pos+n,spaces);
+  //LogTrace("OccupancyPlots") << " selection from label " << labelSelection;
+  //LogTrace("OccupancyPlots") << " comparison " << comparison;
+  if(labelSelection == "Eve") return isEven(comparison);
+  if(labelSelection == "Odd") return isOdd(comparison);
   unsigned int selected = std::stoi(label.substr(pos+n,spaces));
-  //LogTrace("OccupancyPlots") << " selection from label " << label.substr(pos+n,spaces);
   //LogTrace("OccupancyPlots") << " selection from label " << selected;
-  //LogTrace("OccupancyPlots") << " comparison from label " << comparison;
   if( selected == comparison) return true;
   return false;
 
@@ -656,6 +665,16 @@ bool DetIdSelector::operator()(const DetId& detid) const {
 
 }
 
+bool DetIdSelector::isEven(unsigned int n) const{
+  if ( n%2 == 0) 
+    return true;
+  return false;
+}
+bool DetIdSelector::isOdd(unsigned int n) const{
+  if(!isEven(n))
+    return true;
+  return false;
+}
 bool DetIdSelector::operator()(const unsigned int& rawid) const {
 
   return isSelected(rawid);

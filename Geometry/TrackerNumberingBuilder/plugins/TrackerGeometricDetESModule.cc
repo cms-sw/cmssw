@@ -105,7 +105,7 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   phase2Det.push_back(18); phase2Det.push_back(20); phase2Det.push_back(14);
   // level 2
   phase2Det.push_back(12); phase2Det.push_back(10); phase2Det.push_back(4); 
-  phase2Det.push_back(10) ; phase2Det.push_back(12); phase2Det.push_back(8);
+  phase2Det.push_back(10) ; phase2Det.push_back(10); phase2Det.push_back(8);
   // level 3
   phase2Det.push_back(2) ; phase2Det.push_back(2) ; phase2Det.push_back(2); 
   phase2Det.push_back(2) ; phase2Det.push_back(2) ; phase2Det.push_back(5);

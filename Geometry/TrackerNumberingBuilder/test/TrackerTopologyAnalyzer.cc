@@ -125,8 +125,6 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[4] = tTopo->tidRing(*id);
 	resultsNew[5] = 0;
 	resultsNew[6] = tTopo->tidIsDoubleSide(*id);
-	DetIdPrint = tTopo->print(*id);
-	std::cout << DetIdPrint << std::endl;
 	resultsNew[7] = tTopo->tidIsRPhi(*id);
 	resultsNew[8] = tTopo->tidIsStereo(*id);
 	resultsNew[9] = tTopo->tidIsZPlusSide(*id);
@@ -155,8 +153,6 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[4] = 0;
 	resultsNew[5] = 0;
 	resultsNew[6] = tTopo->tobIsDoubleSide(*id);
-	DetIdPrint = tTopo->print(*id);
-	std::cout << DetIdPrint << std::endl;
 	resultsNew[7] = tTopo->tobIsRPhi(*id);
 	resultsNew[8] = tTopo->tobIsStereo(*id);
 	resultsNew[9] = tTopo->tobIsZPlusSide(*id);

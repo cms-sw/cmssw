@@ -343,7 +343,9 @@ std::string TrackerTopology::print(DetId id) const {
     unsigned int              theModule = tobModule(id);
     std::string side;
     std::string part;
-    side = (theRod[0] == 1 ) ? "-" : "+";
+    side = (((theRod[0] == 1 ) ? "-" : ((theRod[0] == 2 ) ? "+" : (theRod[0] == 3 ) ? "0" : "")));
+//    side = (theRod[0] == 2 ) ? "+" : "";
+//    side = (theRod[0] == 3 ) ? "0" : "";
     std::string type;
     type = (isStereo(id)) ? "stereo" : type;
     type = (isRPhi(id)) ? "r-phi" : type;

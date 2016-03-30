@@ -164,7 +164,7 @@ namespace cms
       ++numberOfDetUnits;
 
       //  LogDebug takes very long time, get rid off.
-      //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
+      LogTrace("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
 
       std::vector<short> badChannels; 
       DetId detIdObject(DSViter->detId());

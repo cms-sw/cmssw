@@ -23,6 +23,11 @@ options.register ('triggerPath',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "list of HLT paths")
+options.register ('geometry',
+                  "tilted",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Geometry")
 
 options.parseArguments()
 
@@ -129,7 +134,11 @@ if options.triggerPath=="*":
 #--------------------------------------
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_cff import *
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_simplified_cff import *
-from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_cff import *
+if options.geometry == "flat" :
+  from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_flat_cff import *
+if options.geometry == "tilted" :
+  #from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_tilted_cff import *
+  from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_tilted_oddeven_cff import *
 
 #process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
 #                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
@@ -176,7 +185,11 @@ process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccup
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 #process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
-process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry_phase2BE5D_stack.txt")
+if options.geometry == "flat" :
+  process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry_GeometryExtended2023Flat.txt")
+if options.geometry == "tilted" :
+  process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry_GeometryExtended2023Tilted.txt")
+process.occupancyplots.checkWithLabels = cms.bool(True)
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
 process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
@@ -258,8 +271,11 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 #----GlobalTag ------------------------
 
 #process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
+if options.geometry == "tilted" :
+  process.load('Configuration.Geometry.GeometryExtended2023TiltedTKReco_cff')
+if options.geometry == "flat" :
+  process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 

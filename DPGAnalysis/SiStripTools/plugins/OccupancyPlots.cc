@@ -108,6 +108,15 @@ private:
   TProfile** m_xavedz;
   TProfile** m_xavedrphi;
 
+  TProfile** m_corner1r;
+  TProfile** m_corner1z;
+  TProfile** m_corner2r;
+  TProfile** m_corner2z;
+  TProfile** m_corner3r;
+  TProfile** m_corner3z;
+  TProfile** m_corner4r;
+  TProfile** m_corner4z;
+
   //this are created with labels - check
   TProfile** m2_averadius;
   TProfile** m2_avez;
@@ -155,6 +164,15 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
   m_avez = m_rhm.makeTProfile("avez","Average Module z coordinate",6000,0.5,6000.5);
   m_avex = m_rhm.makeTProfile("avex","Average Module x coordinate",6000,0.5,6000.5);
   m_avey = m_rhm.makeTProfile("avey","Average Module y coordinate",6000,0.5,6000.5);
+
+  m_corner1r = m_rhm.makeTProfile("corner1r","Corner#1 of module - r coordinate",6000,0.5,6000.5);
+  m_corner1z = m_rhm.makeTProfile("corner1z","Corner#1 of module - z coordinate",6000,0.5,6000.5);
+  m_corner2r = m_rhm.makeTProfile("corner2r","Corner#2 of module - r coordinate",6000,0.5,6000.5);
+  m_corner2z = m_rhm.makeTProfile("corner2z","Corner#2 of module - z coordinate",6000,0.5,6000.5);
+  m_corner3r = m_rhm.makeTProfile("corner3r","Corner#3 of module - r coordinate",6000,0.5,6000.5);
+  m_corner3z = m_rhm.makeTProfile("corner3z","Corner#3 of module - z coordinate",6000,0.5,6000.5);
+  m_corner4r = m_rhm.makeTProfile("corner4r","Corner#4 of module - r coordinate",6000,0.5,6000.5);
+  m_corner4z = m_rhm.makeTProfile("corner4z","Corner#4 of module - z coordinate",6000,0.5,6000.5);
 
   m_zavedr = m_rhm.makeTProfile("zavedr","Average z unit vector dr",6000,0.5,6000.5);
   m_zavedz = m_rhm.makeTProfile("zavedz","Average z unit vector dz",6000,0.5,6000.5);
@@ -314,10 +332,40 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     GlobalVector dz = zpos - position;
     GlobalVector dx = xpos - position;
     GlobalVector dy = ypos - position;
+    float thick = trkgeo->idToDet(*det)->surface().bounds().thickness();
+    float length = trkgeo->idToDet(*det)->surface().bounds().length();
+    float width = trkgeo->idToDet(*det)->surface().bounds().width();
+    float corners_1z = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()+width/2., center.y()+length/2 )).z();
+    float corners_1r = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()+width/2., center.y()+length/2 )).perp();
+    float corners_2z = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()-width/2., center.y()+length/2. )).z();
+    float corners_2r = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()-width/2., center.y()+length/2. )).perp();
+    float corners_3z = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()-width/2., center.y()-length/2. )).z();
+    float corners_3r = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()-width/2., center.y()-length/2. )).perp();
+    float corners_4z = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()+width/2., center.y()-length/2. )).z();
+    float corners_4r = trkgeo->idToDet(*det)->toGlobal(LocalPoint( center.x()+width/2., center.y()-length/2. )).perp();
+    LogTrace("OccupancyPlots") << "centre position" << position << " with coord";
+    LogTrace("OccupancyPlots") << "width position " << width ;
+    LogTrace("OccupancyPlots") << "lenght position " << length ;
+    LogTrace("OccupancyPlots") << "thickness position " << thick;
+    LogTrace("OccupancyPlots") << "corner1 " <<corners_1r << " , " <<corners_1z;
+    LogTrace("OccupancyPlots") << "corner2 " <<corners_2r << " , " <<corners_2z;
+    LogTrace("OccupancyPlots") << "corner3 " <<corners_3r << " , " <<corners_3z;
+    LogTrace("OccupancyPlots") << "corner4 " <<corners_4r << " , " <<corners_4z;
+    //LogTrace("OccupancyPlots") << "zpos" << zpos;
+    //LogTrace("OccupancyPlots") << "xpos" << xpos;
+    //LogTrace("OccupancyPlots") << "ypos" << ypos;
+    //LogTrace("OccupancyPlots") << "pos vec " << posvect;
+    //LogTrace("OccupancyPlots") << "dz" << dz;
+    //LogTrace("OccupancyPlots") << "dx" << dx;
+    //LogTrace("OccupancyPlots") << "dy" <<dy;
 
     double dzdr = posvect.perp()>0 ? (dz.x()*posvect.x()+dz.y()*posvect.y())/posvect.perp() : 0. ;
     double dxdr = posvect.perp()>0 ? (dx.x()*posvect.x()+dx.y()*posvect.y())/posvect.perp() : 0. ;
     double dydr = posvect.perp()>0 ? (dy.x()*posvect.x()+dy.y()*posvect.y())/posvect.perp() : 0. ;
+    //LogTrace("OccupancyPlots") << "posvect.perp" << posvect.perp();
+    //LogTrace("OccupancyPlots") << "dzdr" << dzdr;
+    //LogTrace("OccupancyPlots") << "dxdr" << dxdr;
+    //LogTrace("OccupancyPlots") << "dydr" <<dydr;
 
     double dzdrphi = posvect.perp()>0 ? (dz.y()*posvect.x()-dz.x()*posvect.y())/posvect.perp() : 0. ;
     double dxdrphi = posvect.perp()>0 ? (dx.y()*posvect.x()-dx.x()*posvect.y())/posvect.perp() : 0. ;
@@ -332,8 +380,14 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 if(m_avez && *m_avez) (*m_avez)->Fill(sel->first,position.z());
 	 if(m_avex && *m_avex) (*m_avex)->Fill(sel->first,position.x());
 	 if(m_avey && *m_avey) (*m_avey)->Fill(sel->first,position.y());
-	 if(m_zavedr && *m_zavedr) (*m_zavedr)->Fill(sel->first,dzdr);
-	 if(m_zavedz && *m_zavedz) (*m_zavedz)->Fill(sel->first,dz.z());
+	 if(m_zavedr && *m_zavedr){
+    (*m_zavedr)->Fill(sel->first,dzdr);
+//    LogTrace("OccupancyPlots") << "riempio dz.r() con " << dzdr;
+         }
+	 if(m_zavedz && *m_zavedz){
+    (*m_zavedz)->Fill(sel->first,dz.z());
+//    LogTrace("OccupancyPlots") << "riempio dz.z con " << dz.z();
+    }
 	 if(m_zavedrphi && *m_zavedrphi) (*m_zavedrphi)->Fill(sel->first,dzdrphi);
 	 if(m_xavedr && *m_xavedr) (*m_xavedr)->Fill(sel->first,dxdr);
 	 if(m_xavedz && *m_xavedz) (*m_xavedz)->Fill(sel->first,dx.z());
@@ -342,8 +396,16 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 if(m_yavedz && *m_yavedz) (*m_yavedz)->Fill(sel->first,dy.z());
 	 if(m_yavedrphi && *m_yavedrphi) (*m_yavedrphi)->Fill(sel->first,dydrphi);
        
+         if(m_corner1r && *m_corner1r) (*m_corner1r)->Fill(sel->first,corners_1r);
+         if(m_corner1z && *m_corner1z) (*m_corner1z)->Fill(sel->first,corners_1z);
+         if(m_corner2r && *m_corner2r) (*m_corner2r)->Fill(sel->first,corners_2r);
+         if(m_corner2z && *m_corner2z) (*m_corner2z)->Fill(sel->first,corners_2z);
+         if(m_corner3r && *m_corner3r) (*m_corner3r)->Fill(sel->first,corners_3r);
+         if(m_corner3z && *m_corner3z) (*m_corner3z)->Fill(sel->first,corners_3z);
+         if(m_corner4r && *m_corner4r) (*m_corner4r)->Fill(sel->first,corners_4r);
+         if(m_corner4z && *m_corner4z) (*m_corner4z)->Fill(sel->first,corners_4z);
        } else {
-         LogTrace("OccupancyPlots") << sel->first << " is NOT selected with bits";
+         //LogTrace("OccupancyPlots") << sel->first << " is NOT selected with bits";
        }
      }
 
@@ -368,7 +430,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
          if(m2_yavedrphi && *m2_yavedrphi) (*m2_yavedrphi)->Fill(sel->first,dydrphi); 
  
        } else {
-         LogTrace("OccupancyPlots") << sel->first << " is NOT selected with labels";
+         //LogTrace("OccupancyPlots") << sel->first << " is NOT selected with labels";
        }
          
      }
