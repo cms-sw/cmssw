@@ -5,12 +5,14 @@
 #include "UCTCard.hh"
 #include "UCTRegion.hh"
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 UCTCard::UCTCard(uint32_t crt, uint32_t crd) :
   crate(crt),
   card(crd),
   cardSummary(0) {
   UCTGeometry g;
+  regions.reserve(2*g.getNRegions());
   for(uint32_t rgn = 0; rgn < g.getNRegions(); rgn++) {
     // Negative eta side
     regions.push_back(new UCTRegion(crate, card, true, rgn));
@@ -51,7 +53,7 @@ bool UCTCard::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   uint32_t i = g.getRegion(absCaloEta, absCaloPhi) * 2;
   if(!negativeEta) i++;
   if(i > regions.size()) {
-    std::cerr << "UCTCard: Incorrect region requested -- bailing" << std::endl;
+    LOG_ERROR << "UCTCard: Incorrect region requested -- bailing" << std::endl;
     exit(1);
   }
   return regions[i]->setECALData(t, ecalFG, ecalET);
@@ -66,7 +68,7 @@ bool UCTCard::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   uint32_t i = g.getRegion(absCaloEta, absCaloPhi) * 2;
   if(!negativeEta) i++;
   if(i > regions.size()) {
-    std::cerr << "UCTCard: Incorrect region requested -- bailing" << std::endl;
+    LOG_ERROR << "UCTCard: Incorrect region requested -- bailing" << std::endl;
     exit(1);
   }
   return regions[i]->setHCALData(t, hcalFB, hcalET);
@@ -75,8 +77,8 @@ bool UCTCard::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
 const UCTRegion* UCTCard::getRegion(UCTRegionIndex r) const {
   UCTGeometry g;
   UCTTowerIndex t = g.getUCTTowerIndex(r);
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   bool negativeEta = false;
   if(t.first < 0) negativeEta = true;
   return getRegion(negativeEta, absCaloEta, absCaloPhi);
@@ -87,7 +89,7 @@ const UCTRegion* UCTCard::getRegion(bool nE, uint32_t cEta, uint32_t cPhi) const
   uint32_t i = g.getRegion(cEta, cPhi) * 2;
   if(!nE) i++;
   if(i > regions.size()) {
-    std::cerr << "UCTCard: Incorrect region requested -- bailing" << std::endl;
+    LOG_ERROR << "UCTCard: Incorrect region requested -- bailing" << std::endl;
     exit(1);
   }
   return regions[i];

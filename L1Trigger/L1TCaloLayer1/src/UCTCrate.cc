@@ -5,6 +5,7 @@
 #include "UCTCrate.hh"
 #include "UCTCard.hh"
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 UCTCrate::UCTCrate(uint32_t crt) :
   crate(crt),
@@ -44,7 +45,7 @@ bool UCTCrate::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   UCTGeometry g;
   uint32_t i = g.getCard(t.first, t.second);
   if(i > cards.size()) {
-    std::cerr << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
+    LOG_ERROR << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
     exit(1);
   }
   return cards[i]->setECALData(t, ecalFG, ecalET);
@@ -54,7 +55,7 @@ bool UCTCrate::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
   uint32_t i = g.getCard(t.first, t.second);
   if(i > cards.size()) {
-    std::cerr << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
+    LOG_ERROR << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
     exit(1);
   }
   return cards[i]->setHCALData(t, hcalFB, hcalET);
@@ -64,7 +65,7 @@ const UCTCard* UCTCrate::getCard(UCTTowerIndex t) const {
   UCTGeometry g;
   uint32_t i = g.getCard(t.first, t.second);
   if(i > cards.size()) {
-    std::cerr << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
+    LOG_ERROR << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
     exit(1);
   }
   return cards[i];

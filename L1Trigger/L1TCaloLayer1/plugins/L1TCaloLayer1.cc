@@ -39,6 +39,7 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTTower.hh"
 
 #include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
+#include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
@@ -163,7 +164,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
-    std::cerr << "UCT: Failed to clear event" << std::endl;
+    LOG_ERROR << "UCT: Failed to clear event" << std::endl;
     return;
   }
 
@@ -175,7 +176,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(et != 0) {
       UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
       if(!layer1->setECALData(t,fgVeto,et)) {
-	std::cerr << "UCT: Failed loading an ECAL tower" << std::endl;
+	LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
 	return;
       }
       expectedTotalET += et;
@@ -203,8 +204,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  uint32_t featureBits = 0;
 	  if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
 	  if(!layer1->setHCALData(t, featureBits, et)) {
-	    std::cerr << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
-	    std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
+	    LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
+	    LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
 	    return;
 	    
 	  }
@@ -212,18 +213,18 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
       else {
-	std::cerr << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
       }
     }
     else {
-      std::cerr << "Illegal Tower: caloEta = " << caloEta << std::endl;
+      LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << std::endl;
     }
   }
   
   
    //Process
   if(!layer1->process()) {
-    std::cerr << "UCT: Failed to process layer 1" << std::endl;
+    LOG_ERROR << "UCT: Failed to process layer 1" << std::endl;
   }
 
 
@@ -278,10 +279,10 @@ void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
-    std::cerr << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
+    LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   if(!makeHFLUTs()) {
-    std::cerr << "L1TCaloLayer1::beginRun: failed to make HF LUTs - using unity" << std::endl;
+    LOG_ERROR << "L1TCaloLayer1::beginRun: failed to make HF LUTs - using unity" << std::endl;
   }
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
@@ -291,7 +292,7 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
 	vector<UCTTower*> towers = regions[rgn]->getTowers();
 	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(rgn < NRegionsInCard) {
+	  if(rgn < l1tcalo::NRegionsInCard) {
 	    towers[twr]->setECALLUT(&ecalLUT);
 	    towers[twr]->setHCALLUT(&hcalLUT);
 	  }

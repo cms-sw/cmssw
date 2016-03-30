@@ -11,9 +11,11 @@
 #include "UCTTower.hh"
 
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 UCTLayer1::UCTLayer1() : uctSummary(0) {
   UCTGeometry g;
+  crates.reserve(g.getNCrates());
   for(uint32_t crate = 0; crate < g.getNCrates(); crate++) {
     crates.push_back(new UCTCrate(crate));
   }
@@ -45,7 +47,7 @@ const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiInde
   uint32_t absCaloPhi = abs(t.second);
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
-    std::cerr << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
+    LOG_ERROR << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
 	      << std::dec
 	      << " (rEta,rPhi)=(" << regionEtaIndex << ","<< regionPhiIndex << ")" 
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
@@ -59,7 +61,7 @@ const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiInde
 
 const UCTTower* UCTLayer1::getTower(int caloEta, int caloPhi) const {
   if(caloPhi < 0) {
-    std::cerr << "UCT::getTower - Negative caloPhi is unacceptable -- bailing" << std::endl;
+    LOG_ERROR << "UCT::getTower - Negative caloPhi is unacceptable -- bailing" << std::endl;
     exit(1);
   }
   UCTGeometry g;
@@ -76,7 +78,7 @@ bool UCTLayer1::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
-    std::cerr << "UCTLayer1::setECALData - Crate number is wrong - " << std::hex << crt << std::dec
+    LOG_ERROR << "UCTLayer1::setECALData - Crate number is wrong - " << std::hex << crt << std::dec
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
     exit(1);
   }
@@ -90,7 +92,7 @@ bool UCTLayer1::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
-    std::cerr << "UCTLayer1::setHCALData - Crate number is wrong - " << std::hex << crt << std::dec
+    LOG_ERROR << "UCTLayer1::setHCALData - Crate number is wrong - " << std::hex << crt << std::dec
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
     exit(1);
   }

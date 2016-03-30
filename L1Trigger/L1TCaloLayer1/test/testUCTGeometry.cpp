@@ -8,8 +8,8 @@ using namespace std;
 
 int main(int argc, char** argv) {
   UCTGeometry g;
-  for(int caloPhi = 1; caloPhi <= MaxCaloPhi; caloPhi++) {
-    for(int caloEta = -MaxCaloEta; caloEta <= MaxCaloEta; caloEta++) {
+  for(int caloPhi = 1; caloPhi <= l1tcalo::MaxCaloPhi; caloPhi++) {
+    for(int caloEta = -l1tcalo::MaxCaloEta; caloEta <= l1tcalo::MaxCaloEta; caloEta++) {
       if(caloEta == 0 || abs(caloEta) == 29) continue;
       uint32_t crt = g.getCrate(caloEta, caloPhi);
       uint32_t crd = g.getCard(caloEta, caloPhi);
