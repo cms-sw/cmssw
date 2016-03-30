@@ -21,9 +21,6 @@
 compDir1=$1
 compDir2=$2
 
-#compStr1=sed -e 's/.*.\///' $compDir1
-#compStr2=sed -e 's/.*.\///' $compDir2
-
 directory=`pwd`
 
 ## convert all the .pdf files to .png
