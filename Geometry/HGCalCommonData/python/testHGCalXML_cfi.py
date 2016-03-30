@@ -216,11 +216,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/hcalouteralgo.xml',
         'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
         'Geometry/HcalCommonData/data/PhaseII/hcalSimNumbering.xml',
-<<<<<<< HEAD
-        'Geometry/HcalCommonData/data/PhaseII/hcalRecNumbering.xml',
-=======
         'Geometry/HcalCommonData/data/PhaseII/hcalRecNumberingRebuild.xml',
->>>>>>> Forgot to commit the python
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
         'Geometry/HGCalCommonData/data/v7/hgcal.xml',
         'Geometry/HGCalCommonData/data/v7/hgcalEE.xml',
