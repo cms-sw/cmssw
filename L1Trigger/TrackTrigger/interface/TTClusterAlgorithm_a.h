@@ -60,21 +60,15 @@ void TTClusterAlgorithm_a< T >::Cluster( std::vector< std::vector< T > > &output
 {
   /// Prepare output
   output.clear();
+  output.reserve(input.size());
 
   /// Loop over all hits
-  typename std::vector< T >::const_iterator inputIterator;
-  for( inputIterator = input.begin();
-       inputIterator != input.end();
-       ++inputIterator ) 
-  {
+  for( auto inputIterator = input.begin(); inputIterator != input.end(); ++inputIterator ) {
     std::vector< T > temp;
     temp.push_back(*inputIterator);
     output.push_back(temp);
   } /// End of loop over all hits
 } /// End of TTClusterAlgorithm_a< ... >::Cluster( ... )
-
-
-
 
 
 /*! \class   ES_TTClusterAlgorithm_a

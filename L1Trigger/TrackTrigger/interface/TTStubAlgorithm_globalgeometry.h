@@ -107,7 +107,7 @@ class  ES_TTStubAlgorithm_globalgeometry : public edm::ESProducer
       /// Get magnetic field
       edm::ESHandle< MagneticField > magnet;
       record.getRecord< IdealMagneticFieldRecord >().get(magnet);
-      double mMagneticFieldStrength = magnet->inTesla( GlobalPoint(0,0,0) ).z();
+      double mMagneticFieldStrength = std::abs(magnet->nominalValue())/10.;
 
       /// Calculate scaling factor based on B and Pt threshold
       double mCompatibilityScalingFactor = ( CLHEP::c_light * mMagneticFieldStrength ) / ( 100.0 * 2.0e+9 * mPtThreshold );
