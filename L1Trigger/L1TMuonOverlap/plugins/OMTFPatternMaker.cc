@@ -76,7 +76,7 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 
   ///For making the patterns use extended pdf width in phi
   ////Ugly hack to modify configuration parameters at runtime.
-  OMTFConfiguration::nPdfAddrBits = 14;
+  omtf_config_->nPdfAddrBits = 14;
 
   ///Clear existing GoldenPatterns
   const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
@@ -107,7 +107,7 @@ void OMTFPatternMaker::endJob(){
     }
 
     ////Ugly hack to modify configuration parameters at runtime.
-    OMTFConfiguration::nPdfAddrBits = 7;
+    omtf_config_->nPdfAddrBits = 7;
     for(auto itGP: myGPmap){
       ////
       unsigned int iPt = theConfig.getParameter<int>("ptCode")+1;
@@ -135,7 +135,7 @@ void OMTFPatternMaker::endJob(){
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,3);
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,4);
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,5);
-    myWriter->writeConnectionsData(OMTFConfiguration::measurements4D);
+    myWriter->writeConnectionsData(omtf_config_->measurements4D);
     myWriter->finaliseXMLDocument(fName);
   }
 

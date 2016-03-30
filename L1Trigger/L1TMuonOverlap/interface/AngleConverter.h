@@ -33,7 +33,7 @@ class RPCDetId;
     void checkAndUpdateGeometry(const edm::EventSetup&);
 
     /// get phi of DT,CSC and RPC azimutal angle digi in processor scale, used by OMTF algorithm.
-    /// in case of wrong phi returns OMTFConfiguration::nPhiBins
+    /// in case of wrong phi returns omtf_config_->nPhiBins
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const L1MuDTChambPhDigi &digi) const;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const;

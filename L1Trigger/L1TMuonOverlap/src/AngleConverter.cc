@@ -42,8 +42,8 @@ void AngleConverter::checkAndUpdateGeometry(const edm::EventSetup& es) {
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const L1MuDTChambPhDigi &digi) const
 {
 
-  double hsPhiPitch = 2*M_PI/OMTFConfiguration::nPhiBins; // width of phi Pitch, related to halfStrip at CSC station 2
-  const int dummy = OMTFConfiguration::nPhiBins;
+  double hsPhiPitch = 2*M_PI/omtf_config_->nPhiBins; // width of phi Pitch, related to halfStrip at CSC station 2
+  const int dummy = omtf_config_->nPhiBins;
 
   int processor= iProcessor+1;                           // FIXME: get from OMTF name when available
   int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
@@ -76,8 +76,8 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const
 {
 
-  const double hsPhiPitch = 2*M_PI/OMTFConfiguration::nPhiBins; //
-  const int dummy = OMTFConfiguration::nPhiBins;
+  const double hsPhiPitch = 2*M_PI/omtf_config_->nPhiBins; //
+  const int dummy = omtf_config_->nPhiBins;
 
   int processor= iProcessor+1;                           // FIXME: get from OMTF name when available
   int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
@@ -127,8 +127,8 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 ///////////////////////////////////////
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const
 {
-  const double hsPhiPitch = 2*M_PI/OMTFConfiguration::nPhiBins; //
-  const int dummy = OMTFConfiguration::nPhiBins;
+  const double hsPhiPitch = 2*M_PI/omtf_config_->nPhiBins; //
+  const int dummy = omtf_config_->nPhiBins;
 
   int processor = iProcessor+1;
   const RPCRoll* roll = _georpc->roll(rollId);

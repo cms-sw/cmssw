@@ -103,10 +103,10 @@ std::auto_ptr<l1t::RegionalMuonCandBxCollection > OMTFReconstruction::reconstruc
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > candidates(new l1t::RegionalMuonCandBxCollection);
 
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
-  for(unsigned int iProcessor=0; iProcessor<OMTFConfiguration::nProcessors; ++iProcessor)
+  for(unsigned int iProcessor=0; iProcessor<omtf_config_->nProcessors; ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_pos, bx, *candidates);
 
-  for(unsigned int iProcessor=0; iProcessor<OMTFConfiguration::nProcessors; ++iProcessor)
+  for(unsigned int iProcessor=0; iProcessor<omtf_config_->nProcessors; ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
     
     return candidates;
@@ -156,7 +156,7 @@ void OMTFReconstruction::writeResultToXML(unsigned int iProcessor, const OMTFinp
   //Write data to XML file
   if(dumpResultToXML){
     xercesc::DOMElement * aProcElement = m_Writer->writeEventData(aTopElement,iProcessor,input);
-    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nTestRefHits;++iRefHit){
+    for(unsigned int iRefHit=0;iRefHit<omtf_config_->nTestRefHits;++iRefHit){
       ///Dump only regions, where a candidate was found
       AlgoMuon myCand = m_Sorter.sortRefHitResults(results[iRefHit],0);//charge=0 means ignore charge
       if(myCand.getPt()) {
