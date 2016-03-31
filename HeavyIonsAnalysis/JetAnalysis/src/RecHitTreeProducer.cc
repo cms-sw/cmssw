@@ -98,6 +98,8 @@ struct MyRecHit{
   float hadEt[MAXHITS];
   float chi2[MAXHITS];
   float eError[MAXHITS];
+
+  int flags[MAXHITS];
   
   bool isjet[MAXHITS];
   float etVtx[MAXHITS];
@@ -568,6 +570,12 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
       }
       ebRecHit.chi2[ebRecHit.n] = hit.chi2();
       ebRecHit.eError[ebRecHit.n] = hit.energyError();
+
+      ebRecHit.flags[ebRecHit.n] = 0;
+      for (uint32_t f=0; f<32; ++f) {
+        if (hit.checkFlag(f))
+          ebRecHit.flags[ebRecHit.n] |= 1 << f;
+      }
       
       ebRecHit.isjet[ebRecHit.n] = false;
       if(useJets_){
@@ -605,6 +613,12 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
       eeRecHit.chi2[eeRecHit.n] = hit.chi2();
       eeRecHit.eError[eeRecHit.n] = hit.energyError();
       
+      eeRecHit.flags[eeRecHit.n] = 0;
+      for (unsigned int f=0; f<32; ++f) {
+        if (hit.checkFlag(f))
+          eeRecHit.flags[eeRecHit.n] |= 1 << f;
+      }
+
       eeRecHit.isjet[eeRecHit.n] = false;
 
       if(useJets_){
@@ -876,6 +890,7 @@ RecHitTreeProducer::beginJob()
     eeTree->Branch("perp",eeRecHit.perp,"perp[n]/F");
     eeTree->Branch("chi2",eeRecHit.chi2,"chi2[n]/F");
     eeTree->Branch("eError",eeRecHit.eError,"eError[n]/F");
+    eeTree->Branch("flags",eeRecHit.flags,"flags[n]/I");
 
     eeTree->Branch("isjet",eeRecHit.isjet,"isjet[n]/O");
 
@@ -888,6 +903,7 @@ RecHitTreeProducer::beginJob()
     ebTree->Branch("perp",ebRecHit.perp,"perp[n]/F");
     ebTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
     ebTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
+    ebTree->Branch("flags",ebRecHit.flags,"flags[n]/I");
     
     ebTree->Branch("isjet",ebRecHit.isjet,"isjet[n]/O");
   }
