@@ -100,7 +100,6 @@ void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
 				   const OMTFinput & aInput){
 
   for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::instance()->nLayers;++iLogicLayer){
-
     for(unsigned int iInput=0;iInput<14;++iInput){
       bool isHit = aInput.getLayerData(iLogicLayer)[iInput]<(int)OMTFConfiguration::instance()->nPhiBins;
       m_omtf_config->measurements4D[iProcessor][iRegion][iLogicLayer][iInput]+=isHit;

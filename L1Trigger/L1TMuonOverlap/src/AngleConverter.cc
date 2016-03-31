@@ -127,6 +127,7 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 ///////////////////////////////////////
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const
 {
+
   const double hsPhiPitch = 2*M_PI/OMTFConfiguration::instance()->nPhiBins; //
   const int dummy = OMTFConfiguration::instance()->nPhiBins;
 

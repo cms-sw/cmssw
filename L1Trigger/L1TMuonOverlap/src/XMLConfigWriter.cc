@@ -456,9 +456,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	aRefLayerElement->setAttribute(_toDOMS("iGlobalPhiStart"), _toDOMS(stringStr.str()));	
 	aProcessorElement->appendChild(aRefLayerElement);
       }
-    unsigned int iRefHit = 0;
-   
-    /////
+    unsigned int iRefHit = 0;   
     ///////
       for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
 	for(unsigned int iRegion=0;iRegion<6;++iRegion){

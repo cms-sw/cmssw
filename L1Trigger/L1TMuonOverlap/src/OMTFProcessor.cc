@@ -70,7 +70,7 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 
   resetConfiguration();
-
+  
   myResults.assign(OMTFConfiguration::instance()->nTestRefHits,OMTFProcessor::resultsMap());
   
   const l1t::LUT* chargeLUT =  omtfParams->chargeLUT();
@@ -80,6 +80,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
   const l1t::LUT* meanDistPhiLUT =  omtfParams->meanDistPhiLUT();
 
   unsigned int nGPs = OMTFConfiguration::instance()->nGoldenPatterns;
+
   unsigned int address = 0;
   unsigned int iEta, iPt, iCharge;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
@@ -87,6 +88,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
     iEta = etaLUT->data(address);
     iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
+
     GoldenPattern::vector2D meanDistPhi2D(OMTFConfiguration::instance()->nLayers);
     GoldenPattern::vector1D pdf1D(exp2(OMTFConfiguration::instance()->nPdfAddrBits));
     GoldenPattern::vector3D pdf3D(OMTFConfiguration::instance()->nLayers);
@@ -193,7 +195,6 @@ void  OMTFProcessor::averagePatterns(int charge){
     aGP1->setMeanDistPhi(meanDistPhi);
     aGP2->setMeanDistPhi(meanDistPhi);
 
-
     shiftGP(aGP1,meanDistPhi, meanDistPhi1);
     shiftGP(aGP2,meanDistPhi, meanDistPhi2);   
     if(aGP3!=aGP1 && aGP4!=aGP2){
@@ -203,7 +204,6 @@ void  OMTFProcessor::averagePatterns(int charge){
       shiftGP(aGP4,meanDistPhi, meanDistPhi4);   
     }
   }
-  
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -218,6 +218,7 @@ void OMTFProcessor::shiftGP(GoldenPattern *aGP,
   GoldenPattern::vector3D pdfAllRef = aGP->getPdf();
 
   int indexShift = 0;
+
   for(unsigned int iLayer=0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
     for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
       indexShift = meanDistPhiOld[iLayer][iRefLayer] - meanDistPhiNew[iLayer][iRefLayer];
@@ -273,8 +274,8 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       	int phiRefSt2 = itGP.second->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);       	
       	myResults[OMTFConfiguration::instance()->nTestRefHits-nTestedRefHits-1][itGP.second->key()].setRefPhiRHits(aRefHitDef.iRefLayer, phiRef); 
         myResults[OMTFConfiguration::instance()->nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
-      												  aLayerResult.first,
-      												  phiRefSt2,etaRef);	 
+													      aLayerResult.first,
+													      phiRefSt2,etaRef);	 
       }
     }
   }
@@ -305,7 +306,6 @@ OMTFinput::vector1D OMTFProcessor::restrictInput(unsigned int iProcessor,
   for(unsigned int iInput=0;iInput<14;++iInput){    
     if(iInput<iStart || iInput>iEnd) myHits[iInput] = OMTFConfiguration::instance()->nPhiBins;
   }  
-  
   return myHits;
 }
 ////////////////////////////////////////////

@@ -238,7 +238,6 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(detid.rawId());
     if(OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber)==OMTFConfiguration::instance()->hwToLogicLayer.end()) continue;
     
-    //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];
     auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
     unsigned int iLayer = iter->second;
 
@@ -334,10 +333,8 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       int iPhi = (iPhiHalfStrip1+iPhiHalfStrip2)/2;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
       unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(rawid);
-      //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];
       auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
       unsigned int iLayer = iter->second;
-
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
       result.addLayerHit(iLayer,iInput,iPhi,iEta);
 

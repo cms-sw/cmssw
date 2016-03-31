@@ -81,11 +81,7 @@ void OMTFinput::mergeData(const OMTFinput *aInput){
 
     OMTFinput::vector1D layerData = getLayerData(iLayer, false);
     
-    for(unsigned int iInput=0;iInput<14;++iInput){
-
-      //if(aPhiVec[iInput]==layerData[iInput] &&
-      // aPhiVec[iInput]!=(int)OMTFConfiguration::instance()->nPhiBins) std::cout<<"Same HIT!"<<std::endl;
-      
+    for(unsigned int iInput=0;iInput<14;++iInput){      
       addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
     }
   }
@@ -103,7 +99,6 @@ void OMTFinput::clear(){
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 void  OMTFinput::shiftMyPhi(int phiShift){
-
 
   int lowScaleEnd = std::pow(2,OMTFConfiguration::instance()->nPhiBits-1);
   int highScaleEnd = lowScaleEnd-1;
@@ -134,8 +129,6 @@ for(unsigned int iLogicLayer=0;iLogicLayer<aInput.measurementsPhi.size();++iLogi
     out<<std::endl;
   }
   return out;
-
-
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

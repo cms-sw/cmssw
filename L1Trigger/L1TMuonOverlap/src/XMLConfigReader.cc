@@ -233,7 +233,6 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
   }
   assert(doc);
 
-
   OMTFinput::vector1D input1D(14,m_omtf_config->nPhiBins);
   OMTFinput::vector2D input2D(m_omtf_config->nLayers);
 
@@ -536,6 +535,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
   unsigned int nLogicRegions =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nLogicRegions"))).c_str());
   unsigned int nInputs =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nInputs"))).c_str());
   unsigned int nGoldenPatterns =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nGoldenPatterns"))).c_str()); 
+
   m_omtf_config->fwVersion = fwVersion;
   m_omtf_config->minPdfVal = minPdfVal;
   m_omtf_config->nPdfAddrBits = nPdfAddrBits;
@@ -616,6 +616,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
     if(nRefLayers<logicNumber) nRefLayers = refLayer;
   }
   ++nRefLayers;//ref number in XML starts from 0.
+
   m_omtf_config->nRefLayers = nRefLayers;
 
   ///processors initial phi for each reference layer
@@ -647,6 +648,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
 
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->getLength();
   assert(nElem==m_omtf_config->nProcessors);
+
   DOMElement* aProcessorElement = 0;
   for(uint i=0;i<nElem;++i){
     aNode = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->item(i);
