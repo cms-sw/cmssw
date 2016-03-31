@@ -109,7 +109,7 @@ class L1MuBMTrackFinder {
     int numberOfTracks(int bx);
 
     /// return configuration
-    static L1MuBMTFConfig* config() { return m_config; }
+    static const L1MuBMTFConfig* config() { return m_config; }
 
 //    std::vector<BMTrackCand>& getcache0() { return _cache0; }
 
