@@ -84,20 +84,22 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
+def _modifyRecoMuonPPonlyForPhase2( object ):
+    object.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+    object.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+    object.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+    object.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+
 from Configuration.StandardSequences.Eras import eras
-if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
+eras.phase2_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
+eras.phase2_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
+eras.phase2dev_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
+eras.phase2dev_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
 
-    standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-    standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
-    refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-    refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+def _modifyRecoMuonPPonlyForPhase2_addME0Muon( theProcess ):
+    theProcess.load("RecoMuon.MuonIdentification.me0MuonReco_cff")
+    theProcess.muonGlobalReco += theProcess.me0MuonReco
 
-    standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-    standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
-    refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-    refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
-
-    from RecoMuon.MuonIdentification.me0MuonReco_cff import *
-    muonGlobalReco += me0MuonReco
-
+modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
+modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
     

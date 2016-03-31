@@ -219,12 +219,15 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
-# Phase-2 GEM customs
-if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
-    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-    mixSimHits.subdets.append('MuonGEMHits')
-    mixSimHits.crossingFrames.append('MuonGEMHits')
+def _modifyMixSimHitsForPhase2( object ):
+    object.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+    object.subdets.append('MuonGEMHits')
+    object.crossingFrames.append('MuonGEMHits')
 
-    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-    mixSimHits.subdets.append('MuonME0Hits')
-    mixSimHits.crossingFrames.append('MuonME0Hits')
+    object.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+    object.subdets.append('MuonME0Hits')
+    object.crossingFrames.append('MuonME0Hits')
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( mixSimHits, func=_modifyMixSimHitsForPhase2 )
+eras.phase2dev_muon.toModify( mixSimHits, func=_modifyMixSimHitsForPhase2 )
