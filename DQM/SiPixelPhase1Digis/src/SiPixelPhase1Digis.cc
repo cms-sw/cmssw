@@ -20,8 +20,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig, MAX_HIST),
-  src_(iConfig.getParameter<edm::InputTag>("src"))
+  SiPixelPhase1Base(iConfig, MAX_HIST)
 {
   histo[ADC].setName("adc")
     .setTitle("Digi ADC values")
@@ -29,7 +28,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setRange(300, 0, 300)
     .setDimensions(1);
   histo[ADC].addSpec()
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade")
+    .groupBy(histo[ADC].defaultGrouping())
     .saveAll();
   histo[ADC].addSpec()
     .groupBy("BX")
@@ -37,10 +36,10 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .groupBy("", "EXTEND_X")
     .save();
   histo[ADC].addSpec()
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade" "/row/col")
+    .groupBy(histo[ADC].defaultGrouping() + "/row/col")
     .reduce("COUNT")
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade" "/row", "EXTEND_X")
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_Y")
+    .groupBy(histo[ADC].defaultGrouping() + "/row", "EXTEND_X")
+    .groupBy(histo[ADC].defaultGrouping(), "EXTEND_Y")
     .saveAll();
 
   histo[MAP].setName("hitmap")
@@ -65,9 +64,10 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setRange(30, 0, 30)
     .setDimensions(1);
   histo[NDIGIS].addSpec()
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade")
+    .groupBy(histo[NDIGIS].defaultGrouping())
     .save()
     .reduce("MEAN")
+    // TODO: find a way to express this with default. defaultGrouping(1) or sth.?
     .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
     .saveAll();
 

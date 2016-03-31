@@ -40,8 +40,12 @@ class SiPixelPhase1Base {
   
   // You should add a constructor that sets up the specs.
   SiPixelPhase1Base(const edm::ParameterSet& iConfig, int NQuantities = 1) {
-    for (int i = 0; i < NQuantities; i++) 
-      histo.emplace_back(HistogramManager(iConfig));
+    auto histograms = iConfig.getParameter<edm::VParameterSet>("histograms");
+    auto histoconf = histograms.begin();
+    for (int i = 0; i < NQuantities; i++) {
+      histo.emplace_back(HistogramManager(*histoconf));
+      if (++histoconf == histograms.end()) histoconf--; // TODO: error here?
+    }
   };
   
   // You should analyze something, and call histoman.fill(...).

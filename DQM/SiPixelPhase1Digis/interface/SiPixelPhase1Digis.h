@@ -33,7 +33,6 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   void registerConsumes(const edm::ParameterSet& iConfig, Consumer& c);
 
   private:
-  edm::InputTag src_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;
 
 };
