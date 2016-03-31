@@ -570,6 +570,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       }
       if(subtractor) { delete subtractor; subtractor = 0;} 
     }
+    fjJets_ = fastjet::sorted_by_pt(fjJets_);
   }
   
 
