@@ -30,6 +30,11 @@ do
 			    matchGenjets="HiSignalGenJets"
 			    partons="hiSignalGenParticles"
 			fi
+			if ( [ $sub == "Vs" ] || [ $sub == "Cs" ] || [ $sub == "CsSoftDrop" ] || [ $sub == "CsFilter" ] ) ; then
+			    resolveByDist="True"
+			else 
+			    resolveByDist="False"
+			fi
 			genjets="HiGenJets"
                         ismc="False"
                         corrlabel="_offline"
@@ -98,6 +103,7 @@ do
 			    -e "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
 			    -e "s/DOTOWERS_/$doTower/g" \
 			    -e "s/DOSUBJETS_/$doSubJets/g" \
+			    -e "s/RESOLVEBYDIST_/$resolveByDist/g" \
 				  > $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
 
 			# skip no sub

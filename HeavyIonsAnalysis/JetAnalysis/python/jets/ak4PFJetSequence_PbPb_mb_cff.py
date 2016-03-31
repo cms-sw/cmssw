@@ -10,6 +10,7 @@ from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 ak4PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak4PFJets"),
     matched = cms.InputTag("ak4HiCleanedGenJets"),
+    resolveByMatchQuality = cms.bool(False),
     maxDeltaR = 0.4
     )
 
