@@ -99,7 +99,7 @@ struct MyRecHit{
   float chi2[MAXHITS];
   float eError[MAXHITS];
 
-  int flags[MAXHITS];
+  uint32_t flags[MAXHITS];
   
   bool isjet[MAXHITS];
   float etVtx[MAXHITS];
@@ -890,7 +890,7 @@ RecHitTreeProducer::beginJob()
     eeTree->Branch("perp",eeRecHit.perp,"perp[n]/F");
     eeTree->Branch("chi2",eeRecHit.chi2,"chi2[n]/F");
     eeTree->Branch("eError",eeRecHit.eError,"eError[n]/F");
-    eeTree->Branch("flags",eeRecHit.flags,"flags[n]/I");
+    eeTree->Branch("flags",eeRecHit.flags,"flags[n]/i");
 
     eeTree->Branch("isjet",eeRecHit.isjet,"isjet[n]/O");
 
@@ -903,7 +903,7 @@ RecHitTreeProducer::beginJob()
     ebTree->Branch("perp",ebRecHit.perp,"perp[n]/F");
     ebTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
     ebTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
-    ebTree->Branch("flags",ebRecHit.flags,"flags[n]/I");
+    ebTree->Branch("flags",ebRecHit.flags,"flags[n]/i");
     
     ebTree->Branch("isjet",ebRecHit.isjet,"isjet[n]/O");
   }
