@@ -12,6 +12,8 @@
 // edm stuff
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 // Tracker Geometry/Topology  suff
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -31,9 +33,7 @@
 #include <iostream>
 #include <iomanip>
 
-GeometryInterface GeometryInterface::instance;
-
-void GeometryInterface::load(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFromAlignment(iSetup, iConfig);
   loadTimebased(iSetup, iConfig);
   loadModuleLevel(iSetup, iConfig);
@@ -193,3 +193,5 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
 
   // TODO: ROCs ans stuff here.
 }
+
+DEFINE_FWK_SERVICE(GeometryInterface);

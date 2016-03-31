@@ -6,9 +6,10 @@
 // Class:      GeometryInterface
 //
 // The histogram manager uses this class to gather information about a sample.
-// All geometry dependence goes here. This is a singleton, but only for
-// performance reasons. At some point we might need to switch to sth. more 
-// complicated (if we want to deal with more than one geometry per process) 
+// All geometry dependence goes here. This is a singleton, (ed::Service) but 
+// only for performance reasons. 
+// At some point we might need to switch to sth. more complicated (if we want 
+// to deal with more than one geometry per process).
 //
 // Original Author: Marcel Schneider
 //
@@ -24,6 +25,7 @@
 #include <array>
 #include <mutex>
 
+namespace edm { class ActivityRegistry; };
 
 class GeometryInterface {
   public:
@@ -72,14 +74,13 @@ class GeometryInterface {
     bool operator< (Values const& other) const { return this->values < other.values; };
   };
 
-  // thread save by greedy initialisation, but the instance is "invalid" in the begining.
-  static GeometryInterface& get() { return instance; };
+  GeometryInterface(const edm::ParameterSet& conf, edm::ActivityRegistry& ) : iConfig(conf) {};
 
   bool loaded() { return is_loaded; };
 
   // The hard work happens here.
   // this is _not_ thread save, but it should only be called in booking/harvesting.
-  void load(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void load(edm::EventSetup const& iSetup);
 
   struct InterestingQuantities {
     DetId sourceModule;
@@ -149,8 +150,9 @@ class GeometryInterface {
   void loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
   void loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
   void loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  
+  const edm::ParameterSet& iConfig;
 
-  static GeometryInterface instance;
   bool is_loaded = false;
 
   // This holds closures that compute the column values in step1.

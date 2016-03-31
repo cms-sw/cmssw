@@ -60,9 +60,9 @@ public:
   HistogramManager& setDimensions(int dimensions) {this->dimensions = dimensions; return *this;};
   HistogramManager& setRange(int nbins, double min, double max) {range_nbins = nbins; range_min = min; range_max = max; return *this; };
 
-//private: // we need a bit more access for testing
+private:
   const edm::ParameterSet& iConfig;
-  GeometryInterface& geometryInterface = GeometryInterface::get();
+  GeometryInterface& geometryInterface;
 
   std::vector<SummationSpecification> specs;
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
