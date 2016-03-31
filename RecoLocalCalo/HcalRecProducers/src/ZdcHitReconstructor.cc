@@ -34,7 +34,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   theTopology(0)
   
 { 
-  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+  tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+  tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
 
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -97,8 +98,14 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   
    if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
      edm::Handle<ZDCDigiCollection> digi;
-     e.getByToken(tok_input_,digi);
+     e.getByToken(tok_input_castor,digi);
      
+     if(digi->size() == 0) {
+       e.getByToken(tok_input_hcal,digi);
+       if(digi->size() != 0) std::cout<<"No ZDC info in castorDigis, using hcalDigis. This is normal for all Run1 datasets"<<std::endl;
+       else std::cout<<"No ZDC info in either castorDigis or hcalDigis"<<std::endl;
+     }
+        
      // create empty output
      std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
      rec->reserve(digi->size());
