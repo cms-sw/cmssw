@@ -370,6 +370,7 @@ private:
   //sim tracks
   std::vector<int>   sim_event    ;
   std::vector<int>   sim_bunchCrossing;
+  std::vector<int>   sim_pdgId    ;
   std::vector<float> sim_px       ;
   std::vector<float> sim_py       ;
   std::vector<float> sim_pz       ;
@@ -510,6 +511,7 @@ private:
   // Tracking vertices
   std::vector<int>   simvtx_event;
   std::vector<int>   simvtx_bunchCrossing;
+  std::vector<unsigned int> simvtx_processType; // only from first SimVertex of TrackingVertex
   std::vector<float> simvtx_x;
   std::vector<float> simvtx_y;
   std::vector<float> simvtx_z;
@@ -600,6 +602,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   //sim tracks
   t->Branch("sim_event"    , &sim_event    );
   t->Branch("sim_bunchCrossing", &sim_bunchCrossing);
+  t->Branch("sim_pdgId"    , &sim_pdgId    );
   t->Branch("sim_px"       , &sim_px       );
   t->Branch("sim_py"       , &sim_py       );
   t->Branch("sim_pz"       , &sim_pz       );
@@ -747,6 +750,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   // tracking vertices
   t->Branch("simvtx_event"   , &simvtx_event    );
   t->Branch("simvtx_bunchCrossing", &simvtx_bunchCrossing);
+  t->Branch("simvtx_processType", &simvtx_processType);
   t->Branch("simvtx_x"       , &simvtx_x);
   t->Branch("simvtx_y"       , &simvtx_y);
   t->Branch("simvtx_z"       , &simvtx_z);
@@ -810,6 +814,7 @@ void TrackingNtuple::clearVariables() {
   //sim tracks
   sim_event    .clear();
   sim_bunchCrossing.clear();
+  sim_pdgId    .clear();
   sim_px       .clear();
   sim_py       .clear();
   sim_pz       .clear();
@@ -1744,6 +1749,7 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     LogTrace("TrackingNtuple") << "matched to tracks = " << make_VectorPrinter(tkIdx) << " isRecoMatched=" << isRecoMatched;
     sim_event    .push_back(tp->eventId().event());
     sim_bunchCrossing.push_back(tp->eventId().bunchCrossing());
+    sim_pdgId    .push_back(tp->pdgId());
     sim_px       .push_back(tp->px());
     sim_py       .push_back(tp->py());
     sim_pz       .push_back(tp->pz());
@@ -1823,8 +1829,15 @@ void TrackingNtuple::fillTrackingVertices(const TrackingVertexRefVector& trackin
       simpv_idx.push_back(simvtx_x.size());
     }
 
+    unsigned int processType = std::numeric_limits<unsigned int>::max();
+    if(!v.g4Vertices().empty()) {
+      processType = v.g4Vertices()[0].processType();
+    }
+
     simvtx_event.push_back(v.eventId().event());
     simvtx_bunchCrossing.push_back(v.eventId().bunchCrossing());
+    simvtx_processType.push_back(processType);
+
     simvtx_x.push_back(v.position().x());
     simvtx_y.push_back(v.position().y());
     simvtx_z.push_back(v.position().z());
