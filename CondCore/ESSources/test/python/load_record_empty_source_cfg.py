@@ -2,24 +2,33 @@ import time
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-from Configuration.AlCa.autoCond import autoCond
 
 options = VarParsing.VarParsing()
 options.register('connectionString',
                  'frontier://FrontierProd/CMS_CONDITIONS', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "GlobalTag Connection string")
-options.register('globalTag',
-                 autoCond['run2_data'], #default value
+                 'Connection string')
+options.register('record',
+                 'EcalPedestalsRcd', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "GlobalTag")
-options.register('snapshotTime',
+                 'Event Setup Record registered for Condition usage')
+options.register('label',
                  '', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "GlobalTag snapshot time")
+                 'Label associated to the Record')
+options.register('tag',
+                 'EcalPedestals_205858_200_mc_reduced_noise', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 'Tag stored in Condition Database')
+options.register('snapshotTime',
+                 '9999-12-31 23:59:59.000', #default value is MAX_TIMESTAMP
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 'Tag snapshot time')
 options.register('refresh',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -71,8 +80,8 @@ options.parseArguments()
 process = cms.Process("TEST")
 
 process.MessageLogger = cms.Service( "MessageLogger",
-                                     destinations = cms.untracked.vstring( 'detailedInfo' ),
-                                     detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) ),
+                                     destinations = cms.untracked.vstring( 'recordInfo' ),
+                                     recordInfo = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) ),
                                      )
 
 CondDBParameters = cms.PSet( authenticationPath = cms.untracked.string( '' ),
@@ -101,10 +110,13 @@ elif options.refresh == 4:
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
                                   DBParameters = CondDBParameters,
-                                  connect = cms.string( options.connectionString ),
-                                  globaltag = cms.string( options.globalTag ),
-                                  snapshotTime = cms.string( options.snapshotTime ),
-                                  toGet = cms.VPSet(),
+                                  toGet = cms.VPSet( cms.PSet( record = cms.string( options.record ),
+                                                               label = cms.untracked.string( options.label ),
+                                                               connect = cms.string( options.connectionString ),
+                                                               tag = cms.string( options.tag ),
+                                                               snapshotTime = cms.string( options.snapshotTime ),
+                                                               ),
+                                                     ),
                                   RefreshAlways = cms.untracked.bool( refreshAlways ),
                                   RefreshOpenIOVs = cms.untracked.bool( refreshOpenIOVs ),
                                   RefreshEachRun = cms.untracked.bool( refreshEachRun ),
@@ -118,14 +130,6 @@ if options.pfnPrefix:
     process.GlobalTag.pfnPrefix = options.pfnPrefix
 if options.pfnPostfix:
     process.GlobalTag.pfnPostfix = options.pfnPostfix
-
-#TODO: add VarParsing support for adding custom conditions
-#process.GlobalTag.toGet.append( cms.PSet( record = cms.string( "BeamSpotObjectsRcd" ),
-#                                          tag = cms.string( "firstcollisions" ),
-#                                          connect = cms.string( "frontier://FrontierProd/CMS_CONDITIONS" ),
-#                                          snapshotTime = cms.string('2014-01-01 00:00:00.000'),
-#                                          )
-#                                )
 
 process.source = cms.Source( "EmptySource",
                              firstRun = cms.untracked.uint32( options.runNumber ),

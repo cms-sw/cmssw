@@ -9,15 +9,14 @@ from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
 
 # common ingredients
-from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
-CondDBCommon.connect = "sqlite_file:promptCalibConditions.db"
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDBOutput = CondDB.clone(connect = cms.string("sqlite_file:promptCalibConditions.db"))
 
 PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                  CondDBCommon,
+                                  CondDBOutput,
                                   toPut = cms.VPSet(),
-                                  loadBlobStreamer = cms.untracked.bool(False),
-                                  #    timetype   = cms.untracked.string('lumiid')
-                                  #    timetype   = cms.untracked.string('runnumber')
+                                  #timetype = cms.untracked.string("runnumber"),
+                                  #timetype = cms.untracked.string("lumiid"),
                                   )
 
 

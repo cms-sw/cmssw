@@ -30,10 +30,10 @@ git cms-addpkg GeometryReaders/XMLIdealGeometryESSource
 git cms-addpkg Geometry/CaloEventSetup
 
 if ($loctag != '') then 
-    git cms-addpkg Configuration/StandardSequences
-    cd Configuration/StandardSequences/python
+    git cms-addpkg CondCore/ESSources
+    cd CondCore/ESSources/python
     set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
-    sed -i "{s/frontier:\/\/FrontierProd\/CMS_COND_31X_GLOBALTAG/${escloctag}/g}" FrontierConditions_GlobalTag_cfi.py 
+    sed -i "{s/frontier:\/\/FrontierProd\/CMS_CONDITIONS/${escloctag}/g}" CondDBESSource_cfi.py 
 endif
 
 cd $CMSSW_BASE/src
