@@ -65,7 +65,7 @@ struct SummationSpecificationBuilder {
 
   // General grouping, pass in the columns that should remain and the mode of 
   // histogram summation.
-  SummationSpecificationBuilder& groupBy(const char* cols, const char* mode = "SUM");
+  SummationSpecificationBuilder& groupBy(std::string cols, const char* mode = "SUM");
   // Save the current state of the table as MonitorElements. Marks transition to step2.
   SummationSpecificationBuilder& save();
   // Reduce a higher-dimensional hisotgram to a lower (typ. single number) one.

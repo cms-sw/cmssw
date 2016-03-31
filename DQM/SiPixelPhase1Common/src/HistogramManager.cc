@@ -19,7 +19,9 @@
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
   geometryInterface(*edm::Service<GeometryInterface>()),
-  topFolderName(iconfig.getParameter<std::string>("TopFolderName"))
+  enabled(iconfig.getParameter<bool>("enabled")),
+  top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
+  default_grouping(iconfig.getParameter<std::string>("defaultGrouping"))
 { }
 
 void HistogramManager::addSpec(SummationSpecification spec) {
@@ -34,6 +36,7 @@ SummationSpecificationBuilder HistogramManager::addSpec() {
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
 void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
+  if (!enabled) return;
   auto iq = GeometryInterface::InterestingQuantities{
               sourceModule, sourceEvent, col, row
 	    };							    
@@ -94,6 +97,7 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event *sourceEvent, i
 }
   
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
+  if (!enabled) return;
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup);
   }
@@ -173,7 +177,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	  if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
       }
 
-      iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
+      iBooker.setCurrentFolder(top_folder_name + "/" + dir.str());
 
       if (dimensions == 0 || dimensions == 1) {
       	histo.me = iBooker.book1D(name.c_str(), (title + ";" + xlabel).c_str(), range_x_nbins, range_x_min, range_x_max);
@@ -186,6 +190,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 }
 
 void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup) {
+  if (!enabled) return;
   // this should also give us the GeometryInterface for offline, though it is a bit dirty and might explode.
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup);
@@ -193,6 +198,7 @@ void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMSt
 }
 
 void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
+  if (!enabled) return;
   //edm::LogTrace("HistogramManager") << "HistogramManager: Step2 offline\n";
   // Debug output
   for (auto& s : specs) {
@@ -234,7 +240,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
       }
 
       AbstractHistogram& histo = t[significantvalues];
-      std::ostringstream dir(topFolderName + "/", std::ostringstream::ate);
+      std::ostringstream dir(top_folder_name + "/", std::ostringstream::ate);
       for (auto c : s.steps[0].columns) {
 	  auto entry = significantvalues.get(c);
 	  // col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
@@ -267,7 +273,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 		// col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
 		if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
 	    }
-	    iBooker.setCurrentFolder(topFolderName + "/" + dir.str());
+	    iBooker.setCurrentFolder(top_folder_name + "/" + dir.str());
 
 	    if (e.second.th1->GetDimension() == 1) {
 	      TAxis* ax = e.second.th1->GetXaxis();

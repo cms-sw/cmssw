@@ -285,7 +285,6 @@ def customise_harvesting(process):
 
     # these were migrated in #12440
     if eras.phase1Pixel.isChosen():
-        print "+++++++++++++ Harvsting Cust.: using era"
         return process
 
     process.dqmHarvesting.remove(process.dataCertificationJetMET)

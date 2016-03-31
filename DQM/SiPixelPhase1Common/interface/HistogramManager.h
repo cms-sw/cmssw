@@ -60,6 +60,8 @@ public:
   HistogramManager& setDimensions(int dimensions) {this->dimensions = dimensions; return *this;};
   HistogramManager& setRange(int nbins, double min, double max) {range_nbins = nbins; range_min = min; range_max = max; return *this; };
 
+  std::string defaultGrouping() { return default_grouping; };
+
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
@@ -71,7 +73,9 @@ private:
   bool columsFinal = false;
   std::set<GeometryInterface::Column> significantColumns;
 
-  std::string topFolderName;
+  bool enabled;
+  std::string top_folder_name;
+  std::string default_grouping;
 
   std::string name;
   std::string title;
