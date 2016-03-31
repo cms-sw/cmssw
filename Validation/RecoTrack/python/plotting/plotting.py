@@ -1,5 +1,6 @@
 import sys
 import math
+import copy
 import array
 import difflib
 
@@ -926,6 +927,7 @@ class Plot:
 
         Keyword arguments:
         fallback     -- Dictionary for specifying fallback (default None)
+        outname      -- String for an output name of the plot (default None for the same as 'name')
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
         xtitlesize   -- Float for x axis title size (default None)
@@ -976,6 +978,7 @@ class Plot:
             setattr(self, "_"+attr, kwargs.get(attr, default))
 
         _set("fallback", None)
+        _set("outname", None)
 
         _set("title", None)
         _set("xtitle", None)
@@ -1040,6 +1043,13 @@ class Plot:
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
 
+    def clone(self, **kwargs):
+        if not self.isEmpty():
+            raise Exception("Plot can be cloned only before histograms have been created")
+        cl = copy.copy(self)
+        cl.setProperties(**kwargs)
+        return cl
+
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
         return len(filter(lambda h: h is not None, self._histograms))
@@ -1055,6 +1065,8 @@ class Plot:
         return False
 
     def getName(self):
+        if self._outname is not None:
+            return self._outname
         if isinstance(self._name, list):
             return str(self._name[0])
         else:
@@ -1608,6 +1620,12 @@ class PlotGroup:
 
         self._ratioFactor = 1.25
 
+    def setProperties(self, **kwargs):
+        for name, value in kwargs.iteritems():
+            if not hasattr(self, "_"+name):
+                raise Exception("No attribute '%s'" % name)
+            setattr(self, "_"+name, value)
+
     def getName(self):
         return self._name
 
@@ -1620,6 +1638,9 @@ class PlotGroup:
                 del self._plots[i]
                 return
         raise Exception("Did not find Plot '%s' from PlotGroup '%s'" % (name, self._name))
+
+    def clear(self):
+        self._plots = []
 
     def append(self, plot):
         self._plots.append(plot)
