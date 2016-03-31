@@ -853,10 +853,11 @@ _packedCandidatePlots = [
 ]
 plotter = Plotter()
 plotterExt = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False, rawSummary=False):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, seeding=False, rawSummary=False):
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
-    commonForTPF = dict(onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC])
+    limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
+    commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC], **limiters)
     common = dict(fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC, _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
     plotterExt.append(name, folders, TrackingPlotFolder(*_extendedPlots, **commonForTPF), **common)
@@ -870,7 +871,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seed
         summaryPlots.extend([_summaryRaw, _summaryRawN])
     summaryPlots.extend(_summaryPlots)
 
-    common = dict(loopSubFolders=False, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingSummary, page="summary")
+    common = dict(loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", **limiters)
     plotter.append(summaryName, folders,
                    PlotFolder(*summaryPlots, section=name, **common))
     plotter.append(summaryName+"_highPurity", folders,
@@ -889,8 +890,8 @@ _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBase
 _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
 _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
-_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, rawSummary=True)
-_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, rawSummary=True)
+_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True)
+_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),

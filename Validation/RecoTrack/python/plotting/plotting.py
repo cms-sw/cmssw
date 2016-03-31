@@ -1859,6 +1859,8 @@ class PlotFolder:
         Keyword arguments
         loopSubFolders -- Should the subfolders be looped over? (default: True)
         onlyForPileup  -- Plots this folder only for pileup samples
+        onlyForElectron -- Plots this folder only for electron samples
+        onlyForConversion -- Plots this folder only for conversion samples
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
@@ -1866,6 +1868,8 @@ class PlotFolder:
         self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
+        self._onlyForElectron = kwargs.pop("onlyForElectron", False)
+        self._onlyForConversion = kwargs.pop("onlyForConversion", False)
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
@@ -1879,6 +1883,12 @@ class PlotFolder:
     def onlyForPileup(self):
         """Return True if the folder is intended only for pileup samples"""
         return self._onlyForPileup
+
+    def onlyForElectron(self):
+        return self._onlyForElectron
+
+    def onlyForConversion(self):
+        return self._onlyForConversion
 
     def getPurpose(self):
         return self._purpose
@@ -2036,6 +2046,12 @@ class PlotterFolder:
 
     def onlyForPileup(self):
         return self._plotFolder.onlyForPileup()
+
+    def onlyForElectron(self):
+        return self._plotFolder.onlyForElectron()
+
+    def onlyForConversion(self):
+        return self._plotFolder.onlyForConversion()
 
     def getPossibleDQMFolders(self):
         return self._possibleDqmFolders

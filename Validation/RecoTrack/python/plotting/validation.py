@@ -204,6 +204,16 @@ _relvalUrls = {
     "8_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_1_x/",
 }
 
+_doElectronSamples = [
+    "RelValTTbar",
+    "RelValSingleElectronPt35",
+    "RelValSingleElectronPt10",
+]
+_doConversionSamples = [
+    "RelValTTbar",
+    "RelValH125GGgluonfusion",
+]
+
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
     version_re = re.compile("CMSSW_(?P<X>\d+)_(?P<Y>\d+)")
@@ -216,10 +226,20 @@ def _getRelValUrl(release):
         sys.exit(1)
     return _relvalUrls[version]
 
+def _processPlotsForSample(plotterFolder, sample):
+    if plotterFolder.onlyForPileup() and not sample.hasPileup():
+        return False
+    if plotterFolder.onlyForElectron() and not sample.doElectron():
+        return False
+    if plotterFolder.onlyForConversion() and not sample.doConversion():
+        return False
+    return True
+
 class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
+                 doElectron=None, doConversion=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
@@ -232,6 +252,8 @@ class Sample:
         putype  -- String for pileup type (e.g. "25ns"/"50ns" for FullSim, "AVE20" for FastSim; default None)
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
+        doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
+        doConversion -- Bool specifying if conversion-specific plots should be produced (default depends on sample)
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
@@ -248,6 +270,15 @@ class Sample:
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
         self._appendGlobalTag = appendGlobalTag
+
+        if doElectron is not None:
+            self._doElectron = doElectron
+        else:
+            self._doElectron = (sample in _doElectronSamples)
+        if doConversion is not None:
+            self._doConversion = doConversion
+        else:
+            self._doConversion = (sample in _doConversionSamples)
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -284,6 +315,12 @@ class Sample:
             return self._putype.get(release, self._putype["default"])
         else:
             return self._putype
+
+    def doElectron(self):
+        return self._doElectron
+
+    def doConversion(self):
+        return self._doConversion
 
     def version(self, release=None):
         if isinstance(self._version, dict):
@@ -506,7 +543,7 @@ class Validation:
             plotterInstance = plotter.readDirs(harvestedFile)
             htmlReport.beginSample(sample)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-                if plotterFolder.onlyForPileup() and not sample.hasPileup():
+                if not _processPlotsForSample(plotterFolder, sample):
                     continue
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
@@ -545,7 +582,7 @@ class Validation:
             plotterInstance = plotter.readDirs(harvestedFile)
             htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-                if plotterFolder.onlyForPileup() and not fast.hasPileup():
+                if not _processPlotsForSample(plotterFolder, fast):
                     continue
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
@@ -847,6 +884,12 @@ class SimpleSample:
     def pileupType(self):
         return ""
 
+    def doElectron(self):
+        return True
+
+    def doConversion(self):
+        return True
+
 class SimpleValidation:
     def __init__(self, files, labels, newdir):
         self._files = files
@@ -876,7 +919,7 @@ class SimpleValidation:
 
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-            if sample is not None and plotterFolder.onlyForPileup() and not sample.hasPileup():
+            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
             if len(plotFiles) > 0:
