@@ -3,6 +3,7 @@
 
 
 #include "BasicFrameworkTest.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 BasicFrameworkTest::BasicFrameworkTest(const edm::ParameterSet& config) :
   histoman(config) {
@@ -10,7 +11,7 @@ BasicFrameworkTest::BasicFrameworkTest(const edm::ParameterSet& config) :
 }
 
 void BasicFrameworkTest::beginRun(const edm::Run&  run, const edm::EventSetup& setup) {
-  GeometryInterface::get().load(setup, histoman.iConfig);
+  edm::Service<GeometryInterface>()->load(setup);
   
   // This is for the current SiPixelResidual, Barrel only.
   histoman.addSpec()
