@@ -5,9 +5,10 @@
 
 #include "L1Trigger/L1TMuonOverlap/interface/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+
 
 class L1TMuonOverlapParams;
-class OMTFConfiguration;
 class XMLConfigReader;
 class OMTFinput;
 
@@ -23,7 +24,7 @@ class OMTFProcessor{
 
   typedef std::map<Key,OMTFResult> resultsMap;
 
-  OMTFProcessor(const edm::ParameterSet & cfg);
+  OMTFProcessor(const edm::ParameterSet & cfg, OMTFConfiguration * omtf_config);
 
   ~OMTFProcessor();
   
@@ -96,6 +97,7 @@ class OMTFProcessor{
   ///Reference hit number is isued as a vector index.
   std::vector<OMTFProcessor::resultsMap> myResults;
 
+  OMTFConfiguration * m_omtf_config;
 };
 
 

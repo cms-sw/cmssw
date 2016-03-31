@@ -29,14 +29,14 @@ L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::Parame
      fileNames.push_back(it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath());
    }  
 
-   
-   XMLConfigReader myReader;
+   myOMTFConfig = new OMTFConfiguration(theConfig);   
+   XMLConfigReader myReader(myOMTFConfig);
+
    myReader.setConfigFile(fName);
    readConnectionsXML(&myReader);
 
    ///Have to fill OMTFConfiguration data to be able to read the Golden Patterns file, as there are
    ///some consistency checks during XML parsing.
-   myOMTFConfig = new OMTFConfiguration(theConfig);
    myOMTFConfig->configure(&m_params);
 
    for(auto it: fileNames){
