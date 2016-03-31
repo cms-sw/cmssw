@@ -1,15 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# This object is used to make changes for different running scenarios
-#
-from Configuration.StandardSequences.Eras import eras
+# this might also go into te Common config,as we do not reference it
+from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+
+SiPixelPhase1DigisConf = cms.VPSet(
+  DefaultHisto, # ADC
+  DefaultHisto, # Ndigis
+  DefaultHisto  # hitmaps
+)
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1DigisAnalyzer",
-	TopFolderName = cms.string('PixelPhase1'),
-        src = cms.InputTag("simSiPixelDigis")
+        src = cms.InputTag("simSiPixelDigis"), #TODO: this should be centralized
+	histograms = SiPixelPhase1DigisConf
 )
 SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
-	TopFolderName = cms.string('PixelPhase1'),
-        src = cms.InputTag("simSiPixelDigis")
+	histograms = SiPixelPhase1DigisConf
 )

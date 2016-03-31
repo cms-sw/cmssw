@@ -29,7 +29,7 @@ SummationSpecificationBuilder::parse_columns(std::string name) {
 }
 
 SummationSpecificationBuilder&  
-SummationSpecificationBuilder::groupBy(const char* cols, const char* mode) {
+SummationSpecificationBuilder::groupBy(std::string cols, const char* mode) {
   std::vector<std::string> cnames;
   std::vector<GeometryInterface::Column> cs;
   boost::split(cnames, cols, boost::is_any_of("/"), boost::token_compress_on);
