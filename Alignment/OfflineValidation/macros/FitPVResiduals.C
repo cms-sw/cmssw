@@ -43,6 +43,8 @@
 #include "TkAlStyle.cc"
 #include "CMS_lumi.C"
 
+#define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
+
 void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_t nFiles,TString LegLabels[10],TString theDate="bogus",bool onlyBias=false);
 void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_t nFiles,TString LegLabels[10],TString theDate="bogus");
 void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString LegLabels[10],TString theDate="bogus");
@@ -533,7 +535,11 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
   TLegend *lego = new TLegend(0.19,0.82,0.79,0.92);
   //lego-> SetNColumns(2);
   lego->SetFillColor(10);
-  lego->SetTextSize(0.042);
+  if(nFiles>4){
+    lego->SetTextSize(0.022);
+  } else {
+    lego->SetTextSize(0.042);
+  }
   lego->SetTextFont(42);
   lego->SetFillColor(10);
   lego->SetLineColor(10);
@@ -687,7 +693,11 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   //lego-> SetNColumns(2);
   //TLegend *lego = new TLegend(0.18,0.77,0.50,0.86);
   lego->SetFillColor(10);
-  lego->SetTextSize(0.04);
+  if(nFiles>4) {
+    lego->SetTextSize(0.02);
+  } else {
+    lego->SetTextSize(0.04);
+  }
   lego->SetTextFont(42);
   lego->SetFillColor(10);
   lego->SetLineColor(10);
@@ -1873,17 +1883,17 @@ void MakeNiceMapStyle(TH2 *hist)
   l2->SetLineWidth(4);
   l2->Draw("same");
 
-  //   for(Int_t nX=1;nX<=nXCells;nX++){
-  //     for(Int_t nY=1;nY<=nYCells;nY++){
-  //       Double_t binContent = hist->GetBinContent(nX,nY);
-  //       if (binContent<=theNewMin) hist->SetBinContent(nX,nY,theNewMin);
-  //       else if (binContent>=theNewMax) hist->SetBinContent(nX,nY,theNewMax);
-  //     }
-  //   }
+  for(Int_t nX=1;nX<=nXCells;nX++){
+    for(Int_t nY=1;nY<=nYCells;nY++){
+      Double_t binContent = hist->GetBinContent(nX,nY);
+      if (binContent<=theNewMin) hist->SetBinContent(nX,nY,theNewMin);
+      else if (binContent>=theNewMax) hist->SetBinContent(nX,nY,theNewMax);
+    }
+  }
   
   //delete histContentByCell;
 
-  //hist->GetZaxis()->SetRangeUser(0.99*theNewMin,0.99*theNewMax);
+  hist->GetZaxis()->SetRangeUser(0.99*theNewMin,0.99*theNewMax);
 
 }
 

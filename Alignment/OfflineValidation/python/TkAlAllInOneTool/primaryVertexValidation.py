@@ -85,9 +85,9 @@ class PrimaryVertexValidation(GenericValidationData):
 
         #print repMap
 
-        if validationsSoFar == "":
-            validationsSoFar = "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+        if validationsSoFar  != "":
             validationsSoFar += ','
+            validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
         else:
             validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
         return validationsSoFar
