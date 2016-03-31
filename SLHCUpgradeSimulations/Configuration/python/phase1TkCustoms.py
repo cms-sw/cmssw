@@ -142,11 +142,6 @@ def customise_DQM(process,pileup):
     process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
     process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
 
-    # Pixel DQM needs to be updated for phase1
-    old = process.siPixelOfflineDQM_source
-    process.load('DQM.SiPixelPhase1Common.SiPixelPhase1OfflineDQM_source_cff')
-    process.DQMOfflinePreDPG.replace(old, process.siPixelPhase1OfflineDQM_source)
-
     # Doesn't work because TriggerResults::HLT is missing
     process.muonAnalyzer.remove(process.muonRecoOneHLT)
 
@@ -285,14 +280,16 @@ def customise_harvesting(process):
     process.DQMOffline_SecondStep_PrePOG.remove(process.normalizePlotsRealMuonsData)
     process.postValidation.remove(process.runTauEff)
 
+    # TODO this should be removed by the era switch, but I can't find where it comes from
+    process.dqmHarvesting.remove(process.sipixelCertification)
+
     # these were migrated in #12440
     if eras.phase1Pixel.isChosen():
+        print "+++++++++++++ Harvsting Cust.: using era"
         return process
 
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     #######process.dqmHarvesting.remove(process.sipixelEDAClient)
-    process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
-    process.dqmHarvesting.remove(process.sipixelCertification)
     return (process)        
 
 def add_detailed_pixel_dqm(process):
