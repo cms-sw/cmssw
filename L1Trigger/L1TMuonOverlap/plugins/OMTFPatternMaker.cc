@@ -25,9 +25,12 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg):
 
   inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
   inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
-  inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
-  inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
+  if(!theConfig.getParameter<bool>("dropCSCPrimitives"))
+    inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
+  if(!theConfig.getParameter<bool>("dropRPCPrimitives"))  
+    inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
   inputTokenSimHit = consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("g4SimTrackSrc"));
+
     
   if(!theConfig.exists("omtf")){
     edm::LogError("OMTFPatternMaker")<<"omtf configuration not found in cfg.py";
