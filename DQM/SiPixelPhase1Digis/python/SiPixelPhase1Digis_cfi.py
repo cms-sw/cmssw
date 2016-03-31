@@ -5,6 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #
 from Configuration.StandardSequences.Eras import eras
 
+from DQM.SiPixelPhase1Common.GeometryInterface_cfi import *
+
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1DigisAnalyzer",
 	TopFolderName = cms.string('PixelPhase1'),
         src = cms.InputTag("simSiPixelDigis")
