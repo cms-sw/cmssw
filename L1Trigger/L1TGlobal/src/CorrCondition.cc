@@ -191,12 +191,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             cond0Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
-            if (m_verbosity) {
+//            if (m_verbosity) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
                 LogDebug("L1TGlobal") << myCout.str() << std::endl;
-            }
+//            }
         }
             break;
         case CondEnergySum: {
@@ -359,11 +359,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     int phiBound = 0;
     if(cond0Categ == CondMuon || cond1Categ == CondMuon) {
         L1TGlobalScales::ScaleParameters par = m_gtScales->getMUScales();
-        phiBound = par.phiBins.size()/2;
+        //phiBound = par.phiBins.size()/2;
+	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     } else {
         //Assumes all calorimeter objects are on same phi scale
         L1TGlobalScales::ScaleParameters par = m_gtScales->getEGScales();
-        phiBound = par.phiBins.size()/2;
+        //phiBound = par.phiBins.size()/2;
+	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     }	
     LogDebug("L1TGlobal") << "Phi Bound = " << phiBound << std::endl;
     
@@ -554,7 +556,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
 
                     //  Get the floating point numbers
-		    if(cndObjTypeVec[0] = gtETM) {
+		    if(cndObjTypeVec[0] == gtETM) {
 		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
@@ -771,7 +773,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		       // Determine Floating Pt numbers for floating point caluclation
 		       
-		       if(cndObjTypeVec[1] = gtETM) {
+		       if(cndObjTypeVec[1] == gtETM) {
 		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
