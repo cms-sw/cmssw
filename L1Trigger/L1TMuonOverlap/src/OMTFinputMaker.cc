@@ -34,8 +34,8 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
 				 unsigned int iProcessor,
 				 l1t::tftype type){
 
-  unsigned int aMin = omtf_config_->barrelMin[iProcessor];
-  unsigned int aMax = omtf_config_->barrelMax[iProcessor];
+  unsigned int aMin = OMTFConfiguration::instance()->barrelMin[iProcessor];
+  unsigned int aMax = OMTFConfiguration::instance()->barrelMax[iProcessor];
   unsigned int aSector = 99;
 
   ///Clean up digis. Remove unconnected detectors
@@ -81,8 +81,8 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     if(aId.region()==0) aSector = aId.sector();
     if(aId.region()!=0){
       aSector = (aId.sector()-1)*6+aId.subsector();
-      aMin = omtf_config_->endcap10DegMin[iProcessor];
-      aMax = omtf_config_->endcap10DegMax[iProcessor];
+      aMin = OMTFConfiguration::instance()->endcap10DegMin[iProcessor];
+      aMax = OMTFConfiguration::instance()->endcap10DegMax[iProcessor];
     }
    
     break;
@@ -114,13 +114,13 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
 
     aSector =  csc.chamber();   	
 
-    aMin = omtf_config_->endcap10DegMin[iProcessor];
-    aMax = omtf_config_->endcap10DegMax[iProcessor];
+    aMin = OMTFConfiguration::instance()->endcap10DegMin[iProcessor];
+    aMax = OMTFConfiguration::instance()->endcap10DegMax[iProcessor];
 
     if( (type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg) &&
 	csc.station()>1 && csc.ring()==1){
-      aMin = omtf_config_->endcap20DegMin[iProcessor];
-      aMax = omtf_config_->endcap20DegMax[iProcessor];
+      aMin = OMTFConfiguration::instance()->endcap20DegMin[iProcessor];
+      aMax = OMTFConfiguration::instance()->endcap20DegMax[iProcessor];
     }
     break;
   }    
@@ -139,7 +139,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
 
   unsigned int iInput = 99;
   unsigned int aSector = 99;
-  int aMin = omtf_config_->barrelMin[iProcessor];
+  int aMin = OMTFConfiguration::instance()->barrelMin[iProcessor];
   int iRoll = 1;
   int nInputsPerSector = 2;
 
@@ -169,7 +169,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
     }
     if(rpc.region()!=0){
       aSector = (rpc.sector()-1)*6+rpc.subsector();
-      aMin = omtf_config_->endcap10DegMin[iProcessor];
+      aMin = OMTFConfiguration::instance()->endcap10DegMin[iProcessor];
       ///on the 0-2pi border we need to add 4 10 deg sectors
       ///to get the correct index
       if(iProcessor==5 && aSector<5) aMin = -4;
@@ -187,7 +187,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
   case MuonSubdetId::CSC: {   
     CSCDetId csc(rawId);    
     aSector = csc.chamber();    
-    aMin = omtf_config_->endcap10DegMin[iProcessor];       
+    aMin = OMTFConfiguration::instance()->endcap10DegMin[iProcessor];       
     ///on the 0-2pi border we need to add 4 10deg sectors
     ///to get the correct index
     if(iProcessor==5 && aSector<5) aMin = -4;
@@ -196,7 +196,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
     ///to get the correct index
     if( (type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg) &&
 	csc.station()>1 && csc.ring()==1){
-      aMin = omtf_config_->endcap20DegMin[iProcessor];
+      aMin = OMTFConfiguration::instance()->endcap20DegMin[iProcessor];
       if(iProcessor==5 && aSector<3) aMin = -2;
     }
     break;
@@ -235,10 +235,13 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
     if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
 
-    unsigned int hwNumber = omtf_config_->getLayerNumber(detid.rawId());
-    if(omtf_config_->hwToLogicLayer.find(hwNumber)==omtf_config_->hwToLogicLayer.end()) continue;
+    unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(detid.rawId());
+    if(OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber)==OMTFConfiguration::instance()->hwToLogicLayer.end()) continue;
     
-    unsigned int iLayer = omtf_config_->hwToLogicLayer[hwNumber];   
+    //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];
+    auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
+    unsigned int iLayer = iter->second;
+
     int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
@@ -273,10 +276,14 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
       ///CSC central BX is 6 for some reason.
       if (abs(digi->getBX()- 6)>0) continue;
       
-      unsigned int hwNumber = omtf_config_->getLayerNumber(rawid);
-      if(omtf_config_->hwToLogicLayer.find(hwNumber)==omtf_config_->hwToLogicLayer.end()) continue;
+      unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(rawid);
+      if(OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber)==OMTFConfiguration::instance()->hwToLogicLayer.end()) continue;
 
-      unsigned int iLayer = omtf_config_->hwToLogicLayer[hwNumber];      
+
+      //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];      
+      auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
+      unsigned int iLayer = iter->second;
+
       int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
       int iEta = myAngleConverter.getGlobalEta(rawid, *digi);
       ///Accept CSC digis only up to eta=1.26.
@@ -326,8 +333,11 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
       int iPhi = (iPhiHalfStrip1+iPhiHalfStrip2)/2;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
-      unsigned int hwNumber = omtf_config_->getLayerNumber(rawid);
-      unsigned int iLayer = omtf_config_->hwToLogicLayer[hwNumber];
+      unsigned int hwNumber = OMTFConfiguration::instance()->getLayerNumber(rawid);
+      //unsigned int iLayer = OMTFConfiguration::instance()->hwToLogicLayer[hwNumber];
+      auto iter = OMTFConfiguration::instance()->hwToLogicLayer.find(hwNumber);
+      unsigned int iLayer = iter->second;
+
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
       result.addLayerHit(iLayer,iInput,iPhi,iEta);
 

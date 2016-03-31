@@ -171,7 +171,7 @@ void OMTFSorter::sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> 
 //   it2 != refHitCleanCands.end(); ++it2){
 //       //do not accept candidates with similar phi (any charge combination)
 //       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
-//       if(std::abs(it1->phi - it2->phi)<5/360.0*omtf_config_->nPhiBins){
+//       if(std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::instance()->nPhiBins){
 //   isGhost=true;
 //   break;
 //       }
@@ -253,7 +253,7 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     candidate.setHwEta(myCand.getEta());
 
     float phiValue = myCand.getPhi();
-    if(phiValue>=(int)omtf_config_->nPhiBins) phiValue-=omtf_config_->nPhiBins;
+    if(phiValue>=(int)OMTFConfiguration::instance()->nPhiBins) phiValue-=OMTFConfiguration::instance()->nPhiBins;
     ///conversion factor from OMTF to uGMT scale: 5400/576
     phiValue/=9.375;
     candidate.setHwPhi(phiValue);

@@ -47,15 +47,12 @@ class RefHitDef{
 
 };
 
-// temp hack for migration from static:
-class OMTFConfiguration;
-extern OMTFConfiguration * omtf_config_;
-
 class OMTFConfiguration{
 
  public:
 
-  // also part of temp hack above
+  static const OMTFConfiguration * instance(){ return latest_instance_; }
+
   OMTFConfiguration(const edm::ParameterSet & cfg);
 
   void configure(XMLConfigReader *aReader);
@@ -139,26 +136,27 @@ class OMTFConfiguration{
   ///ranges are taken from DB. 
   unsigned int getRegionNumberFromMap(unsigned int iInput,
 					     unsigned int iRefLayer,					     
-					     int iPhi);
+					     int iPhi) const;
   
   ///Check if given referecne hit is
   ///in phi range for some logic cone.
   ///Care is needed arounf +Pi and +2Pi points
   bool isInRegionRange(int iPhiStart,
 			    unsigned int coneSize,
-			    int iPhi);
+			    int iPhi) const;
 
 
   ///Return global phi for beggining of given processor
   ///Uses minim phi over all reference layers.
-  int globalPhiStart(unsigned int iProcessor);
+  int globalPhiStart(unsigned int iProcessor) const;
 
   ///Return layer number encoding subsystem, and
   ///station number in a simple formula:
   /// aLayer+100*detId.subdetId()
   ///where aLayer is a layer number counting from vertex
-  uint32_t getLayerNumber(uint32_t rawId);
+  uint32_t getLayerNumber(uint32_t rawId) const;
 
+  static OMTFConfiguration * latest_instance_;
 };
 
 
