@@ -63,43 +63,43 @@ class OMTFConfiguration{
   
   friend std::ostream & operator << (std::ostream &out, const OMTFConfiguration & aConfig);
 
-  unsigned int fwVersion;
-  float minPdfVal;  
-  unsigned int nLayers;
-  unsigned int nHitsPerLayer;
-  unsigned int nRefLayers;
-  unsigned int nPhiBits;
-  unsigned int nPdfAddrBits;
-  unsigned int nPdfValBits;
-  unsigned int nPhiBins;
-  unsigned int nRefHits;
-  unsigned int nTestRefHits;
-  unsigned int nProcessors;
-  unsigned int nLogicRegions;
-  unsigned int nInputs;
-  unsigned int nGoldenPatterns;
+   unsigned int fwVersion;
+   float minPdfVal;  
+   unsigned int nLayers;
+   unsigned int nHitsPerLayer;
+   unsigned int nRefLayers;
+   unsigned int nPhiBits;
+   unsigned int nPdfAddrBits;
+   unsigned int nPdfValBits;
+   unsigned int nPhiBins;
+   unsigned int nRefHits;
+   unsigned int nTestRefHits;
+   unsigned int nProcessors;
+   unsigned int nLogicRegions;
+   unsigned int nInputs;
+   unsigned int nGoldenPatterns;
     
-  std::map<int,int> hwToLogicLayer;
-  std::map<int,int> logicToHwLayer;
-  std::map<int,int> logicToLogic;
-  std::set<int> bendingLayers;
-  std::vector<int> refToLogicNumber;
+   std::map<int,int> hwToLogicLayer;
+   std::map<int,int> logicToHwLayer;
+   std::map<int,int> logicToLogic;
+   std::set<int> bendingLayers;
+   std::vector<int> refToLogicNumber;
 
   ///Starting and final sectors connected to
   ///processors.
   ///Index: processor number
-  std::vector<unsigned int> barrelMin;
-  std::vector<unsigned int> barrelMax;
-  std::vector<unsigned int> endcap10DegMin;
-  std::vector<unsigned int> endcap10DegMax;
-  std::vector<unsigned int> endcap20DegMin;
-  std::vector<unsigned int> endcap20DegMax;
+   std::vector<unsigned int> barrelMin;
+   std::vector<unsigned int> barrelMax;
+   std::vector<unsigned int> endcap10DegMin;
+   std::vector<unsigned int> endcap10DegMax;
+   std::vector<unsigned int> endcap20DegMin;
+   std::vector<unsigned int> endcap20DegMax;
     
   ///Starting iPhi for each processor and each referecne layer    
   ///Global phi scale is used
   ///First index: processor number
   ///Second index: referecne layer number
-  std::vector<std::vector<int> > processorPhiVsRefLayer;
+   std::vector<std::vector<int> > processorPhiVsRefLayer;
 
   ///Begin and end local phi for each logis region 
   ///First index: input number
@@ -107,20 +107,20 @@ class OMTFConfiguration{
   ///Third index: region
   ///pair.first: starting phi of region (inclusive)
   ///pair.second: ending phi of region (inclusive)
-  std::vector<std::vector<std::vector<std::pair<int,int> > > >regionPhisVsRefLayerVsInput;
+   std::vector<std::vector<std::vector<std::pair<int,int> > > >regionPhisVsRefLayerVsInput;
 
   ///Vector with definitions of reference hits
   ///Vector has fixed size of nRefHits
   ///Order of elements defines priority order
   ///First index: processor number (0-5)
   ///Second index: ref hit number (0-127)
-  std::vector<std::vector<RefHitDef> > refHitsDefs;
+   std::vector<std::vector<RefHitDef> > refHitsDefs;
 
   ///Map of connections
   typedef std::vector< std::pair<unsigned int, unsigned int> > vector1D_A;
   typedef std::vector<vector1D_A > vector2D_A;
   typedef std::vector<vector2D_A > vector3D_A;
-  vector3D_A connections;
+   vector3D_A connections;
 
   ///Temporary hack to pass data from deep inside class
   ///Matrices are used during creation of the connections tables.
@@ -128,20 +128,20 @@ class OMTFConfiguration{
   typedef std::vector<vector1D > vector2D;
   typedef std::vector<vector2D > vector3D;
   typedef std::vector<vector3D > vector4D;
-  vector4D measurements4D;
-  vector4D measurements4Dref;
+   vector4D measurements4D;
+   vector4D measurements4Dref;
 
   ///Find logic region number using first input number
   ///and then local phi value. The input and phi
   ///ranges are taken from DB. 
-  unsigned int getRegionNumberFromMap(unsigned int iInput,
+   unsigned int getRegionNumberFromMap(unsigned int iInput,
 					     unsigned int iRefLayer,					     
 					     int iPhi) const;
   
   ///Check if given referecne hit is
   ///in phi range for some logic cone.
   ///Care is needed arounf +Pi and +2Pi points
-  bool isInRegionRange(int iPhiStart,
+   bool isInRegionRange(int iPhiStart,
 			    unsigned int coneSize,
 			    int iPhi) const;
 

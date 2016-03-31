@@ -49,7 +49,6 @@ void OMTFResult::clear(){
 void OMTFResult::finalise(){
 
   for(unsigned int iLogicLayer=0;iLogicLayer<results.size();++iLogicLayer){
-
     //unsigned int connectedLayer = OMTFConfiguration::instance()->logicToLogic[iLogicLayer];    
     auto iter = OMTFConfiguration::instance()->logicToLogic.find(iLogicLayer);
     unsigned int connectedLayer = iter->second;

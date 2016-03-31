@@ -172,8 +172,7 @@ void GoldenPattern::normalise(){
 	else meanDistPhi[iLayer][iRefLayer] = rint((float)meanDistPhi[iLayer][iRefLayer]/meanDistPhiCounts[iLayer][iRefLayer]);      
       }
     }
-  }
-  
+  }  
   const float minPlog =  log(OMTFConfiguration::instance()->minPdfVal);
   const unsigned int nPdfValBits = OMTFConfiguration::instance()->nPdfValBits; 
   ///Probabilities. Normalise and change from float to integer values
