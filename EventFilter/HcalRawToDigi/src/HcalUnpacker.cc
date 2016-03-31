@@ -604,11 +604,11 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
 
       if (!i.isHeader()) {
-	++i;
+	    ++i;
 #ifdef DebugLog
-	std::cout << "its not a header" << std::endl;
+	    std::cout << "its not a header" << std::endl;
 #endif
-	continue;
+	    continue;
       }
       ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
       if (i.flavor() == 1 || i.flavor() == 0) {
@@ -856,5 +856,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       }
     }
   }
-}      
-
+}
+// Method to unpack uMNio data
+void HcalUnpacker::unpackUMNio(const FEDRawData& raw, const int& slot, HcalUMNioDigi& umnio) {
+  
+}
