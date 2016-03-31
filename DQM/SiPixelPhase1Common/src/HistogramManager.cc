@@ -11,12 +11,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Logger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
+  geometryInterface(*edm::Service<GeometryInterface>()),
   topFolderName(iconfig.getParameter<std::string>("TopFolderName"))
 { }
 
@@ -93,7 +95,7 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event *sourceEvent, i
   
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
   if (!geometryInterface.loaded()) {
-    geometryInterface.load(iSetup, iConfig);
+    geometryInterface.load(iSetup);
   }
 
   for (unsigned int i = 0; i < specs.size(); i++) {
@@ -186,7 +188,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup) {
   // this should also give us the GeometryInterface for offline, though it is a bit dirty and might explode.
   if (!geometryInterface.loaded()) {
-    geometryInterface.load(iSetup, iConfig);
+    geometryInterface.load(iSetup);
   }
 }
 
