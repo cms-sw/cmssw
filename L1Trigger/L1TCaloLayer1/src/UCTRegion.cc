@@ -8,6 +8,7 @@ using std::string;
 #include "UCTRegion.hh"
 
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 
 #include "UCTTower.hh"
 
@@ -54,20 +55,20 @@ bool UCTRegion::process() {
   uint32_t regionET = 0;
   for(uint32_t twr = 0; twr < towers.size(); twr++) {
     if(!towers[twr]->process()) {
-      std::cerr << "Tower level processing failed. Bailing out :(" << std::endl;
+      LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
       return false;
     }
     regionET += towers[twr]->et();
   }
-  if(regionET > RegionETMask) {
-    std::cerr << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
-    regionET = RegionETMask;
+  if(regionET > l1tcalo::RegionETMask) {
+    LOG_ERROR << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
+    regionET = l1tcalo::RegionETMask;
   }
-  regionSummary = (RegionETMask & regionET);
+  regionSummary = (l1tcalo::RegionETMask & regionET);
 
   // For central regions determine extra bits
 
-  if(region < NRegionsInCard) {
+  if(region < l1tcalo::NRegionsInCard) {
     uint32_t highestTowerET = 0;
     uint32_t highestTowerLocation = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
@@ -79,7 +80,7 @@ bool UCTRegion::process() {
 	}
       }
     }
-    regionSummary |= (highestTowerLocation << LocationShift);
+    regionSummary |= (highestTowerLocation << l1tcalo::LocationShift);
   }
   
   return true;

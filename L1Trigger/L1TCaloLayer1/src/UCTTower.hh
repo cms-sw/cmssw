@@ -5,24 +5,26 @@
 
 #include <vector>
 
-#define etInputMax 0xFF
+namespace l1tcalo {
+  constexpr uint32_t etInputMax{0xFF};
 
-#define etMask 0x000001FF
-#define erMask 0x00000E00
-#define erMaxV 7
-#define erShift 9
-#define zeroFlagMask 0x00001000
-#define eohrFlagMask 0x00002000
-#define hcalFlagMask 0x00004000
-#define ecalFlagMask 0x00008000
-#define stg2BitsMask 0x0000FFFF
-#define miscBitsMask 0x0000F000
-#define miscShift 12
+  constexpr uint32_t etMask{0x000001FF};
+  constexpr uint32_t erMask{0x00000E00};
+  constexpr uint32_t erMaxV{7};
+  constexpr uint32_t erShift{9};
+  constexpr uint32_t zeroFlagMask{0x00001000};
+  constexpr uint32_t eohrFlagMask{0x00002000};
+  constexpr uint32_t hcalFlagMask{0x00004000};
+  constexpr uint32_t ecalFlagMask{0x00008000};
+  constexpr uint32_t stg2BitsMask{0x0000FFFF};
+  constexpr uint32_t miscBitsMask{0x0000F000};
+  constexpr uint32_t miscShift{12};
 
-#define ecalBitsMask 0x00FF0000
-#define ecalShift 16
-#define hcalBitsMask 0xFF000000
-#define hcalShift 24
+  constexpr uint32_t ecalBitsMask{0x00FF0000};
+  constexpr uint32_t ecalShift{16};
+  constexpr uint32_t hcalBitsMask{0xFF000000};
+  constexpr uint32_t hcalShift{24};
+}
 
 class UCTLayer1;
 
@@ -86,22 +88,22 @@ public:
   const uint32_t rawData() const {return towerData;}
   const uint16_t location() const;
   const uint64_t extendedData() const;
-  const uint16_t compressedData() const {return (uint16_t) (towerData & stg2BitsMask);}
+  const uint16_t compressedData() const {return (uint16_t) (towerData & l1tcalo::stg2BitsMask);}
 
   // Access functions for convenience
   // Note that the bit fields are limited in hardware
 
-  const uint32_t et() const {return (towerData & etMask);}
-  const uint32_t er() const {return ((towerData & erMask) >> erShift);}
-  const uint8_t miscBits() const {return (uint8_t) ((towerData & miscBitsMask) >> miscShift);}
+  const uint32_t et() const {return (towerData & l1tcalo::etMask);}
+  const uint32_t er() const {return ((towerData & l1tcalo::erMask) >> l1tcalo::erShift);}
+  const uint8_t miscBits() const {return (uint8_t) ((towerData & l1tcalo::miscBitsMask) >> l1tcalo::miscShift);}
 
-  const uint32_t getEcalET() const {return ((towerData & ecalBitsMask) >> ecalShift);}
-  const uint32_t getHcalET() const {return ((towerData & hcalBitsMask) >> hcalShift);}
+  const uint32_t getEcalET() const {return ((towerData & l1tcalo::ecalBitsMask) >> l1tcalo::ecalShift);}
+  const uint32_t getHcalET() const {return ((towerData & l1tcalo::hcalBitsMask) >> l1tcalo::hcalShift);}
 
-  const bool zeroFlag() const {return ((towerData & zeroFlagMask) == zeroFlagMask);}
-  const bool eohrFlag() const {return ((towerData & eohrFlagMask) == eohrFlagMask);}
-  const bool hcalFlag() const {return ((towerData & hcalFlagMask) == hcalFlagMask);}
-  const bool ecalFlag() const {return ((towerData & ecalFlagMask) == ecalFlagMask);}
+  const bool zeroFlag() const {return ((towerData & l1tcalo::zeroFlagMask) == l1tcalo::zeroFlagMask);}
+  const bool eohrFlag() const {return ((towerData & l1tcalo::eohrFlagMask) == l1tcalo::eohrFlagMask);}
+  const bool hcalFlag() const {return ((towerData & l1tcalo::hcalFlagMask) == l1tcalo::hcalFlagMask);}
+  const bool ecalFlag() const {return ((towerData & l1tcalo::ecalFlagMask) == l1tcalo::ecalFlagMask);}
 
   // More access functions
 

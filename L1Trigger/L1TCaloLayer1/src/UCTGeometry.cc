@@ -3,24 +3,40 @@
 #include <stdint.h>
 
 #include "UCTGeometry.hh"
+#include "UCTLogging.hh"
+
+UCTGeometry::UCTGeometry() {
+  twrEtaValues[0] = 0;
+  for(unsigned int i = 0; i < 20; i++) {
+    twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
+  }
+  twrEtaValues[21] = 1.785;
+  twrEtaValues[22] = 1.880;
+  twrEtaValues[23] = 1.9865;
+  twrEtaValues[24] = 2.1075;
+  twrEtaValues[25] = 2.247;
+  twrEtaValues[26] = 2.411;
+  twrEtaValues[27] = 2.575;
+  twrEtaValues[28] = 2.825;
+}
 
 uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region, 
 				    uint32_t iEta, uint32_t iPhi) {
   if(checkRegion(region)) {
-    std::cerr << "Invalid region number: region = " << region << std::endl;
+    LOG_ERROR << "Invalid region number: region = " << region << std::endl;
     exit(1);
   }
   if(checkEtaIndex(region, iEta)) {
-    std::cerr << "Invalid eta index: iEta = " << iEta << std::endl;
+    LOG_ERROR << "Invalid eta index: iEta = " << iEta << std::endl;
     exit(1);
   }
   if(checkPhiIndex(region, iPhi)) {
-    std::cerr << "Invalid eta index: iPhi = " << iPhi << std::endl;
+    LOG_ERROR << "Invalid eta index: iPhi = " << iPhi << std::endl;
     exit(1);
   }
   uint32_t linkNumber = 0xDEADBEEF;
-  if(region < MaxRegionNumber) {
-    if(iEta < NEtaInRegion / 2) {
+  if(region < l1tcalo::MaxRegionNumber) {
+    if(iEta < l1tcalo::NEtaInRegion / 2) {
       linkNumber = region * 2;
     }
     else {
@@ -28,11 +44,11 @@ uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region,
     }
   }
   else {
-    linkNumber = NRegionsInCard * 2 + iPhi;
+    linkNumber = l1tcalo::NRegionsInCard * 2 + iPhi;
   }
 
   if(!negativeEta) {
-    linkNumber += NRegionsInCard * 2 + 2;
+    linkNumber += l1tcalo::NRegionsInCard * 2 + 2;
   }
   return linkNumber;
 }
@@ -40,17 +56,17 @@ uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region,
 int UCTGeometry::getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iEta) {
 
   if(checkRegion(region)) {
-    std::cerr << "Invalid region number: region = " << region << std::endl;
+    LOG_ERROR << "Invalid region number: region = " << region << std::endl;
     exit(1);
   }
   if(checkEtaIndex(region, iEta)) {
-    std::cerr << "Invalid eta index: iEta = " << iEta << std::endl;
+    LOG_ERROR << "Invalid eta index: iEta = " << iEta << std::endl;
     exit(1);
   }
 
-  int caloEtaIndex = region * NEtaInRegion + iEta + 1;
+  int caloEtaIndex = region * l1tcalo::NEtaInRegion + iEta + 1;
   if(region > 6) {
-    caloEtaIndex = (region - 7) * NHFEtaInRegion + iEta + 30;
+    caloEtaIndex = (region - 7) * l1tcalo::NHFEtaInRegion + iEta + 30;
   }
 
   if(negativeSide) return -caloEtaIndex;
@@ -61,15 +77,15 @@ int UCTGeometry::getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iE
 int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card, 
 				 uint32_t region, uint32_t iPhi) {
   if(checkCrate(crate)) {
-    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
+    LOG_ERROR << "Invalid crate number: crate = " << crate << std::endl;
     exit(1);
   }
   if(checkCard(card)) {
-    std::cerr << "Invalid card number: card = " << card << std::endl;
+    LOG_ERROR << "Invalid card number: card = " << card << std::endl;
     exit(1);
   }
   if(checkPhiIndex(region, iPhi)) {
-    std::cerr << "Invalid phi index: iPhi = " << iPhi << std::endl;
+    LOG_ERROR << "Invalid phi index: iPhi = " << iPhi << std::endl;
     exit(1);
   }
   int caloPhiIndex = 0xDEADBEEF;
@@ -88,11 +104,11 @@ int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card,
 
 uint32_t UCTGeometry::getUCTRegionPhiIndex(uint32_t crate, uint32_t card) {
   if(checkCrate(crate)) {
-    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
+    LOG_ERROR << "Invalid crate number: crate = " << crate << std::endl;
     exit(1);
   }
   if(checkCard(card)) {
-    std::cerr << "Invalid card number: card = " << card << std::endl;
+    LOG_ERROR << "Invalid card number: card = " << card << std::endl;
     exit(1);
   }
   uint32_t uctRegionPhiIndex = 0xDEADBEEF;
@@ -142,37 +158,37 @@ uint32_t UCTGeometry::getCard(int caloEta, int caloPhi) {
 
 uint32_t UCTGeometry::getRegion(int caloEta, int caloPhi) {
   uint32_t absCEta = abs(caloEta);
-  if((absCEta - 1) < (NRegionsInCard * NEtaInRegion))
-    return (absCEta - 1) / NEtaInRegion;
+  if((absCEta - 1) < (l1tcalo::NRegionsInCard * l1tcalo::NEtaInRegion))
+    return (absCEta - 1) / l1tcalo::NEtaInRegion;
   else
-    return NRegionsInCard + ((absCEta - 2 - (NRegionsInCard * NEtaInRegion)) / NHFEtaInRegion);
+    return l1tcalo::NRegionsInCard + ((absCEta - 2 - (l1tcalo::NRegionsInCard * l1tcalo::NEtaInRegion)) / l1tcalo::NHFEtaInRegion);
 }
 
 uint32_t UCTGeometry::getiEta(int caloEta) {
   uint32_t absCEta = abs(caloEta);
-  if((absCEta - 1) < (NRegionsInCard * NEtaInRegion))
-    return (absCEta - 1) % NEtaInRegion;
+  if((absCEta - 1) < (l1tcalo::NRegionsInCard * l1tcalo::NEtaInRegion))
+    return (absCEta - 1) % l1tcalo::NEtaInRegion;
   else
-    return absCEta % NHFEtaInRegion;  // To account for missing tower 29
+    return absCEta % l1tcalo::NHFEtaInRegion;  // To account for missing tower 29
 }
 
 uint32_t UCTGeometry::getiPhi(int caloPhi) {
-  return (caloPhi + 1) % NPhiInCard;
+  return (caloPhi + 1) % l1tcalo::NPhiInCard;
 }
 
 uint32_t UCTGeometry::getNEta(uint32_t region) {
   uint32_t nEta = 0xDEADBEEF;
-  if(region < CaloHFRegionStart) {
-    nEta = NEtaInRegion;
+  if(region < l1tcalo::CaloHFRegionStart) {
+    nEta = l1tcalo::NEtaInRegion;
   }
   else {
-    nEta = NHFEtaInRegion;
+    nEta = l1tcalo::NHFEtaInRegion;
   }
   return nEta;
 }
 
 uint32_t UCTGeometry::getNPhi(uint32_t region) {
-  return NPhiInRegion;
+  return l1tcalo::NPhiInRegion;
 }
 
 UCTRegionIndex UCTGeometry::getUCTRegionIndex(int caloEta, int caloPhi) {
@@ -188,7 +204,7 @@ UCTRegionIndex UCTGeometry::getUCTRegionIndex(bool negativeSide, uint32_t crate,
 }
 
 UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta, uint32_t iPhi) {
-  if(iPhi >= NPhiInRegion || iEta >= NEtaInRegion) {
+  if(iPhi >= l1tcalo::NPhiInRegion || iEta >= l1tcalo::NEtaInRegion) {
     return UCTTowerIndex(0, 0); // Illegal values
   }
   int regionEta = region.first;
@@ -200,23 +216,6 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
 }
 
 double UCTGeometry::getUCTTowerEta(int caloEta) {
-  static bool first = true;
-  static double twrEtaValues[29];
-  if(first) {
-    twrEtaValues[0] = 0;
-    for(unsigned int i = 0; i < 20; i++) {
-      twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
-    }
-    twrEtaValues[21] = 1.785;
-    twrEtaValues[22] = 1.880;
-    twrEtaValues[23] = 1.9865;
-    twrEtaValues[24] = 2.1075;
-    twrEtaValues[25] = 2.247;
-    twrEtaValues[26] = 2.411;
-    twrEtaValues[27] = 2.575;
-    twrEtaValues[28] = 2.825;
-    first = false;
-  }
   uint32_t absCaloEta = abs(caloEta);
   if(absCaloEta <= 28) return twrEtaValues[absCaloEta];
   else return -999.;
