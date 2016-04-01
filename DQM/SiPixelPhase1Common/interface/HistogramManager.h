@@ -70,17 +70,15 @@ private:
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
   std::vector<Table> tables;
  
-  bool columsFinal = false;
-  std::set<GeometryInterface::Column> significantColumns;
-
   bool enabled;
+  bool bookUndefined;
   std::string top_folder_name;
   std::string default_grouping;
 
-  std::string name;
-  std::string title;
-  std::string xlabel;
-  std::string ylabel;
+  std::string name = "noname";
+  std::string title = "Something";
+  std::string xlabel = "something";
+  std::string ylabel = "";
   int dimensions = 1;
   int range_nbins  = 100;
   double range_min = 0;

@@ -49,11 +49,11 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setRange(200, 0, 200)
     .setDimensions(2)
     .addSpec()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetUnit")
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetId")
       .save()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_X")
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_X")
       .save()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk", "SUM")
+      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "SUM")
       .saveAll();
 
 
@@ -68,7 +68,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .save()
     .reduce("MEAN")
     // TODO: find a way to express this with default. defaultGrouping(1) or sth.?
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBHalfBarrel|P1PXECHalfCylinder/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
+    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
     .saveAll();
 
 
