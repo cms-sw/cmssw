@@ -26,10 +26,14 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
+
+// GEM-Muon stuffs
+#include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
@@ -554,8 +558,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          bool newMuon = true;
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+         const bool goodGEMMuon = isGEMMuon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
+         if ( goodGEMMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
          for ( auto& muon : *outputMuons ) 
          {
            if ( muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
@@ -750,6 +756,20 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 	     muon.pt()<5 && std::abs(muon.eta())<1.5 &&
        muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > 1 ) return true;
   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
+}
+
+bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
+{
+  for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
+    if(thischamber->id.subdetId() == 4 && thischamber->segmentMatches.size() != 0) return true;
+/*
+    for(auto thissegment = thischamber->segmentMatches.begin(); thissegment != thischamber->segmentMatches.end(); ++thissegment){
+      if(thischamber->id.subdetId() == 4) return true;
+    }
+*/
+    //if( thischamber->gemsegmentMatches.size() != 0 ) return true;
+  }
+  return false;
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,

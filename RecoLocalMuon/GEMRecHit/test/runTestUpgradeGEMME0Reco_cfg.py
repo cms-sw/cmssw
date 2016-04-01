@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MyMuonRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 # Process options :: 
 # - wantSummary helps to understand which module crashes
@@ -17,8 +17,10 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")                # recommended configuration
 # process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')  # deprecated configuration
 # Be careful here ot to load Configuration.StandardSequences.Reconstruction_cff
@@ -174,10 +176,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Fix DT and CSC Alignment #
 ############################
 # does this work actually?
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
-process = fixDTAlignmentConditions(process)
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
-process = fixCSCAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
+#process = fixDTAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
+#process = fixCSCAlignmentConditions(process)
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
+process = fixRPCConditions(process)
 
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
@@ -218,8 +222,12 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_digi.root'
-    )
+        #'file:out_digi.root'
+        'out_local_reco_GEMRechit_GE11_8and8.root'
+        #'out_local_reco_GEMRechit_GE11_9and10.root'
+    ),
+    duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
+    skipBadFiles = cms.untracked.bool(True),
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -275,19 +283,27 @@ process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+proc
 
 
 ############# Customization for stanalone muons to include me0
-process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
-process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+#process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+#process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+#process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+#process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
 
-process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
-process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+#process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+#process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+#process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+#process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
 
 
 ### Bare minimum for global muons, globalMuons, from RecoMuon/Configuration/python/RecoMuonPPonly_cff.py
-process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.globalMuons)
+process.globalreco_step = cms.Path(
+process.offlineBeamSpot
+*process.MeasurementTrackerEvent
+*process.siPixelClusterShapeCache
+*process.PixelLayerTriplets
+*process.recopixelvertexing
+#*process.standalonemuontracking
+*process.trackingGlobalReco
+*process.vertexreco*process.globalMuons)
 
 
 
