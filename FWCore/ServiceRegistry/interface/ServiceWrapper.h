@@ -37,8 +37,8 @@ namespace edm {
       {
 
 public:
-         ServiceWrapper(std::auto_ptr<T> iService) :
-         service_(iService) {}
+         ServiceWrapper(std::unique_ptr<T> iService) :
+         service_(std::move(iService)) {}
          //virtual ~ServiceWrapper();
          
          // ---------- const member functions ---------------------
@@ -55,7 +55,7 @@ private:
          const ServiceWrapper& operator=(const ServiceWrapper&); // stop default
          
          // ---------- member data --------------------------------
-         edm::propagate_const<std::auto_ptr<T>> service_;
+         edm::propagate_const<std::unique_ptr<T>> service_;
          
       };
    }

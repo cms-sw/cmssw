@@ -124,7 +124,7 @@ namespace edm {
     size_type capacity() const { return MAX_SIZE;}
     template <typename D> void push_back(D*& d);
     template <typename D> void push_back(D* const& d);
-    template <typename D> void push_back(std::auto_ptr<D> d);
+    template <typename D> void push_back(std::unique_ptr<D> d);
     void push_back(T const& valueToCopy);
     bool is_back_safe() const;
     void pop_back();
@@ -284,7 +284,7 @@ namespace edm {
   
   template<typename T, unsigned int M, typename P>
   template<typename D>
-  inline void OwnArray<T, M, P>::push_back(std::auto_ptr<D> d) {
+  inline void OwnArray<T, M, P>::push_back(std::unique_ptr<D> d) {
     data_[size_++]=d.release();
   }
   

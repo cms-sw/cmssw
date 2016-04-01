@@ -200,9 +200,9 @@ testMultiAssociation::testMultiAssociation() {
 
   for(size_t j = 0; j < 10; ++j) der1s.push_back(DummyDer1());
   for(size_t j = 0; j < 10; ++j) {
-        if(j % 3 == 0) bases.push_back(std::auto_ptr<DummyBase>(new DummyBase()));
-        if(j % 3 == 1) bases.push_back(std::auto_ptr<DummyDer1>(new DummyDer1()));
-        if(j % 3 == 2) bases.push_back(std::auto_ptr<DummyDer2>(new DummyDer2()));
+        if(j % 3 == 0) bases.push_back(std::make_unique<DummyBase>());
+        if(j % 3 == 1) bases.push_back(std::make_unique<DummyDer1>());
+        if(j % 3 == 2) bases.push_back(std::make_unique<DummyDer2>());
         CPPUNIT_ASSERT(bases[j].id() == int(j % 3));
   }
   edm::TestHandle<CObj> handleObj(&der1s, ProductID(10));

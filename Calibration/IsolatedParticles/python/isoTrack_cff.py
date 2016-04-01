@@ -30,7 +30,10 @@ hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
             beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
             )
         ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+                                     CleanerPSet = cms.PSet(
+                                         ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+                                         useQuadrupletAlgo = cms.bool(False)
+                                     ),
                                      OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitTripletGenerator" ),
         SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHB" ),
@@ -74,7 +77,10 @@ hltHITPixelTracksHE = cms.EDProducer("PixelTrackProducer",
             ptMin = cms.double( 0.35 )
             )
         ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+                                     CleanerPSet = cms.PSet(
+                                         ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+                                         useQuadrupletAlgo = cms.bool(False)
+                                     ),
                                      OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitTripletGenerator" ),
         GeneratorPSet = cms.PSet( 

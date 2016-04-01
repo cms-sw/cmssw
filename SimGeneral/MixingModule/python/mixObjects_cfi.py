@@ -64,13 +64,13 @@ if eras.fastSim.isChosen():
         'TrackerHits')
     
 # Phase-2 GEM customs
-if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
-    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-    mixSimHits.subdets.append('MuonGEMHits')
-    mixSimHits.crossingFrames.append('MuonGEMHits')
-    mixSimHits.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-    mixSimHits.subdets.append('MuonME0Hits')
-    mixSimHits.crossingFrames.append('MuonME0Hits')    
+## if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
+##     mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+##     mixSimHits.subdets.append('MuonGEMHits')
+##     mixSimHits.crossingFrames.append('MuonGEMHits')
+##     mixSimHits.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+##     mixSimHits.subdets.append('MuonME0Hits')
+##     mixSimHits.crossingFrames.append('MuonME0Hits')    
 
 mixCaloHits = cms.PSet(
     input = cms.VInputTag(  # note that this list needs to be in the same order as the subdets
@@ -228,3 +228,15 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
+def _modifyMixSimHitsForPhase2( object ):
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+    object.mixSH.subdets.append('MuonGEMHits')
+    object.mixSH.crossingFrames.append('MuonGEMHits')
+
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+    object.mixSH.subdets.append('MuonME0Hits')
+    object.mixSH.crossingFrames.append('MuonME0Hits')
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
+eras.phase2dev_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )

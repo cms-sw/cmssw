@@ -3,7 +3,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/RPCObjects"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/Provenance"/>

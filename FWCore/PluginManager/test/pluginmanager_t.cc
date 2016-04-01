@@ -99,13 +99,13 @@ TestPluginManager::test()
   edmplugin::PluginManager::get()->justLoaded_.connect([&nTimesLoaded](const edmplugin::SharedLibrary&){++nTimesLoaded;});
   
   toLoadPlugin="DummyOne";
-  std::auto_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
+  std::unique_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
   CPPUNIT_ASSERT(1==ptr->value());
   CPPUNIT_ASSERT(nTimesAsked == 1);
   CPPUNIT_ASSERT(nTimesGoingToLoad==1);
   CPPUNIT_ASSERT(nTimesLoaded==1);
   CPPUNIT_ASSERT(db.loadableFor("Test Dummy", "DummyThree") == "static");
-  std::auto_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
+  std::unique_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
   CPPUNIT_ASSERT(3==ptr2->value());
   CPPUNIT_ASSERT(nTimesAsked == 1); //no request to load
   CPPUNIT_ASSERT(nTimesGoingToLoad==1);

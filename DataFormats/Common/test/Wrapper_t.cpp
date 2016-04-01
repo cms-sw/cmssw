@@ -31,15 +31,14 @@ class SwappyNoCopy
 
 void work()
 {
-  std::unique_ptr<CopyNoSwappy> thing(new CopyNoSwappy);
+  auto thing = std::make_unique<CopyNoSwappy>();
   edm::Wrapper<CopyNoSwappy> wrap(std::move(thing));
 
-  std::unique_ptr<SwappyNoCopy> thing2(new SwappyNoCopy);
+  auto thing2 = std::make_unique<SwappyNoCopy>();
   edm::Wrapper<SwappyNoCopy> wrap2(std::move(thing2));
 
 
-  std::unique_ptr<std::vector<double> >
-    thing3(new std::vector<double>(10,2.2));
+  auto thing3 = std::make_unique<std::vector<double>>(10,2.2);
   assert(thing3->size() == 10);
 
   edm::Wrapper<std::vector<double> > wrap3(std::move(thing3));

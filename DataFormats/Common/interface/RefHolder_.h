@@ -33,7 +33,7 @@ namespace edm {
 					  std::string& msg) const override;
       REF const& getRef() const;
       void setRef(REF const& r);
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const override;
+      virtual std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
       virtual EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
