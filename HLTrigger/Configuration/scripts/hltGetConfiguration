@@ -66,20 +66,15 @@ parser.add_argument('--l1Xml',
                     default = defaults.l1Xml,
                     metavar = 'MENU',
                     help    = 'Override the L1 menu, using the given Xml file. %(metavar)s should have the format "L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
-parser.add_argument('--l1skim',
-                    dest    = 'l1skim',
-                    action  = 'store_true',
-                    default = defaults.l1skim,
-                    help    = 'Add py config snippet to use new L1 skim files produced using the new L1, and ignoring the old L1.\nThe default behaviour is to not add this snippet' )
 parser.add_argument('--l1-emulator',
                     dest    = 'emulator',
                     action  = 'store',
                     metavar = 'EMULATOR',
                     nargs   = '?',
-                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'stage1,gt', 'all' ],
+                    choices = [ 'Full' ],
                     default = defaults.emulator,
-                    const   = 'gt',
-                    help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n- "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 run1 emulator.\n- "stage1,gt": run the 2015 calo and muon emulators along with GT emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
+                    const   = 'Full',
+                    help    = 'Run the Full stage-2 L1T emulator.' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--prescale',

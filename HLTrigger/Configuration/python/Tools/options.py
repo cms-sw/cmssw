@@ -15,16 +15,16 @@ globalTag = {
 class ConnectionL1TMenu(object):
   def __init__(self, value):
     self.override = None
-    self.connect  = None
+    self.snapshotTime = None
 
     # extract the override tag and the connection string
     if value:
       if ',' in value:
         self.override = value.split(',')[0]
-        self.connect  = value.split(',')[1]
+        self.snapshotTime = value.split(',')[1]
       else:
         self.override = value
-        self.connect  = None
+        self.smapshotTime = None
 
 
 # type used to store a reference to an L1 menu
@@ -115,7 +115,6 @@ class HLTProcessOptions(object):
     self.globaltag  = None        # (*) if set, override the GlobalTag
     self.l1         = None        # (*) if set, override the L1 menu
     self.l1Xml      = None        # (*) if set, override the L1 menu Xml
-    self.l1skim     = False       # (*) if set, add snippet to process L1 skim files done with new L1, ignoring old L1
     self.emulator   = None        # (*) if set, run (part of) the L1 emulator instead of taking the L1 results from the data
     self.prescale   = None        # (*) if set, force the use of a specific prescale column. If set to "none", unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
