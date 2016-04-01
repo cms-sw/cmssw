@@ -48,7 +48,6 @@ def checkDifferences(histos):
                 if not ih == 0:
                     if not histos[0].GetBinContent(ib) == 0:
                         rel_diff+=((h.GetBinContent(ib)-histos[0].GetBinContent(ib))/histos[0].GetBinContent(ib))*((h.GetBinContent(ib)-histos[0].GetBinContent(ib))/histos[0].GetBinContent(ib))
-    print math.sqrt(rel_diff)
     return math.sqrt(rel_diff)
 
 class DisplayManager(object):
