@@ -56,8 +56,8 @@ public:
   // Member Variables
   double nominal_gain_;
   double lsb_factor_;
-  int rct_factor_;
-  int nct_factor_;
+  double rct_factor_;
+  double nct_factor_;
   std::string compressionFile_;
   std::string decompressionFile_;
   std::vector<int> ietal;
@@ -65,6 +65,7 @@ public:
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
+  unsigned int size;
   std::vector<std::vector<LUT> > outputLUT_;
   std::vector<RCTdecompression> hcaluncomp_;
 };
