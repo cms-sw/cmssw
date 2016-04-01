@@ -7,11 +7,14 @@ HTDisplacedJetsPSet = cms.PSet(
         "HLT_HT325_v",
         "HLT_HT425_v",
         "HLT_HT575_v",
-
+        
         "HLT_HT650_DisplacedDijet80_Inclusive_v",
         "HLT_HT750_DisplacedDijet80_Inclusive_v",
         "HLT_HT350_DisplacedDijet80_DisplacedTrack_v",
         "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v",
+        # 2016 menu
+        "HLT_HT350_DisplacedDijet40_Inclusive_v",
+        "HLT_HT200_DisplacedDijet40_DisplacedTrack_v",
         # 5e33, 7e33 menus
         "HLT_HT500_DisplacedDijet40_Inclusive_v",
         "HLT_HT550_DisplacedDijet40_Inclusive_v",
