@@ -304,10 +304,9 @@ BasicTrajectoryState::rescaleError(double factor) {
 
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include<iostream>
 BasicSingleTrajectoryState::Components const &
 BasicSingleTrajectoryState::components() const {
-  std::cout << "who is calling me"<< std::endl;
+  edm::LogError("BasicSingleTrajectoryState") << "asking for componenets to a SingleTrajectoryState"<< std::endl;
   assert(false);
 }
 
