@@ -1,25 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
-from RecoJets.JetProducers.ak8PFJetsCS_cfi import ak8PFJetsCS
+# from RecoJets.JetProducers.ak8PFJetsCS_cfi import ak8PFJetsCS
+from RecoJets.JetProducers.akCs4PFJets_cfi import akCs4PFJets
 
-akCs4PFJets = ak8PFJetsCS.clone( 
-    src    = cms.InputTag('particleFlowTmp'),
-    rParam = cms.double(0.4),
-    jetPtMin = cms.double(0.0),
-    doAreaFastjet = cms.bool(True),
-    GhostArea = cms.double(0.005),
-    useConstituentSubtraction = cms.bool(False),
-    useConstituentSubtractionHi = cms.bool(True),
-    etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
-    rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
-    rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM'),
-    csAlpha   = cms.double(1.),
-    writeJetsWithConst = cms.bool(True),
-    verbosity = cms.int32(0),
-    jetCollInstanceName = cms.string("pfParticlesCs")
-    #writeCompound = cms.bool(True)
-    )
+# akCs4PFJets = ak8PFJetsCS.clone( 
+    # src    = cms.InputTag('particleFlowTmp'),
+    # rParam = cms.double(0.4),
+    # jetPtMin = cms.double(0.0),
+    # doAreaFastjet = cms.bool(True),
+    # GhostArea = cms.double(0.005),
+    # useConstituentSubtraction = cms.bool(False),
+    # useConstituentSubtractionHi = cms.bool(True),
+    # etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
+    # rho       = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoCorr'),
+    # rhom      = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoMCorr'),
+    # csAlpha   = cms.double(1.),
+    # writeJetsWithConst = cms.bool(True),
+    # verbosity = cms.int32(0),
+    # jetCollInstanceName = cms.string("pfParticlesCs")
+    
+	##writeCompound = cms.bool(True)
+    # )
+	
+akCs4PFJets.rho      = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoCorr1Bin')
+akCs4PFJets.rhom      = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoMCorr1Bin')
 akCs1PFJets = akCs4PFJets.clone(rParam       = cms.double(0.1))
 akCs2PFJets = akCs4PFJets.clone(rParam       = cms.double(0.2))
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))

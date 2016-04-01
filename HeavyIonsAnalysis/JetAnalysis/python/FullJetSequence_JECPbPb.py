@@ -5,10 +5,13 @@ from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiB
 
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
+from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaCalculator
 kt4PFJets.src = cms.InputTag('particleFlowTmp')
 kt4PFJets.doAreaFastjet = True
 kt4PFJets.jetPtMin      = cms.double(0.0)
 kt4PFJets.GhostArea     = cms.double(0.005)
+kt2PFJets = kt4PFJets.clone(rParam       = cms.double(0.2))
+
 
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu1CaloJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs1CaloJetSequence_PbPb_jec_cff import *
@@ -140,8 +143,10 @@ ak6CaloJetAnalyzer.doSubEvent = True
 jetSequences = cms.Sequence(
     voronoiBackgroundPF+
     voronoiBackgroundCalo+
+    kt2PFJets +
     kt4PFJets +
     hiFJRhoProducer +
+    hiFJGridEmptyAreaCalculator +
 
     hiReRecoCaloJets +
     hiReRecoPFJets +

@@ -82,6 +82,8 @@ process.kt4PFJets.src = cms.InputTag('particleFlowTmp')
 process.kt4PFJets.doAreaFastjet = True
 process.kt4PFJets.jetPtMin      = cms.double(0.0)
 process.kt4PFJets.GhostArea     = cms.double(0.005)
+from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaCalculator
+process.hiFJGridEmptyAreaCalculator = hiFJGridEmptyAreaCalculator
 
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 
@@ -130,6 +132,7 @@ process.jetSequences = cms.Sequence(
     voronoiBackgroundCalo+
     process.kt4PFJets +
     process.hiFJRhoProducer +
+	process.hiFJGridEmptyAreaCalculator +
     process.hiFJRhoAnalyzer +
     process.akPu2CaloJets +
     process.akPu2PFJets +
