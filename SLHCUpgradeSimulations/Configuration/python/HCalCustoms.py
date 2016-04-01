@@ -60,8 +60,17 @@ def customise_HcalPhase0p5(process):
     process.es_hardcode.useHFUpgrade = cms.bool(True)
     
     # to get reco to run
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
         process.hbheprereco.setNoiseFlags = cms.bool(False)
+        process.horeco.digiLabel = cms.InputTag("simHcalDigis")
+        process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
+        process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+        process.hcalnoise.digiCollName = cms.string('simHcalDigis')
     
     return process
     
@@ -199,7 +208,7 @@ def customise_Reco(process):
 
     process.horeco.digiLabel = "simHcalDigis"
     process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
+    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HFUpgradeDigiCollection")
 
     process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalnoise.digiCollName=cms.string('simHcalDigis')
