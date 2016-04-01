@@ -44,14 +44,14 @@ StableParameters = cms.ESProducer("StableParametersTrivialProducer",
     # hardware
 
     # number of maximum chips defined in the xml file
-    NumberConditionChips = cms.uint32(2),
+    NumberConditionChips = cms.uint32(1),
 
     # number of pins on the GTL condition chips
-    PinsOnConditionChip = cms.uint32(96),
+    PinsOnConditionChip = cms.uint32(512),
 
     # correspondence "condition chip - GTL algorithm word" in the hardware
     # e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    OrderConditionChip = cms.vint32(2, 1),
+    OrderConditionChip = cms.vint32(1),
 
     # number of PSB boards in GT
     NumberPsbBoards = cms.int32(7),
