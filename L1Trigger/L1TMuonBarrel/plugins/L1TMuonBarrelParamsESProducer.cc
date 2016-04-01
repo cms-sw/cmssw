@@ -66,7 +66,7 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
    unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
 
    m_params.setFwVersion(fwVersion);
-
+   //cout<<"FW VERSION   "<<fwVersion<<endl;
    std::string AssLUTpath = iConfig.getParameter<std::string>("AssLUTPath");
    m_params.setAssLUTPath(AssLUTpath);
 
@@ -102,8 +102,8 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 
 
 ///Read Pt assignment Luts
-    std::vector<LUT> pta_lut(0); pta_lut.reserve(12);
-    std::vector<int> pta_threshold(6); pta_threshold.reserve(6);
+    std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
+    std::vector<int> pta_threshold(6); pta_threshold.reserve(9);
     if ( load_pt(pta_lut,pta_threshold, PT_Assignment_nbits_Phi, AssLUTpath) != 0 ) {
       cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
@@ -124,16 +124,91 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
     //  cout << "Can not open files to load extrapolation look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     //}
     //m_params.setext_lut(ext_lut);
+    //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
 
+   std::vector <std::string>  mask_phtf_st1 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
+   std::vector <std::string>  mask_phtf_st2 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
+   std::vector <std::string>  mask_phtf_st3 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
+   std::vector <std::string>  mask_phtf_st4 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
 
+   std::vector <std::string>  mask_ettf_st1 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
+   std::vector <std::string>  mask_ettf_st2 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
+   std::vector <std::string>  mask_ettf_st3 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
 
-  //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
+    for( int wh=-3; wh<4; wh++ ) {
+       int sec = 0;
+       for(char& c : mask_phtf_st1[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st2[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st3[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_phtf_st4[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st1[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st2[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,mask);
+            sec++;
+        }
+       sec = 0;
+       for(char& c : mask_ettf_st3[wh+3]) {
+            int mask = c - '0';
+            m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,mask);
+            sec++;
+            //Not used in BMTF init to false
+            m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
+
+        }
+
+    }
+    /*
+cout<<"===="<<endl;
+  for( int wh=-3; wh<4; wh++ ) {
+    for( int sec=0; sec<12; sec++ ) {
+     // m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,false);
+      m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,false);
+      m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
+
+      //if(wh==3 || wh==-3) m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,true);
+
+    }
+  }
+*/
+
 
 }
 
 
 L1TMuonBarrelParamsESProducer::~L1TMuonBarrelParamsESProducer()
 {
+
 }
 
 int L1TMuonBarrelParamsESProducer::load_pt(std::vector<LUT>& pta_lut,
@@ -144,11 +219,13 @@ int L1TMuonBarrelParamsESProducer::load_pt(std::vector<LUT>& pta_lut,
 
 
 // maximal number of pt assignment methods
-const int MAX_PTASSMETH = 13;
+const int MAX_PTASSMETH = 19;
+const int MAX_PTASSMETHA = 12;
 
 // pt assignment methods
 enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
                    PT23L,  PT23H,  PT24L,  PT24H,  PT34L,  PT34H,
+                   PB12H,  PB13H,  PB14H,  PB21H,  PB23H,  PB24H, PB34H,
                    NODEF };
 
   // get directory name
@@ -174,6 +251,14 @@ enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
       case PT24H  : { pta_str = "pta24h"; break; }
       case PT34L  : { pta_str = "pta34l"; break; }
       case PT34H  : { pta_str = "pta34h"; break; }
+      case PB12H  : { pta_str = "ptb12h_Feb2016"; break; }
+      case PB13H  : { pta_str = "ptb13h_Feb2016"; break; }
+      case PB14H  : { pta_str = "ptb14h_Feb2016"; break; }
+      case PB21H  : { pta_str = "ptb21h_Feb2016"; break; }
+      case PB23H  : { pta_str = "ptb23h_Feb2016"; break; }
+      case PB24H  : { pta_str = "ptb24h_Feb2016"; break; }
+      case PB34H  : { pta_str = "ptb34h_Feb2016"; break; }
+
     }
 
     // assemble file name
@@ -188,6 +273,7 @@ enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
     // get the right shift factor
     int shift = sh_phi;
     int adr_old = -2048 >> shift;
+    if (pam >= MAX_PTASSMETHA) adr_old = -512 >> shift;
 
     LUT tmplut;
 
@@ -206,7 +292,7 @@ enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
       int pt  = file.readInteger();
 
       number++;
-
+      //cout<<pam<<"    "<<number<<"   "<<MAX_PTASSMETHA<<endl;
       if ( adr != adr_old ) {
         assert(number);
         tmplut.insert(make_pair( adr_old, (sum_pt/number) ));
