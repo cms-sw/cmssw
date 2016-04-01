@@ -220,14 +220,14 @@ mixPCFHepMCProducts = cms.PSet(
 )
 
 def _modifyMixSimHitsForPhase2( object ):
-    object.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-    object.subdets.append('MuonGEMHits')
-    object.crossingFrames.append('MuonGEMHits')
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+    object.mixSH.subdets.append('MuonGEMHits')
+    object.mixSH.crossingFrames.append('MuonGEMHits')
 
-    object.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-    object.subdets.append('MuonME0Hits')
-    object.crossingFrames.append('MuonME0Hits')
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+    object.mixSH.subdets.append('MuonME0Hits')
+    object.mixSH.crossingFrames.append('MuonME0Hits')
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_muon.toModify( mixSimHits, func=_modifyMixSimHitsForPhase2 )
-eras.phase2dev_muon.toModify( mixSimHits, func=_modifyMixSimHitsForPhase2 )
+eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
+eras.phase2dev_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
