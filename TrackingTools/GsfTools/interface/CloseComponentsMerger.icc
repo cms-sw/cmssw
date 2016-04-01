@@ -33,7 +33,7 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
   if (noComp <=theMaxNumberOfComponents) return mgs;
 
 
-  while (true) {
+  while (true) { // termitates when the nunmber of components becomes less than allowed maximum
     SingleStateVector merged; merged.reserve(noComp);
     
     declareDynArray(float,noComp,weights);
