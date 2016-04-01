@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.MuonGEMHits.MuonGEMHits_cfi import *
-from Validation.MuonGEMDigis.MuonGEMDigis_cfi import *
-from Validation.MuonGEMRecHits.MuonGEMRecHits_cfi import *
+from Validation.MuonGEMHits.MuonGEMHits_cff import *
+from Validation.MuonGEMDigis.MuonGEMDigis_cff import *
+from Validation.MuonGEMRecHits.MuonGEMRecHits_cff import *
 
-from Validation.MuonME0Hits.MuonME0Hits_cfi import *
-from Validation.MuonME0Digis.MuonME0Digis_cfi import *
-from Validation.MuonME0RecHits.MuonME0RecHits_cfi import *
-
-gemSimValid = cms.Sequence(gemHitsValidation*gemDigiValidation*gemRecHitsValidation)
-me0SimValid = cms.Sequence(me0HitsValidation*me0DigiValidation*me0RecHitsValidation)
+gemSimValid = cms.Sequence(gemSimValidation*gemDigiValidation*gemLocalRecoValidation)
