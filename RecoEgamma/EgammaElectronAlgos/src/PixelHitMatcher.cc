@@ -16,16 +16,6 @@
 using namespace reco ;
 using namespace std ;
 
-namespace {
-  struct Count { 
-    long long n=0;
-    ~Count() { std::cout << "PixelHitMatcher res " << n << std::endl;}
-  };
-
-  Count stcount;
-}
-
-
 PixelHitMatcher::PixelHitMatcher
  ( float phi1min, float phi1max,
    float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
@@ -135,7 +125,6 @@ PixelHitMatcher::compatibleSeeds
   // TrajectoryStateOnSurface vTsos[theTrackerGeometry->dets().size()];
 
   auto ndets = theTrackerGeometry->dets().size();
-  // std::vector<bool> away(ndets,false);
 
   int iTsos[ndets];
   for ( auto & i : iTsos) i=-1;
@@ -164,11 +153,10 @@ PixelHitMatcher::compatibleSeeds
       const GeomDet *geomdet1 = it1->det();
 
       auto ix1 = geomdet1->gdetIndex();
-      assert(ix1<int(ndets));
-      /*
-      if (away[ix1]) continue;
-      away[ix1] = geomdet1->position().basicVector().dot(xmeas.basicVector()) <0;
-      if (away[ix1]) continue;
+
+      /*  VI: this generates regression (other cut is just in phi). in my opinion it is safe and makes sense
+      auto away = geomdet1->position().basicVector().dot(xmeas.basicVector()) <0;
+      if (away) continue;
       */
 
       const GlobalPoint& hit1Pos = hit_gp_map_[idx1];
@@ -246,7 +234,6 @@ PixelHitMatcher::compatibleSeeds
 
   mapTsos2_fast_.clear() ;
  
-  stcount.n += result.size();
   return result ;
  }
 

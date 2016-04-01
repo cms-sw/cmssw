@@ -47,6 +47,8 @@
 #include <vector>
 #include <utility>
 
+
+#ifdef COUNT_ElectronSeeds
 namespace {
   struct Count {
     long long s=0;
@@ -56,7 +58,7 @@ namespace {
 
   Count stcount;
 }
-
+#endif
 
 
 
@@ -276,16 +278,18 @@ void  ElectronSeedGenerator::run
     // Find the seeds
     recHits_.clear();
 
-    LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
+    LogDebug ("ElectronSeedGenerator") << "new cluster, calling seedsFromThisCluster";
     seedsFromThisCluster(sclRefs[i],hoe1s[i],hoe2s[i],out,tTopo);
   }
 
-  LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters after filter: "<<sclRefs.size()
+  LogDebug ("ElectronSeedGenerator") << ": For event "<<e.id();
+  LogDebug ("ElectronSeedGenerator") <<"Nr of superclusters after filter: "<<sclRefs.size()
    <<", no. of ElectronSeeds found  = " << out.size();
 
+#ifdef COUNT_ElectronSeeds
    stcount.s+=sclRefs.size();
    stcount.n+=out.size();
+#endif
 
 }
 
