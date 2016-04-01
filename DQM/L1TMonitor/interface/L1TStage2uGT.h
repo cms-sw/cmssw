@@ -66,14 +66,35 @@ private:
    std::string histFolder_; // histogram folder for L1 uGT plots
    
    // Booking of histograms for the module
-   MonitorElement* algoBits_;
-   MonitorElement* algoBits_corr_;
-   MonitorElement* algoBits_bx_global_;
-   MonitorElement* algoBits_bx_inEvt_;
-   MonitorElement* algoBits_lumi_;
+   
+   // Algorithm bits
+   MonitorElement* algoBits_after_bxomask_;
+   MonitorElement* algoBits_after_prescaler_;
+   MonitorElement* algoBits_after_mask_;
   
-   MonitorElement* prescaleFactorSet_;
+   // Algorithm bits correlation
+   MonitorElement* algoBits_after_bxomask_corr_;
+   MonitorElement* algoBits_after_prescaler_corr_;
+   MonitorElement* algoBits_after_mask_corr_;
  
+   // Algorithm bits vs global BX number
+   MonitorElement* algoBits_after_bxomask_bx_global_;
+   MonitorElement* algoBits_after_prescaler_bx_global_;
+   MonitorElement* algoBits_after_mask_bx_global_;
+  
+   // Algorithm bits vs BX number in event
+   MonitorElement* algoBits_after_bxomask_bx_inEvt_;
+   MonitorElement* algoBits_after_prescaler_bx_inEvt_;
+   MonitorElement* algoBits_after_mask_bx_inEvt_;
+
+   // Algorithm bits vs LS
+   MonitorElement* algoBits_after_bxomask_lumi_;
+   MonitorElement* algoBits_after_prescaler_lumi_;
+   MonitorElement* algoBits_after_mask_lumi_;
+ 
+   // Prescale factor index 
+   MonitorElement* prescaleFactorSet_;
+
 };
 
 #endif
