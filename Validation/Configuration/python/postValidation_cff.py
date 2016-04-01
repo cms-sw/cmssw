@@ -68,3 +68,11 @@ postValidationCosmics = cms.Sequence(
 postValidationMiniAOD = cms.Sequence(
       electronPostValidationSequenceMiniAOD
 )
+
+def _modifyPostValidationForPhase2( theProcess ):
+    theProcess.load('Validation.Configuration.gemPostValidation_cff')
+    theProcess.postValidation += theProcess.gemPostValidation
+
+from Configuration.StandardSequences.Eras import eras
+modifyConfigurationStandardSequencesPostValidationForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyPostValidationForPhase2 )
+modifyConfigurationStandardSequencesPostValidationForPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifyPostValidationForPhase2 )
