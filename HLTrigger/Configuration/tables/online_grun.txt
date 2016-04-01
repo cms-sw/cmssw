@@ -548,10 +548,10 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMu16_v*						# JIRA: CMSHLT-500
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
 
-HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
-HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496
-HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
-HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496
+#HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496, removed by CMSHLT-715
+#HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496, removed by CMSHLT-715
+#HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496, removed by CMSHLT-715
+#HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496, removed by CMSHLT-715
 
 HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
 
