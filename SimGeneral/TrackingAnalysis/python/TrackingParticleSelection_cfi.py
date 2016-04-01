@@ -57,3 +57,11 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
 )
 
 trackingParticleSelection = cms.Sequence(mergedtruth)
+
+def _modifyTrackingParticleSelectionForPhase2( object ):
+    object.simHitCollections.muon.append('g4SimHitsMuonGEMHits')
+    object.simHitCollections.muon.append('g4SimHitsMuonME0Hits')
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( trackingParticleSelection, func=_modifyTrackingParticleSelectionForPhase2 )
+eras.phase2dev_muon.toModify( trackingParticleSelection, func=_modifyTrackingParticleSelectionForPhase2 )
