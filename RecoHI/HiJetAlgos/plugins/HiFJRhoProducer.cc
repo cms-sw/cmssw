@@ -65,6 +65,11 @@ HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
   produces<std::vector<double > >("mapEtaEdges");
   produces<std::vector<double > >("mapToRho");
   produces<std::vector<double > >("mapToRhoM");
+  produces<std::vector<double > >("ptJets");
+  produces<std::vector<double > >("areaJets");
+  produces<std::vector<double > >("etaJets");
+  etaRanges = iConfig.getUntrackedParameter<std::vector<double> >("etaRanges");
+
 }
 
 
@@ -85,25 +90,26 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetsToken_, jets);
 
-  std::auto_ptr<std::vector<double>> mapEtaRangesOut ( new std::vector<double>(8,-999.));
-  //make settable from config later
-  mapEtaRangesOut->at(0) = -5.;
-  mapEtaRangesOut->at(1) = -3.;
-  mapEtaRangesOut->at(2) = -2.1;
-  mapEtaRangesOut->at(3) = -1.3;
-  mapEtaRangesOut->at(4) =  1.3;
-  mapEtaRangesOut->at(5) =  2.1;
-  mapEtaRangesOut->at(6) =  3.;
-  mapEtaRangesOut->at(7) =  5.;
+  int neta = (int)etaRanges.size();
+  std::auto_ptr<std::vector<double>> mapEtaRangesOut ( new std::vector<double>(neta,-999.));
 
-  std::auto_ptr<std::vector<double>> mapToRhoOut ( new std::vector<double>(7,1e-6));
-  std::auto_ptr<std::vector<double>> mapToRhoMOut ( new std::vector<double>(7,1e-6));
+  for(int ieta = 0; ieta < neta; ieta++){
+   mapEtaRangesOut->at(ieta) = etaRanges[ieta];
+  }
+  std::auto_ptr<std::vector<double>> mapToRhoOut ( new std::vector<double>(neta-1,1e-6));
+  std::auto_ptr<std::vector<double>> mapToRhoMOut ( new std::vector<double>(neta-1,1e-6));
   
+  int njets = jets->size();
+  
+  std::auto_ptr<std::vector<double>> ptJetsOut ( new std::vector<double>(njets,1e-6));
+  std::auto_ptr<std::vector<double>> areaJetsOut ( new std::vector<double>(njets,1e-6));
+  std::auto_ptr<std::vector<double>> etaJetsOut ( new std::vector<double>(njets,1e-6));
+    
   static double rhoVec[999];
   static double rhomVec[999];
   static double etaVec[999];
 
-  int neta = (int)mapEtaRangesOut->size();
+  // int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
   unsigned int njetsEx = 0;
   unsigned int njetsEx2 = 0;
@@ -119,16 +125,22 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float pt = jet->pt();
     float area = jet->jetArea();
     float eta = jet->eta();
-
+	
     if(eta<mapEtaRangesOut->at(0) || eta>mapEtaRangesOut->at(neta-1)) continue;
     if(area>0.) {
       rhoVec[nacc] = pt/area;
       rhomVec[nacc] = calcMd(&*jet)/area;
       etaVec[nacc] = eta;
+	  ptJetsOut->at(nacc) = pt;
+	  areaJetsOut->at(nacc) = area;
+	  etaJetsOut->at(nacc) = eta;
       ++nacc;
     }
   }
 
+  ptJetsOut->resize(nacc);
+  areaJetsOut->resize(nacc);
+  etaJetsOut->resize(nacc);
   //calculate rho and rhom in eta ranges
   double radius = 0.2; //distance kt clusters needs to be from edge
   for(int ieta = 0; ieta<(neta-1); ieta++) {
@@ -162,6 +174,11 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(mapEtaRangesOut,"mapEtaEdges");
   iEvent.put(mapToRhoOut,"mapToRho");
   iEvent.put(mapToRhoMOut,"mapToRhoM");
+  
+  iEvent.put(ptJetsOut,"ptJets");
+  iEvent.put(areaJetsOut,"areaJets");
+  iEvent.put(etaJetsOut,"etaJets");
+  
 }
 
 double HiFJRhoProducer::calcMd(const reco::Jet *jet) {

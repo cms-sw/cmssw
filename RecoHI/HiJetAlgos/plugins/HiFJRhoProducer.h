@@ -43,6 +43,7 @@ class HiFJRhoProducer : public edm::EDProducer {
       unsigned int   nExcl2_;             //Number of leading jets to exclude in 2nd eta region
       double         etaMaxExcl2_;        //max eta for jets to exclude in 2nd eta region
       double         ptMinExcl2_;         //min pt for excluded jets in 2nd eta region
+      std::vector<double>         etaRanges;         //eta boundaries for rho calculation regions
       bool           checkJetCand, usingPackedCand;
 };
 
