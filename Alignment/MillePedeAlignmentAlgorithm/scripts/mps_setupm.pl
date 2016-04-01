@@ -118,7 +118,7 @@ print "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobD
 system "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir";
 
 my $tmpc = "";
-$tmpc = " -c" if($onlyactivejobs);
+$tmpc = " -c" if($onlyactivejobs == 1);
 
 # create merge job script
 print "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool\n";
