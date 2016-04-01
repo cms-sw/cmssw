@@ -191,6 +191,14 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     200 //TODO: use actual number of cols here. Where can we find that?
   );
 
+  addExtractor(intern("DetId"),
+    [] (InterestingQuantities const& iq) {
+      uint32_t id = iq.sourceModule.rawId();
+      return Value(id);
+    },
+    200 //TODO: use actual number of cols here. Where can we find that?
+  );
+
   // TODO: ROCs ans stuff here.
 }
 

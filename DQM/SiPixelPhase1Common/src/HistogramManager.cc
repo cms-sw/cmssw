@@ -20,6 +20,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
   geometryInterface(*edm::Service<GeometryInterface>()),
   enabled(iconfig.getParameter<bool>("enabled")),
+  bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
   top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
   default_grouping(iconfig.getParameter<std::string>("defaultGrouping"))
 { }
@@ -78,12 +79,19 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
 	}
       }
     }
+    auto& histo = t[significantvalues];
+    if (!histo.th1 && !histo.me) {
+      // No histogram was booked.
+      assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
+      // else, ignore the sample.
+      continue;
+    }
     if (dimensions == 0) {
-      t[significantvalues].fill(0);
+      histo.fill(0);
     } else if (dimensions == 1)
-      t[significantvalues].fill(x);
+      histo.fill(x);
     else /* dimensions == 2 */ {
-      t[significantvalues].fill(x, y);
+      histo.fill(x, y);
     }
   }
 }
@@ -106,6 +114,15 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     auto& s = specs[i];
     auto& t = tables[i];
     for (auto iq : geometryInterface.allModules()) {
+      GeometryInterface::Values significantvalues;
+      geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
+      if (!bookUndefined) {
+	// skip if any column is UNDEFINED
+	bool ok = true;
+	for (auto e : significantvalues.values) 
+	  if (e.second == GeometryInterface::UNDEFINED) ok = false;
+	if (!ok) continue;
+      }
       auto dimensions = this->dimensions;
       std::string name = this->name;
       std::string title = this->title;
@@ -116,8 +133,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	// TODO: proper 2D range.
       int range_y_nbins = this->range_nbins;
       double range_y_min = this->range_min, range_y_max = this->range_max;
-      GeometryInterface::Values significantvalues;
-      geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
 	  GeometryInterface::Values new_vals;
@@ -248,7 +263,9 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
       }
       histo.me = iGetter.get(dir.str() + name);
       if (!histo.me) {
-	edm::LogError("HistogramManager") << "ME " << dir.str() + name << " not found\n";
+	if(bookUndefined)
+	  edm::LogError("HistogramManager") << "ME " << dir.str() + name << " not found\n";
+	// else this will happen quite often
       } else {
 	histo.th1 = histo.me->getTH1();
       }
@@ -264,7 +281,8 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	if (step.type == SummationStep::SAVE) {
 	  for (auto& e : t) {
 	    if (e.second.me) continue; // if there is a ME already, nothing to do
-	    assert(e.second.th1 || !"Missing histogram. Something is broken.");
+	    assert(!bookUndefined || e.second.th1 || !"Missing histogram. Something is broken.");
+	    if (!e.second.th1) continue;
 
 	    GeometryInterface::Values vals(e.first);
 	    std::ostringstream dir("");
@@ -300,6 +318,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	if (step.type == SummationStep::GROUPBY) {
 	  Table out;
 	  for (auto& e : t) {
+	    if (!e.second.th1) continue;
 	    GeometryInterface::Values const& old_vals(e.first);
 	    TH1 *th1 = e.second.th1;
 	    GeometryInterface::Values new_vals;
@@ -317,6 +336,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
         if (step.type == SummationStep::REDUCE) {
 	  Table out;
 	  for (auto& e : t) {
+	    if (!e.second.th1) continue;
 	    GeometryInterface::Values const& vals(e.first);
 	    TH1 *th1 = e.second.th1;
 	    AbstractHistogram& new_histo = out[vals];
@@ -346,6 +366,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	  // first pass determines the range.
 	  std::map<GeometryInterface::Values, int> nbins;
           for (auto& e : t) {
+	    if (!e.second.th1) continue;
 	    GeometryInterface::Values new_vals(e.first);
 	    new_vals.erase(step.columns.at(0));
 	    TH1 *th1 = e.second.th1;
@@ -356,6 +377,7 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	   
 	  Table out;
 	  for (auto& e : t) {
+	    if (!e.second.th1) continue;
 	    GeometryInterface::Values const& old_vals(e.first);
 	    GeometryInterface::Values new_vals(old_vals);
 	    //GeometryInterface::Value xval = new_vals[step.columns.at(0)]; // We rely on correct ordering

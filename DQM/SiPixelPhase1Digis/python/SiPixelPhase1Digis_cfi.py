@@ -5,8 +5,8 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1DigisConf = cms.VPSet(
   DefaultHisto, # ADC
-  DefaultHisto, # Ndigis
-  DefaultHisto  # hitmaps
+  DefaultHisto.clone(enabled = False), # Ndigis
+  DefaultHisto.clone(enabled = True)  # hitmaps
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1DigisAnalyzer",
