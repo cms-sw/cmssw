@@ -24,7 +24,8 @@ public:
   typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
   virtual TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits, const TrackerTopology *tTopo);
 
-
+private:
+  const bool useQuadrupletAlgo_;
 };
 
 #endif

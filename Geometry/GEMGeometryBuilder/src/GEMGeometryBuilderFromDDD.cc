@@ -54,13 +54,14 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  std::cout << "Building the geometry service" << std::endl;
   LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
   GEMGeometry* geometry = new GEMGeometry();
 
   LogDebug("GEMGeometryBuilderFromDDD") << "About to run through the GEM structure\n" 
 					<<" First logical part "
 					<<fview.logicalPart().name().name();
+
+  std::map<std::string,std::tuple<int,float,float,float,float> > chamberPar;
   bool doSubDets = fview.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
@@ -69,6 +70,37 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   int maxStation(1);
   while (doSubDets)
   {
+    //Chamber parameters
+    const DDGeoHistory history = fview.geoHistory();
+    unsigned int kount(0);
+    for (DDGeoHistory::const_iterator cur=history.begin(); cur!=history.end(); ++cur,++kount) {
+      std::string name = cur->logicalPart().name().name();
+      int type(-1);
+      if      (name.find("GEMBox") != std::string::npos) type = 0;
+      else if (name.find("GSAX")   != std::string::npos) type = 1;
+      else if (name.find("GHA")    != std::string::npos) type = 2;
+      if (type >= 0) {
+	float dx1(0), dx2(0), dy(0), dz(0);
+	if (cur->logicalPart().solid().shape() == DDSolidShape(10)) {
+	  DDBooleanSolid solid = (DDBooleanSolid)(cur->logicalPart().solid());
+	  std::vector<double> dpar = solid.solidA().parameters();
+	  dz = dpar[0];
+	  dy = dpar[3];
+	  dx1= dpar[4];
+	  dx2= dpar[8];
+	  dpar = solid.solidB().parameters();
+	  dy += dpar[3];
+	} else {
+	  std::vector<double> dpar = cur->logicalPart().solid().parameters();
+	  dz = dpar[0];
+	  dy = dpar[3];
+	  dx1= dpar[4];
+	  dx2= dpar[8];
+	}	  
+	if (chamberPar.count(name) == 0) 
+	  chamberPar[name] = std::tuple<int,float,float,float,float>(type,dx1,dx2,dy,dz);
+      }
+    }
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
     LogDebug("GEMGeometryBuilderFromDDD") <<"Getting the Muon base Number";
@@ -253,6 +285,24 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
     geometry->add(const_cast<GEMRegion*>(region));
+  }
+
+  //Print the chamber parameters
+  edm::LogInfo("GEMGeometryBuilderFromDDD") << "Found " << chamberPar.size() 
+					    << " volumes" << std::endl;
+  unsigned    kount[3] = {0,0,0};
+  std::string types[3] = {"Chamber", "Sensitive", "Roll"};
+  for (auto itr=chamberPar.begin(); itr!=chamberPar.end(); ++itr) {
+    int type = std::get<0>(itr->second);
+    edm::LogInfo("GEMGeometryBuilderFromDDD") << types[type] << " [" 
+					      << kount[type] << "] " 
+					      << itr->first << " of size ("
+					      << std::get<1>(itr->second)<<", "
+					      << std::get<2>(itr->second)<<", "
+					      << std::get<3>(itr->second)<<", "
+					      << std::get<4>(itr->second)<<")"
+					      << std::endl;
+    ++kount[type];
   }
   return geometry;
 }

@@ -93,23 +93,14 @@ RecoMuonFEVT.outputCommands.extend(RecoMuonIsolationFEVT.outputCommands)
 RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
 RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
 
+def _modifyRecoMuonEventContentForPhase2( object ):
+    object.outputCommands.append('keep *_me0SegmentMatching_*_*')
+    object.outputCommands.append('keep *_me0MuonConverting_*_*')
+
 from Configuration.StandardSequences.Eras import eras
-if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
-    RecoMuonRECO.outputCommands.append('keep *_me0SegmentProducer_*_*')
-    RecoMuonRECO.outputCommands.append('drop *_me0SegmentMatcher_*_*')
-    RecoMuonRECO.outputCommands.append('drop *_me0MuonConverter_*_*')
-    RecoMuonRECO.outputCommands.append('keep *_me0SegmentMatching_*_*')
-    RecoMuonRECO.outputCommands.append('keep *_me0MuonConverting_*_*')
-
-    RecoMuonFEVT.outputCommands.append('keep *_me0SegmentProducer_*_*')
-    RecoMuonFEVT.outputCommands.append('drop *_me0SegmentMatcher_*_*')
-    RecoMuonFEVT.outputCommands.append('drop *_me0MuonConverter_*_*')
-    RecoMuonFEVT.outputCommands.append('keep *_me0SegmentMatching_*_*')
-    RecoMuonFEVT.outputCommands.append('keep *_me0MuonConverting_*_*')
-    
-    RecoMuonAOD.outputCommands.append('keep *_me0SegmentProducer_*_*')
-    RecoMuonAOD.outputCommands.append('drop *_me0SegmentMatcher_*_*')
-    RecoMuonAOD.outputCommands.append('drop *_me0MuonConverter_*_*')
-    RecoMuonAOD.outputCommands.append('keep *_me0SegmentMatching_*_*')
-    RecoMuonAOD.outputCommands.append('keep *_me0MuonConverting_*_*')
-
+eras.phase2_muon.toModify( RecoMuonFEVT, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2_muon.toModify( RecoMuonRECO, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2_muon.toModify( RecoMuonAOD,  func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoMuonRECO, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoMuonFEVT, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoMuonAOD,  func=_modifyRecoMuonEventContentForPhase2 )
