@@ -71,6 +71,7 @@ namespace l1t {
     const emtf::EventTrailer GetEventTrailer()   const { return EventTrailer;    };
     const emtf::MTF7Trailer GetMTF7Trailer()     const { return MTF7Trailer;     };
     const emtf::AMC13Trailer GetAMC13Trailer()   const { return AMC13Trailer;    };
+    const int Format_Errors()                    const { return format_errors;   };
     const uint64_t Dataword()                    const { return dataword;        };
     
   private:
