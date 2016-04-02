@@ -39,10 +39,10 @@ class HLTProcess(object):
 
     self.labels = {}
     if self.config.fragment:
-      self.labels['process'] = 'fragment.'
+      self.labels['process'] = 'fragment'
       self.labels['dict']    = 'fragment.__dict__'
     else:
-      self.labels['process'] = 'process.'
+      self.labels['process'] = 'process'
       self.labels['dict']    = 'process.__dict__'
 
     if self.config.online:
@@ -185,12 +185,12 @@ _customInfo['globalTag' ]= "%s"
 _customInfo['inputFile' ]=  %s
 _customInfo['realData'  ]=  %s
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-process = customizeHLTforAll(process,"%s",_customInfo)
+%%(process)s = customizeHLTforAll(%%(process)s,"%s",_customInfo)
 """ % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.type)
 
     self.data += """
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process,"%s")
+%%(process)s = customizeHLTforCMSSW(%%(process)s,"%s")
 """ % (self.config.type)
 
   # customize the configuration according to the options
@@ -206,27 +206,6 @@ process = customizeHLTforCMSSW(process,"%s")
         if not self.config.fragment:
           self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
 
-#    if self.config.type in ('HIon', ):
-#      self.data += """
-## Disable HF Noise filters in HIon menu
-#if 'hltHfreco' in %(dict)s:
-#    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-#"""
-#    else:
-#      self.data += """
-## Enable HF Noise filters in non-HIon menu
-#if 'hltHfreco' in %(dict)s:
-#    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-#"""
-
-#    self.data += """
-## untracked parameters with NO default in the code
-#if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-#    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-#if 'hltDt4DSegments' in %(dict)s:
-#    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
-#"""
-
     # if requested, remove the HLT prescales
     self.fixPrescales()
 
@@ -239,53 +218,20 @@ process = customizeHLTforCMSSW(process,"%s")
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
 
-#    if self.config.type not in ('Fake','FULL') :
-#      procfrag = self.labels['process'].split('.')[0]
-#      if '50ns_5e33_v1' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 50ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif '25ns14e33_v1' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 25ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-#%s = loadL1menu(%s)
-#""" %(procfrag,procfrag)
-#      elif '50ns' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 50ns
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v4 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif 'HIon' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for HIon
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      elif 'LowPU' in self.config.type :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for LowPU
-#from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
-#%s = loadL1Menu(%s)
-#""" %(procfrag,procfrag)
-#      else :
-#        self.data += """
-## load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
-#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-#%s = loadL1menu(%s)
-#""" %(procfrag,procfrag)
+    # if requested, override the L1 self from the GlobalTag (Xml)
+    self.overrideL1MenuXml()
+
+    # if requested, run the L1 emulator
+    self.runL1Emulator()
 
     if self.config.fragment:
       self.data += """
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+    %(process)s.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
-    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+    %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
     else:
@@ -301,15 +247,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
-
-      # if requested, override the L1 self from the GlobalTag (Xml)
-      self.overrideL1MenuXml()
-
-      # if requested, add snippet to run on new L1 skim
-      self.switchToNewL1Skim()
-
-      # if requested, run (part of) the L1 emulator
-      self.runL1Emulator()
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
@@ -345,7 +282,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     # add global options
     self.data += """
 # limit the number of events to be processed
-%%(process)smaxEvents = cms.untracked.PSet(
+%%(process)s.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( %d )
 )
 """ % self.config.events
@@ -353,7 +290,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     if not self.config.profiling:
       self.data += """
 # enable the TrigReport and TimeReport
-%(process)soptions = cms.untracked.PSet(
+%(process)s.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 """
@@ -397,8 +334,8 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       self.data += """
 # force the use of a specific HLT prescale column
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.forceDefault     = True
-    %(process)sPrescaleService.lvl1DefaultLabel = '%(prescale)s'
+    %(process)s.PrescaleService.forceDefault     = True
+    %(process)s.PrescaleService.lvl1DefaultLabel = '%(prescale)s'
 """
 
 
@@ -450,173 +387,60 @@ if 'GlobalTag' in %(dict)s:
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
-      self.config.l1.record = 'L1GtTriggerMenuRcd'
-      self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
-      if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
-      self.config.l1cond = '%(tag)s,%(record)s,%(connect)s' % self.config.l1.__dict__
+      self.config.l1.record = 'L1TUtmTriggerMenuRcd'
+      self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
+      self.config.l1.label  = ''
+      if not self.config.l1.snapshotTime:
+        self.config.l1.snapshotTime = '9999-12-31 23:59:59.000'
+      self.config.l1cond = '%(tag)s,%(record)s,%(connect)s,%(label)s,%(snapshotTime)s' % self.config.l1.__dict__
     else:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
       text += "    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag\n"
-      text += "    %(process)sGlobalTag = customiseGlobalTag(%(process)sGlobalTag"
+      text += "    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
       if self.config.l1cond:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
-    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-    for pset in process.GlobalTag.toGet.value():
+    text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
+    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
+    for pset in %(process)s.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
     # fix for multi-run processing
-    %(process)sGlobalTag.RefreshEachRun = cms.untracked.bool( False )
-    %(process)sGlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 """
     self.data += text
 
   def overrideL1MenuXml(self):
-    # if requested, override the L1 menu from the GlobalTag (Xml file)
+    # if requested, override the GlobalTag's L1T menu from an Xml file
     if self.config.l1Xml.XmlFile:
       text = """
-# override the L1 menu from an Xml file
-%%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('%(LumiDir)s'),
-  DefXmlFile = cms.string('%(XmlFile)s'),
-  VmeXmlFile = cms.string('')
-)
-%%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-%%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-"""
-      self.data += text % self.config.l1Xml.__dict__
-
-  def runL1EmulatorGT(self):
-    # if requested, run (part of) the L1 emulator, then repack the data into a new RAW collection, to be used by the HLT
-    if not self.config.emulator:
-      return
-
-    if self.config.emulator != 'gt':
-      # only the GT emulator is currently supported
-      return
-
-    # run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
-    text = """
-# run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
-"""
-    if self.config.fragment:
-      # FIXME in a cff, should also update the HLTSchedule
-      text += "import Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff\n"
-    else:
-      text += "process.load( 'Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff' )\n"
-
-    if not 'hltBoolFalse' in self.data:
-      # add hltBoolFalse
-      text += """
-%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
-)
-"""
-    text += "process.L1Emulator = cms.Path( process.SimL1Emulator + process.hltBoolFalse )\n\n"
-
-    self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
-
+# override the GlobalTag's L1T menu from an Xml file
+from HLTrigger.Configuration.CustomConfigs import L1XML
+%%(process)s = L1XML(%%(process)s,"%s")
+""" % (self.config.l1Xml.XmlFile) 
+      self.data += text
 
   def runL1Emulator(self):
-    # if requested, run (part of) the L1 emulator
-    if self.config.emulator:
-      # FIXME this fragment used "process" explicitly
-      emulator = {
-        'RawToDigi': '',
-        'CustomL1T': '',
-        'CustomHLT': ''
-      }
-
-      if self.config.data:
-        emulator['RawToDigi'] = 'RawToDigi_Data_cff'
-      else:
-        emulator['RawToDigi'] = 'RawToDigi_cff'
-
-      if self.config.emulator == 'gt':
-        emulator['CustomL1T'] = 'customiseL1GtEmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGtDigis'
-      elif self.config.emulator == 'gct,gt':
-        emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGctGtDigis'
-      elif self.config.emulator == 'gmt,gt':
-        # XXX currently unsupported
-        emulator['CustomL1T'] = 'customiseL1MuonAndGtEmulatorsFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGtDigis'
-      elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
-      elif self.config.emulator in ('stage1,gt'):
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimStage1Digis'
-      else:
-        # unsupported argument, default to running the whole emulator
-        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
-
-      self.data += """
-# customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
-process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
-process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
-import L1Trigger.Configuration.L1Trigger_custom
-#
-""" % emulator
-
-      if (self.config.emulator).find("stage1")>-1:
-        self.data += """
-# 2015 Run2 emulator
-import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
-process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
-""" % emulator
-      else:
-        self.data += """
-# Run1 Emulator
-process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
-""" % emulator
-
-      self.data += """
-#
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-# customize the HLT to use the emulated results
-import HLTrigger.Configuration.customizeHLTforL1Emulator
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
-""" % emulator
-
-  def switchToNewL1Skim(self):
-    # add snippet to switch to new L1 skim files
-    if self.config.l1skim:
-      self.data += """
-# Customize the menu to use information from new L1 emulator in the L1 skim files
-process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag("simGmtDigis::L1SKIM" )
-process.hltL1extraParticles.muonSource = cms.InputTag("simGmtDigis::L1SKIM" )
-for module in process.__dict__.itervalues():
-  if isinstance(module, cms._Module):
-    for parameter in module.__dict__.itervalues():
-      if isinstance(parameter, cms.InputTag):
-        if parameter.moduleLabel == 'hltGtDigis':
-          parameter.moduleLabel = "gtDigisFromSkim"
-        elif parameter.moduleLabel == 'hltL1GtObjectMap':
-          parameter.moduleLabel = "gtDigisFromSkim"
-        elif parameter.moduleLabel == 'hltGctDigis':
-          parameter.moduleLabel ="simCaloStage1LegacyFormatDigis"
+    # if requested, run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
+    if self.config.emulator == 'Full':
+      text = """
+# run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
+from HLTrigger.Configuration.CustomConfigs import L1REPACK
+%(process)s = L1REPACK(%(process)s)
 """
+      self.data += text
 
   def overrideOutput(self):
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub(
       r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
-      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
+      r'%(process)s.hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
       self.data
     )
 
@@ -624,7 +448,7 @@ for module in process.__dict__.itervalues():
       # add a single "keep *" output
       self.data += """
 # add a single "keep *" output
-%(process)shltOutputFULL = cms.OutputModule( "PoolOutputModule",
+%(process)s.hltOutputFULL = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputFULL.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
@@ -633,7 +457,7 @@ for module in process.__dict__.itervalues():
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)sFULLOutput = cms.EndPath( %(process)shltOutputFULL )
+%(process)s.FULLOutput = cms.EndPath( %(process)s.hltOutputFULL )
 """
 
 
@@ -652,35 +476,35 @@ for module in process.__dict__.itervalues():
     self.data += """
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in %%(dict)s:
-    %%(process)shltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTMONOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-    %%(process)shltDQMHLTScalers.processname                      = '%(name)s'
+    %%(process)s.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)s.hltDQMHLTScalers.processname                      = '%(name)s'
 
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)shltDQML1SeedLogicScalers.processname              = '%(name)s'
+    %%(process)s.hltDQML1SeedLogicScalers.processname              = '%(name)s'
 """ % self.config.__dict__
 
 
@@ -688,10 +512,11 @@ if 'hltDQML1SeedLogicScalers' in %%(dict)s:
     # request summary informations from the MessageLogger
     self.data += """
 if 'MessageLogger' in %(dict)s:
-    %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
-    %(process)sMessageLogger.categories.append('L1GtTrigReport')
-    %(process)sMessageLogger.categories.append('HLTrigReport')
-    %(process)sMessageLogger.categories.append('FastReport')
+    %(process)s.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    %(process)s.MessageLogger.categories.append('L1GtTrigReport')
+    %(process)s.MessageLogger.categories.append('L1TGlobalSummary')
+    %(process)s.MessageLogger.categories.append('HLTrigReport')
+    %(process)s.MessageLogger.categories.append('FastReport')
 """
 
 
@@ -702,7 +527,7 @@ if 'MessageLogger' in %(dict)s:
 if 'GlobalTag' in %%(dict)s:
 """ % comment
     for condition in conditions:
-      self.data += """    %%(process)sGlobalTag.toGet.append(
+      self.data += """    %%(process)s.GlobalTag.toGet.append(
         cms.PSet(
             record  = cms.string( '%(record)s' ),
             tag     = cms.string( '%(tag)s' ),
@@ -728,7 +553,7 @@ if 'GlobalTag' in %%(dict)s:
     # override a module's parameter if the module is present in the configuration
     self.data += "if '%s' in %%(dict)s:\n" % module
     for (parameter, value) in parameters:
-      self.data += "    %%(process)s%s.%s = %s\n" % (module, parameter, value)
+      self.data += "    %%(process)s.%s.%s = %s\n" % (module, parameter, value)
     self.data += "\n"
 
 
@@ -740,7 +565,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltGetRaw' in self.data:
         # add hltGetRaw
         text += """
-%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+%(process)s.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
 """
@@ -748,7 +573,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltGetConditions' in self.data:
         # add hltGetConditions
         text += """
-%(process)shltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
+%(process)s.hltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
     verbose = cms.untracked.bool( False ),
     toGet = cms.VPSet( )
 )
@@ -757,7 +582,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltBoolFalse' in self.data:
         # add hltBoolFalse
         text += """
-%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
+%(process)s.hltBoolFalse = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
 """
@@ -765,7 +590,7 @@ if 'GlobalTag' in %%(dict)s:
       # add the definition of HLTriggerFirstPath
       # FIXME in a cff, should also update the HLTSchedule
       text += """
-%(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
+%(process)s.HLTriggerFirstPath = cms.Path( %(process)s.hltGetRaw + %(process)s.hltGetConditions + %(process)s.hltBoolFalse )
 """
       self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
 
@@ -784,42 +609,42 @@ if 'GlobalTag' in %%(dict)s:
         self.data += '\n# configure the FastTimerService\n'
 
       self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
-%(process)sFastTimerService.useRealTimeClock          = True
+%(process)s.FastTimerService.useRealTimeClock          = True
 # enable specific features
-%(process)sFastTimerService.enableTimingPaths         = True
-%(process)sFastTimerService.enableTimingModules       = True
-%(process)sFastTimerService.enableTimingExclusive     = True
+%(process)s.FastTimerService.enableTimingPaths         = True
+%(process)s.FastTimerService.enableTimingModules       = True
+%(process)s.FastTimerService.enableTimingExclusive     = True
 # print a text summary at the end of the job
-%(process)sFastTimerService.enableTimingSummary       = True
+%(process)s.FastTimerService.enableTimingSummary       = True
 # skip the first path (disregard the time spent loading event and conditions data)
-%(process)sFastTimerService.skipFirstPath             = True
+%(process)s.FastTimerService.skipFirstPath             = True
 # enable DQM plots
-%(process)sFastTimerService.enableDQM                 = True
+%(process)s.FastTimerService.enableDQM                 = True
 # enable most per-path DQM plots
-%(process)sFastTimerService.enableDQMbyPathActive     = True
-%(process)sFastTimerService.enableDQMbyPathTotal      = True
-%(process)sFastTimerService.enableDQMbyPathOverhead   = False
-%(process)sFastTimerService.enableDQMbyPathDetails    = True
-%(process)sFastTimerService.enableDQMbyPathCounters   = True
-%(process)sFastTimerService.enableDQMbyPathExclusive  = True
+%(process)s.FastTimerService.enableDQMbyPathActive     = True
+%(process)s.FastTimerService.enableDQMbyPathTotal      = True
+%(process)s.FastTimerService.enableDQMbyPathOverhead   = False
+%(process)s.FastTimerService.enableDQMbyPathDetails    = True
+%(process)s.FastTimerService.enableDQMbyPathCounters   = True
+%(process)s.FastTimerService.enableDQMbyPathExclusive  = True
 # disable per-module DQM plots
-%(process)sFastTimerService.enableDQMbyModule         = False
-%(process)sFastTimerService.enableDQMbyModuleType     = False
+%(process)s.FastTimerService.enableDQMbyModule         = False
+%(process)s.FastTimerService.enableDQMbyModuleType     = False
 # enable per-event DQM sumary plots
-%(process)sFastTimerService.enableDQMSummary          = True
+%(process)s.FastTimerService.enableDQMSummary          = True
 # enable per-event DQM plots by lumisection
-%(process)sFastTimerService.enableDQMbyLumiSection    = True
-%(process)sFastTimerService.dqmLumiSectionsRange      = 2500
+%(process)s.FastTimerService.enableDQMbyLumiSection    = True
+%(process)s.FastTimerService.dqmLumiSectionsRange      = 2500
 # set the time resolution of the DQM plots
-%(process)sFastTimerService.dqmTimeRange              = 1000.
-%(process)sFastTimerService.dqmTimeResolution         =    5.
-%(process)sFastTimerService.dqmPathTimeRange          =  100.
-%(process)sFastTimerService.dqmPathTimeResolution     =    0.5
-%(process)sFastTimerService.dqmModuleTimeRange        =   40.
-%(process)sFastTimerService.dqmModuleTimeResolution   =    0.2
+%(process)s.FastTimerService.dqmTimeRange              = 1000.
+%(process)s.FastTimerService.dqmTimeResolution         =    5.
+%(process)s.FastTimerService.dqmPathTimeRange          =  100.
+%(process)s.FastTimerService.dqmPathTimeResolution     =    0.5
+%(process)s.FastTimerService.dqmModuleTimeRange        =   40.
+%(process)s.FastTimerService.dqmModuleTimeResolution   =    0.2
 # set the base DQM folder for the plots
-%(process)sFastTimerService.dqmPath                   = 'HLT/TimerService'
-%(process)sFastTimerService.enableDQMbyProcesses      = True
+%(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
+%(process)s.FastTimerService.enableDQMbyProcesses      = True
 """
 
 
@@ -834,9 +659,9 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
       dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-      dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
+      dqmstore += "%(process)s.DQMStore.enableMultiThread = True\n"
       dqmstore += """
-%(process)sdqmOutput = cms.OutputModule("DQMRootOutputModule",
+%(process)s.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 """
@@ -845,14 +670,14 @@ if 'GlobalTag' in %%(dict)s:
       other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
       if empty_path.search(self.data):
         # replace an empty DQMOutput path
-        self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
+        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n', self.data)
       elif other_path.search(self.data):
         # prepend the dqmOutput to the DQMOutput path
-        self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
+        self.data = other_path.sub(dqmstore + r'\g<1> %(process)s.dqmOutput +\g<3>', self.data)
       else:
         # ceate a new DQMOutput path with the dqmOutput module
         self.data += dqmstore
-        self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
+        self.data += '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n'
 
 
   @staticmethod
@@ -1052,7 +877,7 @@ if 'GlobalTag' in %%(dict)s:
       self.parent = self.expand_filenames(self.config.parent)
 
     self.data += """
-%(process)ssource = cms.Source( "PoolSource",
+%(process)s.source = cms.Source( "PoolSource",
 """
     self.append_filenames("fileNames", self.source)
     if (self.parent):
