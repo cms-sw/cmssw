@@ -17,7 +17,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace {
 
@@ -25,7 +25,7 @@ namespace {
   public:
     KFTrajectoryFitterESProducer(const edm::ParameterSet & p);
     ~KFTrajectoryFitterESProducer(); 
-    boost::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
+    std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -52,7 +52,7 @@ namespace {
   
   KFTrajectoryFitterESProducer::~KFTrajectoryFitterESProducer() {}
   
-  boost::shared_ptr<TrajectoryFitter> 
+  std::shared_ptr<TrajectoryFitter>
   KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
     
     std::string pname = pset_.getParameter<std::string>("Propagator");
@@ -71,11 +71,11 @@ namespace {
     iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
     iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
 
-    return boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(prop.product(),
-								      upd.product(),
-								      est.product(),
-								      minHits,
-								      geo.product() ));
+    return std::make_shared<KFTrajectoryFitter>(prop.product(),
+				                upd.product(),
+				                est.product(),
+				                minHits,
+				                geo.product());
   }
 
 }

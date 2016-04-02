@@ -1,4 +1,4 @@
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,7 +21,7 @@ class EcalSeverityLevelESProducer : public edm::ESProducer {
 public:
   EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig);
   
-  typedef boost::shared_ptr<EcalSeverityLevelAlgo> ReturnType;
+  typedef std::shared_ptr<EcalSeverityLevelAlgo> ReturnType;
   
   ReturnType produce(const EcalSeverityLevelAlgoRcd& iRecord);
   

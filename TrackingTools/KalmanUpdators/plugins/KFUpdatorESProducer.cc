@@ -21,14 +21,14 @@ KFUpdatorESProducer::KFUpdatorESProducer(const edm::ParameterSet & p)
 
 KFUpdatorESProducer::~KFUpdatorESProducer() {}
 
-boost::shared_ptr<TrajectoryStateUpdator> 
+std::shared_ptr<TrajectoryStateUpdator> 
 KFUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_updator){
 //     delete _updator;
 //     _updator = 0;
 //   }
   
-  _updator  = boost::shared_ptr<TrajectoryStateUpdator>(new KFUpdator());
+  _updator = std::make_shared<KFUpdator>();
   return _updator;
 }
 
