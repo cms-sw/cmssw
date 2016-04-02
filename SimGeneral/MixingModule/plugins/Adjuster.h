@@ -13,6 +13,8 @@
 #include "boost/shared_ptr.hpp"
 
 #include <vector>
+#include <string>
+#include <iostream>
 
 namespace edm {
   class AdjusterBase {
@@ -41,6 +43,7 @@ namespace edm {
 
    private:
     InputTag tag_;
+    bool WrapT_;
   };
 
   //==============================================================================
@@ -48,23 +51,28 @@ namespace edm {
   //==============================================================================
 
   namespace detail {
-    void doTheOffset(int bunchspace, int bcr, std::vector<SimTrack>& product, unsigned int eventNr, int vertexOffset);
-    void doTheOffset(int bunchspace, int bcr, std::vector<SimVertex>& product, unsigned int eventNr, int vertexOffset);
-    void doTheOffset(int bunchspace, int bcr, std::vector<PCaloHit>& product, unsigned int eventNr, int vertexOffset);
-    void doTheOffset(int bunchspace, int bcr, std::vector<PSimHit>& product, unsigned int eventNr, int vertexOffset);
+    void doTheOffset(int bunchspace, int bcr, std::vector<SimTrack>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
+    void doTheOffset(int bunchspace, int bcr, std::vector<SimVertex>& product, unsigned int eventNr, int vertexOffset, bool wrapti\
+mes);
+    void doTheOffset(int bunchspace, int bcr, std::vector<PCaloHit>& product, unsigned int eventNr, int vertexOffset, bool wrapti\
+mes);
+    void doTheOffset(int bunchspace, int bcr, std::vector<PSimHit>& product, unsigned int eventNr, int vertexOffset, bool wrapti\
+mes);
   }
 
   template<typename T>
-  void  Adjuster<T>::doOffset(int bunchspace, int bcr, const EventPrincipal &ep, unsigned int eventNr, int vertexOffset) {
+    void  Adjuster<T>::doOffset(int bunchspace, int bcr, const EventPrincipal &ep, unsigned int eventNr, int vertexOffset) {
     boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_);
     if (shPtr) {
       std::vector<T>& product = const_cast<std::vector<T>&>(*shPtr->product());
-      detail::doTheOffset(bunchspace, bcr, product, eventNr, vertexOffset);
+      detail::doTheOffset(bunchspace, bcr, product, eventNr, vertexOffset, WrapT_);
     }
   }
 
   template<typename T>
   Adjuster<T>::Adjuster(InputTag const& tag) : tag_(tag) {
+    std::string Musearch = tag_.instance();
+    if(Musearch.find("Muon") == 0) WrapT_ = true; // wrap time for neutrons in Muon system subdetectors
   }
 }
 

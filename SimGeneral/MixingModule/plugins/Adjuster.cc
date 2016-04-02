@@ -3,7 +3,7 @@
 
 namespace edm {
 namespace detail {
-void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsigned int evtNr, int vertexOffset) { 
+  void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   EncodedEventId id(bcr,evtNr);
   for (auto& item : simtracks) {
@@ -14,7 +14,7 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsi
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, unsigned int evtNr, int vertexOffset) { 
+  void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
@@ -24,17 +24,32 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, u
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<PSimHit>& simhits, unsigned int evtNr, int vertexOffset) { 
+  void doTheOffset(int bunchSpace, int bcr, std::vector<PSimHit>& simhits, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
-  for (auto& item : simhits) {
-    item.setEventId(id);
-    item.setTof(item.timeOfFlight() + timeOffset);
+
+  if(wrap) { // wrap time for long-lived hits into one beam crossing
+    for (auto& item : simhits) {
+      item.setEventId(id);
+
+      float Tfloor = floor(item.timeOfFlight());
+      float digits = item.timeOfFlight() - Tfloor;
+      int remainder = int(Tfloor) % bunchSpace;
+
+      item.setTof(float(remainder) + digits + timeOffset);
+    }
   }
+  else {
+    for (auto& item : simhits) {
+      item.setEventId(id);
+      item.setTof(item.timeOfFlight() + timeOffset);
+    }
+  }
+
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsigned int evtNr, int vertexOffset) { 
+  void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
