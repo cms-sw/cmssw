@@ -93,13 +93,10 @@ def _modifyRecoMuonPPonlyForPhase2( object ):
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
 eras.phase2_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
-eras.phase2dev_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
-eras.phase2dev_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
 
 def _modifyRecoMuonPPonlyForPhase2_addME0Muon( theProcess ):
     theProcess.load("RecoMuon.MuonIdentification.me0MuonReco_cff")
     theProcess.muonGlobalReco += theProcess.me0MuonReco
 
 modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
-modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
     

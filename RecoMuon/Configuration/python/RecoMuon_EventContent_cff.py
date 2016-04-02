@@ -101,6 +101,3 @@ from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( RecoMuonFEVT, func=_modifyRecoMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoMuonRECO, func=_modifyRecoMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoMuonAOD,  func=_modifyRecoMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoMuonRECO, func=_modifyRecoMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoMuonFEVT, func=_modifyRecoMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoMuonAOD,  func=_modifyRecoMuonEventContentForPhase2 )

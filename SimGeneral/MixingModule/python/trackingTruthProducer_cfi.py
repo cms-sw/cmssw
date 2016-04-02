@@ -57,4 +57,3 @@ def _modifyTrackingParticlesForPhase2( object ):
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( trackingParticles, func=_modifyTrackingParticlesForPhase2 )
-eras.phase2dev_muon.toModify( trackingParticles, func=_modifyTrackingParticlesForPhase2 )

@@ -230,4 +230,3 @@ def _modifyMixSimHitsForPhase2( object ):
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
-eras.phase2dev_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )

@@ -51,7 +51,3 @@ from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( SimMuonFEVTDEBUG, func=_modifySimMuonEventContentFEVTDEBUGForPhase2 )
 eras.phase2_muon.toModify( SimMuonRAW, func=_modifySimMuonEventContentRAWRECOForPhase2 )
 eras.phase2_muon.toModify( SimMuonRECO, func=_modifySimMuonEventContentRAWRECOForPhase2 )
-eras.phase2dev_muon.toModify( SimMuonFEVTDEBUG, func=_modifySimMuonEventContentFEVTDEBUGForPhase2 )
-eras.phase2dev_muon.toModify( SimMuonRAW, func=_modifySimMuonEventContentRAWRECOForPhase2 )
-eras.phase2dev_muon.toModify( SimMuonRECO, func=_modifySimMuonEventContentRAWRECOForPhase2 )
-

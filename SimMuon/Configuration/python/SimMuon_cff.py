@@ -22,4 +22,3 @@ def _modifySimMuonForPhase2( theProcess ):
 
 from Configuration.StandardSequences.Eras import eras
 modifyConfigurationStandardSequencesSimMuonPhase2_ = eras.phase2_muon.makeProcessModifier( _modifySimMuonForPhase2 )
-modifyConfigurationStandardSequencesSimMuonPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifySimMuonForPhase2 )

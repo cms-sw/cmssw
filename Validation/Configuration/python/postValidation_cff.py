@@ -79,4 +79,3 @@ def _modifyPostValidationForPhase2( theProcess ):
 
 from Configuration.StandardSequences.Eras import eras
 modifyConfigurationStandardSequencesPostValidationForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyPostValidationForPhase2 )
-modifyConfigurationStandardSequencesPostValidationForPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifyPostValidationForPhase2 )

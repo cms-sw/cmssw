@@ -181,4 +181,3 @@ def _modifyRandomNumberGeneratorServiceForPhase2( object ):
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( RandomNumberGeneratorService, func=_modifyRandomNumberGeneratorServiceForPhase2 )
-eras.phase2dev_muon.toModify( RandomNumberGeneratorService, func=_modifyRandomNumberGeneratorServiceForPhase2 )

@@ -116,4 +116,3 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( muonTrackValidator, useGEMs = cms.bool(True) )
-eras.phase2dev_muon.toModify( muonTrackValidator, useGEMs = cms.bool(True) )
