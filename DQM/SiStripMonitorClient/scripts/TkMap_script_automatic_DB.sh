@@ -18,8 +18,16 @@ do
 
     if [ "$Run_numb" == "$1" ]; then continue; fi
 
+    #2016 - Commissioning period
+    if [ $Run_numb -gt 264200 ]; then
+
+        DataLocalDir='Data2016'
+        DataOfflineDir='Commissioning2016'
+    else
+
     #Run2015A
     if [ $Run_numb -gt 246907 ]; then
+
         DataLocalDir='Data2015'
         DataOfflineDir='Run2015'
     else
@@ -45,6 +53,7 @@ do
 		fi
 	    fi
 	fi
+    fi
     fi
     fi
     #loop over datasets
@@ -129,7 +138,7 @@ do
     fi
 
 #Temporary fix to remove hidden ASCII characters
-    GLOBALTAG=`echo $GLOBALTAG | cut -c 9-${#GLOBALTAG}`
+    GLOBALTAG=`echo $GLOBALTAG` #| cut -c 9-${#GLOBALTAG}`
 #    GLOBALTAG=`sed -i 's/[\d128-\d255]//g' <<< "${GLOBALTAG}"`
 #    GLOBALTAG=`echo $GLOBALTAG | sed 's/[\d128-\d255]//'`
 #    echo `expr length $GLOBALTAG`
@@ -206,6 +215,10 @@ do
 
 # overwrite destination for tests
 # dest=FinalTest
+
+## create merged list of BadComponent from (PCL, RunInfo and FED Errors)
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/mergeBadChannel_Template_cfg.py globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName
+    mv MergedBadComponents.log MergedBadComponents_run${Run_numb}.txt
 
     rm -f *.xml
     rm -f *svg
