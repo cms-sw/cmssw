@@ -484,7 +484,7 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator = std::make_shared<reco::formula::FunctionOneArgEvaluator>(std::move(argEvaluatorInfo.evaluator),
+    info.evaluator = std::make_shared<reco::formula::FunctionOneArgEvaluator>(std::move(argEvaluatorInfo.top),
                                                                               op);
     info.top = info.evaluator;
     return info;
@@ -552,8 +552,8 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator = std::make_shared<reco::formula::FunctionTwoArgsEvaluator>(std::move(arg1EvaluatorInfo.evaluator),
-                                                                               std::move(arg2EvaluatorInfo.evaluator),
+    info.evaluator = std::make_shared<reco::formula::FunctionTwoArgsEvaluator>(std::move(arg1EvaluatorInfo.top),
+                                                                               std::move(arg2EvaluatorInfo.top),
                                                                                op);
     info.top = info.evaluator;
     return info;
