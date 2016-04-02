@@ -84,12 +84,12 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pse
 FWRecoGeometryESProducer::~FWRecoGeometryESProducer( void )
 {}
 
-boost::shared_ptr<FWRecoGeometry> 
+std::shared_ptr<FWRecoGeometry> 
 FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
 {
   using namespace edm;
 
-  m_fwGeometry =  boost::shared_ptr<FWRecoGeometry>( new FWRecoGeometry );
+  m_fwGeometry = std::make_shared<FWRecoGeometry>();
 
   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
