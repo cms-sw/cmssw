@@ -7,13 +7,12 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     destinations = cms.untracked.vstring('cout')
 )
-process.load('Configuration.Geometry.GeometryIdeal_cff')
-process.load("Configuration.Geometry.GeometryReco_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10', '')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
 process.source = cms.Source("EmptyIOVSource",
