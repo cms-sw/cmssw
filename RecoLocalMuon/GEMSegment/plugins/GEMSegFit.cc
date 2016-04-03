@@ -465,8 +465,8 @@ void GEMSegFit::setOutFromIP() {
   double dxdz = uslope_;
   double dydz = vslope_;
   double dy   = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
-  double dx   = dz*dxdz;
-  double dz   = dz*dydz;
+  double dx   = dy*dxdz;
+  double dz   = dy*dydz;
   LocalVector localDir(dx,dy,dz);
 
   edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: dxdz = uslope_ = "<<std::setw(9)<<uslope_<<" dydz = vslope_ = "<<std::setw(9)<<vslope_<<" local dir = "<<localDir;
