@@ -30,8 +30,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-
-    'file:/afs/cern.ch/work/m/mileva/CMSSW_8_0_0_pre1/src/out_digi.root'
+	
+    '/store/user/mileva/testFiles/out_local_reco.root'
 
     )
 )
@@ -42,7 +42,10 @@ process.dumper = cms.EDAnalyzer("GEMDigiSimLinkReader",
     simhitToken = cms.InputTag("g4SimHits","MuonGEMHits"), 
     gemDigiToken = cms.InputTag("simMuonGEMDigis"), 
     gemDigiSimLinkToken = cms.InputTag("simMuonGEMDigis","GEM") ,
-    debugFlag = cms.bool(False)
+    debugFlag = cms.bool(False),	#for Milena: add a comma in the end of the line
+#forMilena
+    rechitToken = cms.InputTag("gemRecHits","")
+#forMilena end
 
 )
 

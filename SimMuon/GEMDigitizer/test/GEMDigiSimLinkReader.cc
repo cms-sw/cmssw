@@ -1,9 +1,6 @@
-#ifndef SimMuon_GEMDigiSimLinkReader_h
-#define SimMuon_GEMDigiSimLinkReader_h
-
 /** \class GEMDigiSimLinkReader
  *
- *  Dumps GEM digis
+ *  Dumps GEMDigiSimLinks digis
  *
  *  \authors: Roumyana Hadjiiska
  */
@@ -69,9 +66,6 @@ private:
 
   TH1F *Compton_energy;
   TH1F *EIoni_energy;
-//  TH1F *HIoni_energy;
-//  TH1F *MuIoni_energy;
-//  TH1F *Photon_energy;
   TH1F *PairProd_energy;
   TH1F *Conversions_energy;
   TH1F *EBrem_energy;
@@ -90,7 +84,6 @@ private:
 
   TH1F *deltaPhi_allStations_normalized;
   TH1F *deltaPhi_GE11;
-//  TH1F *deltaPhi_GE21short;
   TH1F *deltaPhi_GE21long;
 
   TH2F *mom_cls_allStations;
@@ -99,9 +92,6 @@ private:
 
   TH2F *mom_cls_GE11;
   TH2F *deltaPhi_cls_GE11;
-
-//  TH2F *mom_cls_GE21short;
-//  TH2F *deltaPhi_cls_GE21short;
 
   TH2F *mom_cls_GE21long;
   TH2F *deltaPhi_cls_GE21long;
@@ -138,9 +128,6 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
 
   Compton_energy = fs->make < TH1F > ("Compton_energy", "Compton_energy", 10000000, 0., 10);
   EIoni_energy = fs->make < TH1F > ("EIoni_energy", "EIoni_energy", 10000000, 0., 10);
-//  HIoni_energy = fs->make < TH1F > ("HIoni_energy", "HIoni_energy", 10000000, 0., 10);
-//  MuIoni_energy = fs->make < TH1F > ("MuIoni_energy", "MuIoni_energy", 10000000, 0., 10);
-//  Photon_energy = fs->make < TH1F > ("Photon_energy", "Photon_energy", 10000000, 0., 10);
   PairProd_energy = fs->make < TH1F > ("PairProd_energy", "PairProd_energy", 10000000, 0., 10);
   Conversions_energy = fs->make < TH1F > ("Conversions_energy", "Conversions_energy", 10000000, 0., 10);
   EBrem_energy = fs->make < TH1F > ("EBrem_energy", "EBrem_energy", 10000000, 0., 10);
@@ -153,7 +140,6 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   deltaPhi_allStations = fs->make < TH1F > ("deltaPhi_allStations", "deltaPhi_allStations", 2000000, -1., 1.);
   deltaPhi_allStations_normalized = fs->make < TH1F > ("deltaPhi_allStations_normalized", "deltaPhi_allStations_normalized", 2000, -10., 10.);
   deltaPhi_GE11 = fs->make < TH1F > ("deltaPhi_GE11", "deltaPhi_GE11", 2000000, -1., 1.);
-//  deltaPhi_GE21short = fs->make < TH1F > ("deltaPhi_GE21short", "deltaPhi_GE21short", 2000000, -1., 1.);
   deltaPhi_GE21long = fs->make < TH1F > ("deltaPhi_GE21long", "deltaPhi_GE21long", 2000000, -1., 1.);
 
   mom_cls_allStations = fs->make < TH2F > ("mom_cls_allStations", "mom_cls_allStations", 20000, 0., 2000., 21, -0.5, 20.5);
@@ -224,8 +210,6 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
 
 void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
-  //  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
-
   edm::Handle < GEMDigiCollection > digis;
   event.getByToken(gemDigiToken_, digis);
 
@@ -255,12 +239,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         Compton_energy->Fill(simHit.pabs());
       if (simHit.processType() == 2)
         EIoni_energy->Fill(simHit.pabs());
-//      if (simHit.processType() == 8)
-//        HIoni_energy->Fill(simHit.pabs());
-//      if (simHit.processType() == 9)
-//        MuIoni_energy->Fill(simHit.pabs());
-//      if (simHit.processType() == 10)
-//        Photon_energy->Fill(simHit.pabs());
       if (simHit.processType() == 4)
         PairProd_energy->Fill(simHit.pabs());
       if (simHit.processType() == 14)
@@ -281,13 +259,11 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       std::cout << "detid\t" << detid << std::endl;
     const GEMEtaPartition* roll = pDD->etaPartition(detid);
     const GEMDetId gemId = roll->id();
-//    const StripTopology& topology = roll->specificTopology();
     const int nstrips = roll->nstrips();
 
     double fullAngularStripPitch = 0.;
     std::map<int, int> myCluster; //<strip, pdgId>
     std::vector<int> muonFired;
-    //      std::vector<int> elecFired;
     std::map<int, int> MuCluster; //<strip, pdgId>
     std::map<int, int> ElecCluster; //<strip, pdgId>
     Local3DPoint locMuonEntry(0., 0., 0.);
@@ -297,7 +273,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     double muMomentum = 0.;
 
     double simMuPhi = 0.;
-    //      double checkPhi = 0.;
     double deltaPhi = 0.;
 
 //loop over GemDigiSimLinks
@@ -335,7 +310,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       if (particletype == -11)
         processtypePositrons->Fill(processtype);
       if (abs(particletype) == 13)
-      //      if(particletype==13 && gemId.region() == 1 && (gemId.chamber() == 1 || gemId.chamber() == 2 || gemId.chamber() == 3 || gemId.chamber() == 4 || gemId.chamber() == 5))
       {
         std::cout << "particle\t" << particletype << "\tdetektor\t" << gemId << std::endl;
         processtypeMuons->Fill(processtype);
@@ -343,9 +317,7 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         globMuonEntry = roll->toGlobal(locMuonEntry);
         simMuPhi = globMuonEntry.phi();
         lvMu = (link_iter->getMomentumAtEntry());
-        //          gvMu = roll->toGlobal(lvMu);
         muMomentum = gvMu.mag();
-        //          checkPhi = gvMu.phi();
       }
 
       if (bx == 0)
@@ -396,18 +368,12 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 
     if (MuCluster.size() != 0)
     {
-      //       std::cout << "detector\t" << detid <<std::endl;
-      //      std::map<int, int>::iterator it = myCluster.begin();
       for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
       {
-        //       std::cout << "\tstrip\t" <<  it->first << "\tparticle\t" << it->second << std::endl;
         if (abs(it->second) == 13)
         {
           muonFired.push_back(it->first);
-          //        std::cout << "muonFired\t" << it->first << std::endl;
         }
-        //       if(abs(it->second) == 11)
-        //         elecFired.push_back(it->first);
       }
     }
 
@@ -435,7 +401,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         std::cout << "i\t" << i << "\tpush kk\t" << allFired[kk] << "\tclusterInd\t" << clusterInd << std::endl;
         for (; i < allFired.size(); i++)
         {
-          //          if (allFired[i + 1])
           if (i + 1 < allFired.size())
           {
             myDelta = allFired[i + 1] - allFired[i];
@@ -465,23 +430,21 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         gemCLS_allClusters->Fill((tempCluster[j]).size());
         for (unsigned int l = 0; l < (tempCluster[j]).size(); ++l)
         {
-          //          std::cout << (tempCluster[j])[l] << std::endl;
           std::vector<int>::iterator muIt = find(muonFired.begin(), muonFired.end(), (tempCluster[j])[l]);
           if (muIt != muonFired.end())
           {
-            std::cout << "muon strip\t" << *muIt << std::endl;
+//            std::cout << "muon strip\t" << *muIt << std::endl;
             checkMu = true;
           }
           else
           {
             checkMu = false;
-            std::cout << "ne e muon" << std::endl;
+//            std::cout << "not a muon" << std::endl;
           }
           if (checkMu)
             muonCluster++;
         }
 
-        std::cout << "------------3333333333333------------------" << std::endl;
         firstStrip = (tempCluster[j])[0];
         lastStrip = (tempCluster[j])[tempSize - 1];
 
@@ -497,7 +460,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         }
 
         double digiPhi = pointDigiHit.phi();
-        //           if(checkMu == 1 )
         if (checkMu)
         {
           gemCLS_ClustersWithMuon->Fill((tempCluster[j]).size());
@@ -524,15 +486,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
             mom_cls_GE11->Fill(muMomentum, (tempCluster[j]).size());
             deltaPhi_cls_GE11->Fill(deltaPhi, (tempCluster[j]).size());
           }
-/*
-station() 2 (ge21 short is deprecated)
-          if (gemId.station() == 2)
-          {
-            deltaPhi_GE21short->Fill(deltaPhi);
-            mom_cls_GE21short->Fill(muMomentum, (tempCluster[j]).size());
-            deltaPhi_cls_GE21short->Fill(deltaPhi, (tempCluster[j]).size());
-          }
-*/
           if (gemId.station() == 3)
           {
             deltaPhi_GE21long->Fill(deltaPhi);
@@ -551,7 +504,6 @@ station() 2 (ge21 short is deprecated)
   }        //end given detector
 }
 
-#endif
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE (GEMDigiSimLinkReader);
 

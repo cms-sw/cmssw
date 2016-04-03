@@ -1,7 +1,6 @@
 #ifndef GEMOBJECTS_GEMDIGISIMLINK_H
 #define GEMOBJECTS_GEMDIGISIMLINK_H
 
-#include "boost/cstdint.hpp"
 #include <map>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
