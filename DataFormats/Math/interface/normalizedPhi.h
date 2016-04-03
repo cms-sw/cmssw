@@ -23,10 +23,10 @@ bool checkPhiInRange(T phi, T phi1, T phi2) {
     constexpr T c1 = 2.*M_PI;
     phi1 = normalizedPhi(phi1);
     phi2 = proxim(phi2,phi1);
-    if (phi2<phi1) std::swap(phi1,phi2);
+    if (phi2<phi1) phi2+=c1;
     // phi & phi1 are in [-pi,pi] range...
     return ( (phi1 <= phi) & (phi <= phi2) )
-           || ( (phi1 <= phi-c1) & (phi-c1 <= phi2) )
+//           || ( (phi1 <= phi-c1) & (phi-c1 <= phi2) )
            || ( (phi1 <= phi+c1) & (phi+c1 <= phi2) );
 }
 

@@ -7,6 +7,8 @@ class PhiInterval {
 public:
   PhiInterval(float phi1, float phi2) {
     phi2 = proxim(phi2,phi1);
+    constexpr float c1 = 2.*M_PI;
+    if (phi2<phi1) phi2+=c1;
     auto dphi = 0.5f*(phi2-phi1);
     auto phi = phi1+dphi;
     x = std::cos(phi);
