@@ -19,12 +19,20 @@ class FastTrajectoryCleaner final : public TrajectoryCleaner {
   using	TempTrajectoryContainer = TrajectoryCleaner::TempTrajectoryContainer;
 
   FastTrajectoryCleaner() :
-    validHitBonus_(5.0),
-    missingHitPenalty_(20.0),
+    validHitBonus_(0.5f*5.0f),
+    missingHitPenalty_(20.0f),
     dismissSeed_(true){}
 
+
+  FastTrajectoryCleaner(float bonus, float penalty, bool noSeed=true) :
+    validHitBonus_(0.5f*bonus),
+    missingHitPenalty_(penalty),
+    dismissSeed_(noSeed){}
+
+
+
   FastTrajectoryCleaner(const edm::ParameterSet & iConfig) :
-    validHitBonus_(iConfig.getParameter<double>("ValidHitBonus")),
+    validHitBonus_(0.5*iConfig.getParameter<double>("ValidHitBonus")),
     missingHitPenalty_(iConfig.getParameter<double>("MissingHitPenalty")),
     dismissSeed_(iConfig.getParameter<bool>("dismissSeed")){}
 
@@ -35,7 +43,7 @@ class FastTrajectoryCleaner final : public TrajectoryCleaner {
   void clean(TrajectoryPointerContainer&) const override;
 
  private:
-  float validHitBonus_;
+  float validHitBonus_; // here per dof
   float missingHitPenalty_;
   bool dismissSeed_;
 };
