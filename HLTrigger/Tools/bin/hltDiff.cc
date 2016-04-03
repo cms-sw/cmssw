@@ -670,7 +670,7 @@ private:
       if (id < vars.label.size()) 
         return id;
       vars.label.push_back(labelName);
-      return vars.label.size();
+      return vars.label.size()-1;
     }
     
     unsigned int typeId(std::string typeName) {
@@ -678,7 +678,7 @@ private:
       if (id < vars.type.size()) 
         return id;
       vars.type.push_back(typeName);
-      return vars.type.size();
+      return vars.type.size()-1;
     }
 
 public:
@@ -778,7 +778,7 @@ public:
 
   JsonEventState eventState(State _s, int _m, const std::string& _l, const std::string& _t) {
     return JsonEventState(_s, _m, this->labelId(_l), this->typeId(_t));
-    }
+  }
 
   void write() {
     out_file.open(out_file_name, std::ofstream::out);
@@ -1103,7 +1103,7 @@ int main(int argc, char ** argv) {
   std::string               old_process("");
   std::vector<std::string>  new_files;
   std::string               new_process("");
-  unsigned int              max_events = 0;
+  unsigned int              max_events = 1e9;
   bool                      ignore_prescales = true;
   std::string               json_out("");
   bool                      file_check = false;
