@@ -153,7 +153,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // loop over BX
   for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
-    std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()));
+    std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
     std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>);
     std::auto_ptr< std::vector<CaloCluster> > localClusters (new std::vector<CaloCluster>);
     std::auto_ptr< std::vector<EGamma> > localMPEGammas (new std::vector<EGamma>);
