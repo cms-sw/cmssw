@@ -480,7 +480,7 @@ void GEMSegFit::setOutFromIP() {
   localdir_ = ( localDir ).unit();
 
   edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: globalZpos = "<<globalZpos<<" globalZdir = "<<globalZdir<<" [sign should be the same]";
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: directionSign = "<<directionSign<<" ==> local dir = "<<localdir_;
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] ::  ==> local dir = "<<localdir_<< " localdir.phi = "<<localdir_.phi();
 }
 
 
