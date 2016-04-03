@@ -24,7 +24,7 @@ bool checkPhiInRange(T phi, T phi1, T phi2) {
     phi2 = proxim(phi2,phi1);
     // phi & phi1 are in [-pi,pi] range...
     return ( (phi1 <= phi) && (phi <= phi2) ) ||
-           ( (phi1 <= phi+c1) && (phi+c1 <= phi2) );
+           ( (phi1 <= phi-c1) && (phi-c1 <= phi2) );
 }
 
 #endif
