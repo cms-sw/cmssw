@@ -55,6 +55,12 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
+  if (m_l1SeedsLogicalExpression == "") {
+
+    throw cms::Exception("FailModule") << "\nTrying to seed with an empty L1SeedsLogicalExpression.\n" << std::endl;
+
+  }
+
   // check also the logical expression - add/remove spaces if needed
   m_l1AlgoLogicParser = L1GtLogicParser(m_l1SeedsLogicalExpression);
 
@@ -420,9 +426,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         if(objMap == 0) {
 
-          edm::LogWarning("HLTL1TSeed") 
-          << " Warning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoName << " is present in the L1 menu\n" << std::endl;
 
         }
         else {
@@ -472,9 +478,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           // Should not get here
           //
-          edm::LogWarning("HLTL1TSeed")
-          << " Warning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoSeedName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoSeedName << " is present in the L1 menu\n" << std::endl;
 
       }
 
