@@ -17,7 +17,7 @@ void FastTrajectoryCleaner::clean( TempTrajectoryContainer & tc) const
     // count active degree of freedom
     int dof=0;
     for (auto const & im : pd) {
-      if(im.estimate()==0) continue;
+      if(dismissSeed_ & (im.estimate()==0)) continue;
       auto const & h = im.recHitR();
       if (!h.isValid()) continue;
       dof+=h.dimension();

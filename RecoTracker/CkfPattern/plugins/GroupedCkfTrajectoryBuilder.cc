@@ -224,25 +224,26 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
 
   TrajectoryContainer final;
 
+  // better the seed to be always the same...
+  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
+  if (result.empty())
+    sharedSeed.reset(new TrajectorySeed(seed));
+  else sharedSeed = result.front().sharedSeed();
+
+
   work.reserve(result.size());
-  for (TrajectoryContainer::iterator traj=result.begin();
-       traj!=result.end(); ++traj) {
-    if(traj->isValid()) work.push_back(TempTrajectory(std::move(*traj)));
-  }
+  for (auto && traj : result) 
+    if(traj.isValid()) work.emplace_back(std::move(traj));
+ 
 
   rebuildSeedingRegion(seed,startingTraj,work);
-  final.reserve(work.size());
 
-  // better the seed to be always the same... 
-  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
-  if (result.empty()) 
-    sharedSeed.reset(new TrajectorySeed(seed));
-   else sharedSeed = result.front().sharedSeed();
+   // we clean here now
+  FastTrajectoryCleaner cleaner(theFoundHitBonus,theLostHitPenalty,false);
+  cleaner.clean(work);
 
-
-  for (TempTrajectoryContainer::iterator traj=work.begin();
-       traj!=work.end(); ++traj) {
-    final.push_back(traj->toTrajectory()); final.back().setSharedSeed(sharedSeed);
+  for (auto const & it : work) if (it.isValid()) {
+    final.push_back( it.toTrajectory() ); final.back().setSharedSeed(sharedSeed);
   }
   
   result.swap(final);
@@ -275,9 +276,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   if ( work_.empty() )  return startingTraj;
 
   // cleaning now done here...
-
   FastTrajectoryCleaner cleaner(theFoundHitBonus,theLostHitPenalty);
-
   cleaner.clean(work_);
 
   boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
