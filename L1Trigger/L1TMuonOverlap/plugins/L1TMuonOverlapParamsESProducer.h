@@ -26,14 +26,13 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
    private:
 
       ///Read Golden Patters from single XML file.
-      bool readPatternsXML(XMLConfigReader *aReader);
+      ///XMLConfigReader  state is modified, as it hold
+      ///cache of the Golden Patters read from XML file.
+      bool readPatternsXML(XMLConfigReader  & aReader);
 
       ///Read Connections from single XML file.
-      bool readConnectionsXML(XMLConfigReader *aReader);
+      bool readConnectionsXML(const XMLConfigReader & aReader);
 
       L1TMuonOverlapParams m_params;
-
-      OMTFConfiguration *myOMTFConfig;
-
 };
 

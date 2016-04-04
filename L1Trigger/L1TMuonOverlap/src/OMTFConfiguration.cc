@@ -52,14 +52,6 @@ OMTFConfiguration::OMTFConfiguration(const edm::ParameterSet & theConfig){
 
   latest_instance_ = this;
 
-  if(theConfig.getParameter<bool>("configFromXML")){  
-    if (!theConfig.exists("configXMLFile") ) return;
-    std::string fName = theConfig.getParameter<edm::FileInPath>("configXMLFile").fullPath();
-
-    XMLConfigReader myReader(this);
-    myReader.setConfigFile(fName);
-    configure(&myReader);
-  }
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -79,14 +71,6 @@ void OMTFConfiguration::initCounterMatrices(){
   ///Vector of all processors
   measurements4D.assign(nProcessors,aLayer3D);
   measurements4Dref.assign(nProcessors,aLayer3D);
-}
-///////////////////////////////////////////////
-///////////////////////////////////////////////
-void OMTFConfiguration::configure(XMLConfigReader *aReader){
-
- aReader->readConfig(this);
- initCounterMatrices();
-
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
