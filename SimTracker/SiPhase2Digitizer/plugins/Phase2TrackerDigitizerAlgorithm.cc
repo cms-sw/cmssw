@@ -204,17 +204,17 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit,
     << hit.particleType() 
     << " " << hit.pabs();
 
-  std::vector<float> elossVector(NumberOfSegments,0);  // Eloss vector
-
+  std::vector<float> elossVector;  // Eloss vector
+  elossVector.reserve(NumberOfSegments);
   if (fluctuateCharge) {
     int pid = hit.particleType();
     // int pid=211;  // assume it is a pion
-
+    
     float momentum = hit.pabs();
     // Generate fluctuated charge points
     fluctuateEloss(pid, momentum, eLoss, length, NumberOfSegments, elossVector);
   }
-  ionization_points.resize(NumberOfSegments); // set size
+  ionization_points.reserve(NumberOfSegments); // set size
 
   // loop over segments
   for (int i = 0; i != NumberOfSegments; ++i) {
@@ -226,8 +226,7 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit,
       energy = hit.energyLoss()/GeVperElectron/float(NumberOfSegments);
 
     DigitizerUtility::EnergyDepositUnit edu(energy, point); // define position,energy point
-    ionization_points[i] = edu; // save
-
+    ionization_points.push_back(edu); // save
     LogDebug("Phase2TrackerDigitizerAlgorithm")
       << i << " " << ionization_points[i].x() << " "
       << ionization_points[i].y() << " "
@@ -292,6 +291,7 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
     float averageEloss = eloss/NumberOfSegs;
     for (int ii = 0; ii < NumberOfSegs; ++ii) elossVector[ii] = averageEloss;
   }
+
 }
 
 // ======================================================================
