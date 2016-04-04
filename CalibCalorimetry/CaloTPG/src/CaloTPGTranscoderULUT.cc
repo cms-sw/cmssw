@@ -19,9 +19,10 @@ using namespace std;
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)
                                                 : theTopology(0),
-                                                  nominal_gain_(0.), lsb_factor_(0.), rct_factor_(0), nct_factor_(0),
+                                                  nominal_gain_(0.), lsb_factor_(0.), rct_factor_(1.), nct_factor_(1.),
                                                   compressionFile_(compressionFile),
-                                                  decompressionFile_(decompressionFile)
+                                                  decompressionFile_(decompressionFile),
+						  size(0)
 {
   outputLUT_.clear();
 }
@@ -46,8 +47,8 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
 	analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
-	linearRctLUT[i] = min(i/rct_factor_, TPGMAX - 1);
-	linearNctLUT[i] = min(i/nct_factor_, TPGMAX - 1);
+	linearRctLUT[i] = min((unsigned int)(i/rct_factor_), TPGMAX - 1);
+	linearNctLUT[i] = min((unsigned int)(i/nct_factor_), TPGMAX - 1);
     }
  
     std::vector<DetId> allChannels = lutMetadata.getAllChannels();
@@ -66,9 +67,10 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
 	unsigned int index = getOutputLUTId(id); 
 
-	if(index >= outputLUT_.size()){
-	    outputLUT_.resize(index+1);
-	    hcaluncomp_.resize(index+1);
+	if(index >= size){
+	    size=index+1;
+	    outputLUT_.resize(size);
+	    hcaluncomp_.resize(size);
 	}
 
 	const HcalLutMetadatum *meta = lutMetadata.getValues(id);
@@ -121,11 +123,15 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 }
 
 HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const {
-  int itower = getOutputLUTId(id);
+  unsigned int itower = getOutputLUTId(id);
 
   if (sample >= OUTPUT_LUT_SIZE) {
     throw cms::Exception("Out of Range") << "LUT has 1024 entries for " << itower << " but " << sample << " was requested.";
     sample=OUTPUT_LUT_SIZE - 1;
+  }
+
+  if(itower >= size){
+    throw cms::Exception("Out of Range") << "No decompression LUT found for " << id;
   }
 
   return HcalTriggerPrimitiveSample(outputLUT_[itower][sample],fineGrain,0,0);
