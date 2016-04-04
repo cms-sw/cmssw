@@ -319,6 +319,7 @@ HLT_TripleMu_12_10_5_v*						# JIRA: CMSHLT-147
 HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v*			# JIRA: CMSHLT-147, CMSHLT-331
 HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-147, CMSHLT-331
 HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-147, CMSHLT-331
+HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-722
 
 HLT_Ele27_HighEta_Ele20_Mass55_v*				# JIRA: CMSHLT-712
 
@@ -518,8 +519,6 @@ HLT_IsoTkMu22_v*						# JIRA: CMSHLT-588
 HLT_OldIsoMu18_v*						# JIRA: CMSHLT-591
 HLT_OldIsoTkMu18_v*						# JIRA: CMSHLT-591
 
-HLT_FullTrack12ForEndOfFill_v*					# JIRA: CMSHLT-486
-HLT_FullTrack50_v*						# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity60ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity85ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486
@@ -547,11 +546,6 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 
 HLT_L1SingleMu16_v*						# JIRA: CMSHLT-500
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
-
-#HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496, removed by CMSHLT-715
-#HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496, removed by CMSHLT-715
-#HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496, removed by CMSHLT-715
-#HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496, removed by CMSHLT-715
 
 HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
 
