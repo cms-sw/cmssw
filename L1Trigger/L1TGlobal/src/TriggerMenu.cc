@@ -65,6 +65,7 @@ TriggerMenu::TriggerMenu(
 {
 
     m_conditionMap.resize(numberConditionChips);
+    m_triggerMenuUUID = 0;
     buildGtConditionMap();
 
 }
@@ -77,6 +78,7 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs)
     m_triggerMenuName = rhs.m_triggerMenuName;
     m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
     m_scaleDbKey = rhs.m_scaleDbKey ;
+    m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
     // copy physics conditions
     m_vecMuonTemplate = rhs.m_vecMuonTemplate;
@@ -128,6 +130,7 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
         m_triggerMenuInterface = rhs.m_triggerMenuInterface;
         m_triggerMenuName = rhs.m_triggerMenuName;
         m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
+	m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
         m_vecMuonTemplate = rhs.m_vecMuonTemplate;
         m_vecCaloTemplate = rhs.m_vecCaloTemplate;
@@ -313,6 +316,11 @@ void TriggerMenu::setGtTriggerMenuName(const std::string& menuName) {
 void TriggerMenu::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
     m_triggerMenuImplementation = menuImplementation;
 }
+
+void TriggerMenu::setGtTriggerMenuUUID(const int uuid) {
+    m_triggerMenuUUID = uuid;
+}
+
 
 // set menu associated scale key
 void TriggerMenu::setGtScaleDbKey(const std::string& scaleKey) {

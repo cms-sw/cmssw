@@ -106,6 +106,11 @@ void l1t::TriggerMenuParser::setGtTriggerMenuInterface(const std::string& menuIn
     m_triggerMenuInterface = menuInterface;
 }
 
+// set the trigger menu uuid
+void l1t::TriggerMenuParser::setGtTriggerMenuUUID(const int uuid) {
+    m_triggerMenuUUID = uuid;
+}
+
 void l1t::TriggerMenuParser::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
@@ -219,6 +224,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_triggerMenuImplementation = menu->getFirmwareUuid(); //BLW: correct descriptor?
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
+  m_triggerMenuUUID = 0x1; //Need to get method in utm lib.
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();

@@ -95,6 +95,14 @@ public:
     void setGtTriggerMenuName(const std::string&);
 
     //
+    inline const int gtTriggerMenuUUID() const {
+       return m_triggerMenuUUID;
+    }
+    
+    void setGtTriggerMenuUUID(const int uuid);
+
+
+    //
     inline const std::string& gtTriggerMenuImplementation() const {
         return m_triggerMenuImplementation;
     }
@@ -230,6 +238,8 @@ private:
     std::string m_triggerMenuInterface;
     std::string m_triggerMenuName;
     std::string m_triggerMenuImplementation;
+    
+    int m_triggerMenuUUID;
 
     /// menu associated scale key
     std::string m_scaleDbKey;

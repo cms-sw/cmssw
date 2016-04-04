@@ -113,8 +113,8 @@ public:
      /// Fill the Daq Records
      void fillAlgRecord(int iBxInEvent, 
                         std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
-			cms_uint64_t orbNr,
-			int bxNr);
+			int prescaleSet,
+			int menuUUID);
 
 
     /// clear uGT
