@@ -10,7 +10,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
 hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
 hltDtCalibTest = copy.deepcopy(hltHighLevel)
-hltDtCalibTest.HLTPaths = ['HLT_Mu40_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
+hltDtCalibTest.HLTPaths = ['HLT_Mu50_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
 hltDTCalibration = copy.deepcopy(hltHighLevel)
 hltDTCalibration.HLTPaths = ['HLT_DTCalibration_v*']
 

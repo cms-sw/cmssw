@@ -8,6 +8,8 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
+ *  $Date: 2012/04/10 17:55:08 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -111,4 +113,3 @@ private:
   edm::ESHandle<DTGeometry> dtGeom;
 };
 #endif
-

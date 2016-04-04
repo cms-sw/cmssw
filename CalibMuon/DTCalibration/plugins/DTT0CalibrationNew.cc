@@ -1,6 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
+ *  $Date: 2012/05/11 17:17:17 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -17,8 +19,8 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 
-#include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
 #include "TH1I.h"
 #include "TFile.h"
@@ -277,9 +279,9 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
       //int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"goff",0.3);
       int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"",0.3);
 
-      double *peaks = spectrum->GetPositionX();
+      double *peaks = spectrum->GetPositionX();	
       //Put in a std::vector<float>
-      vector<float> peakMeans(peaks,peaks + npeaks);
+      vector<double> peakMeans(peaks,peaks + npeaks);
       //Sort the peaks in ascending order
       sort(peakMeans.begin(),peakMeans.end());
 				
@@ -287,28 +289,28 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
       float tTrig,tTrigRMS, kFactor;
       tTrigMap->get((*lHisto).first.superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
-      float timeBoxCenter = (2*tTrig + (float)timeBoxWidth)/2.;	
-      float hMin = (*lHisto).second->GetXaxis()->GetXmin();
-      float hMax = (*lHisto).second->GetXaxis()->GetXmax();		
-      vector<float>::const_iterator tpPeak = peakMeans.end();
-      for(vector<float>::const_iterator it = peakMeans.begin(); it != peakMeans.end(); ++it){
-	float mean = *it;
+      double timeBoxCenter = (2*tTrig + (float)timeBoxWidth)/2.;	
+      double hMin = (*lHisto).second->GetXaxis()->GetXmin();
+      double hMax = (*lHisto).second->GetXaxis()->GetXmax();		
+      vector<double>::const_iterator tpPeak = peakMeans.end();
+      for(vector<double>::const_iterator it = peakMeans.begin(); it != peakMeans.end(); ++it){
+	double mean = *it;
 
 	int bin = (*lHisto).second->GetXaxis()->FindBin(mean);
-	float yp = (*lHisto).second->GetBinContent(bin);
+	double yp = (*lHisto).second->GetBinContent(bin);
 	if(debug) cout << "Peak : (" << mean << "," << yp << ")" << endl; 
 
 	//Find RMS
-	float previous_peak = (it == peakMeans.begin())?hMin:*(it - 1);
-        float next_peak = (it == (peakMeans.end()-1))?hMax:*(it + 1);
+	double previous_peak = (it == peakMeans.begin())?hMin:*(it - 1);
+        double next_peak = (it == (peakMeans.end()-1))?hMax:*(it + 1);
 
-	float rangemin = mean - (mean - previous_peak)/8.;
-        float rangemax = mean + (next_peak - mean)/8.;
+	double rangemin = mean - (mean - previous_peak)/8.;
+        double rangemax = mean + (next_peak - mean)/8.;
 	int binmin = (*lHisto).second->GetXaxis()->FindBin(rangemin);
 	int binmax = (*lHisto).second->GetXaxis()->FindBin(rangemax);
 	(*lHisto).second->GetXaxis()->SetRange(binmin,binmax);
 	//RMS estimate
-	float rms_seed = (*lHisto).second->GetRMS();
+	double rms_seed = (*lHisto).second->GetRMS();
 
 	/*rangemin = mean - 2*rms_seed;
 	rangemax = mean + 2*rms_seed;
@@ -320,7 +322,6 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 	TF1* func = new TF1(funcname.c_str(),"gaus",rangemin,rangemax);
 	func->SetParameters(yp,mean,rms_seed);
 	(*lHisto).second->Fit(func,"Q","",rangemin,rangemax);
-
 	float fitconst = func->GetParameter(0);
 	float fitmean = func->GetParameter(1);
 	float fitrms = func->GetParameter(2);
@@ -342,7 +343,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 	} 
       }*/
 
-      float selPeak = (tpPeak != peakMeans.end())?*tpPeak:(*lHisto).second->GetBinCenter((*lHisto).second->GetMaximumBin());		
+      double selPeak = (tpPeak != peakMeans.end())?*tpPeak:(*lHisto).second->GetBinCenter((*lHisto).second->GetMaximumBin());		
       if(debug) cout << "Peak selected at " << selPeak << endl;
 	
       theTPPeakMap[(*lHisto).first] = selPeak;
@@ -376,7 +377,6 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
       //}
       if(debug)
 	cout<<endl;
-
       theT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetMean();
       theSigmaT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetRMS();*/
     }
@@ -446,9 +446,9 @@ void DTT0CalibrationNew::endJob() {
 
   ///Loop on superlayer to correct between even-odd layers (2 different test pulse lines!)
   // Get all the sls from the setup
-  const vector<const DTSuperLayer*>& superLayers = dtGeom->superLayers();     
+  const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();     
   // Loop over all SLs
-  for(auto  sl = superLayers.begin();
+  for(vector<const DTSuperLayer*>::const_iterator  sl = superLayers.begin();
       sl != superLayers.end(); sl++) {
 
   

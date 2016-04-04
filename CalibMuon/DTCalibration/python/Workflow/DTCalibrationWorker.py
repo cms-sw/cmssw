@@ -9,6 +9,7 @@ from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegme
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerCalibration import DTVDriftMeanTimerCalibration
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerWriter import DTVDriftMeanTimerWriter
 from CalibMuon.DTCalibration.Workflow.DTNoiseCalibration import DTNoiseCalibration
+from CalibMuon.DTCalibration.Workflow.DTT0WireCalibration import DTT0WireCalibration
 from CalibMuon.DTCalibration.Workflow.DTDQMValidation import DTDQMValidation
 from CalibMuon.DTCalibration.Workflow.DTDQMMerge import DTDQMMerge
 from CalibMuon.DTCalibration.Workflow.DTDQMHarvesting import DTDQMHarvesting
@@ -661,8 +662,44 @@ class DTCalibrationWorker:
     # t0 workflow
     ############################################################
     def runT0Workflow(self,mode,run,config,execute=True):
+        print "Processing T0 calibration"
+        trial = config.trial
+        #runselection = config.runselection
+        result_dir = config.result_dir
+        #result_file = os.path.abspath(result_dir + '/' + 'dtT0_' + run + '.root') #TODO!
+        t0_db = os.path.abspath(result_dir + '/' + 't0_' + run + '.db')
+        datasetstr = getDatasetStr(config.datasetpath)
+        config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/T0Calibration/' + 'v' + str(trial)
+        task_dir = config.base_dir + '/T0Calib'
 
-	return 0
+        dtT0WireCalibration = DTT0WireCalibration(run=run, dir=task_dir, config=config)
+        if not execute:
+            dtT0WireCalibration.writeCfg()
+            sys.exit(0)
+        else:
+            dtT0WireCalibration.writeCfg()
+            project_t0 = dtT0WireCalibration.run()
+
+            print "Sent calibration jobs with project", project_t0
+            print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+            crabT0Calibration = CrabWatch(project_t0)
+            crabT0Calibration.setThreshold(config.jobsFinishedThreshold)
+            crabT0Calibration.start()
+            crabT0Calibration.join()
+
+            if config.stageOutLocal:
+                crab_output_dir = project_t0 + "/res"
+                retcode = copyFilesLocal(crab_output_dir,result_dir + "/DTTestPulses.root",'DTTestPulses')
+                retcode = copyFilesLocal(crab_output_dir,result_dir + "/DQM.root",'DQM')
+                retcode = copyFilesLocal(crab_output_dir,result_dir + "/t0.db",'.db')
+            elif config.stageOutCAF:
+                castor_dir = config.castorpath + "/" + config.userdircaf
+                retcode = copyFilesFromCastor(castor_dir,result_dir,'DTTestPulses')
+                retcode = copyFilesFromCastor(castor_dir,result_dir,'DQM')
+                retcode = copyFilesFromCastor(castor_dir,result_dir,'.db')
+
+        return 0
 
     ############################################################ 
     # Validation workflow

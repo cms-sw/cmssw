@@ -1,6 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
+ *  $Date: 2012/05/11 17:17:17 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -278,7 +280,8 @@ void DTT0Calibration::endJob() {
     cout << "[DTT0CalibrationPerLayer]Writing histos to file!" << endl;
 
   theFile->cd();
-  hT0SectorHisto->Write();
+  theFile->WriteTObject(hT0SectorHisto);
+  //hT0SectorHisto->Write();
   for(map<DTWireId, TH1I*>::const_iterator wHisto = theHistoWireMap.begin();
       wHisto != theHistoWireMap.end();
       ++wHisto) {
@@ -326,7 +329,7 @@ void DTT0Calibration::endJob() {
      // Get all the sls from the setup
      const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();     
      // Loop over all SLs
-     for(auto  sl = superLayers.begin();
+     for(vector<const DTSuperLayer*>::const_iterator  sl = superLayers.begin();
 	   sl != superLayers.end(); sl++) {
 
 
@@ -498,4 +501,3 @@ string DTT0Calibration::getHistoName(const DTLayerId& lId) const {
   theStream >> histoName;
   return histoName;
 }
-
