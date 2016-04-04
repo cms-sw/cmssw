@@ -460,7 +460,7 @@ namespace {
   template<typename T>
   std::shared_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
     edm::ParameterSet pset;
-    std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
+    std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue = std::make_shared<edm::stream::EDProducerAdaptor<T>>(pset);
     edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue,nullptr);
     h.preallocate(edm::PreallocationConfiguration{});
     return retValue;

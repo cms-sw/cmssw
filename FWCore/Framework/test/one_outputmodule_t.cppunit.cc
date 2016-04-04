@@ -369,7 +369,7 @@ void testOneOutputModule::basicTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
+  auto testProd = std::make_shared<BasicOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
@@ -381,7 +381,7 @@ void testOneOutputModule::runTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<RunOutputModule> testProd{ new RunOutputModule(pset) };
+  auto testProd = std::make_shared<RunOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
@@ -393,7 +393,7 @@ void testOneOutputModule::lumiTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<LumiOutputModule> testProd{ new LumiOutputModule(pset) };
+  auto testProd = std::make_shared<LumiOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
@@ -405,7 +405,7 @@ void testOneOutputModule::fileTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<FileOutputModule> testProd = std::make_shared<FileOutputModule>(pset);
+  auto testProd = std::make_shared<FileOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
@@ -417,7 +417,7 @@ void testOneOutputModule::resourceTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
+  auto testProd = std::make_shared<ResourceOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
