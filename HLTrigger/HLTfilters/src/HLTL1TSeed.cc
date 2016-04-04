@@ -52,20 +52,35 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   m_l1EtSumCollectionsTag(parSet.getParameter<edm::InputTag>("L1EtSumInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1EtSumTag(m_l1EtSumCollectionsTag),
   m_l1EtSumToken(consumes<l1t::EtSumBxCollection>(m_l1EtSumTag)),
+  m_l1GlobalDecision(false),
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
-  // check also the logical expression - add/remove spaces if needed
-  m_l1AlgoLogicParser = L1GtLogicParser(m_l1SeedsLogicalExpression);
+  if (m_l1SeedsLogicalExpression == "") {
 
-  // list of required algorithms for seeding
-  // dummy values for tokenNumber and tokenResult
-  m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
-  m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
-  size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
+    throw cms::Exception("FailModule") << "\nTrying to seed with an empty L1SeedsLogicalExpression.\n" << std::endl;
 
-  m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
-  m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
+  }
+  else if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
+
+    // check also the logical expression - add/remove spaces if needed
+    m_l1AlgoLogicParser = L1GtLogicParser(m_l1SeedsLogicalExpression);
+
+    // list of required algorithms for seeding
+    // dummy values for tokenNumber and tokenResult
+    m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
+    m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
+    size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
+
+    m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
+    m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
+
+  } 
+  else {
+
+    m_l1GlobalDecision = true;
+
+  }
 
 }
 
@@ -397,8 +412,19 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     }
 
+    // Filter decision in case of "L1GlobalDecision" logical expression.
+    // By convention, it means global decision.
+    // /////////////////////////////////////////////////////////////////
+    if (m_l1GlobalDecision) {
+
+      // For bx=0 , get 0th AlgoBlock, so in BXvector at(bx=0,i=0)
+      return (uGtAlgoBlocks->at(0,0)).getFinalOR();
+
+    }
+
+
     // Update/Reset m_l1AlgoLogicParser by reseting token result 
-    //
+    // /////////////////////////////////////////////////////////
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
@@ -411,7 +437,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // Update m_l1AlgoLogicParser and store emulator results for algOpTokens 
-    //
+    // /////////////////////////////////////////////////////////////////////
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
 
         std::string algoName = (algOpTokenVector[i]).tokenName;
@@ -420,9 +446,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         if(objMap == 0) {
 
-          edm::LogWarning("HLTL1TSeed") 
-          << " Warning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoName << " is present in the L1 menu\n" << std::endl;
 
         }
         else {
@@ -438,7 +464,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // Filter decision 
-    //
+    // ///////////////
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
 
     if (m_isDebugEnabled ) {
@@ -448,12 +474,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         << "\n  Result for logical expression after update of algOpTokens: " << seedsResult << "\n"
         << std::endl;
     }
-
-
-    // TODO check that the L1GlobalTriggerObjectMapRecord corresponds to the same menu as
-    // the menu run by HLTL1TSeed.  True normally online (they are run in the same job)
-    // can be false offline, when re-running HLT without re-running the object map producer
-    //
 
     /// Loop over the list of required algorithms for seeding
     /// /////////////////////////////////////////////////////
@@ -472,9 +492,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           // Should not get here
           //
-          edm::LogWarning("HLTL1TSeed")
-          << " Warning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoSeedName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoSeedName << " is present in the L1 menu\n" << std::endl;
 
       }
 
