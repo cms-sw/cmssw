@@ -43,23 +43,23 @@ namespace l1t {
       void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits;  };
 
-      const int CRC22()          const { return  crc22 ; };
-      const int LP()             const { return  lp ; };
-      const int HP()             const { return  hp ; };
-      const int DDCRC_bid()      const { return  ddcsr_bid ; };
-      const int DDCRC_lf()       const { return  ddcsr_lf ; };
-      const int SPCSR_scc()      const { return  spcsr_scc ; };
-      const int L1a()            const { return  l1a ; };
-      const int YY()             const { return  yy ; };
-      const int MM()             const { return  mm ; };
-      const int DD()             const { return  dd ; };
-      const int SP_ladr()        const { return  sp_ladr ; };
-      const int SP_ersv()        const { return  sp_ersv ; };
-      const int SP_padr()        const { return  sp_padr ; };
-      const int LFFF()           const { return  lfff ; };
-      const int BB()             const { return  bb ; };
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword;  };      
+      const int CRC22()          { return  crc22 ; };
+      const int LP()             { return  lp ; };
+      const int HP()             { return  hp ; };
+      const int DDCRC_bid()      { return  ddcsr_bid ; };
+      const int DDCRC_lf()       { return  ddcsr_lf ; };
+      const int SPCSR_scc()      { return  spcsr_scc ; };
+      const int L1a()            { return  l1a ; };
+      const int YY()             { return  yy ; };
+      const int MM()             { return  mm ; };
+      const int DD()             { return  dd ; };
+      const int SP_ladr()        { return  sp_ladr ; };
+      const int SP_ersv()        { return  sp_ersv ; };
+      const int SP_padr()        { return  sp_padr ; };
+      const int LFFF()           { return  lfff ; };
+      const int BB()             { return  bb ; };
+      const int Format_Errors()  { return format_errors; };
+      const uint64_t Dataword()  { return dataword;  };      
       
     private:
       int  crc22;

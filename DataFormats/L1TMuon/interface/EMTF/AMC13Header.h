@@ -42,19 +42,19 @@ namespace l1t {
       void add_format_error()         { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits; };
       
-      const int ORN()         const { return  orn ; };
-      const int LV1_id()      const { return  lv1_id ; };
-      const int BX_id()       const { return  bx_id ; };
-      const int Source_id()   const { return  source_id ; };
-      const int Evt_ty()      const { return  evt_ty ; };
-      const int FOV()         const { return  fov ; };
-      const int UFOV()        const { return  ufov ; };
-      const int Res()         const { return  res ; };
-      const int Namc()        const { return  namc ; };
-      const int H()           const { return  h ; };
-      const int X()           const { return  x ; };
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword; };
+      const int ORN()         { return  orn ; };
+      const int LV1_id()      { return  lv1_id ; };
+      const int BX_id()       { return  bx_id ; };
+      const int Source_id()   { return  source_id ; };
+      const int Evt_ty()      { return  evt_ty ; };
+      const int FOV()         { return  fov ; };
+      const int UFOV()        { return  ufov ; };
+      const int Res()         { return  res ; };
+      const int Namc()        { return  namc ; };
+      const int H()           { return  h ; };
+      const int X()           { return  x ; };
+      const int Format_Errors()  { return format_errors; };
+      const uint64_t Dataword()  { return dataword; };
       
     private:
       int  orn;

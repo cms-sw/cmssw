@@ -38,18 +38,18 @@ namespace l1t {
       void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits;  };
 
-      const int PRT_delay()      const { return  prt_delay ; };
-      const int Partition_num()  const { return  partition_num ; };
-      const int Partition_data() const { return  partition_data ; };
-      const int BCN()            const { return  bcn ; };
-      const int LB()             const { return  lb ; };
-      const int Link_number()    const { return  link_number ; };
-      const int BXN()            const { return  bxn ; };
-      const int Tbin()           const { return  tbin ; };
-      const int EOD()            const { return  eod ; };
-      const int BC0()            const { return  bc0 ; };      
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword;  };      
+      const int PRT_delay()      { return  prt_delay ; };
+      const int Partition_num()  { return  partition_num ; };
+      const int Partition_data() { return  partition_data ; };
+      const int BCN()            { return  bcn ; };
+      const int LB()             { return  lb ; };
+      const int Link_number()    { return  link_number ; };
+      const int BXN()            { return  bxn ; };
+      const int Tbin()           { return  tbin ; };
+      const int EOD()            { return  eod ; };
+      const int BC0()            { return  bc0 ; };      
+      const int Format_Errors()  { return format_errors; };
+      const uint64_t Dataword()  { return dataword;  };      
       
     private:
       int  prt_delay;

@@ -38,15 +38,15 @@ namespace l1t {
       void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits;    };
 
-      const int AMC_number()     const { return  amc_number ; };
-      const int BX_id()          const { return  bx_id ; };
-      const int Orbit_number()   const { return  orbit_number ; };
-      const int Board_id()       const { return  board_id ; };
-      const int LV1_id()         const { return  lv1_id ; };
-      const int Data_length()    const { return  data_length ; };
-      const int User_id()        const { return  user_id ; };   
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword; };
+      const int AMC_number()     { return  amc_number ; };
+      const int BX_id()          { return  bx_id ; };
+      const int Orbit_number()   { return  orbit_number ; };
+      const int Board_id()       { return  board_id ; };
+      const int LV1_id()         { return  lv1_id ; };
+      const int Data_length()    { return  data_length ; };
+      const int User_id()        { return  user_id ; };   
+      const int Format_Errors()  { return format_errors; };
+      const uint64_t Dataword()  { return dataword; };
       
     private:
       int  amc_number;
