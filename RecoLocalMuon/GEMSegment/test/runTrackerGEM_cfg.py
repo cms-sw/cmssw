@@ -7,10 +7,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
-process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -18,17 +16,16 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 #process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
-#process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
+process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
 process.load('RecoLocalMuon.GEMRecHit.gemLocalReco_cff')
-process.load('RecoLocalMuon.GEMSegment.trackerGEM_cfi')
+#process.load('RecoLocalMuon.GEMSegment.trackerGEM_cfi')
 
 ## process.MessageLogger.categories.append("GEMSegment")
 ## process.MessageLogger.categories.append("GEMSegmentBuilder")
@@ -43,17 +40,13 @@ process.source = cms.Source("PoolSource",
         #'/store/mc/TP2023HGCALDR/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/GEN-SIM-RECO/HGCALForMUO_PU140BX25_newsplit_PH2_1K_FB_V6-v2/20000/06E993BA-E531-E511-9803-008CFA0A57E4.root'
         #/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6/TP2023HGCALDR-HGCALnewsplit_PU140BX25_newsplitPU140_PH2_1K_FB_V6-v1/GEN-SIM-RECO
         #'file:/afs/cern.ch/user/j/jlee/work/00E21A91-B9F9-E411-9107-00266CFADEC0.root'
-        #'file:out_reco.root'
-        #'file:/cms/scratch/jskim/cmssw/CMSSW_8_1_0_pre1/src/work/out_reco.root'
-        'file:/cms/scratch/jskim/cmssw/CMSSW_8_1_0_pre1/src/work/out_reco.root'
-    ),
-    duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    skipBadFiles = cms.untracked.bool(True),
+	'file:out_digi.root'
+    )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(
-        'file:out_reco_trackerGEM.root'
+        'file:out_reco.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
@@ -62,7 +55,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 #process.reco_step    = cms.Path(process.gemSegments*process.trackerGEM)
-process.reco_step    = cms.Path(process.gemLocalReco*process.trackerGEM)
+process.reco_step    = cms.Path(process.gemLocalReco)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 
@@ -71,3 +64,4 @@ process.schedule = cms.Schedule(
     process.endjob_step,
     process.out_step
 )
+
