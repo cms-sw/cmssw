@@ -3,16 +3,12 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-
 #include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 
 #include <iomanip>
 
@@ -51,6 +47,16 @@ namespace ecaldqm
     if(runOnEmul_) _dependencies.push_back(Dependency(kTrigPrimEmulDigi, kEBDigi, kEEDigi, kTrigPrimDigi));
   }
 
+ void
+  TrigPrimTask::beginRun(edm::Run const&, edm::EventSetup const& _es)
+  {
+    // Read-in Status records:
+    // Status records stay constant over run so they are read-in only once here
+    // but filled by LS in runOnRealTPs() because MEs are not yet booked at beginRun()
+    _es.get<EcalTPGTowerStatusRcd>().get( TTStatusRcd );
+    _es.get<EcalTPGStripStatusRcd>().get( StripStatusRcd );
+  }
+
   void
   TrigPrimTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&  _es)
   {
@@ -66,14 +72,14 @@ namespace ecaldqm
     int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
 
-    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
-    _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd);
-    const EcalTPGTowerStatus * TTStatus=TTStatusRcd.product();
+    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
+    _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd_);
+    const EcalTPGTowerStatus * TTStatus=TTStatusRcd_.product();
     const EcalTPGTowerStatusMap &towerMap=TTStatus->getMap();
 
-    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
-    _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd);
-    const EcalTPGStripStatus * StripStatus=StripStatusRcd.product();
+    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd_;
+    _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd_);
+    const EcalTPGStripStatus * StripStatus=StripStatusRcd_.product();
     const EcalTPGStripStatusMap &stripMap=StripStatus->getMap();
 
     MESet& meTTMaskMap(MEs_.at("TTMaskMap"));
@@ -83,7 +89,7 @@ namespace ecaldqm
        if ((*ttItr).second > 0)
        {
          const EcalTrigTowerDetId  ttid((*ttItr).first);
-         if(ttid.subDet() == EcalBarrel)
+         //if(ttid.subDet() == EcalBarrel)
             meTTMaskMap.fill(ttid,1);
        }//masked   
     }//loop on towers
@@ -93,7 +99,7 @@ namespace ecaldqm
        if ((*stItr).second > 0)
        {
          const EcalElectronicsId stid((*stItr).first);
-         if(stid.subdet() == EcalEndcap);
+         //if(stid.subdet() == EcalEndcap);
             meTTMaskMap.fill(stid,1);
        }//masked   
     }//loop on pseudo-strips
@@ -175,6 +181,7 @@ namespace ecaldqm
     MESet& meMedIntMap(MEs_.at("MedIntMap"));
     MESet& meHighIntMap(MEs_.at("HighIntMap"));
     MESet& meTTFlags(MEs_.at("TTFlags"));
+    MESet& meTTFlags4( MEs_.at("TTFlags4") );
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
 
@@ -216,16 +223,49 @@ namespace ecaldqm
         break;
       }
 
-      meTTFlags.fill(ttid, float(tpItr->ttFlag()));
+      // Fill TT Flag MEs
+      float ttF( tpItr->ttFlag() );
+      meTTFlags.fill( ttid, ttF );
+      // Monitor occupancy of TTF=4
+      // which contains info about TT auto-masking
+      if ( ttF == 4. )
+        meTTFlags4.fill( ttid );
 
       if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);
     }
 
-    meOccVsBx.fill(EcalBarrel, bxBin_, nTP[0]);
+    meOccVsBx.fill( EcalBarrel, bxBin_, nTP[0]);
     meOccVsBx.fill(-EcalEndcap, bxBin_, nTP[1]);
-    meOccVsBx.fill(EcalEndcap, bxBin_, nTP[2]);
-  }
+    meOccVsBx.fill( EcalEndcap, bxBin_, nTP[2]);
+
+    // Set TT/Strip Masking status in Ecal3P view
+    // Status Records are read-in at beginRun() but filled here
+    // Requestied by ECAL Trigger in addition to TTMaskMap plots in SM view
+    MESet& meTTMaskMapAll(MEs_.at("TTMaskMapAll"));
+
+    // Fill from TT Status Rcd
+    const EcalTPGTowerStatus *TTStatus( TTStatusRcd.product() );
+    const EcalTPGTowerStatusMap &TTStatusMap( TTStatus->getMap() );
+    for( EcalTPGTowerStatusMap::const_iterator ttItr(TTStatusMap.begin()); ttItr != TTStatusMap.end(); ++ttItr ){
+      const EcalTrigTowerDetId ttid( ttItr->first );
+      if ( ttItr->second > 0 )
+        meTTMaskMapAll.setBinContent( ttid,1 ); // TT is masked
+    } // TTs
+
+    // Fill from Strip Status Rcd
+    const EcalTPGStripStatus *StripStatus( StripStatusRcd.product() );
+    const EcalTPGStripStatusMap &StripStatusMap( StripStatus->getMap() );
+    for( EcalTPGStripStatusMap::const_iterator stItr(StripStatusMap.begin()); stItr != StripStatusMap.end(); ++stItr ){
+      const EcalTriggerElectronicsId stid( stItr->first );
+      // Since ME has kTriggerTower binning, convert to EcalTrigTowerDetId first
+      // In principle, setBinContent() could be implemented for EcalTriggerElectronicsId class as well
+      const EcalTrigTowerDetId ttid( getElectronicsMap()->getTrigTowerDetId(stid.tccId(), stid.ttId()) );
+      if ( stItr->second > 0 )
+        meTTMaskMapAll.setBinContent( ttid,1 ); // PseudoStrip is masked
+    } // PseudoStrips
+
+  } // TrigPrimTask::runOnRealTPs()
 
   void
   TrigPrimTask::runOnEmulTPs(EcalTrigPrimDigiCollection const& _tps)
