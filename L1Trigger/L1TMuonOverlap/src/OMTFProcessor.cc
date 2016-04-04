@@ -22,19 +22,6 @@
 ///////////////////////////////////////////////
 OMTFProcessor::OMTFProcessor(const edm::ParameterSet & theConfig, OMTFConfiguration * omtf_config) : m_omtf_config(omtf_config) {
 
-  if(theConfig.getParameter<bool>("configFromXML")){    
-    if ( !theConfig.exists("patternsXMLFiles") ) return;
-    std::vector<std::string> fileNames;
-    for(auto it: theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")){
-      fileNames.push_back(it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath());
-    }  
-    resetConfiguration(); 
-    XMLConfigReader myReader(m_omtf_config);
-    for(auto it: fileNames){
-      myReader.setPatternsFile(it);
-      configure(&myReader);
-    }
-  }
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -52,26 +39,11 @@ void OMTFProcessor::resetConfiguration(){
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-bool OMTFProcessor::configure(XMLConfigReader *aReader){
-
-  resetConfiguration();
-
-  myResults.assign(OMTFConfiguration::instance()->nTestRefHits,OMTFProcessor::resultsMap());
-
-  const std::vector<GoldenPattern *> & aGPs = aReader->readPatterns();
-  for(auto it: aGPs){
-    if(!addGP(it)) return false;
-  }
-  
-  return true;
-}
-///////////////////////////////////////////////
-///////////////////////////////////////////////
 bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 
   resetConfiguration();
   
-  myResults.assign(OMTFConfiguration::instance()->nTestRefHits,OMTFProcessor::resultsMap());
+  myResults.assign(omtfParams->nTestRefHits(),OMTFProcessor::resultsMap());
   
   const l1t::LUT* chargeLUT =  omtfParams->chargeLUT();
   const l1t::LUT* etaLUT =  omtfParams->etaLUT();
@@ -79,7 +51,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
   const l1t::LUT* pdfLUT =  omtfParams->pdfLUT();
   const l1t::LUT* meanDistPhiLUT =  omtfParams->meanDistPhiLUT();
 
-  unsigned int nGPs = OMTFConfiguration::instance()->nGoldenPatterns;
+  unsigned int nGPs = omtfParams->nGoldenPatterns();
   unsigned int address = 0;
   unsigned int iEta, iPt, iCharge;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
@@ -88,25 +60,25 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
     iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
 
-    GoldenPattern::vector2D meanDistPhi2D(OMTFConfiguration::instance()->nLayers);
-    GoldenPattern::vector1D pdf1D(exp2(OMTFConfiguration::instance()->nPdfAddrBits));
-    GoldenPattern::vector3D pdf3D(OMTFConfiguration::instance()->nLayers);
-    GoldenPattern::vector2D pdf2D(OMTFConfiguration::instance()->nRefLayers);
+    GoldenPattern::vector2D meanDistPhi2D(omtfParams->nLayers());
+    GoldenPattern::vector1D pdf1D(exp2(omtfParams->nPdfAddrBits()));
+    GoldenPattern::vector3D pdf3D(omtfParams->nLayers());
+    GoldenPattern::vector2D pdf2D(omtfParams->nRefLayers());
     ///Mean dist phi data
-    for(unsigned int iLayer=0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
-      GoldenPattern::vector1D meanDistPhi1D(OMTFConfiguration::instance()->nRefLayers);
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
-	address = iRefLayer + iLayer*OMTFConfiguration::instance()->nRefLayers + iGP*(OMTFConfiguration::instance()->nRefLayers*OMTFConfiguration::instance()->nLayers);
+    for(unsigned int iLayer=0;iLayer<omtfParams->nLayers();++iLayer){
+      GoldenPattern::vector1D meanDistPhi1D(omtfParams->nRefLayers());
+      for(unsigned int iRefLayer=0;iRefLayer<omtfParams->nRefLayers();++iRefLayer){
+	address = iRefLayer + iLayer*omtfParams->nRefLayers() + iGP*(omtfParams->nRefLayers()*omtfParams->nLayers());
 	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));	
       }
       meanDistPhi2D[iLayer] = meanDistPhi1D;    
       ///Pdf data
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
+      for(unsigned int iRefLayer=0;iRefLayer<omtfParams->nRefLayers();++iRefLayer){
 	pdf1D.assign(1<<OMTFConfiguration::instance()->nPdfAddrBits,0);
-	for(unsigned int iPdf=0;iPdf<(unsigned int)(1<<OMTFConfiguration::instance()->nPdfAddrBits);++iPdf){
-	  address = iPdf + iRefLayer*(1<<OMTFConfiguration::instance()->nPdfAddrBits) +
-	    iLayer*OMTFConfiguration::instance()->nRefLayers*(1<<OMTFConfiguration::instance()->nPdfAddrBits) +
-	    iGP*OMTFConfiguration::instance()->nLayers*OMTFConfiguration::instance()->nRefLayers*(1<<OMTFConfiguration::instance()->nPdfAddrBits);
+	for(unsigned int iPdf=0;iPdf<(unsigned int)(1<<omtfParams->nPdfAddrBits());++iPdf){
+	  address = iPdf + iRefLayer*(1<<omtfParams->nPdfAddrBits()) +
+	    iLayer*omtfParams->nRefLayers()*(1<<omtfParams->nPdfAddrBits()) +
+	    iGP*omtfParams->nLayers()*omtfParams->nRefLayers()*(1<<omtfParams->nPdfAddrBits());
 	  pdf1D[iPdf] = pdfLUT->data(address);
 	}
 	pdf2D[iRefLayer] = pdf1D;
