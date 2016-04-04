@@ -1,11 +1,12 @@
 import os
 from genericValidation import GenericValidation, GenericValidationData
-from offlineValidation import OfflineValidation
-from trackSplittingValidation import TrackSplittingValidation
-from monteCarloValidation import MonteCarloValidation
-from zMuMuValidation import ZMuMuValidation
 from geometryComparison import GeometryComparison
+from helperFunctions import parsecolor, parsestyle
+from monteCarloValidation import MonteCarloValidation
+from offlineValidation import OfflineValidation
 from TkAlExceptions import AllInOneError
+from trackSplittingValidation import TrackSplittingValidation
+from zMuMuValidation import ZMuMuValidation
 
 class PreexistingValidation(GenericValidation):
     """
@@ -46,6 +47,10 @@ class PreexistingValidation(GenericValidation):
 
     def getRepMap(self):
         result = self.general
+        result.update({
+                       "color": str(parsecolor(result["color"])),
+                       "style": str(parsestyle(result["style"])),
+                      })
         return result
 
     def getCompareStrings( self, requestId = None, plain = False ):
