@@ -6,10 +6,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/METReco/interface/HaloData.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <vector>
 
 /*
@@ -57,8 +60,14 @@ namespace reco {
     bool GetSegmentsInBothEndcaps() const{ return segments_in_both_endcaps; }
     bool GetSegmentIsCaloMatched() const{ return segmentiscalomatched; }
     bool GetSegmentIsHCaloMatched() const{ return segmentisHcalomatched; }
+    bool GetSegmentIsHBCaloMatched() const{ return segmentisHBcalomatched; }
+    bool GetSegmentIsHECaloMatched() const{ return segmentisHEcalomatched; }
     bool GetSegmentIsEBCaloMatched() const{ return segmentisEBcalomatched; }
     bool GetSegmentIsEECaloMatched() const{ return segmentisEEcalomatched; }
+    bool GetHaloPatternFoundEB() const{ return hallopatternfoundEB;}
+    bool GetHaloPatternFoundEE() const{ return hallopatternfoundEE;}
+    bool GetHaloPatternFoundHB() const{ return hallopatternfoundHB;}
+    bool GetHaloPatternFoundHE() const{ return hallopatternfoundHE;}
     // End MLR
     short int NFlatHaloSegments_TrkMuUnVeto() const{ return nFlatHaloSegments_TrkMuUnVeto; }
     bool GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() const{ return segments_in_both_endcaps_loose_TrkMuUnVeto;}
@@ -69,6 +78,20 @@ namespace reco {
     edm::RefVector<reco::TrackCollection>& GetTracks(){return TheTrackRefs;}
     const edm::RefVector<reco::TrackCollection>& GetTracks()const {return TheTrackRefs;}
     
+    edm::RefVector<EcalRecHitCollection>& GetEBRechits(){return ecalebrhRefs;}
+    const edm::RefVector<EcalRecHitCollection>& GetEBRechits()const {return ecalebrhRefs;}
+    edm::RefVector<EcalRecHitCollection>& GetEERechits(){return ecaleerhRefs;}
+    const edm::RefVector<EcalRecHitCollection>& GetEERechits()const {return ecaleerhRefs;}
+
+    edm::RefVector<HBHERecHitCollection>& GetHBHERechits(){return hbherhRefs;}
+    const edm::RefVector<HBHERecHitCollection>& GetHBHERechits()const {return hbherhRefs;}
+
+    /*    edm::RefVector<HBHERecHitCollection>& GetHBRechits(){return hbrhRefs;}
+    const edm::RefVector<HBHERecHitCollection>& GetHBRechits()const {return hbrhRefs;}
+
+    edm::RefVector<HBHERecHitCollection>& GetHERechits(){return herhRefs;}
+    const edm::RefVector<HBHERecHitCollection>& GetHERechits()const {return herhRefs;}
+    */
     // Set Number of Halo Triggers
     void SetNumberOfHaloTriggers(int PlusZ,  int MinusZ ){ nTriggers_PlusZ =PlusZ; nTriggers_MinusZ = MinusZ ;}
     void SetNumberOfHaloTriggers_TrkMuUnVeto(int PlusZ,  int MinusZ ){ nTriggers_PlusZ_TrkMuUnVeto =PlusZ; nTriggers_MinusZ_TrkMuUnVeto = MinusZ ;}
@@ -88,6 +111,7 @@ namespace reco {
     const std::vector<GlobalPoint>& GetCSCTrackImpactPositions() const {return TheGlobalPositions;}
     std::vector<GlobalPoint>& GetCSCTrackImpactPositions() {return TheGlobalPositions;}
 
+    
     // MLR
     // Set # of CSCSegments that appear to be part of a halo muon
     // If there is more than 1 muon, this is the number of segments in the halo muon
@@ -100,12 +124,23 @@ namespace reco {
     void SetSegmentsBothEndcaps_Loose_dTcut_TrkMuUnVeto(bool b) { segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto = b; }
     void SetSegmentIsCaloMatched(bool b) { segmentiscalomatched = b; }
     void SetSegmentIsHCaloMatched(bool b) { segmentisHcalomatched = b; }
+    void SetSegmentIsHBCaloMatched(bool b) { segmentisHBcalomatched = b; }
+    void SetSegmentIsHECaloMatched(bool b) { segmentisHEcalomatched = b; }
     void SetSegmentIsEBCaloMatched(bool b) { segmentisEBcalomatched = b;} 
     void SetSegmentIsEECaloMatched(bool b) { segmentisEEcalomatched = b; }
-
+    void SetHaloPatternFoundEB(bool b) { hallopatternfoundEB = b;}
+    void SetHaloPatternFoundEE(bool b) { hallopatternfoundEE = b;}
+    void SetHaloPatternFoundHB(bool b) { hallopatternfoundHB = b;}
+    void SetHaloPatternFoundHE(bool b) { hallopatternfoundHE = b;}
+    
   private:
     edm::RefVector<reco::TrackCollection> TheTrackRefs;
-
+    edm::RefVector<EcalRecHitCollection> ecalebrhRefs;
+    edm::RefVector<EcalRecHitCollection> ecaleerhRefs;
+    
+    edm::RefVector<HBHERecHitCollection> hbherhRefs;
+    /*edm::RefVector<HBHERecHitCollection> hbrhRefs;
+      edm::RefVector<HBHERecHitCollection> herhRefs;*/
     // The GlobalPoints from constituent rechits nearest to the calorimeter of CSC tracks
     std::vector<GlobalPoint> TheGlobalPositions;
     int nTriggers_PlusZ;
@@ -141,9 +176,11 @@ namespace reco {
     bool segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto;
     bool segmentiscalomatched ;
     bool segmentisHcalomatched;
+    bool segmentisHBcalomatched;
+    bool segmentisHEcalomatched;
     bool segmentisEBcalomatched;
     bool segmentisEEcalomatched;
-
+    bool hallopatternfoundEB,hallopatternfoundEE,hallopatternfoundHB,hallopatternfoundHE;
   };
 
 

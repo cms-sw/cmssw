@@ -13,6 +13,12 @@ from RecoMET.METFilters.CSCTightHaloTrkMuUnvetoFilter_cfi import *
 ## The CSC beam halo tight filter ____________________________________________||
 from RecoMET.METFilters.CSCTightHalo2015Filter_cfi import *
 
+## The CSC beam halo tight filter ____________________________________________||
+from RecoMET.METFilters.CSCTightHalo2016Filter_cfi import *
+
+## The CSC beam halo tight filter ____________________________________________||
+from RecoMET.METFilters.CSCSuperTightHalo2016Filter_cfi import *
+
 ## The hcal problematic strip halo filter ____________________________________________||
 from RecoMET.METFilters.HcalStripHaloFilter_cfi import *
 
@@ -73,10 +79,10 @@ metFilters = cms.Sequence(
    primaryVertexFilter*
 #   HBHENoiseIsoFilter*
 #   HcalStripHaloFilter *
-   CSCTightHaloFilter *
+#   CSCTightHaloFilter *
 #   hcalLaserEventFilter *
 #  CSCTightHaloTrkMuUnvetoFilter *
-# CSCTightHalo2015Filter *
+   CSCTightHalo2016Filter *
    EcalDeadCellTriggerPrimitiveFilter* 
 #   *goodVertices * trackingFailureFilter *
    eeBadScFilter*

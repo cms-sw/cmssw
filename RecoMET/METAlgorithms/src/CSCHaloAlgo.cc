@@ -1,6 +1,9 @@
-
 #include "RecoMET/METAlgorithms/interface/CSCHaloAlgo.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateEB.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateEE.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateHB.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateHE.h"
 /*
   [class]:  CSCHaloAlgo
   [authors]: R. Remington, The University of Florida
@@ -14,6 +17,7 @@ using namespace edm;
 
 CSCHaloAlgo::CSCHaloAlgo()
 {
+
   deta_threshold = 0.;
   min_inner_radius = 0.;
   max_inner_radius = 9999.;
@@ -35,29 +39,43 @@ CSCHaloAlgo::CSCHaloAlgo()
   matching_dwire_threshold = 5.;
 
 
-  et_thresh_rh_hbhe=25; //GeV
+  et_thresh_rh_hbhe=25;//to be removed
+  dphi_thresh_segvsrh_hbhe=0.05;
+  dr_lowthresh_segvsrh_hbhe=-100;
+  dr_highthresh_segvsrh_hbhe=20;
+  dt_highthresh_segvsrh_hbhe=30;
+  
+
+  et_thresh_rh_hb=20; //GeV
+  et_thresh_rh_he=20;
   et_thresh_rh_ee=10; 
   et_thresh_rh_eb=10; 
 
-  dphi_thresh_segvsrh_hbhe=0.05; //radians
-  dphi_thresh_segvsrh_eb=0.05;
-  dphi_thresh_segvsrh_ee=0.05; 
+  dphi_thresh_segvsrh_hb=0.15; //radians
+  dphi_thresh_segvsrh_he=0.1;
+  dphi_thresh_segvsrh_eb=0.04;
+  dphi_thresh_segvsrh_ee=0.04; 
 
-  dr_lowthresh_segvsrh_hbhe=-20; //cm
-  dr_lowthresh_segvsrh_eb=-20; 
-  dr_lowthresh_segvsrh_ee=-20;
+  dr_lowthresh_segvsrh_hb=-100; //cm
+  dr_lowthresh_segvsrh_he=-30; 
+  dr_lowthresh_segvsrh_eb=-30; 
+  dr_lowthresh_segvsrh_ee=-30;
 
-  dr_highthresh_segvsrh_hbhe=20; //cm
-  dr_highthresh_segvsrh_eb=20; 
-  dr_highthresh_segvsrh_ee=20;
+  dr_highthresh_segvsrh_hb=20; //cm
+  dr_highthresh_segvsrh_he=30;
+  dr_highthresh_segvsrh_eb=15; 
+  dr_highthresh_segvsrh_ee=30;
 
-  dt_lowthresh_segvsrh_hbhe=5;//ns
-  dt_lowthresh_segvsrh_eb=5;
-  dt_lowthresh_segvsrh_ee=5;
+  dt_highthresh_segvsrh_hb=15;//ns
+  dt_highthresh_segvsrh_he=15;
+  dt_highthresh_segvsrh_eb=15;
+  dt_highthresh_segvsrh_ee=15;
 
-  dt_highthresh_segvsrh_hbhe=30;//ns
-  dt_highthresh_segvsrh_eb=30;
-  dt_highthresh_segvsrh_ee=30;
+  dt_segvsrh_hb=15;//ns
+  dt_segvsrh_he=15;
+  dt_segvsrh_eb=15;
+  dt_segvsrh_ee=15;
+  
 
   geo = 0;
 
@@ -80,26 +98,63 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					 const edm::Handle<CSCALCTDigiCollection>& TheALCTs,
 					 MuonSegmentMatcher *TheMatcher,  
 					 const edm::Event& TheEvent,
-					 const edm::EventSetup& TheSetup)
+					 const edm::EventSetup& TheSetup,
+					 bool ishlt)
 {
+
   reco::CSCHaloData TheCSCHaloData;
   int imucount=0;
-  
+  std::auto_ptr<EcalRecHitCollection> rechitsEB_bhmatched(new EcalRecHitCollection());
   bool calomatched =false;
   bool ECALBmatched =false;
   bool ECALEmatched =false;
-  bool HCALmatched =false;
+  bool HCALBmatched =false;
+  bool HCALEmatched =false;
 
-  //  if(!geo){
+
   geo = 0;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo = pGeo.product();
-  //}
+
   bool trkmuunvetoisdefault = false; //Pb with low pt tracker muons that veto good csc segments/halo triggers. 
   //Test to "unveto" low pt trk muons. 
   //For now, we just recalculate everything without the veto and add an extra set of variables to the class CSCHaloData. 
   //If this is satisfactory, these variables can become the default ones by setting trkmuunvetoisdefault to true. 
+
+
+
+  //Halo cluster building:
+  //Various clusters are built, depending on the subdetector.
+  //In barrel, one looks for deposits narrow in phi.
+  //In endcaps, one looks for localized deposits (dr condition in EE where r =sqrt(dphi*dphi+deta*deta), and  dR and dphi conditions in HE, where dR = difference of radial coordinates between the hits) . 
+  //H/E or E/H conditions are also applied for EB, HB, HE.
+  //
+  //The halo cluster building step targets an efficiency of 99% for beam halo deposits. 
+  //
+  //These clusters are used as input for the halo pattern finding methods and for the CSC-calo matching methods. 
+  std::vector<HaloClusterCandidateEB> haloclustercands_EB;
+  haloclustercands_EB=  GetHaloClusterCandidateEB(ecalebhits , hbhehits, 5);
+  std::vector<HaloClusterCandidateEE> haloclustercands_EE;
+  haloclustercands_EE=  GetHaloClusterCandidateEE(ecaleehits , hbhehits, 10);
+  std::vector<HaloClusterCandidateHB> haloclustercands_HB;
+  haloclustercands_HB=  GetHaloClusterCandidateHB(ecalebhits , hbhehits, 10);
+  std::vector<HaloClusterCandidateHE> haloclustercands_HE;
+  haloclustercands_HE=  GetHaloClusterCandidateHE(ecaleehits , hbhehits, 20);
+  
+
+  //Halo pattern finding: 
+  //In barrel, one looks for deposits spread along many rechits with constant phi and/or containing a lot of OOT rechits. 
+  //In EE, one looks for deposits containing OOT rechits. 
+  //In HE, one lookst for deposits fully contained in one HCAL layer.
+  bool HaloPatternFoundInEB = EBClusterShapeandTimeStudy(TheCSCHaloData,haloclustercands_EB,ishlt); 
+  bool HaloPatternFoundInEE = EEClusterShapeandTimeStudy(TheCSCHaloData,haloclustercands_EE,ishlt); 
+  bool HaloPatternFoundInHB = HBClusterShapeandTimeStudy(TheCSCHaloData,haloclustercands_HB,ishlt); 
+  bool HaloPatternFoundInHE = HEClusterShapeandTimeStudy(TheCSCHaloData,haloclustercands_HE,ishlt); 
+
+
+
+
   if( TheCosmicMuons.isValid() )
     {
       short int n_tracks_small_beta=0;
@@ -265,247 +320,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					       << " identification variables will be empty" ;
 	}
     }
-
-  if( TheHLTResults.isValid() )
-    {
-      bool EventPasses = false;
-       for( unsigned int index = 0 ; index < vIT_HLTBit.size(); index++)
-         {
-           if( vIT_HLTBit[index].label().size() )
-             {
-               //Get the HLT bit and check to make sure it is valid 
-               unsigned int bit = triggerNames->triggerIndex( vIT_HLTBit[index].label().c_str());
-               if( bit < TheHLTResults->size() )
-                 {
-		   //If any of the HLT names given by the user accept, then the event passes
-		   if( TheHLTResults->accept( bit ) && !TheHLTResults->error( bit ) )
-		     {
-		       EventPasses = true;
-		     }
-                 }
-             }
-         }
-       if( EventPasses )
-         TheCSCHaloData.SetHLTBit(true);
-       else
-         TheCSCHaloData.SetHLTBit(false);
-     }
-  else //  HLT results are not valid
-    {
-      static std::atomic<bool> HLTFail{false};
-      bool expected = false;
-      if( HLTFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
-	{
-	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
-					       << "decision will not be used in the halo identification"; 
-	}
-    }
-
-   if( TheL1GMTReadout.isValid() )
-     {
-       L1MuGMTReadoutCollection const *gmtrc = TheL1GMTReadout.product ();
-       std::vector < L1MuGMTReadoutRecord > gmt_records = gmtrc->getRecords ();
-       std::vector < L1MuGMTReadoutRecord >::const_iterator igmtrr;
-       
-       int icsc = 0;
-       int PlusZ = 0 ;
-       int MinusZ = 0 ;
-       int PlusZ_alt = 0 ;
-       int MinusZ_alt = 0 ;
-
-       // Check to see if CSC BeamHalo trigger is tripped
-       for (igmtrr = gmt_records.begin (); igmtrr != gmt_records.end (); igmtrr++)
-	 {
-	   std::vector < L1MuRegionalCand >::const_iterator iter1;
-	   std::vector < L1MuRegionalCand > rmc;
-	   rmc = igmtrr->getCSCCands ();
-	   for (iter1 = rmc.begin (); iter1 != rmc.end (); iter1++)
-	     {
-	      if (!(*iter1).empty ())
-		{
-		  if ((*iter1).isFineHalo ())
-		    {
-		      float halophi = iter1->phiValue();
-		      halophi = halophi > TMath::Pi() ? halophi - 2.*TMath::Pi() : halophi;
-		      float haloeta = iter1->etaValue();
-		      bool HaloIsGood = true;
-		      bool HaloIsGood_alt = true;
-		      // Check if halo trigger is faked by any collision muons
-		      if( TheMuons.isValid() )
-			{
-			  float dphi = 9999.;
-			  float deta = 9999.;
-			  for( reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end()  && (HaloIsGood ||!trkmuunvetoisdefault) ; mu++ )
-			    {
-			      // Don't match with SA-only muons
-			      bool lowpttrackmu =false;
-			      if( mu->isStandAloneMuon() && !mu->isTrackerMuon() && !mu->isGlobalMuon() )  continue;
-			      if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 && trkmuunvetoisdefault) continue;
-			      if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 ) lowpttrackmu = true;
-
-			      /*
-			      if(!mu->isTrackerMuon())
-				{
-				  if( mu->isStandAloneMuon() )
-				    {
-				      //make sure that this SA muon is not actually a halo-like muon
-				      float theta =  mu->outerTrack()->outerMomentum().theta();
-				      float deta = abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
-				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
-					continue;
-				      else if ( deta > deta_threshold ) //halo-like
-					continue;
-				    }
-				}
-			      */
-			    
-			      const std::vector<MuonChamberMatch> chambers = mu->matches();
-			      for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
-				  iChamber != chambers.end() ; iChamber ++ )
-				{
-				  if( iChamber->detector() != MuonSubdetId::CSC ) continue;
-				  for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin() ; 
-				       iSegment != iChamber->segmentMatches.end(); ++iSegment )
-				    {
-				      edm::Ref<CSCSegmentCollection> cscSegment = iSegment->cscSegmentRef;
-				      std::vector<CSCRecHit2D> hits = cscSegment -> specificRecHits();
-				      for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
-					   iHit != hits.end() ; iHit++ )
-					{
-					  DetId TheDetUnitId(iHit->cscDetId());
-					  const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
-					  LocalPoint TheLocalPosition = iHit->localPosition();
-					  const BoundPlane& TheSurface = TheUnit->surface();
-					  GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
-					  
-					  float phi_ = TheGlobalPosition.phi();
-					  float eta_ = TheGlobalPosition.eta();
-					  
-					  deta = deta < abs( eta_ - haloeta ) ? deta : abs( eta_ - haloeta );
-					  dphi = dphi < abs(deltaPhi(phi_, halophi)) ? dphi : abs(deltaPhi(phi_, halophi));
-					}
-				    }
-				}
-			      if ( dphi < matching_dphi_threshold && deta < matching_deta_threshold){ 
-				HaloIsGood = false; // i.e., collision muon likely faked halo trigger
-				if(!lowpttrackmu)HaloIsGood_alt   = false;
-			      }
-			    }
-			}
-		      if( HaloIsGood ){ 
-			if( (*iter1).etaValue() > 0 )
-			  PlusZ++;
-			else
-			  MinusZ++;
-		      }
-		      if( HaloIsGood_alt ){
-			if( (*iter1).etaValue() > 0 )
-                          PlusZ_alt++;
-                        else
-                          MinusZ_alt++;
-                      }
-
-		    }
-		  else
-		    icsc++;
-		}
-	     }
-	 }
-       TheCSCHaloData.SetNumberOfHaloTriggers(PlusZ, MinusZ);
-       TheCSCHaloData.SetNumberOfHaloTriggers_TrkMuUnVeto(PlusZ_alt, MinusZ_alt);
-     }
-   else
-     {
-       static std::atomic<bool> L1Fail{false};   
-       bool expected = false;
-       if( L1Fail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
-	 {
-	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
-						<< "decision will not be used in the halo identification"; 
-	 }
-     }
-
-   // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
-   // A collision muon in real data should only have ALCTDigi::getBX() = 3 ( in MC, it will be 6 )
-   // Note that there could be two ALCTs per chamber 
-   short int n_alctsP=0;
-   short int n_alctsM=0;
-   if(TheALCTs.isValid())
-     {
-       for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) 
-	 {
-	   const CSCALCTDigiCollection::Range& range =(*j).second;
-	   CSCDetId detId((*j).first.rawId());
-	   for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
-	     {
-	       if( (*digiIt).isValid() && ( (*digiIt).getBX() < expected_BX ) )
-		 {
-		   int digi_endcap  = detId.endcap();
-		   int digi_station = detId.station();
-		   int digi_ring    = detId.ring();
-		   int digi_chamber = detId.chamber();
-		   int digi_wire    = digiIt->getKeyWG();
-		   if( digi_station == 1 && digi_ring == 4 )   //hack
-		     digi_ring = 1;
-		   
-		   bool DigiIsGood = true;
-		   int dwire = 999.;
-		   if( TheMuons.isValid() ) 
-		     {
-		       //Check if there are any collision muons with hits in the vicinity of the digi
-		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && DigiIsGood ; mu++ )
-			 {
-			   
-			   if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
-			   if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 &&trkmuunvetoisdefault) continue;
-			   const std::vector<MuonChamberMatch> chambers = mu->matches();
-			   for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
-			       iChamber != chambers.end(); iChamber ++ )
-			     {
-			       if( iChamber->detector() != MuonSubdetId::CSC ) continue;
-			       for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin();
-				    iSegment != iChamber->segmentMatches.end(); iSegment++ )
-				 {
-				   edm::Ref<CSCSegmentCollection> cscSegRef = iSegment->cscSegmentRef;
-				   std::vector<CSCRecHit2D> hits = cscSegRef->specificRecHits();
-				   for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
-					iHit != hits.end(); iHit++ )
-				     {
-				       if( iHit->cscDetId().endcap() != digi_endcap ) continue;
-				       if( iHit->cscDetId().station() != digi_station ) continue;
-				       if( iHit->cscDetId().ring() != digi_ring ) continue;
-				       if( iHit->cscDetId().chamber() != digi_chamber ) continue;
-				       int hit_wire = iHit->hitWire();
-				       dwire = dwire < abs(hit_wire - digi_wire)? dwire : abs(hit_wire - digi_wire );
-				     }
-				 }
-			     }
-			   if( dwire <= matching_dwire_threshold ) 
-			     DigiIsGood = false;  // collision-like muon is close to this digi
-			 }
-		     }
-		   // only count out of time digis if they are not matched to collision muons
-		   if( DigiIsGood ) 
-		     {
-		       if( detId.endcap() == 1 ) 
-			 n_alctsP++;
-		       else if ( detId.endcap() ==  2) 
-			 n_alctsM++;
-		     }
-		 }
-	     }
-	 }
-     }
-   else
-     {
-       static std::atomic<bool> DigiFail{false};
-       bool expected = false;
-       if (DigiFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
-	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
-					      << " not be used in the halo identification"; 
-       }
-     }
-   TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
+  
 
    // Loop over the CSCRecHit2D collection to look for out-of-time recHits
    // Out-of-time is defined as tpeak outside [t_0 + TOF - t_window, t_0 + TOF + t_window]
@@ -575,6 +390,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    bool both_endcaps_loose_dtcut_alt = false;
 
    //float r = 0., phi = 0.;
+
    if (TheCSCSegments.isValid()) {
      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
          iSegment != TheCSCSegments->end();
@@ -630,18 +446,22 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        float iZ = iGlobalPosition.z();
        float iT = iSegment->time();
-       //Timing condition, helps removing random segments from next collisions
-       if(iT>15) continue;
-       //       if(abs(iZ)<650&& TheEvent.id().run()< 251737) iT-= 25; 
-       //Calo matching:
+       
+       //CSC-calo matching: 
+       //Here, one checks if any halo cluster can be matched to a CSC segment. 
+       //The matching uses both geometric (dphi, dR) and timing information (dt).
+       //The cut values depend on the subdetector considered (e.g. in HB, Rcalo-Rsegment is allowed to be very negative) 
 
-       bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,dt_highthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
-       bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,dt_highthresh_segvsrh_eb,iZ,iR,iT,iPhi);
-       bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,dt_highthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
-       calomatched = calomatched? true : (hbhematched|| ebmatched|| eematched);
-       HCALmatched = HCALmatched? true :hbhematched;
+       bool ebmatched =SegmentMatchingEB(TheCSCHaloData,haloclustercands_EB,iZ,iR,iT,iPhi,ishlt);
+       bool eematched =SegmentMatchingEE(TheCSCHaloData,haloclustercands_EE,iZ,iR,iT,iPhi,ishlt);
+       bool hbmatched =SegmentMatchingHB(TheCSCHaloData,haloclustercands_HB,iZ,iR,iT,iPhi,ishlt);
+       bool hematched =SegmentMatchingHE(TheCSCHaloData,haloclustercands_HE,iZ,iR,iT,iPhi,ishlt);
+       
+       calomatched = calomatched? true : ( ebmatched|| eematched || hbmatched||hematched);
        ECALBmatched = ECALBmatched? true :ebmatched;
        ECALEmatched = ECALEmatched? true :eematched;
+       HCALBmatched = HCALBmatched? true :hbmatched;
+       HCALEmatched = HCALEmatched? true :hematched;
 
        short int nSegs = 0;
        short int nSegs_alt = 0;
@@ -662,12 +482,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
 	 float jZ = jGlobalPosition.z() ;
 	 float jT = jSegment->time();
-	 //Timing condition, helps removing random segments from next collisions
-	 if(jT>15) continue;
-	 //	 if(abs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
-	 if ( abs(deltaPhi(jPhi , iPhi)) <= 0.1//max_segment_phi_diff 
-	      //&& abs(jR - iR) <= max_segment_r_diff 
-	      && (abs(jR - iR)<0.03*abs(jZ - iZ))
+
+	 if ( abs(deltaPhi(jPhi , iPhi)) <=max_segment_phi_diff 
+	      && ( abs(jR - iR) <0.05*abs(jZ - iZ)||  jZ*iZ>0 )
+	      && ( (jR - iR) >-0.02*abs(jZ - iZ) || iT>jT ||  jZ*iZ>0)
+	      && ( (iR - jR) >-0.02*abs(jZ - iZ) || iT<jT ||  jZ*iZ>0)
 	      && (abs(jR - iR) <= max_segment_r_diff ||  jZ*iZ < 0)
 	      && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
 	   //// Check if Segment matches to a colision muon
@@ -697,7 +516,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	     nSegs++;
 	     minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
 	     plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
-	     //	     if( abs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )<0.05 && abs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )>0.02 && minus_endcap&&plus_endcap ) both_endcaps_dtcut =true;
 	   }
 	   if(Segment1IsGood_alt && Segment2IsGood_alt) {
              nSegs_alt++;
@@ -735,17 +553,81 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        }
  
      }
+
    }
+   
+   //Deprecated methods, kept for backward compatibility
+   TheCSCHaloData.SetHLTBit(false);
+   TheCSCHaloData.SetNumberOfHaloTriggers(0,0);
+   TheCSCHaloData.SetNumberOfHaloTriggers_TrkMuUnVeto(0,0);
+   TheCSCHaloData.SetNOutOfTimeTriggers(0,0);
+
+   //Current methods used
    TheCSCHaloData.SetNFlatHaloSegments(maxNSegments);
    TheCSCHaloData.SetSegmentsBothEndcaps(both_endcaps);
    TheCSCHaloData.SetNFlatHaloSegments_TrkMuUnVeto(maxNSegments_alt);
    TheCSCHaloData.SetSegmentsBothEndcaps_Loose_TrkMuUnVeto(both_endcaps_loose_alt);
    TheCSCHaloData.SetSegmentsBothEndcaps_Loose_dTcut_TrkMuUnVeto(both_endcaps_loose_dtcut_alt);
    TheCSCHaloData.SetSegmentIsCaloMatched(calomatched);
-   TheCSCHaloData.SetSegmentIsHCaloMatched(HCALmatched);
    TheCSCHaloData.SetSegmentIsEBCaloMatched(ECALBmatched);
    TheCSCHaloData.SetSegmentIsEECaloMatched(ECALEmatched);
-   
+   TheCSCHaloData.SetSegmentIsHBCaloMatched(HCALBmatched);
+   TheCSCHaloData.SetSegmentIsHECaloMatched(HCALEmatched);
+   TheCSCHaloData.SetHaloPatternFoundEB(HaloPatternFoundInEB);
+   TheCSCHaloData.SetHaloPatternFoundEE(HaloPatternFoundInEE);
+   TheCSCHaloData.SetHaloPatternFoundHB(HaloPatternFoundInHB);
+   TheCSCHaloData.SetHaloPatternFoundHE(HaloPatternFoundInHE);
+
+   /*
+   //To be removed, just for tests
+   reco::Vertex::Point vtx(0,0,0);
+   for(size_t jhit = 0; jhit<hbhehits->size(); ++ jhit){
+     const HBHERecHit & rechitj = (*hbhehits)[ jhit ];
+     math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+     double rhetj = rechitj.energy()/cosh(rhposj.eta());
+     if(rhetj<2) continue;
+     cout << "HBHErhet: "<< rhetj
+	  << " rheta " << rhposj.eta()
+	  << " rhphi " << rhposj.phi()
+	  << " rhtime: " << rechitj.time()
+	  << " rhZ: " << rhposj.z()
+	  << " rhR: " << sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y())
+	  << endl; 
+   }
+   cout << endl;
+   for(size_t jhit = 0; jhit<ecalebhits->size(); ++ jhit){
+     const EcalRecHit & rechitj = (*ecalebhits)[ jhit ];
+     math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+     double rhetj = rechitj.energy()/cosh(rhposj.eta());
+     if(rhetj<2) continue;
+     cout << "EBrhet: "<< rhetj
+	  << " rheta " << rhposj.eta()
+	  << " rhphi " << rhposj.phi()
+	  << " rhtime: " << rechitj.time()
+	  << " rhZ: " << rhposj.z()
+	  << " rhR: " << sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y())
+	  << endl; 
+     
+   }
+   cout << endl;
+  for(size_t jhit = 0; jhit<ecaleehits->size(); ++ jhit){
+    const EcalRecHit & rechitj = (*ecaleehits)[ jhit ];
+    math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+    double rhetj = rechitj.energy()/cosh(rhposj.eta());
+    if(rhetj<2) continue;
+    cout << "EErhet: "<< rhetj
+	 << " rheta " << rhposj.eta()
+	 << " rhphi " << rhposj.phi()
+	 << " rhtime: " << rechitj.time()
+	 << " rhZ: " << rhposj.z()
+	 << " rhR: " << sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y())
+	 << endl; 
+  }
+
+
+   */
+
+
    return TheCSCHaloData;
 }
 
@@ -757,44 +639,695 @@ math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx
 }
 
 
-bool CSCHaloAlgo::HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi){
-  reco::Vertex::Point vtx(0,0,0);
-  for(size_t ihit = 0; ihit< rechitcoll->size(); ++ ihit){
-    const HBHERecHit & rechit = (*rechitcoll)[ ihit ];
-    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
-    double rhet = rechit.energy()/cosh(rhpos.eta());
-    double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
-    double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
-    double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
-    if(
-       (rechit.time()<-3)&&
-       (rhpos.z()*iZ<0|| abs(rhpos.z())<200)&&
-       rhet> et_thresh_rh&&
-       dphi_rhseg < dphi_thresh_segvsrh &&
-       dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
-       dtcorr_rhseg> dt_lowthresh_segvsrh && dtcorr_rhseg< dt_highthresh_segvsrh
-      ) return true; 
-  }
-  return false;
+bool CSCHaloAlgo::EBClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateEB>haloclustercands, bool ishlt){
+  //Conditions on the central strip size in eta.
+  //For low size, extra conditions on seed et, isolation and cluster timing 
+  //The time condition only targets IT beam halo. 
+  //EB rechits from OT beam halos are typically too late (around 5 ns or more) and seem therefore already cleaned by the reconstruction.
+  bool halofound = false;
+  for(size_t i = 0; i <haloclustercands.size(); i++){
+      if(haloclustercands[i].GetSeedEt()<5)continue;
+      if(haloclustercands[i].GetNbofCrystalsInEta()<4) continue;
+      if(haloclustercands[i].GetNbofCrystalsInEta()==4&&haloclustercands[i].GetSeedEt()<10) continue;
+      if(haloclustercands[i].GetNbofCrystalsInEta()==4 && haloclustercands[i].GetEtStripIPhiSeedPlus1()>0.1 &&haloclustercands[i].GetEtStripIPhiSeedMinus1()>0.1 ) continue;
+      if(haloclustercands[i].GetNbofCrystalsInEta()<=5 &&  haloclustercands[i].GetTimeDiscriminator()>=0.)continue; 
+      
+      //For HLT, only use conditions without timing and tighten seed et condition
+      if(ishlt &&haloclustercands[i].GetNbofCrystalsInEta()<=5)continue;
+      if(ishlt && haloclustercands[i].GetSeedEt()<10)continue;
+      halofound =true;
+      
+      edm::RefVector<EcalRecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+      if(halofound)AddtoBeamHaloEBEERechits(bhrhcandidates, thehalodata,true);
+      
+    }
+    return halofound;
 }
 
-bool CSCHaloAlgo::ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh,float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi ){
-  reco::Vertex::Point vtx(0,0,0);
-  for(size_t ihit = 0; ihit<rechitcoll->size(); ++ ihit){
-    const EcalRecHit & rechit = (*rechitcoll)[ ihit ];
-    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
-    double rhet = rechit.energy()/cosh(rhpos.eta());
-    double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
-    double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
-    double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
-    if( 
-       ( rechit.time()<-1)&&
-       (rhpos.z()*iZ<0|| abs(rhpos.z())<200)&&
-       rhet> et_thresh_rh&&
-       dphi_rhseg < dphi_thresh_segvsrh &&
-       dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
-       dtcorr_rhseg> dt_lowthresh_segvsrh && dtcorr_rhseg< dr_highthresh_segvsrh
-       ) return true; 
+
+
+bool CSCHaloAlgo::EEClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateEE>haloclustercands, bool ishlt){
+  //Separate conditions targeting IT and OT beam halos
+  bool halofound = false;
+
+  //For OT beam halos, just require enough crystals with large T
+    for(size_t i = 0; i <haloclustercands.size(); i++){
+      if(haloclustercands[i].GetSeedEt()<20)continue;
+      if(haloclustercands[i].GetSeedTime()<0.5)continue;
+      if(haloclustercands[i].GetNbLateCrystals()-haloclustercands[i].GetNbEarlyCrystals() <2)continue;
+      
+      //The use of time information does not allow this method to work at HLT
+      if(ishlt)continue;
+      halofound =true;
+      edm::RefVector<EcalRecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+      if(halofound)AddtoBeamHaloEBEERechits(bhrhcandidates, thehalodata,false);
+      
+    }
+
+    //For IT beam halos, fakes from collisions are higher => require the cluster size to be small. 
+    //Only halos with R>100 cm are considered here.
+    //For lower values, the time difference with particles from collisions is too small
+    //IT outgoing beam halos that interact in EE at low R is probably the most difficult category to deal with: 
+    //Their signature is very close to the one of photon from collisions (similar cluster shape and timing)
+    for(size_t i = 0; i <haloclustercands.size(); i++){
+      if(haloclustercands[i].GetSeedEt()<20)continue;
+      if(haloclustercands[i].GetSeedR()<100)continue;
+      if(haloclustercands[i].GetTimeDiscriminator()<1) continue; 
+      if(haloclustercands[i].GetClusterSize()<2) continue;
+      if(haloclustercands[i].GetClusterSize()>4) continue;
+      
+      //The use of time information does not allow this method to work at HLT
+      if(ishlt)continue;
+      halofound =true;
+      edm::RefVector<EcalRecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+      if(halofound) AddtoBeamHaloEBEERechits(bhrhcandidates, thehalodata,false);
+
+
+    }
+    
+    return halofound;
+
+}
+
+
+
+bool CSCHaloAlgo::HBClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateHB>haloclustercands, bool ishlt){
+  //Conditions on the central strip size in eta.
+  //For low size, extra conditions on seed et, isolation and cluster timing 
+  //Here we target both IT and OT beam halo. Two separate discriminators were built for the two cases.
+  bool halofound = false;
+  for(size_t i = 0; i <haloclustercands.size(); i++){
+    if(haloclustercands[i].GetSeedEt()<10)continue;
+    if(haloclustercands[i].GetNbTowersInEta()<3) continue;
+    //Isolation criteria for very short eta strips
+    if(haloclustercands[i].GetNbTowersInEta()==3 && (haloclustercands[i].GetEtStripPhiSeedPlus1()>0.1 || haloclustercands[i].GetEtStripPhiSeedMinus1()>0.1) ) continue;
+    if(haloclustercands[i].GetNbTowersInEta()<=5 && (haloclustercands[i].GetEtStripPhiSeedPlus1()>0.1 && haloclustercands[i].GetEtStripPhiSeedMinus1()>0.1) ) continue;
+    //Timing conditions for short eta strips
+    if(haloclustercands[i].GetNbTowersInEta()==3 && haloclustercands[i].GetTimeDiscriminatorITBH()>=0.) continue;
+    if(haloclustercands[i].GetNbTowersInEta()<=6 && haloclustercands[i].GetTimeDiscriminatorITBH()>=5. &&haloclustercands[i].GetTimeDiscriminatorOTBH()<0.) continue; 
+    
+    //For HLT, only use conditions without timing 
+    if(ishlt && haloclustercands[i].GetNbTowersInEta()<7) continue;
+    halofound =true;
+    
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+    if(halofound)AddtoBeamHaloHBHERechits(bhrhcandidates, thehalodata);
+    
   }
+  return halofound;
+}
+
+bool CSCHaloAlgo::HEClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateHE>haloclustercands, bool ishlt){
+  //Conditions on H1/H123 to spot halo interacting only in one HCAL layer. 
+  //For R> about 170cm, HE has only one layer and this condition cannot be applied
+  //Note that for R>170 cm, the halo is in CSC acceptance and will most likely be spotted by the CSC-calo matching method
+  //A method to identify halos interacting in both H1 and H2/H3 at low R is still missing. 
+  bool halofound = false;
+ 
+    for(size_t i = 0; i <haloclustercands.size(); i++){
+      if(haloclustercands[i].GetSeedEt()<20)continue;
+      if(haloclustercands[i].GetSeedR()>170) continue;
+      if(haloclustercands[i].GetH1overH123()>0.02 &&haloclustercands[i].GetH1overH123()<0.98) continue;
+      
+      //This method is one of the ones with the highest fake rate: in JetHT dataset, it happens in around 0.1% of the cases that a low pt jet (pt= 20) leaves all of its energy in only one HCAL layer. 
+      //At HLT, one only cares about large deposits from BH that would lead to a MET/SinglePhoton trigger to be fired.
+      //Rising the seed Et threshold at HLT has therefore little impact on the HLT performances but ensures that possible controversial events are still recorded.
+      if(ishlt && haloclustercands[i].GetSeedEt()<50)continue;
+      halofound =true;
+      edm::RefVector<HBHERecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+      if(halofound)AddtoBeamHaloHBHERechits(bhrhcandidates, thehalodata);
+      
+    }
+    return halofound;
+}
+
+
+void CSCHaloAlgo::AddtoBeamHaloHBHERechits(edm::RefVector<HBHERecHitCollection>& bhtaggedrechits,reco::CSCHaloData & thehalodata){  
+  for(size_t ihit = 0; ihit<bhtaggedrechits.size(); ++ ihit){
+    bool alreadyincl = false; 
+    edm::Ref<HBHERecHitCollection> rhRef( bhtaggedrechits[ihit] ) ;
+    edm::RefVector<HBHERecHitCollection> refrhcoll;
+    refrhcoll=thehalodata.GetHBHERechits();
+    for(size_t jhit =0; jhit < refrhcoll.size();jhit++){                                                                                                                                                 
+      edm::Ref<HBHERecHitCollection> rhitRef( refrhcoll[jhit] ) ;                                                                                                                                        
+      if(rhitRef->detid() == rhRef->detid()) alreadyincl=true;                                                                                                                                           
+      if(rhitRef->detid() == rhRef->detid()) break;                                                                                                                                                      
+    } 
+    if(!alreadyincl)thehalodata.GetHBHERechits().push_back(rhRef);
+  }
+}
+ 
+void CSCHaloAlgo::AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollection>& bhtaggedrechits,reco::CSCHaloData & thehalodata, bool isbarrel){
+  for(size_t ihit = 0; ihit<bhtaggedrechits.size(); ++ ihit){
+    bool alreadyincl = false; 
+    edm::Ref<EcalRecHitCollection> rhRef( bhtaggedrechits[ihit] ) ;
+    edm::RefVector<EcalRecHitCollection> refrhcoll;
+    if(isbarrel) refrhcoll=thehalodata.GetEBRechits();
+    else refrhcoll=thehalodata.GetEERechits();
+    for(size_t jhit =0; jhit < refrhcoll.size();jhit++){                                                                                                                                                 
+      edm::Ref<EcalRecHitCollection> rhitRef( refrhcoll[jhit] ) ;                                                                                                                                        
+      if(rhitRef->detid() == rhRef->detid()) alreadyincl=true;                                                                                                                                           
+      if(rhitRef->detid() == rhRef->detid()) break;                                                                                                                                                      
+    } 
+    if(!alreadyincl&&isbarrel)thehalodata.GetEBRechits().push_back(rhRef);
+    if(!alreadyincl&&!isbarrel)thehalodata.GetEERechits().push_back(rhRef);
+  }  
+}
+ 
+ 
+ 
+std::vector<HaloClusterCandidateEB> CSCHaloAlgo::GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateEB> TheHaloClusterCandsEB;
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<ecalrechitcoll->size(); ++ ihit){
+    HaloClusterCandidateEB  clustercand;
+    
+    const EcalRecHit & rechit = (*ecalrechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    if(rhet<et_thresh_seedrh) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    
+    bool isiso = true;
+    double etcluster(0);
+    int nbcrystalsameeta(0);
+    double timediscriminator(0);
+    double etstrip_iphiseedplus1(0), etstrip_iphiseedminus1(0);
+
+    //Building the cluster 
+    edm::RefVector<EcalRecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      EcalRecHitRef rhRef(ecalrechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      if(abs(eta-etaj)>0.2) continue;//This means +/-11 crystals in eta 
+      if(abs(deltaPhi(phi,phij))>0.08) continue;//This means +/-4 crystals in phi 
+      
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      //Rechits with et between 1 and 2 GeV are saved in the rh list but not used in the calculation of the halocluster variables
+      if(rhetj<1) continue;
+      bhrhcandidates.push_back(rhRef);
+      if(rhetj<2) continue;
+
+      if(abs(deltaPhi(phi,phij))>0.03){isiso=false;break;}//The strip should be isolated
+      if(abs(deltaPhi(phi,phij))<0.01) nbcrystalsameeta++;
+      if(deltaPhi(phi,phij)>0.01) etstrip_iphiseedplus1+=rhetj;
+      if(deltaPhi(phi,phij)<-0.01) etstrip_iphiseedminus1+=rhetj;
+      etcluster+=rhetj;
+      //Timing discriminator
+      //We assign a weight to the rechit defined as: 
+      //Log10(Et)*f(T,R,Z) 
+      //where f(T,R,Z) is the separation curve between halo-like and IP-like times.
+      //The time difference between a deposit from a outgoing IT halo and a deposit coming from a particle emitted at the IP is given by: 
+      //dt= ( - sqrt(R^2+z^2) + |z| )/c
+      //Here we take R to be 130 cm. 
+      //For EB, the function was parametrized as a function of ieta instead of Z.
+      double rhtj = rechitj.time();
+      EBDetId detj    = rechitj.id();
+      int rhietaj= detj.ieta();
+      timediscriminator+= TMath::Log10( rhetj )* ( rhtj +0.5*(sqrt(16900+9*rhietaj*rhietaj)-3*abs(rhietaj))/30 );
+      
+    }
+    //Isolation condition
+    if(!isiso) continue;
+    
+    //Calculate H/E
+    double hoe(0);
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      if(abs(eta-etaj)>0.2) continue;
+      if(abs(deltaPhi(phi,phij))>0.2) continue;
+      hoe+=rhetj/etcluster;
+    }
+    //H/E condition
+    if(hoe>0.1) continue; 
+        
+
+    clustercand.SetClusterEt(etcluster); 
+    clustercand.SetSeedEt(rhet); 
+    clustercand.SetSeedEta(eta); 
+    clustercand.SetSeedPhi(phi); 
+    clustercand.SetSeedZ(rhpos.Z());
+    clustercand.SetSeedR(sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y())); 
+    clustercand.SetSeedTime(rechit.time()); 
+    clustercand.SetHoverE(hoe);
+    clustercand.SetNbofCrystalsInEta(nbcrystalsameeta);
+    clustercand.SetEtStripIPhiSeedPlus1(etstrip_iphiseedplus1);
+    clustercand.SetEtStripIPhiSeedMinus1(etstrip_iphiseedminus1);
+    clustercand.SetTimeDiscriminator(timediscriminator);
+    clustercand.SetBeamHaloRecHitsCandidates(bhrhcandidates);
+
+    TheHaloClusterCandsEB.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsEB;
+} 
+
+
+
+
+std::vector<HaloClusterCandidateEE> CSCHaloAlgo::GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateEE> TheHaloClusterCandsEE;
+
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<ecalrechitcoll->size(); ++ ihit){
+    HaloClusterCandidateEE  clustercand;
+    
+    const EcalRecHit & rechit = (*ecalrechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    if(rhet<et_thresh_seedrh) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    double rhr = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y());
+    
+    bool isiso = true;
+    double etcluster(0);
+    double timediscriminator(0);
+    int clustersize(0);
+    int nbcrystalssmallt(0);
+    int nbcrystalshight(0);
+    //Building the cluster
+    edm::RefVector<EcalRecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      EcalRecHitRef rhRef(ecalrechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+
+      //Ask the hits to be in the same endcap
+      if(rhposj.z()*rhpos.z()<0)continue;
+
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      double dr = sqrt(abs(eta-etaj)*abs(eta-etaj)+deltaPhi(phi,phij)*deltaPhi(phi,phij));
+
+      //Outer cone
+      if(dr>0.3) continue;
+      
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      //Rechits with et between 1 and 2 GeV are saved in the rh list but not used in the calculation of the halocluster variables
+      if(rhetj<1) continue; 
+      bhrhcandidates.push_back(rhRef);
+      if(rhetj<2) continue;
+      
+      //Isolation between outer and inner cone
+      if(dr>0.05){isiso=false;break;}//The deposit should be isolated
+
+      etcluster+=rhetj;
+  
+      //Timing infos:
+      //Here we target both IT and OT beam halo 
+      double rhtj=rechitj.time();
+
+      //Discriminating variables for OT beam halo: 
+      if(rhtj>1) nbcrystalshight++;
+      if(rhtj<0) nbcrystalssmallt++;
+      //Timing test (likelihood ratio), only for seeds with large R (100 cm) and for crystals with et>5, 
+      //This targets IT beam halo (t around - 1ns) 
+      if(rhtj>5){
+      double corrt_j = rhtj + sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y() + 320.*320.)/30. - 320./30.;
+      timediscriminator+=log( TMath::Gaus(corrt_j,0,0.4,false)/TMath::Gaus(corrt_j,0.3,0.4,false) );
+      clustersize++;
+      }
+      
+    }
+    //Isolation condition
+    if(!isiso) continue;
+    
+    //Calculate H2/E
+    //Only second hcal layer is considered as it can happen that a shower initiated in EE reaches HCAL first layer
+    double h2oe(0);
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){      
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+
+      //Ask the hits to be in the same endcap
+      if(rhposj.z()*rhpos.z()<0)continue;
+      //Selects only second HCAL layer
+      if(abs(rhposj.z())<425) continue;
+      
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      
+      double phij = rhposj.phi();
+      if(abs(deltaPhi(phi,phij))>0.4 ) continue;
+      
+      double rhrj = sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y());
+      if(abs(rhr-rhrj)>50) continue;
+
+      h2oe+=rhetj/etcluster;
+    }
+    //H/E condition
+    if(h2oe>0.1) continue; 
+        
+
+    clustercand.SetClusterEt(etcluster); 
+    clustercand.SetSeedEt(rhet); 
+    clustercand.SetSeedEta(eta); 
+    clustercand.SetSeedPhi(phi); 
+    clustercand.SetSeedZ(rhpos.Z());
+    clustercand.SetSeedR(sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y())); 
+    clustercand.SetSeedTime(rechit.time()); 
+    clustercand.SetH2overE(h2oe);
+    clustercand.SetNbEarlyCrystals(nbcrystalssmallt);
+    clustercand.SetNbLateCrystals(nbcrystalshight);
+    clustercand.SetClusterSize(clustersize);
+    clustercand.SetTimeDiscriminator(timediscriminator);
+    clustercand.SetBeamHaloRecHitsCandidates(bhrhcandidates);
+    TheHaloClusterCandsEE.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsEE;
+} 
+
+
+
+
+ 
+
+std::vector<HaloClusterCandidateHB> CSCHaloAlgo::GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateHB> TheHaloClusterCandsHB;
+
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
+    HaloClusterCandidateHB  clustercand;
+    
+    const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    if(rhet<et_thresh_seedrh) continue;
+    if(abs(rhpos.z())>380) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    
+    bool isiso = true;
+    double etcluster(0);
+    int nbtowerssameeta(0);
+    double timediscriminatorITBH(0),timediscriminatorOTBH(0);
+    double etstrip_phiseedplus1(0), etstrip_phiseedminus1(0);
+
+    //Building the cluster 
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      HBHERecHitRef rhRef(hbherechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      if(abs(rhposj.z())>380) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      if(abs(eta-etaj)>0.4) continue;//This means +/-4 towers in eta 
+      if(abs(deltaPhi(phi,phij))>0.2) continue;//This means +/-2 towers in phi 
+      if(abs(deltaPhi(phi,phij))>0.1&&abs(eta-etaj)<0.2){isiso=false;break;}//The strip should be isolated
+      if(abs(deltaPhi(phi,phij))>0.1)continue;
+      if(abs(deltaPhi(phi,phij))<0.05) nbtowerssameeta++;
+      if(deltaPhi(phi,phij)>0.05) etstrip_phiseedplus1+=rhetj;
+      if(deltaPhi(phi,phij)<-0.05) etstrip_phiseedminus1+=rhetj;
+      
+      etcluster+=rhetj;
+      //Timing discriminator
+      //We assign a weight to the rechit defined as: 
+      //Log10(Et)*f(T,R,Z)
+      //where f(T,R,Z) is the separation curve between halo-like and IP-like times.
+      //The time difference between a deposit from a outgoing IT halo and a deposit coming from a particle emitted at the IP is given by:  
+      //dt= ( - sqrt(R^2+z^2) + |z| )/c 
+      // For OT beam halo, the time difference is: 
+      //dt= ( 25 + sqrt(R^2+z^2) + |z| )/c 
+      //only consider the central part of HB as things get hard at large z.
+      //The best fitted value for R leads to 240 cm (IT) and 330 cm (OT)
+      double rhtj = rechitj.time();
+      timediscriminatorITBH+= TMath::Log10( rhetj )* ( rhtj +0.5*(sqrt(240.*240.+rhposj.z()*rhposj.z()) -abs(rhposj.z()))/30);
+      if(abs(rhposj.z())<300) timediscriminatorOTBH+= TMath::Log10( rhetj )* ( rhtj -0.5*(25-(sqrt(330.*330.+rhposj.z()*rhposj.z()) +abs(rhposj.z()))/30) );
+      bhrhcandidates.push_back(rhRef);
+    }
+    //Isolation conditions
+    if(!isiso) continue;
+    if(etstrip_phiseedplus1/etcluster>0.2&& etstrip_phiseedminus1/etcluster>0.2) continue;
+    
+    //Calculate E/H
+    double eoh(0);
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      if(abs(eta-etaj)>0.2) continue;
+      if(abs(deltaPhi(phi,phij))>0.2) continue;
+      eoh+=rhetj/etcluster;
+    }
+    //E/H condition
+    if(eoh>0.1) continue; 
+        
+
+    clustercand.SetClusterEt(etcluster); 
+    clustercand.SetSeedEt(rhet); 
+    clustercand.SetSeedEta(eta); 
+    clustercand.SetSeedPhi(phi); 
+    clustercand.SetSeedZ(rhpos.Z());
+    clustercand.SetSeedR(sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y())); 
+    clustercand.SetSeedTime(rechit.time()); 
+    clustercand.SetEoverH(eoh);
+    clustercand.SetNbTowersInEta(nbtowerssameeta);
+    clustercand.SetEtStripPhiSeedPlus1(etstrip_phiseedplus1);
+    clustercand.SetEtStripPhiSeedMinus1(etstrip_phiseedminus1);
+    clustercand.SetTimeDiscriminatorITBH(timediscriminatorITBH);
+    clustercand.SetTimeDiscriminatorOTBH(timediscriminatorOTBH);
+    clustercand.SetBeamHaloRecHitsCandidates(bhrhcandidates);
+
+    TheHaloClusterCandsHB.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsHB;
+} 
+
+
+std::vector<HaloClusterCandidateHE> CSCHaloAlgo::GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateHE> TheHaloClusterCandsHE;
+
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
+    HaloClusterCandidateHE  clustercand;
+    
+    const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    if(rhet<et_thresh_seedrh) continue;
+    if(abs(rhpos.z())<380) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    double rhr = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y());
+    bool isiso = true;
+    double etcluster(0),hdepth1(0);
+    int clustersize(0);
+    double etstrip_phiseedplus1(0), etstrip_phiseedminus1(0);
+
+    //Building the cluster 
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      HBHERecHitRef rhRef(hbherechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      if(abs(rhposj.z())<380) continue;
+      if(rhpos.z()*rhposj.z()<0) continue;
+      double phij = rhposj.phi();
+      if(abs(deltaPhi(phi,phij))>0.4) continue;
+      double rhrj = sqrt(rhposj.x()*rhposj.x()+rhposj.y()*rhposj.y());
+      if(abs( rhr-rhrj )>50) continue;
+      if(abs(deltaPhi(phi,phij))>0.2 ||abs( rhr-rhrj )>20 ){isiso=false;break;}//The deposit should be isolated
+      if(deltaPhi(phi,phij)>0.05) etstrip_phiseedplus1+=rhetj;
+      if(deltaPhi(phi,phij)<-0.05) etstrip_phiseedminus1+=rhetj;
+      clustersize++;
+      etcluster+=rhetj;
+      if(abs( rhposj.z())<405 )hdepth1+=rhetj;
+      //No timing condition for now in HE
+      bhrhcandidates.push_back(rhRef);
+    }
+    //Isolation conditions
+    if(!isiso) continue;
+    if(etstrip_phiseedplus1/etcluster>0.1&& etstrip_phiseedminus1/etcluster>0.1) continue;
+    
+    //Calculate E/H
+    double eoh(0);
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()/cosh(rhposj.eta());
+      if(rhetj<2) continue;
+      if(rhpos.z()*rhposj.z()<0) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      double dr = sqrt(abs(eta-etaj)*abs(eta-etaj)+deltaPhi(phi,phij)*deltaPhi(phi,phij));
+      if(dr>0.3) continue;
+
+      eoh+=rhetj/etcluster;
+    }
+    //E/H condition
+    if(eoh>0.1) continue; 
+        
+
+    clustercand.SetClusterEt(etcluster); 
+    clustercand.SetSeedEt(rhet); 
+    clustercand.SetSeedEta(eta); 
+    clustercand.SetSeedPhi(phi); 
+    clustercand.SetSeedZ(rhpos.Z());
+    clustercand.SetSeedR(sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y())); 
+    clustercand.SetSeedTime(rechit.time()); 
+    clustercand.SetEoverH(eoh);
+    clustercand.SetH1overH123(hdepth1/etcluster);
+    clustercand.SetClusterSize(clustersize);
+    clustercand.SetEtStripPhiSeedPlus1(etstrip_phiseedplus1);
+    clustercand.SetEtStripPhiSeedMinus1(etstrip_phiseedminus1);
+    clustercand.SetTimeDiscriminator(0);
+    clustercand.SetBeamHaloRecHitsCandidates(bhrhcandidates);
+
+    TheHaloClusterCandsHE.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsHE;
+} 
+
+
+
+
+
+bool CSCHaloAlgo::SegmentMatchingEB(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateEB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+  bool rhmatchingfound =false;
+  for(size_t i =0; i<haloclustercands.size(); i++){
+   
+    if(!ApplyMatchingCuts("EB",ishlt, haloclustercands[i].GetSeedEt(), iZ, haloclustercands[i].GetSeedZ(),iR, haloclustercands[i].GetSeedR(), iT,haloclustercands[i].GetSeedTime(), iPhi, haloclustercands[i].GetSeedPhi()))continue;
+    rhmatchingfound=true;
+    edm::RefVector<EcalRecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+    AddtoBeamHaloEBEERechits(bhrhcandidates, thehalodata,true);
+  }
+  return rhmatchingfound;
+}
+
+
+bool CSCHaloAlgo::SegmentMatchingEE(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateEE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+  bool rhmatchingfound =false;
+  for(size_t i =0; i<haloclustercands.size(); i++){
+   
+    if(!ApplyMatchingCuts("EE",ishlt, haloclustercands[i].GetSeedEt(), iZ, haloclustercands[i].GetSeedZ(),iR, haloclustercands[i].GetSeedR(), iT,haloclustercands[i].GetSeedTime(), iPhi, haloclustercands[i].GetSeedPhi()))continue;
+    rhmatchingfound=true;
+    edm::RefVector<EcalRecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+    AddtoBeamHaloEBEERechits(bhrhcandidates, thehalodata,false);
+  }
+  return rhmatchingfound;
+}
+
+bool CSCHaloAlgo::SegmentMatchingHB(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateHB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+  bool rhmatchingfound =false;
+  for(size_t i =0; i<haloclustercands.size(); i++){
+   
+    if(!ApplyMatchingCuts("HB",ishlt, haloclustercands[i].GetSeedEt(), iZ, haloclustercands[i].GetSeedZ(),iR, haloclustercands[i].GetSeedR(), iT,haloclustercands[i].GetSeedTime(), iPhi, haloclustercands[i].GetSeedPhi()))continue;
+    rhmatchingfound=true;
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+    AddtoBeamHaloHBHERechits(bhrhcandidates, thehalodata);
+  }
+  return rhmatchingfound;
+}
+
+bool CSCHaloAlgo::SegmentMatchingHE(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateHE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+  bool rhmatchingfound =false;
+  for(size_t i =0; i<haloclustercands.size(); i++){
+   
+    if(!ApplyMatchingCuts("HE",ishlt, haloclustercands[i].GetSeedEt(),  iZ, haloclustercands[i].GetSeedZ(),iR, haloclustercands[i].GetSeedR(), iT,haloclustercands[i].GetSeedTime(), iPhi, haloclustercands[i].GetSeedPhi()))continue;
+    rhmatchingfound=true;
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates = haloclustercands[i].GetBeamHaloRecHitsCandidates();
+    AddtoBeamHaloHBHERechits(bhrhcandidates, thehalodata);
+  }
+  return rhmatchingfound;
+}
+
+
+bool CSCHaloAlgo::ApplyMatchingCuts(TString subdet, bool ishlt, double rhet, double segZ, double rhZ, double segR, double rhR, double segT, double rhT, double segPhi, double rhPhi){
+  //Absolute time wrt BX
+  double tBXrh = rhT+sqrt(rhR*rhR+rhZ*rhZ)/30;
+  double tBXseg = segT+sqrt(segR*segR+segZ*segZ)/30;
+  //Time at z=0, under beam halo hypothesis    
+  double tcorseg = tBXseg - abs(segZ)/30;//Outgoing beam halo 
+  double tcorsegincbh = tBXseg + abs(segZ)/30;//Ingoing beam halo
+  double truedt[4]={1000,1000,1000,1000};
+  //There are four types of segments associated to beam halo, test each hypothesis:
+  //IT beam halo, ingoing track
+  double twindow_seg = 15;
+  if(abs(tcorsegincbh) <twindow_seg) truedt[0] =   tBXrh -tBXseg  -abs(rhZ-segZ)/30; 
+  //IT beam halo, outgoing track
+  if(abs(tcorseg) < twindow_seg) truedt[1] =  tBXseg -tBXrh -abs(rhZ-segZ)/30;  
+  //OT beam halo (from next BX), ingoing track
+  if(tcorsegincbh> 25-twindow_seg&& abs(tcorsegincbh) <25+twindow_seg) truedt[2] =   tBXrh -tBXseg  -abs(rhZ-segZ)/30; 
+  //OT beam halo (from next BX), outgoing track
+  if(tcorseg >25-twindow_seg && tcorseg<25+twindow_seg) truedt[3] =   tBXseg -tBXrh -abs(rhZ-segZ)/30; 
+  
+  
+  if(subdet=="EB"){
+    if(rhet< et_thresh_rh_eb) return false;
+    if(rhet< 20&&ishlt) return false;
+    if(abs(deltaPhi(rhPhi,segPhi))>dphi_thresh_segvsrh_eb) return false;
+    if(rhR-segR< dr_lowthresh_segvsrh_eb)return false;
+    if(rhR-segR> dr_highthresh_segvsrh_eb) return false;
+    if(abs(truedt[0])>dt_segvsrh_eb &&abs(truedt[1])>dt_segvsrh_eb &&abs(truedt[2])>dt_segvsrh_eb &&abs(truedt[3])>dt_segvsrh_eb   )return false;
+    return true;
+  }
+
+
+  if(subdet=="EE"){
+    
+    if(rhet< et_thresh_rh_ee) return false;
+    if(rhet< 20&&ishlt) return false;
+    if(abs(deltaPhi(rhPhi,segPhi))>dphi_thresh_segvsrh_ee) return false;
+    if(rhR-segR< dr_lowthresh_segvsrh_ee)return false;
+    if(rhR-segR> dr_highthresh_segvsrh_ee) return false;
+    if(abs(truedt[0])>dt_segvsrh_ee &&abs(truedt[1])>dt_segvsrh_ee &&abs(truedt[2])>dt_segvsrh_ee &&abs(truedt[3])>dt_segvsrh_ee   )return false;
+    return true;
+  }
+
+  if(subdet=="HB"){
+    
+    if(rhet< et_thresh_rh_hb) return false;
+    if(abs(deltaPhi(rhPhi,segPhi))>dphi_thresh_segvsrh_hb) return false;
+    if(rhR-segR< dr_lowthresh_segvsrh_hb)return false;
+    if(rhR-segR> dr_highthresh_segvsrh_hb) return false;
+    if(abs(truedt[0])>dt_segvsrh_hb &&abs(truedt[1])>dt_segvsrh_hb &&abs(truedt[2])>dt_segvsrh_hb &&abs(truedt[3])>dt_segvsrh_hb   )return false;
+    return true;
+  }
+
+  if(subdet=="HE"){
+    
+    if(rhet< et_thresh_rh_he) return false;
+    if(abs(deltaPhi(rhPhi,segPhi))>dphi_thresh_segvsrh_he) return false;
+    if(rhR-segR< dr_lowthresh_segvsrh_he)return false;
+    if(rhR-segR> dr_highthresh_segvsrh_he) return false;
+    if(abs(truedt[0])>dt_segvsrh_he &&abs(truedt[1])>dt_segvsrh_he &&abs(truedt[2])>dt_segvsrh_he &&abs(truedt[3])>dt_segvsrh_he   )return false;
+    return true;
+  }
+
+
   return false;
 }

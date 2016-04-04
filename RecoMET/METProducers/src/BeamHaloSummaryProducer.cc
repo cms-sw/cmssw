@@ -111,7 +111,23 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
        CSCData.GetSegmentIsCaloMatched()
        )
     TheBeamHaloSummary->GetCSCHaloReport()[5] = 1;
+  
+  
+  //CSCTight Id for 2016
+  if((CSCData.GetSegmentIsEBCaloMatched() || CSCData.GetHaloPatternFoundEB() ) ||
+     (CSCData.GetSegmentIsEECaloMatched() || CSCData.GetHaloPatternFoundEE() ) ||
+     (CSCData.GetSegmentIsHBCaloMatched() || CSCData.GetHaloPatternFoundHB() ) ||
+     (CSCData.GetSegmentIsHECaloMatched() || CSCData.GetHaloPatternFoundHE() ) 
+     )
+    TheBeamHaloSummary->GetCSCHaloReport()[6] = 1;
 
+  //CSC SuperTight Id for 2016 
+  if((CSCData.GetSegmentIsEBCaloMatched() && CSCData.GetHaloPatternFoundEB() ) ||
+     (CSCData.GetSegmentIsEECaloMatched() && CSCData.GetHaloPatternFoundEE() ) ||
+     (CSCData.GetSegmentIsHBCaloMatched() && CSCData.GetHaloPatternFoundHB() ) ||
+     (CSCData.GetSegmentIsHECaloMatched() && CSCData.GetHaloPatternFoundHE() ) 
+     ) 
+    TheBeamHaloSummary->GetCSCHaloReport()[7] = 1;
 
 
   //Ecal Specific Halo Data
