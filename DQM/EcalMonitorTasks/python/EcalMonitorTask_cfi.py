@@ -26,6 +26,7 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
         "PresampleTask",
         "RawDataTask",
         "RecoSummaryTask",
+        "TimingTask",
         "TrigPrimTask"
     ),
     # task parameters (included from indivitual cfis)
