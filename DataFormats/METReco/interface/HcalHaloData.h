@@ -7,10 +7,13 @@
   [date]: October 15, 2009
 */
 #include <vector>
+#include <cmath>
 #include "DataFormats/METReco/interface/PhiWedge.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-
+#include "DataFormats/METReco/interface/HaloClusterCandidateHB.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHE.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 struct HaloTowerStrip {
     std::vector<std::pair<uint8_t, CaloTowerDetId> > cellTowerIds;
     float hadEt;
@@ -50,9 +53,20 @@ namespace reco {
     const std::vector<HaloTowerStrip>& getProblematicStrips() const {return problematicStripCollection;}
     std::vector<HaloTowerStrip>& getProblematicStrips()  {return problematicStripCollection;}
 
+    const std::vector<HaloClusterCandidateHB>& getHaloClusterCandidatesHB() const {return thehaloclustercands_hb;}
+    std::vector<HaloClusterCandidateHB>& getHaloClusterCandidatesHB(){return thehaloclustercands_hb;}
+
+    const std::vector<HaloClusterCandidateHE>& getHaloClusterCandidatesHE() const {return thehaloclustercands_he;}
+    std::vector<HaloClusterCandidateHE>& getHaloClusterCandidatesHE(){return thehaloclustercands_he;}
+
+    void setHaloClusterCandidatesHB(std::vector<HaloClusterCandidateHB> x){thehaloclustercands_hb =x;};
+    void setHaloClusterCandidatesHE(std::vector<HaloClusterCandidateHE> x){thehaloclustercands_he =x;};
+
   private:
     std::vector<PhiWedge> PhiWedgeCollection;
     std::vector<HaloTowerStrip> problematicStripCollection;
+    std::vector<HaloClusterCandidateHB> thehaloclustercands_hb;
+    std::vector<HaloClusterCandidateHE> thehaloclustercands_he;
     
   };
 }

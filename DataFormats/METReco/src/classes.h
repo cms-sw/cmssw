@@ -36,6 +36,10 @@
 #include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateEB.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateEE.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHB.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHE.h"
 
 #include <vector>
 namespace DataFormats_METReco {
@@ -134,6 +138,26 @@ namespace DataFormats_METReco {
 
     std::vector<Point3DBase<float,GlobalTag> > x7;
     edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > > w8;
+
+    reco::HaloClusterCandidateEB x9;
+    edm::Wrapper<reco::HaloClusterCandidateEB> w9;
+    std::vector<reco::HaloClusterCandidateEB> v9;
+    std::vector<reco::HaloClusterCandidateEB>::iterator it9;
+
+    reco::HaloClusterCandidateEE x10;
+    edm::Wrapper<reco::HaloClusterCandidateEE> w10;
+    std::vector<reco::HaloClusterCandidateEE> v10;
+    std::vector<reco::HaloClusterCandidateEE>::iterator it10;
+
+    reco::HaloClusterCandidateHB x11;
+    edm::Wrapper<reco::HaloClusterCandidateHB> w11;
+    std::vector<reco::HaloClusterCandidateHB> v11;
+    std::vector<reco::HaloClusterCandidateHB>::iterator it11;
+
+    reco::HaloClusterCandidateHE x12;
+    edm::Wrapper<reco::HaloClusterCandidateHE> w12;
+    std::vector<reco::HaloClusterCandidateHE> v12;
+    std::vector<reco::HaloClusterCandidateHE>::iterator it12;
 
     edm::Ptr<reco::MET> ptr_m;
     edm::PtrVector<reco::MET> ptrv_m;

@@ -18,6 +18,7 @@ EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_EBRecHit    = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   IT_EERecHit    = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
   IT_ESRecHit    = iConfig.getParameter<edm::InputTag>("ESRecHitLabel");
+  IT_HBHERecHit    = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
 
   //Higher Level Reco 
   IT_SuperCluster = iConfig.getParameter<edm::InputTag>("SuperClusterLabel");
@@ -40,6 +41,7 @@ EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig)
   ebrechit_token_ = consumes<EBRecHitCollection>(IT_EBRecHit);
   eerechit_token_ = consumes<EERecHitCollection>(IT_EERecHit);
   esrechit_token_ = consumes<ESRecHitCollection>(IT_ESRecHit);
+  hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
   supercluster_token_ = consumes<reco::SuperClusterCollection>(IT_SuperCluster);
   photon_token_ = consumes<reco::PhotonCollection>(IT_Photon);
 
@@ -67,6 +69,10 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //  iEvent.getByLabel(IT_ESRecHit, TheESRecHits);
   iEvent.getByToken(esrechit_token_, TheESRecHits);
 
+  //Get HBHE RecHits
+  edm::Handle<HBHERecHitCollection> TheHBHERecHits;
+  iEvent.getByToken(hbherechit_token_, TheHBHERecHits);
+
   //Get ECAL Barrel SuperClusters                  
   edm::Handle<reco::SuperClusterCollection> TheSuperClusters;
   //  iEvent.getByLabel(IT_SuperCluster, TheSuperClusters);
@@ -84,17 +90,12 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   EcalAlgo.SetRecHitEnergyThresholds(EBRecHitEnergyThreshold, EERecHitEnergyThreshold, ESRecHitEnergyThreshold);
   EcalAlgo.SetPhiWedgeThresholds(SumEcalEnergyThreshold, NHitsEcalThreshold);
   
-  if( TheCaloGeometry.isValid() && ThePhotons.isValid() && TheSuperClusters.isValid()  &&  TheEBRecHits.isValid() && TheEERecHits.isValid() && TheESRecHits.isValid() )
-    {
-      std::auto_ptr<EcalHaloData> EcalData( new EcalHaloData( EcalAlgo.Calculate(*TheCaloGeometry, ThePhotons, TheSuperClusters, TheEBRecHits, TheEERecHits, TheESRecHits)));
-      iEvent.put( EcalData ) ; 
-    }
-  else 
-    {
-      std::auto_ptr<EcalHaloData> EcalData( new EcalHaloData() ) ;
-      iEvent.put(EcalData); 
-    }
+
+  std::auto_ptr<EcalHaloData> EcalData( new EcalHaloData( EcalAlgo.Calculate(*TheCaloGeometry, ThePhotons, TheSuperClusters, TheEBRecHits, TheEERecHits, TheESRecHits, TheHBHERecHits,iSetup)));
+  iEvent.put( EcalData ) ; 
+
   return;
 }
 
 EcalHaloDataProducer::~EcalHaloDataProducer(){}
+

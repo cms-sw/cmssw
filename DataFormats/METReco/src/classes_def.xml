@@ -159,12 +159,16 @@
   <class name="std::vector<reco::PhiWedge>"/>
   <class name="std::vector<reco::PhiWedge>::iterator"/>
 
-  <class name="reco::EcalHaloData" ClassVersion="10">
+  <class name="reco::EcalHaloData" ClassVersion="12">
+   <version ClassVersion="12" checksum="2557428940"/>
+   <version ClassVersion="11" checksum="2423056450"/>
    <version ClassVersion="10" checksum="520399124"/>
   </class>
   <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::HcalHaloData" ClassVersion="13">
+  <class name="reco::HcalHaloData" ClassVersion="15">
+   <version ClassVersion="15" checksum="356209099"/>
+   <version ClassVersion="14" checksum="545803425"/>
    <version ClassVersion="13" checksum="3305429659"/>
    <version ClassVersion="12" checksum="3928363167"/>
    <version ClassVersion="10" checksum="3928363167"/>
@@ -186,7 +190,9 @@
   </class>
   <class name="edm::Wrapper<reco::CSCHaloData>"/>
 
-  <class name="reco::GlobalHaloData" ClassVersion="10">
+  <class name="reco::GlobalHaloData" ClassVersion="12">
+   <version ClassVersion="12" checksum="2525701804"/>
+   <version ClassVersion="11" checksum="1191211594"/>
    <version ClassVersion="10" checksum="4148277690"/>
   </class>
   <class name="edm::Wrapper<reco::GlobalHaloData>"/>
@@ -211,5 +217,22 @@
   <class name="edm::Wrapper<BoundaryInformation>"/>
   <class name="std::vector<BoundaryInformation>"/>
   <class name="edm::Wrapper<std::vector<BoundaryInformation> >"/>
-
+  
+  <class name="reco::HaloClusterCandidateEB"/>
+  <class name="std::vector<reco::HaloClusterCandidateEB>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateEB> >"/>
+  
+  <class name="reco::HaloClusterCandidateEE"/>
+  <class name="std::vector<reco::HaloClusterCandidateEE>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateEE> >"/>
+  
+  <class name="reco::HaloClusterCandidateHB"/>
+  <class name="std::vector<reco::HaloClusterCandidateHB>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateHB> >"/>
+  
+  <class name="reco::HaloClusterCandidateHE"/>
+  <class name="std::vector<reco::HaloClusterCandidateHE>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateHE> >"/>
+   
+  
 </lcgdict>
