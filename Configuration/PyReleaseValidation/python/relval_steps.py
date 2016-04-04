@@ -1340,7 +1340,7 @@ steps['HARVESTUP15']={
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
     '--conditions':'auto:run2_mc', 
     '--mc':'',
-    '--era' : 'Run2_2016s',
+    '--era' : 'Run2_2016',
     '--filetype':'DQM',
     }
 
