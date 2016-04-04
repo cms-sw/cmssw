@@ -6,11 +6,11 @@ ClusterizerUnitTesterESProducer(const edm::ParameterSet& conf) :
   noises(new SiStripNoises())
 {
   edm::FileInPath testInfo(("RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTestDetInfo.dat"));
-  quality = boost::shared_ptr<SiStripQuality>(new SiStripQuality(testInfo));
+  quality = std::make_shared<SiStripQuality>(testInfo);
 
   extractNoiseGainQuality(conf);
 
-  gain = boost::shared_ptr<SiStripGain>(new SiStripGain(*apvGain,1));
+  gain = std::make_shared<SiStripGain>(*apvGain,1);
 
   quality->cleanUp();
   quality->fillBadComponents();

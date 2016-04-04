@@ -5,15 +5,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  AnalyticalPropagatorESProducer: public edm::ESProducer{
  public:
   AnalyticalPropagatorESProducer(const edm::ParameterSet & p);
   virtual ~AnalyticalPropagatorESProducer(); 
-  boost::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
-  boost::shared_ptr<Propagator> _propagator;
+  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 

@@ -7,7 +7,6 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackPropagation/RungeKutta"/>
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="boost"/>
 <export>
   <lib   name="1"/>
 </export>
