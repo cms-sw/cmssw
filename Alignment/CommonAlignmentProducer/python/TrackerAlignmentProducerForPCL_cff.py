@@ -10,6 +10,7 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 #from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
+from Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi import *
 
 #looper = cms.Looper("AlignmentProducer",
 AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
@@ -76,5 +77,8 @@ AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),            # save alignment?
                     saveApeToDB = cms.bool(False),         # save APE?
-                    saveDeformationsToDB = cms.bool(False) # save surface deformations (bows, etc.)?
+                    saveDeformationsToDB = cms.bool(False), # save surface deformations (bows, etc.)?
+
+                    #parameters used to read the pede files back for DQM and check on parameters
+                    MillePedeFileReader = cms.PSet(MillePedeFileReader)
                     )
