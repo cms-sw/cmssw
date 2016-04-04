@@ -26,6 +26,10 @@ def L1NtupleCustomReco(process):
     # load hbhe noise filter result producer
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
 
+    # Type-1 pf MET correction
+    process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
+    process.load("JetMETCorrections.Type1MET.correctedMet_cff")
+
 
 ####  Custom E/Gamma reco ####
 
@@ -45,6 +49,8 @@ def L1NtupleCustomReco(process):
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
         +process.HBHENoiseFilterResultProducer
+        +process.correctionTermsPfMetType1Type2
+        +process.pfMetT1
         +process.egmGsfElectronIDSequence
         )
     
