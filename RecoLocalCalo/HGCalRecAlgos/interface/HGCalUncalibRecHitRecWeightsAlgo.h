@@ -34,7 +34,14 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 
   void set_tdcOnsetfC(const double tdcOnset) { tdcOnsetfC_ = tdcOnset; }
 
-  void set_fCPerMIP(const std::vector<double>& fCPerMIP) { fCPerMIP_ = fCPerMIP; }
+  void set_fCPerMIP(const std::vector<double>& fCPerMIP) { 
+    if( std::any_of(fCPerMIP.cbegin(), 
+                    fCPerMIP.cend(), 
+                    [](double conv){ return conv <= 0.0; }) ) {
+      throw cms::Exception("BadConversionFactor") << "At least one of fCPerMIP is zero!" << std::endl;
+    }
+    fCPerMIP_ = fCPerMIP; 
+  }
   
   void setGeometry(const HGCalGeometry* geom) { 
     if ( geom ) ddd_ = &(geom->topology().dddConstants());

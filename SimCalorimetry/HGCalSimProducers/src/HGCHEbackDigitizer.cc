@@ -41,14 +41,14 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       for(size_t i=0; i<it->second.hit_info[0].size(); ++i)
 	{          
 	  //convert total energy keV->MIP, since converted to keV in accumulator
-	  float totalIniMIPs( (it->second).hit_info[0][i]*keV2MIP_ );
+	  const float totalIniMIPs( (it->second).hit_info[0][i]*keV2MIP_ );
           //std::cout << "energy in MIP: " << std::scientific << totalIniMIPs << std::endl;
 
 	  //generate random number of photon electrons
-	  uint32_t npe = std::floor(CLHEP::RandPoissonQ::shoot(engine,totalIniMIPs*nPEperMIP_));
+	  const uint32_t npe = std::floor(CLHEP::RandPoissonQ::shoot(engine,totalIniMIPs*nPEperMIP_));
           
 	  //number of pixels	
-	  float x = vdt::fast_expf( -((float)npe)/nTotalPE_ );
+	  const float x = vdt::fast_expf( -((float)npe)/nTotalPE_ );
 	  uint32_t nPixel(0);
 	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( nTotalPE_*(1.f-x)/(1.f-xTalk_*x), 0.f );
 	            
@@ -56,13 +56,14 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  nPixel = (uint32_t)std::max( CLHEP::RandGaussQ::shoot(engine,(double)nPixel,sdPixels_), 0. );
 	            
 	  //convert to MIP again and saturate
-	  float totalMIPs(totalIniMIPs);
-          const float xtalk = (nTotalPE_-xTalk_*((float)nPixel))/(nTotalPE_-((float)nPixel));
-	  if( nTotalPE_ != nPixel && xtalk > 0. )
-	    totalMIPs = (nTotalPE_/nPEperMIP_)*vdt::fast_logf(xtalk);
-	  else
-	    totalMIPs = 0.f;
-	  
+          float totalMIPs(0.f), xtalk = 0.f; 
+          const float peDiff = nTotalPE_ - (float) nPixel;
+          if (peDiff != 0.f) {
+            xtalk = (nTotalPE_-xTalk_*((float)nPixel)) / peDiff;
+            if( xtalk > 0.f && nPEperMIP_ != 0.f)
+              totalMIPs = (nTotalPE_/nPEperMIP_)*vdt::fast_logf(xtalk);
+          }
+          
 	  //add noise (in MIPs)
 	  chargeColl[i] = totalMIPs+std::max( CLHEP::RandGaussQ::shoot(engine,0.,noise_MIP_), 0. );
 	  if(debug && (it->second).hit_info[0][i]>0) 
