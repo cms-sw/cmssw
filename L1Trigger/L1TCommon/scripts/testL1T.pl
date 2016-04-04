@@ -2,6 +2,7 @@
 
 use Switch;
 use POSIX "waitpid";
+use File::Basename;
 
 $PYTHON_OPT = "--python_filename=l1t_test.py";
 $CMSRUN     = "cmsRun l1t_test.py";
@@ -418,18 +419,32 @@ sub main {
 
         if ($FAST) {$nevt = 5; }
         if ($SLOW) {$nevt = 500; }
+
+#my $CUR_DIR = cwd();
+
         my ($DIR1,$DIR2) = split /:/, $COMPARE_DIRS; 
-	print "INFO: Comparing results in $dir1 with those in $dir2\n";
-	$ours = "$DIR1/$WORK_DIR/test_0/L1Ntuple.root";
-	$theirs = "$DIR2/$WORK_DIR/test_0/L1Ntuple.root";
+	print "INFO: Comparing results in $DIR1 with those in $DIR2\n";
+
+        # make comparision dir
+        my $compStr1 = basename ($DIR1);
+        my $compStr2 = basename ($DIR2);
+        $COMP_DIR = "compare_$compStr1\_vs_$compStr2"; 
+        mkdir($COMP_DIR) unless(-d $COMP_DIR);
+
+        # go to comparision dir
+	chdir $COMP_DIR;
+	system "pwd";
+
+	$ours = "../$DIR1/$WORK_DIR/test_0/L1Ntuple.root";
+	$theirs = "../$DIR2/$WORK_DIR/test_0/L1Ntuple.root";
 	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
 	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
 	print "$ours\n";
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"reemul\",\"$ours\",\"$theirs\")'");
 
-	$ours = "$DIR1/$WORK_DIR/test_1/L1Ntuple.root";
-	$theirs = "$DIR2/$WORK_DIR/test_1/L1Ntuple.root";
+	$ours = "../$DIR1/$WORK_DIR/test_1/L1Ntuple.root";
+	$theirs = "../$DIR2/$WORK_DIR/test_1/L1Ntuple.root";
 	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
 	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
 	print "$ours\n";
@@ -437,16 +452,19 @@ sub main {
 	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"mc\",\"$ours\",\"$theirs\")'");
 
 	# this is a hack until L1T uGT output goes into L1TNtuple:
-        system "sed -n \'/L1T menu Name/,/Final OR Count/p\' $DIR1/$WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
-        system "sed -n \'/L1T menu Name/,/Final OR Count/p\' $DIR2/$WORK_DIR/test_0/CMSRUN.log > menu_b.txt";
-	print "INFO:  diff of menu summary of $DIR1 vs $DIR2 follows:\n";
+        system "sed -n \'/L1T menu Name/,/Final OR Count/p\' ../$DIR1/$WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
+        system "sed -n \'/L1T menu Name/,/Final OR Count/p\' ../$DIR2/$WORK_DIR/test_0/CMSRUN.log > menu_b.txt";
+	print "INFO:  diff of menu summary of $compStr1 vs $compStr2 follows:\n";
 	system "echo \'diff l1t menu with $nevt events of MC\' > diff_menu_a_vs_menu_b.txt\n";
-	system "echo \'< $DIR1\' >> diff_menu_a_vs_menu_b.txt\n";
-	system "echo \'> $DIR2\' >> diff_menu_a_vs_menu_b.txt\n";
+	system "echo \'< $compStr1\' >> diff_menu_a_vs_menu_b.txt\n";
+	system "echo \'> $compStr2\' >> diff_menu_a_vs_menu_b.txt\n";
 	system "echo \'---------------------------------------------------------' >> diff_menu_a_vs_menu_b.txt\n";
 	system "sleep 1";
 	system "diff menu_a.txt menu_b.txt >> diff_menu_a_vs_menu_b.txt\n";
-	$status = long_command("bash $ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/scripts/makeHtml.sh $DIR1 $DIR2");
+	$status = long_command("bash $ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/scripts/makeHtml.sh $compStr1 $compStr2");
+
+        # go back to original dir
+	chdir "..";
 	exit(0);
     }
 
