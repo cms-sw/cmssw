@@ -28,12 +28,12 @@ namespace l1t {
   // Empty constructor - should we include classes and collections? - AWB 28.01.16
   EMTFOutput() :
     hasAMC13Header(false), hasMTF7Header(false), hasEventHeader(false), hasCounters(false), numME(0), numRPC(0), 
-      numSP(0), hasEventTrailer(false), hasMTF7Trailer(false), hasAMC13Trailer(false), dataword(-99)
+      numSP(0), hasEventTrailer(false), hasMTF7Trailer(false), hasAMC13Trailer(false), format_errors(0), dataword(-99)
       {};
     
   /* // Fill constructor - should we included a copy constructor for classes and collections (vectors)? - AWB 28.01.16 */
   /* EMTFOutput(emtf::AMC13Header class_AMC13Header, emtf::SPCollection coll_SPCollection) : */
-  /*   AMC13Header(class_AMC13Header), SPCollection(coll_SPCollection), dataword(-99) */
+  /*   AMC13Header(class_AMC13Header), SPCollection(coll_SPCollection), format_errors(0), dataword(-99) */
   /*   {}; */
     
     virtual ~EMTFOutput() {};
@@ -48,29 +48,41 @@ namespace l1t {
     void set_EventTrailer(emtf::EventTrailer bits)  { EventTrailer = bits; hasEventTrailer = true; };
     void set_MTF7Trailer(emtf::MTF7Trailer bits)    { MTF7Trailer = bits;  hasMTF7Trailer  = true; };
     void set_AMC13Trailer(emtf::AMC13Trailer bits)  { AMC13Trailer = bits; hasAMC13Trailer = true; };
-    void set_dataword(uint64_t bits)                { dataword = bits;               };
+    void add_format_error()                         { format_errors += 1; };
+    void set_dataword(uint64_t bits)                { dataword = bits;    };
     
-    bool HasAMC13Header()                   { return hasAMC13Header;  };
-    bool HasMTF7Header()                    { return hasMTF7Header;   };
-    bool HasEventHeader()                   { return hasEventHeader;  };
-    bool HasCounters()                      { return hasCounters;     };
-    int  NumSP()                            { return numSP;           };
-    int  NumRPC()                           { return numRPC;          };
-    int  NumME()                            { return numME;           };
-    bool HasAMC13Trailer()                  { return hasAMC13Trailer; };
-    bool HasMTF7Trailer()                   { return hasMTF7Trailer;  };
-    bool HasEventTrailer()                  { return hasEventTrailer; };
-    emtf::AMC13Header GetAMC13Header()      { return AMC13Header;   };
-    emtf::MTF7Header GetMTF7Header()        { return MTF7Header;    };
-    emtf::EventHeader GetEventHeader()      { return EventHeader;   };
-    emtf::Counters GetCounters()            { return Counters;      };
-    emtf::MECollection GetMECollection()    { return MECollection;  };
-    emtf::RPCCollection GetRPCCollection()  { return RPCCollection; };
-    emtf::SPCollection GetSPCollection()    { return SPCollection;  };
-    emtf::EventTrailer GetEventTrailer()    { return EventTrailer;  };
-    emtf::MTF7Trailer GetMTF7Trailer()      { return MTF7Trailer;   };
-    emtf::AMC13Trailer GetAMC13Trailer()    { return AMC13Trailer;  };
-    const uint64_t Dataword() const     { return dataword; };
+    const bool HasAMC13Header()                  { return hasAMC13Header;  };
+    const bool HasMTF7Header()                   { return hasMTF7Header;   };
+    const bool HasEventHeader()                  { return hasEventHeader;  };
+    const bool HasCounters()                     { return hasCounters;     };
+    const int  NumSP()                           { return numSP;           };
+    const int  NumRPC()                          { return numRPC;          };
+    const int  NumME()                           { return numME;           };
+    const bool HasAMC13Trailer()                 { return hasAMC13Trailer; };
+    const bool HasMTF7Trailer()                  { return hasMTF7Trailer;  };
+    const bool HasEventTrailer()                 { return hasEventTrailer; };
+    const emtf::AMC13Header GetAMC13Header()     { return AMC13Header;     };
+    const emtf::MTF7Header GetMTF7Header()       { return MTF7Header;      };
+    const emtf::EventHeader GetEventHeader()     { return EventHeader;     };
+    const emtf::Counters GetCounters()           { return Counters;        };
+    const emtf::MECollection GetMECollection()   { return MECollection;    };
+    const emtf::RPCCollection GetRPCCollection() { return RPCCollection;   };
+    const emtf::SPCollection GetSPCollection()   { return SPCollection;    };
+    const emtf::EventTrailer GetEventTrailer()   { return EventTrailer;    };
+    const emtf::MTF7Trailer GetMTF7Trailer()     { return MTF7Trailer;     };
+    const emtf::AMC13Trailer GetAMC13Trailer()   { return AMC13Trailer;    };
+    emtf::AMC13Header * PtrAMC13Header()         { return & AMC13Header;  };
+    emtf::MTF7Header * PtrMTF7Header()           { return & MTF7Header;   };
+    emtf::EventHeader * PtrEventHeader()         { return & EventHeader;  };
+    emtf::Counters * PtrCounters()               { return & Counters;     };
+    emtf::MECollection * PtrMECollection()       { return & MECollection; };
+    emtf::RPCCollection * PtrRPCCollection()     { return & RPCCollection;};
+    emtf::SPCollection * PtrSPCollection()       { return & SPCollection; };
+    emtf::EventTrailer * PtrEventTrailer()       { return & EventTrailer; };
+    emtf::MTF7Trailer * PtrMTF7Trailer()         { return & MTF7Trailer;  };
+    emtf::AMC13Trailer * PtrAMC13Trailer()       { return & AMC13Trailer; };
+    const int Format_Errors()                    { return format_errors;   };
+    const uint64_t Dataword()                    { return dataword;        };
     
   private:
     bool hasAMC13Header; 
@@ -93,7 +105,7 @@ namespace l1t {
     emtf::EventTrailer EventTrailer;
     emtf::MTF7Trailer MTF7Trailer;
     emtf::AMC13Trailer AMC13Trailer;
-    
+    int  format_errors;
     uint64_t dataword; // Should this be more or fewer bits? - AWB 28.01.16
     
   }; // End class EMTFOutput
