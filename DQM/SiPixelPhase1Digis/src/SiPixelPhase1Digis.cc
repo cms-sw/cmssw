@@ -40,7 +40,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .reduce("COUNT")
     .groupBy(histo[ADC].defaultGrouping() + "/row", "EXTEND_X")
     .groupBy(histo[ADC].defaultGrouping(), "EXTEND_Y")
-    .saveAll();
+    .save();
 
   histo[MAP].setName("hitmap")
     .setTitle("Position of digis on module")
