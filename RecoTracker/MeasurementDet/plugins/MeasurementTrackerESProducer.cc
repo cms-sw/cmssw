@@ -43,7 +43,7 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
 
 MeasurementTrackerESProducer::~MeasurementTrackerESProducer() {}
 
-boost::shared_ptr<MeasurementTracker> 
+std::shared_ptr<MeasurementTracker> 
 MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
@@ -126,19 +126,19 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
-  _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTrackerImpl(pset_,
-										      pixelCPE.product(),
-										      stripCPE.product(),
-										      hitMatcher.product(),
-										      trackerGeom.product(),
-										      geometricSearchTracker.product(),
-										      ptr_stripQuality,
-                                                                                      stripQualityFlags,
-                                                                                      stripQualityDebugFlags,
-										      ptr_pixelQuality,
-										      ptr_pixelCabling,
-                                                                                      pixelQualityFlags,
-                                                                                      pixelQualityDebugFlags) ); 
+  _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
+							          pixelCPE.product(),
+							          stripCPE.product(),
+							          hitMatcher.product(),
+							          trackerGeom.product(),
+							          geometricSearchTracker.product(),
+							          ptr_stripQuality,
+                                                                  stripQualityFlags,
+                                                                  stripQualityDebugFlags,
+							          ptr_pixelQuality,
+							          ptr_pixelCabling,
+                                                                  pixelQualityFlags,
+                                                                  pixelQualityDebugFlags); 
   return _measurementTracker;
 }
 

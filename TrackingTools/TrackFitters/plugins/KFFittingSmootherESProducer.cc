@@ -37,7 +37,7 @@ namespace {
     
     ~KFFittingSmootherESProducer() {}
     
-    boost::shared_ptr<TrajectoryFitter> 
+    std::shared_ptr<TrajectoryFitter> 
     produce(const TrajectoryFitterRecord & iRecord){ 
       
       
@@ -47,7 +47,7 @@ namespace {
       iRecord.get(pset_.getParameter<std::string>("Fitter"), fit);
       iRecord.get(pset_.getParameter<std::string>("Smoother"), smooth);
       
-     return boost::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),pset_));
+     return std::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),pset_));
     }
 
   private:
