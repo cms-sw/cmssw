@@ -9,8 +9,6 @@
 // needs to run in step1 and step2 of the DQM, and need to have exectly the
 // same spec to work properly. This is why we play some template tricks here
 // to generate a Harvester and an Analyzer from the same code.
-// The cost is a lot of hazzle with the consumes<...>. Look at some example
-// code to get it right.
 //
 // To use the templates use sth. like this:
 // typedef SiPixelPhase1Analyzer<SiPixelPhase1Digis> SiPixelPhase1DigisAnalyzer;
@@ -51,12 +49,9 @@ class SiPixelPhase1Base {
   // You should analyze something, and call histoman.fill(...).
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
-  // Note that for the Analyzer template, you need to define sth. like this:
-  //template<class Consumer>
-  //void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, Consumer& c) {
-  //    srcToken_ = c.template consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
-  //}
-  // We cannot give a default in this base class. Also note the weird syntax with consumes, g++ wants it like this.
+  // You also have to use this to register consumes. We don't do this in the 
+  // constructor to avoid registering consumes in the harvester
+  void registerConsumes(edm::ConsumesCollector && iC);
 
   // These are directly called from the corresponding DQM framework methods. 
   // If you just use HistogramManager, the default impls are just fine.
@@ -78,14 +73,14 @@ class SiPixelPhase1Base {
 };
 
 // This wraps the SiPixelPhase1Base (or anything else that has the right methods) 
-// into an DQMEDAnalyzer. In addition to the usual methods it calls a template 
+// into an DQMEDAnalyzer. In addition to the usual methods it calls
 // registerConsumes where all the consumes<...> calls have to be performed; see
 // comment above.
 template<class Impl>
 class SiPixelPhase1Analyzer : public DQMEDAnalyzer {
   public: 
   SiPixelPhase1Analyzer(const edm::ParameterSet& ps) : impl(ps) {
-    impl.registerConsumes(ps, *this);
+    impl.registerConsumes(ps, consumesCollector());
   };
 
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup) {
@@ -93,12 +88,6 @@ class SiPixelPhase1Analyzer : public DQMEDAnalyzer {
   };
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) {
     impl.analyze(e, eSetup);
-  };
-
-  // by default this is protected, this makes it visible
-  template <typename ProductType, edm::BranchType B=edm::InEvent>
-  edm::EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
-    return edm::EDConsumerBase::consumes<ProductType, B>(tag);
   };
 
   private:

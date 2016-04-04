@@ -74,9 +74,8 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
 
 } 
 
-template<class Consumer>
-void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, Consumer& c) {
-  srcToken_ = c.template consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
+void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& c) {
+  srcToken_ = c.consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
   
 
