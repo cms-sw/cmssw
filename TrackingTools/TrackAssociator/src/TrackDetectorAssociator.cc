@@ -735,7 +735,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	       // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
 	       //   if(gemChamber) {
 	       if(detId->subdetId() == 4) {
-	    
+	          std::cout << "here1" << std::endl; 
 	          // gem width and length are interchanged - need to fix
 	          //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
 	          const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet);
@@ -746,7 +746,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	          // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
 	          // GEMDetId Rsid = GEMDetId(detId->rawId());
 	          // std::cout<< Rsid <<std::endl;
-	          // std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	           std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
 	          // auto& rolls(gemChamber->etaPartitions());
 	          // for (auto roll : rolls){
 	          //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
@@ -849,7 +849,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	     // Get the range for the corresponding segments
 	     GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	     // Loop over the segments
-	     //std::cout<<"TrackDetectorAssociator::GEM::found gem chamber"<<std::endl;
+	     std::cout<<"TrackDetectorAssociator::GEM::found gem chamber"<<std::endl;
 	     for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
 	       if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
 	         std::cout<<"TrackDetectorAssociator::GEM::matched to gem seg"<<std::endl;
@@ -941,7 +941,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 
      Double_t sigmax = sqrt(C[3][3]+gemsegment->localPositionError().xx() ),
               sigmay = sqrt(C[4][4]+gemsegment->localPositionError().yy() );
-/*
+
      std::cout
      << std::endl
      << "station = " << station << std::endl
@@ -957,7 +957,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
      << "hit p3 local : (" << thisDirection.x() << ", " << thisDirection.y() << ", " << thisDirection.z() << ")" << std::endl
      << "sigmax2 = " << C[3][3] << ", " << gemsegment->localPositionError().xx() << std::endl
      << "sigmay2 = " << C[4][4] << ", " << gemsegment->localPositionError().yy() << std::endl;
-*/
+
      bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
     
      if (station == 1){
@@ -974,6 +974,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
      }
      double segLocalPhi = thisDirection.phi();
      if (std::abs(reco::deltaPhi(p3FinalReco.phi(),segLocalPhi)) < parameters.maxDiffPhiDirection_) Dir_MatchFound = true;
+     std::cout << "=============> X : " << X_MatchFound << ", Y : " << Y_MatchFound << ", Phi : " << Dir_MatchFound << std::endl;
 
      isGood = X_MatchFound && Y_MatchFound && Dir_MatchFound;
      if(isGood) std::cout << "+++++++++++++++> pass" << std::endl;

@@ -561,7 +561,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          const bool goodGEMMuon = isGEMMuon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
-         if ( goodGEMMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
+         if ( goodGEMMuon ){
+           trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
+           std::cout << "goodGEMMuon!" << std::endl;
+         }
          for ( auto& muon : *outputMuons ) 
          {
            if ( muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
@@ -573,12 +576,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
+             if (goodGEMMuon) muon.setType( muon.type() | reco::Muon::GEMMuon );
              LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
              break;
            }
          }
          if ( newMuon ) {
-           if ( goodTrackerMuon || goodRPCMuon ){
+           if ( goodTrackerMuon || goodRPCMuon || goodGEMMuon ){
              outputMuons->push_back( trackerMuon );
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
