@@ -489,6 +489,7 @@ streamA_datasetMuonEG_selector.triggerConditions = cms.vstring('HLT_DiMu9_Ele9_C
     'HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v3', 
     'HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v2', 
     'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v3', 
+    'HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v2', 
     'HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v3', 
     'HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v2', 
