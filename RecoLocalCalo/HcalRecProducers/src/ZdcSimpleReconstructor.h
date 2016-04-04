@@ -8,6 +8,7 @@
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/ZdcSimpleRecAlgo.h"
 

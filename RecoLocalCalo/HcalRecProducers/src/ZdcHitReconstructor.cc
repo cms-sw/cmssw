@@ -101,9 +101,9 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
      e.getByToken(tok_input_hcal,digi);
      
      if(digi->size() == 0) {
-       e.getByToken(tok_input_castor,digi);
-       if(digi->size() != 0) std::cout<<"No ZDC info in hcalDigis, using castorDigis. This is normal for all Run2 datasets"<<std::endl;
-       else std::cout<<"No ZDC info in either castorDigis or hcalDigis"<<std::endl;
+       e.getByToken(tok_input_hcal,digi);
+       if(digi->size() == 0) 
+       	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
      }
         
      // create empty output
