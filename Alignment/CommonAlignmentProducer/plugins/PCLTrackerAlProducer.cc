@@ -90,9 +90,6 @@ PCLTrackerAlProducer
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   theFirstRun              (cond::timeTypeSpecs[cond::runnumber].endValue)
-
-  //millePedeLogFile_(config.getUntrackedParameter<std::string>("millePedeLogFile")),
-  //millePedeResFile_(config.getUntrackedParameter<std::string>("millePedeResFile"))
 {
   
   tjTkAssociationMapToken = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
@@ -989,12 +986,17 @@ void PCLTrackerAlProducer
                             << "Terminating algorithm.";
   theAlignmentAlgo->terminate();
 
-  MillePedeFileReader mpReader(
-    theParameterSet.getParameter<edm::ParameterSet>("MillePedeFileReader")
-  );
-  mpReader.read();
-  if (mpReader.storeAlignments()) {
-    storeAlignmentsToDB();
+  if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
+    // if this is not the harvesting step there is no reason to look for the PEDE log and res files and to call the storeAlignmentsToDB method
+    MillePedeFileReader mpReader(theParameterSet.getParameter<edm::ParameterSet>("MillePedeFileReader"));
+    mpReader.read();
+    if (mpReader.storeAlignments()) {
+      storeAlignmentsToDB();
+    }
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
+			      << "no payload to be stored!";
+
   }
 }
 
