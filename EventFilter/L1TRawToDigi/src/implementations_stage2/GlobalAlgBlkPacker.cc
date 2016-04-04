@@ -53,12 +53,15 @@ namespace stage2 {
 		     if(blk<3) {
 		       if(j->getAlgoDecisionInitial(bt+startAlg))    word |= (0x1 << bt);
 		     } else if(blk<6) {
-		       if(j->getAlgoDecisionPreScaled(bt+startAlg))  word |= (0x1 << bt);
+		       if(j->getAlgoDecisionInterm(bt+startAlg))  word |= (0x1 << bt);
 		     } else {
 		       if(j->getAlgoDecisionFinal(bt+startAlg))      word |= (0x1 << bt);
 		     }    
 		  }
-		  
+		
+		} else if(blk==2 && wd==4) {  
+		 
+		   word |= j->getL1MenuUUID();
 		
 		} else if(blk==8){
 		
