@@ -14,7 +14,8 @@ namespace l1t {
     
     SP() :
       pt_lut_address(-99), phi_local_int(-99), phi_GMT_int(-99), eta_GMT_int(-99), pt_int(-99), 
-	quality(-99), bx(-99), me2_csc_id(-99), me2_trk_stub_num(-99), me3_csc_id(-99), me3_trk_stub_num(-99), me4_csc_id(-99), me4_trk_stub_num(-99), me1_subsector(-99), me1_csc_id(-99), me1_trk_stub_num(-99),
+	quality(-99), mode(-99), bx(-99), me2_csc_id(-99), me2_trk_stub_num(-99), me3_csc_id(-99), me3_trk_stub_num(-99), 
+	me4_csc_id(-99), me4_trk_stub_num(-99), me1_subsector(-99), me1_csc_id(-99), me1_trk_stub_num(-99),
 	me4_TBIN(-99), me3_TBIN(-99), me2_TBIN(-99), me1_TBIN(-99), tbin_num(-99), 
 	hl(-99), c(-99), vc(-99), vt(-99), se(-99), bc0(-99), 
 	pt(-99), phi_local(-99), phi_local_rad(-99), phi_global(-99), phi_GMT(-99), phi_GMT_corr(-99), 
@@ -23,13 +24,13 @@ namespace l1t {
 
     /* Could we have the fill constructor take the "true" eta/phi/pt and fill the integers? - AWB 02.02.16 */
     SP(int int_pt_lut_address, int int_phi_local_int, int int_phi_GMT_int, int int_eta_GMT_int, int int_pt_int, 
-       int int_quality, int int_bx, int int_me2_csc_id, int int_me2_trk_stub_num, int int_me3_csc_id, int int_me3_trk_stub_num, 
+       int int_quality, int int_mode, int int_bx, int int_me2_csc_id, int int_me2_trk_stub_num, int int_me3_csc_id, int int_me3_trk_stub_num, 
        int int_me4_csc_id, int int_me4_trk_stub_num, int int_me1_subsector, int int_me1_csc_id, int int_me1_trk_stub_num, 
        int int_me4_TBIN, int int_me3_TBIN, int int_me2_TBIN, int int_me1_TBIN, int int_TBIN_num, 
        int int_hl, int int_c, int int_vc, int int_vt, int int_se, int int_bc0) :
-       /* float flt_pt, float flt_phi_local, float flt_phi_local_rad, float flt_phi_GMT, float flt_phi_GMT_rad, float flt_eta_GMT) : */
-        pt_lut_address(int_pt_lut_address), phi_local_int(int_phi_local_int), phi_GMT_int(int_phi_GMT_int), eta_GMT_int(int_eta_GMT_int), pt_int(int_pt_int), 
-	quality(int_quality), bx(int_bx), me2_csc_id(int_me2_csc_id), me2_trk_stub_num(int_me2_trk_stub_num), me3_csc_id(int_me3_csc_id), 
+      /* float flt_pt, float flt_phi_local, float flt_phi_local_rad, float flt_phi_GMT, float flt_phi_GMT_rad, float flt_eta_GMT) : */
+      pt_lut_address(int_pt_lut_address), phi_local_int(int_phi_local_int), phi_GMT_int(int_phi_GMT_int), eta_GMT_int(int_eta_GMT_int), pt_int(int_pt_int), 
+	quality(int_quality), mode(int_mode), bx(int_bx), me2_csc_id(int_me2_csc_id), me2_trk_stub_num(int_me2_trk_stub_num), me3_csc_id(int_me3_csc_id), 
         me3_trk_stub_num(int_me3_trk_stub_num), me4_csc_id(int_me4_csc_id), me4_trk_stub_num(int_me4_trk_stub_num), 
         me1_subsector(int_me1_subsector), me1_csc_id(int_me1_csc_id), me1_trk_stub_num(int_me1_trk_stub_num), 
         me4_TBIN(int_me4_TBIN), me3_TBIN(int_me3_TBIN), me2_TBIN(int_me2_TBIN), me1_TBIN(int_me1_TBIN), tbin_num(int_TBIN_num), 
@@ -59,6 +60,7 @@ namespace l1t {
       float calc_eta_GMT       (int  bits)  { return bits * 0.010875;                    };
       int   calc_eta_GMT_int   (float val)  { return val  / 0.010875;                    };
       float calc_phi_global    (float loc, int sect) { return loc + 15 + (sect - 1) * 60;};  
+      int   calc_mode() { return 8*me1_trk_stub_num + 4*me2_trk_stub_num + 2*me3_trk_stub_num + me4_trk_stub_num; };
 
 
       // Setting pt, phi_local, phi_GMT, or eta_GMT automatically sets all formats (integer, degrees, radians) 
@@ -101,6 +103,7 @@ namespace l1t {
 
       void set_pt_lut_address   (int bits)       { pt_lut_address   = bits; };
       void set_quality          (int bits)       { quality          = bits; };
+      void set_mode             (int bits)       { mode             = bits; };
       void set_bx               (int bits)       { bx               = bits; };
       void set_me2_csc_id       (int bits)       { me2_csc_id       = bits; };
       void set_me2_trk_stub_num (int bits)       { me2_trk_stub_num = bits; };
@@ -132,6 +135,7 @@ namespace l1t {
       const int Eta_GMT_int()      { return eta_GMT_int     ; };
       const int Pt_int()           { return pt_int          ; };
       const int Quality()          { return quality         ; };
+      const int Mode()             { return mode            ; };
       const int BX()               { return bx              ; };
       const int ME2_csc_id()       { return me2_csc_id      ; };
       const int ME2_trk_stub_num() { return me2_trk_stub_num; };
@@ -188,6 +192,7 @@ namespace l1t {
       int eta_GMT_int     ;
       int pt_int          ;
       int quality         ;
+      int mode            ;
       int bx              ;
       int me2_csc_id      ;
       int me2_trk_stub_num;
