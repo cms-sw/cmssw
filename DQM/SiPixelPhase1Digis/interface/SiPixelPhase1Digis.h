@@ -29,8 +29,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
 
   void analyze(const edm::Event&, const edm::EventSetup&) ;
 
-  template<class Consumer>
-  void registerConsumes(const edm::ParameterSet& iConfig, Consumer& c);
+  void registerConsumes(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& c);
 
   private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;
