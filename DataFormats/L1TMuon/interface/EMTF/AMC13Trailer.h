@@ -36,16 +36,16 @@ namespace l1t {
       void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits; };
       
-      const int Evt_lgth()      const { return  evt_lgth ; };
-      const int CRC16()         const { return  crc16 ; };
-      const int Evt_stat()      const { return  evt_stat ; };
-      const int TTS()           const { return  tts ; };
-      const int C()             const { return  c ; };
-      const int F()             const { return  f ; };
-      const int T()             const { return  t ; };
-      const int R()             const { return  r ; };
-      const int Format_Errors() const { return format_errors; };
-      const uint64_t Dataword() const { return dataword; };
+      const int Evt_lgth()      { return  evt_lgth ; };
+      const int CRC16()         { return  crc16 ; };
+      const int Evt_stat()      { return  evt_stat ; };
+      const int TTS()           { return  tts ; };
+      const int C()             { return  c ; };
+      const int F()             { return  f ; };
+      const int T()             { return  t ; };
+      const int R()             { return  r ; };
+      const int Format_Errors() { return format_errors; };
+      const uint64_t Dataword() { return dataword; };
       
     private:
       int  evt_lgth;

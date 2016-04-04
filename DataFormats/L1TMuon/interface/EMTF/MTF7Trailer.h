@@ -31,11 +31,11 @@ namespace l1t {
       void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits;    };
 
-      const int CRC_32()         const { return crc_32;   };
-      const int LV1_id()         const { return lv1_id;   };
-      const int Data_length()    const { return data_length;};
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword; };
+      const int CRC_32()         { return crc_32;   };
+      const int LV1_id()         { return lv1_id;   };
+      const int Data_length()    { return data_length;};
+      const int Format_Errors()  { return format_errors; };
+      const uint64_t Dataword()  { return dataword; };
       
     private:
       int crc_32;
