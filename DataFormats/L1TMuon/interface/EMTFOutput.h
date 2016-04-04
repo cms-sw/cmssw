@@ -71,16 +71,16 @@ namespace l1t {
     const emtf::EventTrailer GetEventTrailer()   { return EventTrailer;    };
     const emtf::MTF7Trailer GetMTF7Trailer()     { return MTF7Trailer;     };
     const emtf::AMC13Trailer GetAMC13Trailer()   { return AMC13Trailer;    };
-    emtf::AMC13Header * SeeAMC13Header()        { return & AMC13Header;  };
-    emtf::MTF7Header * SeeMTF7Header()          { return & MTF7Header;   };
-    emtf::EventHeader * SeeEventHeader()        { return & EventHeader;  };
-    emtf::Counters * SeeCounters()              { return & Counters;     };
-    emtf::MECollection * SeeMECollection()      { return & MECollection; };
-    emtf::RPCCollection * SeeRPCCollection()    { return & RPCCollection;};
-    emtf::SPCollection * SeeSPCollection()      { return & SPCollection; };
-    emtf::EventTrailer * SeeEventTrailer()      { return & EventTrailer; };
-    emtf::MTF7Trailer * SeeMTF7Trailer()        { return & MTF7Trailer;  };
-    emtf::AMC13Trailer * SeeAMC13Trailer()      { return & AMC13Trailer; };
+    emtf::AMC13Header * PtrAMC13Header()         { return & AMC13Header;  };
+    emtf::MTF7Header * PtrMTF7Header()           { return & MTF7Header;   };
+    emtf::EventHeader * PtrEventHeader()         { return & EventHeader;  };
+    emtf::Counters * PtrCounters()               { return & Counters;     };
+    emtf::MECollection * PtrMECollection()       { return & MECollection; };
+    emtf::RPCCollection * PtrRPCCollection()     { return & RPCCollection;};
+    emtf::SPCollection * PtrSPCollection()       { return & SPCollection; };
+    emtf::EventTrailer * PtrEventTrailer()       { return & EventTrailer; };
+    emtf::MTF7Trailer * PtrMTF7Trailer()         { return & MTF7Trailer;  };
+    emtf::AMC13Trailer * PtrAMC13Trailer()       { return & AMC13Trailer; };
     const int Format_Errors()                    { return format_errors;   };
     const uint64_t Dataword()                    { return dataword;        };
     
