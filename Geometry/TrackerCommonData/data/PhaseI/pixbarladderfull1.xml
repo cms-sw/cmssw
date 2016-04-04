@@ -59,8 +59,8 @@
  	   [pixbarladderfull1:MountClipLength]/2"/>-->
  <Constant name="TBMchipY"   value="[HybridY]+
            ([pixbarladder:HybridThick]+[pixbarladder:TBMchipThick])/2"/>
- <Constant name="ModuleCapY"   value="[TBMchipY]+
-           ([pixbarladder:TBMchipThick]+[pixbarladder:ModuleCapThick])/2"/>
+ <Constant name="ModuleCapY"   value="[CapacitorStripY]+
+           ([pixbarladder:CapacitorStripThick]+[pixbarladder:ModuleCapThick])/2"/>
  <Constant name="CFHoleZ"           value="-([CFHoles]-1)*[CFHoleStep]/2"/>
 </ConstantsSection>
 

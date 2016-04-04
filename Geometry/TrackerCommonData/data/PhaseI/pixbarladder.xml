@@ -42,11 +42,11 @@
  
  <!-- Module thick uses CapacitorThick since it is the highest object on the Hybrid surface -->
  <Constant name="Module0Thick"       value="([ROChipThick0]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/> 
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/> 
  <Constant name="Module1Thick"       value="([BaseThick]+[ROChipThick123]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/>
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/>
  <Constant name="Module23Thick"       value="([BaseThick]+[ROChipThick123]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/> 
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/> 
  
  <Constant name="ModuleDz"          value="[Length]/[Modules]"/>
  <Constant name="ModuleZ"           value="-([Length]-[ModuleDz])/2"/>
