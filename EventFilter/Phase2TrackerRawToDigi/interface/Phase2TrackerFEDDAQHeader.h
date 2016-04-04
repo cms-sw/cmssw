@@ -4,7 +4,7 @@
 #include <cstring>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   //
   // Constants
@@ -50,10 +50,10 @@ namespace sistrip {
       const uint8_t* data() const;
 
       // setters
-      FEDDAQHeader& setEventType(const FEDDAQEventType evtType);
-      FEDDAQHeader& setL1ID(const uint32_t l1ID);
-      FEDDAQHeader& setBXID(const uint16_t bxID);
-      FEDDAQHeader& setSourceID(const uint16_t sourceID);
+      void setEventType(const FEDDAQEventType evtType);
+      void setL1ID(const uint32_t l1ID);
+      void setBXID(const uint16_t bxID);
+      void setSourceID(const uint16_t sourceID);
       FEDDAQHeader(const uint32_t l1ID, const uint16_t bxID,
                    const uint16_t sourceID,
                    const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
@@ -97,7 +97,7 @@ namespace sistrip {
   inline void FEDDAQHeader::print(std::ostream& os) const
   { printHex(header_,8,os); }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
 #endif // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDDAQHeader_H
 

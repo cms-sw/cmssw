@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# set cabling by hand (typically for testbeam)
 Phase2TrackerCabling = cms.ESSource("Phase2TrackerCablingCfgESSource",
     modules = cms.VPSet(
                  cms.PSet( # Phase2 tracker module connection
