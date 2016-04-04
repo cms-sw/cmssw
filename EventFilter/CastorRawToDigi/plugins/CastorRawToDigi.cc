@@ -144,8 +144,11 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       {
 	if (fed.size()==0)
 	  {
-	    edm::LogWarning("EmptyData") << "No data for FED "<< *i;
-	    report->addError(*i);
+	    if (complainEmptyData_) 
+	      {
+			edm::LogWarning("EmptyData") << "No data for FED " << *i;
+			report->addError(*i);
+	      }
 	  }
 	if (fed.size()!=0)
 	  {
@@ -158,8 +161,11 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       {
 	if (fed.size()==0)
 	  {
-	    edm::LogWarning("EmptyData") << "No data for FED "<< *i;
-	    report->addError(*i);
+	    if (complainEmptyData_) 
+	      {
+			edm::LogWarning("EmptyData") << "No data for FED " << *i;
+			report->addError(*i);
+	      }
 	  }
 	if (fed.size()!=0)
 	  {
