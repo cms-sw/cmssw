@@ -4,6 +4,8 @@
 /** \class DTT0Correction
  *  Class that reads and corrects t0 DB
  *
+ *  $Date: 2012/03/02 19:47:32 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 

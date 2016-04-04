@@ -1,6 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
+ *  $Date: 2012/03/21 13:48:06 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -14,7 +16,7 @@
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
-#include <cmath>
+#include <math.h>
 
 using namespace std;
 using namespace edm;
