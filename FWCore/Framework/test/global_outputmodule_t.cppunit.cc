@@ -291,7 +291,7 @@ void testGlobalOutputModule::basicTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
+  auto testProd = std::make_shared<BasicOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
@@ -303,7 +303,7 @@ void testGlobalOutputModule::fileTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<FileOutputModule> testProd = std::make_shared<FileOutputModule>(pset);
+  auto testProd = std::make_shared<FileOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
