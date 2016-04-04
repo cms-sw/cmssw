@@ -325,6 +325,14 @@ note: see Baseline_tilted_2016_03_07.cfg for full config files
 </SpecPar>
 <SpecPar name="OuterTrackerPixelBarrelLadderPar">
 <PartSelector path="//Rod1"/>
+<PartSelector path="//Rod2"/>
+<PartSelector path="//Rod3"/>
+<PartSelector path="//Rod4"/>
+<PartSelector path="//Rod5"/>
+<PartSelector path="//Rod6"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
+</SpecPar>
+<SpecPar name="OuterTrackerPixelBarrelRingPar">
 <PartSelector path="//Ring5Layer1Minus"/>
 <PartSelector path="//Ring6Layer1Minus"/>
 <PartSelector path="//Ring7Layer1Minus"/>
@@ -347,7 +355,6 @@ note: see Baseline_tilted_2016_03_07.cfg for full config files
 <PartSelector path="//Ring13Layer1Plus"/>
 <PartSelector path="//Ring14Layer1Plus"/>
 <PartSelector path="//Ring15Layer1Plus"/>
-<PartSelector path="//Rod2"/>
 <PartSelector path="//Ring7Layer2Minus"/>
 <PartSelector path="//Ring8Layer2Minus"/>
 <PartSelector path="//Ring9Layer2Minus"/>
@@ -372,7 +379,6 @@ note: see Baseline_tilted_2016_03_07.cfg for full config files
 <PartSelector path="//Ring16Layer2Plus"/>
 <PartSelector path="//Ring17Layer2Plus"/>
 <PartSelector path="//Ring18Layer2Plus"/>
-<PartSelector path="//Rod3"/>
 <PartSelector path="//Ring9Layer3Minus"/>
 <PartSelector path="//Ring10Layer3Minus"/>
 <PartSelector path="//Ring11Layer3Minus"/>
@@ -399,10 +405,7 @@ note: see Baseline_tilted_2016_03_07.cfg for full config files
 <PartSelector path="//Ring19Layer3Plus"/>
 <PartSelector path="//Ring20Layer3Plus"/>
 <PartSelector path="//Ring21Layer3Plus"/>
-<PartSelector path="//Rod4"/>
-<PartSelector path="//Rod5"/>
-<PartSelector path="//Rod6"/>
-<Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
+<Parameter name="TkDDDStructure" value="Phase2OTBarrelPanel"/>
 </SpecPar>
 <SpecPar name="OuterTrackerBarrelStackPar">
 <PartSelector path="//BModule1Layer1"/>

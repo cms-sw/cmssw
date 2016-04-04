@@ -105,7 +105,7 @@ namespace cms
     rndEngine_ = &(rng->getEngine(lumi.index()));
 
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     
     if (theTkDigiGeomWatcher.check(iSetup)) {
       iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
