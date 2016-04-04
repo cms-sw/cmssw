@@ -1,7 +1,6 @@
 <lcgdict>
-  <class name="GlobalAlgBlk" ClassVersion="13">
-   <version ClassVersion="13" checksum="2460401123"/>
-   <version ClassVersion="12" checksum="2404151857"/>
+  <class name="GlobalAlgBlk" ClassVersion="12">
+   <version ClassVersion="12" checksum="1972925232"/>
    <version ClassVersion="11" checksum="2460401123"/>
    <version ClassVersion="10" checksum="2404151857"/>
   </class>
@@ -9,9 +8,7 @@
   <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
   <class name="std::vector<GlobalAlgBlk>"/>
 
-  <class name="GlobalExtBlk" ClassVersion="13">
-   <version ClassVersion="13" checksum="3765126275"/>
-   <version ClassVersion="12" checksum="3371214087"/>
+  <class name="GlobalExtBlk" ClassVersion="11">
    <version ClassVersion="11" checksum="3765126275"/>
    <version ClassVersion="10" checksum="3371214087"/>
   </class>

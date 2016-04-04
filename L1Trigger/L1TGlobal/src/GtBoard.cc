@@ -832,7 +832,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
     // Copy Algorithm bits to Prescaled word 
     // Prescaling and Masking done below if requested.
-    m_uGtAlgBlk.copyInitialToPrescaled();
+    m_uGtAlgBlk.copyInitialToInterm();
     
 
     // -------------------------------------------
@@ -860,7 +860,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 	    else {
 
 	      // change bit to false in prescaled word and final decision word
-	      m_uGtAlgBlk.setAlgoDecisionPreScaled(iBit,false);
+	      m_uGtAlgBlk.setAlgoDecisionInterm(iBit,false);
 
 	    } //if Prescale counter reached zero
 	  } //if prescale factor is not 1 (ie. no prescale)
@@ -883,14 +883,14 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
       
     // Copy Algorithm bits fron Prescaled word to Final Word 
     // Masking done below if requested.
-    m_uGtAlgBlk.copyPrescaledToFinal();
+    m_uGtAlgBlk.copyIntermToFinal();
     
     if( !algorithmTriggersUnmasked ){
 
       bool temp_algFinalOr = false;
       for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
 
-	bool bitValue = m_uGtAlgBlk.getAlgoDecisionPreScaled( iBit );
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
 
 	if( bitValue ){
 	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
@@ -925,8 +925,8 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 // Fill DAQ Record
 void l1t::GtBoard::fillAlgRecord(int iBxInEvent, 
 				    std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
-				    cms_uint64_t orbNr,
-				    int bxNr
+                                    int prescaleSet,
+				    int menuUUID
 				    ) 
 {
 
@@ -938,10 +938,9 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
     }
 
 // Set header information
-    m_uGtAlgBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
-    m_uGtAlgBlk.setbxNr((bxNr & 0xFFFF));
     m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
-    m_uGtAlgBlk.setPreScColumn(0); //TO DO: get this and fill it in.
+    m_uGtAlgBlk.setPreScColumn(prescaleSet); 
+    m_uGtAlgBlk.setL1MenuUUID(menuUUID);
         
     m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
     m_uGtAlgBlk.setFinalORPreVeto(m_algFinalOrPreVeto); 
