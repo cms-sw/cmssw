@@ -563,7 +563,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
          if ( goodGEMMuon ){
            trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
-           std::cout << "goodGEMMuon!" << std::endl;
+           //std::cout << "goodGEMMuon!" << std::endl;
          }
          for ( auto& muon : *outputMuons ) 
          {
@@ -764,9 +764,9 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
-  std::cout << "isGEMMuon called" << std::endl;
+  //std::cout << "isGEMMuon called" << std::endl;
   for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    if(thischamber->id.subdetId() == 4) std::cout << " segmentMatches.size() = " << thischamber->segmentMatches.size() << std::endl;
+    //if(thischamber->id.subdetId() == 4) std::cout << " segmentMatches.size() = " << thischamber->segmentMatches.size() << std::endl;
     if(thischamber->id.subdetId() == 4 && thischamber->segmentMatches.size() != 0) return true;
   }
   return false;
