@@ -7,8 +7,10 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -16,11 +18,12 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 #process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 #process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
@@ -41,7 +44,8 @@ process.source = cms.Source("PoolSource",
         #/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6/TP2023HGCALDR-HGCALnewsplit_PU140BX25_newsplitPU140_PH2_1K_FB_V6-v1/GEN-SIM-RECO
         #'file:/afs/cern.ch/user/j/jlee/work/00E21A91-B9F9-E411-9107-00266CFADEC0.root'
         #'file:out_reco.root'
-        'file:/cms/scratch/jskim/cmssw/CMSSW_8_1_0_pre1/src/RecoLocalMuon/GEMRecHit/test/out_local_reco_GEMRechit_GE11_8and8.root'
+        #'file:/cms/scratch/jskim/cmssw/CMSSW_8_1_0_pre1/src/work/out_reco.root'
+        'file:/cms/scratch/jskim/cmssw/CMSSW_8_1_0_pre1/src/work/out_reco.root'
     ),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     skipBadFiles = cms.untracked.bool(True),

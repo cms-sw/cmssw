@@ -10,6 +10,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/RPCRecHit"/>
 <use   name="DataFormats/GEMDigi"/>

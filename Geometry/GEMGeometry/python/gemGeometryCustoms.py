@@ -16,9 +16,7 @@ def custom_GE11_8partitions_v1(process):
     return process
 
 def custom_GE11_9and10partitions_v1(process):
-    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v7/gem11.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v7/gem11.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v4/gem11.xml')
+    ## This is the default version
     return process
 
 def custom_GE11_10partitions_v1(process):
@@ -34,15 +32,13 @@ def custom_GE11_8and8partitions_v1(process):
     return process
 
 def custom_GE11_8and8partitions_v2(process):
-    # this is default for GE11
-    #mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v4/gem11.xml')
-    #process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v4/gem11.xml')
-    #process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v7/gem11.xml')
+    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v4/gem11.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v4/gem11.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v7/gem11.xml')
     return process
 
 ### GE2/2 in 2023 scenario
 def custom_GE21_v7(process) :
-    # this is default
     geomReplace( process, 'gem11.xml','Geometry/MuonCommonData/data/v7/gem11.xml')
     geomReplace( process, 'gem21.xml','Geometry/MuonCommonData/data/v7/gem21.xml')
     geomReplace( process, 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml')
@@ -68,4 +64,5 @@ def geomReplace(process, key, targetXML) :
     if ( mynum == -1) :
         print "Alert! key is not found on XMLIdealGeometryESSource"
     return process
+
 

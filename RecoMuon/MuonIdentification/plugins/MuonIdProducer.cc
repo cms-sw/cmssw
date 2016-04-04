@@ -760,14 +760,10 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
+  std::cout << "isGEMMuon called" << std::endl;
   for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
+    if(thischamber->id.subdetId() == 4) std::cout << " segmentMatches.size() = " << thischamber->segmentMatches.size() << std::endl;
     if(thischamber->id.subdetId() == 4 && thischamber->segmentMatches.size() != 0) return true;
-/*
-    for(auto thissegment = thischamber->segmentMatches.begin(); thissegment != thischamber->segmentMatches.end(); ++thissegment){
-      if(thischamber->id.subdetId() == 4) return true;
-    }
-*/
-    //if( thischamber->gemsegmentMatches.size() != 0 ) return true;
   }
   return false;
 }
