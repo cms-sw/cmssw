@@ -107,10 +107,13 @@ public:
   /// Return alignment errors, sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const;
 
-private:
+  /// Return tracker topology used to build AlignableTracker
+  const TrackerTopology* trackerTopology() const { return tTopo_;}
 
+private:
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
 
+  const TrackerTopology* tTopo_;
   AlignableMap alignableMap;
 
 };
