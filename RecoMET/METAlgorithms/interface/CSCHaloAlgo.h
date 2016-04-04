@@ -1,7 +1,10 @@
 #ifndef RECOMET_METALGORITHMS_CSCHALOALGO_H
 #define RECOMET_METALGORITHMS_CSCHALOALGO_H
 #include "DataFormats/METReco/interface/CSCHaloData.h"
-
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateEB.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateEE.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateHB.h"
+#include "RecoMET/METAlgorithms/interface/HaloClusterCandidateHE.h"
 /*
   [class]:  CSCHaloAlgo
   [authors]: R. Remington, The University of Florida
@@ -30,6 +33,11 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
@@ -81,7 +89,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/Event.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 namespace edm {
   class TriggerNames;
@@ -91,7 +99,7 @@ class CSCHaloAlgo {
 
  public:
   CSCHaloAlgo();
-  ~CSCHaloAlgo(){}
+  ~CSCHaloAlgo(){};
   reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::MuonCollection>& TheCosmicMuons, 
 			      const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
 			      edm::Handle<reco::MuonCollection>& TheMuons, edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
@@ -100,10 +108,11 @@ class CSCHaloAlgo {
 			      edm::Handle<EcalRecHitCollection>& ecaleehits,
 			      edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, 
 			      const edm::Handle<CSCALCTDigiCollection>& TheALCTs, MuonSegmentMatcher *TheMatcher,
-			      const edm::Event &TheEvent, const edm::EventSetup &TheEventSetup);
+			      const edm::Event &TheEvent, const edm::EventSetup &TheEventSetup, bool ishlt=false);
 
   std::vector<edm::InputTag> vIT_HLTBit;
-
+  
+  
   void SetDetaThreshold(float x ){ deta_threshold = x;}
   void SetMinMaxInnerRadius(float min, float max){ min_inner_radius = min; max_inner_radius = max;}
   void SetMinMaxOuterRadius(float min, float max) { min_outer_radius = min; max_outer_radius = max;}
@@ -123,7 +132,6 @@ class CSCHaloAlgo {
   void SetMaxSegmentRDiff(float x) { max_segment_r_diff = x; }
   void SetMaxSegmentPhiDiff(float x) { max_segment_phi_diff = x; }
   void SetMaxSegmentTheta(float x) { max_segment_theta = x; }
-  // End MLR
 
  private:
   float deta_threshold;
@@ -148,17 +156,33 @@ class CSCHaloAlgo {
   float max_segment_phi_diff;
   float max_segment_theta;
   // End MLR
-  float  et_thresh_rh_hbhe, dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe, dr_highthresh_segvsrh_hbhe, dt_lowthresh_segvsrh_hbhe, dt_highthresh_segvsrh_hbhe;
-  float  et_thresh_rh_eb, dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb, dr_highthresh_segvsrh_eb, dt_lowthresh_segvsrh_eb, dt_highthresh_segvsrh_eb;
-  float  et_thresh_rh_ee, dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee, dr_highthresh_segvsrh_ee, dt_lowthresh_segvsrh_ee, dt_highthresh_segvsrh_ee;
+  float  et_thresh_rh_hbhe, dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe, dr_highthresh_segvsrh_hbhe, dt_lowthresh_segvsrh_hbhe, dt_highthresh_segvsrh_hbhe, dt_segvsrh_hbhe;
+  float  et_thresh_rh_hb, dphi_thresh_segvsrh_hb,dr_lowthresh_segvsrh_hb, dr_highthresh_segvsrh_hb, dt_lowthresh_segvsrh_hb, dt_highthresh_segvsrh_hb, dt_segvsrh_hb;
+  float  et_thresh_rh_he, dphi_thresh_segvsrh_he,dr_lowthresh_segvsrh_he, dr_highthresh_segvsrh_he, dt_lowthresh_segvsrh_he, dt_highthresh_segvsrh_he, dt_segvsrh_he;
+  float  et_thresh_rh_eb, dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb, dr_highthresh_segvsrh_eb, dt_lowthresh_segvsrh_eb, dt_highthresh_segvsrh_eb, dt_segvsrh_eb;
+  float  et_thresh_rh_ee, dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee, dr_highthresh_segvsrh_ee, dt_lowthresh_segvsrh_ee, dt_highthresh_segvsrh_ee, dt_segvsrh_ee;
 
-  
-  
+
   const CaloGeometry *geo;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
-  bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi);
-  bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi );
 
+
+
+  void AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollection>& bhtaggedrechits,reco::CSCHaloData & thehalodata, bool isbarrel);
+  void AddtoBeamHaloHBHERechits(edm::RefVector<HBHERecHitCollection>& bhtaggedrechits,reco::CSCHaloData & thehalodata);
+  std::vector<HaloClusterCandidateEB> GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<HaloClusterCandidateEE> GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<HaloClusterCandidateHB> GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<HaloClusterCandidateHE> GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  bool EBClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateEB>haloclustercands, bool ishlt);
+  bool EEClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateEE>haloclustercands, bool ishlt);
+  bool HBClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateHB>haloclustercands, bool ishlt);
+  bool HEClusterShapeandTimeStudy(reco::CSCHaloData & thehalodata,std::vector<HaloClusterCandidateHE>haloclustercands, bool ishlt);
+  bool SegmentMatchingEB(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateEB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingEE(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateEE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHB(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateHB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHE(reco::CSCHaloData & thehalodata, std::vector<HaloClusterCandidateHE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool ApplyMatchingCuts(TString subdet, bool ishlt, double rhet, double segZ, double rhZ, double segR, double rhR, double segT, double rhT, double segPhi, double rhPhi);
 };
 
 #endif
