@@ -17,6 +17,18 @@ T proxim(T b, T a) {
         return b+c1*std::round(c2*(a-b));
 }
 
+#include<iostream>
+
+// smallest range
+template<typename T>
+inline
+bool checkPhiInSymRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
+  // symmetrize
+  if (phi2<phi1) std::swap(phi1,phi2);
+  return checkPhiInRange(phi,phi1,phi2,maxDphi);
+}
+
+// counterclock-wise range
 template<typename T>
 inline
 bool checkPhiInRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
@@ -28,7 +40,7 @@ bool checkPhiInRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
     phi = proxim(phi,phiA);
     return std::abs(phiA-phi)<dphi;
 
-    /*
+    /* old "alternative algo"
     constexpr T c1 = 2.*M_PI;
     phi1 = normalizedPhi(phi1);
     phi2 = proxim(phi2,phi1);

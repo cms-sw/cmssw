@@ -331,7 +331,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	float ir = 1.f/p3_r;
         // limit error to 90 degree
         constexpr float maxPhiErr = 0.5*M_PI;
-        float phiErr = std::min(maxPhiErr, nSigmaPhi * hits.drphi[KDdata]*ir);
+        float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+        phiErr = std::min(maxPhiErr, phiErr);
 	if (!checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr, maxPhiErr))
 	  continue;
 	
