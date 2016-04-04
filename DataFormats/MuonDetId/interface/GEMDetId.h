@@ -124,9 +124,9 @@ class GEMDetId :public DetId {
   static const int ChamberStartBit_ =  StationStartBit_+StationNumBits_;  
   static const unsigned int ChamberMask_     =  0X3F;
 
-  static const int LayerNumBits_  =  1;
+  static const int LayerNumBits_  =  2;
   static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_;  
-  static const unsigned int LayerMask_     =  0X1;
+  static const unsigned int LayerMask_     =  0X3;
 
   static const int RollNumBits_  =  5;
   static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
