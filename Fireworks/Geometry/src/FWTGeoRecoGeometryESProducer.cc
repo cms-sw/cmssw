@@ -257,12 +257,12 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
 
 
 
-boost::shared_ptr<FWTGeoRecoGeometry> 
+std::shared_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
    using namespace edm;
 
-   m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
+   m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
    DetId detId( DetId::Tracker, 0 );
@@ -287,7 +287,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    if( 0 == top )
    {
-      return boost::shared_ptr<FWTGeoRecoGeometry>();
+      return std::shared_ptr<FWTGeoRecoGeometry>();
    }
    geom->SetTopVolume( top );
    // ROOT chokes unless colors are assigned

@@ -1,4 +1,5 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
@@ -86,10 +87,11 @@ MultiGaussianStateTransform::multiState1D (const std::vector<MultiGaussianState<
 MultiGaussianState<5> 
 MultiGaussianStateTransform::multiState (const TrajectoryStateOnSurface tsos)
 {
-  std::vector<TrajectoryStateOnSurface> tsosComponents(tsos.components());
+  GetComponents comps(tsos);
+  auto const & tsosComponents = comps();
   MultiGaussianState<5>::SingleStateContainer components;
   components.reserve(tsosComponents.size());
-  for ( std::vector<TrajectoryStateOnSurface>::const_iterator i=tsosComponents.begin();
+  for (auto i=tsosComponents.begin();
 	i!=tsosComponents.end(); ++i ) {
     MultiGaussianState<5>::SingleStatePtr 
       sgs(new MultiGaussianState<5>::SingleState(i->localParameters().vector(),
@@ -106,10 +108,11 @@ MultiGaussianStateTransform::multiState1D (const TrajectoryStateOnSurface tsos,
 {
   if ( index>=N )  
     throw cms::Exception("LogicError") << "MultiGaussianStateTransform: index out of range";
-  std::vector<TrajectoryStateOnSurface> tsosComponents(tsos.components());
+  GetComponents comps(tsos);
+  auto const & tsosComponents = comps();
   MultiGaussianState1D::SingleState1dContainer components;
   components.reserve(tsosComponents.size());
-  for ( std::vector<TrajectoryStateOnSurface>::const_iterator i=tsosComponents.begin();
+  for (auto i=tsosComponents.begin();
 	i!=tsosComponents.end(); ++i ) {
     components.push_back(SingleGaussianState1D(i->localParameters().vector()(index),
 					       i->localError().matrix()(index,index),

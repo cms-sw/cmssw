@@ -67,7 +67,7 @@ TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & d
 }
 
 //__________________________________________________________________
-boost::shared_ptr<TrackerGeometry> 
+std::shared_ptr<TrackerGeometry> 
 TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
 { 
   //
@@ -84,7 +84,7 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   iRecord.getRecord<PTrackerParametersRcd>().get( ptp );
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), *ptp, tTopo));
+  _tracker  = std::shared_ptr<TrackerGeometry>(builder.build(&(*gD), *ptp, tTopo));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

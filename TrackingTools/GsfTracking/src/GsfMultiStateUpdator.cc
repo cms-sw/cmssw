@@ -1,5 +1,5 @@
 #include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
-
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -12,8 +12,8 @@
 
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
 						      const TrackingRecHit& aRecHit) const {
-  
-  auto && predictedComponents = tsos.components();
+  GetComponents comps(tsos);  
+  auto const & predictedComponents = comps();
   if (predictedComponents.empty()) {
     edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! " ;
     return TrajectoryStateOnSurface();

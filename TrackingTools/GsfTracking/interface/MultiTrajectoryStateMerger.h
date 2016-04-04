@@ -22,7 +22,7 @@ public:
   }
 
  private:
-  const boost::shared_ptr< const MultiGaussianStateMerger<5> > theMultiStateMerger;
+  const std::shared_ptr< const MultiGaussianStateMerger<5> > theMultiStateMerger;
 };  
 
 #endif

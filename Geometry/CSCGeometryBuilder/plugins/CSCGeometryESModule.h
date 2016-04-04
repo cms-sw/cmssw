@@ -12,8 +12,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 class CSCGeometryESModule : public edm::ESProducer {
@@ -25,7 +25,7 @@ public:
   virtual ~CSCGeometryESModule();
 
   /// Produce CSCGeometry
-  boost::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);
+  std::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);
 
 private:  
 
@@ -35,7 +35,7 @@ private:
   void cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& );
 
   void initCSCGeometry_(const MuonGeometryRecord& );
-  boost::shared_ptr<CSCGeometry> cscGeometry;
+  std::shared_ptr<CSCGeometry> cscGeometry;
   bool recreateGeometry_;
 
   // Flags for controlling geometry modelling during build of CSCGeometry

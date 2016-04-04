@@ -14,6 +14,7 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
+#include <memory>
 #include <string>
 
 class DTGeometryESModule : public edm::ESProducer {
@@ -25,12 +26,12 @@ public:
   virtual ~DTGeometryESModule();
 
   /// Produce DTGeometry.
-  boost::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
+  std::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
 
 private:  
   void geometryCallback_( const MuonNumberingRecord& record ) ;
   void dbGeometryCallback_( const DTRecoGeometryRcd& record ) ;
-  boost::shared_ptr<DTGeometry> _dtGeometry;
+  std::shared_ptr<DTGeometry> _dtGeometry;
 
   bool applyAlignment_; // Switch to apply alignment corrections
   const std::string alignmentsLabel_;

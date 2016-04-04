@@ -17,7 +17,6 @@
 //
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
