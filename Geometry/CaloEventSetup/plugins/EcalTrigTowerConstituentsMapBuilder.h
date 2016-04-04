@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"

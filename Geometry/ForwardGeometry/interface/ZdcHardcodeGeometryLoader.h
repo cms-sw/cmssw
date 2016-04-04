@@ -3,7 +3,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
-#include <boost/shared_ptr.hpp>
 
 class CaloCellGeometry;
 class CaloSubdetectorGeometry;
