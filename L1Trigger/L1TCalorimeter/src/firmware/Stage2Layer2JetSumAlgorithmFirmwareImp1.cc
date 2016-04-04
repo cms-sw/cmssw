@@ -7,6 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
@@ -31,7 +32,10 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwa
 void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & alljets, std::vector<l1t::EtSum> & htsums) 
 {
 
-  int etaMax=36, etaMin=1, phiMax=72, phiMin=1;
+  int etaMax = etSumEtaMaxEt_ > etSumEtaMaxMet_ ? etSumEtaMaxEt_ : etSumEtaMaxMet_;
+  //  int etaMin = etSumEtaMinEt_ < etSumEtaMinMet_ ? etSumEtaMinEt_ : etSumEtaMinMet_;
+  int phiMax = CaloTools::kHBHENrPhi;
+  int phiMin = 1;
   
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
@@ -39,7 +43,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
     int32_t hx(0), hy(0), ht(0);
     
     std::vector<int> rings;
-    for (int i=etaMin; i<=etaMax; i++) rings.push_back(i*etaSide);
+    for (int i=1; i<=etaMax; i++) rings.push_back(i*etaSide);
 
     // loop over rings    
     for (unsigned etaIt=0; etaIt<rings.size(); etaIt++) {
@@ -62,12 +66,12 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 	}
 	if (!foundJet) continue;
 	
-	if (thisJet.hwPt()>etSumEtThresholdHwMet_ && thisJet.hwEta()>=etSumEtaMinMet_ && thisJet.hwEta()<=etSumEtaMaxMet_) {
+	if (thisJet.hwPt()>etSumEtThresholdHwMet_ && abs(thisJet.hwEta())<=etSumEtaMaxMet_) {
 	  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * cos ( 2 * M_PI * (72 - (iphi-1)) / 72.0 ) )) >> 9;
 	  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * (iphi-1) / 72.0 ) )) >> 9;
 	}
 	
-	if (thisJet.hwPt()>etSumEtThresholdHwEt_ && thisJet.hwEta()>=etSumEtaMinEt_ && thisJet.hwEta()<=etSumEtaMaxEt_) {
+	if (thisJet.hwPt()>etSumEtThresholdHwEt_ && abs(thisJet.hwEta())<=etSumEtaMaxEt_) {
 	  ringHt += thisJet.hwPt();
 	}
       }
@@ -77,7 +81,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       ht += ringHt;
       
     }
-    
+
     math::XYZTLorentzVector p4;
     
     l1t::EtSum htSumHt(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);

@@ -344,7 +344,7 @@ ME0SegFit::SMatrixSym12 ME0SegFit::weightMatrix() {
   int iii=0;
   for (ME0SetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
     if (row > 11) break; // temp due to max size of matrix
-    //std::cout << "-iterator " << iii << std::endl; iii++;
+    
     const ME0RecHit& hit = (**it);
 // Note scaleXError allows rescaling the x error if necessary
     //std::cout << " trying to fill ("<<row<<","<<row<<") element with localPositionError().xx()..";

@@ -35,13 +35,15 @@ class OMTFinput{
 
   ///Merge data of two input objects.
   ///Method used in DiMuon studies.
-  void mergeData(OMTFinput *aInput);
+  void mergeData(const OMTFinput *aInput);
 
   const OMTFinput::vector1D & getLayerData(unsigned int iLayer, bool giveEta=false) const;
 
   std::bitset<128> getRefHits(unsigned int iProcessor) const;
 
   friend std::ostream & operator << (std::ostream &out, const OMTFinput & aInput);
+
+  OMTFinput & operator += (const OMTFinput & iInput) { mergeData(&iInput); return *this; }
 
  private:
 

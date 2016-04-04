@@ -268,7 +268,8 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (mu->hwPt() > 0) {
         math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
         int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
-        Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, -1, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+        int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
+        Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), iso, mu->tfMuonIndex(), 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
         if (mu->hwSignValid()) {
           outMu.setCharge(1 - 2 * mu->hwSign());
         } else {
@@ -360,8 +361,8 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
-    // FIXME: set tfMuonIndex to actual index
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
@@ -388,9 +389,16 @@ L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfiguration::I
     wedges_neg[i].reserve(3);
   }
   if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
-  for (size_t i = 0; i < in->size(bx); ++i) {
+  int muIdx = 0;
+  int currentLink = 0;
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
+    if (currentLink != in->at(bx, i).link()) {
+      muIdx = 0;
+      currentLink = in->at(bx, i).link();
+    }
     int gPhi = MicroGMTConfiguration::calcGlobalPhi(in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-    std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi);
+    int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+    std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
     if(in->at(bx, i).hwEta() > 0) {
       out_pos.push_back(out);
       wedges_pos[in->at(bx, i).processor()].push_back(out);
@@ -416,9 +424,16 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
     wedges[i].reserve(3);
   }
   if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
-  for (size_t i = 0; i < in->size(bx); ++i) {
+  int muIdx = 0;
+  int currentLink = 0;
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
+    if (currentLink != in->at(bx, i).link()) {
+      muIdx = 0;
+      currentLink = in->at(bx, i).link();
+    }
     int gPhi = MicroGMTConfiguration::calcGlobalPhi(in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-    std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi);
+    int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+    std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
     out.emplace_back(outMu);
     wedges[in->at(bx, i).processor()].push_back(outMu);
   }

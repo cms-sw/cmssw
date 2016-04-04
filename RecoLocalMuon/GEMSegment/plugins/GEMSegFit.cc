@@ -464,11 +464,10 @@ void GEMSegFit::setOutFromIP() {
   
   double dxdz = uslope_;
   double dydz = vslope_;
-  double dz   = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
-  double dx   = dz*dxdz;
-  double dy   = dz*dydz;
-  //LocalVector localDir(dx,dy,dz);
-  LocalVector localDir(dx,dz,dy);
+  double dy   = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
+  double dx   = dy*dxdz;
+  double dz   = dy*dydz;
+  LocalVector localDir(dx,dy,dz);
 
   edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: dxdz = uslope_ = "<<std::setw(9)<<uslope_<<" dydz = vslope_ = "<<std::setw(9)<<vslope_<<" local dir = "<<localDir;
 
@@ -478,12 +477,9 @@ void GEMSegFit::setOutFromIP() {
   
   double globalZpos    = ( gemchamber()->toGlobal( intercept_ ) ).z();
   double globalZdir    = ( gemchamber()->toGlobal( localDir  ) ).z();
-  //double directionSign = globalZpos * globalZdir;
-  //localdir_ = (directionSign * localDir ).unit();
   localdir_ = ( localDir ).unit();
 
   edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: globalZpos = "<<globalZpos<<" globalZdir = "<<globalZdir<<" [sign should be the same]";
-  //  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: directionSign = "<<directionSign<<" ==> local dir = "<<localdir_;
   edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] ::  ==> local dir = "<<localdir_<< " localdir.phi = "<<localdir_.phi();
 }
 
