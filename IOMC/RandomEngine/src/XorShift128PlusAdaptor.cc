@@ -16,6 +16,10 @@
 #include <time.h>
 #include <limits>
 
+namespace {
+  constexpr uint32_t uint_max = std::numeric_limits<uint32_t>::max();
+}
+
 namespace edm {
 
 XorShift128PlusAdaptor::XorShift128PlusAdaptor() {
@@ -26,26 +30,32 @@ XorShift128PlusAdaptor::XorShift128PlusAdaptor() {
 }
 
 XorShift128PlusAdaptor::XorShift128PlusAdaptor( const std::array<uint64_t,2>& inseeds ) {  
+  if( inseeds.size() < 2 ) {
+    Grumble(std::string("XorShift128Plus needs two 64 bit seeds!"));
+  }
+  
   if( inseeds[0] == 0 && inseeds[1] == 0 ) {
     Grumble(std::string("XorShift128Plus cannot be seeded with all zeroes!"));
   }
-
-  for( unsigned i = 0; i < inseeds.size(); ++i ) {
-    seeds[2*i] = inseeds[i]&0xffffffff;
-    seeds[2*i+1] = (inseeds[i]>>32)&0xffffffff;    
-  }
-  
+  seeds = inseeds;
 }
 
-XorShift128PlusAdaptor::XorShift128PlusAdaptor( const std::array<uint32_t,4>& inseeds ) {
-  if( inseeds[0] == 0 && inseeds[1] == 0  && 
-      inseeds[2] == 0 && inseeds[3] == 0 ) {
+XorShift128PlusAdaptor::XorShift128PlusAdaptor( const std::array<uint32_t,4>& inseeds ) {  
+  if( inseeds.size() < 4 ) {
+    Grumble(std::string("XorShift128Plus needs four 32 bit seeds!"));
+  }
+  
+  if( inseeds[0] == 0 && inseeds[1] == 0 && 
+      inseeds[2] == 0 && inseeds[2] == 0    ) {
     Grumble(std::string("XorShift128Plus cannot be seeded with all zeroes!"));
   }
 
-  for( unsigned i = 0; i < inseeds.size(); ++i ) {
-    seeds[i] = inseeds[i];
-  }  
+  seeds.fill(0ULL);
+  for( size_t i = 0; i < inseeds.size() && i < 4; ++i ) {
+    uint64_t temp = inseeds[i];
+    seeds[i/2] = ( temp <<( i%2 ? 0 : 32 ) ); 
+  }
+
 }
 
 XorShift128PlusAdaptor::XorShift128PlusAdaptor(std::istream&) {
@@ -64,20 +74,20 @@ std::vector<unsigned long> XorShift128PlusAdaptor::put() const {
   std::vector<unsigned long> v;
   v.reserve(5);
   v.push_back(CLHEP::engineIDulong<XorShift128PlusAdaptor>());
-  for(int i = 0; i < 4; ++i) v.push_back(seeds[i]);
+  for(int i = 0; i < 2; ++i) {
+    v.push_back(seeds[i]&uint_max);
+    v.push_back((seeds[i]>>32)&uint_max);
+  }
   return v;
 }
 
 uint64_t  XorShift128PlusAdaptor::getNumber() {
-  uint64_t s1 = (uint64_t)seeds[0] + (((uint64_t)seeds[1])<<32);
-  const uint64_t s0 = (uint64_t)seeds[2] + (((uint64_t)seeds[3])<<32);
-  seeds[0] = s0&0xffffffff;
-  seeds[1] = (s0>>32)&0xffffffff;
-  s1 ^= s1 << 23; // a
-  s1 = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5);// b, c
-  seeds[2] = s1&0xffffffff; 
-  seeds[3] = (s1>>32)&0xffffffff;
-  return s1 + s0; 
+  uint64_t x = seeds[0];
+  const uint64_t y = seeds[1];
+  seeds[0] = y;
+  x ^= x << 23; // a
+  seeds[1] = x ^ y ^ (x >> 17) ^ (y >> 26); // b, c
+  return seeds[1] + y;
 }
 
 double XorShift128PlusAdaptor::flat() { 
@@ -91,9 +101,10 @@ void XorShift128PlusAdaptor::flatArray(int const size, double* vect) {
 }
 
 void XorShift128PlusAdaptor::setSeed(long seed, int idx) { 
-  if(idx > 2) Grumble(std::string("XorShift128Plus only has two seeds, setting to %2 of idx!"));
-  const int realidx = idx%4;
-  seeds[realidx]  = (uint32_t)seed;
+  if(idx > 4) Grumble(std::string("XorShift128Plus only has four seeds!"));
+  const int shift   = 32*(idx%2);
+  const int realidx = idx/2;
+  seeds[realidx]  = (uint64_t)seed << (shift*32);
 }
 
 // Sets the state of the algorithm according to the zero terminated
@@ -101,7 +112,9 @@ void XorShift128PlusAdaptor::setSeed(long seed, int idx) {
 void XorShift128PlusAdaptor::setSeeds(long const* inseeds, int) { 
   for(unsigned i = 0; i < 4; ++i ) {
     if( seeds[i] == 0 ) break;
-    seeds[i] = (uint32_t)inseeds[i];
+    const int shift   = 32*(i%2);
+    const int realidx = i/2;
+    seeds[realidx]  = (uint64_t)inseeds[i] << shift;
   }
 }
 
@@ -143,7 +156,7 @@ void XorShift128PlusAdaptor::restoreStatus(char const filename[]) {
   }
   
   if (!inFile.bad() && !inFile.eof()) {
-    for (int i=0; i<4; ++i)
+    for (int i=0; i<2; ++i)
       inFile >> seeds[i];
   }
 }
@@ -153,9 +166,8 @@ void XorShift128PlusAdaptor::showStatus() const {
   edm::LogVerbatim("XorShift128Plus") << "--------- XorShift128Plus engine status ---------" << std::endl;
   edm::LogVerbatim("XorShift128Plus") << " Current seeds = "
                                       << seeds[0] << ", "
-                                      << seeds[1] << ", " 
-                                      << seeds[2] << ", "
-                                      << seeds[3] << std::endl;
+                                      << seeds[1] << ", "
+                                      << std::endl;
   edm::LogVerbatim("XorShift128Plus") << "----------------------------------------" << std::endl;
 }
 
@@ -174,7 +186,9 @@ bool XorShift128PlusAdaptor::get(std::vector<unsigned long> const& v) {
   if(v[0] != CLHEP::engineIDulong<XorShift128PlusAdaptor>()) return false;
   
   for(unsigned i = 0; i < 4; ++i ) {
-    seeds[i] = v[i+1];
+    const int shift   = 32*i%2;
+    const int realidx = i/2;
+    seeds[realidx] = (uint64_t) v[i+1] << shift;
   }
 
   return true;

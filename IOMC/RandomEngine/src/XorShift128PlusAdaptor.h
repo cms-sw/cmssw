@@ -65,7 +65,7 @@ namespace edm {
 
     // Returns the engine name as a string
     std::string name() const { return engineName(); }
-    static std::string engineName() { return std::string("XorShift128PlusAdaptor"); }
+    static std::string engineName() { return std::string("XorShift128Plus"); }
 
     std::vector<unsigned long> put () const;
     bool get (std::vector<unsigned long> const& v);
@@ -77,9 +77,9 @@ namespace edm {
 
     void Grumble(std::string const& errortext) const;
 
-    std::array<uint32_t, 4> seeds;
+    std::array<uint64_t, 2> seeds;
 
-    static const unsigned int VECTOR_STATE_SIZE = 5;
+    static const unsigned int VECTOR_STATE_SIZE = 5; //convert from 64 to 32 bit
   }; // XorShift128PlusAdaptor
 
 }  // namespace edm

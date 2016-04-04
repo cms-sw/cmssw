@@ -41,6 +41,7 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "XorShift128PlusAdaptor.h"
 
 #include <algorithm>
 #include <cassert>
@@ -148,7 +149,7 @@ namespace edm {
               << "\nThis was for the module with label \"" << label << "\".\n";
           }
         } else if( engineName == std::string("XorShift128Plus") ) {
-          if( initialSeedSet.Size() != 4U ) {
+          if( initialSeedSet.size() != 4U ) {
             throw Exception(errors::Configuration)
               << "Random engines of type \"XorShift128Plus\" require 4 seeds\n"
               << "be specified with the parameter named \"initialSeedSet\".\n"
@@ -158,7 +159,7 @@ namespace edm {
           if(initialSeedSet[0] > maxSeedXorShift128Plus ||
              initialSeedSet[1] > maxSeedXorShift128Plus || 
              initialSeedSet[2] > maxSeedXorShift128Plus ||
-             initialSeedSet[3] > maxSeedXorShift128Plus) {  // They need to fit in a 31 bit integer
+             initialSeedSet[3] > maxSeedXorShift128Plus) {  // They need to fit in a 32 bit integer
             throw Exception(errors::Configuration)
               << "The XorShift128Plus seeds should be in the range 0 to " << maxSeedXorShift128Plus << ".\n"
               << "The seeds passed to the RandomNumberGenerationService from the\n"
@@ -829,6 +830,16 @@ namespace edm {
 
           labelAndEngine->setSeed(engineSeeds[0], 0);
           labelAndEngine->setSeed(engineSeeds[1], 1);
+        } else if(engineStateL[0] == CLHEP::engineIDulong<edm::XorShift128PlusAdaptor>()) {
+          checkEngineType(engine->name(), std::string("XorShift128Plus"), engineLabel);
+
+          // This line actually restores the engine state.
+          engine->get(engineStateL);
+
+          labelAndEngine->setSeed(engineSeeds[0], 0);
+          labelAndEngine->setSeed(engineSeeds[1], 1);
+          labelAndEngine->setSeed(engineSeeds[2], 2);
+          labelAndEngine->setSeed(engineSeeds[3], 3);
         } else if(engineStateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
 
           checkEngineType(engine->name(), std::string("TRandom3"), engineLabel);
@@ -1185,6 +1196,11 @@ namespace edm {
             engines.emplace_back(label, seeds, engine);
             resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
           }
+          else if( name == "XorShift128Plus" ) { // four seeds!
+            std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<edm::XorShift128PlusAdaptor>();
+            engines.emplace_back(label, seeds, engine);
+            resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
+          }
           // For the other engines, one seed is required
           else {
             long int seedL = static_cast<long int>(seeds[0]);
@@ -1240,6 +1256,16 @@ namespace edm {
         long int seedL[2];
         seedL[0] = static_cast<long int>(seed0);
         seedL[1] = static_cast<long int>(seeds[1]);
+        labelAndEngine.engine()->setSeeds(seedL,0);
+      } else if ( engineName == "XorShift128Plus" ) {
+        assert(seeds.size() == 4U);        
+        for( unsigned i = 0; i < 4; i++ ) {
+          labelAndEngine.setSeed(seeds[i], i);
+        }
+        long int seedL[4];
+        for( unsigned i = 0; i < 4; ++i ) { 
+          seedL[i] = static_cast<long int>(seeds[i]) ; 
+        }        
         labelAndEngine.engine()->setSeeds(seedL,0);
       } else {
         assert(seeds.size() == 1U);
