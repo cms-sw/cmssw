@@ -54,7 +54,7 @@ def load_HcalHardcode(process):
 
 #intermediate customization ("Phase 0.5": HCAL 2017, HE and HF upgrades)
 def customise_HcalPhase0p5(process):
-    load_HcalHardcode(process)
+    process=load_HcalHardcode(process)
     
     #for now, use HE run1 conditions - SiPM/QIE11 not ready
     process.es_hardcode.useHFUpgrade = cms.bool(True)
@@ -75,7 +75,7 @@ def customise_HcalPhase0p5(process):
     return process
     
 def customise_HcalPhase1(process):
-    load_HcalHardcode(process)
+    process=load_HcalHardcode(process)
 
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
     process.es_hardcode.useHBUpgrade = cms.bool(True)
