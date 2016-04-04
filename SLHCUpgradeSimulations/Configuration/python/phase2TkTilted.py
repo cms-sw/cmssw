@@ -4,6 +4,10 @@ import FWCore.ParameterSet.Config as cms
 #GEN-SIM so far...
 def customise(process):
     print "!!!You are using the SUPPORTED Tilted version of the Phase2 Tracker !!!"
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
     n=0
     if hasattr(process,'reconstruction') or hasattr(process,'dqmoffline_step'):
         if hasattr(process,'mix'):
@@ -47,11 +51,28 @@ def customise_Digi(process):
     return process
 
 
+def customise_DigiToRaw(process):
+    process.digi2raw_step.remove(process.siPixelRawData)
+    process.digi2raw_step.remove(process.rpcpacker)
+    return process
+
+def customise_RawToDigi(process):
+    process.raw2digi_step.remove(process.siPixelDigis)
+    return process
 
 def customise_Reco(process,pileup):
     # insert the new clusterizer
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
     
+    #process.load('RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi')	
+    #clustersTmp = 'siPixelClustersPreSplitting'
+     # 0. Produce tmp clusters in the first place.
+    #process.siPixelClustersPreSplitting = process.siPixelClusters.clone()
+    #process.siPixelRecHitsPreSplitting = process.siPixelRecHits.clone()
+    #process.siPixelRecHitsPreSplitting.src = clustersTmp
+    #process.pixeltrackerlocalreco.replace(process.siPixelClusters, process.siPixelClustersPreSplitting)
+    #process.pixeltrackerlocalreco.replace(process.siPixelRecHits, process.siPixelRecHitsPreSplitting)
+    #process.clusterSummaryProducer.pixelClusters = clustersTmp
     itIndex = process.pixeltrackerlocalreco.index(process.siPixelClustersPreSplitting)
     process.pixeltrackerlocalreco.insert(itIndex, process.siPhase2Clusters)
     process.pixeltrackerlocalreco.remove(process.siPixelClustersPreSplitting)
@@ -71,5 +92,6 @@ def customise_Reco(process,pileup):
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff')
     return process
+
 
 
