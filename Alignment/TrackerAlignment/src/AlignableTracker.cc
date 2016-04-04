@@ -18,7 +18,8 @@ AlignableTracker
 ::AlignableTracker(const TrackerGeometry* trackerGeometry,
                    const TrackerTopology* trackerTopology) :
   // id not yet known, will be set by builder
-  AlignableComposite(0, align::Tracker, RotationType())
+  AlignableComposite(0, align::Tracker, RotationType()),
+  tTopo_(trackerTopology)
 {
   AlignableTrackerBuilder builder(trackerGeometry, trackerTopology);
   builder.buildAlignables(this);
