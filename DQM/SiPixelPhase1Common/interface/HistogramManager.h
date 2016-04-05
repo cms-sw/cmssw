@@ -69,7 +69,13 @@ private:
   std::vector<SummationSpecification> specs;
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
   std::vector<Table> tables;
- 
+
+  void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
+  void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
+  void executeGroupBy(SummationStep& step, Table& t);
+  void executeReduce(SummationStep& step, Table& t);
+  void executeExtend(SummationStep& step, Table& t);
+
   bool enabled;
   bool bookUndefined;
   std::string top_folder_name;
