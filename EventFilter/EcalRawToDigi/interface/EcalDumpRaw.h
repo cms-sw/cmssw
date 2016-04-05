@@ -17,7 +17,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 /**
@@ -31,7 +31,7 @@
  * Author: Ph. Gras CEA/IRFU Saclay
  *
  */
-class EcalDumpRaw : public edm::EDAnalyzer {
+class EcalDumpRaw : public edm::stream::EDAnalyzer<>{
   //ctors
 public:
   explicit EcalDumpRaw(const edm::ParameterSet&);
