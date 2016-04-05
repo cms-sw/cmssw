@@ -48,10 +48,13 @@ void
 
    navigator_->beginEvent(iSetup);
 
+   out->reserve(10000);
+   cleaned->reserve(10000);
    for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
-
+   out->shrink_to_fit();
+   cleaned->shrink_to_fit();
    std::sort(out->begin(),out->end(),sortByDetId);
 
    //create a refprod here
