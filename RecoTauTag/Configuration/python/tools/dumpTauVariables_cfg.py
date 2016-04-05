@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
 ## Maximal number of events
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Load dump of tau variables
-process.load("RecoTauTag.Configuration.DumpTauVariables_cfi")
+process.load("RecoTauTag.Configuration.dumpTauVariables_cfi")
 ## Define variables to be dumped to out
 from RecoTauTag.Configuration.tauVariables_cff import slimmedVariables
 process.dumpTauVariables.variables = slimmedVariables
