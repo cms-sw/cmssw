@@ -130,15 +130,17 @@ void AlignableTrackerBuilder
   auto& alignables = alignableMap->get(moduleName);
   alignables.reserve(geomDets.size());
 
-//  // If we need also units, they will be at moduleName + "Unit".
-//  align::Alignables *aliUnits = 0;
+  // units are added for each moduleName, which are at moduleName + "Unit"
+  // in the pixel Module and ModuleUnit are equivalent
+  auto & aliUnits = alignableMap->get(moduleName+"Unit");
+  aliUnits.reserve(geomDets.size()); // minimal number space needed
 
   for (auto& geomDet : geomDets) {
     int subdetId = geomDet->geographicalId().subdetId(); //don't check det()==Tracker
 
     if (subdetId == PixelSubdetector::PixelBarrel ||
         subdetId == PixelSubdetector::PixelEndcap) {
-      buildPixelDetectorAlignable(geomDet, subdetId, alignables, moduleName);
+      buildPixelDetectorAlignable(geomDet, subdetId, alignables, aliUnits);
 
     } else if (subdetId == SiStripDetId::TIB ||
                subdetId == SiStripDetId::TID ||
@@ -146,7 +148,7 @@ void AlignableTrackerBuilder
                subdetId == SiStripDetId::TEC) {
       // for strip we create also <TIB/TID/TOB/TEC>ModuleUnit list
       // for 1D components of 2D layers
-      buildStripDetectorAlignable(geomDet, subdetId, alignables, moduleName);
+      buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits);
 
     } else {
       throw cms::Exception("LogicError")
@@ -166,20 +168,12 @@ void AlignableTrackerBuilder
     << "converted GeomDets to Alignables for " << moduleName << "\n"
     << "   GeomDets:             " << geomDets.size()         << "\n"
     << "   AlignableDetUnits:    " << numDetUnits;
-    //<< "   AlignableSiStripDets: " << alignables.size();
-
-//  if (aliUnits) {
-//    LogDebug("Alignment") << "@SUB=AlignableTracker"
-//        << aliUnits->size() << " AlignableDetUnits for "
-//        << moduleName + "Unit (capacity = " << aliUnits->capacity() << ").";
-//  }
 }
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
 ::buildPixelDetectorAlignable(const GeomDet* geomDetUnit, int subdetId,
-                              Alignables& alignables,
-                              const std::string& moduleName)
+                              Alignables& aliDets, Alignables& aliDetUnits)
 {
   // treat all pixel dets in same way with one AlignableDetUnit
   if (!geomDetUnit->isLeaf()) {
@@ -188,22 +182,15 @@ void AlignableTrackerBuilder
       << ") is not a GeomDetUnit.";
   }
 
-  alignables.push_back(new AlignableDetUnit(geomDetUnit));
+  aliDets.push_back(new AlignableDetUnit(geomDetUnit));
+  aliDetUnits.push_back(aliDets.back());
   numDetUnits += 1;
-
-//  // add pixel modules to list of units since they are in fact units
-//  if (!aliUnits) {
-//    aliUnits = &alignableLists_.get(moduleName + "Unit");
-//    aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
-//  }
-//  aliUnits->push_back(alis.back());
 }
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
 ::buildStripDetectorAlignable(const GeomDet* geomDet, int subdetId,
-                              Alignables& alignables,
-                              const std::string& moduleName)
+                              Alignables& aliDets, Alignables& aliDetUnits)
 {
   // In strip we have:
   // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDetUnit
@@ -224,20 +211,17 @@ void AlignableTrackerBuilder
       }
 
       // components (AlignableDetUnits) constructed within
-      alignables.push_back(new AlignableSiStripDet(gluedGeomDet));
-      numDetUnits += gluedGeomDet->components().size();
-
-//      const align::Alignables detUnits(alis.back()->components());
-//      // Ensure pointer existence and make list available via moduleName appended with "Unit"
-//      if (!aliUnits) {
-//        aliUnits = &alignableLists_.get(moduleName + "Unit");
-//        aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
-//      }
-//      aliUnits->insert(aliUnits->end(), detUnits.begin(), detUnits.end()); // only 2...
+      aliDets.push_back(new AlignableSiStripDet(gluedGeomDet));
+      const auto& addAliDetUnits = aliDets.back()->components();
+      const auto& nAddedUnits = addAliDetUnits.size();
+      // reserve space for the additional units:
+      aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits -1);
+      aliDetUnits.insert(aliDetUnits.end(), addAliDetUnits.begin(), addAliDetUnits.end());
+      numDetUnits += nAddedUnits;
 
     } else {
       // no components: pure 1D-module
-      buildPixelDetectorAlignable(geomDet, subdetId, alignables, moduleName);
+      buildPixelDetectorAlignable(geomDet, subdetId, aliDets, aliDetUnits);
     }
   } // no else: glued components of AlignableDet constructed within
     // AlignableSiStripDet -> AlignableDet, see above

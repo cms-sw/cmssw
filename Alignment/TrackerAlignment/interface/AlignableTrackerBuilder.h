@@ -38,11 +38,11 @@ class AlignableTrackerBuilder {
                                      const std::string& moduleName);
     /// Converts GeomDetUnits of PXB and PXE to AlignableDetUnits.
     void buildPixelDetectorAlignable(const GeomDet*, int subdetId,
-                                     Alignables&, const std::string& moduleName);
+                                     Alignables& aliDets, Alignables& aliDetUnits);
     /// Converts GeomDets of TIB, TID, TOB and TEC either to AlignableDetUnits
     /// or AlignableSiStripDet, depending on the module-type (2D or 1D).
     void buildStripDetectorAlignable(const GeomDet*, int subdetId,
-                                     Alignables&, const std::string& moduleName);
+                                     Alignables& aliDets, Alignables& aliDetUnits);
 
     /// Builds all composite Alignables for the tracker. The hierarchy and
     /// numbers of components are determined in TrackerAlignmentLevelBuilder.
