@@ -133,18 +133,18 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   for (std::vector<l1t::EMTFOutput>::const_iterator EMTFOutput = EMTFOutputCollection->begin(); EMTFOutput != EMTFOutputCollection->end(); ++EMTFOutput) {
 
     // Event Record Header
-    l1t::emtf::EventHeader EventHeader = EMTFOutput->GetEventHeader();
-    int Endcap = EventHeader.Endcap();
-    int Sector = EventHeader.SP_ts();
+    const l1t::emtf::EventHeader* EventHeader = EMTFOutput->PtrEventHeader();
+    int Endcap = EventHeader->Endcap();
+    int Sector = EventHeader->SP_ts();
     if (Sector > 6) Sector -= 8;
 
     // Check if FMM Signal was good
-    if (EventHeader.Rdy() == 0) emtfErrors->Fill(5);
+    if (EventHeader->Rdy() == 0) emtfErrors->Fill(5);
 
     // ME (LCTs) Data Record
-    l1t::emtf::MECollection MECollection = EMTFOutput->GetMECollection();
+    const l1t::emtf::MECollection* MECollection = EMTFOutput->PtrMECollection();
 
-    for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection.begin(); ME != MECollection.end(); ++ME) {
+    for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
       int Station = ME->Station();
       int CSCID = ME->CSC_ID();
       int half_strip = ME->CLCT_key_half_strip();
@@ -203,9 +203,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     // SP (Tracks) Data Record
-    l1t::emtf::SPCollection SPCollection = EMTFOutput->GetSPCollection();
+    const l1t::emtf::SPCollection* SPCollection = EMTFOutput->PtrSPCollection();
 
-    for (std::vector<l1t::emtf::SP>::const_iterator SP = SPCollection.begin(); SP != SPCollection.end(); ++SP) {
+    for (std::vector<l1t::emtf::SP>::const_iterator SP = SPCollection->begin(); SP != SPCollection->end(); ++SP) {
       float Pt = SP->Pt();
       float Eta = SP->Eta_GMT();
       float Phi_GMT_global_rad = SP->Phi_GMT_global() * (M_PI/180);
