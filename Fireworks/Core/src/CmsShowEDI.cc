@@ -74,11 +74,11 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    TGVerticalFrame* vf = new TGVerticalFrame(this);
    AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0, 0, 0, 0));
-   FWDialogBuilder builder(vf);
+   FWDialogBuilder builder(vf, 0, true);
 
-   builder.indent(0)
+   builder.indent(0).expand(true, false)
       .addLabel(" ", 14, 2, &m_objectLabel)
-      .vSpacer()
+      // .vSpacer()
       .tabs(&m_tabs)
       .beginTab("Graphics")
       .indent(3)
@@ -170,7 +170,6 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    TGCompositeFrame* cf = m_tabs->GetTabContainer(0);
    m_settersFrame = new TGVerticalFrame(cf);
    m_settersFrame->SetCleanup(kDeepCleanup);
-   // m_settersFrame->SetBackgroundColor(0xff00ff);
    cf->AddFrame(m_settersFrame, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY ));
 
    SetWindowName("Collection Controller");
