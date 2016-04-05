@@ -88,8 +88,8 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum htSumMissingHt(p4,l1t::EtSum::EtSumType::kMissingHt,mht,0,mhtPhi>>4,0);
 
   outputSums.push_back(etSumTotalEt);
-  outputSums.push_back(etSumMissingEt);
   outputSums.push_back(htSumht);
+  outputSums.push_back(etSumMissingEt);
   outputSums.push_back(htSumMissingHt);
 
 }
