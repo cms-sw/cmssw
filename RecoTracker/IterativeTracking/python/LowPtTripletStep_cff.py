@@ -8,13 +8,17 @@ _lowPtTripletStepClustersBase = _trackClusterRemover.clone(
     trajectories                             = cms.InputTag("detachedTripletStepTracks"),
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag("detachedTripletStepClusters"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
 lowPtTripletStepClusters = _lowPtTripletStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks"),
+    oldClusterRemovalInfo                    = cms.InputTag("detachedTripletStepClusters"),
 )
+eras.trackingLowPU.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
+    trajectories                             = "initialStepTracks",
+    overrideTrkQuals                         = "initialStepSelector:QualityMasks",
+))
 eras.trackingPhase1.toModify(lowPtTripletStepClusters,
     trajectories                             = "lowPtQuadStepTracks",
     oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
@@ -87,7 +91,8 @@ _lowPtTripletStepStandardTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTra
 lowPtTripletStepStandardTrajectoryFilter = _lowPtTripletStepStandardTrajectoryFilterBase.clone(
     maxCCCLostHits = 1,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
-    )
+)
+eras.trackingLowPU.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 eras.trackingPhase1PU70.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
@@ -108,6 +113,9 @@ lowPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     MaxChi2 = cms.double(9.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
 )
+eras.trackingLowPU.toModify(lowPtTripletStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
+)
 eras.trackingPhase1PU70.toModify(lowPtTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
@@ -124,6 +132,7 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     # of the outermost Tracker barrel layer (with B=3.8T)
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
+eras.trackingLowPU.toModify(lowPtTripletStepTrajectoryBuilder, maxCand = 3)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -154,6 +163,7 @@ lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
             allowSharedFirstHit = cms.bool(True)
             )
 lowPtTripletStepTrackCandidates.TrajectoryCleaner = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
+eras.trackingLowPU.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 eras.trackingPhase1PU70.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 # Final selection
@@ -193,10 +203,29 @@ eras.trackingPhase1.toReplaceWith(lowPtTripletStep, _TrackCutClassifier.clone(
     )
 ))
 
-# For Phase1PU70
+# For LowPU and Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src = 'lowPtTripletStepTracks',
+    useAnyMVA = cms.bool(False),
+    GBRForestLabel = cms.string('MVASelectorIter1'),
+    trackSelectors= [
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'lowPtTripletStepLoose',
+        ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'lowPtTripletStepTight',
+            preFilterName = 'lowPtTripletStepLoose',
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'lowPtTripletStepTight',
+        ),
+    ] #end of vpset
+) #end of clone
+eras.trackingPhase1PU70.toModify(lowPtTripletStepSelector,
+    useAnyMVA = None,
+    GBRForestLabel = None,
     trackSelectors = [
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStepLoose',
@@ -247,6 +276,9 @@ LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*
                                 lowPtTripletStep)
+_LowPtTripletStep_LowPU = LowPtTripletStep.copy()
+_LowPtTripletStep_LowPU.replace(lowPtTripletStep, lowPtTripletStepSelector)
+eras.trackingLowPU.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU)
 _LowPtTripletStep_Phase1PU70 = LowPtTripletStep.copy()
 _LowPtTripletStep_Phase1PU70.replace(lowPtTripletStep, lowPtTripletStepSelector)
 eras.trackingPhase1PU70.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_Phase1PU70)
