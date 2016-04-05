@@ -68,7 +68,7 @@ class OMTFConfigMaker{
   std::vector<std::vector<int> > minRefPhi2D;
   std::vector<std::vector<int> > maxRefPhi2D;
 
-  OMTFConfiguration * m_omtf_config;    
+  OMTFConfiguration * myOmtfConfig;    
 };
 
 

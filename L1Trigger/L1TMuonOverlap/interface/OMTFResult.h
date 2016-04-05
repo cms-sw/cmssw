@@ -4,6 +4,8 @@
 #include <vector>
 #include <ostream>
 
+class OMTFConfiguration;
+
 class OMTFResult{
 
  public:
@@ -12,6 +14,8 @@ class OMTFResult{
   typedef std::vector<vector1D> vector2D;
 
   OMTFResult();
+
+  void configure(const OMTFConfiguration * omtfConfig) {myOmtfConfig = omtfConfig;};
 
   const OMTFResult::vector2D & getResults() const {return results;}
 
@@ -67,6 +71,8 @@ class OMTFResult{
   ///Reference phi for each reference layer - the input value
   vector1D refPhiRHit1D; 
 
+  const OMTFConfiguration *myOmtfConfig;
+  
 };
 
 

@@ -6,6 +6,7 @@
 #include <bitset>
 
 class XMLConfigReader;
+class OMTFConfiguration;
 
 class OMTFinput{
 
@@ -59,6 +60,8 @@ class OMTFinput{
 
   ///RefHitsEta
   mutable vector1D refHitsEta;
+
+  const OMTFConfiguration* myOmtfParams;
 
 };
 

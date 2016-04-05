@@ -39,7 +39,7 @@ void L1MuonOverlapParamsDBProducer::analyze(const edm::Event& ev, const edm::Eve
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if(poolDbService.isAvailable()){
     poolDbService->writeOne(omtfParams.get(), poolDbService->currentTime(),recordName);
-    poolDbService->writeOne(omtfPatterns.get(), poolDbService->currentTime(),recordName);
+    //poolDbService->writeOne(omtfPatterns.get(), poolDbService->currentTime(),recordName);
   }
 }
 ///////////////////////////////////////////////////////////////
