@@ -40,6 +40,7 @@ iterTracking = cms.Sequence(InitialStepPreSplitting*
 
 from Configuration.StandardSequences.Eras import eras
 eras.trackingLowPU.toReplaceWith(iterTracking, cms.Sequence(
+    InitialStepPreSplitting*
     InitialStep*
     LowPtTripletStep*
     PixelPairStep*
