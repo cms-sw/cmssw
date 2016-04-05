@@ -2,7 +2,6 @@
 #define CalibTracker_SiPixelESProducers_SiPixelFakeTemplateDBObjectESSource_h
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducer.h"
