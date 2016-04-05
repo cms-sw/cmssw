@@ -42,6 +42,8 @@ public:
   typedef std::shared_ptr<DetIdAssociator> ReturnType;
   
   ReturnType produce(const DetIdAssociatorRecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   std::string cName;
   edm::ParameterSet pSet;
@@ -87,6 +89,15 @@ DetIdAssociatorESProducer::produce(const DetIdAssociatorRecord& iRecord)
    dia->buildMap();
    LogTrace("TrackAssociator") << "Map id built for DetIdAssociatorRecord with label: " << cName;
    return dia;
+}
+
+
+/// ParameterSet descriptions
+void DetIdAssociatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doME0",false);
+  desc.setAllowAnything();
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

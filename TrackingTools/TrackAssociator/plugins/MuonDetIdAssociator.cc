@@ -24,8 +24,10 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
+#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include <deque>
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 void MuonDetIdAssociator::check_setup() const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
@@ -77,7 +79,14 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
 	validIds.push_back((*r)->id().rawId());
     }
-  
+
+  // ME0
+  if ( doME0_ ){
+    if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannot get ME0Geometry\n";
+    auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
+    for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
+      if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) validIds.push_back(me0->id());
+  }
 }
 
 bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id) const {
@@ -122,4 +131,14 @@ void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
   edm::ESHandle<GlobalTrackingGeometry> geometryH;
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
   setGeometry(geometryH.product());
+}
+
+
+
+/// ParameterSet descriptions
+void MuonDetIdAssociator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doME0",false);
+  desc.setAllowAnything();
+  descriptions.addDefault(desc);
 }

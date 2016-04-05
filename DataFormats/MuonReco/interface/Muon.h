@@ -179,15 +179,17 @@ namespace reco {
 
 
     /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration };
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
-    /// number of chambers (MuonChamberMatches include RPC rolls)
+    /// number of chambers (MuonChamberMatches include RPC rolls, and also ME0 rolls)
     int numberOfChambers() const { return muMatches_.size(); }
-    /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls)
+    /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls, and also ME0 rolls)
     int numberOfChambersNoRPC() const;
+    /// number of chambers not including ME0 matches (MuonChamberMatches include RPC rolls, and also ME0 rolls)
+    int numberOfChambersNoME0() const;
     /// get number of chambers with matched segments
     int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
@@ -201,7 +203,9 @@ namespace reco {
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
     int numberOfMatchedRPCLayers( ArbitrationType type = RPCHitAndTrackArbitration ) const;
+    int numberOfMatchedME0Layers( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int RPClayerMask( ArbitrationType type = RPCHitAndTrackArbitration ) const;
+    unsigned int ME0layerMask( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
@@ -214,6 +218,7 @@ namespace reco {
     static const unsigned int CaloMuon =  1<<4;
     static const unsigned int PFMuon =  1<<5;
     static const unsigned int RPCMuon =  1<<6;
+    static const unsigned int ME0Muon =  1<<7;  
 
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
@@ -225,6 +230,7 @@ namespace reco {
     bool isCaloMuon() const { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
     bool isRPCMuon() const {return type_ & RPCMuon;}
+    bool isME0Muon() const {return type_ & ME0Muon;}
     
   private:
     /// check overlap with another candidate

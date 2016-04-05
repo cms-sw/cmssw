@@ -12,6 +12,9 @@ namespace reco {
          std::vector<reco::MuonSegmentMatch> segmentMatches;    // segments matching propagated track trajectory
          std::vector<reco::MuonSegmentMatch> truthMatches;      // SimHit projection matching propagated track trajectory
          std::vector<reco::MuonRPCHitMatch>  rpcMatches;        // rpc hits matching propagated track trajectory 
+	 //double testing;
+	 //double testingtoo;
+         std::vector<reco::MuonSegmentMatch> me0Matches;    // Not sure this data type is okay for me0Matches, we'll see as development goes
          float edgeX;      // distance to closest edge in X (negative - inside, positive - outside)
          float edgeY;      // distance to closest edge in Y (negative - inside, positive - outside)
          float x;          // X position of the track
