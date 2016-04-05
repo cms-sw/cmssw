@@ -126,8 +126,8 @@ bool UCTRegion::process() {
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
       for(uint32_t iEta = 0; iEta < nEta; iEta++) {
 	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
-	sumETxIEta += iEta * towerET;
-	sumETxIPhi += iPhi * towerET;
+	sumETxIEta += (iEta * towerET);
+	sumETxIPhi += (iPhi * towerET);
 	if(towerET > activityLevel) {
 	  activeTower[iEta][iPhi] = true;
 	  nActiveTowers++;
@@ -140,8 +140,8 @@ bool UCTRegion::process() {
     if(activeTowerET > RegionETMask) activeTowerET = RegionETMask;
     uint32_t hitTowerLocation = 0;
     if(regionET > 0) {
-      uint32_t hitIEta = sumETxIEta / regionET; hitIEta &= 0x3;
-      uint32_t hitIPhi = sumETxIPhi / regionET; hitIPhi &= 0x3;
+      uint32_t hitIEta = sumETxIEta / regionET; if(hitIEta > (nEta - 1)) hitIEta = nEta - 1;
+      uint32_t hitIPhi = sumETxIPhi / regionET; if(hitIPhi > (nPhi - 1)) hitIPhi = nPhi - 1;
       hitTowerLocation = hitIEta * nPhi + hitIPhi;
     }
     // Calculate (energy deposition) active tower pattern
