@@ -117,7 +117,7 @@ muonSeededTracksInOut = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
 
 
 # Final Classifier
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 muonSeededTracksInOutClassifier = TrackCutClassifier.clone()
 muonSeededTracksInOutClassifier.src='muonSeededTracksInOut'
 muonSeededTracksInOutClassifier.mva.minPixelHits = [0,0,0]
