@@ -118,14 +118,17 @@ void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es)
   bfield = bfield_h.product();
   nomField = bfield->nominalValue();
 
-  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-  filter = filterHandle_.product();
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(builderName_, builderH);
-  builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
+  if(refitHits)
+  {
+      edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+      es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+      filter = filterHandle_.product();
+      
+      edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+      es.get<TransientRecHitRecord>().get(builderName_, builderH);
+      builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+      cloner = (*builder).cloner();
+  }
 }
 
 

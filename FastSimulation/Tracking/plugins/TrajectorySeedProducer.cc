@@ -192,6 +192,10 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     TrackingRegion * selectedTrackingRegion = 0;
     auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
     auto MultiHitGeneratorPtr = MultiHitGenerator.get();
+    if(MultiHitGenerator)
+    {
+	MultiHitGenerator->initES(es);
+    }
     std::unique_ptr<HitDoublets> hitDoublets;
        
     // define a lambda function

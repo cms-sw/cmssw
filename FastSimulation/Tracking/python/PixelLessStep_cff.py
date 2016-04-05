@@ -17,6 +17,7 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
 MultiHitGeneratorFactory = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet
 )
 pixelLessStepSeeds.MultiHitGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
+pixelLessStepSeeds.MultiHitGeneratorFactory.refitHits = False
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
