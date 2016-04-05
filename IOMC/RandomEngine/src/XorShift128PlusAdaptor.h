@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <atomic>
 #include <array>
+#include <limits>
 
 // This implements the "xorshift128plus" randomnumber generator from
 // http://xorshift.di.unimi.it/xorshift128plus.c
@@ -77,9 +78,13 @@ namespace edm {
 
     void Grumble(std::string const& errortext) const;
 
+
+    std::array<uint64_t, 2> state;
     std::array<uint64_t, 2> seeds;
 
     static const unsigned int VECTOR_STATE_SIZE = 5; //convert from 64 to 32 bit
+    static constexpr uint32_t uint_max = std::numeric_limits<uint32_t>::max();
+    static constexpr double   uint_norm = 1.0/(double)uint_max;
   }; // XorShift128PlusAdaptor
 
 }  // namespace edm
