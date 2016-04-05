@@ -10,7 +10,7 @@ L1TStage2BMTF::L1TStage2BMTF(const edm::ParameterSet & ps):
   monitorDir(ps.getUntrackedParameter<std::string>("monitorDir","")),
   bmtfSource(ps.getParameter<edm::InputTag>("bmtfSource")),
   verbose(ps.getUntrackedParameter<bool>("verbose", false)),
-  global_phi = -1000;
+  global_phi(-1000)
 {
   bmtfToken=consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfSource"));
 }

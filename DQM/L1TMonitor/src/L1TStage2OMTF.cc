@@ -10,7 +10,7 @@ L1TStage2OMTF::L1TStage2OMTF(const edm::ParameterSet & ps):
   monitorDir(ps.getUntrackedParameter<std::string>("monitorDir","")),
   omtfSource(ps.getParameter<edm::InputTag>("omtfSource")),
   verbose(ps.getUntrackedParameter<bool>("verbose", false)),
-  global_phi = -1000;
+  global_phi(-1000)
 {
   omtfToken=consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("omtfSource"));
 }

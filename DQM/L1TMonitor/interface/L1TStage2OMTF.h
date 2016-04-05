@@ -62,6 +62,7 @@ private:
   MonitorElement* omtf_hwPt;  
   MonitorElement* omtf_hwQual;
   MonitorElement* omtf_proc; 
+  MonitorElement* omtf_bx; 
 
   MonitorElement* omtf_hwEta_hwLocalPhi;
   MonitorElement* omtf_hwPt_hwEta;
