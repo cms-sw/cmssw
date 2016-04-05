@@ -63,28 +63,6 @@ PFRecHit::PFRecHit(unsigned detId,
 }    
 
 
-PFRecHit::PFRecHit(const PFRecHit& other) :
-  originalRecHit_(other.originalRecHit_),
-  detId_(other.detId_), 
-  layer_(other.layer_), 
-  energy_(other.energy_), 
-  time_(other.time_),
-  depth_(other.depth_),
-  position_(other.position_), 
-  positionrep_(other.positionrep_),
-  axisxyz_(other.axisxyz_),
-  cornersxyz_(other.cornersxyz_),
-  cornersrep_(other.cornersrep_),
-  neighbours_(other.neighbours_),
-  neighbourInfos_(other.neighbourInfos_),
-  neighbours4_(other.neighbours4_),
-  neighbours8_(other.neighbours8_)
-{}
-
-
-
-PFRecHit::~PFRecHit() 
-{}
 
 
 void PFRecHit::setNWCorner( double posx, double posy, double posz ) {
