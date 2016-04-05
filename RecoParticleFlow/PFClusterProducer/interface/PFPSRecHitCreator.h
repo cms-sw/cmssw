@@ -114,10 +114,10 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	}
 	
 	if(keep) {
-	  out->push_back(rh);
+	  out->push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
     }
 

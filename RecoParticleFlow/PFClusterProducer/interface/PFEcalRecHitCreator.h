@@ -125,10 +125,10 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	if(keep) {
 	  rh.setTime(time);
 	  rh.setDepth(1);
-	  out->push_back(rh);
+	  out->push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
     }
 
