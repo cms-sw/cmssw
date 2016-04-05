@@ -35,7 +35,8 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 
     elePtCut = pset.getParameter<double>("elePtCut");
     eleEtaCut = pset.getParameter<double>("eleEtaCut");
-    eleMaxMissingHits = pset.getParameter<int>("eleMaxMissingHits");
+    eleMaxMissingHitsBarrel = pset.getParameter<int>("eleMaxMissingHitsBarrel");
+    eleMaxMissingHitsEndcap = pset.getParameter<int>("eleMaxMissingHitsEndcap");
     eleDEtaInCutBarrel = pset.getParameter<double>("eleDEtaInCutBarrel");
     eleDPhiInCutBarrel = pset.getParameter<double>("eleDPhiInCutBarrel");
     eleSigmaIetaIetaCutBarrel = pset.getParameter<double>("eleSigmaIetaIetaCutBarrel");
@@ -60,6 +61,7 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
     phoChHadIsoCutBarrel = pset.getParameter<double>("phoChHadIsoCutBarrel");
     phoNeuHadIsoCutBarrel = pset.getParameter<double>("phoNeuHadIsoCutBarrel");
     phoNeuHadIsoSlopeBarrel = pset.getParameter<double>("phoNeuHadIsoSlopeBarrel");
+    phoNeuHadIsoQuadraticBarrel = pset.getParameter<double>("phoNeuHadIsoQuadraticBarrel");
     phoPhotIsoCutBarrel = pset.getParameter<double>("phoPhotIsoCutBarrel");
     phoPhotIsoSlopeBarrel = pset.getParameter<double>("phoPhotIsoSlopeBarrel");
     phoHoverECutEndcap = pset.getParameter<double>("phoHoverECutEndcap");
@@ -67,6 +69,7 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
     phoChHadIsoCutEndcap = pset.getParameter<double>("phoChHadIsoCutEndcap");
     phoNeuHadIsoCutEndcap = pset.getParameter<double>("phoNeuHadIsoCutEndcap");
     phoNeuHadIsoSlopeEndcap = pset.getParameter<double>("phoNeuHadIsoSlopeEndcap");
+    phoNeuHadIsoQuadraticEndcap = pset.getParameter<double>("phoNeuHadIsoQuadraticEndcap");
     phoPhotIsoCutEndcap = pset.getParameter<double>("phoPhotIsoCutEndcap");
     phoPhotIsoSlopeEndcap = pset.getParameter<double>("phoPhotIsoSlopeEndcap");
 
@@ -198,10 +201,11 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
     }
     //missing hits
     int missHits = ele->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    if(missHits > eleMaxMissingHits) return false;
 
     //loose electron ID cuts
     if(fabs(ele->superCluster()->eta()) < 1.479){ //barrel cuts
+        //MaxMissingHits cut
+        if(missHits > eleMaxMissingHitsBarrel) return false;
         //dEtaIn cut
         if(fabs(ele->deltaEtaSuperClusterTrackAtVtx()) > eleDEtaInCutBarrel) return false;
         //dPhiIn cut
@@ -228,6 +232,8 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
         if(eleRelIsolation > eleRelIsoCutBarrel) return false;
     }
     else{ //endcap cuts
+        //MaxMissingHits cut
+        if(missHits > eleMaxMissingHitsEndcap) return false;
         //dEtaIn cut
         if(fabs(ele->deltaEtaSuperClusterTrackAtVtx()) > eleDEtaInCutEndcap) return false;
         //dPhiIn cut
@@ -322,7 +328,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Ph
 
         //isolation cuts
         if(phoChHadIso > phoChHadIsoCutBarrel) return false;
-        if(phoNeuHadIso > phoNeuHadIsoCutBarrel + phoNeuHadIsoSlopeBarrel*pho->pt()) return false;
+        if(phoNeuHadIso > phoNeuHadIsoCutBarrel + phoNeuHadIsoSlopeBarrel*pho->pt() + phoNeuHadIsoQuadraticBarrel*pow(pho->pt(),2)) return false;
         if(phoPhotIso > phoPhotIsoCutBarrel + phoPhotIsoSlopeBarrel*pho->pt()) return false;
     }
     else{ //endcap cuts
@@ -332,7 +338,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Ph
 
         //isolation cuts
         if(phoChHadIso > phoChHadIsoCutEndcap) return false;
-        if(phoNeuHadIso > phoNeuHadIsoCutEndcap + phoNeuHadIsoSlopeEndcap*pho->pt()) return false;
+        if(phoNeuHadIso > phoNeuHadIsoCutEndcap + phoNeuHadIsoSlopeEndcap*pho->pt() + phoNeuHadIsoQuadraticEndcap*pow(pho->pt(),2)) return false;
         if(phoPhotIso > phoPhotIsoCutEndcap + phoPhotIsoSlopeEndcap*pho->pt()) return false;
     }
     return true;

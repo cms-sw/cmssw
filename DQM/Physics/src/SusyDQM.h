@@ -121,6 +121,7 @@ class SusyDQM : public DQMEDAnalyzer {
         edm::Handle<reco::ConversionCollection> conversions;
         edm::Handle<reco::BeamSpot> beamSpot;
         edm::Handle<double> fixedGridRhoFastjetAll;
+        edm::Handle<reco::JetTagCollection> jetTagCollection;
         edm::Handle<edm::View<reco::GenParticle> > genParticles;
         edm::Handle<reco::GenJetCollection> genJets;
 
@@ -136,7 +137,8 @@ class SusyDQM : public DQMEDAnalyzer {
 
         double elePtCut;
         double eleEtaCut;
-        int eleMaxMissingHits;
+        int eleMaxMissingHitsBarrel;
+        int eleMaxMissingHitsEndcap;
         double eleDEtaInCutBarrel;
         double eleDPhiInCutBarrel;
         double eleSigmaIetaIetaCutBarrel;
@@ -165,6 +167,7 @@ class SusyDQM : public DQMEDAnalyzer {
         double phoChHadIsoCutBarrel;
         double phoNeuHadIsoCutBarrel;
         double phoNeuHadIsoSlopeBarrel;
+        double phoNeuHadIsoQuadraticBarrel;
         double phoPhotIsoCutBarrel;
         double phoPhotIsoSlopeBarrel;
         double phoHoverECutEndcap;
@@ -172,6 +175,7 @@ class SusyDQM : public DQMEDAnalyzer {
         double phoChHadIsoCutEndcap;
         double phoNeuHadIsoCutEndcap;
         double phoNeuHadIsoSlopeEndcap;
+        double phoNeuHadIsoQuadraticEndcap;
         double phoPhotIsoCutEndcap;
         double phoPhotIsoSlopeEndcap;
 
