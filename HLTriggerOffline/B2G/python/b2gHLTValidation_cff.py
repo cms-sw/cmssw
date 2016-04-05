@@ -10,7 +10,7 @@ b2gHLTriggerValidation = cms.Sequence(
     b2gSingleElectronHLTValidation*
     b2gSingleJetHLTValidation*
     b2gDiJetHLTValidation*
-    b2gDoubleLeptonEleMu*
+    b2gDoubleLeptonEleMuHLTValidation*
     b2gDoubleElectronHLTValidation
     )
 
