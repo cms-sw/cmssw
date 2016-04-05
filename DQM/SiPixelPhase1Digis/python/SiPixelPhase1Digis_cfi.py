@@ -5,7 +5,7 @@ from DQM.SiPixelPhase1Common.GeometryInterface_cfi import *
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1DigisConf = cms.VPSet(
-  DefaultHisto, # ADC
+  DefaultHisto.clone(enabled = True), # ADC
   DefaultHisto.clone(enabled = True), # Ndigis
   DefaultHisto.clone(enabled = True)  # hitmaps
 )
