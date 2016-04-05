@@ -138,11 +138,11 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
       stringStr<<"iPt"<<index;
       ///Patterns XML format backward compatibility. Can use both packed by 4, or by 1 XML files.      
       if(aGPElement->getAttributeNode(_toDOMS(stringStr.str().c_str()))){
-	aGP = buildGP(aGPElement,index,aConfig);
+	aGP = buildGP(aGPElement, aConfig, index);
 	if(aGP) aGPs.push_back(aGP);
       }
       else{
-	aGP = buildGP(aGPElement);
+	aGP = buildGP(aGPElement, aConfig);
 	if(aGP) aGPs.push_back(aGP);
 	break;
       }
@@ -226,7 +226,7 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
 							  unsigned int iProcessor,
 							  bool readEta){
 
-  return OMTFinput::vector2D;
+  return OMTFinput::vector2D();
   
   /*
   if(!doc){
@@ -304,7 +304,7 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig){
+void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
 
  parser->parse(configFile.c_str()); 
   xercesc::DOMDocument* doc = parser->getDocument();

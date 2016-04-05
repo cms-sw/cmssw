@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi.py")
 process.CondDBCommon.connect = 'sqlite_file:Patterns.db'
 
 process.source = cms.Source("EmptyIOVSource",
@@ -15,9 +15,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('L1TMTFOverlapParamsRcd'),
-        tag = cms.string('OMTFParams_test')
-    ))
+                      record = cms.string('L1TMTFOverlapParamsRcd_params'),
+                      tag = cms.string('OMTFParams')),
+                      cms.PSet(
+                      record = cms.string('L1TMTFOverlapParamsRcd_patterns'),
+                      tag = cms.string('OMTFParams'))
+    )
 )
 
 ###OMTF CondFormats ESProducer

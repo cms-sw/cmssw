@@ -20,7 +20,9 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
 
       typedef std::shared_ptr<L1TMuonOverlapParams> ReturnType;
 
-      ReturnType produce(const L1TMuonOverlapParamsRcd&);
+      ReturnType produceParams(const L1TMuonOverlapParamsRcd&);
+
+      ReturnType producePatterns(const L1TMuonOverlapParamsRcd&);
 
    private:
 
@@ -32,6 +34,7 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
       ///Read Connections from single XML file.
       bool readConnectionsXML(const XMLConfigReader & aReader);
 
-      L1TMuonOverlapParams m_params;
+      L1TMuonOverlapParams params;
+      L1TMuonOverlapParams patterns;
 };
 
