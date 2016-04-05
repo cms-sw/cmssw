@@ -52,8 +52,8 @@ OMTFReconstruction::~OMTFReconstruction(){
 void OMTFReconstruction::beginJob() {
   
   if(m_Config.exists("omtf")){
-    m_OMTFConfig = new OMTFConfiguration(m_Config.getParameter<edm::ParameterSet>("omtf"));
-    m_OMTF = new OMTFProcessor(m_Config.getParameter<edm::ParameterSet>("omtf"), m_OMTFConfig);
+    m_OMTFConfig = new OMTFConfiguration();
+    m_OMTF = new OMTFProcessor();
   }
 }
 
@@ -71,28 +71,31 @@ void OMTFReconstruction::endJob(){
 /////////////////////////////////////////////////////
 void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
-  ///If configuration is read from XML do not look at the DB.
-  if(m_Config.getParameter<edm::ParameterSet>("omtf").getParameter<bool>("configFromXML")) return;  
-
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
+  const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-  omtfParamsRcd.get(omtfParamsHandle);
+  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
+  omtfParamsRcd.get("params",omtfParamsHandle);
+  omtfPatternsRcd.get("patterns",omtfPatternsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
+  const L1TMuonOverlapParams* omtfPatterns = omtfPatternsHandle.product();
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
+  if (!omtfPatterns) {
+    edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve patterns from Event Setup" << std::endl;
+  }  
 
   m_OMTFConfig->configure(omtfParams);
-  m_OMTF->configure(omtfParams);
-}
+  m_OMTF->configure(m_OMTFConfig, omtfPatterns);
+  m_GhostBuster.setNphiBins(m_OMTFConfig->nPhiBins());
 
+  m_InputMaker.initialize(iSetup, m_OMTFConfig); 
+}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 std::auto_ptr<l1t::RegionalMuonCandBxCollection > OMTFReconstruction::reconstruct(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-
-  m_InputMaker.initialize(evSetup); //FIXME shoun't it be in beginRun?
 
   loadAndFilterDigis(iEvent);
 
@@ -103,10 +106,10 @@ std::auto_ptr<l1t::RegionalMuonCandBxCollection > OMTFReconstruction::reconstruc
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > candidates(new l1t::RegionalMuonCandBxCollection);
 
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
-  for(unsigned int iProcessor=0; iProcessor<OMTFConfiguration::instance()->nProcessors; ++iProcessor)
+  for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_pos, bx, *candidates);
 
-  for(unsigned int iProcessor=0; iProcessor<OMTFConfiguration::instance()->nProcessors; ++iProcessor)
+  for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
     
     return candidates;
@@ -155,7 +158,7 @@ void OMTFReconstruction::writeResultToXML(unsigned int iProcessor, const OMTFinp
   //Write data to XML file
   if(dumpResultToXML){
     xercesc::DOMElement * aProcElement = m_Writer->writeEventData(aTopElement,iProcessor,input);
-    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::instance()->nTestRefHits;++iRefHit){
+    for(unsigned int iRefHit=0;iRefHit<m_OMTFConfig->nTestRefHits();++iRefHit){
       ///Dump only regions, where a candidate was found
       AlgoMuon myCand = m_Sorter.sortRefHitResults(results[iRefHit],0);//charge=0 means ignore charge
       if(myCand.getPt()) {

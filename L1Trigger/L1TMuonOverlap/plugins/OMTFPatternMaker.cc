@@ -61,25 +61,29 @@ OMTFPatternMaker::~OMTFPatternMaker(){
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup){
 
-  ///If configuration is read from XML do not look at the DB.
-  if(theConfig.getParameter<edm::ParameterSet>("omtf").getParameter<bool>("configFromXML")) return;  
-
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
+  const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-  omtfParamsRcd.get(omtfParamsHandle);
+  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
+  omtfParamsRcd.get("params",omtfParamsHandle);
+  omtfPatternsRcd.get("patterns",omtfPatternsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
+  const L1TMuonOverlapParams* omtfPatterns = omtfPatternsHandle.product();
+  
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-
+  if (!omtfPatterns) {
+    edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve patterns from Event Setup" << std::endl;
+  }  
+  
   myOMTFConfig->configure(omtfParams);
-  myOMTF->configure(omtfParams);
+  myOMTF->configure(myOMTFConfig, omtfParams);
 
   ///For making the patterns use extended pdf width in phi
   ////Ugly hack to modify configuration parameters at runtime.
-  myOMTFConfig->nPdfAddrBits = 14;
+  //FIXME myOMTFConfig->rawParams().nPdfAddrBits = 14;
 
   ///Clear existing GoldenPatterns
   const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
@@ -91,9 +95,9 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 void OMTFPatternMaker::beginJob(){
 
   if(theConfig.exists("omtf")){
-    myOMTFConfig = new OMTFConfiguration(theConfig.getParameter<edm::ParameterSet>("omtf"));
+    myOMTFConfig = new OMTFConfiguration();
     myOMTFConfigMaker = new OMTFConfigMaker(theConfig.getParameter<edm::ParameterSet>("omtf"), myOMTFConfig);
-    myOMTF = new OMTFProcessor(theConfig.getParameter<edm::ParameterSet>("omtf"), myOMTFConfig);
+    myOMTF = new OMTFProcessor();
   }
 }
 /////////////////////////////////////////////////////
@@ -110,7 +114,7 @@ void OMTFPatternMaker::endJob(){
     }
 
     ////Ugly hack to modify configuration parameters at runtime.
-    myOMTFConfig->nPdfAddrBits = 7;
+    //FIXME myOMTFConfig->nPdfAddrBits = 7;
     for(auto itGP: myGPmap){
       ////
       unsigned int iPt = theConfig.getParameter<int>("ptCode")+1;
