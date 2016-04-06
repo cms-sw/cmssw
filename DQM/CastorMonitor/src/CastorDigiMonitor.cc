@@ -53,26 +53,34 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   std::string s2 = "CASTOR QIE_capID+er+dv";
   h2digierr=ibooker.bookProfile2D(s2,s2,14,0.,14., 16,0.,16.,100,0,1.e10,"");
-  h2digierr->getTProfile2D()->GetXaxis()->SetTitle("ModuleZ");
-  h2digierr->getTProfile2D()->GetYaxis()->SetTitle("SectorPhi");
+  h2digierr->getTProfile2D()->GetXaxis()->SetTitle("Module Z");
+  h2digierr->getTProfile2D()->GetYaxis()->SetTitle("Sector #Phi");
   h2digierr->getTProfile2D()->SetMaximum(1.);
   h2digierr->getTProfile2D()->SetMinimum(QIEerrThreshold);
   h2digierr->getTProfile2D()->SetOption("colz");
 
+  sprintf(s,"CASTORreportSummaryMap");
+   h2repsum=ibooker.bookProfile2D(s,s,14,0.,14., 16,0.,16.,100,0,1.e10,"");
+   h2repsum->getTProfile2D()->GetXaxis()->SetTitle("Module Z");
+   h2repsum->getTProfile2D()->GetYaxis()->SetTitle("Sector #Phi");
+   h2repsum->getTProfile2D()->SetMaximum(1.);
+   h2repsum->getTProfile2D()->SetMinimum(QIEerrThreshold);
+   h2repsum->getTProfile2D()->SetOption("colz");
+
   sprintf(s,"CASTOR DeadChannelsMap");
     h2status = ibooker.book2D(s,s,14,0.,14., 16,0.,16.);   
-    h2status->getTH2F()->GetXaxis()->SetTitle("ModuleZ");
-    h2status->getTH2F()->GetYaxis()->SetTitle("SectorPhi");
+    h2status->getTH2F()->GetXaxis()->SetTitle("Module Z");
+    h2status->getTH2F()->GetYaxis()->SetTitle("Sector #Phi");
     h2status->getTH2F()->SetOption("colz");
 
-  sprintf(s,"CASTOR AverageToMaxRatioMap");
+  sprintf(s,"CASTOR TSmax Significance Map");
     h2TSratio = ibooker.book2D(s,s,14,0.,14., 16,0.,16.);   
-    h2TSratio->getTH2F()->GetXaxis()->SetTitle("ModuleZ");
-    h2TSratio->getTH2F()->GetYaxis()->SetTitle("SectorPhi");
+    h2TSratio->getTH2F()->GetXaxis()->SetTitle("Module Z");
+    h2TSratio->getTH2F()->GetYaxis()->SetTitle("Sector #Phi");
     h2TSratio->getTH2F()->SetOption("colz");
 
-  sprintf(s,"CASTOR AverageToMaxRatio");
-    hTSratio = ibooker.book1D(s,s,100,0.,1.);   
+  sprintf(s,"CASTOR TSmax Significance All chan");
+    hTSratio = ibooker.book1D(s,s,105,0.,1.05);   
 
     sprintf(s,"DigiSize");
         hdigisize = ibooker.book1D(s,s,20,0.,20.);
@@ -82,7 +90,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 	hModule->getTH1F()->GetYaxis()->SetTitle("QIE(fC)");
     sprintf(s,"Sector(fC)_allTS");
         hSector = ibooker.book1D(s,s,16,0.,16.);
-	hSector->getTH1F()->GetXaxis()->SetTitle("SectorPhi");
+	hSector->getTH1F()->GetXaxis()->SetTitle("Sector #Phi");
 	hSector->getTH1F()->GetYaxis()->SetTitle("QIE(fC)");
 
     sprintf(s,"QfC=f(x=Tile y=TS) (cumulative)");
@@ -103,18 +111,18 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
       h2QrmsTSvsCh->getTH2F()->GetYaxis()->SetTitle("TS");
       h2QrmsTSvsCh->getTH2F()->SetOption("colz");
 
- sprintf(s,"CASTORreportSummaryMap");
-    h2reportMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
-    h2reportMap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
-    h2reportMap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
-    h2reportMap->getTH2F()->SetOption("colz");
+ sprintf(s,"CASTOR data quality");
+    h2qualityMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
+    h2qualityMap->getTH2F()->GetXaxis()->SetTitle("module Z");
+    h2qualityMap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
+    h2qualityMap->getTH2F()->SetOption("colz");
     
    hReport = ibooker.bookFloat("CASTOR reportSummary");
 
  sprintf(s,"QmeanfC_map(allTS)");
       h2QmeanMap = ibooker.book2D(s,s,14,0.,14., 16,0.,16.);
-      h2QmeanMap->getTH2F()->GetXaxis()->SetTitle("ModuleZ");
-      h2QmeanMap->getTH2F()->GetYaxis()->SetTitle("SectorPhi");
+      h2QmeanMap->getTH2F()->GetXaxis()->SetTitle("Module Z");
+      h2QmeanMap->getTH2F()->GetYaxis()->SetTitle("Sector #Phi");
       h2QmeanMap->getTH2F()->SetOption("textcolz");
 
  for(int ts=0; ts<=1; ts++) {
@@ -137,6 +145,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
   if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (begin)"<< std::endl;
 
  if(castorDigis.size() <= 0) {
+  for(int mod=0; mod<14; mod++) for(int sec=0; sec<16; sec++) 
+        h2repsum->Fill(mod,sec,0.);
   if(fVerbosity>0) std::cout<<"CastorPSMonitor::processEvent NO Castor Digis"<<std::endl;
   return;
  }
@@ -149,16 +159,17 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
    int capid1 = digi.sample(0).capid();
    hdigisize->Fill(digi.size());
    double sum = 0.;
+   int err=0, err2=0;
+   int module = digi.id().module()-1;
+   int sector = digi.id().sector()-1;
    for (int i=0; i<digi.size(); i++) {
-     int module = digi.id().module()-1;
-     int sector = digi.id().sector()-1;
      int capid = digi.sample(i).capid();
      int dv = digi.sample(i).dv();
      int er = digi.sample(i).er();
      int rawd = digi.sample(i).adc();
      rawd = rawd&0x7F;
-     int err = (capid != capid1) | er<<1 | (!dv)<<2; // =0
-     h2digierr->Fill(module,sector,err);
+     err |= (capid != capid1) | er<<1 | (!dv)<<2; // =0
+     err2 += (capid != capid1) | er | (!dv); // =0
 //     if(err !=0) continue;
      int ind = ModSecToIndex(module,sector);
      h2QtsvsCh->Fill(ind,i,LedMonAdc2fc[rawd]);
@@ -172,6 +183,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
      if(capid1 < 3) capid1 = capid+1;
      else capid1 = 0;
    }
+   h2digierr->Fill(module,sector,err);
+   h2repsum->Fill(module,sector,1.-err2/digi.size());
 //   hBunchOcc->Fill(iBunch,sum);
  } //end for(CastorDigiCollection::const_iterator ...
 
@@ -223,17 +236,19 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
     h2status->getTH2F()->SetBinContent(mod+1,sec+1,ChanStatus);
 
     int tsm = 0;
-    float am=0.;
+    float am=0., amin = 10000.;
     for(int ts=0; ts<TS_MAX; ts++) {
       float a = h2QmeantsvsCh->getTH2F()->GetBinContent(ind+1,ts+1);
       if(am < a) {am = a; tsm = ts;}
+      if(a < amin) amin = a;
     }
 
     double sum = 0.;
-    for(int ts=0; ts<TS_MAX; ts++) if(ts != tsm)
+    for(int ts=0; ts<TS_MAX; ts++) if(ts != tsm) 
       sum += h2QmeantsvsCh->getTH2F()->GetBinContent(ind+1,ts+1);
-    float r = 0.;
-    if(am > 0.) r = sum/(TS_MAX-1)/am;
+    float r = 1.; // worth case - no peak
+//    if(am > 0.) r = sum/(TS_MAX-1)/am;
+    if(am > amin) r = (sum/(TS_MAX-1)-amin)/(am - amin);
     h2TSratio->getTH2F()->SetBinContent(mod+1,sec+1,r);
     hTSratio->Fill(r);
     float statusTS = 1.0;
@@ -241,9 +256,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
     else if(r > 0.99) statusTS = repChanBAD;
     float gChanStatus = statusTS;
     if(ChanStatus > 0.) gChanStatus = repChanBAD; // RMS
- if(h2digierr->getTProfile2D()->GetBinContent(mod+1,sec+1)>QIEerrThreshold)
-	gChanStatus = repChanBAD;
-    h2reportMap->getTH2F()->SetBinContent(mod+1,sec+1,gChanStatus);
+// if(h2digierr->getTProfile2D()->GetBinContent(mod+1,sec+1)>QIEerrThreshold) gChanStatus = repChanBAD;
+    h2qualityMap->getTH2F()->SetBinContent(mod+1,sec+1,gChanStatus);
     if(gChanStatus > repChanBAD) ++nGoodCh;
   }
   hReport->Fill(float(nGoodCh)/224.);
