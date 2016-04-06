@@ -157,7 +157,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     else if(lPack->vertexRef().isNonnull() )  {
       pDZ        = lPack->dz();
       pD0        = lPack->dxy();
-      closestVtx = &(*(lPack->vertexRef()));
+      //closestVtx = &(*(lPack->vertexRef())); "Value stored to 'closestVtx' is never read"
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
   
