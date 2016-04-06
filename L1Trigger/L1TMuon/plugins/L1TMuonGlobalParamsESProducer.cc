@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -40,7 +39,7 @@ class L1TMuonGlobalParamsESProducer : public edm::ESProducer {
       L1TMuonGlobalParamsESProducer(const edm::ParameterSet&);
       ~L1TMuonGlobalParamsESProducer();
 
-      typedef boost::shared_ptr<L1TMuonGlobalParams> ReturnType;
+      typedef std::shared_ptr<L1TMuonGlobalParams> ReturnType;
 
       ReturnType produce(const L1TMuonGlobalParamsRcd&);
    private:
@@ -172,10 +171,8 @@ L1TMuonGlobalParamsESProducer::ReturnType
 L1TMuonGlobalParamsESProducer::produce(const L1TMuonGlobalParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonGlobalParams> pMicroGMTParams;
 
-   pMicroGMTParams = boost::shared_ptr<L1TMuonGlobalParams>(new L1TMuonGlobalParams(m_params));
-   return pMicroGMTParams;
+   return std::make_shared<L1TMuonGlobalParams>(m_params);
 }
 
 //define this as a plug-in

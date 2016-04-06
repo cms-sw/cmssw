@@ -8,7 +8,7 @@ class CSCTFConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCTFConfigurat
          : L1ConfigOnlineProdBase< L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration >( iConfig ) {}
       ~CSCTFConfigOnlineProd() {}
 
-      virtual boost::shared_ptr< L1MuCSCTFConfiguration > newObject( const std::string& objectKey ) ;
+      virtual std::shared_ptr< L1MuCSCTFConfiguration > newObject( const std::string& objectKey ) ;
    private:
 };
 

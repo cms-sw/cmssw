@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include <memory>
 #include <string>
 
 namespace coral {
@@ -77,7 +78,7 @@ class DTUserKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> 
   DTCCBConfig* ccbConfig;
   
   cond::persistency::ConnectionPool connection;
-  boost::shared_ptr<coral::ISessionProxy> isession;
+  std::shared_ptr<coral::ISessionProxy> isession;
   void chkConfigList( const std::map<int,bool>& userBricks );
   bool userDiscardedKey( int key );
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,

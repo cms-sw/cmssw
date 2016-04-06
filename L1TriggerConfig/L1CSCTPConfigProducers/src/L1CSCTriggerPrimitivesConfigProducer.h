@@ -13,7 +13,6 @@
 
 // system include files
 #include <memory>
-//#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -27,7 +26,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
   L1CSCTriggerPrimitivesConfigProducer(const edm::ParameterSet&);
   ~L1CSCTriggerPrimitivesConfigProducer();
 
-  //typedef boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
+  //typedef std::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
 
   std::auto_ptr<CSCDBL1TPParameters> produce(const CSCDBL1TPParametersRcd&);
 

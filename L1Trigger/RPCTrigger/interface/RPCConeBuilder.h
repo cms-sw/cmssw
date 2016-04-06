@@ -18,7 +18,6 @@
 //         Created:  Mon Feb 25 12:06:44 CET 2008
 //
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -39,7 +38,7 @@ class RPCConeBuilder : public edm::ESProducer {
       RPCConeBuilder(const edm::ParameterSet&);
       ~RPCConeBuilder() {};
 
-      typedef boost::shared_ptr<L1RPCConeBuilder> ReturnType;
+      typedef std::shared_ptr<L1RPCConeBuilder> ReturnType;
       
 
       ReturnType produce(const L1RPCConeBuilderRcd&);
