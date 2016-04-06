@@ -71,7 +71,7 @@ class ZMuMuValidation(GenericValidationData):
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        if validationsSoFar == "":
-            validationsSoFar += replaceByMap('filenames.push_back("root://eoscms//eos/cms.oO[zmumureference]Oo.");  titles.push_back("reference");  colors.push_back(1);  linestyles.push_back(1);\n\n', repMap)
-        validationsSoFar += replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+        if validationsSoFar != "":
+            validationsSoFar += '    '
+        validationsSoFar += replaceByMap('filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
         return validationsSoFar
