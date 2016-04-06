@@ -6,7 +6,7 @@
 // Created:  Dec. 28, 2006 (originally JetCorrectionService, renamed in 2011)
 //
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 #include <iostream>
 
@@ -60,7 +60,7 @@ public:
 
   ~JetCorrectionESSource() {}
 
-  boost::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
+  std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
   {
     std::string fileName("CondFormats/JetMETObjects/data/");
     if (!mEra.empty())
@@ -74,8 +74,7 @@ public:
       std::cout << "Parameter File: " << fileName << std::endl;
     edm::FileInPath fip(fileName);
     JetCorrectorParameters *tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(), mSection);
-    boost::shared_ptr<JetCorrector> mCorrector(new Corrector(*tmpJetCorPar, mParameterSet));
-    return mCorrector;
+    return std::make_shared<Corrector>(*tmpJetCorPar, mParameterSet);
   }
 
   void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval& fIOV)
