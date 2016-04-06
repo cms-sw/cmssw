@@ -33,9 +33,17 @@ namespace edm {
     
     RefCoreWithIndex& operator=(RefCoreWithIndex const&);
 
-    RefCoreWithIndex( RefCoreWithIndex&& iOther): cachePtr_(iOther.cachePtr_.load()),processIndex_(iOther.processIndex_),
+    RefCoreWithIndex( RefCoreWithIndex&& iOther) noexcept : cachePtr_(iOther.cachePtr_.load()),processIndex_(iOther.processIndex_),
     productIndex_(iOther.productIndex_),elementIndex_(iOther.elementIndex_) {}
-    RefCoreWithIndex& operator=(RefCoreWithIndex&&) = default;
+    RefCoreWithIndex& operator=(RefCoreWithIndex&& iOther) noexcept {
+       cachePtr_ = iOther.cachePtr_.load();
+       processIndex_ = iOther.processIndex_;
+       productIndex_ = iOther.productIndex_;
+       elementIndex_ = iOther.elementIndex_;
+       return *this;
+    }
+
+    ~RefCoreWithIndex() noexcept {}
 
     ProductID id() const {ID_IMPL;}
 

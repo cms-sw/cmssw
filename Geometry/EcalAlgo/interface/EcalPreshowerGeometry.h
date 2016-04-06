@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include <vector>
 
-class EcalPreshowerGeometry : public CaloSubdetectorGeometry
+class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 {
    public:
 
