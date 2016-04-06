@@ -80,9 +80,7 @@ eras.trackingLowPU.toModify(mixedTripletStepSeedLayersA,
         'FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg',
         'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'
     ],
-    BPix = dict(clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))),
-    FPix = dict(clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))),
-    TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')),
+    TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersA,
     layerList = [
@@ -154,8 +152,7 @@ mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
 )
 eras.trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     layerList = ['BPix2+BPix3+TIB1', 'BPix2+BPix3+TIB2'],
-    BPix = dict(clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))),
-    TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')),
+    TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 eras.trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
@@ -248,7 +245,7 @@ mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 eras.trackingLowPU.toModify(mixedTripletStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
 eras.trackingPhase1PU70.toModify(mixedTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),

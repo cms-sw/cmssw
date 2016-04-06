@@ -94,8 +94,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         maxRing = cms.int32(3)
     )
 )
-eras.trackingLowPU.toModify(
-    pixelLessStepSeedLayers,
+eras.trackingLowPU.toModify(pixelLessStepSeedLayers,
     layerList = [
         'TIB1+TIB2',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
@@ -103,9 +102,9 @@ eras.trackingLowPU.toModify(
         'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
         'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg'
     ],
-    TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')),
-    TID = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')),
-    TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')),
+    TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
+    TID = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
+    TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
     MTIB = None,
     MTID = None,
     MTEC = None,
@@ -188,7 +187,7 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 eras.trackingLowPU.toModify(pixelLessStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
 
 # TRACK BUILDING

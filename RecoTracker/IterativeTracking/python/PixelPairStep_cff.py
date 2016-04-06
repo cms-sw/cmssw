@@ -125,7 +125,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     pTChargeCutThreshold = cms.double(15.)
 )
 eras.trackingLowPU.toModify(pixelPairStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
 eras.trackingPhase1PU70.toModify(pixelPairStepChi2Est,
     MaxChi2 = 16.0,
