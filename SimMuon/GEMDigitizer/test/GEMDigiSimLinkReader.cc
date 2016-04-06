@@ -6,7 +6,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -36,7 +36,7 @@
 
 using namespace std;
 
-class GEMDigiSimLinkReader: public edm::EDAnalyzer
+class GEMDigiSimLinkReader: public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
 
@@ -150,11 +150,6 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   mom_cls_GE11->SetXTitle("Muon Momentum [GeV]");
   mom_cls_GE11->SetYTitle("Cluster Size");
 
-/*
-  mom_cls_GE21short = fs->make < TH2F > ("mom_cls_GE21short", "mom_cls_GE21short", 20000, 0., 2000., 21, -0.5, 20.5);
-  mom_cls_GE21short->SetXTitle("Muon Momentum [GeV]");
-  mom_cls_GE21short->SetYTitle("Cluster Size");
-*/
   mom_cls_GE21long = fs->make < TH2F > ("mom_cls_GE21long", "mom_cls_GE21long", 20000, 0., 2000., 21, -0.5, 20.5);
   mom_cls_GE21long->SetXTitle("Muon Momentum [GeV]");
   mom_cls_GE21long->SetYTitle("Cluster Size");
@@ -186,11 +181,6 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   deltaPhi_cls_GE11->SetXTitle("Delta #phi [rad]");
   deltaPhi_cls_GE11->SetYTitle("Cluster Size");
 
-/*
-  deltaPhi_cls_GE21short = fs->make < TH2F > ("deltaPhi_cls_GE21short", "deltaPhi_cls_GE21short", 2000000, -1., 1., 21, -0.5, 20.5);
-  deltaPhi_cls_GE21short->SetXTitle("Delta #phi [rad]");
-  deltaPhi_cls_GE21short->SetYTitle("Cluster Size");
-*/
   deltaPhi_cls_GE21long = fs->make < TH2F > ("deltaPhi_cls_GE21long", "deltaPhi_cls_GE21long", 2000000, -1., 1., 21, -0.5, 20.5);
   deltaPhi_cls_GE21long->SetXTitle("Delta #phi [rad]");
   deltaPhi_cls_GE21long->SetYTitle("Cluster Size");
@@ -433,13 +423,11 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
           std::vector<int>::iterator muIt = find(muonFired.begin(), muonFired.end(), (tempCluster[j])[l]);
           if (muIt != muonFired.end())
           {
-//            std::cout << "muon strip\t" << *muIt << std::endl;
             checkMu = true;
           }
           else
           {
             checkMu = false;
-//            std::cout << "not a muon" << std::endl;
           }
           if (checkMu)
             muonCluster++;
