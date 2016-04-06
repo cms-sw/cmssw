@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 looseMTS = cms.PSet(
     preFilterName=cms.string(''),
@@ -89,3 +90,6 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
                                tightMTS,
                                highpurityMTS)
  ) 
+eras.trackingLowPU.toModify(multiTrackSelector,
+    vertices = "pixelVertices"
+)
