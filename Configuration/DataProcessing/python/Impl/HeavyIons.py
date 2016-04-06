@@ -18,7 +18,7 @@ class HeavyIons(Reco):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
-        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customisePromptHI'
+        self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePromptHI' ]
         self.expressCustoms= [ ]
         self.expressModifiers = modifyExpressHI
         self.visCustoms= [ ]
