@@ -335,33 +335,27 @@ void ME0SegFit::setChi2(void) {
 
 
 ME0SegFit::SMatrixSym12 ME0SegFit::weightMatrix() {
+  
   bool ok = true;
 
   SMatrixSym12 matrix = ROOT::Math::SMatrixIdentity(); // 12x12, init to 1's on diag
 
   int row = 0;
-  //std::cout << "[hits_ size = " << hits_.size() << "]" << std::endl;
-  int iii=0;
+  
   for (ME0SetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    if (row > 11) break; // temp due to max size of matrix
     
     const ME0RecHit& hit = (**it);
+
 // Note scaleXError allows rescaling the x error if necessary
-    //std::cout << " trying to fill ("<<row<<","<<row<<") element with localPositionError().xx()..";
+
     matrix(row, row)   = scaleXError()*hit.localPositionError().xx();
-    //std::cout << " => done!" << std::endl;
-    //std::cout << " trying to fill ("<<row<<","<<row+1<<") element with localPositionError().xy()..";
     matrix(row, row+1) = hit.localPositionError().xy();
-    //std::cout << " => done!" << std::endl;
     ++row;
-    //std::cout << " trying to fill ("<<row<<","<<row-1<<") element with localPositionError().xy()..";
-    matrix(row, row-1) = hit.localPositionError().xy(); //FIXME error
-    //std::cout << " => done!" << std::endl;
-    //std::cout << " trying to fill ("<<row<<","<<row<<") element with localPositionError().yy()..";
+    matrix(row, row-1) = hit.localPositionError().xy();
     matrix(row, row)   = hit.localPositionError().yy();
-    //std::cout << " => done!" << std::endl;
     ++row;
   }
+
   ok = matrix.Invert(); // invert in place
   if ( !ok ) {
     edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::weightMatrix] Failed to invert matrix: \n" << matrix;      
@@ -519,4 +513,3 @@ float ME0SegFit::ydev( float y, float z ) const {
 float ME0SegFit::Rdev(float x, float y, float z) const {
   return sqrt ( xdev(x,z)*xdev(x,z) + ydev(y,z)*ydev(y,z) );
 }
-
