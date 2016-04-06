@@ -191,12 +191,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             cond0Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
-//            if (m_verbosity) {
+            if (m_verbosity) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
                 LogDebug("L1TGlobal") << myCout.str() << std::endl;
-//            }
+            }
         }
             break;
         case CondEnergySum: {

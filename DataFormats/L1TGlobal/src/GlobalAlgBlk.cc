@@ -170,7 +170,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
     
     // Loop through bits to create a hex word of algorithm bits.
     lengthWd = m_algoDecisionInterm.size();
-    myCout << "    Decision (Interm) 0x" << std::hex;
+    myCout << "    Decision (Interm)    0x" << std::hex;
     digit = 0;
     for(int i=lengthWd-1; i>-1; i--) {
       if(m_algoDecisionInterm.at(i)) digit |= (1 << (i%4));
