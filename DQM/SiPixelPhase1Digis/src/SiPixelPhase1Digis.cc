@@ -22,24 +22,6 @@
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig, MAX_HIST)
 {
-  histo[ADC].setName("adc")
-    .setTitle("Digi ADC values")
-    .setXlabel("adc readout")
-    .setRange(300, 0, 300)
-    .setDimensions(1);
-  histo[MAP].setName("hitmap")
-    .setTitle("Position of digis on module")
-    .setXlabel("col")
-    .setYlabel("row")
-    .setRange(200, 0, 200)
-    .setDimensions(2);
-
-  histo[NDIGIS].setName("ndigis")
-    .setTitle("Number of Digis")
-    .setXlabel("#digis")
-    .setRange(30, 0, 30)
-    .setDimensions(1);
-
 } 
 
 void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& c) {

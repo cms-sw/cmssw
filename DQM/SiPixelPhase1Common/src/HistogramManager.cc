@@ -22,7 +22,14 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   enabled(iconfig.getParameter<bool>("enabled")),
   bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
   top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
-  default_grouping(iconfig.getParameter<std::string>("defaultGrouping"))
+  name(iconfig.getParameter<std::string>("name")),
+  title(iconfig.getParameter<std::string>("title")),
+  xlabel(iconfig.getParameter<std::string>("xlabel")),
+  ylabel(iconfig.getParameter<std::string>("ylabel")),
+  dimensions(iconfig.getParameter<int>("dimensions")),
+  range_nbins(iconfig.getParameter<int>("range_nbins")),
+  range_min(iconfig.getParameter<double>("range_min")),
+  range_max(iconfig.getParameter<double>("range_max"))
 { 
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
   for (auto spec : spec_configs) {
