@@ -36,6 +36,7 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfLCTStrip[18];
   MonitorElement* emtfLCTWire[18];
   MonitorElement* emtfChamberStrip[18];
+  MonitorElement* emtfChamberWire[18];
   MonitorElement* emtfChamberOccupancy;
   
   MonitorElement* emtfnTracks;
@@ -45,6 +46,9 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackOccupancy;
+  MonitorElement* emtfMode;
+  MonitorElement* emtfQuality;
+  MonitorElement* emtfModeQuality;
 };
 
 #endif
