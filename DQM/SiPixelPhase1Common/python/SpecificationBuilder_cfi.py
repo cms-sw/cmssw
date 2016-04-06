@@ -19,6 +19,12 @@ FIRST    = cms.int32(1)
 STAGE1   = cms.int32(2)
 STAGE2   = cms.int32(3)
 
+def val(maybecms):
+  if hasattr(maybecms, "value"):
+    return maybecms.value()
+  else:
+    return maybecms
+
 class Specification:
   def __init__(self):
     self.stage = NO_STAGE
@@ -27,14 +33,14 @@ class Specification:
     self.pset = cms.PSet(spec = cms.VPSet())
 
   def groupBy(self, cols, mode = "SUM"):
-    cnames = cols.split("/")
+    cnames = val(cols).split("/")
 
     if mode == "SUM":
       t = GROUPBY
       cstrings = cms.vstring(cnames)
     elif mode == "EXTEND_X" or mode == "EXTEND_Y":
-      if self.state != STAGE2: 
-        raise Exception("EXTEND only allowed in Harvesting.") 
+      if self.state == FIRST: 
+        raise Exception("First grouping must be SUM") 
       cname = self.activeColumns.difference(cnames)
       if len(cname) != 1:
         raise Exception("EXTEND must drop exactly one column.")
