@@ -16,6 +16,7 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char tdcSaturation[]    = "tdcSaturation";
   constexpr char tdcOnset[]         = "tdcOnset";
   constexpr char toaLSB_ns[]        = "toaLSB_ns";
+  constexpr char fCPerMIP[]          = "fCPerMIP";
   
   if( conf.exists(isSiFE) ) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
@@ -49,6 +50,13 @@ void configureIt(const edm::ParameterSet& conf,
   } else {
     maker.set_toaLSBToNS(-1.);
   }
+
+  if( conf.exists(fCPerMIP) ) {
+    maker.set_fCPerMIP(conf.getParameter<std::vector<double> >(fCPerMIP));
+  } else {
+    maker.set_fCPerMIP(std::vector<double>({1.0}));
+  }
+  
 }
 
 HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps) :
@@ -65,7 +73,13 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
 void
 HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
 {
-  
+  edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
+  edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
+  es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle) ; 
+  es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle) ; 
+  uncalibMaker_ee_.setGeometry(hgceeGeoHandle.product());
+  uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
+  uncalibMaker_heb_.setGeometry(nullptr);
 }
 
 
