@@ -105,7 +105,7 @@ class Specification:
     columns = self.lastColumns
     for i in range(len(columns)-1, 0, -1):
       cols = columns[0:i]
-      self.groupBy(",".join(cols), self.lastMode)
+      self.groupBy("/".join(cols), self.lastMode)
       self.save()
     return self
     

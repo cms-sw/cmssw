@@ -38,6 +38,8 @@ struct SummationStep {
 
 struct SummationSpecification {
   std::vector<SummationStep> steps;
+  SummationSpecification() {};
+  SummationSpecification(edm::ParameterSet const&, GeometryInterface&);
 
   template<class stream, class GI>
   void dump(stream& out, GI& gi) {
@@ -47,6 +49,8 @@ struct SummationSpecification {
       out << " arg " << s.arg << "\n";
     }
   }
+  private:
+  GeometryInterface::Column parse_columns(std::string name, GeometryInterface&);
 };
 
 // The builder gets the empty spec passed in,then a chain of methods is called 
