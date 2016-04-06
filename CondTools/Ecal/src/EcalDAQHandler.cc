@@ -308,12 +308,13 @@ void popcon::EcalDAQHandler::getNewObjects() {
     //ofstream *daqFile;
     //daqFile = new ofstream(outfile,ios::out);
   
-    //    for(int kr = 0; kr < num_runs; kr++){
-    int krmax = std::min(num_runs, 1000);
-    for(int kr = 0; kr < krmax; kr++){
-      if(m_to_transfer.size() < 20 ) {
+    //hlt    for(int kr = 0; kr < num_runs; kr++){
+    for(int kr = num_runs -1; kr < num_runs; kr++){
+    //    int krmax = std::min(num_runs, 1000);
+    //    for(int kr = 0; kr < krmax; kr++){
+      //hlt    if(m_to_transfer.size() < 20 ) {
 
-      if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
+    if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
       bool somediff = false;
       // initialize this run status to all OK
       irun = (unsigned long) run_vec[kr].getRunNumber();
@@ -614,7 +615,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
       }  // no change
 
-      } // check on number of already transferred runs 
+      // hlt    } // check on number of already transferred runs 
     } // loop over runs
   } // check on run number > 0
 
