@@ -42,11 +42,6 @@ void HistogramManager::addSpec(SummationSpecification spec) {
   tables.push_back(Table());
 }
 
-SummationSpecificationBuilder HistogramManager::addSpec() {
-  addSpec(SummationSpecification());
-  return SummationSpecificationBuilder(specs[specs.size()-1], geometryInterface);
-}
-
 // note that this will be pretty hot. Ideally it should be malloc-free.
 void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
   if (!enabled) return;

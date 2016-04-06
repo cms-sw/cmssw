@@ -37,8 +37,6 @@ public:
 
   // Add a specification for a set of plot. this has to happen before fill()'ing, since it optimizes for the spec.
   void addSpec(SummationSpecification spec);
-  // This allows for a fluent interface, where the spec is constructed as a chain of builder-calls.
-  SummationSpecificationBuilder addSpec();
 
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
   void fill(DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
@@ -52,15 +50,6 @@ public:
   // TODO: we need a EventSetup in offline as well. we'll see.:q
   void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
   void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
-
-  HistogramManager& setName(std::string name) {this->name = name; return *this;};
-  HistogramManager& setTitle(std::string title) {this->title = title; return *this;};
-  HistogramManager& setXlabel(std::string xlabel) {this->xlabel = xlabel; return *this;};
-  HistogramManager& setYlabel(std::string ylabel) {this->ylabel = ylabel; return *this;};
-  HistogramManager& setDimensions(int dimensions) {this->dimensions = dimensions; return *this;};
-  HistogramManager& setRange(int nbins, double min, double max) {range_nbins = nbins; range_min = min; range_max = max; return *this; };
-
-  std::string defaultGrouping() { return default_grouping; };
 
 private:
   const edm::ParameterSet& iConfig;
