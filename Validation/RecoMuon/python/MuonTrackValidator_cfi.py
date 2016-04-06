@@ -113,3 +113,6 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     maxZpos = cms.double(10),
     nintZpos = cms.int32(100)
 )
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( muonTrackValidator, useGEMs = cms.bool(True) )
