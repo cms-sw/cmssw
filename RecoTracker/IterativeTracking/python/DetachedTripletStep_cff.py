@@ -89,9 +89,6 @@ detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEst
     MaxChi2 = cms.double(9.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
 )
-eras.trackingLowPU.toModify(detachedTripletStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
-)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi

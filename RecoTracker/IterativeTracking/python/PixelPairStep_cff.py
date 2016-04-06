@@ -97,7 +97,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     pTChargeCutThreshold = cms.double(15.)
 )
 eras.trackingLowPU.toModify(pixelPairStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi

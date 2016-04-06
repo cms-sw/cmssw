@@ -17,6 +17,5 @@ SiStripClusterChargeCutTight = cms.PSet(
     value     = cms.double(1945.0) 
 )
 
-eras.trackingLowPU.toReplaceWith(SiStripClusterChargeCutTiny, SiStripClusterChargeCutNone)
-eras.trackingLowPU.toReplaceWith(SiStripClusterChargeCutLoose, SiStripClusterChargeCutNone)
-eras.trackingLowPU.toReplaceWith(SiStripClusterChargeCutTight, SiStripClusterChargeCutNone)
+eras.trackingLowPU.toReplaceWith(SiStripClusterChargeCutLoose, SiStripClusterChargeCutTiny)
+eras.trackingLowPU.toReplaceWith(SiStripClusterChargeCutTight, SiStripClusterChargeCutTiny)
