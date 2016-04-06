@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi import *
+import  Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi as MillePedeFileReader_cfi
 
 SiPixelAliDQMModule = cms.EDAnalyzer("MillePedeDQMModule",
-                                     MillePedeFileReader = cms.PSet(MillePedeFileReader)
+                                     MillePedeFileReader = cms.PSet(MillePedeFileReader_cfi.MillePedeFileReader.clone())
     )
