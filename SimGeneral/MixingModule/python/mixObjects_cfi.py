@@ -238,5 +238,4 @@ eras.phase2_hgcal.toModify( theMixObjects,
                                                   hgchebackDigitizer.hitCollection.value(),
                                                   hgchefrontDigitizer.hitCollection.value() ]
     ) 
-
 )

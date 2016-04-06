@@ -73,7 +73,7 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
-def _modifyPostValidationForPhase2( theProcess ):
+def _modifyPostValidationForRun3( theProcess ):
     theProcess.load('Validation.MuonGEMHits.PostProcessor_cff')
     theProcess.load('Validation.MuonGEMDigis.PostProcessor_cff')
     theProcess.load('Validation.MuonGEMRecHits.PostProcessor_cff')
@@ -84,4 +84,4 @@ def _modifyPostValidationForPhase2( theProcess ):
     theProcess.postValidation += theProcess.hgcalPostProcessor
 
 from Configuration.StandardSequences.Eras import eras
-modifyConfigurationStandardSequencesPostValidationForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyPostValidationForPhase2 )
+modifyConfigurationStandardSequencesPostValidationForRun3_ = eras.run3_GEM.makeProcessModifier( _modifyPostValidationForRun3 )

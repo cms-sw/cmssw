@@ -84,13 +84,17 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
-def _modifyRecoMuonPPonlyForPhase2( object ):
+def _modifyRecoMuonPPonlyForRun3( object ):
     object.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
     object.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+
+def _modifyRecoMuonPPonlyForPhase2( object ):
     object.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
     object.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
 
 from Configuration.StandardSequences.Eras import eras
+eras.run3_GEM.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForRun3 )
+eras.run3_GEM.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForRun3 )
 eras.phase2_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
 eras.phase2_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
 
