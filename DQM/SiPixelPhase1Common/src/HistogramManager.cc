@@ -23,7 +23,12 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
   top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
   default_grouping(iconfig.getParameter<std::string>("defaultGrouping"))
-{ }
+{ 
+  auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
+  for (auto spec : spec_configs) {
+    addSpec(SummationSpecification(spec, geometryInterface));
+  }
+}
 
 void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
