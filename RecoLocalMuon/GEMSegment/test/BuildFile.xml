@@ -53,8 +53,6 @@
 
 <library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmenttestME0SegmentAnalyzer">
 </library>
-<library   file="TrackerGEMEfficiencyAnalyzer.cc" name="TrackerGEMEfficiencyAnalyzer">
-</library>
 
 <export>
 </export>
