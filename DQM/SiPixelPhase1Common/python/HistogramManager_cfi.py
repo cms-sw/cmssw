@@ -12,6 +12,17 @@ DefaultHisto = cms.PSet(
   bookUndefined = cms.bool(False),
   # where the plots should go.
   topFolderName = cms.string("PixelPhase1"),
+
+  # Histogram parameters
+  name = cms.string("unnamed"),
+  title = cms.string("Histogram of Something"),
+  xlabel = cms.string("something"),
+  ylabel = cms.string("count"),
+  range_min = cms.double(0),
+  range_max = cms.double(100), 
+  range_nbins = cms.int32(100),
+  dimensions = cms.int32(1),
+
   # Ths grouping is used if the plugin uses histo[...].defaultGrouping(). It should be era-dependent.
   defaultGrouping = cms.string("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade"),
   # You can add specs here that you would like to see in addition to the ones declared in the source. 

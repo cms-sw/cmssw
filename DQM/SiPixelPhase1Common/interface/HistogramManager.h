@@ -81,14 +81,14 @@ private:
   std::string top_folder_name;
   std::string default_grouping;
 
-  std::string name = "noname";
-  std::string title = "Something";
-  std::string xlabel = "something";
-  std::string ylabel = "";
-  int dimensions = 1;
-  int range_nbins  = 100;
-  double range_min = 0;
-  double range_max = 1000;
+  std::string name;
+  std::string title;
+  std::string xlabel;
+  std::string ylabel;
+  int dimensions;
+  int range_nbins;
+  double range_min;
+  double range_max;
 };
 
 
