@@ -27,50 +27,18 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
     .setXlabel("adc readout")
     .setRange(300, 0, 300)
     .setDimensions(1);
-  histo[ADC].addSpec()
-    .groupBy(histo[ADC].defaultGrouping())
-    .saveAll();
-  histo[ADC].addSpec()
-    .groupBy("BX")
-    .reduce("COUNT")
-    .groupBy("", "EXTEND_X")
-    .save();
-  histo[ADC].addSpec()
-    .groupBy(histo[ADC].defaultGrouping() + "/row/col")
-    .reduce("COUNT")
-    .groupBy(histo[ADC].defaultGrouping() + "/row", "EXTEND_X")
-    .groupBy(histo[ADC].defaultGrouping(), "EXTEND_Y")
-    .save();
-
   histo[MAP].setName("hitmap")
     .setTitle("Position of digis on module")
     .setXlabel("col")
     .setYlabel("row")
     .setRange(200, 0, 200)
-    .setDimensions(2)
-    .addSpec()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetId")
-      .save()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_X")
-      .save()
-      .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "SUM")
-      .saveAll();
-
-
+    .setDimensions(2);
 
   histo[NDIGIS].setName("ndigis")
     .setTitle("Number of Digis")
     .setXlabel("#digis")
     .setRange(30, 0, 30)
     .setDimensions(1);
-  histo[NDIGIS].addSpec()
-    .groupBy(histo[NDIGIS].defaultGrouping())
-    .save()
-    .reduce("MEAN")
-    // TODO: find a way to express this with default. defaultGrouping(1) or sth.?
-    .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
-    .saveAll();
-
 
 } 
 
