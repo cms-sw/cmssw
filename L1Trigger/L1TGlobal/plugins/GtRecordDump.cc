@@ -236,7 +236,7 @@ namespace l1t {
     //Loop over BX
        for(int i =m_minBx; i <= m_maxBx; ++i) {
 
-	  cout << " ========== BX = " << std::dec << i << " =============================" << endl;
+	  cout << " ========= Rel BX = " << std::dec << i << " ======  Total BX = " << m_absBx << "   ==========" << endl;
 
 	  //Loop over EGamma
 	  int nObj =0;
