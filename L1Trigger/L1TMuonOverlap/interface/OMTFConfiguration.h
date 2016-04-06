@@ -59,8 +59,6 @@ class OMTFConfiguration{
   typedef std::vector<vector2D > vector3D;
   typedef std::vector<vector3D > vector4D;
 
-  static const OMTFConfiguration * instance(){ return 0; }
-
   OMTFConfiguration(){;};
 
   void configure(const L1TMuonOverlapParams* omtfParams);
@@ -124,8 +122,13 @@ class OMTFConfiguration{
   const std::vector<std::vector<std::vector<std::pair<int,int> > > >& getRegionPhisVsRefLayerVsInput() const {return regionPhisVsRefLayerVsInput;}
   const std::vector<std::vector<RefHitDef> >& getRefHitsDefs() const {return refHitsDefs;}
 
-  ///Map of connections
   const vector3D_pair & getConnections() const {return connections;};
+
+  vector4D & getMeasurements4D() {return measurements4D;}
+  vector4D & getMeasurements4Dref() {return measurements4Dref;}
+
+  const vector4D & getMeasurements4D() const {return measurements4D;}
+  const vector4D & getMeasurements4Dref() const {return measurements4Dref;}
   
   friend std::ostream & operator << (std::ostream &out, const OMTFConfiguration & aConfig);
 
@@ -173,10 +176,7 @@ class OMTFConfiguration{
   ///Map of connections
   vector3D_pair connections;
 
-
- public: //FIXME
-  ///Temporary hack to pass data from deep inside class
-  ///Matrices are used during creation of the connections tables.
+  ///4D matrices used during creation of the connections tables.
   vector4D measurements4D;
   vector4D measurements4Dref;
 

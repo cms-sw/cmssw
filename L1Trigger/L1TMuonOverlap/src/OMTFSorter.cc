@@ -157,7 +157,7 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     candidate.setHwEta(myCand.getEta());
 
     float phiValue = myCand.getPhi();
-    if(phiValue>=(int)OMTFConfiguration::instance()->nPhiBins) phiValue-=OMTFConfiguration::instance()->nPhiBins;
+    if(phiValue>=nPhiBins) phiValue-=nPhiBins;
     ///conversion factor from OMTF to uGMT scale: 5400/576
     phiValue/=9.375;
     candidate.setHwPhi(phiValue);
