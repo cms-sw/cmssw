@@ -28,15 +28,8 @@ OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig) :
 
   dumpResultToXML = m_Config.getParameter<bool>("dumpResultToXML");
   dumpDetailedResultToXML = m_Config.getParameter<bool>("dumpDetailedResultToXML");
-  m_Config.getParameter<std::string>("XMLDumpFileName");
-
-  if(dumpResultToXML){
-    m_Writer = new XMLConfigWriter();
-    std::string fName = "OMTF";
-    m_Writer->initialiseXMLDocument(fName);
-  }
+  m_Config.getParameter<std::string>("XMLDumpFileName");  
 }
-
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 OMTFReconstruction::~OMTFReconstruction(){
@@ -90,8 +83,15 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
   m_OMTFConfig->configure(omtfParams);
   m_OMTF->configure(m_OMTFConfig, omtfPatterns);
   m_GhostBuster.setNphiBins(m_OMTFConfig->nPhiBins());
+  m_Sorter.setNphiBins(m_OMTFConfig->nPhiBins());
 
-  m_InputMaker.initialize(iSetup, m_OMTFConfig); 
+  m_InputMaker.initialize(iSetup, m_OMTFConfig);
+
+  if(dumpResultToXML){
+    m_Writer = new XMLConfigWriter(m_OMTFConfig);
+    std::string fName = "OMTF";
+    m_Writer->initialiseXMLDocument(fName);
+  }
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////

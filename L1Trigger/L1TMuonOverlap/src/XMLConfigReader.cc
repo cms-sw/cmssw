@@ -214,7 +214,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   }
 
   Key aKey(iEta,iPt,iCharge);
-  GoldenPattern *aGP = new GoldenPattern(aKey);
+  GoldenPattern *aGP = new GoldenPattern(aKey,0);
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
 

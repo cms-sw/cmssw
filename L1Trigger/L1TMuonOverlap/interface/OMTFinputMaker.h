@@ -77,7 +77,7 @@ class OMTFinputMaker {
 
   AngleConverter myAngleConverter;
 
-  const OMTFConfiguration* myOmtfParams;
+  const OMTFConfiguration* myOmtfConfig;
 
 };
 

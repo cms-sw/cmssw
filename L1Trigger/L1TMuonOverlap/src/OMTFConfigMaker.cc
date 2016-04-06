@@ -101,7 +101,7 @@ void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
   for(unsigned int iLogicLayer=0;iLogicLayer<myOmtfConfig->nLayers();++iLogicLayer){
     for(unsigned int iInput=0;iInput<14;++iInput){
       bool isHit = aInput.getLayerData(iLogicLayer)[iInput]<(int)myOmtfConfig->nPhiBins();
-      myOmtfConfig->measurements4D[iProcessor][iRegion][iLogicLayer][iInput]+=isHit;
+      myOmtfConfig->getMeasurements4D()[iProcessor][iRegion][iLogicLayer][iInput]+=isHit;
     }
   }
 }
@@ -112,7 +112,7 @@ void OMTFConfigMaker::fillInputRange(unsigned int iProcessor,
 				   unsigned int iRefLayer,
 				   unsigned int iInput){
 
-  ++myOmtfConfig->measurements4Dref[iProcessor][iRegion][iRefLayer][iInput]; 
+  ++myOmtfConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput]; 
 
 }
 ///////////////////////////////////////////////
@@ -129,7 +129,7 @@ void OMTFConfigMaker::printConnections(std::ostream & out,
   for(unsigned int iLogicLayer=0;iLogicLayer<myOmtfConfig->nLayers();++iLogicLayer){
     out<<"Logic layer: "<<iLogicLayer<<" Hits: ";
     for(unsigned int iInput=0;iInput<myOmtfConfig->nInputs();++iInput){
-      out<<myOmtfConfig->measurements4Dref[iProcessor][iRegion][iLogicLayer][iInput]<<"\t";
+      out<<myOmtfConfig->getMeasurements4Dref()[iProcessor][iRegion][iLogicLayer][iInput]<<"\t";
     }
     out<<std::endl;
   }
@@ -138,7 +138,7 @@ void OMTFConfigMaker::printConnections(std::ostream & out,
   for(unsigned int iLogicLayer=0;iLogicLayer<myOmtfConfig->nLayers();++iLogicLayer){
     out<<"Logic layer: "<<iLogicLayer<<" Hits: ";
     for(unsigned int iInput=0;iInput<14;++iInput){
-      out<<myOmtfConfig->measurements4D[iProcessor][iRegion][iLogicLayer][iInput]<<"\t";
+      out<<myOmtfConfig->getMeasurements4D()[iProcessor][iRegion][iLogicLayer][iInput]<<"\t";
     }
     out<<std::endl;
   }

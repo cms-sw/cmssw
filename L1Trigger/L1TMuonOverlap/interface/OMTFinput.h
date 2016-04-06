@@ -15,7 +15,7 @@ class OMTFinput{
   typedef std::vector<int> vector1D;
   typedef std::vector<vector1D> vector2D;
 
-  OMTFinput();
+  OMTFinput(const OMTFConfiguration*);
 
   ///Add hit to given layer.
   ///iInput marks input number (max 14 per layer)

@@ -21,11 +21,11 @@
 OMTFinputMaker::OMTFinputMaker() {}
 ///////////////////////////////////////
 ///////////////////////////////////////
-void OMTFinputMaker::initialize(const edm::EventSetup& es, const OMTFConfiguration *omtfParams){ 
+void OMTFinputMaker::initialize(const edm::EventSetup& es, const OMTFConfiguration *omtfConfig){ 
 
-  myAngleConverter.checkAndUpdateGeometry(es, omtfParams->nPhiBins());
+  myAngleConverter.checkAndUpdateGeometry(es, omtfConfig->nPhiBins());
 
-  myOmtfParams = omtfParams;
+  myOmtfConfig = omtfConfig;
  
 }
 ///////////////////////////////////////
@@ -37,8 +37,8 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
 				 unsigned int iProcessor,
 				 l1t::tftype type){
 
-  unsigned int aMin = myOmtfParams->barrelMin[iProcessor];
-  unsigned int aMax = myOmtfParams->barrelMax[iProcessor];
+  unsigned int aMin = myOmtfConfig->getBarrelMin()[iProcessor];
+  unsigned int aMax = myOmtfConfig->getBarrelMax()[iProcessor];
   unsigned int aSector = 99;
 
   ///Clean up digis. Remove unconnected detectors
@@ -84,8 +84,8 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     if(aId.region()==0) aSector = aId.sector();
     if(aId.region()!=0){
       aSector = (aId.sector()-1)*6+aId.subsector();
-      aMin = myOmtfParams->endcap10DegMin[iProcessor];
-      aMax = myOmtfParams->endcap10DegMax[iProcessor];
+      aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];
+      aMax = myOmtfConfig->getEndcap10DegMax()[iProcessor];
     }
    
     break;
@@ -116,13 +116,13 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
        ) return false;
 
     aSector =  csc.chamber();   	
-    aMin = myOmtfParams->endcap10DegMin[iProcessor];
-    aMax = myOmtfParams->endcap10DegMax[iProcessor];
+    aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];
+    aMax = myOmtfConfig->getEndcap10DegMax()[iProcessor];
 
     if( (type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg) &&
 	csc.station()>1 && csc.ring()==1){
-      aMin = myOmtfParams->endcap20DegMin[iProcessor];
-      aMax = myOmtfParams->endcap20DegMax[iProcessor];
+      aMin = myOmtfConfig->getEndcap20DegMin()[iProcessor];
+      aMax = myOmtfConfig->getEndcap20DegMax()[iProcessor];
     }
     break;
   }    
@@ -141,7 +141,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
 
   unsigned int iInput = 99;
   unsigned int aSector = 99;
-  int aMin = myOmtfParams->barrelMin[iProcessor];
+  int aMin = myOmtfConfig->getBarrelMin()[iProcessor];
   int iRoll = 1;
   int nInputsPerSector = 2;
 
@@ -171,7 +171,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
     }
     if(rpc.region()!=0){
       aSector = (rpc.sector()-1)*6+rpc.subsector();
-      aMin = myOmtfParams->endcap10DegMin[iProcessor];
+      aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];
       ///on the 0-2pi border we need to add 4 10 deg sectors
       ///to get the correct index
       if(iProcessor==5 && aSector<5) aMin = -4;
@@ -189,7 +189,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
   case MuonSubdetId::CSC: {   
     CSCDetId csc(rawId);    
     aSector = csc.chamber();    
-    aMin = myOmtfParams->endcap10DegMin[iProcessor];       
+    aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];       
     ///on the 0-2pi border we need to add 4 10deg sectors
     ///to get the correct index
     if(iProcessor==5 && aSector<5) aMin = -4;
@@ -198,7 +198,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
     ///to get the correct index
     if( (type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg) &&
 	csc.station()>1 && csc.ring()==1){
-      aMin = myOmtfParams->endcap20DegMin[iProcessor];
+      aMin = myOmtfConfig->getEndcap20DegMin()[iProcessor];
       if(iProcessor==5 && aSector<3) aMin = -2;
     }
     break;
@@ -220,7 +220,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
 	       l1t::tftype type)
 {
 
-  OMTFinput result(myOmtfParams);
+  OMTFinput result(myOmtfConfig);
   if(!dtPhDigis) return result;
   
   for (const auto digiIt: *dtPhDigis->getContainer()) {
@@ -237,10 +237,10 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
     if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
 
-    unsigned int hwNumber = myOmtfParams->getLayerNumber(detid.rawId());
-    if(myOmtfParams->hwToLogicLayer.find(hwNumber)==myOmtfParams->hwToLogicLayer.end()) continue;
+    unsigned int hwNumber = myOmtfConfig->getLayerNumber(detid.rawId());
+    if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
     
-    auto iter = myOmtfParams->hwToLogicLayer.find(hwNumber);
+    auto iter = myOmtfConfig->getHwToLogicLayer().find(hwNumber);
     unsigned int iLayer = iter->second;
     int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
@@ -258,7 +258,7 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
 	       unsigned int iProcessor,
 	       l1t::tftype type){
 
-  OMTFinput result(myOmtfParams);
+  OMTFinput result(myOmtfConfig);
   if(!cscDigis) return result;
 
   auto chamber = cscDigis->begin();
@@ -276,12 +276,10 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
       ///CSC central BX is 6 for some reason.
       if (abs(digi->getBX()- 6)>0) continue;
       
-      unsigned int hwNumber = myOmtfParams->getLayerNumber(rawid);
-      if(myOmtfParams->hwToLogicLayer.find(hwNumber)==myOmtfParams->hwToLogicLayer.end()) continue;
+      unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
+      if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
 
-      //unsigned int iLayer = myOmtfParams->hwToLogicLayer[hwNumber];      
-      auto iter = myOmtfParams->hwToLogicLayer.find(hwNumber);
-      unsigned int iLayer = iter->second;
+      unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);      
       int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
       int iEta = myAngleConverter.getGlobalEta(rawid, *digi);
       ///Accept CSC digis only up to eta=1.26.
@@ -303,7 +301,7 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
 				unsigned int iProcessor,
 				l1t::tftype type){
 
-  OMTFinput result(myOmtfParams); 
+  OMTFinput result(myOmtfConfig); 
   if(!rpcDigis) return result;
   std::stringstream str;
 
@@ -331,9 +329,8 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
       int iPhi = (iPhiHalfStrip1+iPhiHalfStrip2)/2;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
-      unsigned int hwNumber = myOmtfParams->getLayerNumber(rawid);
-      auto iter = myOmtfParams->hwToLogicLayer.find(hwNumber);
-      unsigned int iLayer = iter->second;
+      unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
+      unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
       result.addLayerHit(iLayer,iInput,iPhi,iEta);
 
@@ -360,7 +357,7 @@ OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *d
 							 unsigned int iProcessor,
 							 l1t::tftype type){
   
-  OMTFinput result(myOmtfParams);
+  OMTFinput result(myOmtfConfig);
   result += processDT(dtPhDigis, dtThDigis, iProcessor, type);
   result += processCSC(cscDigis, iProcessor, type);
   result += processRPC(rpcDigis, iProcessor, type);
