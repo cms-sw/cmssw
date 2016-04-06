@@ -53,34 +53,4 @@ struct SummationSpecification {
   GeometryInterface::Column parse_columns(std::string name, GeometryInterface&);
 };
 
-// The builder gets the empty spec passed in,then a chain of methods is called 
-// to add instructions to the spec. It should always return itself and extend 
-// the spec. If necessary, it parses the strings passed in.
-// For step1, it might also convert the command to be processed easyly.
-struct SummationSpecificationBuilder {
-  SummationSpecification& spec;
-  GeometryInterface& geometryInterface;
-  // small state machine to check validity of the program.
-  SummationStep::Stage state = SummationStep::FIRST;
-  std::set<GeometryInterface::Column> activeColums;
-
-  SummationSpecificationBuilder(SummationSpecification& s, GeometryInterface& gi) 
-    : spec(s), geometryInterface(gi) {};
-
-  // General grouping, pass in the columns that should remain and the mode of 
-  // histogram summation.
-  SummationSpecificationBuilder& groupBy(std::string cols, const char* mode = "SUM");
-  // Save the current state of the table as MonitorElements. Marks transition to step2.
-  SummationSpecificationBuilder& save();
-  // Reduce a higher-dimensional hisotgram to a lower (typ. single number) one.
-  SummationSpecificationBuilder& reduce(std::string sort);
-  // Save all parents, summed up like in the last grouping, in the hierarchy 
-  // as specified.
-  SummationSpecificationBuilder& saveAll();
-
-  private:
-  GeometryInterface::Column parse_columns(std::string name);
-};
-
-
 #endif
