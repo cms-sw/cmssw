@@ -25,11 +25,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** DQM ***/
+
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
+
 
 
 
@@ -40,6 +42,7 @@ class MillePedeDQMModule : public DQMEDHarvester {
 
     MillePedeDQMModule(const edm::ParameterSet&);
     virtual ~MillePedeDQMModule();
+
 
 
 
@@ -54,8 +57,11 @@ class MillePedeDQMModule : public DQMEDHarvester {
 
     void fillExpertHistos();
 
-    void fillExpertHisto(MonitorElement* histos[],
+    void fillExpertHisto(MonitorElement* histo,
                          const double cut,
+                         const double sigCut,
+                         const double maxMoveCut,
+                         const double maxErrorCut,
                          std::array<double, 6> obs,
                          std::array<double, 6> obsErr);
 
@@ -73,15 +79,15 @@ class MillePedeDQMModule : public DQMEDHarvester {
     double Zcut_, tZcut_;
     // maximum movement in micro-meter/rad
     double maxMoveCut_;
-
+    double maxErrorCut_;
 
     // Histograms
-    MonitorElement* h_xPos[4];
-    MonitorElement* h_xRot[4];
-    MonitorElement* h_yPos[4];
-    MonitorElement* h_yRot[4];
-    MonitorElement* h_zPos[4];
-    MonitorElement* h_zRot[4];
+    MonitorElement* h_xPos;
+    MonitorElement* h_xRot;
+    MonitorElement* h_yPos;
+    MonitorElement* h_yRot;
+    MonitorElement* h_zPos;
+    MonitorElement* h_zRot;
 
 };
 
