@@ -28,7 +28,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 
 class TrackAssociatorParameters {
  public:
@@ -81,6 +81,7 @@ class TrackAssociatorParameters {
    edm::InputTag theHORecHitCollectionLabel;
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
+   edm::InputTag theGEMSegmentCollectionLabel;
    
    // Specify if we want to widen the search pass of the crossed
    // calorimeter elements taking into account uncertainty
@@ -97,10 +98,15 @@ class TrackAssociatorParameters {
    edm::EDGetTokenT<HORecHitCollection> HOcollToken;
    edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
    edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
+   edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken;
    edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
    edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
+
+   double maxPullXGE11_, maxDiffXGE11_, maxPullYGE11_, maxDiffYGE11_,
+    maxPullXGE21_, maxDiffXGE21_, maxPullYGE21_, maxDiffYGE21_,
+    maxDiffPhiDirection_;
 };
 #endif

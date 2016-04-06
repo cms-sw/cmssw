@@ -10,6 +10,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/RPCRecHit"/>
 <use   name="DataFormats/GEMDigi"/>
@@ -51,6 +52,8 @@
 <flags   EDM_PLUGIN="1"/>
 
 <library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmenttestME0SegmentAnalyzer">
+</library>
+<library   file="TrackerGEMEfficiencyAnalyzer.cc" name="TrackerGEMEfficiencyAnalyzer">
 </library>
 
 <export>

@@ -343,7 +343,6 @@ ME0SegFit::SMatrixSym12 ME0SegFit::weightMatrix() {
   int row = 0;
   
   for (ME0SetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    if (row > 11) break; // temp due to max size of matrix
     
     const ME0RecHit& hit = (**it);
 
@@ -514,4 +513,3 @@ float ME0SegFit::ydev( float y, float z ) const {
 float ME0SegFit::Rdev(float x, float y, float z) const {
   return sqrt ( xdev(x,z)*xdev(x,z) + ydev(y,z)*ydev(y,z) );
 }
-
