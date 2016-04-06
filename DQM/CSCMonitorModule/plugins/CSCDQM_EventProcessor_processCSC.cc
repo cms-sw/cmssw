@@ -84,11 +84,6 @@ namespace cscdqm {
 
     config->incNUnpackedCSC();
 
-    if (&data == 0) {
-      LOG_ERROR << "Zero pointer. DMB data are not available for unpacking"; //KK is->are
-      return;
-    }
-
     int FEBunpacked   = 0;
     int alct_unpacked = 0;
     int tmb_unpacked  = 0;
