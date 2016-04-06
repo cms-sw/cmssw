@@ -11,6 +11,7 @@ minTowerEntriesFwd = 160
 toleranceMeanFwd = 6.
 toleranceRMSFwd = 12.
 tailPopulThreshold = 0.4
+timeWindow = 25. 
 
 ecalTimingClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
@@ -68,16 +69,16 @@ ecalTimingClient = cms.untracked.PSet(
         FwdvBkwd = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             yaxis = cms.untracked.PSet(
-                high = cms.untracked.double(25.0),
+                high = cms.untracked.double(timeWindow),
                 nbins = cms.untracked.int32(50),
-                low = cms.untracked.double(-25.0),
+                low = cms.untracked.double(-timeWindow),
                 title = cms.untracked.string('time (ns)')
             ),
             otype = cms.untracked.string('Ecal2P'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(25.0),
+                high = cms.untracked.double(timeWindow),
                 nbins = cms.untracked.int32(50),
-                low = cms.untracked.double(-25.0)
+                low = cms.untracked.double(-timeWindow)
             ),
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing %(prefix)s+ vs %(prefix)s-'),
@@ -100,9 +101,9 @@ ecalTimingClient = cms.untracked.PSet(
             ),
             otype = cms.untracked.string('SM'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(25.0),
+                high = cms.untracked.double(timeWindow),
                 nbins = cms.untracked.int32(100),
-                low = cms.untracked.double(-25.0)
+                low = cms.untracked.double(-timeWindow)
             ),
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingClient/%(prefix)sTMT timing mean %(sm)s'),
@@ -137,9 +138,9 @@ ecalTimingClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(25.0),
+                high = cms.untracked.double(timeWindow),
                 nbins = cms.untracked.int32(100),
-                low = cms.untracked.double(-25.0),
+                low = cms.untracked.double(-timeWindow),
                 title = cms.untracked.string('time (ns)')
             ),
             btype = cms.untracked.string('User'),
