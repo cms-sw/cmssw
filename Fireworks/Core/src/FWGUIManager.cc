@@ -1276,6 +1276,7 @@ FWGUIManager::setWindowInfoFrom(const FWConfiguration& iFrom,
 
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom) {
+   gEve->DisableRedraw();
    // main window
    if (m_viewSecPack) subviewDestroyAll();
 
@@ -1283,11 +1284,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    assert(mw != 0);
    // Window needs to mapped before moving, otherwise move can lead
    // to wrong results on some window managers.
-   m_cmsShowMainFrame->MapWindow();
-   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
-   m_cmsShowMainFrame->MapSubwindows();
-   m_cmsShowMainFrame->Layout();
-   m_cmsShowMainFrame->MapRaised();
 
    // set from view reading area info nd view info
    float_t leftWeight =1;
@@ -1402,6 +1398,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    // disable first docked view
    checkSubviewAreaIconState(0);
+
+   m_cmsShowMainFrame->MapWindow();
+   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
+   m_cmsShowMainFrame->MapRaised();
+
 }
 
 void
