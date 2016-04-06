@@ -1335,6 +1335,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
         LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
     }
 
+/*
     // insert condition into the map and into muon template vector
     if ( !insertConditionIntoMap(muonCond, chipNr)) {
         edm::LogError("TriggerMenuParser")
@@ -1346,6 +1347,9 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
         LogDebug("TriggerMenuParser") << "Added Condition " << name << " to the ConditionMap" << std::endl;
             (m_corMuonTemplate[chipNr]).push_back(muonCond);
     }
+*/
+    (m_corMuonTemplate[chipNr]).push_back(muonCond);
+
 
     //
     return true;
@@ -1912,7 +1916,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
     }
 
-
+/*
     // insert condition into the map
     if ( !insertConditionIntoMap(caloCond, chipNr)) {
 
@@ -1925,7 +1929,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
     else {
             (m_corCaloTemplate[chipNr]).push_back(caloCond);
     }
-
+*/
+    (m_corCaloTemplate[chipNr]).push_back(caloCond);
 
     //
     return true;
@@ -2314,7 +2319,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
         LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
 
     }
-
+/*
     // insert condition into the map
     if ( !insertConditionIntoMap(energySumCond, chipNr)) {
 
@@ -2329,7 +2334,8 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
        (m_corEnergySumTemplate[chipNr]).push_back(energySumCond);
 
     }
-
+*/
+   (m_corEnergySumTemplate[chipNr]).push_back(energySumCond);
 
 
     //
@@ -2559,7 +2565,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
       for (size_t jj = 0; jj < objects.size(); jj++)
       {
         const esObject object = objects.at(jj);
-/*        std::cout << "      obj name = " << object->getName() << "\n";
+/*      std::cout << "      obj name = " << object->getName() << "\n";
         std::cout << "      obj type = " << object->getType() << "\n";
         std::cout << "      obj op = " << object->getComparisonOperator() << "\n";
         std::cout << "      obj bx = " << object->getBxOffset() << "\n";
@@ -2569,8 +2575,12 @@ bool l1t::TriggerMenuParser::parseCorrelation(
         if(object.getType() == esObjectType::Muon) {
 	  // we have a muon  
 
-          //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
-          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
+/*
+          //BLW Hold on to this code we may need to go back to it at some point.
+	  // Now we are putting ALL leg conditions into the vector (so there are duplicates)
+	  // This is potentially a place to slim down the code.  Note: We currently evaluate the
+	  // conditions every time, so even if we put the condition in the vector once, we would 
+	  // still evaluate it multiple times.  This is a place for optimization.
 	   	                  
               parseMuonCorr(&object,chipNr);
 	      corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;	     
@@ -2594,48 +2604,22 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	     }
 	     
 	  }
+*/
+          parseMuonCorr(&object,chipNr);
+	  corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;	     
 	  
           //Now set some flags for this subCondition
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
           objType[jj] = gtMu;
           condCateg[jj] = CondMuon;
 	  
-	  
-          
-
-
-	  
         } else if(object.getType() == esObjectType::Egamma ||
 	          object.getType() == esObjectType::Jet    ||
 		  object.getType() == esObjectType::Tau ) {
+	  
 	  // we have an Calo object
-
-          
-          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
-	   	                  
-              parseCaloCorr(&object,chipNr);
-	      corrIndexVal[jj] = (m_corCaloTemplate[chipNr]).size() - 1;
-	    
-          } else {
-	     LogDebug("TriggerMenuParser") << "Not Adding Correlation Calo Condition to Map...looking for the condition in Calo Cor Vector" << std::endl;
-	     bool found = false;
-	     int index = 0;
-	     while(!found && index<(int)((m_corCaloTemplate[chipNr]).size()) ) {
-	         if( (m_corCaloTemplate[chipNr]).at(index).condName() == object.getName() ) {
-		    LogDebug("TriggerMenuParser") << "Found condition " << object.getName() << " in vector at index " << index << std::endl;
-		    found = true;
-		 } else {
-		    index++;
-		 }
-	     }	  
-	     if(found) {
-	        corrIndexVal[jj] = index;
-	     } else {
-	       edm::LogError("TriggerMenuParser") << "FAILURE: Condition " << object.getName() << " is in map but not in cor. vector " << std::endl;
-	     }
-	  
-	  }
-	  
+          parseCaloCorr(&object,chipNr);
+	  corrIndexVal[jj] = (m_corCaloTemplate[chipNr]).size() - 1;
 
           //Now set some flags for this subCondition
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
@@ -2663,33 +2647,10 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  
         } else if(object.getType() == esObjectType::ETM  ||
 	          object.getType() == esObjectType::HTM ) {
+	 
 	  // we have Energy Sum
-
-          //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
-          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
-	   	                  
-              parseEnergySumCorr(&object,chipNr);
-              corrIndexVal[jj] = (m_corEnergySumTemplate[chipNr]).size() - 1;
-	    
-          } else {
-	     LogDebug("TriggerMenuParser") << "Not Adding Correlation EnergySum Condition to Map...looking for the condition in EnergySum Cor Vector" << std::endl;
-	     bool found = false;
-	     int index = 0;
-	     while(!found && index<(int)((m_corEnergySumTemplate[chipNr]).size()) ) {
-	         if( (m_corEnergySumTemplate[chipNr]).at(index).condName() == object.getName() ) {
-		    LogDebug("TriggerMenuParser") << "Found condition " << object.getName() << " in vector at index " << index << std::endl;
-		    found = true;
-		 } else {
-		    index++;
-		 }
-	     }	  
-	     if(found) {
-	        corrIndexVal[jj] = index;
-	     } else {
-	       edm::LogError("TriggerMenuParser") << "FAILURE: Condition " << object.getName() << " is in map but not in cor. vector " << std::endl;
-	     }	  
-	  }
-	  
+          parseEnergySumCorr(&object,chipNr);
+          corrIndexVal[jj] = (m_corEnergySumTemplate[chipNr]).size() - 1;
 
           //Now set some flags for this subCondition
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
