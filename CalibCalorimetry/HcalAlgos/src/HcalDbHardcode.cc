@@ -66,11 +66,10 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = getParameters(fId).pedestal();
   // Temporary disabling of lumi-dependent pedestal to avoid it being too big for TDC evaluations...
-  float value [4] = {value0, value0, value0, value0};
+  float value [4] = {0.0f,0.0f,0.0f,0.0f};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
-      value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
-      while (value [i] <= 0) value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i));
+      while (value [i] <= 0.0f) value [i] = value0 + (float)CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
     }
   }
   HcalPedestal result (fId.rawId (), 
@@ -96,10 +95,11 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
 
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
-    double width = value;
+    double width2 = value*value;
     for (int j = 0; j < 4; j++) {
-      result.setSigma (i, j, i == j ? width * width : 0);
+      result.setSigma (i, j, 0.0);
     }
+    result.setSigma (i, i, width2);
   } 
   return result;
 }
@@ -108,7 +108,11 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) { // GeV/f
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = getParameters(fId).gain(getGainIndex(fId));
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = CLHEP::RandGauss::shoot (value0, width.getValue (i)); 
+  if (fSmear) {
+    for (int i = 0; i < 4; i++) {
+      value [i] = value0 + (float)CLHEP::RandGauss::shoot (0.0, width.getValue (i)); 
+    }
+  }
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
   return result;
 }
@@ -142,7 +146,7 @@ HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId) {
 HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
   HcalCalibrationQIECoder result (fId.rawId ());
   float lowEdges [64];
-  for (int i = 0; i < 64; i++) lowEdges[i] = -1.5 + i*1.0;
+  for (int i = 0; i < 64; i++) { lowEdges[i] = -1.5 + i; }
   result.setMinCharges (lowEdges);
   return result;
 }
@@ -193,8 +197,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
   int pulseShapeID = 125;  r1bit[0] = 9;     //  [0,9]
   int syncPhase    = 0;    r1bit[1] = 1;
   int binOfMaximum = 0;    r1bit[2] = 4;
-  float phase      = -25.0;                  // [-25.0,25.0]
-  float Xphase     = (phase + 32.0) * 4.0;   // never change this line 
+  float phase      = -25.0f;                  // [-25.0,25.0]
+  float Xphase     = (phase + 32.0f) * 4.0f;   // never change this line 
                                              // (offset 50nsec,  0.25ns step)
   int Iphase = Xphase;     r1bit[3] = 8;     // [0,256] offset 50ns, .25ns step
   int timeSmearing = 0;    r1bit[4] = 1;     //  bool
@@ -204,8 +208,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
     syncPhase    = 1;                      // a0  bool
     binOfMaximum = 5;                      // a1
-    phase        = 5.0;                    // a2  [-25.0,25.0]
-    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+    phase        = 5.0f;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0f) * 4.0f;   // never change this line 
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 1;                      // a3
@@ -218,8 +222,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
     syncPhase    = 1;                      // a0  bool
     binOfMaximum = 5;                      // a1
-    phase        = 5.0;                    // a2  [-25.0,25.0]
-    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+    phase        = 5.0f;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0f) * 4.0f;   // never change this line 
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 1;                      // a3
@@ -231,8 +235,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
     syncPhase    = 1;                      // a0  bool
     binOfMaximum = 5;                      // a1
-    phase        = 5.0;                    // a2  [-25.0,25.0]
-    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+    phase        = 5.0f;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0f) * 4.0f;   // never change this line 
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 0;                      // a3
@@ -247,8 +251,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
     syncPhase    = 1;                      // a0  bool
     binOfMaximum = 3;                      // a1
-    phase        = 14.0;                   // a2  [-25.0,25.0]
-    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+    phase        = 14.0f;                   // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0f) * 4.0f;   // never change this line 
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 0;                      // a3
@@ -262,8 +266,8 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
     syncPhase    = 1;                      // a0  bool
     binOfMaximum = 5;                      // a1
-    phase        = -4.0;                   // a2  [-25.0,25.0]
-    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+    phase        = -4.0f;                   // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0f) * 4.0f;   // never change this line 
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 0;                      // a3
@@ -275,9 +279,7 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
   int rshift[7];
   rshift[0]=0;
   for(int k=0; k<5; k++) {
-    int j=k+1;
-    rshift[j]=rshift[k]+r1bit[k];
-    //  cout<<"  j= "<<j<<"  shift "<< rshift[j]<<endl;
+    rshift[k+1]=rshift[k]+r1bit[k];
   }
 
   int packingScheme  = 1;
@@ -286,58 +288,6 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
     (binOfMaximum << rshift[2])     |
     (Iphase << rshift[3])           |
     (timeSmearing << rshift[4] | packingScheme << 27);
-  
-  /*
-    
-  int a0 =  param%512;
-  int a1 = (param/512)%2;
-  int a2 = (param/(512*2))%16;
-  int a3 = (param/(512*2*16))%256;
-  int a4 = (param/(512*2*16*256))%2;
-  a3 = (a3/4)-32;
-  int a5 = (param/(512*2*16*256*2*16))%16;
-  
-  */
-  
-
-  // unpacking a la CondFormats/HcalObjects/interface/HcalMCParam.h
-
-  /*  
-  int shape         =  param&0x1FF;
-  syncPhase     = (param>>9)&0x1;
-  binOfMaximum  = (param>>10)&0xF;
-  int timePhase     = ((param>>14)&0xFF)/4-32;
-  timeSmearing  = (param>>22)&0x1;
-  int packingSc     = (param>>27)&0xF;
-       
-  std::cout << "  shape " << shape << "  sync.phase " <<  syncPhase
-	    << "  binOfMaximum " <<  binOfMaximum
-	    << "  timePhase " << timePhase 
-	    << "  timeSmear " << timeSmearing
-	    << "  packingSc " << packingSc
-	    << std::endl;
-  */
-
-  /*
-  if(shape != a0) 
-    { std::cout <<"  error   shape " << shape 
-		<< "  a0 " << a0 << std::endl; }
-  if(syncPhase != a1) 
-    { std::cout << "  error   syncPhase " << syncPhase 
-		<< "  a1 " << a1 << std::endl; }
-  if(binOfMaximum != a2) 
-    { std::cout << "  error   binOfMaximum " << binOfMaximum
-		<< "  a2 " << a2 << std::endl; }
-  if(timePhase !=  a3) 
-    { std::cout << "  error   timePhase " << timePhase 
-		<< "  a3 " << a3 << std::endl; }
-  if(timeSmearing != a4) 
-    { std::cout << "  error   timeSmearing " << timeSmearing 
-		<< "  a4 " << a4 << std::endl; }
-  if(packingSc != a5) 
-    { std::cout << "  error   packing sceme " << packingSc 
-		<< "  a5 " << a5 << std::endl; }
-  */
  
   HcalMCParam result(fId.rawId(), param);
   return result;
@@ -345,21 +295,6 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 }
 
 HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
-
-  /*
-  if (fId.isHcalDetId()) {
-    HcalDetId cell = HcalDetId(fId);
-    int sub    = cell.subdet();
-    int dep    = cell.depth();
-    int ieta   = cell.ieta();
-    int iphi   = cell.iphi();
-    
-    std::cout << "  HCAL " 
-	      << "  subdet " << sub << "  ieta " << ieta << "  iphi " << iphi
-	      << "  depth " << dep << std::endl; 
-  }
-  */
-
 
   // Mostly comes from S.Kunori's macro 
   int p1bit[6];
