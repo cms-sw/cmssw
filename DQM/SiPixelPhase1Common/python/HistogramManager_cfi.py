@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification
+
 # Default histogram configuration. This is _not_ used automatically, but you 
 # can import and pass this (or clones of it) in the plugin config.
 DefaultHisto = cms.PSet(
@@ -12,13 +14,26 @@ DefaultHisto = cms.PSet(
   topFolderName = cms.string("PixelPhase1"),
   # Ths grouping is used if the plugin uses histo[...].defaultGrouping(). It should be era-dependent.
   defaultGrouping = cms.string("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade"),
-  # You can add secs here tat you would like to see in addition to the ones declared in the source. 
+  # You can add specs here that you would like to see in addition to the ones declared in the source. 
   # Doing this in the default config is a very bad idea, just here for documentation.
-  additionalSpecs = cms.VPSet(
-    cms.PSet(spec = 
-      cms.vstring("groupBy P1PXBBarrel|P1PXECEndcap/Module",
-		  "save")
-    )
-  )
+  # This structure is output by the SpecficationBuilder.
+  specs = cms.VPSet()
+  #  cms.PSet(spec = 
+  #    cms.VPset(
+  #      cms.PSet(
+  #        type = GROUPBY, 
+  #        stage = FIRST,
+  #        columns = cms.vstring("P1PXBBarrel|P1PXECEndcap", "DetId"),
+  #        arg = cms.string("")
+  #      ),
+  #     cms.PSet(
+  #       type = SAVE,
+  #       stage = STAGE1,
+  #       columns = cms.vstring(),
+  #       arg = cms.string("")
+  #	)
+  #   )
+  # )
+  #)
 )
 
