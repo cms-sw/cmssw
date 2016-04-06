@@ -51,7 +51,6 @@ def customisePPData(process):
     #left as a place holder to alter production sequences in case of emergencies
     return process
 
-modifyPPData = cms.ModifierChain()
 
 ##############################################################################
 def customisePPMC(process):
@@ -63,7 +62,6 @@ def customisePPMC(process):
 def customiseCosmicData(process):
     return process
 
-modifyCosmicData = cms.ModifierChain()
 
 ##############################################################################
 def customiseCosmicMC(process):
@@ -83,9 +81,6 @@ def customiseExpress(process):
     process = _swapOfflineBSwithOnline(process)
     return process
 
-import RecoVertex.BeamSpotProducer.Modifiers as modsBS
-modifyExpress = cms.ModifierChain(modifyPPData, modsBS.offlineToOnlineBeamSpotSwap)
-
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
@@ -100,8 +95,6 @@ def customisePrompt(process):
 def customiseCommonHI(process):
     return process
 
-modifyCommonHI = cms.ModifierChain()
-
 ##############################################################################
 def customiseExpressHI(process):
     process = customiseCommonHI(process)
@@ -109,7 +102,6 @@ def customiseExpressHI(process):
     
     return process
 
-modifyExpressHI = cms.ModifierChain(modifyCommonHI, modsBS.offlineToOnlineBeamSpotSwap)
 ##############################################################################
 def customisePromptHI(process):
     process = customiseCommonHI(process)

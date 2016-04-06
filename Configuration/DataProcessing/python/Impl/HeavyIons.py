@@ -11,7 +11,7 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.RecoTLR import modifyExpressHI
+from Configuration.DataProcessing.Modifiers import modifyExpressHI
 
 class HeavyIons(Reco):
     def __init__(self):
