@@ -277,9 +277,6 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         hltPathsToCheck = cms.vstring(
             "HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_v",
             "HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_v",
-	    # old csv version
-	    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
-            "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
@@ -291,9 +288,6 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         hltPathsToCheck = cms.vstring(
             "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_v",
             "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v",
-	    # old csv version
-            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v",
-            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
