@@ -57,8 +57,8 @@ void
    for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
-   out->shrink_to_fit();
-   cleaned->shrink_to_fit();
+   if (out->capacity()>2*out->size()) out->shrink_to_fit();
+   if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
    localRA1.update(out->size());
    localRA2.update(cleaned->size());
    std::sort(out->begin(),out->end(),sortByDetId);

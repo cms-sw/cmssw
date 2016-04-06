@@ -72,7 +72,7 @@ namespace reco {
 
 
     /// destructor
-    ~PFRecHit(){}
+    ~PFRecHit()=default;
 
     void setEnergy( double energy) { energy_ = energy; }
 

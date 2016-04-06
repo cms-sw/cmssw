@@ -69,6 +69,9 @@ namespace edm {
 
     RefToBase();
     RefToBase(RefToBase const& other);
+    RefToBase(RefToBase && other);
+    RefToBase & operator=(RefToBase && other);
+
     template <typename C1, typename T1, typename F1>
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C>
@@ -137,6 +140,18 @@ namespace edm {
   RefToBase<T>::RefToBase(RefToBase const& other) :
     holder_(other.holder_  ? other.holder_->clone() : nullptr)
   { }
+
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBase && other) :
+    holder_(other.holder_) { other.holder_=nullptr;}
+
+  template <class T>
+  inline
+  RefToBase<T>& RefToBase<T>::operator=(RefToBase && other) {
+    holder_=other.holder_; other.holder_=nullptr; return *this;
+  }
+
 
   template <class T>
   template <typename C1, typename T1, typename F1>
