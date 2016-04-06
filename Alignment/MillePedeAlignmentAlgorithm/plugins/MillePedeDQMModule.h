@@ -41,8 +41,6 @@ class MillePedeDQMModule : public DQMEDAnalyzer {
     MillePedeDQMModule(const edm::ParameterSet&);
     virtual ~MillePedeDQMModule();
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
     virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                                 edm::EventSetup const&) override;
 

@@ -39,23 +39,6 @@ MillePedeDQMModule
 {
 }
 
-void MillePedeDQMModule
-::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.add<std::string>("millePedeLogFile", "")->setComment(
-    "The .log-file of the MillePede alignment algorithm (pede-mode)"
-  );
-  desc.add<std::string>("millePedeResFile", "")->setComment(
-    "The .res-file of the MillePede alignment algorithm (pede-mode)"
-  );
-
-  descriptions.add("MillePedeDQMModule", desc);
-  descriptions.setComment("Generic .cfi-file for the MillePedeDQMModule");
-}
-
-
-
 //=============================================================================
 //===   INTERFACE IMPLEMENTATION                                            ===
 //=============================================================================
@@ -119,19 +102,15 @@ void MillePedeDQMModule
 void MillePedeDQMModule
 ::fillExpertHistos()
 {
-  TCanvas c("PCL_SiPixAl_Expert", "PCL_SiPixAl_Expert", 1500, 800);
-  c.Divide(3, 2);
+  fillExpertHisto(h_xPos,  Xcut_, mpReader.getXobs(),  mpReader.getXobsErr());
+  fillExpertHisto(h_xRot, tXcut_, mpReader.getTXobs(), mpReader.getTXobsErr());
 
-  c.cd(1); fillExpertHisto(h_xPos,  Xcut_, mpReader.getXobs(),  mpReader.getXobsErr());
-  c.cd(4); fillExpertHisto(h_xRot, tXcut_, mpReader.getTXobs(), mpReader.getTXobsErr());
+  fillExpertHisto(h_yPos,  Ycut_, mpReader.getYobs(),  mpReader.getYobsErr());
+  fillExpertHisto(h_yRot, tYcut_, mpReader.getTYobs(), mpReader.getTYobsErr());
 
-  c.cd(2); fillExpertHisto(h_yPos,  Ycut_, mpReader.getYobs(),  mpReader.getYobsErr());
-  c.cd(5); fillExpertHisto(h_yRot, tYcut_, mpReader.getTYobs(), mpReader.getTYobsErr());
+  fillExpertHisto(h_zPos,  Zcut_, mpReader.getZobs(),  mpReader.getZobsErr());
+  fillExpertHisto(h_zRot, tZcut_, mpReader.getTZobs(), mpReader.getTZobsErr());
 
-  c.cd(3); fillExpertHisto(h_zPos,  Zcut_, mpReader.getZobs(),  mpReader.getZobsErr());
-  c.cd(6); fillExpertHisto(h_zRot, tZcut_, mpReader.getTZobs(), mpReader.getTZobsErr());
-
-  c.Write();
 }
 
 void MillePedeDQMModule
