@@ -259,7 +259,7 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 const CaloCellGeometry* 
 EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) const
 {
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+   if (index >= m_cellVec.size()) return nullptr;
+   const CaloCellGeometry* cell = &m_cellVec[ index ];
+   return cell->param() ? cell : nullptr ;
 }
