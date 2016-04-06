@@ -25,6 +25,7 @@ template <> void HcalCoderDb::adc2fC_<QIE10DataFrame> (const QIE10DataFrame& df,
   clf=CaloSamples(df.id(),df.samples());
   for (int i=0; i<df.samples(); i++) {
     clf[i]=mCoder->charge (*mShape, df[i].adc (), df[i].capid ());
+    if(df[i].soi()) clf.setPresamples(i);
   }
 }
 
