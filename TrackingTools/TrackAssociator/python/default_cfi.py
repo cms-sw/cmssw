@@ -12,7 +12,7 @@ TrackAssociatorParameterBlock = cms.PSet(
     TrackAssociatorParameters = cms.PSet(
         muonMaxDistanceSigmaX = cms.double(0.0),
         muonMaxDistanceSigmaY = cms.double(0.0),
-        CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),
+        CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),        
         GEMSegmentCollectionLabel = cms.InputTag("gemSegments"),
         dRHcal = cms.double(9999.0),
         dREcal = cms.double(9999.0),
@@ -80,4 +80,11 @@ TrackAssociatorParameters = cms.PSet(
     HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
     useHcal = cms.bool(True)
 )
+
+## def _modifyRecoMuonPPonlyForPhase2( object ):
+##     object.TrackAssociatorParameterBlock.TrackAssociatorParameters.GEMSegmentCollectionLabel = cms.InputTag("gemSegments")
+##     object.TrackAssociatorParameters.GEMSegmentCollectionLabel = cms.InputTag("gemSegments")
+
+## from Configuration.StandardSequences.Eras import eras
+## modifyConfigurationStandardSequencesRecoMuonForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2 )
 

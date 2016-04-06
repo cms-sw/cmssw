@@ -724,42 +724,44 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       else {
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
-	       sigmaX = distanceX/sqrt(localError.xx());
+	 sigmaX = distanceX/sqrt(localError.xx());
          sigmaY = distanceY/sqrt(localError.yy());
 
-	       // if(detId->subdetId() == 3) {
-	       //    RPCDetId Rsid = RPCDetId(detId->rawId());
-	       //    std::cout<< Rsid <<std::endl;
-	       //    std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
-	       //  }
-	       // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
-	       //   if(gemChamber) {
-	       if(detId->subdetId() == 4) {
-	          std::cout << "here1" << std::endl; 
-	          // gem width and length are interchanged - need to fix
-	          //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
-	          const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet);
-	          int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
-	          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()*nEtaPartitions; // FIXME temp fix for chambersize
-	          sigmaX = distanceX/sqrt(localError.xx());
-	          sigmaY = distanceY/sqrt(localError.yy());
-	          // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
-	          // GEMDetId Rsid = GEMDetId(detId->rawId());
-	          // std::cout<< Rsid <<std::endl;
-	           std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
-	          // auto& rolls(gemChamber->etaPartitions());
-	          // for (auto roll : rolls){
-	          //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
-	          //   auto& parameters(roll->specs()->parameters());
-	          //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
-	          //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
-	          //   double height(parameters[2]);       height       = 2*height;
-	          //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
+	 // if(detId->subdetId() == 3) {
+	 //    RPCDetId Rsid = RPCDetId(detId->rawId());
+	 //    std::cout<< Rsid <<std::endl;
+	 //    std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	 //  }
+	 // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	 //   if(gemChamber) {
+	 if(detId->subdetId() == 4) {
+	   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	   // std::cout<< Rsid <<std::endl;
+	   
+	   // gem width and length are interchanged - need to fix
+	   //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	   const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet);
+	   //int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
+	   //distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();//*nEtaPartitions; // FIXME temp fix for chambersize
+	   sigmaX = distanceX/sqrt(localError.xx());
+	   sigmaY = distanceY/sqrt(localError.yy());
+	   // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	   // std::cout<< Rsid <<std::endl;
+	   //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	   // auto& rolls(gemChamber->etaPartitions());
+	   // for (auto roll : rolls){
+	   //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+	   //   auto& parameters(roll->specs()->parameters());
+	   //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
+	   //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
+	   //   double height(parameters[2]);       height       = 2*height;
+	   //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
 	      
-	          //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
-	          // }
-	          // }
-	       }
+	   //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
+	   // }
+	   // }
+	 }
 	 
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
@@ -845,7 +847,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
      }
      // GEM Chamber
      //else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
-     else if(const GEMChamber* chamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
+     else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
 	     // Get the range for the corresponding segments
 	     GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	     // Loop over the segments
@@ -898,7 +900,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 	   // Be in chamber
 	   isGood &= fabs(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta()) < .3;
    }
-   else if(const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(chamber) ) {
+   else if(const GEMSuperChamber* gemchamber = dynamic_cast<const GEMSuperChamber*>(chamber) ) {
      const GEMSegment* gemsegment = dynamic_cast<const GEMSegment*>(segment);
      int station = gemsegment->specificRecHits()[0].gemId().station();
      int chargeReco = trajectoryStateOnSurface.charge();

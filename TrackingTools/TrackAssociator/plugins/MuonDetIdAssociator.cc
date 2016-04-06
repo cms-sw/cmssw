@@ -80,12 +80,13 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     }
 
   // GEM
-  if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot GEMGeometry\n";
+  if ( geometry_->slaveGeometry(GEMDetId()) ){ // no need to throw error for gem
   auto const & geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
   for(auto it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it)
     if (auto gem = dynamic_cast<const GEMSuperChamber*>(*it)) {
       validIds.push_back(gem->id());
     }
+  }
   
 }
 

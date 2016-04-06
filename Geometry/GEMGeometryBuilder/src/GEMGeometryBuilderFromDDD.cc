@@ -96,7 +96,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 	  dy = dpar[3];
 	  dx1= dpar[4];
 	  dx2= dpar[8];
-	}	  
+	}
 	if (chamberPar.count(name) == 0) 
 	  chamberPar[name] = std::tuple<int,float,float,float,float>(type,dx1,dx2,dy,dz);
       }
@@ -208,12 +208,28 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
       GEMDetId fId(vDetId.front());
       GEMDetId chamberId(fId.chamberId());
-      // compute the overall boundplane using the first eta partition
+      // compute the boundplane RotationType and PositionType using the first eta partition
       const GEMEtaPartition* p(geometry->etaPartition(fId));
       const BoundPlane& bps = p->surface();
-      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
-      ReferenceCountingPointer<BoundPlane> surf(bp);
+      // BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      // ReferenceCountingPointer<BoundPlane> surf(bp);
+      Surface::RotationType rot = bps.rotation();
+      Surface::PositionType pos = bps.position();
+
+      std::string chamberName = "GSAX21L"; // ge21 Long
+      if (chamberId.station() == 1){
+	if (chamberId.chamber()%2 == 0)
+	  chamberName = "GSAX11L"; // ge11 Long
+	else
+	  chamberName = "GSAX11S"; // ge11 short
+      }
       
+      auto cPar = chamberPar[chamberName];            
+      Bounds* bounds = new TrapezoidalPlaneBounds(std::get<1>(cPar), std::get<2>(cPar), std::get<4>(cPar), std::get<3>(cPar));      
+      
+      BoundPlane* bp = new BoundPlane(pos, rot, bounds);      
+      ReferenceCountingPointer<BoundPlane> surf(bp);
+  
       GEMChamber* ch = new GEMChamber(chamberId, surf); 
       LogDebug("GEMGeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
       
