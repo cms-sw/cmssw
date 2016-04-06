@@ -17,7 +17,7 @@ from Configuration.DataProcessing.Impl.pplowpu import pplowpu
 
 class pplowpuEra_Run2_2016(pplowpu):
     def __init__(self):
-        pp.__init__(self)
+        pplowpu.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
         self.eras=eras.eras.Run2_2016
