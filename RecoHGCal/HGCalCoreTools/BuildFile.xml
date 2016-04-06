@@ -1,0 +1,6 @@
+<use name="FWCore/Framework"/>
+<use name="Geometry/HGCalGeometry"/>
+
+<export>
+  <lib   name="1"/>
+</export>
