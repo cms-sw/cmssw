@@ -357,10 +357,6 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
 
     } //end if ReveiveMuon data
 
-    if (m_verbosity && m_isDebugEnabled) {
-//  *** Needs fixing
-//        printGmtData(iBxInEvent);
-    }
 
 }
 
@@ -471,10 +467,6 @@ void l1t::GtBoard::runGTL(
 
         iChip++;
 
-// blw was this commented out before?
-        //AlgorithmEvaluation::ConditionEvaluationMap cMapResults;
-        // AlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
-
        AlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
                m_conditionResultMaps[iChip];
 
@@ -525,7 +517,7 @@ void l1t::GtBoard::runGTL(
 
                     caloCondition->evaluateConditionStoreResult(iBxInEvent);
                     
-		    // BLW Comment out for now
+		   
                     cMapResults[itCond->first] = caloCondition;
 
                     if (m_verbosity && m_isDebugEnabled) {
@@ -999,25 +991,18 @@ void l1t::GtBoard::resetExternal() {
 }
 
 
-// print Global Muon Trigger data received by GTL
+// print Global Muon Trigger data received 
 void l1t::GtBoard::printGmtData(const int iBxInEvent) const {
 
     LogTrace("L1TGlobal")
-            << "\nl1t::L1GlobalTrigger: GMT data received for BxInEvent = "
+            << "\nl1t::L1GlobalTrigger: uGMT data received for BxInEvent = "
             << iBxInEvent << std::endl;
 
     int nrL1Mu = m_candL1Mu->size(iBxInEvent);
     LogTrace("L1TGlobal")
             << "Number of GMT muons = " << nrL1Mu << "\n"
             << std::endl;
-/*
-    for (std::vector<const L1MuGMTCand*>::const_iterator iter =
-            m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
 
-        LogTrace("L1TGlobal") << *(*iter) << std::endl;
-
-    }
-*/
     LogTrace("L1TGlobal") << std::endl;
 
 }
