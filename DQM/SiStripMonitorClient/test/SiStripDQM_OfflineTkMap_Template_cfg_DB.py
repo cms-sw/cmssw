@@ -9,7 +9,7 @@ process = cms.Process("SiStrpDQMQTestTuning")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                                    "DONOTEXIST::All",
+                                    "DONOTEXIST",
                                     VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                                     VarParsing.VarParsing.varType.string,          # string, int, or float
                                     "GlobalTag")
@@ -75,8 +75,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 # loading TrackerTopologyEP via GeometryDB (since 62x)
 process.load('Configuration.StandardSequences.GeometryDB_cff')
@@ -105,23 +105,23 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
           meanToMaxFact     = cms.untracked.double(2.5)
        ),
        TkMapOptions             = cms.untracked.VPSet(
-    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.)),
-    cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.uint32(20)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster')),
-    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack',TopModules=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.uint32(20),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster'),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(35.)), #to be tuned properly
+    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
 #    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.)),
 #    cms.PSet(mapName=cms.untracked.string('ClusterCharge'),mapMax=cms.untracked.double(-1.)),
 #    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromOrigin')),
-    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack')),
-    cms.PSet(mapName=cms.untracked.string('NumberMissingHits')),
-    cms.PSet(mapName=cms.untracked.string('NumberValidHits')),
-    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'))
+    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
+    cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
+    cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber))
     )
 )
 
