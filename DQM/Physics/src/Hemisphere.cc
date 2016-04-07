@@ -344,7 +344,7 @@ int dqm::Hemisphere::Reconstruct(){
             cout << " Iteration = " << numLoop << endl;
         }
         if(numLoop == nItermax-1){
-            cout << " Hemishpere: warning - reaching max number of iterations " << nItermax << endl;
+          //  cout << " Hemishpere: warning - reaching max number of iterations " << nItermax << endl;
         }
 
         // initialize the current sums of Px, Py, Pz, E for the two hemispheres
