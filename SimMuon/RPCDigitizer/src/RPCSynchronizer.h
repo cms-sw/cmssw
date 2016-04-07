@@ -40,11 +40,13 @@ class RPCSynchronizer
   ~RPCSynchronizer();
 
   int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
+  int getSimHitBxAndTimingForIRPC(const PSimHit*, CLHEP::HepRandomEngine*);
   void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
   RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
+  double getExactTime() const {return the_exact_time;}
+  double getSmearedTime() const {return the_smeared_time;} 
 
  private:
-
   double resRPC;
   double timOff;
   double dtimCs;
@@ -56,7 +58,10 @@ class RPCSynchronizer
   double cosmicPar;
   double LHCGate;
   bool cosmics;
-
+  double irpc_timing_res;
+  double irpc_electronics_jitter;
+  double the_exact_time;
+  double the_smeared_time;
   RPCSimSetUp * theSimSetUp;
 };
 #endif

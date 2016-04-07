@@ -26,35 +26,57 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 			    RPCDigiSimLinks & rpcDigiSimLink,
                             CLHEP::HepRandomEngine* engine)
 {
-
+  
   theRPCSim->setRPCSimSetUp(theSimSetUp);
-
+  
   // arrange the hits by roll
   std::map<int, edm::PSimHitContainer> hitMap;
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
       hitItr != simHits.end(); ++hitItr) 
-  {
-    hitMap[hitItr->detUnitId()].push_back(*hitItr);
+    {
+      hitMap[hitItr->detUnitId()].push_back(*hitItr);
+    }
+  
+  if ( ! theGeometry) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
   }
-
-   if ( ! theGeometry) {
-   throw cms::Exception("Configuration")
-     << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
-  }
-
-
+  
+  
   const std::vector<const RPCRoll*>&  rpcRolls = theGeometry->rolls() ;
   for(auto r = rpcRolls.begin();
       r != rpcRolls.end(); r++){
-
-    const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
     
-//    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
-//			     <<" hit(s) in the rpc roll";  
+    RPCDetId id = (*r)->id();
+    //    const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
+    const edm::PSimHitContainer & rollSimHits = hitMap[id];
     
-    theRPCSim->simulate(*r, rollSimHits, engine);
+    
+    //    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
+    //			     <<" hit(s) in the rpc roll";  
+    
+    //if( (id.region()!=0) && ((id.station()==3)||(id.station()==4))&&(id.ring()==1))
+    //{
+    //std::cout<<"YESID\t"<<id<<'\t'<<(*r)->nstrips()<<std::endl;
+    //} else
+    //{
+    //std::cout<<"NOID\t"<<id<<'\t'<<(*r)->nstrips()<<std::endl;
+    //}
+    
+    if(!((id.region()!=0) && ((id.station()==3)||(id.station()==4))&&(id.ring()==1))) // true if not IRPC (RE3/1 or RE4/1)
+      {
+	theRPCSim->simulate(*r, rollSimHits, engine); //"standard" RPC
+      } else {
+      theRPCSim->simulateIRPC(*r, rollSimHits, engine); // IRPC
+    }
+    
     if(theNoise){
-        theRPCSim->simulateNoise(*r, engine);
+      if(!((id.region()!=0) && ((id.station()==3)||(id.station()==4))&&(id.ring()==1))) // true if not IRPC (RE3/1 or RE4/1)
+	{
+          theRPCSim->simulateNoise(*r, engine); //"standard" RPC
+	} else {
+	theRPCSim->simulateIRPCNoise(*r, engine); // IRPC
+      }
     }
     theRPCSim->fillDigis((*r)->id(),rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
