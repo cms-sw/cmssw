@@ -64,6 +64,8 @@ else:
     simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("unpackDttf")
     simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
     simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackDttf")
+    simOmtfDigis.srcDTPh               = cms.InputTag("unpackDttf")
+    simOmtfDigis.srcDTTh               = cms.InputTag("unpackDttf")
     #fix for broken simCscTriggerPrimitiveDigis
     print "L1T INFO:  L1REPACK Using fix for CSCTF"
     simEmtfDigis.CSCInput              = cms.InputTag("unpackCsctf")
