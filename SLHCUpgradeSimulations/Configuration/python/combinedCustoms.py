@@ -4,6 +4,10 @@ from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCr
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
 
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 as customise_gem2023
+from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
+from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
@@ -36,7 +40,14 @@ def cust_2019(process):
     process=customise_HcalPhase1(process)
     return process
 
+def cust_2019WithGem(process):
+    process=cust_2019(process)
+    process=customise_gem2019(process)
+    return process
+
 def cust_2023MuonOnly(process):
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
     process=fixRPCConditions(process)
     return process
 
@@ -45,6 +56,7 @@ def noCrossing(process):
     return process
 
 def cust_2023HGCal_common(process):   
+    process = customise_rpc(process)
     process = fixRPCConditions(process)
     process = customise_HcalPhase1(process)
     process = customisePhase1Tk(process)    
@@ -85,6 +97,7 @@ def cust_2023HGCal(process):
     return process
 
 def cust_2023HGCalMuon(process):    
+    process = customise_me0(process)
     process = cust_2023HGCal_common(process)    
     return process
 
