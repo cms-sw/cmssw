@@ -70,10 +70,42 @@ def initialize(**kwargs):
     ########################################
     # Boosted Substructure
     ########################################
+    
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis#Muons
+    # As we can't get the vertex in the selection string use TightNoVtx instead of Tight
+    # taken from https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_6_3_patch2/doc/html/df/d34/Muon_8py_source.htlm
+    process.selectedMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.4 && pt>15. &&
+    isLooseMuon() &&
+    isGlobalMuon() &&
+    globalTrack().normalizedChi2() < 10 &&
+    globalTrack().hitPattern().numberOfValidMuonHits() > 0 &&
+    numberOfMatchedStations()>1 &&
+    innerTrack().hitPattern().numberOfValidPixelHits()>0 &&
+    innerTrack().hitPattern().trackerLayersWithMeasurement() > 5 &&
+    ((pfIsolationR04().sumChargedHadronPt + max( pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - 0.5 * pfIsolationR04().sumPUPt,0.0)) / pt() < 0.15)'''))
 
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis#Electrons    
+    process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = 
+                                             cms.InputTag("slimmedElectrons"), 
+                                             cut = cms.string('''abs(eta)<2.4 && pt>15. && 
+                                             electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80") &&                                            
+                                             ( ( abs(superCluster().eta) < 1.4442 && 
+                                             full5x5_sigmaIetaIeta < 0.012 && 
+                                             hcalOverEcal < 0.09 && (ecalPFClusterIso / pt) < 0.37 && 
+                                             (hcalPFClusterIso / pt) < 0.25 && (dr03TkSumPt / pt) < 0.18 && 
+                                             abs(deltaEtaSuperClusterTrackAtVtx) < 0.0095 && 
+                                             abs(deltaPhiSuperClusterTrackAtVtx) < 0.065 ) || 
+                                             ( abs(superCluster().eta) > 1.5660 && 
+                                             full5x5_sigmaIetaIeta < 0.033 && 
+                                             hcalOverEcal <0.09 && 
+                                             (ecalPFClusterIso / pt) < 0.45 && 
+                                             (hcalPFClusterIso / pt) < 0.28 && 
+                                             (dr03TkSumPt / pt) < 0.18 ))'''))
 
-    # Select candidates that would pass CHS requirements
-    process.chs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+    # Remove electrons and muons from CHS
+    process.chsTmp1 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))  
+    process.chsTmp2 =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("chsTmp1"), veto = cms.InputTag("selectedMuons"))
+    process.chs = cms.EDProducer("CandPtrProjector", src = cms.InputTag("chsTmp2"), veto = cms.InputTag("selectedElectrons"))
 
     if isMC:
         process.OUT.outputCommands.append("keep *_slimmedJetsAK8_*_PAT")
