@@ -285,8 +285,12 @@ void SiPixelDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::ESHandle<TrackerTopology> tTopoHandle;
   c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-  // Number of blades TODO: other Geometry-Dependent quantities.
+  // Number of blades and ladders.
+  // TODO: other Geometry-Dependent quantities, e.g. num layers.
   int nblades = tracker->posPixelForwardLayers()[0]->components().size();
+  int nladders1 = tracker->pixelBarrelLayers()[0]->components().size();
+  int nladders2 = tracker->pixelBarrelLayers()[1]->components().size();
+  int nladders3 = tracker->pixelBarrelLayers()[2]->components().size();
 
 
  int ndigiperRingLayer1[8];
@@ -318,19 +322,19 @@ for ( int i =0 ; i< nblades; i++) {
    ndigiZmDisk2PerPanel2[i] = 0;
 }
 
-int ndigilayer1ladders[20];
-int ndigilayer2ladders[32];
-int ndigilayer3ladders[44];
+int ndigilayer1ladders[nladders1];
+int ndigilayer2ladders[nladders2];
+int ndigilayer3ladders[nladders3];
 
-for ( int i =0 ; i< 20; i++) {
+for ( int i =0 ; i< nladders1; i++) {
    ndigilayer1ladders[i]= 0;
 }
 
-for ( int i =0 ; i< 32; i++) {
+for ( int i =0 ; i< nladders2; i++) {
    ndigilayer2ladders[i] = 0;
 }
 
-for ( int i =0 ; i< 44; i++) {
+for ( int i =0 ; i< nladders3; i++) {
    ndigilayer3ladders[i] = 0;
 }
 
@@ -734,15 +738,15 @@ for ( int i =0 ; i< 44; i++) {
          meNdigiZpDisk2PerPanel2_->Fill(ndigiZpDisk2PerPanel2[i]);
     } 
     
-   for (int i =0; i< 20; i++) {
+   for (int i =0; i< nladders1; i++) {
        meDigiMultiLayer1Ladders_->Fill(i+1,ndigilayer1ladders[i]);
    }
 
-   for (int i =0; i< 32; i++) {
+   for (int i =0; i< nladders2; i++) {
        meDigiMultiLayer2Ladders_->Fill(i+1,ndigilayer2ladders[i]);
    }
 
-   for (int i =0; i< 44; i++) {
+   for (int i =0; i< nladders3; i++) {
        meDigiMultiLayer3Ladders_->Fill(i+1,ndigilayer3ladders[i]);
    }
 
