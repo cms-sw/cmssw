@@ -85,6 +85,13 @@ process.simCaloStage2Layer1Digis.verbose = cms.bool(False)
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
 
+process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
+process.layer1Validator.testRegionToken = cms.InputTag("l1tCaloLayer1Digis")
+process.layer1Validator.emulRegionToken = cms.InputTag("simCaloStage2Layer1Digis")
+process.layer1Validator.validateTowers = cms.bool(False)
+process.layer1Validator.validateRegions = cms.bool(True)
+process.layer1Validator.verbose = cms.bool(True)
+
 process.load('EventFilter.RctRawToDigi.l1RctHwDigis_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -100,6 +107,6 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_L1TCaloLayer1Test')
 )
 
-process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis*process.rctDigis)
+process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis*process.layer1Validator) #*process.rctDigis
 
 process.e = cms.EndPath(process.out)
