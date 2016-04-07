@@ -154,11 +154,12 @@ namespace reco {
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     template<typename pruner>
-      void pruneUsing(pruner prune) {
-      hitsAndFractions_.clear();
-      std::vector<reco::PFRecHitFraction>::iterator iter = 
+    void pruneUsing(pruner prune) {
+      auto iter = 
 	std::stable_partition(rechits_.begin(),rechits_.end(),prune);
+      if (iter==rechits_.end()) return;
       rechits_.erase(iter,rechits_.end());
+      hitsAndFractions_.clear();
       hitsAndFractions_.reserve(rechits_.size());
       for( const auto& hitfrac : rechits_ ) {
 	hitsAndFractions_.emplace_back(hitfrac.recHitRef()->detId(),
