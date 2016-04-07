@@ -4,11 +4,11 @@ import sys
 process = cms.Process("RawToDigi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-# process.MessageLogger = cms.Service("MessageLogger",
-#         destinations  = cms.untracked.vstring('logtrace' ),
-#         logtrace      = cms.untracked.PSet( threshold  = cms.untracked.string('DEBUG') ),
-#         debugModules  = cms.untracked.vstring( 'Phase2TrackerDigiProducer', 'Phase2TrackerFEDBuffer' )
-# )
+process.MessageLogger = cms.Service("MessageLogger",
+        destinations  = cms.untracked.vstring('logtrace' ),
+        logtrace      = cms.untracked.PSet( threshold  = cms.untracked.string('DEBUG') ),
+        debugModules  = cms.untracked.vstring( 'Phase2TrackerDigiProducer', 'Phase2TrackerFEDBuffer' )
+)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
@@ -21,10 +21,16 @@ process.source = cms.Source("PoolSource",
 
 # use this to use hand-made testbeam cabling
 # process.load('TestbeamCabling_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('DummyCablingTxt_cfi')
 
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerCommissioningDigiProducer_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiProducer_cfi')
+
+# imported from runthematrix
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 # use these labels instead to run on raw data
 # process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("rawDataCollector")

@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-# from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muondev 
-
 process = cms.Process("DigiToRaw")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -26,11 +24,16 @@ process.load('DummyCablingTxt_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiToRawProducer_cfi')
 process.Phase2TrackerDigiToRawProducer.ProductLabel = cms.InputTag("siPhase2Clusters")
 
+# imported from runthematrix
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+
 process.out = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string('digi2raw.root'),
     outputCommands = cms.untracked.vstring(
-      'drop *',
+      # 'drop *',
       'keep *_Phase2TrackerDigiToRawProducer_*_*'
       )
     )
