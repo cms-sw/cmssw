@@ -15,6 +15,9 @@
 #include <string>
 #include <time.h>
 
+namespace {
+  constexpr double uint64_norm = 1.0/((double)std::numeric_limits<uint64_t>::max());
+}
 
 namespace edm {
 
@@ -90,8 +93,7 @@ uint64_t  XorShift128PlusAdaptor::getNumber() {
 }
 
 double XorShift128PlusAdaptor::flat() { 
-  const double result = ((double)getNumber())/((double)std::numeric_limits<uint64_t>::max());
-  return result; 
+  return uint64_norm*getNumber(); 
 }
 
 void XorShift128PlusAdaptor::flatArray(int const size, double* vect) {
