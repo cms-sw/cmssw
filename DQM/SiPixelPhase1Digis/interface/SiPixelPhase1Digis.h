@@ -13,7 +13,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 // PixelDQM Framework
-#include "DQM/SiPixelPhase1Common/interface/PluginTemplates.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 
 class SiPixelPhase1Digis : public SiPixelPhase1Base {
   // List of quantities to be plotted. 
@@ -28,8 +28,6 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   explicit SiPixelPhase1Digis(const edm::ParameterSet& conf);
 
   void analyze(const edm::Event&, const edm::EventSetup&) ;
-
-  void registerConsumes(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& c);
 
   private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;

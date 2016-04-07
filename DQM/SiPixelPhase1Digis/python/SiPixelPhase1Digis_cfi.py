@@ -65,10 +65,12 @@ SiPixelPhase1DigisConf = cms.VPSet(
   )
 )
 
-SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1DigisAnalyzer",
-        src = cms.InputTag("simSiPixelDigis"), #TODO: this should be centralized
+# TODO: names?
+SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
+        src = cms.InputTag("simSiPixelDigis"), 
         histograms = SiPixelPhase1DigisConf
 )
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
+# TODO: better clone() here instead?
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf
 )

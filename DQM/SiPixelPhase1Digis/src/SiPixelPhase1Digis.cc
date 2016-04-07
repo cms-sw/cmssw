@@ -20,14 +20,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig, MAX_HIST)
+  SiPixelPhase1Base(iConfig)
 {
+  srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 } 
-
-void SiPixelPhase1Digis::registerConsumes(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& c) {
-  srcToken_ = c.consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
-}
-  
 
 void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -47,8 +43,5 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 }
 
-typedef SiPixelPhase1Analyzer<SiPixelPhase1Digis> SiPixelPhase1DigisAnalyzer;
-typedef SiPixelPhase1Harvester<SiPixelPhase1Digis> SiPixelPhase1DigisHarvester;
-DEFINE_FWK_MODULE(SiPixelPhase1DigisAnalyzer);
-DEFINE_FWK_MODULE(SiPixelPhase1DigisHarvester);
+DEFINE_FWK_MODULE(SiPixelPhase1Digis);
 
