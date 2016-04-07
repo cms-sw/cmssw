@@ -30,4 +30,4 @@ gemRecHitTrackValidation = cms.EDAnalyzer('GEMRecHitTrackMatch',
   detailPlot = cms.bool(False),
 )
 
-gemLocalRecoValidation = cms.Sequence( gemRecHitsValidation+gemRecHitTrackValidation )
+gemRecHitValidation = cms.Sequence( gemRecHitsValidation+gemRecHitTrackValidation )
