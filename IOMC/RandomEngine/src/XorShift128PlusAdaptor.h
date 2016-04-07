@@ -77,9 +77,7 @@ namespace edm {
     uint64_t getNumber();
 
     void Grumble(std::string const& errortext) const;
-
-
-    std::array<uint64_t, 2> state;
+    
     std::array<uint64_t, 2> seeds;
 
     static const unsigned int VECTOR_STATE_SIZE = 5; //convert from 64 to 32 bit

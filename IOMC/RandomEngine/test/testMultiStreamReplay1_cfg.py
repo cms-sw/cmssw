@@ -79,7 +79,7 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
 )
 process.t5 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             engineName = cms.untracked.string('XorShift128Plus'),
-                            seeds = cms.untracked.vuint32(84, 85, 86, 87),
+                            seeds = cms.untracked.vuint32(7, 8, 9, 10),
                             offset = cms.untracked.uint32(0),
                             maxEvents = cms.untracked.uint32(5),
                             nStreams = cms.untracked.uint32(3),
@@ -92,5 +92,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testMultiStreamReplay1.root')
 )
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4++process.t5+process.randomEngineStateProducer2)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t5+process.randomEngineStateProducer2)
 process.o = cms.EndPath(process.out)

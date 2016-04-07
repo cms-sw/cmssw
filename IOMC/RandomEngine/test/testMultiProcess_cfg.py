@@ -29,8 +29,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(84)
     ),
     t5 = cms.PSet(
-        initialSeedSet = cms.untracked.uint32(454, 232, 535, 989),
-        engineName = cms.untracked.string('XorShift128Plus')
+        engineName = cms.untracked.string('XorShift128Plus'),
+        initialSeedSet = cms.untracked.vuint32(454, 232, 535, 989)       
     ),
     t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(191),

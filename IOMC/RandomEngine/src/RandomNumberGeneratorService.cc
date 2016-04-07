@@ -1258,14 +1258,26 @@ namespace edm {
         seedL[1] = static_cast<long int>(seeds[1]);
         labelAndEngine.engine()->setSeeds(seedL,0);
       } else if ( engineName == "XorShift128Plus" ) {
-        assert(seeds.size() == 4U);        
-        for( unsigned i = 0; i < 4; i++ ) {
-          labelAndEngine.setSeed(seeds[i], i);
+        assert(seeds.size() == 4U); 
+        std::uint32_t seed0 = seeds[0];
+        if( (maxSeedXorShift128Plus - seed0) >= offset1 ) {
+          seed0 += offset1;
+        } else {
+          seed0 = offset1 - (maxSeedXorShift128Plus - seed0) - 1U;
+        }
+        if((maxSeedXorShift128Plus - seed0) >= offset2) {
+          seed0 += offset2;
+        } else {
+          seed0 = offset2 - (maxSeedXorShift128Plus - seed0) - 1U;
+        }             
+
+        for( unsigned i = 0; i < 4; ++i ) {
+          labelAndEngine.setSeed( (i == 0 ? seed0 : seeds[i]), i);
         }
         long int seedL[4];
         for( unsigned i = 0; i < 4; ++i ) { 
-          seedL[i] = static_cast<long int>(seeds[i]) ; 
-        }        
+          seedL[i] = static_cast<long int>((i == 0 ? seed0 : seeds[i])); 
+        }
         labelAndEngine.engine()->setSeeds(seedL,0);
       } else {
         assert(seeds.size() == 1U);

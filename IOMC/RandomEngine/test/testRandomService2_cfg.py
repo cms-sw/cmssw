@@ -27,7 +27,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
     t5 = cms.PSet(
         engineName = cms.untracked.string('XorShift128Plus'),
-        initialSeedSet = cms.untracked.vuint32(101, 202, 303, 404)
+        initialSeedSet = cms.untracked.vuint32(101, 8, 9, 10)
     ),                                               
     t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(205),
@@ -79,7 +79,7 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
 )
 process.t5 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             engineName = cms.untracked.string('XorShift128Plus'),
-                            seeds = cms.untracked.vuint32(101, 202, 303, 404),
+                            seeds = cms.untracked.vuint32(101, 8, 9, 10),
                             offset = cms.untracked.uint32(0),
                             maxEvents = cms.untracked.uint32(5),
                             nStreams = cms.untracked.uint32(1)
