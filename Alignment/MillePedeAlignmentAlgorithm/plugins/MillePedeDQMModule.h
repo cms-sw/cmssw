@@ -25,7 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** DQM ***/
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 /*** MillePede ***/
@@ -33,7 +33,7 @@
 
 
 
-class MillePedeDQMModule : public DQMEDAnalyzer {
+class MillePedeDQMModule : public DQMEDHarvester {
 
   //========================== PUBLIC METHODS ==================================
   public: //====================================================================
@@ -41,15 +41,16 @@ class MillePedeDQMModule : public DQMEDAnalyzer {
     MillePedeDQMModule(const edm::ParameterSet&);
     virtual ~MillePedeDQMModule();
 
-    virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                                edm::EventSetup const&) override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& es) {}
 
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    
+    virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
+    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   //========================= PRIVATE METHODS ==================================
   private: //===================================================================
+
+    void bookHistograms(DQMStore::IBooker&);
 
     void fillExpertHistos();
 

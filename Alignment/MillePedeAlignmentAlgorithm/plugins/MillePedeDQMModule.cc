@@ -44,9 +44,7 @@ MillePedeDQMModule
 //=============================================================================
 
 void MillePedeDQMModule
-::bookHistograms(DQMStore::IBooker& booker,
-                 edm::Run const& /* run */,
-                 edm::EventSetup const& /* setup */)
+::bookHistograms(DQMStore::IBooker& booker)
 {
   edm::LogInfo("MillePedeDQMModule") << "Booking histograms";
 
@@ -86,9 +84,12 @@ void MillePedeDQMModule
   booker.cd();
 }
 
+
 void MillePedeDQMModule
-::endRun(edm::Run const& /* run */, edm::EventSetup const& /* setup */)
+::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter &)  
 {
+
+  bookHistograms(booker);
   mpReader.read();
   fillExpertHistos();
 }
