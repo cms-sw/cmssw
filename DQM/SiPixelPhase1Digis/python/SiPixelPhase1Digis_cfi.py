@@ -53,6 +53,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_min = 0,
     range_max = 200,
     range_nbins = 200,
+    dimensions = 2,
     specs = cms.VPSet(
       Specification().groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetId")
                      .save()
