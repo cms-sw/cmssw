@@ -1,20 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#modules needed for jet flavor matching
-jetPartons = cms.EDProducer("PartonSelector",
-    withLeptons = cms.bool(False),
-    src = cms.InputTag("genParticles")
-)
-ak4PFJetPartonAssociation = cms.EDProducer("JetPartonMatcher",
-    jets = cms.InputTag("ak4PFJets"),
-    partons = cms.InputTag("jetPartons"),
-    coneSizeToAssociate = cms.double(0.3),
-)
-ak4PFJetFlavourAssociation = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference = cms.InputTag("ak4PFJetPartonAssociation"),
-    physicsDefinition = cms.bool(False)
-)
-
 susyDQM = cms.EDAnalyzer("RecoSusyDQM",
 
     muonCollection = cms.InputTag('muons'),
@@ -28,12 +13,9 @@ susyDQM = cms.EDAnalyzer("RecoSusyDQM",
     fixedGridRhoFastjetAll = cms.InputTag('fixedGridRhoFastjetAll'),
     genParticles = cms.InputTag('genParticles'),
     genJets = cms.InputTag('ak4GenJets'),
-    jetFlavourAssociation = cms.InputTag('ak4PFJetFlavourAssociation'),
 
     jetPtCut = cms.double(40),
     jetEtaCut = cms.double(3.0),
-    jetTagCollection = cms.InputTag('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
-    csvv2Cut = cms.double(0.814), #medium CSVV2 working point
 
     #Spring15 25ns loose cuts-based electron ID
     elePtCut = cms.double(10), # no update
@@ -84,4 +66,4 @@ susyDQM = cms.EDAnalyzer("RecoSusyDQM",
     useGen = cms.bool(True),
 )
 
-susyAnalyzer = cms.Path(jetPartons*ak4PFJetPartonAssociation*ak4PFJetFlavourAssociation*susyDQM)
+susyAnalyzer = cms.Path(susyDQM)
