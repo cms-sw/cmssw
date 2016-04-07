@@ -19,10 +19,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-// to use geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
@@ -61,27 +57,37 @@ namespace Phase2Tracker {
     // retrieve tracker geometry to get list of detids for calbling 
     edm::ESHandle< TrackerGeometry > tGeomHandle;
     es.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
-    const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+    tGeom_ = tGeomHandle.product();
 
-    for (auto iu = theTrackerGeom->detUnits().begin(); iu != theTrackerGeom->detUnits().end(); ++iu) {
+    // // Build list of detids for dummy cabling: this should go in another producer
+    // int fedid = 0;
+    // int channel = 0;
+    // for (auto iu = tGeom_->detUnits().begin(); iu != tGeom_->detUnits().end(); ++iu) {
+    //   unsigned int detId_raw = (*iu)->geographicalId().rawId();
+    //   DetId detId = DetId(detId_raw);
+    //   if (detId.det() == DetId::Detector::Tracker) {
+    //     if ( tTopo_->isLower(detId) != 0 ) {
+    //       std::cout << tTopo_->Stack(detId) << " " << fedid << " " << channel << std::endl;
+    //       channel += 1;
+    //       if (channel == 72) {
+    //         channel = 0;
+    //         fedid += 1;
+    //       }
+    //     }
+    //   }
+    // }
+
+    // build map of upper and lower for each module
+    for (auto iu = tGeom_->detUnits().begin(); iu != tGeom_->detUnits().end(); ++iu) {
       unsigned int detId_raw = (*iu)->geographicalId().rawId();
       DetId detId = DetId(detId_raw);
       if (detId.det() == DetId::Detector::Tracker) {
-          // build map of upper and lower for each module
           if ( tTopo_->isLower(detId) != 0 ) {
               stackMap_[tTopo_->Stack(detId)].first = detId;
           }
           if ( tTopo_->isUpper(detId) != 0 ) {
               stackMap_[tTopo_->Stack(detId)].second = detId;
           }
-          // // Build list of detids for dummy cabling
-          // if ( tTopo_->isLower(detId) == 1 ) {
-          //     if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2PSP ) {
-          //         std::cout << tTopo_->Stack(detId) << " PS" << std::endl;
-          //     } else if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2SS ) {
-          //         std::cout << tTopo_->Stack(detId) << " 2S" << std::endl;
-          //     }
-          // }
       }
     } // end loop on detunits
   }
@@ -95,7 +101,7 @@ namespace Phase2Tracker {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle;
     event.getByToken( token_, digis_handle );
-    Phase2TrackerDigiToRaw raw_producer(cabling_, tTopo_, stackMap_, digis_handle, 1);
+    Phase2TrackerDigiToRaw raw_producer(cabling_, tGeom_, tTopo_, stackMap_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
   }

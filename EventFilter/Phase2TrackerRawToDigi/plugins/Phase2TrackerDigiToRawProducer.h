@@ -15,6 +15,8 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include <stdint.h>
 #include <iostream>
@@ -39,6 +41,7 @@ namespace Phase2Tracker {
     edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> token_;
     const Phase2TrackerCabling * cabling_;
     const TrackerTopology* tTopo_;
+    const TrackerGeometry* tGeom_;
     std::map< int, std::pair<int,int> > stackMap_;
   };
 }

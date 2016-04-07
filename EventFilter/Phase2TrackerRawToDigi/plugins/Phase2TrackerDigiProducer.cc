@@ -13,6 +13,7 @@
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -313,7 +314,6 @@ namespace Phase2Tracker {
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
               // outer detid is defined as inner detid + 1 or module detid + 2
-              // FIXME : detid scheme should be taken from topology / geometry
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spct(*clusters, stackMap_[detid].second);
               for(it=clustersTop.begin();it!=clustersTop.end();it++)
               {
@@ -321,7 +321,6 @@ namespace Phase2Tracker {
               }
             }
             {
-              // FIXME : detid scheme should be taken from topology / geometry
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcb(*clusters, stackMap_[detid].first);
               for(it=clustersBottom.begin();it!=clustersBottom.end();it++)
               {

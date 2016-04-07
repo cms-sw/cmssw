@@ -10,6 +10,7 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 namespace Phase2Tracker
@@ -19,7 +20,7 @@ namespace Phase2Tracker
   {
     public:
       Phase2TrackerDigiToRaw() {}
-      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology* tTopo, std::map< int, std::pair<int,int> > stackMap, edm::Handle< edmNew::DetSetVector< Phase2TrackerCluster1D > >, int);
+      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerGeometry* tGeom, const TrackerTopology* tTopo, std::map< int, std::pair<int,int> > stackMap, edm::Handle< edmNew::DetSetVector< Phase2TrackerCluster1D > >, int);
       ~Phase2TrackerDigiToRaw() {}
       // loop on FEDs to create buffers
       void buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>&);
@@ -37,6 +38,7 @@ namespace Phase2Tracker
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
       const TrackerTopology* tTopo_;
+      const TrackerGeometry* tGeom_;
       std::map< int, std::pair<int,int> > stackMap_;
       edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digishandle_;
       int mode_;

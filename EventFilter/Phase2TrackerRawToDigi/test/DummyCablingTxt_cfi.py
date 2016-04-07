@@ -3,13 +3,14 @@ import FWCore.ParameterSet.Config as cms
 
 def make_vpset_fromfile(filename):
     psets = []
+    mtype = "Dummy"
     with open(filename, 'r') as f:
-        fedid = 0
         channel = 0
         for line in f:
             line = line.split()
-            detid = int(line[0])
-            mtype = line[1]
+            detid   = int(line[0])
+            fedid   = int(line[1])
+            channel = int(line[2])
             psets.append(cms.PSet(
                 moduleType=cms.string(mtype),
                 detid=cms.uint32(detid),
@@ -19,10 +20,6 @@ def make_vpset_fromfile(filename):
                 powerGroup=cms.uint32(0),
                 coolingLoop=cms.uint32(0))
                 )
-            channel += 1
-            if channel == 72:
-                channel = 0
-                fedid += 1
         while channel != 72:
             detid = 0 
             psets.append(cms.PSet(
