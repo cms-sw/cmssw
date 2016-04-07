@@ -4,6 +4,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CondFormats/RunInfo"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/GeometrySurface"/>
