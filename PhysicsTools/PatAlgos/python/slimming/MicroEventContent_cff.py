@@ -47,8 +47,17 @@ MicroEventContent = cms.PSet(
         'keep patPackedTriggerPrescales_patTrigger__*',
         'keep patPackedTriggerPrescales_patTrigger_l1max_*',
         'keep patPackedTriggerPrescales_patTrigger_l1min_*',
+        # old L1 trigger
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        # stage 2 L1 trigger
+        'keep *_gtStage2Digis__*', 
+        'keep *_gmtStage2Digis_Muon_*',
+        'keep *_caloStage2Digis_Jet_*',
+        'keep *_caloStage2Digis_Tau_*',
+        'keep *_caloStage2Digis_EGamma_*',
+        'keep *_caloStage2Digis_EtSum_*',
+        # HLT
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_*', # for MET filters (a catch all for the moment, but ideally it should be only the current process)
         'keep patPackedCandidates_lostTracks_*_*',
