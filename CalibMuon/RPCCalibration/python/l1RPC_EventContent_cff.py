@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 l1RPC_EventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        #'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*', 
         'keep L1MuGMTCands_*_*_*', 
         'keep L1MuGMTReadoutCollection_*_*_*')
 )

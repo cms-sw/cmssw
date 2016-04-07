@@ -2,9 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 l1Muon_EventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
-        'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
-        'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
+        #'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
+        #'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
+        'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_*_*', 
+        'keep CSCDetIdCSCStripDigiMuonDigiCollection_muonCSCDigis_*_*', 
+        #'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
+        'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*', 
         #'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
         'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*', 
         'keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*', 

@@ -70,13 +70,18 @@ RecoHiEgammaRECO = cms.PSet(
     'keep recoPFCandidates_particleFlowEGamma_*_*',
     'keep recoPFCandidates_particleFlowTmp_*_*',
     "drop recoPFClusters_*_*_*",
-    "keep recoElectronSeeds_*_*_*",
-    "keep recoGsfElectrons_*_*_*",
+    #"keep recoElectronSeeds_*_*_*",
+    "keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*",
+    #"keep recoGsfElectrons_*_*_*",
+    "keep recoGsfElectrons_ecalDrivenGsfElectrons_*_*",
+    "keep recoGsfElectrons_electronsWithPresel_*_*",
+    "keep recoGsfElectrons_gedGsfElectronsTmp_*_*",
+    "keep recoGsfElectrons_mvaElectrons_*_*",
     'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducer_*_*',
     'keep recoPhotons_gedPhotonsTmp_*_*',
     'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*',
     'keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*',
-     'keep recoTrackExtras_electronGsfTracks_*_*'
+    'keep recoTrackExtras_electronGsfTracks_*_*'
     )
     )
 
