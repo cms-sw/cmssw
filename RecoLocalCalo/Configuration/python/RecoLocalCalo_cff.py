@@ -32,12 +32,26 @@ reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
 
-def _modifyRecoLocalCaloForHGCal( theProcess ):
+def _modifyRecoLocalCaloConfigurationReconstructorsForPhase2Common( obj ):
+    obj.digiLabel = cms.InputTag('simHcalDigis')
+
+def _modifyRecoLocalCaloConfigurationProcessForPhase2Common( theProcess ):
+    theProcess.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
+    theProcess.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
+    theProcess.hcalLocalRecoSequence.replace(process.hfreco,process.hfUpgradeReco)
+    theProcess.hcalLocalRecoSequence.remove(process.hbhereco)
+    theProcess.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbheUpgradeReco)
+
+def _modifyRecoLocalCaloConfigurationProcessForHGCal( theProcess ):
     theProcess.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
     theProcess.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
     theProcess.calolocalreco += theProcess.HGCalUncalibRecHit
     theProcess.calolocalreco += theProcess.HGCalRecHit
 
 from Configuration.StandardSequences.Eras import eras
-modifyConfigurationStandardSequencesRecoLocalCaloForHGCal_ = eras.phase2_hgcal.makeProcessModifier( _modifyRecoLocalCaloForHGCal )
+eras.phase2_common.toModify( horeco,  func=_modifyRecoLocalCaloConfigurationReconstructorsForPhase2Common )
+eras.phase2_common.toModify( zdcreco, func=_modifyRecoLocalCaloConfigurationReconstructorsForPhase2Common )
+
+modifyRecoLocalCaloConfigurationProcessForPhase2Common_ = eras.phase2_common.makeProcessModifier( _modifyRecoLocalCaloConfigurationProcessForPhase2Common )
+modifyRecoLocalCaloConfigurationProcessForHGCal_ = eras.phase2_hgcal.makeProcessModifier( _modifyRecoLocalCaloConfigurationProcessForHGCal )
 
