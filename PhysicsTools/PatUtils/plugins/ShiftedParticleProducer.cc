@@ -40,7 +40,7 @@ ShiftedParticleProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   for(CandidateView::const_iterator originalParticle = originalParticles->begin();
       originalParticle != originalParticles->end(); ++originalParticle ) {
-    
+
     double uncertainty = getUncShift(originalParticle);
     double shift = shiftBy_*uncertainty;
 
