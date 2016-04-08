@@ -40,7 +40,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
       Specification().groupBy(DefaultHisto.defaultGrouping)
                      .save()
                      .reduce("MEAN")
-                     .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "EXTEND_X")
+                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "EXTEND_X")
                      .saveAll()
                      .end())
   ),
@@ -55,11 +55,11 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_nbins = 200,
     dimensions = 2,
     specs = cms.VPSet(
-      Specification().groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade/DetId")
+      Specification().groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/PXLadder|PXBlade/DetId")
                      .save()
-                     .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade", "EXTEND_X")
+                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/PXLadder|PXBlade", "EXTEND_X")
                      .save()
-                     .groupBy("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk", "SUM")
+                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "SUM")
                      .saveAll()
                      .end())
   )

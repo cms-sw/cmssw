@@ -24,7 +24,7 @@ DefaultHisto = cms.PSet(
   dimensions = cms.int32(1),
 
   # Ths grouping is used if the plugin uses histo[...].defaultGrouping(). It should be era-dependent.
-  defaultGrouping = cms.string("P1PXBBarrel|P1PXECEndcap/P1PXBLayer|P1PXECHalfDisk/P1PXBLadder|P1PXECBlade"),
+  defaultGrouping = cms.string("PXBarrel|PXEndcap/PXLayer|PXDisk/PXLadder|PXBlade"),
   # You can add specs here that you would like to see in addition to the ones declared in the source. 
   # Doing this in the default config is a very bad idea, just here for documentation.
   # This structure is output by the SpecficationBuilder.
