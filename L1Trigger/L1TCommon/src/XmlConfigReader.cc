@@ -2,7 +2,7 @@
 //#include <algorithm>
 //#include <utility>
 
-#include "L1Trigger/L1TMuon/interface/XmlConfigReader.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
