@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 // temporarely
-#include <boost/shared_ptr.hpp>
 // 
 
 namespace coral {

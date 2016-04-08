@@ -7,6 +7,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/bind.hpp>
+#include <memory>
 
 namespace cond {
 
@@ -62,7 +63,7 @@ namespace cond {
 	sinces.insert( iov.since );
 	// make sure that we import the payload _IN_USE_
 	auto usedIov = p.getInterval( iov.since );
-	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
+	std::pair<std::string,std::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
 	cond::Hash ph = import( sourceSession, usedIov.payloadId, readBackPayload.first, readBackPayload.second.get(), destSession );
 	editor.insert( iov.since, ph );
 	pids.insert( ph );
@@ -139,7 +140,7 @@ namespace cond {
 	sinces.insert( newSince );
 	// make sure that we import the payload _IN_USE_
 	auto usedIov = p.getInterval( newSince );
-	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
+	std::pair<std::string,std::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
 	cond::Hash ph = import( sourceSession, usedIov.payloadId, readBackPayload.first, readBackPayload.second.get(), destSession );
 	editor.insert( newSince, ph );
 	pids.insert( ph );

@@ -15,8 +15,6 @@
 // system include files
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
-
 
 // user include files
 //   base class
@@ -97,7 +95,7 @@ l1t::TriggerMenuXmlProducer::~TriggerMenuXmlProducer()
 
 
 // method called to produce the data
-boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu(
+std::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu(
     const L1TGlobalTriggerMenuRcd& l1MenuRecord)
 {
 
@@ -212,8 +210,8 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
 
-    boost::shared_ptr<TriggerMenu> pL1uGtTriggerMenu = boost::shared_ptr<TriggerMenu>(
-                new TriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
+    auto pL1uGtTriggerMenu = std::make_shared<TriggerMenu>(
+                        gtXmlParser.gtTriggerMenuName(), numberConditionChips,
                         gtXmlParser.vecMuonTemplate(),
                         gtXmlParser.vecCaloTemplate(),
                         gtXmlParser.vecEnergySumTemplate(),
@@ -221,7 +219,7 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
                         gtXmlParser.vecCorrelationTemplate(),
                         gtXmlParser.corMuonTemplate(),
                         gtXmlParser.corCaloTemplate(),
-                        gtXmlParser.corEnergySumTemplate()) );
+                        gtXmlParser.corEnergySumTemplate());
 
  
     pL1uGtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());

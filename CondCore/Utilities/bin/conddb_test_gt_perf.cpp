@@ -397,11 +397,11 @@ public:
 class DeserialWorker {
 private:  
   cond::UntypedPayloadProxy *p;
-  boost::shared_ptr<void> payload;
+  std::shared_ptr<void> payload;
   boost::mutex my_lock;
 
 public:
-  DeserialWorker(cond::UntypedPayloadProxy *pIn, boost::shared_ptr<void> &plIn) : p(pIn), payload(plIn) {}
+  DeserialWorker(cond::UntypedPayloadProxy *pIn, std::shared_ptr<void> &plIn) : p(pIn), payload(plIn) {}
 
   void run() { runReal(); }
 
@@ -409,12 +409,12 @@ public:
     fooGlobal++;
   }
   void runReal() {
-    boost::shared_ptr<void> payloadPtr;
+    std::shared_ptr<void> payloadPtr;
     std::string payloadTypeName =  p->payloadType();
     const cond::Binary &buffer = p->getBuffer();
     const cond::Binary &streamerInfo = p->getStreamerInfo();
   
-    auto result = new std::pair< std::string, boost::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
+    auto result = new std::pair< std::string, std::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
     payload = result->second;
 
     return;
@@ -495,7 +495,7 @@ int cond::TestGTPerf::execute(){
   if (nThrF > 1) session.transaction().commit();
 
   tbb::task_scheduler_init init( nThrF );
-  std::vector< boost::shared_ptr<FetchWorker> > tasks;
+  std::vector<std::shared_ptr<FetchWorker> > tasks;
 
   std::string payloadTypeName;
   for( auto p: proxies ){
@@ -508,8 +508,8 @@ int cond::TestGTPerf::execute(){
       }
 
       if (nThrF > 1) {
-	boost::shared_ptr<FetchWorker> fw( new FetchWorker( connPool, connect, p, (std::map<std::string,size_t> *) &requests, 
-							    run, lumi, ts ) );
+        auto fw = std::make_shared<FetchWorker>(connPool, connect, p, (std::map<std::string,size_t> *) &requests,
+							    run, lumi, ts);
 	tasks.push_back(fw);
       } else {
 	bool loaded = false;
@@ -535,7 +535,7 @@ int cond::TestGTPerf::execute(){
       } // end else (single thread)
   }
 
-  tbb::parallel_for_each(tasks.begin(),tasks.end(),invoker< boost::shared_ptr<FetchWorker> >() );
+  tbb::parallel_for_each(tasks.begin(),tasks.end(),invoker<std::shared_ptr<FetchWorker> >() );
 
   std::cout << "global counter : " << fooGlobal << std::endl;
 
@@ -550,13 +550,13 @@ int cond::TestGTPerf::execute(){
   }
   std::cout << "++> total buffer size used : " << totBufSize << std::endl;
 
-  std::vector< boost::shared_ptr<void> > payloads;
+  std::vector<std::shared_ptr<void> > payloads;
   payloads.resize(400); //-todo: check we don't have more payloads than that !!
 
-  boost::shared_ptr<void> payloadPtr;
+  std::shared_ptr<void> payloadPtr;
 
   tbb::task_scheduler_init initD( nThrD );
-  std::vector< boost::shared_ptr<DeserialWorker> > tasksD;
+  std::vector<std::shared_ptr<DeserialWorker> > tasksD;
 
   timex.interval("setup deserialization");
 
@@ -590,11 +590,11 @@ int cond::TestGTPerf::execute(){
     }
     
     if (nThrD > 1) {
-      boost::shared_ptr<DeserialWorker> dw( new DeserialWorker(p, payloads[index]) );
+      auto dw = std::make_shared<DeserialWorker>(p, payloads[index]);
       tasksD.push_back(dw); 
     } else { // single tread only
        try {
-	 std::pair<std::string, boost::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), p->getStreamerInfo(), payloadPtr);
+	 std::pair<std::string, std::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), p->getStreamerInfo(), payloadPtr);
            payloads.push_back(result.second);
        } catch ( const cond::Exception& e ){
            std::cout << "\nERROR (cond): " << e.what() << std::endl;
@@ -609,7 +609,7 @@ int cond::TestGTPerf::execute(){
   }
   std::cout << std::endl;
 
-  tbb::parallel_for_each(tasksD.begin(),tasksD.end(),invoker< boost::shared_ptr<DeserialWorker> >() );
+  tbb::parallel_for_each(tasksD.begin(),tasksD.end(),invoker<std::shared_ptr<DeserialWorker> >() );
  
   timex.interval("deserializing payloads");
 
