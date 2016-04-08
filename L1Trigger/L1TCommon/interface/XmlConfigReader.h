@@ -1,5 +1,5 @@
-#ifndef XmlConfigReader_H
-#define XmlConfigReader_H
+#ifndef __l1t_XmlConfigReader_h__
+#define __l1t_XmlConfigReader_h__
 
 #include <string>
 #include <vector>
@@ -16,6 +16,8 @@ class DOMNode;
 class XercesDOMParser;
 
 }
+
+namespace l1t {
 
 class XmlConfigReader{
 
@@ -41,4 +43,5 @@ class XmlConfigReader{
   void appendNodesFromSubDoc(xercesc::DOMNode* parentNode, xercesc::DOMDocument* subDoc);
 };
 
+}
 #endif
