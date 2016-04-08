@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 //knower of all things tracker geometry
 //flexible replacement for PXBDetId and friends
@@ -576,7 +577,33 @@ class TrackerTopology {
   std::string print(DetId detid) const;
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
+  
+  // Represents a bitmask that is only valid in some subdetector. 
+  // However, checking validity still has to be done by the caller.
+  struct BitMask {
+    uint32_t startBit_;
+    uint32_t mask_;
+    int32_t  subdet;
+    uint32_t apply(DetId id) const { return ((id.rawId()>>startBit_) & mask_); };
+    bool     valid(DetId id) const { return id.subdetId() == subdet; };
+  };
 
+  std::map<std::string, BitMask> namedPartitions() const { 
+    std::map<std::string, BitMask> namedPartitions_{
+      {"PXBarrel" , {                      0,                   0, PixelSubdetector::PixelBarrel }},
+      {"PXEndcap" , {pfVals_.sideStartBit_  , pfVals_.sideMask_  , PixelSubdetector::PixelEndcap }},
+
+      {"PXLayer"  , {pbVals_.layerStartBit_ , pbVals_.layerMask_ , PixelSubdetector::PixelBarrel }},
+      {"PXLadder" , {pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel }},
+      {"PXBModule", {pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel }},
+
+      {"PXBlade"  , {pfVals_.bladeStartBit_ , pfVals_.bladeMask_ , PixelSubdetector::PixelEndcap }},
+      {"PXDisk"   , {pfVals_.diskStartBit_  , pfVals_.diskMask_  , PixelSubdetector::PixelEndcap }},
+      {"PXFModule", {pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap }},
+    };
+    return namedPartitions_; 
+  };
+ 
  private:
 
   PixelBarrelValues pbVals_;
@@ -586,7 +613,8 @@ class TrackerTopology {
   TIBValues tibVals_;
   TIDValues tidVals_;
   TECValues tecVals_;
-  
+ 
+
 };
 
 #endif
