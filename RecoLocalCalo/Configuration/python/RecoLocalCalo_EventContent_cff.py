@@ -66,8 +66,8 @@ def _modifyRecoLocalCaloEventContentForHGCalFEVT( obj ):
 
 # mods for HGCAL
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalCaloEventContentForHGCalFEVT)
-eras.phase2_hgcal.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, func=_modifyRecoLocalCaloEventContentForHGCalFEVT)
+eras.phase2_hgcal.toModify( RecoLocalCaloRECO, func=_modifyRecoLocalCaloEventContentForHGCalRECO )
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
 #eras.phase2_hgcal.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalCaloEventContentForHGCalRECO )
 

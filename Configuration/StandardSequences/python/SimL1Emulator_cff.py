@@ -11,3 +11,12 @@ if eras.fastSim.isChosen():
     loadTriggerDigiAliases()
     from FastSimulation.Configuration.DigiAliases_cff import gtDigis,gmtDigis,gctDigis,caloStage1LegacyFormatDigis
     
+#HGCal
+def _modifyL1SimForHGCal( theProcess ):
+    theProcess.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)  
+
+from Configuration.StandardSequences.Eras import eras
+modifyL1SimForHGCal_ = eras.phase2_hgcal.makeProcessModifier( _modifyL1SimForHGCal )
+
+
+
