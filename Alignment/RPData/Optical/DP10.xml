@@ -1,0 +1,14 @@
+<!-- DP #10 at RP_45_220_fr_bt -->
+<!--Shifts in um, rotations in mrad. -->
+<xml> DocumentType="AlignmentDescription"
+	<det id="1200" sh_x="+34.0" sh_y="+14.5" rot_z="+0.06"/>
+	<det id="1201" sh_x="+31.5" sh_y="+8.0" rot_z="-0.12"/>
+	<det id="1202" sh_x="+10.5" sh_y="+37.0" rot_z="-0.45"/>
+	<det id="1203" sh_x="+33.5" sh_y="+2.5" rot_z="+0.10"/>
+	<det id="1204" sh_x="-7.0" sh_y="+6.0" rot_z="-0.08"/>
+	<det id="1205" sh_x="+24.0" sh_y="+13.0" rot_z="-0.04"/>
+	<det id="1206" sh_x="+87.0" sh_y="+12.5" rot_z="+0.26"/>
+	<det id="1207" sh_x="+13.0" sh_y="+8.5" rot_z="-0.06"/>
+	<det id="1208" sh_x="+6.0" sh_y="+7.5" rot_z="+0.31"/>
+	<det id="1209" sh_x="+31.5" sh_y="+4.5" rot_z="-0.10"/>
+</xml>

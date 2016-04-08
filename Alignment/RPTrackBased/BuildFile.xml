@@ -1,0 +1,14 @@
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="rootgraphics"/>
+<use   name="DataFormats/TotemRPDetId"/>
+<use   name="Geometry/VeryForwardGeometryBuilder"/>
+<use   name="TotemCondFormats/BeamOpticsParamsObjects"/>
+<use   name="TotemCondFormats/ProtonTransportFunctions"/>
+<use   name="Alignment/RPDataFormats"/>
+<use   name="RecoTotemRP/RPRecoDataFormats"/>
+<use   name="Alignment/RPRecords"/>
+<flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+<export>
+  <lib   name="1"/>
+</export>

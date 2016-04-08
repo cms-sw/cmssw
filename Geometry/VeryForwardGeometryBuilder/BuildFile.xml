@@ -1,0 +1,15 @@
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="DetectorDescription/Core"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/TotemRPDetId"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="clhep"/>
+<use name="hepmc"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Alignment/RPDataFormats"/>
+
+<export>
+	<lib name="1"/>
+</export>
