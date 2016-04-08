@@ -37,23 +37,19 @@ namespace edm {
         class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerMultiFit() {};
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
-
+        private:
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-		
+	public:	
 		edm::ParameterSetDescription getAlgoDescription();
-        protected:
-
-                double pedVec[3];
-		double pedRMSVec[3];
-                double gainRatios[3];
+        private:
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
@@ -73,10 +69,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 SampleMatrix noisecorEEg6;
                 SampleMatrix noisecorEBg1;
                 SampleMatrix noisecorEEg1;
-                FullSampleVector fullpulseEB;
-                FullSampleVector fullpulseEE;
-                FullSampleMatrix fullpulsecovEB;
-                FullSampleMatrix fullpulsecovEE;
                 BXVector activeBX;
                 bool ampErrorCalculation_;
                 bool useLumiInfoRunHeader_;
