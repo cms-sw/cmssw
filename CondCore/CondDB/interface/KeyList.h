@@ -8,6 +8,7 @@
 #include "CondFormats/Common/interface/BaseKeyed.h"
 //
 #include<map>
+#include<memory>
 #include<vector>
 #include<string>
 
@@ -36,7 +37,7 @@ namespace cond {
       void load( const std::vector<unsigned long long>& keys );
       
       template<typename T> 
-      boost::shared_ptr<T> get(size_t n) const {
+      std::shared_ptr<T> get(size_t n) const {
 	if( n >= size() ) throwException( "Index outside the bounds of the key array.", 
 					  "KeyList::get");
 	if( !m_objects[n] ){
@@ -49,7 +50,7 @@ namespace cond {
 			    "KeyList::get");
 	  }
 	}
-	return boost::static_pointer_cast<T>( m_objects[n] );
+	return std::static_pointer_cast<T>( m_objects[n] );
       }
 
       size_t size() const { return m_objects.size();}
@@ -59,7 +60,7 @@ namespace cond {
       IOVProxy m_proxy;
       // the key selection: 
       mutable std::map<size_t,std::pair<std::string,std::pair<cond::Binary,cond::Binary> > > m_data;
-      mutable std::vector<boost::shared_ptr<void> > m_objects;
+      mutable std::vector<std::shared_ptr<void> > m_objects;
       
     };
 

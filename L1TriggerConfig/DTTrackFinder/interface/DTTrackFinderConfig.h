@@ -34,7 +34,6 @@
 #include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 

@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "L1TriggerConfig/L1GeometryProducers/interface/L1CaloGeometryProd.h"

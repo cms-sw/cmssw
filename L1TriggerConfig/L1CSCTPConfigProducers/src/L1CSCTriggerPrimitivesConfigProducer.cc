@@ -117,7 +117,7 @@ L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {
 std::auto_ptr<CSCDBL1TPParameters>
 L1CSCTriggerPrimitivesConfigProducer::produce(const CSCDBL1TPParametersRcd& iRecord) {
   using namespace edm::es;
-  //boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
+  //std::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
 
   // Create empty collection of CSCTPParameters.
   std::auto_ptr<CSCDBL1TPParameters> pL1CSCTPParams(new CSCDBL1TPParameters);

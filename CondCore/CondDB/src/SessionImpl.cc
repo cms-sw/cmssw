@@ -12,7 +12,7 @@ namespace cond {
 
     class CondDBTransaction : public ITransaction {
     public:
-      CondDBTransaction( const boost::shared_ptr<coral::ISessionProxy>& coralSession ):
+      CondDBTransaction( const std::shared_ptr<coral::ISessionProxy>& coralSession ):
 	m_session( coralSession ){
       }
       virtual ~CondDBTransaction(){}
@@ -29,14 +29,14 @@ namespace cond {
 	return m_session->transaction().isActive();
       }
     private: 
-      boost::shared_ptr<coral::ISessionProxy> m_session;
+      std::shared_ptr<coral::ISessionProxy> m_session;
     };
 
     SessionImpl::SessionImpl():
       coralSession(){
     }
 
-    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, 
+    SessionImpl::SessionImpl( std::shared_ptr<coral::ISessionProxy>& session, 
 			      const std::string& connectionStr ):
       coralSession( session ),
       connectionString( connectionStr ){

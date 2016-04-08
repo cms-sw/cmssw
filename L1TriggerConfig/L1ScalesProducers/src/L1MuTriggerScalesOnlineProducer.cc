@@ -111,7 +111,7 @@ const string PhiScaleHelper::LowMarkColumn = "PHI_DEG_BIN_LOW_0";
 const string PhiScaleHelper::StepColumn = "PHI_DEG_BIN_STEP";
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(const std::string& objectKey ) 
+std::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(const std::string& objectKey ) 
 {
    using namespace edm::es;   
 
@@ -198,8 +198,5 @@ boost::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(
 
    m_scales.setPhiScale(*ptrPhiScale);
 
-   boost::shared_ptr<L1MuTriggerScales> l1muscale =
-     boost::shared_ptr<L1MuTriggerScales>( new L1MuTriggerScales( m_scales ) );
-
-   return l1muscale ;
+   return std::make_shared<L1MuTriggerScales>(m_scales);
 }
