@@ -38,9 +38,9 @@ def _modifyRecoLocalCaloConfigurationReconstructorsForPhase2Common( obj ):
 def _modifyRecoLocalCaloConfigurationProcessForPhase2Common( theProcess ):
     theProcess.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     theProcess.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
-    theProcess.hcalLocalRecoSequence.replace(process.hfreco,process.hfUpgradeReco)
-    theProcess.hcalLocalRecoSequence.remove(process.hbhereco)
-    theProcess.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbheUpgradeReco)
+    theProcess.hcalLocalRecoSequence.replace(theProcess.hfreco,theProcess.hfUpgradeReco)
+    theProcess.hcalLocalRecoSequence.remove(theProcess.hbhereco)
+    theProcess.hcalLocalRecoSequence.replace(theProcess.hbheprereco,theProcess.hbheUpgradeReco)
 
 def _modifyRecoLocalCaloConfigurationProcessForHGCal( theProcess ):
     theProcess.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
