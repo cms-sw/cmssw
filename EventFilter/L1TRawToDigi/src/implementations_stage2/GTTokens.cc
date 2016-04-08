@@ -6,17 +6,19 @@
 
 namespace l1t {
    namespace stage2 {
-      GTTokens::GTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
+      GTTokens::GTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
       {
-         auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
+         auto gttag = cfg.getParameter<edm::InputTag>("GtInputLabel");
+         auto calotag = cfg.getParameter<edm::InputTag>("CaloInputLabel");
+         auto muontag = cfg.getParameter<edm::InputTag>("GmtInputLabel");
 
-         muonToken_ = cc.consumes<MuonBxCollection>(tag);
-	 egammaToken_ = cc.consumes<EGammaBxCollection>(tag);
-         etSumToken_ = cc.consumes<EtSumBxCollection>(tag);
-         jetToken_ = cc.consumes<JetBxCollection>(tag);
-         tauToken_ = cc.consumes<TauBxCollection>(tag);
-         algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(tag);
-         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(tag);
+         muonToken_ = cc.consumes<MuonBxCollection>(muontag);
+	 egammaToken_ = cc.consumes<EGammaBxCollection>(calotag);
+         etSumToken_ = cc.consumes<EtSumBxCollection>(calotag);
+         jetToken_ = cc.consumes<JetBxCollection>(calotag);
+         tauToken_ = cc.consumes<TauBxCollection>(calotag);
+         algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(gttag);
+         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(gttag);
 
       }
    }

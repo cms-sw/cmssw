@@ -23,7 +23,7 @@ namespace l1t {
       MuonPacker::pack(const edm::Event& event, const PackerTokens* toks)
       {
          edm::Handle<MuonBxCollection> muons;
-         event.getByToken(static_cast<const GMTTokens*>(toks)->getMuonToken(), muons);
+         event.getByToken(static_cast<const CommonTokens*>(toks)->getMuonToken(), muons);
 
          PayloadMap payloadMap;
 
