@@ -23,7 +23,7 @@ namespace stage2 {
    JetPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<JetBxCollection> jets;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getJetToken(), jets);
 
       std::vector<uint32_t> load1, load2;
 

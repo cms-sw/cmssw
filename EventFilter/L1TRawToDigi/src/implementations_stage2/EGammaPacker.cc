@@ -23,7 +23,7 @@ namespace stage2 {
    EGammaPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<EGammaBxCollection> egs;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getEGammaToken(), egs);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getEGammaToken(), egs);
 
       std::vector<uint32_t> load1, load2;
 

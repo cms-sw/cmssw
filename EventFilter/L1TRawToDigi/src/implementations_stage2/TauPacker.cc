@@ -23,7 +23,7 @@ namespace stage2 {
    TauPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<TauBxCollection> taus;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getTauToken(), taus);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getTauToken(), taus);
 
       std::vector<uint32_t> load1, load2;
 
