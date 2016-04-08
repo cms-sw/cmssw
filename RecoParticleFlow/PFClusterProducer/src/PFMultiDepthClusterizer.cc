@@ -142,7 +142,7 @@ link(const reco::PFClusterCollection& clusters ,const std::vector<double>& etaRM
       auto deta = crep1.eta()-crep2.eta();
       deta = deta*deta/(etaRMS2[i]+etaRMS2[j]);
       auto dphi = deltaPhi(crep1.phi(),crep2.phi());
-      dphi = dphi*dphi/(phiRMS2[i]*+phiRMS2[j]);
+      dphi = dphi*dphi/(phiRMS2[i]+phiRMS2[j]);
 
       //      printf("Testing Link %d -> %d (%f %f %f %f ) \n",i,j,deta,dphi,cluster1.position().Eta()-cluster2.position().Eta(),deltaPhi(cluster1.position().Phi(),cluster2.position().Phi()));
 
