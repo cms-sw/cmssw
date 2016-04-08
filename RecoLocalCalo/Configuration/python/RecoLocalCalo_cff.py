@@ -31,3 +31,13 @@ reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+
+def _modifyRecoLocalCaloForHGCal( theProcess ):
+    process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
+    process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
+    theProcess.calolocalreco += theProcess.HGCalUncalibRecHit
+    theProcess.muonlocalreco += theProcess.HGCalRecHit
+
+from Configuration.StandardSequences.Eras import eras
+modifyConfigurationStandardSequencesRecoLocalCaloForHGCal_ = eras.phase2_hgcal.makeProcessModifier( _modifyRecoLocalCaloForHGCal )
+

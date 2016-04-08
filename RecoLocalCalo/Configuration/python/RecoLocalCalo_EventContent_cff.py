@@ -56,3 +56,18 @@ RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 
+def _modifyRecoLocalCaloEventContentForHGCalRECO( obj ):
+    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
+
+def _modifyRecoLocalCaloEventContentForHGCalFEVT( obj ):
+    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
+    obj.outputCommands.append('keep *_HGCalUncalibRecHit_*_*')
+
+
+# mods for HGCAL
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalCaloEventContentForHGCalFEVT)
+eras.phase2_hgcal.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+# don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
+#eras.phase2_hgcal.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+
