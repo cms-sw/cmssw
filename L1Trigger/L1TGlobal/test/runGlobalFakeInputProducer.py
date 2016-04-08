@@ -201,7 +201,12 @@ process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
 process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
-process.simGtStage2Digis.extInputTag = cms.InputTag("simGtExtFakeProd")
+process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
+process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
