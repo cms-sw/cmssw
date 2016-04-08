@@ -108,8 +108,4 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   
 };
 
-DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
-		  ElectronMVAEstimatorRun2Phys14NonTrig,
-		  "ElectronMVAEstimatorRun2Phys14NonTrig");
-
 #endif
