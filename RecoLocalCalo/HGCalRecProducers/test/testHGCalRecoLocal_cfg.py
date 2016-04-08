@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Run2_25ns)
+process = cms.Process("testHGCalRecoLocal",eras.Phase2,eras.phase1Pixel,eras.trackingPhase1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -126,10 +126,3 @@ for path in process.paths:
 
 # customisation of the process.
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCal
-
-#call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCal(process)
-
-# End of customisation functions
