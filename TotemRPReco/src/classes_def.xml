@@ -1,0 +1,31 @@
+<lcgdict>
+  <class name="TotemRPCluster"/>
+  <class name="edm::DetSet<TotemRPCluster>"/>
+  <class name="std::vector<TotemRPCluster>"/>
+  <class name="std::vector<edm::DetSet<TotemRPCluster> >"/>
+  <class name="edm::DetSetVector<TotemRPCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPCluster> >"/>
+
+  <class name="TotemRPRecHit"/>
+  <class name="edm::DetSet<TotemRPRecHit>"/>
+  <class name="edm::DetSetVector<TotemRPRecHit>"/>
+  <class name="std::vector<edm::DetSet<TotemRPRecHit> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPRecHit> >"/>
+  <class name="std::vector<TotemRPRecHit>"/>
+  <class name="std::vector<const TotemRPRecHit*>"/>
+	  
+  <class name="std::pair<__gnu_cxx::__normal_iterator<const TotemRPRecHit*,std::vector<TotemRPRecHit> >,__gnu_cxx::__normal_iterator<const TotemRPRecHit*,std::vector<TotemRPRecHit> > >"/>
+  <class name="__gnu_cxx::__normal_iterator<const TotemRPRecHit*,std::vector<TotemRPRecHit> >"/>
+
+  <class name="RPDetTrigger"/>
+  <class name="edm::DetSet<RPDetTrigger>"/>
+  <class name="std::vector<edm::DetSet<RPDetTrigger> >"/>
+  <class name="std::vector<RPDetTrigger>"/>
+  <class name="edm::DetSetVector<RPDetTrigger>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<RPDetTrigger> >"/>
+  <class name="edm::Wrapper<edm::DetSet<RPDetTrigger> >"/>
+		  
+  <class name="RPTimingDetectorHit"/>
+  <class name="std::vector<RPTimingDetectorHit>"/>
+  <class name="edm::Wrapper<std::vector<RPTimingDetectorHit> >"/>
+</lcgdict>
