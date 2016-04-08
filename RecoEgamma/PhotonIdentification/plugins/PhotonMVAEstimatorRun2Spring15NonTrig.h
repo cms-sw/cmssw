@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_PhotonIdentification_PhotonMVAEstimatorRun2Phys14NonTrig_H
-#define RecoEgamma_PhotonIdentification_PhotonMVAEstimatorRun2Phys14NonTrig_H
+#ifndef RecoEgamma_PhotonIdentification_PhotonMVAEstimatorRun2Spring15NonTrig_H
+#define RecoEgamma_PhotonIdentification_PhotonMVAEstimatorRun2Spring15NonTrig_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -18,7 +18,7 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
-class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
+class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   
  public:
 
@@ -32,7 +32,8 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   };
 
   // Define the struct that contains all necessary for MVA variables
-  struct AllVariables {    
+  struct AllVariables {
+    
     float varPhi;
     float varR9;
     float varSieie;
@@ -55,40 +56,37 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
     // Spectators
     float varPt;
     float varEta;
-
   };
   
   // Constructor and destructor
-  PhotonMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf);
-  ~PhotonMVAEstimatorRun2Phys14NonTrig();
+  PhotonMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf);
+  ~PhotonMVAEstimatorRun2Spring15NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
  
   // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
-
-  virtual int getNCategories() const override final {return nCategories;};
+  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
+  
+  virtual int getNCategories() const { return nCategories; }
   bool isEndcapCategory( int category ) const;
   virtual const std::string& getName() const override final { return _name; }
   virtual const std::string& getTag() const override final { return _tag; }
   
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
-  int findCategory(const edm::Ptr<reco::Candidate>& particle) const;
+  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const override;
+  int findCategory( const edm::Ptr<reco::Candidate>& particle ) const override;
   // The function below ensures that the variables passed to MVA are 
   // within reasonable bounds
-  void constrainMVAVariables(AllVariables& vars) const;
+  void constrainMVAVariables(AllVariables&) const;
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  // DEPRECATED
   void setConsumes(edm::ConsumesCollector&&) const override;
   // Call this function once per event to retrieve all needed
   // event content pices
-  // DEPRECATED
-  // void getEventContent(const edm::Event& iEvent) const override;
+  //void getEventContent(const edm::Event& iEvent) override;
 
   
  private:
@@ -96,14 +94,15 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string _name = "PhotonMVAEstimatorRun2Phys14NonTrig";
+  const std::string _name = "PhotonMVAEstimatorRun2Spring15NonTrig";
+
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
   // weight files.
   std::string _tag;
 
   // Data members
-  std::vector<std::unique_ptr<const GBRForest> > _gbrForests;
+  std::vector< std::unique_ptr<const GBRForest> > _gbrForests;
 
   // All variables needed by this MVA
   const std::string _MethodName;
@@ -128,12 +127,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   const edm::InputTag _phoChargedIsolationLabel; 
   const edm::InputTag _phoPhotonIsolationLabel; 
   const edm::InputTag _phoWorstChargedIsolationLabel; 
-  // token for rho
   const edm::InputTag _rhoLabel;
 };
-
-DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
-		  PhotonMVAEstimatorRun2Phys14NonTrig,
-		  "PhotonMVAEstimatorRun2Phys14NonTrig");
 
 #endif
