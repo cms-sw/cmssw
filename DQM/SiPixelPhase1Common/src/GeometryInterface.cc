@@ -16,16 +16,11 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 // Tracker Geometry/Topology  suff
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-
-// Alignment stuff
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // C++ stuff
 #include <cassert>
@@ -34,7 +29,8 @@
 #include <iomanip>
 
 void GeometryInterface::load(edm::EventSetup const& iSetup) {
-  loadFromAlignment(iSetup, iConfig);
+  //loadFromAlignment(iSetup, iConfig);
+  loadFromTopology(iSetup, iConfig);
   loadTimebased(iSetup, iConfig);
   loadModuleLevel(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
@@ -44,6 +40,14 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   is_loaded = true;
 }
 
+#if 0
+// Alignment stuff
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   // This function collects information about ALignables, which make up most of
@@ -156,7 +160,37 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
   }
   delete trackerAlignables;
 }
+#endif
 
+void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  // Get a Topology
+  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+  assert(trackerTopologyHandle.isValid());
+
+  for (std::pair<std::string, TrackerTopology::BitMask> e : trackerTopologyHandle->namedPartitions()) {
+    auto mask = e.second;
+    addExtractor(intern(e.first),
+      [mask] (InterestingQuantities const& iq) {
+	if(!mask.valid(iq.sourceModule)) return UNDEFINED;
+	return Value(mask.apply(iq.sourceModule));
+      },
+      mask.mask_ 
+    );
+  }
+  
+  // Get a Geometry
+  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+  assert(trackerGeometryHandle.isValid());
+  // TODO: Just pixel would be fine for now.
+  auto detids = trackerGeometryHandle->detIds();
+  for (DetId id : detids) {
+    // for ROCs etc., they eed to be added here as well.
+    all_modules.push_back(InterestingQuantities{.sourceModule = id });
+  }
+}
+ 
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.
@@ -196,7 +230,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       uint32_t id = iq.sourceModule.rawId();
       return Value(id);
     },
-    200 //TODO: use actual number of cols here. Where can we find that?
+    0 // No sane value possible here.
   );
 
   // TODO: ROCs ans stuff here.
