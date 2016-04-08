@@ -6,7 +6,7 @@
 
 namespace l1t {
    namespace stage1 {
-      CaloTokens::CaloTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
+      CaloTokens::CaloTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
       {
          auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
          auto tautag = cfg.getParameter<edm::InputTag>("TauInputLabel");

@@ -16,7 +16,11 @@ namespace l1t {
                return std::unique_ptr<PackerTokens>(new GTTokens(cfg, cc));
             };
 
-            virtual void fillDescription(edm::ParameterSetDescription& desc) override {};
+            virtual void fillDescription(edm::ParameterSetDescription& desc) override {
+               desc.addOptional<edm::InputTag>("GtInputLabel")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("GmtInputLabel")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("CaloInputLabel")->setComment("for stage2");
+	    };
 
             virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
@@ -25,11 +29,11 @@ namespace l1t {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
                      
-		     //PackerFactory::get()->make("stage2::MuonPacker"),
-		     //PackerFactory::get()->make("stage2::EGammaPacker"),
-		     //PackerFactory::get()->make("stage2::EtSumPacker"),
-		     //PackerFactory::get()->make("stage2::JetPacker"),
-		     //PackerFactory::get()->make("stage2::TauPacker"),
+		    //PackerFactory::get()->make("stage2::MuonPacker"),
+		    //PackerFactory::get()->make("stage2::EGammaPacker"),
+		    //PackerFactory::get()->make("stage2::EtSumPacker"),
+		    //PackerFactory::get()->make("stage2::JetPacker"),
+		    //PackerFactory::get()->make("stage2::TauPacker"),
                      PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
                      PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
                   };

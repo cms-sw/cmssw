@@ -10,7 +10,7 @@ namespace l1t {
    namespace stage2 {
       class BMTFTokens : public PackerTokens {
          public:
-            BMTFTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
+           BMTFTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
 
 						inline const edm::EDGetTokenT<RegionalMuonCandBxCollection>& getOutputMuonToken() const {return outputMuonToken_;};
 						inline const edm::EDGetTokenT<L1MuDTChambPhContainer>& getInputMuonTokenPh() const {return inputMuonTokenPh_;};

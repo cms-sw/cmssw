@@ -23,7 +23,7 @@ namespace stage2 {
    EtSumPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<EtSumBxCollection> etSums;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getEtSumToken(), etSums);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getEtSumToken(), etSums);
 
       uint32_t et_word = 0;
       uint32_t ht_word = 0;
