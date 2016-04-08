@@ -13,7 +13,6 @@ class GenRunInfoProduct {
 	// constructors, destructors
 	GenRunInfoProduct();
 	GenRunInfoProduct(const GenRunInfoProduct &other);
-	virtual ~GenRunInfoProduct();
 
 	// getters
 
@@ -60,8 +59,7 @@ class GenRunInfoProduct {
 	{ return externalXSecLO_ ? externalXSecLO_.value() : internalXSec_.value(); }
 
 	// methods used by EDM
-	virtual bool mergeProduct(const GenRunInfoProduct &other);
-	virtual bool isProductEqual(const GenRunInfoProduct &other) const;
+	bool isProductEqual(const GenRunInfoProduct &other) const;
 
     private:
 	// cross sections
