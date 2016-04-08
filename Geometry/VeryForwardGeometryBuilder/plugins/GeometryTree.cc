@@ -17,7 +17,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
 #include <iostream>
 #include <cstdio>

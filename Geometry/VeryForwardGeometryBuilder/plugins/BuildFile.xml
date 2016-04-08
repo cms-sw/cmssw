@@ -2,7 +2,7 @@
 	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="DetectorDescription/Core"/>
 	<use name="CondFormats/DataRecord"/>
-	<use name="Alignment/RPRecords"/>
+	<use name="CondFormats/AlignmentRecord"/>
 	<use name="DataFormats/DetId"/>
 	<use name="DataFormats/TotemRPDetId"/>
 	<use name="Geometry/TrackerNumberingBuilder"/>

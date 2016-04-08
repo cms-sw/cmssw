@@ -10,11 +10,11 @@
 #define RECORDS_VeryForwardMisalignedGeometryRecord_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CondFormats/DataRecord/interface/VeryForwardMeasuredGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
-#include "Alignment/RPRecords/interface/RPMisalignedAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
 /**
  * \ingroup TotemRPGeometry

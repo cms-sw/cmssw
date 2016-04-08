@@ -14,9 +14,9 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 #include "Alignment/RPDataFormats/interface/RPAlignmentCorrectionsSequence.h"
-#include "Alignment/RPRecords/interface/RPMeasuredAlignmentRecord.h"
-#include "Alignment/RPRecords/interface/RPRealAlignmentRecord.h"
-#include "Alignment/RPRecords/interface/RPMisalignedAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
 #include <vector>
 #include <string>

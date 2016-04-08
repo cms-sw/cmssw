@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-EVENTSETUP_RECORD_REG(VeryForwardRealGeometryRecord);
+EVENTSETUP_RECORD_REG(VeryForwardMisalignedGeometryRecord);

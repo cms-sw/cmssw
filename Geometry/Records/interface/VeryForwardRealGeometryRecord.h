@@ -10,11 +10,11 @@
 #define RECORDS_VeryForwardRealGeometryRecord_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CondFormats/DataRecord/interface/VeryForwardMeasuredGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
-#include "Alignment/RPRecords/interface/RPRealAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 
 /**
  * \ingroup TotemRPGeometry

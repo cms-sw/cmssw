@@ -16,9 +16,9 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 
 //----------------------------------------------------------------------------------------------------
