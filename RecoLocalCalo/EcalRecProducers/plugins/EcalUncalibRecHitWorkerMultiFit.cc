@@ -313,8 +313,8 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         } else if ( leadingSample >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
                int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
                if (gainId==0) gainId=3;
-               auto pedestal = pedVec[gainId];
-               auto gainratio = gainRatios[gainId];
+               auto pedestal = pedVec[gainId-1];
+               auto gainratio = gainRatios[gainId-1];
                double amplitude = ((double)(((EcalDataFrame)(*itdg)).sample(5).adc()) - pedestal) * gainratio;
                uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), amplitude, 0, 0, 0);
                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
