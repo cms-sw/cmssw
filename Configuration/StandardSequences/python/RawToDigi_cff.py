@@ -75,6 +75,9 @@ muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
 
+# until we have hcal raw data for phase 2...
+eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
+
 
 # Remove siPixelDigis until we have phase1 pixel digis
 eras.phase1Pixel.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
