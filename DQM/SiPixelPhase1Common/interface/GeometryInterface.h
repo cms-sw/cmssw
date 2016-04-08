@@ -74,7 +74,7 @@ class GeometryInterface {
     bool operator< (Values const& other) const { return this->values < other.values; };
   };
 
-  GeometryInterface(const edm::ParameterSet& conf, edm::ActivityRegistry& ) : iConfig(conf) {};
+  GeometryInterface(const edm::ParameterSet& conf) : iConfig(conf) {};
 
   bool loaded() { return is_loaded; };
 
@@ -120,7 +120,7 @@ class GeometryInterface {
   // needs the lock since this will be called from the spec builder, which will
   // run in the constructor and this is parallel.
   ID intern(std::string const& id) {
-    std::lock_guard<std::mutex> lock(ids_lock);
+    //std::lock_guard<std::mutex> lock(ids_lock);
     auto it = ids.find(id);
     if (it == ids.end()) {
       ids[id] = ++max_id;
@@ -133,7 +133,7 @@ class GeometryInterface {
   // labels), so it can be slow (though intern() does not have to be fast 
   // either). Also locks, might not be needed but better save than sorry.
   std::string unintern(ID id) {
-    std::lock_guard<std::mutex> lock(ids_lock);
+    //std::lock_guard<std::mutex> lock(ids_lock);
     for (auto& e : ids) 
       if (e.second == id) return e.first;
     return "INVALID";
@@ -173,7 +173,6 @@ class GeometryInterface {
   // interning table. Maps string IDs to a dense set of integer IDs
   std::map<std::string, ID> ids{std::make_pair(std::string("INVALID"), ID(0))};
   ID max_id = 0;
-  std::mutex ids_lock;
 };
 
 
