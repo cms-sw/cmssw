@@ -18,7 +18,7 @@
 
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
   iConfig(iconfig),
-  geometryInterface(*edm::Service<GeometryInterface>()),
+  geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry")),
   enabled(iconfig.getParameter<bool>("enabled")),
   bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
   top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
