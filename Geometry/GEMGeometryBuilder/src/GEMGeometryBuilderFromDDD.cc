@@ -66,15 +66,34 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 					<<fv.logicalPart().name().name();
  
 
-  GEMDetId detIdCh;
   
   bool doSuper = fv.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSuperChamber = " << doSuper;
+  // loop over superchambers
   while (doSuper){
+
+    // getting chamber id from eta partitions
+    fv.firstChild();fv.firstChild();
+    MuonDDDNumbering mdddnumCh(muonConstants);
+    GEMNumberingScheme gemNumCh(muonConstants);
+    int rawidCh = gemNumCh.baseNumberToUnitNumber(mdddnumCh.geoHistoryToBaseNumber(fv.geoHistory()));
+    GEMDetId detIdCh = GEMDetId(rawidCh);
+    // back to chambers
+    fv.parent();fv.parent();
     
+    if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
+      GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
+      geometry->add(gemSuperChamber);
+    }
+    
+    // loop over chambers
     bool doChambers = fv.firstChild();
     while (doChambers){
-      //std::cout <<" doChambers " << fv.translation()<<std::endl;    
+
+      GEMChamber *gemChamber = buildChamber(fv, detIdCh);
+      
+      //std::cout <<" doChambers " << fv.translation()<<std::endl;
+      // loop over eta partitions
       bool doEtaPart = fv.firstChild();
       while (doEtaPart){
 	//	std::cout <<" doEtaPart " << fv.logicalPart().name().name()<<std::endl;
@@ -83,18 +102,16 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 	GEMNumberingScheme gemNum(muonConstants);
 	int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
 	GEMDetId detId = GEMDetId(rawid);
-	if (detId.roll() == 1) detIdCh = detId;
 	
 	GEMEtaPartition *etaPart = buildEtaPartition(fv, detId);
-	//gemChamber->add(etaPart);
-	geometry->add(etaPart);
+	gemChamber->add(etaPart);
+	//geometry->add(etaPart);
 	doEtaPart = fv.nextSibling();
       }
       fv.parent();
 
       //std::cout <<" doChambers " << fv.translation()<<std::endl;    
       //      std::cout <<" doChambers " << fv.logicalPart().name().name()<<std::endl;
-      GEMChamber *gemChamber = buildChamber(fv, detIdCh);      
       geometry->add(gemChamber);
       
       //gemSuperChamber->add(gemChamber);
@@ -102,10 +119,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     }
     fv.parent();
 
-    //std::cout <<" doSuper "<< fv.logicalPart().name().name()<<std::endl;
-    GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);    
-    geometry->add(gemSuperChamber);
-    
+    //std::cout <<" doSuper "<< fv.logicalPart().name().name()<<std::endl;    
     doSuper = fv.nextSibling();
   }
   
