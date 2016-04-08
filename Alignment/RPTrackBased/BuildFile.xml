@@ -7,7 +7,7 @@
 <use   name="TotemCondFormats/ProtonTransportFunctions"/>
 <use   name="Alignment/RPDataFormats"/>
 <use   name="RecoTotemRP/RPRecoDataFormats"/>
-<use   name="Alignment/RPRecords"/>
+<use   name="CondFormats/AlignmentRecord"/>
 <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
 <export>
   <lib   name="1"/>

@@ -1,6 +1,6 @@
 <library name="AlignmentRPDataFormatsPlugins" file="*.cc">
 	<use name="Alignment/RPDataFormats"/>
-	<use name="Alignment/RPRecords"/>
+	<use name="CondFormats/AlignmentRecord"/>
 	<use name="FWCore/Framework"/>
 	<use name="Geometry/VeryForwardGeometryBuilder"/>
 	<use name="CondFormats/DataRecord"/>

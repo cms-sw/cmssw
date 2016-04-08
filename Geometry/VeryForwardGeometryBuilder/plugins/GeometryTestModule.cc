@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/GeometryTestModule.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"

@@ -15,7 +15,7 @@
 
 #include "Alignment/RPDataFormats/interface/RPAlignmentCorrections.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
 #include "Alignment/RPTrackBased/interface/AlignmentTask.h"
 

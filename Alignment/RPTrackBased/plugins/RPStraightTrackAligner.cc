@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Alignment/RPTrackBased/interface/StraightTrackAlignment.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
 /**
  *\brief An EDAnalyzer that runs StraightTrackAlignment.

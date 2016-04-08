@@ -9,8 +9,8 @@
 
 #include "Alignment/RPTrackBased/interface/IdealResult.h"
 #include "Alignment/RPTrackBased/interface/AlignmentTask.h"
-#include "CondFormats/DataRecord/interface/VeryForwardRealGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Alignment/RPTrackBased/interface/MatrixTools.h"
 
 #include "TMatrixD.h"
