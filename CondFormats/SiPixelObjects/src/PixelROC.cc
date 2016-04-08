@@ -13,9 +13,9 @@ using namespace sipixelobjects;
 // Constructor with transformation frame initilization - NEVER CALLED
 PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
   : theDetUnit(du), theIdDU(idDU), theIdLk(idLk) {
-  cout<<" is this ever called "<<endl;
+  //cout<<" is this ever called "<<endl;
   initFrameConversion();
-  cout<<" no "<<endl;
+  //cout<<" no "<<endl;
 }
 
 
@@ -96,29 +96,29 @@ PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
 
 // works for phase 1, find det side from the local method
 void PixelROC::initFrameConversionPhase1() {
-  const bool PRINT = false;
-
-  if(PRINT) cout<<"PixelROC::initFramConversion - for phase1 "<<endl;
+  //const bool PRINT = false;
+  //if(PRINT) cout<<"PixelROC::initFramConversion - for phase1 "<<endl;
 
   int side = 0;
   bool isBarrel = PixelModuleName::isBarrel(theDetUnit);
   if(isBarrel) {
     side = bpixSidePhase1(theDetUnit); // find the side for phase1
-    if(PRINT) cout<<" bpix, side "<<side<<endl;
+    //if(PRINT) cout<<" bpix, side "<<side<<endl;
   } else {
     side = fpixSidePhase1(theDetUnit);
-    if(PRINT) cout<<" fpix, side "<<side<<endl;
+    //if(PRINT) cout<<" fpix, side "<<side<<endl;
   }
 
   theFrameConverter = FrameConversion(isBarrel,side, theIdDU);
 
-  if(PRINT) cout<<" init FrameConversion "
-      <<" "<<theDetUnit<<" "<<theIdDU<<" "<<theIdLk
-      <<" "<<theFrameConverter.row().offset()
-      <<" "<<theFrameConverter.row().slope()
-      <<" "<<theFrameConverter.collumn().offset()
-      <<" "<<theFrameConverter.collumn().slope()
-      <<endl;
+  // if(PRINT) cout<<" init FrameConversion "
+  //     <<" "<<theDetUnit<<" "<<theIdDU<<" "<<theIdLk
+  //     <<" "<<theFrameConverter.row().offset()
+  //     <<" "<<theFrameConverter.row().slope()
+  //     <<" "<<theFrameConverter.collumn().offset()
+  //     <<" "<<theFrameConverter.collumn().slope()
+  //     <<endl;
+
 }
 
 // Works only for phase0, uses the fixed pixel id
