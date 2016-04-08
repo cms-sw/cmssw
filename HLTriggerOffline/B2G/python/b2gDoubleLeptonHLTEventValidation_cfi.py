@@ -20,7 +20,7 @@ b2gDoubleLeptonEleMuHLTValidation = cms.EDAnalyzer('B2GDoubleLeptonHLTValidation
 
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu37Ele27_CaloIdL_GsfTrkIdVL','HLT_Mu27Ele37_CaloIdL_GsfTrkIdVL']),
+        vsPaths      = cms.untracked.vstring(['HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL','HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL']),
 )
 
 # ttbar double electron
@@ -43,5 +43,5 @@ b2gDoubleElectronHLTValidation = cms.EDAnalyzer('B2GDoubleLeptonHLTValidation',
 
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_DoubleEle37Ele27_CaloIdL_GsfTrkIdVL']),
+        vsPaths      = cms.untracked.vstring(['HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL']),
 )
