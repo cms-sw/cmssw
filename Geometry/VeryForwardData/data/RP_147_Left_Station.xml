@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_147_Left_Station.xml">
+        <Constant name="RP_147_Left_Station_Length" value="(-([RP_Stations_Assembly:RP_220_Left_Station_Position_z]-[RP_Stations_Assembly:RP_147_Left_Station_Position_z]))*mm"/>
+        <!--Positions calculated from the wall closer to IP point-->
+        <Constant name="RP_147_Left_Prim_Vert_z" value="608*mm"/>
+        <Constant name="RP_147_Left_Prim_Hor_z" value="1058*mm"/>
+        <Constant name="RP_147_Left_Sec_Hor_z" value="9781*mm"/>
+        <Constant name="RP_147_Left_Sec_Vert_z" value="10231*mm"/>
+
+        <Constant name="RP_147_Left_Sec_Rot_Angle" value="8"/>
+        
+        <Constant name="RP_147_Left_Hor_Vac_Length" value="[RP_Device:RP_Device_Envelope_Radius]+[RP_Device:RP_Device_Length_y]/2-[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]"/>
+    </ConstantsSection>
+
+    <RotationSection label="RP_147_Left_Station.xml">
+        <Rotation name="RP_147_Left_Sec_Rotation" 
+            phiX="[RP_147_Left_Sec_Rot_Angle]*deg" thetaX="90*deg" 
+            phiY="(90+[RP_147_Left_Sec_Rot_Angle])*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_147_Left_90_y_Sec_Rotation" 
+            phiX="0*deg" thetaX="180*deg" 
+            phiY="(90+[RP_147_Left_Sec_Rot_Angle])*deg" thetaY="90*deg" 
+            phiZ="(0+[RP_147_Left_Sec_Rot_Angle])*deg" thetaZ="90*deg"/>
+        <Rotation name="RP_147_Left_90_x_Sec_Rotation" 
+            phiX="(0+[RP_147_Left_Sec_Rot_Angle])*deg" thetaX="90*deg" 
+            phiY="0*deg" thetaY="180*deg" 
+            phiZ="(90+[RP_147_Left_Sec_Rot_Angle])*deg" thetaZ="90*deg"/>
+    </RotationSection>
+    
+    <SolidSection label="RP_147_Left_Station.xml">  
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Envelope_Radius]*1.1" dz="[RP_147_Left_Station_Length]/2" name="RP_147_Left_Station"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_147_Left_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2" name="RP_147_Left_Station_Tube_1"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_147_Left_Prim_Hor_z]-[RP_147_Left_Prim_Vert_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_147_Left_Station_Tube_2"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_147_Left_Sec_Hor_z]-[RP_147_Left_Prim_Hor_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_147_Left_Station_Tube_3"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_147_Left_Sec_Vert_z]-[RP_147_Left_Sec_Hor_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_147_Left_Station_Tube_4"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_147_Left_Station_Length]-[RP_147_Left_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2" name="RP_147_Left_Station_Tube_5"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2" dz="[RP_147_Left_Station_Length]/2" name="RP_147_Left_Station_Vacuum_1"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2" dz="[RP_Device:RP_Device_Envelope_Radius]" name="RP_147_Left_Station_Vert_Vacuum"/>
+        <UnionSolid name="RP_147_Left_Station_Vacuum_2">
+            <rSolid name="RP_147_Left_Station_Vacuum_1"/>
+            <rSolid name="RP_147_Left_Station_Vert_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Prim_Vert_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_147_Left_Station_Vacuum_3">
+            <rSolid name="RP_147_Left_Station_Vacuum_2"/>
+            <rSolid name="RP_147_Left_Station_Vert_Vacuum"/>
+            <rRotation name="RP_147_Left_90_x_Sec_Rotation"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Vert_z])"/>
+        </UnionSolid>
+        <Polycone name="RP_147_Left_Station_Hor_Vacuum" startPhi="0*deg" deltaPhi="360*deg" >
+            <ZSection z="-[RP_Device:RP_Device_Length_y]/2+[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]" rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2"/>
+            <ZSection z="-[RP_Device:RP_Device_Length_y]/2+[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int] + [RP_147_Left_Hor_Vac_Length]" rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2"/>
+        </Polycone> 
+        <UnionSolid name="RP_147_Left_Station_Vacuum_4">
+            <rSolid name="RP_147_Left_Station_Vacuum_3"/>
+            <rSolid name="RP_147_Left_Station_Hor_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Prim_Hor_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_147_Left_Station_Vacuum_5">
+            <rSolid name="RP_147_Left_Station_Vacuum_4"/>
+            <rSolid name="RP_147_Left_Station_Hor_Vacuum"/>
+            <rRotation name="RP_147_Left_90_y_Sec_Rotation"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Hor_z])"/>
+        </UnionSolid>
+
+        <Polycone name="RP_147_Left_Station_Vacuum_1_Far" startPhi="0*deg" deltaPhi="360*deg" >
+            <ZSection z="0*mm" rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2"/>
+            <ZSection z="-([RP_147_Left_Station_Length]/2)" rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2"/>
+        </Polycone> 
+        <UnionSolid name="RP_147_Left_Station_Vacuum_2_Far">
+            <rSolid name="RP_147_Left_Station_Vacuum_1_Far"/>
+            <rSolid name="RP_147_Left_Station_Vert_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Vert_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_147_Left_Station_Vacuum_3_Far">
+            <rSolid name="RP_147_Left_Station_Vacuum_2_Far"/>
+            <rSolid name="RP_147_Left_Station_Hor_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Hor_z])"/>
+        </UnionSolid>
+    </SolidSection>
+    
+    <LogicalPartSection label="RP_147_Left_Station.xml">
+        <LogicalPart name="RP_147_Left_Station">
+            <rSolid name="RP_147_Left_Station"/>
+            <rMaterial name="RP_Materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Tube_1">
+            <rSolid name="RP_147_Left_Station_Tube_1"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Tube_2">
+            <rSolid name="RP_147_Left_Station_Tube_2"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Tube_3">
+            <rSolid name="RP_147_Left_Station_Tube_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Tube_4">
+            <rSolid name="RP_147_Left_Station_Tube_4"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Tube_5">
+            <rSolid name="RP_147_Left_Station_Tube_5"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Vacuum_5">
+            <rSolid name="RP_147_Left_Station_Vacuum_5"/>
+            <rMaterial name="RP_Materials:RP_Primary_Vacuum"/>
+        </LogicalPart>
+        <LogicalPart name="RP_147_Left_Station_Vacuum_3_Far">
+            <rSolid name="RP_147_Left_Station_Vacuum_3_Far"/>
+            <rMaterial name="RP_Materials:RP_Primary_Vacuum"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    
+    <PosPartSection label="RP_147_Left_Station.xml">
+        <PosPart copyNumber="1">
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_Vertical_Device:RP_Device_Vert_Corp_3"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Prim_Vert_z])"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_Vertical_Device:RP_Device_Vert_Corp_3"/>
+            <rRotation name="RP_147_Left_Sec_Rotation"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Vert_z])"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_Horizontal_Device:RP_Device_Hor_Corp_3"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Prim_Hor_z])"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_Horizontal_Device:RP_Device_Hor_Corp_3"/>
+            <rRotation name="RP_147_Left_Sec_Rotation"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+[RP_147_Left_Sec_Hor_z])"/>
+        </PosPart>
+        
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Tube_1"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+([RP_147_Left_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
+        </PosPart>
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Tube_2"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+([RP_147_Left_Prim_Vert_z]+[RP_147_Left_Prim_Hor_z])/2)"/>
+        </PosPart>
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Tube_3"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+([RP_147_Left_Prim_Hor_z]+[RP_147_Left_Sec_Hor_z])/2)"/>
+        </PosPart>
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Tube_4"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_147_Left_Station_Length]/2+([RP_147_Left_Sec_Hor_z]+[RP_147_Left_Sec_Vert_z])/2)"/>
+        </PosPart>
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Tube_5"/>
+            <Translation x="0*mm" y="0*mm" z="-([RP_147_Left_Station_Length]/2-([RP_147_Left_Station_Length]-[RP_147_Left_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
+        </PosPart>
+        <PosPart>
+            <rParent name="RP_147_Left_Station"/>
+            <rChild name="RP_147_Left_Station_Vacuum_5"/>
+        </PosPart>
+
+        <PosPart>
+            <rParent name="RP_147_Left_Station_Vacuum_5"/>
+            <rChild name="RP_147_Left_Station_Vacuum_3_Far"/>
+            <rRotation name="RP_147_Left_Sec_Rotation"/>
+        </PosPart>
+        
+        <PosPart copyNumber="0">
+            <rParent name="RP_147_Left_Station_Vacuum_5"/>
+            <rChild name="RP_Box_000:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm" y="[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_0]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_147_Left_Prim_Vert_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_147_Left_Station_Vacuum_5"/>
+            <rChild name="RP_Box_001:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_180_z_180_y_rot"/>
+            <Translation x="0*mm" y="-[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_1]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_147_Left_Prim_Vert_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_147_Left_Station_Vacuum_5"/>
+            <rChild name="RP_Box_002:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>
+            <Translation x="-(-[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_2]-[RP_Box:RP_Box_primary_vacuum_y]/2)" y="0*mm" z="-([RP_147_Left_Prim_Hor_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="RP_147_Left_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_003:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>
+            <Translation x="-(-[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_3]-[RP_Box:RP_Box_primary_vacuum_y]/2)" y="0*mm" z="-([RP_147_Left_Sec_Hor_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="RP_147_Left_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_004:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm" y="[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_4]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_147_Left_Sec_Vert_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="RP_147_Left_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_005:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_180_z_180_y_rot"/>
+            <Translation x="0*mm" y="-[RP_Dist_Beam_Cent:RP_147_Left_Det_Dist_5]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_147_Left_Sec_Vert_z]-[RP_147_Left_Station_Length]/2)"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

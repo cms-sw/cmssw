@@ -1,0 +1,15 @@
+<library   name="AlignmentRPTrackBasedPlugins" file="*.cc">
+  <flags   EDM_PLUGIN="1"/>
+  <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="hepmc"/>
+  <use   name="clhep"/>
+  <use   name="DataFormats/TotemRPDetId"/>
+  <use   name="Geometry/VeryForwardGeometryBuilder"/>
+  <use   name="root"/>
+  <use   name="Alignment/RPTrackBased"/>
+  <use   name="TotemCondFormats/BeamOpticsParamsObjects"/>
+  <use   name="TotemCondFormats/ProtonTransportFunctions"/>
+  <use   name="TotemCondFormats/DataRecord"/>
+</library>

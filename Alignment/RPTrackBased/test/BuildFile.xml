@@ -1,0 +1,18 @@
+<bin   name="analyzeStatisticalResults" file="analyzeStatisticalResults.cc">
+  <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+  <use   name="root"/>
+  <use   name="Alignment/RPDataFormats"/>
+</bin>
+<bin   name="summarizeRealAlignmentResults" file="summarizeRealAlignmentResults.cc">
+  <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+  <use   name="root"/>
+  <use   name="Alignment/RPDataFormats"/>
+</bin>
+<bin   name="refactorStatisticalResults" file="refactorStatisticalResults.cc">
+  <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+  <use   name="Alignment/RPDataFormats"/>
+</bin>
+<bin   name="TaskDataTestReader" file="TaskDataTestReader.cc">
+  <flags   cxxflags="-O3 -g3 $(CUSTOM_FLAGS)"/>
+  <use   name="Alignment/RPTrackBased"/>
+</bin>
