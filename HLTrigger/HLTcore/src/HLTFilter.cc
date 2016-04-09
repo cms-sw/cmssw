@@ -27,7 +27,7 @@ HLTFilter::HLTFilter(const edm::ParameterSet & config) :
 
 void
 HLTFilter::makeHLTFilterDescription(edm::ParameterSetDescription& desc) {
-  desc.add<bool>("saveTags",false);
+  desc.add<bool>("saveTags",true);
 }
 
 HLTFilter::~HLTFilter()
