@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V109 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/HLT/V111 (CMSSW_8_0_4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V109')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V111')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -24768,7 +24768,7 @@ fragment.hltHCand80NoEle27WPLoose = cms.EDFilter( "HLT2PFJetPFJet",
     MaxPt = cms.double( 100000.0 ),
     MinDphi = cms.double( -1.0 )
 )
-fragment.hltWCand80NoEle27WPLooseMET = cms.EDFilter( "HLT2PhotonMET",
+fragment.hltWCand80NoEle27WPLooseMET = cms.EDFilter( "HLT2PhotonPFMET",
     saveTags = cms.bool( True ),
     MinMinv = cms.double( -1.0 ),
     originTag2 = cms.VInputTag( 'hltPFMETProducer' ),
@@ -24777,7 +24777,7 @@ fragment.hltWCand80NoEle27WPLooseMET = cms.EDFilter( "HLT2PhotonMET",
     MinN = cms.int32( 1 ),
     originTag1 = cms.VInputTag( 'hltEle27noerWPLooseGsfTrackIsoFilter' ),
     triggerType1 = cms.int32( 81 ),
-    triggerType2 = cms.int32( 90 ),
+    triggerType2 = cms.int32( 87 ),
     MaxMinv = cms.double( 99999.0 ),
     MinDeta = cms.double( -999.0 ),
     MaxDelR = cms.double( 999.0 ),
@@ -36332,10 +36332,15 @@ fragment.hltHT280 = cms.EDFilter( "HLTHtMhtFilter",
     htLabels = cms.VInputTag( 'hltHtMht' ),
     minHt = cms.vdouble( 280.0 )
 )
-fragment.hltPFMET100 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET100 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 100.0 )
+    MinPt = cms.double( 100.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPFHT = cms.EDProducer( "HLTHtMhtProducer",
     usePt = cms.bool( True ),
@@ -37534,10 +37539,15 @@ fragment.hltPFMETNoMuProducer = cms.EDProducer( "PFMETProducer",
     alias = cms.string( "pfMetNoMu" ),
     src = cms.InputTag( "hltParticleFlowNoMu" )
 )
-fragment.hltPFMETNoMu140 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMETNoMu140 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETNoMuProducer' ),
-    minMht = cms.vdouble( 140.0 )
+    MinPt = cms.double( 140.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETNoMuProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltL1sETM50 = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ETM50" ),
@@ -37574,10 +37584,15 @@ fragment.hltMETClean40 = cms.EDFilter( "HLT1CaloMET",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 87 )
 )
-fragment.hltPFMETNoMu80 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMETNoMu80 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETNoMuProducer' ),
-    minMht = cms.vdouble( 80.0 )
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETNoMuProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreDiCentralPFJet55PFMET110 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -37613,10 +37628,15 @@ fragment.hltDiCentralPFJet55 = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-fragment.hltPFMET110 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET110 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 110.0 )
+    MinPt = cms.double( 110.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltL1sHTT120 = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_HTT120" ),
@@ -38326,10 +38346,15 @@ fragment.hltBTagCaloCSVp067Single = cms.EDFilter( "HLTCaloJetTag",
     MinTag = cms.double( 0.62 ),
     MaxTag = cms.double( 99999.0 )
 )
-fragment.hltPFMET120 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET120 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 120.0 )
+    MinPt = cms.double( 120.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltL1sMu0erETM40IorMu0erETM55 = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_Mu0er_ETM40 OR L1_Mu0er_ETM55" ),
@@ -38489,10 +38514,15 @@ fragment.hltPFMHTTightID90 = cms.EDFilter( "HLTMhtFilter",
     mhtLabels = cms.VInputTag( 'hltPFMHTTightID' ),
     minMht = cms.vdouble( 90.0 )
 )
-fragment.hltPFMET90 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET90 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 90.0 )
+    MinPt = cms.double( 90.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePFMET100PFMHT100IDTight = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -40114,10 +40144,15 @@ fragment.hltEG22R9Id90HE10Iso40EBOnlyTrackIsoFilter = cms.EDFilter( "HLTEgammaGe
     candTag = cms.InputTag( "hltEG22R9Id90HE10Iso40EBOnlyHcalIsoFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
-fragment.hltPFMET40 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET40 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 40.0 )
+    MinPt = cms.double( 40.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePhoton22R9Id90HE10Iso40EBOnlyVBF = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -47542,10 +47577,15 @@ fragment.hltMu3erPFHT140PFMET125L3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilte
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 3.0 )
 )
-fragment.hltPFMET125 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET125 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 125.0 )
+    MinPt = cms.double( 125.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPFHT140 = cms.EDFilter( "HLTHtMhtFilter",
     saveTags = cms.bool( True ),
@@ -47632,10 +47672,15 @@ fragment.hltMu6PFHT200PFMET100L3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter"
     InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 4.0 )
 )
-fragment.hltPFMET80 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET80 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 80.0 )
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreMu6PFHT200PFMET100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -52333,10 +52378,15 @@ fragment.hltPFMHTNoMuTightID90 = cms.EDFilter( "HLTMhtFilter",
     mhtLabels = cms.VInputTag( 'hltPFMHTNoMuTightID' ),
     minMht = cms.vdouble( 90.0 )
 )
-fragment.hltPFMETNoMu90 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMETNoMu90 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETNoMuProducer' ),
-    minMht = cms.vdouble( 90.0 )
+    MinPt = cms.double( 90.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETNoMuProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePFMETNoMu120PFMHTNoMu120IDTight = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53746,10 +53796,15 @@ fragment.hltPreEle15IsoVVVLPFHT350PFMET50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMET50 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET50 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 50.0 )
+    MinPt = cms.double( 50.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreEle15IsoVVVLPFHT600 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -53867,10 +53922,15 @@ fragment.hltDiPFJet40MJJ750DEta3p5 = cms.EDFilter( "HLTPFJetVBFFilter",
     minPtHigh = cms.double( 40.0 ),
     minPtLow = cms.double( 40.0 )
 )
-fragment.hltPFMETNoMu60 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMETNoMu60 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETNoMuProducer' ),
-    minMht = cms.vdouble( 60.0 )
+    MinPt = cms.double( 60.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETNoMuProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreMu15IsoVVVLBTagCSVp067PFHT400 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -72328,10 +72388,15 @@ fragment.hltPreMCPFMET = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMETOpenFilter = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMETOpenFilter = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( -1.0 )
+    MinPt = cms.double( -1.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreMCAK4PFJets = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -74269,37 +74334,57 @@ fragment.hltPrePFMET300 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMET300 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET300 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 300.0 )
+    MinPt = cms.double( 300.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePFMET400 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMET400 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET400 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 400.0 )
+    MinPt = cms.double( 400.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePFMET500 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMET500 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET500 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 500.0 )
+    MinPt = cms.double( 500.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPrePFMET600 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPFMET600 = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMET600 = cms.EDFilter( "HLT1PFMET",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFMETProducer' ),
-    minMht = cms.vdouble( 500.0 )
+    MinPt = cms.double( 600.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( -1.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPFMETProducer" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 fragment.hltPreEle250CaloIdVTGsfTrkIdT = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),

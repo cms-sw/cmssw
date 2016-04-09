@@ -579,6 +579,8 @@ HLT_L2Mu10_v*							# JIRA: CMSHLT-500
 
 HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
 
+HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-533, CMSHLT-747
+
 #HLT_DoublePhoton40_v*						# JIRA: CMSHLT-564 (for 0T menu)
 #HLT_DoublePhoton50_v*						# JIRA: CMSHLT-564 (for 0T menu)
 #HLT_Photon150_v*						# JIRA: CMSHLT-564 (for 0T menu)
