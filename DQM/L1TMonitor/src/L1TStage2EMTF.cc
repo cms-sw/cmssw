@@ -181,8 +181,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
       int Station = ME->Station();
       int CSCID = ME->CSC_ID();
-      int half_strip = ME->CLCT_key_half_strip();
-      int wire_group = ME->Key_wire_group();
+      int half_strip = ME->Strip();
+      int wire_group = ME->Wire();
       float bin_offset;
       int histogram_index;
 

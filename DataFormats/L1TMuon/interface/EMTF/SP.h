@@ -14,31 +14,16 @@ namespace l1t {
     
     SP() :
       pt_lut_address(-99), phi_local_int(-99), phi_GMT_int(-99), eta_GMT_int(-99), pt_int(-99), 
-	quality(-99), mode(-99), bx(-99), me2_csc_id(-99), me2_trk_stub_num(-99), me3_csc_id(-99), me3_trk_stub_num(-99), 
-	me4_csc_id(-99), me4_trk_stub_num(-99), me1_subsector(-99), me1_csc_id(-99), me1_trk_stub_num(-99),
-	me4_TBIN(-99), me3_TBIN(-99), me2_TBIN(-99), me1_TBIN(-99), tbin_num(-99), 
-	hl(-99), c(-99), vc(-99), vt(-99), se(-99), bc0(-99), 
-	pt(-99), phi_local(-99), phi_local_rad(-99), phi_global(-99), phi_GMT(-99), phi_GMT_corr(-99), 
-	phi_GMT_rad(-99), phi_GMT_global(-99), eta_GMT(-99), format_errors(0), dataword(-99) 
+	quality(-99), mode(-99), bx(-99), me1_subsector(-99), me1_CSC_ID(-99), me1_sector(-99),
+	me1_neighbor(-99), me1_trk_stub_num(-99), me2_CSC_ID(-99), me2_sector(-99), me2_neighbor(-99),
+	me2_trk_stub_num(-99), me3_CSC_ID(-99), me3_sector(-99), me3_neighbor(-99), me3_trk_stub_num(-99), 
+	me4_CSC_ID(-99), me4_sector(-99), me4_neighbor(-99), me4_trk_stub_num(-99), me1_delay(-99), 
+	me2_delay(-99), me3_delay(-99), me4_delay(-99), tbin_num(-99), hl(-99), c(-99), vc(-99), 
+	vt(-99), se(-99), bc0(-99), pt(-99), phi_local(-99), phi_local_rad(-99), phi_global(-99), 
+	phi_GMT(-99), phi_GMT_corr(-99), phi_GMT_rad(-99), phi_GMT_global(-99), eta_GMT(-99), 
+	format_errors(0), dataword(-99) 
 	{};
 
-    /* Could we have the fill constructor take the "true" eta/phi/pt and fill the integers? - AWB 02.02.16 */
-    SP(int int_pt_lut_address, int int_phi_local_int, int int_phi_GMT_int, int int_eta_GMT_int, int int_pt_int, 
-       int int_quality, int int_mode, int int_bx, int int_me2_csc_id, int int_me2_trk_stub_num, int int_me3_csc_id, int int_me3_trk_stub_num, 
-       int int_me4_csc_id, int int_me4_trk_stub_num, int int_me1_subsector, int int_me1_csc_id, int int_me1_trk_stub_num, 
-       int int_me4_TBIN, int int_me3_TBIN, int int_me2_TBIN, int int_me1_TBIN, int int_TBIN_num, 
-       int int_hl, int int_c, int int_vc, int int_vt, int int_se, int int_bc0) :
-      /* float flt_pt, float flt_phi_local, float flt_phi_local_rad, float flt_phi_GMT, float flt_phi_GMT_rad, float flt_eta_GMT) : */
-      pt_lut_address(int_pt_lut_address), phi_local_int(int_phi_local_int), phi_GMT_int(int_phi_GMT_int), eta_GMT_int(int_eta_GMT_int), pt_int(int_pt_int), 
-	quality(int_quality), mode(int_mode), bx(int_bx), me2_csc_id(int_me2_csc_id), me2_trk_stub_num(int_me2_trk_stub_num), me3_csc_id(int_me3_csc_id), 
-        me3_trk_stub_num(int_me3_trk_stub_num), me4_csc_id(int_me4_csc_id), me4_trk_stub_num(int_me4_trk_stub_num), 
-        me1_subsector(int_me1_subsector), me1_csc_id(int_me1_csc_id), me1_trk_stub_num(int_me1_trk_stub_num), 
-        me4_TBIN(int_me4_TBIN), me3_TBIN(int_me3_TBIN), me2_TBIN(int_me2_TBIN), me1_TBIN(int_me1_TBIN), tbin_num(int_TBIN_num), 
-	hl(int_hl), c(int_c), vc(int_vc), vt(int_vt), se(int_se), bc0(int_bc0), 
-	/* pt(flt_pt), phi_local(flt_phi_local), phi_local_rad(flt_phi_local_rad), phi_GMT(flt_phi_GMT), phi_GMT_rad(flt_phi_GMT_rad), eta_GMT(flt_eta_GMT), */
-	format_errors(0), dataword(-99)
-    	{};
-      
       virtual ~SP() {};
 
       float pi = 3.141592653589793238;
@@ -60,8 +45,32 @@ namespace l1t {
       float calc_eta_GMT(int bits)               { return bits * 0.010875;                                   };
       int   calc_eta_GMT_int(float val)          { return val / 0.010875;                                    };
       float calc_phi_global(float loc, int sect) { return loc + 15 + (sect - 1) * 60;                        };
-      int   calc_mode()                          { return 8*me1_trk_stub_num + 4*me2_trk_stub_num + 2*me3_trk_stub_num + me4_trk_stub_num; };
+      int   calc_mode()                          { return 8*(me1_CSC_ID > 0) + 4*(me2_CSC_ID > 0) + 2*(me3_CSC_ID > 0) + (me4_CSC_ID > 0); };
 
+      // Converts CSC_ID, sector, subsector, and neighbor
+      std::vector<int> convert_chamber_SP(int _csc_ID, int _sector, int _subsector, int _station) {
+	int new_sector = _sector;
+	if (_station == 1) {
+	  if      (_csc_ID <=  0) { int arr[] = {-99, -99, -99, -99}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else if (_csc_ID <=  9) { int arr[] = {_csc_ID, new_sector, _subsector, 0}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else new_sector = (_sector != 1) ? _sector-1 : 6;
+
+	  if      (_csc_ID == 10) { int arr[] = {3, new_sector, 2, 1}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else if (_csc_ID == 11) { int arr[] = {6, new_sector, 2, 1}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else if (_csc_ID == 12) { int arr[] = {9, new_sector, 2, 1}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else { int arr[] = {-99, -99, -99, -99}; std::vector<int> vec(arr, arr+4); return vec; }
+	}
+	else if (_station == 2 || _station == 3 || _station == 4) {
+	  if      (_csc_ID <=  0) { int arr[] = {-99, -99, -99, -99}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else if (_csc_ID <=  9) { int arr[] = {_csc_ID, new_sector, -99, 0}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else new_sector = (_sector != 1) ? _sector-1 : 6;
+
+	  if      (_csc_ID == 10) { int arr[] = {3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else if (_csc_ID == 11) { int arr[] = {6, new_sector, -99, 1}; std::vector<int> vec(arr, arr+4); return vec; }
+	  else { int arr[] = {-99, -99, -99, -99}; std::vector<int> vec(arr, arr+4); return vec; }
+	}
+	else { int arr[] = {-99, -99, -99, -99}; std::vector<int> vec(arr, arr+4); return vec; }
+      }
 
       // Setting pt, phi_local, phi_GMT, or eta_GMT automatically sets all formats (integer, degrees, radians) 
       void set_pt_int(int bits)                    { pt_int = bits;
@@ -100,19 +109,27 @@ namespace l1t {
       void set_quality(int bits)          { quality = bits;          };
       void set_mode(int bits)             { mode = bits;             };
       void set_bx(int bits)               { bx = bits;               };
-      void set_me2_csc_id(int bits)       { me2_csc_id = bits;       };
-      void set_me2_trk_stub_num(int bits) { me2_trk_stub_num = bits; };
-      void set_me3_csc_id(int bits)       { me3_csc_id = bits;       };
-      void set_me3_trk_stub_num(int bits) { me3_trk_stub_num = bits; };
-      void set_me4_csc_id(int bits)       { me4_csc_id = bits;       };
-      void set_me4_trk_stub_num(int bits) { me4_trk_stub_num = bits; };
       void set_me1_subsector(int bits)    { me1_subsector = bits;    };
-      void set_me1_csc_id(int bits)       { me1_csc_id = bits;       };
+      void set_me1_CSC_ID(int bits)       { me1_CSC_ID = bits;       };
+      void set_me1_sector(int bits)       { me1_sector = bits;       };
+      void set_me1_neighbor(int bits)     { me1_neighbor = bits;     };
       void set_me1_trk_stub_num(int bits) { me1_trk_stub_num = bits; };      
-      void set_me4_TBIN(int bits)         { me4_TBIN = bits;         };
-      void set_me3_TBIN(int bits)         { me3_TBIN = bits;         };
-      void set_me2_TBIN(int bits)         { me2_TBIN = bits;         };
-      void set_me1_TBIN(int bits)         { me1_TBIN = bits;         };
+      void set_me2_CSC_ID(int bits)       { me2_CSC_ID = bits;       };
+      void set_me2_sector(int bits)       { me2_sector = bits;       };
+      void set_me2_neighbor(int bits)     { me2_neighbor = bits;     };
+      void set_me2_trk_stub_num(int bits) { me2_trk_stub_num = bits; };
+      void set_me3_CSC_ID(int bits)       { me3_CSC_ID = bits;       };
+      void set_me3_sector(int bits)       { me3_sector = bits;       };
+      void set_me3_neighbor(int bits)     { me3_neighbor = bits;     };
+      void set_me3_trk_stub_num(int bits) { me3_trk_stub_num = bits; };
+      void set_me4_CSC_ID(int bits)       { me4_CSC_ID = bits;       };
+      void set_me4_sector(int bits)       { me4_sector = bits;       };
+      void set_me4_neighbor(int bits)     { me4_neighbor = bits;     };
+      void set_me4_trk_stub_num(int bits) { me4_trk_stub_num = bits; };
+      void set_me1_delay(int bits)         { me1_delay = bits;         };
+      void set_me2_delay(int bits)         { me2_delay = bits;         };
+      void set_me3_delay(int bits)         { me3_delay = bits;         };
+      void set_me4_delay(int bits)         { me4_delay = bits;         };
       void set_TBIN_num(int bits)         { tbin_num = bits;         };
       void set_hl(int bits)               { hl = bits;               };
       void set_c(int bits)                { c = bits;                };
@@ -131,19 +148,27 @@ namespace l1t {
       int      Quality()          const { return quality;          };
       int      Mode()             const { return mode;             };
       int      BX()               const { return bx;               };
-      int      ME2_csc_id()       const { return me2_csc_id;       };
-      int      ME2_trk_stub_num() const { return me2_trk_stub_num; };
-      int      ME3_csc_id()       const { return me3_csc_id;       };  
-      int      ME3_trk_stub_num() const { return me3_trk_stub_num; };
-      int      ME4_csc_id()       const { return me4_csc_id;       };
-      int      ME4_trk_stub_num() const { return me4_trk_stub_num; };
       int      ME1_subsector()    const { return me1_subsector;    };
-      int      ME1_csc_id()       const { return me1_csc_id;       };
+      int      ME1_CSC_ID()       const { return me1_CSC_ID;       };
+      int      ME1_sector()       const { return me1_sector;       };
+      int      ME1_neighbor()     const { return me1_neighbor;     };
       int      ME1_trk_stub_num() const { return me1_trk_stub_num; };      
-      int      ME4_TBIN()         const { return me4_TBIN;         };
-      int      ME3_TBIN()         const { return me3_TBIN;         };
-      int      ME2_TBIN()         const { return me2_TBIN;         };
-      int      ME1_TBIN()         const { return me1_TBIN;         };
+      int      ME2_CSC_ID()       const { return me2_CSC_ID;       };
+      int      ME2_sector()       const { return me2_sector;       };
+      int      ME2_neighbor()     const { return me2_neighbor;     };
+      int      ME2_trk_stub_num() const { return me2_trk_stub_num; };
+      int      ME3_CSC_ID()       const { return me3_CSC_ID;       };  
+      int      ME3_sector()       const { return me3_sector;       };  
+      int      ME3_neighbor()     const { return me3_neighbor;     };  
+      int      ME3_trk_stub_num() const { return me3_trk_stub_num; };
+      int      ME4_CSC_ID()       const { return me4_CSC_ID;       };
+      int      ME4_sector()       const { return me4_sector;       };
+      int      ME4_neighbor()     const { return me4_neighbor;     };
+      int      ME4_trk_stub_num() const { return me4_trk_stub_num; };
+      int      ME1_delay()         const { return me1_delay;         };
+      int      ME2_delay()         const { return me2_delay;         };
+      int      ME3_delay()         const { return me3_delay;         };
+      int      ME4_delay()         const { return me4_delay;         };
       int      TBIN_num()         const { return tbin_num;         };
       int      HL()               const { return hl;               };
       int      C()                const { return c;                };
@@ -187,19 +212,27 @@ namespace l1t {
       int quality;
       int mode;
       int bx;
-      int me2_csc_id;
-      int me2_trk_stub_num;
-      int me3_csc_id;
-      int me3_trk_stub_num;
-      int me4_csc_id;      
-      int me4_trk_stub_num;
       int me1_subsector;
-      int me1_csc_id;      
+      int me1_CSC_ID;      
+      int me1_sector;      
+      int me1_neighbor;      
       int me1_trk_stub_num;      
-      int me4_TBIN;
-      int me3_TBIN;
-      int me2_TBIN;
-      int me1_TBIN;
+      int me2_CSC_ID;
+      int me2_sector;
+      int me2_neighbor;
+      int me2_trk_stub_num;
+      int me3_CSC_ID;
+      int me3_sector;
+      int me3_neighbor;
+      int me3_trk_stub_num;
+      int me4_CSC_ID;      
+      int me4_sector;      
+      int me4_neighbor;      
+      int me4_trk_stub_num;
+      int me1_delay;
+      int me2_delay;
+      int me3_delay;
+      int me4_delay;
       int tbin_num;
       int hl;
       int c;
