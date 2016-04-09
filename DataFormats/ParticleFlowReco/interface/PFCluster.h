@@ -155,16 +155,19 @@ namespace reco {
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     template<typename pruner>
     void pruneUsing(pruner prune) {
-      auto iter = 
-	std::stable_partition(rechits_.begin(),rechits_.end(),prune);
+      // remove_if+erase algo applied to both vectors...
+      auto iter = std::find_if_not(rechits_.begin(),rechits_.end(),prune);
       if (iter==rechits_.end()) return;
-      rechits_.erase(iter,rechits_.end());
-      hitsAndFractions_.clear();
-      hitsAndFractions_.reserve(rechits_.size());
-      for( const auto& hitfrac : rechits_ ) {
-	hitsAndFractions_.emplace_back(hitfrac.recHitRef()->detId(),
-				       hitfrac.fraction());
+      auto first = iter-rechits_.begin();
+      for (auto i=first; ++i<int(rechits_.size());) {
+          if (prune(rechits_[i])) {
+            rechits_[first] = std::move(rechits_[i]);
+            hitsAndFractions_[first] = std::move(hitsAndFractions_[i]);
+            ++first;
+          }    
       }
+      rechits_.erase(rechits_.begin()+first,rechits_.end());
+      hitsAndFractions_.erase(hitsAndFractions_.begin()+first,hitsAndFractions_.end());
     }
 #endif
     
