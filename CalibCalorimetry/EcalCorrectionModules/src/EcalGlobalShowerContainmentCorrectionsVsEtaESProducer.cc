@@ -33,7 +33,7 @@ class EcalGlobalShowerContainmentCorrectionsVsEtaESProducer : public edm::ESProd
       EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(const edm::ParameterSet&);
      ~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer();
 
-      typedef std::auto_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> ReturnType;
+      typedef std::unique_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> ReturnType;
 
       ReturnType produce(const EcalGlobalShowerContainmentCorrectionsVsEtaRcd&);
    private:
@@ -62,7 +62,7 @@ EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::produce(const EcalGlobalS
    using namespace edm::es;
    using namespace std;
 
-   auto_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> pEcalGlobalShowerContainmentCorrectionsVsEta(new EcalGlobalShowerContainmentCorrectionsVsEta) ;
+   auto pEcalGlobalShowerContainmentCorrectionsVsEta = std::make_unique<EcalGlobalShowerContainmentCorrectionsVsEta>();
    
    double values[] = {   43.77,       // 3x3 
 			 1.,	  

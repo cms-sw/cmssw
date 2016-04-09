@@ -52,7 +52,7 @@ namespace magneticfield {
   public:
     VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
   
-    std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
 
   private:
     // forbid copy ctor and assignment op.
@@ -78,7 +78,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
 
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(const IdealMagneticFieldRecord & iRecord)
+std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(const IdealMagneticFieldRecord & iRecord)
 {
 
   bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
@@ -107,7 +107,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
 						  << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   // Get the parametrized field
-  std::auto_ptr<MagneticField> paramField = ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
+  std::unique_ptr<MagneticField> paramField = ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
   
 
   if (conf->version == "parametrizedMagneticField") {
@@ -137,7 +137,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
     DDName ddName("cmsMagneticField:MAGF");
     DDLogicalPart rootNode(ddName);
     DDRootDef::instance().set(rootNode);
-    std::auto_ptr<DDCompactView> cpv(new DDCompactView(rootNode));
+    auto cpv = std::make_unique<DDCompactView>(rootNode);
     DDLParser parser(*cpv);
     parser.getDDLSAX2FileHandler()->setUserNS(true);
     parser.clearFiles();
@@ -147,9 +147,8 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
     
     builder.build(*cpv);
 
-    // Build the VB map. Ownership of the parametrization is transferred to it, so and auto_ptr is released
-    std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.release(), true));
-    return s;
+    // Build the VB map. Ownership of the parametrization is transferred to it
+    return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.release(), true);
   }
 }
 

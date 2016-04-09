@@ -29,7 +29,7 @@ EcalBasicClusterLocalContCorrectionsESProducer::produce(const EcalClusterLocalCo
    using namespace edm::es;
    using namespace std;
 
-   auto_ptr<EcalClusterLocalContCorrParameters> pEcalClusterLocalContCorrParameters(new EcalClusterLocalContCorrParameters) ;
+   auto pEcalClusterLocalContCorrParameters = std::make_unique<EcalClusterLocalContCorrParameters>();
 
    double values[] = {  1.00603 , 0.00300789 , 0.0667232 , // local eta, mod1
 			1.00655 , 0.00386189 , 0.073931  , // local eta, mod2

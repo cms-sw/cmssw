@@ -28,13 +28,13 @@ L1MuTriggerPtScaleProducer::~L1MuTriggerPtScaleProducer() {}
 //
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<L1MuTriggerPtScale> 
+std::unique_ptr<L1MuTriggerPtScale> 
 L1MuTriggerPtScaleProducer::produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1MuTriggerPtScale> l1muscale =
-     std::auto_ptr<L1MuTriggerPtScale>( new L1MuTriggerPtScale( m_scales ) );
+   std::unique_ptr<L1MuTriggerPtScale> l1muscale =
+     std::unique_ptr<L1MuTriggerPtScale>( new L1MuTriggerPtScale( m_scales ) );
 
    return l1muscale ;
 }

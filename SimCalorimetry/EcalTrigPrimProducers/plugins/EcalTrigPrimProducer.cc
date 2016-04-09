@@ -239,8 +239,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
   else  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size();
 
-  std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new  EcalTrigPrimDigiCollection);
-  std::auto_ptr<EcalTrigPrimDigiCollection> pOutTcp(new  EcalTrigPrimDigiCollection);
+  auto pOut = std::make_unique<EcalTrigPrimDigiCollection>();
+  auto pOutTcp = std::make_unique<EcalTrigPrimDigiCollection>();
  
 
   // invoke algorithm 
@@ -273,8 +273,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   // put result into the Event
 
-  e.put(pOut);
-  if (tcpFormat_) e.put(pOutTcp,"formatTCP");
+  e.put(std::move(pOut));
+  if (tcpFormat_) e.put(std::move(pOutTcp),"formatTCP");
 }
 
 void 

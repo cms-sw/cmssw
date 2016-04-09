@@ -21,7 +21,7 @@ class CastorHardcodeGeometryEP : public edm::ESProducer {
       CastorHardcodeGeometryEP(const edm::ParameterSet&);
       ~CastorHardcodeGeometryEP();
 
-      typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+      typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
       ReturnType produce(const CastorGeometryRecord&);
 private:
