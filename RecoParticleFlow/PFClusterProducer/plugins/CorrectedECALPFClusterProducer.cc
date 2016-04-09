@@ -33,7 +33,7 @@ namespace {
     if( eeclus.z()*psclus.z() < 0 ) return -1.0;
     auto deta= std::abs(eepos.eta() - pspos.eta());
     if( deta > 0.3 ) return -1.0;
-    auto dphi= deltaPhi(eepos.phi(),  pspos.phi());
+    auto dphi= std::abs(deltaPhi(eepos.phi(),  pspos.phi()));
     if( dphi > 0.6 ) return -1.0;    
     return LinkByRecHit::testECALAndPSByRecHit(eeclus,psclus,false);
   }
