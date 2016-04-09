@@ -206,7 +206,7 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
     return 0;
   }
 
-  // what about a binary search?
+  // FIXME? what about a binary search?
   int myBin = -1;
   for (int bin = 0; bin < (int) amplitudeBins.size(); bin++) {
     if (ampli > amplitudeBins[bin]) {
@@ -220,16 +220,12 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
     theCorrection = shiftBins[0];
   } else if (myBin == ((int)(amplitudeBins.size() - 1))) {
     theCorrection = shiftBins[myBin];
-  } else if ( (-1 < myBin && myBin < ((int) amplitudeBins.size() - 1)) {
+  } else {
     // interpolate linearly between two assingned points
     theCorrection = (shiftBins[myBin + 1] - shiftBins[myBin]);
     theCorrection *= (((double) ampli) - amplitudeBins[myBin]) /
                      (amplitudeBins[myBin + 1] - amplitudeBins[myBin]);
     theCorrection += shiftBins[myBin];
-  } else {
-    edm::LogError("EcalRecHitError")
-        << "Assigning time correction impossible. Setting it to 0 ";
-    theCorrection = 0.;
   }
 
   // convert ns into clocks
