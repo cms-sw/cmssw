@@ -35,7 +35,7 @@ public:
   L1MuTriggerPtScaleProducer(const edm::ParameterSet&);
   ~L1MuTriggerPtScaleProducer();
   
-  std::auto_ptr<L1MuTriggerPtScale> produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd&);
+  std::unique_ptr<L1MuTriggerPtScale> produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd&);
 
 private:
   // ----------member data ---------------------------

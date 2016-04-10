@@ -48,7 +48,7 @@ public:
   ~DTConfigTrivialProducer();
 
   //! ES produce method
-  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
 
 private:
 

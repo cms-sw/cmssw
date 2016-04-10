@@ -15,7 +15,7 @@ class SiPixelFakeCPEGenericErrorParmESSource : public edm::ESProducer, public ed
   SiPixelFakeCPEGenericErrorParmESSource(const edm::ParameterSet &);
   ~SiPixelFakeCPEGenericErrorParmESSource();
   
-   virtual std::auto_ptr<SiPixelCPEGenericErrorParm>  produce(const SiPixelCPEGenericErrorParmRcd &);
+   virtual std::unique_ptr<SiPixelCPEGenericErrorParm>  produce(const SiPixelCPEGenericErrorParmRcd &);
   
  protected:
   

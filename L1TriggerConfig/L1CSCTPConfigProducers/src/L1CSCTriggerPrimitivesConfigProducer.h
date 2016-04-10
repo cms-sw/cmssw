@@ -28,7 +28,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
 
   //typedef std::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
 
-  std::auto_ptr<CSCDBL1TPParameters> produce(const CSCDBL1TPParametersRcd&);
+  std::unique_ptr<CSCDBL1TPParameters> produce(const CSCDBL1TPParametersRcd&);
 
  private:
   /** ALCT configuration parameters. */

@@ -38,7 +38,7 @@ class EcalTrigTowerConstituentsMapBuilder : public edm::ESProducer {
   EcalTrigTowerConstituentsMapBuilder(const edm::ParameterSet&);
   ~EcalTrigTowerConstituentsMapBuilder();
 
-  typedef std::auto_ptr<EcalTrigTowerConstituentsMap> ReturnType;
+  typedef std::unique_ptr<EcalTrigTowerConstituentsMap> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

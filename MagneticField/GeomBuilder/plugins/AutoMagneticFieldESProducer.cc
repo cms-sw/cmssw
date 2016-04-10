@@ -43,7 +43,7 @@ AutoMagneticFieldESProducer::~AutoMagneticFieldESProducer()
 }
 
 
-std::auto_ptr<MagneticField>
+std::unique_ptr<MagneticField>
 AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 {
   float current = pset.getParameter<int>("valueOverride");
@@ -70,9 +70,7 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 
   MagneticField* result = map.product()->clone();
 
-  std::auto_ptr<MagneticField> s(result);
-  
-  return s;
+  return std::unique_ptr<MagneticField>(result);
 }
 
 

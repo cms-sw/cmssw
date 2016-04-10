@@ -25,7 +25,7 @@ class SiStripTemplateEmptyFakeESSource : public edm::ESProducer, public edm::Eve
   ~SiStripTemplateEmptyFakeESSource(){};
   
   
-  std::auto_ptr<TObject> produce(const TRecord&);
+  std::unique_ptr<TObject> produce(const TRecord&);
   
 private:
   
@@ -45,10 +45,9 @@ SiStripTemplateEmptyFakeESSource<TObject,TRecord>::SiStripTemplateEmptyFakeESSou
 }
 
 template< typename TObject , typename TRecord>
-std::auto_ptr<TObject> SiStripTemplateEmptyFakeESSource<TObject,TRecord>::produce(const TRecord& iRecord)
+std::unique_ptr<TObject> SiStripTemplateEmptyFakeESSource<TObject,TRecord>::produce(const TRecord& iRecord)
 {
-  std::auto_ptr<TObject> ptr(new TObject);
-  return ptr;
+  return std::make_unique<TObject>();
 }
 
 template< typename TObject , typename TRecord>

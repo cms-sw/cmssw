@@ -41,7 +41,7 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
+  virtual std::unique_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
   
  protected:
   

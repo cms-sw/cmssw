@@ -173,7 +173,7 @@ std::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(co
    vector<double> etaScales;
    etaHelper.extractScales(etaRecord, etaScales);
    
-   auto_ptr<L1MuSymmetricBinnedScale> ptrEtaScale(new L1MuSymmetricBinnedScale(m_nbitPackingEta, m_nbinsEta, etaScales));
+   unique_ptr<L1MuSymmetricBinnedScale> ptrEtaScale(new L1MuSymmetricBinnedScale(m_nbitPackingEta, m_nbinsEta, etaScales));
    m_scales.setGMTEtaScale(*ptrEtaScale);
 
    columns.clear();   
@@ -194,7 +194,7 @@ std::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(co
 	  // WHERE rhs
 	  m_omdsReader.singleAttribute( phiKeyValue  ) );
 
-   auto_ptr<L1MuBinnedScale> ptrPhiScale(phiHelper.makeBinnedScale(phiRecord, m_nbitPackingPhi, m_signedPackingPhi));
+   unique_ptr<L1MuBinnedScale> ptrPhiScale(phiHelper.makeBinnedScale(phiRecord, m_nbitPackingPhi, m_signedPackingPhi));
 
    m_scales.setPhiScale(*ptrPhiScale);
 

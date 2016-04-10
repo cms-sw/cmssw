@@ -35,7 +35,7 @@ public:
   L1MuTriggerScalesProducer(const edm::ParameterSet&);
   ~L1MuTriggerScalesProducer();
   
-  std::auto_ptr<L1MuTriggerScales> produceL1MuTriggerScales(const L1MuTriggerScalesRcd&);
+  std::unique_ptr<L1MuTriggerScales> produceL1MuTriggerScales(const L1MuTriggerScalesRcd&);
 
 private:
   // ----------member data ---------------------------
