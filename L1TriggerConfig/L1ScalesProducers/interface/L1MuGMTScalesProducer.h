@@ -35,7 +35,7 @@ public:
   L1MuGMTScalesProducer(const edm::ParameterSet&);
   ~L1MuGMTScalesProducer();
   
-  std::auto_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
+  std::unique_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
 
 private:
   // ----------member data ---------------------------

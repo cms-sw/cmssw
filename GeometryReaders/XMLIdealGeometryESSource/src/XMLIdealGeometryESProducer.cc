@@ -52,7 +52,7 @@ public:
   XMLIdealGeometryESProducer(const edm::ParameterSet&);
   ~XMLIdealGeometryESProducer();
   
-  typedef std::auto_ptr<DDCompactView> ReturnType;
+  typedef std::unique_ptr<DDCompactView> ReturnType;
   
   ReturnType produce(const IdealGeometryRecord&);
 private:

@@ -22,7 +22,7 @@ SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& ps
 
 SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
 
-std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
+std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
 
   edm::ESHandle<SiStripDetCabling> detcabling;
   iRecord.getRecord<SiStripDetCablingRcd>().get( detcabling );
@@ -82,6 +82,6 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   //Add map to region cabling object
   RegionConnections->setRegionCabling(regioncabling);
   
-  return std::auto_ptr<SiStripRegionCabling>( RegionConnections );
+  return std::unique_ptr<SiStripRegionCabling>( RegionConnections );
 }
 

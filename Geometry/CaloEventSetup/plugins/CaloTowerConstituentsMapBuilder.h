@@ -42,7 +42,7 @@ public:
   CaloTowerConstituentsMapBuilder(const edm::ParameterSet&);
   ~CaloTowerConstituentsMapBuilder();
 
-  typedef std::auto_ptr<CaloTowerConstituentsMap> ReturnType;
+  typedef std::unique_ptr<CaloTowerConstituentsMap> ReturnType;
 
   ReturnType produce(const CaloGeometryRecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);

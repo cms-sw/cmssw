@@ -41,7 +41,7 @@ class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::Even
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelLorentzAngle>  produce(const SiPixelLorentzAngleRcd &);
+  virtual std::unique_ptr<SiPixelLorentzAngle>  produce(const SiPixelLorentzAngleRcd &);
   
  protected:
   
