@@ -49,6 +49,10 @@ class TestAssociator : public edm::EDAnalyzer
   const StripTopology* topol;
   int numStrips;    // number of strips in the module
   bool doPixel_, doStrip_;
+
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripMatchedRecHit2D> > matchedRecHitToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripRecHit2D> > rphiRecHitToken,stereoRecHitToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit> > siPixelRecHitsToken;
 };
 
 
