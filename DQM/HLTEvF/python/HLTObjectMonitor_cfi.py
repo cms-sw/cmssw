@@ -30,8 +30,8 @@ rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
 
 bJet_pathNameCalo = "HLT_PFMET120_BTagCSV_p067"
 bJet_moduleNameCalo = "hltBTagCaloCSVp067Single"
-bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p037_VBF_Mqq500"
-bJet_moduleNamePF = "hltBTagPFCSVp037SingleWithMatching"
+bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v1"
+bJet_moduleNamePF = "hltBTagPFCSVp016SingleWithMatching"
 
 #To avoid booking histogram, set pathName = cms.string("")
 
