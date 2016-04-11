@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# this might also go into te Common config,as we do not reference it
-from DQM.SiPixelPhase1Common.GeometryInterface_cfi import *
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1DigisConf = cms.VPSet(
