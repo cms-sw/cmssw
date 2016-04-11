@@ -33,12 +33,12 @@ void OMTFProcessor::resetConfiguration(){
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-bool OMTFProcessor::configure(const OMTFConfiguration * omtfParams,
+bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
 			      const L1TMuonOverlapParams * omtfPatterns){
 			      
   resetConfiguration();
 
-  omtfParams = myOmtfConfig;
+  myOmtfConfig = omtfConfig;
   
   myResults.assign(myOmtfConfig->nTestRefHits(),OMTFProcessor::resultsMap());
   
@@ -105,7 +105,7 @@ bool OMTFProcessor::addGP(GoldenPattern *aGP){
 
   for(auto & itRegion: myResults){
     OMTFResult aResult;
-    aResult.configure(myOmtfConfig);
+    aResult.configure(myOmtfConfig);    
     itRegion[aGP->key()] = aResult;
   }
 

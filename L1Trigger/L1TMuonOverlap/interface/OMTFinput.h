@@ -61,7 +61,7 @@ class OMTFinput{
   ///RefHitsEta
   mutable vector1D refHitsEta;
 
-  const OMTFConfiguration* myOmtfParams;
+  const OMTFConfiguration* myOmtfConfig;
 
 };
 
