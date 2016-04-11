@@ -259,11 +259,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDisplacedJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDisplacedJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetDisplacedJet_selector.throw      = cms.bool(False)
-streamA_datasetDisplacedJet_selector.triggerConditions = cms.vstring('HLT_HT200_v1', 
+streamA_datasetDisplacedJet_selector.triggerConditions = cms.vstring('HLT_HT200_DisplacedDijet40_DisplacedTrack_v1', 
+    'HLT_HT200_v1', 
     'HLT_HT250_DisplacedDijet40_DisplacedTrack_v2', 
     'HLT_HT275_v1', 
     'HLT_HT325_v1', 
     'HLT_HT350_DisplacedDijet40_DisplacedTrack_v2', 
+    'HLT_HT350_DisplacedDijet40_Inclusive_v1', 
     'HLT_HT350_DisplacedDijet80_DisplacedTrack_v2', 
     'HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v2', 
     'HLT_HT400_DisplacedDijet40_Inclusive_v2', 
@@ -298,9 +300,10 @@ streamA_datasetHTMHT_selector.triggerConditions = cms.vstring('HLT_DiCentralPFJe
     'HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v2', 
     'HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_v2', 
     'HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_v2', 
+    'HLT_PFHT300_PFMET100_v1', 
+    'HLT_PFHT300_PFMET110_v1', 
     'HLT_PFHT350_DiPFJetAve90_PFAlphaT0p52_v2', 
     'HLT_PFHT350_DiPFJetAve90_PFAlphaT0p53_v2', 
-    'HLT_PFHT350_PFMET100_v1', 
     'HLT_PFHT400_DiPFJetAve90_PFAlphaT0p51_v2', 
     'HLT_PFHT400_DiPFJetAve90_PFAlphaT0p52_v2', 
     'HLT_Rsq0p25_v2', 
@@ -385,6 +388,8 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_MET60_IsoTrk35_Loose_v1', 
     'HLT_MET75_IsoTrk50_v2', 
     'HLT_MET90_IsoTrk50_v2', 
+    'HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v1', 
+    'HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v1', 
     'HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v1', 
     'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1', 
     'HLT_Mu14er_PFMET100_v1', 
@@ -403,6 +408,8 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET300_v1', 
     'HLT_PFMET400_v1', 
     'HLT_PFMET90_PFMHT90_IDTight_v2', 
+    'HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v1', 
+    'HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v1', 
     'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v1', 
     'HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v1')
 
