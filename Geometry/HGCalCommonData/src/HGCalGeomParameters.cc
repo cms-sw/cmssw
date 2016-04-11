@@ -631,9 +631,13 @@ void HGCalGeomParameters::loadSpecParsSquare(const DDFilteredView& fv,
 
   //Grouping in the detector plane
   php.cellFactor_  = dbl_to_int(getDDDArray("GroupingXY",sv,php.nCells_));
+  int nmin = 1;
+  std::vector<double> slp = getDDDArray("Slope",sv,nmin);
+  php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: " << php.nCells_ 
-	    << " entries for cellFactor_" << std::endl;
+  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
+	    << " and " << php.nCells_ << " entries for cellFactor_" 
+	    << std::endl;
   for (int i=0; i<php.nCells_; i++) {
     std::cout << " [" << i << "] = " << php.cellFactor_[i];
     if (i%8 == 7) std::cout << std::endl;
@@ -676,9 +680,12 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   php.layerGroup_  = dbl_to_int(getDDDArray("GroupingZFine",sv,nmin));
   php.layerGroupM_ = dbl_to_int(getDDDArray("GroupingZMid",sv,nmin));
   php.layerGroupO_ = dbl_to_int(getDDDArray("GroupingZOut",sv,nmin));
+  nmin = 1;
+  std::vector<double> slp = getDDDArray("Slope",sv,nmin);
+  php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: layer grouping for the 3 ranges:" 
-	    << std::endl;
+  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
+	    << " and layer groupings for the 3 ranges:"  << std::endl;
   for (int k=0; k<nmin; ++k)
     std::cout << "[" << k << "] " << php.layerGroup_[k] << ":" 
 	      << php.layerGroupM_[k] << ":" << php.layerGroupO_[k] << std::endl;
@@ -739,7 +746,7 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string & str,
     } else {
       if (nval < 1 && nmin == 0) {
         edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str
-				   << " bins " << nval << " < 2 ==> illegal"
+				   << " bins " << nval << " < 1 ==> illegal"
 				   << " (nmin=" << nmin << ")";
         throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
       }

@@ -102,6 +102,7 @@ public:
   std::vector<double>      boundR_;
   double                   waferR_;
   int                      mode_;
+  double                   slopeMin_;
   layer_map                copiesInLayers_;
 
   COND_SERIALIZABLE;

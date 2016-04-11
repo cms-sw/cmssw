@@ -51,6 +51,7 @@ public:
   int                 maxCellsSquare(float h, float bl, float tl, float alpha,
 				     float cellSize) const;
   int                 maxRows(int lay, bool reco) const;
+  double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   std::pair<int,int>  newCell(int cell, int layer, int sector, int subsector,

@@ -37,7 +37,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0) {
+  numberingScheme(0), slopeMin_(0) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -81,6 +81,8 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   if (aStep == NULL) {
     return true;
   } else {
+    double r = aStep->GetPreStepPoint()->GetPosition().perp();
+    double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef DebugLog
     G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     bool notaMuon = (parCode == mupPDG || parCode == mumPDG ) ? false : true;
@@ -90,10 +92,15 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			   << lv->GetName() << " for Track " 
 			   << aStep->GetTrack()->GetTrackID() << " ("
 			   << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-			   << ":" << notaMuon << ")";
+			   << ":" << notaMuon << ") R = " << r << " Z = " << z
+			   << " slope = " << r/z << ":" << slopeMin_;
 #endif
-    if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.) currentHit = createNewHit();
+    // Apply fiducial cuts
+    if (r/z >= slopeMin_) {
+      if (getStepInfo(aStep)) {
+	if (hitExists() == false && edepositEM+edepositHAD>0.) 
+	  currentHit = createNewHit();
+      }
     }
     return true;
   }
@@ -139,13 +146,18 @@ void HGCSD::update(const BeginOfJob * job) {
   edm::ESHandle<HGCalDDDConstants>    hdc;
   es->get<IdealGeometryRecord>().get(nameX,hdc);
   if (hdc.isValid()) {
-    m_mode = hdc->geomMode();
+    m_mode          = hdc->geomMode();
+    slopeMin_       = hdc->minSlope();
     numberingScheme = new HGCNumberingScheme(*hdc,nameX);
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
 			    << nameX;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
   }
+#ifdef DebugLog
+  edm::LogInfo("HGCSim") << "HGCSD::Initialized with mode " << m_mode 
+			 << " Slope cut " << slopeMin_ << std::endl;
+#endif
 }
 
 void HGCSD::initRun() {
