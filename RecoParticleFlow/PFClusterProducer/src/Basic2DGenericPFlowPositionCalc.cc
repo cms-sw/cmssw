@@ -74,7 +74,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     hits[i]= {p,(*p).energy(), hf.fraction()}; 
   }
 
-  if(_posCalcNCrystals == -1) // sorted to make neighbour search faster
+  if(_posCalcNCrystals != -1) // sorted to make neighbour search faster
     std::sort(hits.begin(),hits.end(),[](LHit const& a, LHit const& b) { return a.hit<b.hit;});
 
   LHit mySeed={nullptr}; 
