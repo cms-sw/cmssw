@@ -165,26 +165,36 @@ namespace l1t {
 	// mu_.set_dataword        ( uint64_t dataword );
 
         // After 01.04.16
+	// std::cout << "Converting ME1: CSC ID = " << SP_.ME1_CSC_ID() << ", Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() 
+	// 	  << ", subsector = " << SP_.ME1_subsector() << std::endl;
 	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
         SP_.set_me1_CSC_ID    ( conv_vals_SP.at(0) );
         SP_.set_me1_sector    ( conv_vals_SP.at(1) );
         SP_.set_me1_subsector ( conv_vals_SP.at(2) );
         SP_.set_me1_neighbor  ( conv_vals_SP.at(3) );
+	// std::cout << "Converted ME1: CSC ID = " << SP_.ME1_CSC_ID() << ", Sector = " << SP_.ME1_sector() 
+	// 	  << ", subsector = " << SP_.ME1_subsector() << ", neighbor = " << SP_.ME1_neighbor() << std::endl;
 
-	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 1 );
+	// std::cout << "Converting ME2: CSC ID = " << SP_.ME2_CSC_ID() << ", Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << std::endl;
+	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
         SP_.set_me2_CSC_ID    ( conv_vals_SP.at(0) );
         SP_.set_me2_sector    ( conv_vals_SP.at(1) );
         SP_.set_me2_neighbor  ( conv_vals_SP.at(3) );
+	// std::cout << "Converted ME2: CSC ID = " << SP_.ME2_CSC_ID() << ", Sector = " << SP_.ME2_sector() << ", neighbor = " << SP_.ME2_neighbor() << std::endl;
 
-	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 1 );
+	// std::cout << "Converting ME3: CSC ID = " << SP_.ME3_CSC_ID() << ", Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << std::endl;
+	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
         SP_.set_me3_CSC_ID    ( conv_vals_SP.at(0) );
         SP_.set_me3_sector    ( conv_vals_SP.at(1) );
         SP_.set_me3_neighbor  ( conv_vals_SP.at(3) );
+	// std::cout << "Converted ME3: CSC ID = " << SP_.ME3_CSC_ID() << ", Sector = " << SP_.ME3_sector() << ", neighbor = " << SP_.ME3_neighbor() << std::endl;
 
-	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 1 );
+	// std::cout << "Converting ME4: CSC ID = " << SP_.ME4_CSC_ID() << ", Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << std::endl;
+	conv_vals_SP = SP_.convert_chamber_SP( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
         SP_.set_me4_CSC_ID    ( conv_vals_SP.at(0) );
         SP_.set_me4_sector    ( conv_vals_SP.at(1) );
         SP_.set_me4_neighbor  ( conv_vals_SP.at(3) );
+	// std::cout << "Converted ME4: CSC ID = " << SP_.ME4_CSC_ID() << ", Sector = " << SP_.ME4_sector() << ", neighbor = " << SP_.ME4_neighbor() << std::endl;
 
 
 	// write: // Temporarily disable for DQM operation - AWB 09.04.16

@@ -117,14 +117,19 @@ namespace l1t {
 	// ME_.set_dataword     ( uint64_t dataword);
 
 	// After 01.04.16
+	// std::cout << "About to convert values station = " << ME_.Station() << ", CSC ID = " 
+	// 	  << ME_.CSC_ID() << ", sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << std::endl;
 	conv_vals_ME = ME_.convert_chamber_ME( ME_.Station(), ME_.CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector() );
 	ME_.set_station   ( conv_vals_ME.at(0) );
 	ME_.set_csc_ID    ( conv_vals_ME.at(1) );
 	ME_.set_sector    ( conv_vals_ME.at(2) );
 	ME_.set_subsector ( conv_vals_ME.at(3) );
 	ME_.set_neighbor  ( conv_vals_ME.at(4) );
+	// std::cout << "Got converted values station = " << ME_.Station() << ", CSC ID = " << ME_.CSC_ID() 
+	// 	  << ", sector = " << ME_.Sector() << ", subsector = " << ME_.Subsector() << ", neighbor = " << ME_.Neighbor() << std::endl;
 
 	ME_.set_ring ( ME_.calc_ring_ME( ME_.Station(), ME_.CSC_ID(), ME_.Strip() ) );
+	// std::cout << "From strip = " << ME_.Strip() << " got ring = " << ME_.Ring() << std::endl;
 
 	if ( (res->at(iOut)).NumME() > 0 )
 	  if (ME_.Station() == (res->at(iOut)).PtrMECollection()->at( (res->at(iOut)).NumME() - 1 ).Station() )
