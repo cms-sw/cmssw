@@ -18,8 +18,8 @@ susyDQMMiniAOD = cms.EDAnalyzer("PatSusyDQM",
     jetEtaCut = cms.double(3.0),
 
     #Spring15 25ns loose cuts-based electron ID
-    elePtCut = cms.double(10), # no update
-    eleEtaCut = cms.double(2.5), # no update
+    elePtCut = cms.double(10), 
+    eleEtaCut = cms.double(2.5), 
     eleMaxMissingHitsBarrel = cms.int32(2), # 2 for Barrel, 1 for Endcap 
     eleDEtaInCutBarrel = cms.double(0.0105),
     eleDPhiInCutBarrel = cms.double(0.115),
@@ -39,13 +39,13 @@ susyDQMMiniAOD = cms.EDAnalyzer("PatSusyDQM",
     eleOneOverEMinusOneOverPCutEndcap = cms.double(0.126),
     eleRelIsoCutEndcap = cms.double(0.121),
 
-    muPtCut = cms.double(10), #no update
-    muEtaCut = cms.double(2.4), #no update
-    muRelIsoCut = cms.double(0.2), #no update
+    muPtCut = cms.double(10), 
+    muEtaCut = cms.double(2.4),
+    muRelIsoCut = cms.double(0.2),
 
     #Spring15 25ns loose cuts-based photon ID
-    phoPtCut = cms.double(20), #no update
-    phoEtaCut = cms.double(2.5), #no update
+    phoPtCut = cms.double(20),
+    phoEtaCut = cms.double(2.5),
     phoHoverECutBarrel = cms.double(0.05), 
     phoSigmaIetaIetaCutBarrel = cms.double(0.0102),
     phoChHadIsoCutBarrel = cms.double(3.32),
@@ -53,7 +53,7 @@ susyDQMMiniAOD = cms.EDAnalyzer("PatSusyDQM",
     phoNeuHadIsoSlopeBarrel = cms.double(0.014),
     phoNeuHadIsoQuadraticBarrel = cms.double(0.000019),
     phoPhotIsoCutBarrel = cms.double(0.81),#0.81 + 0.0053*pho_pt
-    phoPhotIsoSlopeBarrel = cms.double(0.0053),#
+    phoPhotIsoSlopeBarrel = cms.double(0.0053),
     phoHoverECutEndcap = cms.double(0.05),
     phoSigmaIetaIetaCutEndcap = cms.double(0.0274),
     phoChHadIsoCutEndcap = cms.double(1.97),
