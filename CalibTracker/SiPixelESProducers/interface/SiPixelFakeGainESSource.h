@@ -40,7 +40,7 @@ class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRe
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelGainCalibration>  produce(const SiPixelGainCalibrationRcd &);
+  virtual std::unique_ptr<SiPixelGainCalibration>  produce(const SiPixelGainCalibrationRcd &);
   
  protected:
   

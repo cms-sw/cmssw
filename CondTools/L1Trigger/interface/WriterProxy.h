@@ -76,7 +76,7 @@ class WriterProxyT : public WriterProxy
 	    // if throw transaction will unroll
 	    tr.start(false);
 
-	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
+	    auto pointer = std::make_shared<Type>(*(handle.product ()));
 	    std::string payloadToken =  session.storePayload( *pointer );
 	    tr.commit();
 	    return payloadToken ;

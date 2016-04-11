@@ -50,7 +50,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& chargeColl)
+void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness)
 {
   bool debug(false);
   
@@ -67,7 +67,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
       //brute force saturation, maybe could to better with an exponential like saturation      
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_fC_) / adcLSB_fC_ );
       HGCSample newSample;
-      newSample.set(chargeColl[it]>adcThreshold_fC_,false,0,adc);
+      newSample.set(chargeColl[it]>thickness*adcThreshold_fC_,false,0,adc);
       dataFrame.setSample(it,newSample);
 
       if(debug) edm::LogVerbatim("HGCFE") << adc << " (" << chargeColl[it] << "/" << adcLSB_fC_ << ") ";
@@ -82,7 +82,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl)
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness)
 {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
@@ -117,7 +117,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
       //brute force saturation, maybe could to better with an exponential like saturation
       const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
       HGCSample newSample;
-      newSample.set(newCharge[it]>adcThreshold_fC_,false,0,floor(saturatedCharge/adcLSB_fC_));
+      newSample.set(newCharge[it]>thickness*adcThreshold_fC_,false,0,floor(saturatedCharge/adcLSB_fC_));
       dataFrame.setSample(it,newSample);      
 
       if(debug) edm::LogVerbatim("HGCFE") << std::floor(saturatedCharge/adcLSB_fC_) << " (" << saturatedCharge << "/" << adcLSB_fC_ <<" ) " ;
@@ -132,7 +132,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, CLHEP::HepRandomEngine* engine)
+void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, int thickness, CLHEP::HepRandomEngine* engine)
 {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -226,7 +226,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
             if(chargeDep_jt==0) continue;
             
             const int deltaT=(it-jt);
-            if(deltaT+2>(int)(adcPulse_.size())) continue;
+            if(deltaT+2>=(int)(adcPulse_.size())) continue;
             
             const float leakCharge( chargeDep_jt*adcPulse_[deltaT+2]/adcPulse_[2] );
             if(debug) edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
@@ -327,7 +327,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	   //brute force saturation, maybe could to better with an exponential like saturation
           float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
-	  newSample.set(newCharge[it]>adcThreshold_fC_,false,0,saturatedCharge/adcLSB_fC_);
+	  newSample.set(newCharge[it]>thickness*adcThreshold_fC_,false,0,saturatedCharge/adcLSB_fC_);
 	}
       dataFrame.setSample(it,newSample);
     }

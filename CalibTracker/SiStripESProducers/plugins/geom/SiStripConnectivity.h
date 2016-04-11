@@ -15,8 +15,8 @@ class SiStripConnectivity: public edm::ESProducer {
   SiStripConnectivity( const edm::ParameterSet& );
   virtual ~SiStripConnectivity();
   
-  std::auto_ptr<SiStripFecCabling> produceFecCabling( const SiStripFecCablingRcd& );
-  std::auto_ptr<SiStripDetCabling> produceDetCabling( const SiStripDetCablingRcd& );
+  std::unique_ptr<SiStripFecCabling> produceFecCabling( const SiStripFecCablingRcd& );
+  std::unique_ptr<SiStripDetCabling> produceDetCabling( const SiStripDetCablingRcd& );
   
  private:
   

@@ -8,11 +8,11 @@ class L1GctChannelMaskOnlineProd : public L1ConfigOnlineProdBase< L1GctChannelMa
          : L1ConfigOnlineProdBase< L1GctChannelMaskRcd, L1GctChannelMask >( iConfig ) {}
       ~L1GctChannelMaskOnlineProd() {}
 
-      virtual boost::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) override ;
+      virtual std::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 
-boost::shared_ptr< L1GctChannelMask >
+std::shared_ptr< L1GctChannelMask >
 L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
 { 
   // get EM mask data
@@ -26,7 +26,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
   
   if( emMaskResults.queryFailed() ) { // check if query was successful
     edm::LogError( "L1-O2O" ) << "Problem with L1GctChannelMask EM mask for key "  << objectKey;
-    return boost::shared_ptr< L1GctChannelMask >() ;
+    return std::shared_ptr< L1GctChannelMask >() ;
   }
   
   int emMask = -1;
@@ -43,7 +43,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
   
   if( rgnMaskKeyResults.queryFailed() ) { // check if query was successful
     edm::LogError( "L1-O2O" ) << "Problem with L1GctChannelMask region mask for key "  << objectKey;
-    return boost::shared_ptr< L1GctChannelMask >() ;
+    return std::shared_ptr< L1GctChannelMask >() ;
   }
 
   std::string rgnKey;
@@ -89,7 +89,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
   
   if( esumMaskKeyResults.queryFailed() ) { // check if query was successful
     edm::LogError( "L1-O2O" ) << "Problem with L1GctChannelMask energy sum mask for key "  << objectKey;
-    return boost::shared_ptr< L1GctChannelMask >() ;
+    return std::shared_ptr< L1GctChannelMask >() ;
   }
 
   std::string esumKey;
@@ -111,7 +111,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
 
 
   // create masks object
-  boost::shared_ptr< L1GctChannelMask > masks( new L1GctChannelMask() );
+  auto masks = std::make_shared< L1GctChannelMask >();
   
   // set EM masks
   for (int i=0; i<18; i++) {

@@ -23,7 +23,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,9 +54,9 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       L1ConfigOnlineProdBase(const edm::ParameterSet&);
       ~L1ConfigOnlineProdBase();
 
-      virtual boost::shared_ptr< TData > produce(const TRcd& iRecord);
+      virtual std::shared_ptr< TData > produce(const TRcd& iRecord);
 
-      virtual boost::shared_ptr< TData > newObject(
+      virtual std::shared_ptr< TData > newObject(
 	const std::string& objectKey ) = 0 ;
 
    private:
@@ -72,7 +71,7 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       // If bool is false, produce method should throw
       // DataAlreadyPresentException.
       bool getObjectKey( const TRcd& record,
-                         boost::shared_ptr< TData > data,
+                         std::shared_ptr< TData > data,
                          std::string& objectKey ) ;
 
       // For reading object directly from a CondDB w/o PoolDBOutputService
@@ -126,11 +125,11 @@ L1ConfigOnlineProdBase<TRcd, TData>::~L1ConfigOnlineProdBase()
 }
 
 template< class TRcd, class TData >
-boost::shared_ptr< TData >
+std::shared_ptr< TData >
 L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 {
    using namespace edm::es;
-   boost::shared_ptr< TData > pData ;
+   std::shared_ptr< TData > pData ;
 
    // Get object key and check if already in ORCON
    std::string key ;
@@ -172,7 +171,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
        }
 
      //     if( pData.get() == 0 )
-     if( pData == boost::shared_ptr< TData >() )
+     if( pData == std::shared_ptr< TData >() )
        {
 	 std::string dataType = edm::typelookup::className<TData>();
 
@@ -197,7 +196,7 @@ template< class TRcd, class TData >
 bool 
 L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
   const TRcd& record,
-  boost::shared_ptr< TData > data,
+  std::shared_ptr< TData > data,
   std::string& objectKey )
 {
    // Get L1TriggerKey

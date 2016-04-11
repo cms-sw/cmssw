@@ -21,13 +21,13 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
       it++) {
     chargeColl.fill(0.f); 
     toa.fill(0.f);
-    for(size_t i=0; i<it->second[0].size(); i++) {
-      double rawCharge((it->second)[0][i]);
+    for(size_t i=0; i<it->second.hit_info[0].size(); i++) {
+      double rawCharge((it->second).hit_info[0][i]);
       
       //time of arrival
-      toa[i]=(it->second)[1][i];
+      toa[i]=(it->second).hit_info[1][i];
       if(myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge>0) 
-        toa[i]=(it->second)[1][i]/rawCharge;
+        toa[i]=(it->second).hit_info[1][i]/rawCharge;
       
       //convert total energy in GeV to charge (fC)
       //double totalEn=rawEn*1e6*keV2fC_;
@@ -42,8 +42,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
     }
     
     //run the shaper to create a new data frame
-    DFr rawDataFrame( it->first );
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine);
+    DFr rawDataFrame( it->first );    
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, it->second.thickness, engine);
 
     //update the output according to the final shape
     updateOutput(coll,rawDataFrame);

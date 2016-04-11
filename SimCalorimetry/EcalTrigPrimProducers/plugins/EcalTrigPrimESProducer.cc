@@ -97,9 +97,9 @@ EcalTrigPrimESProducer::~EcalTrigPrimESProducer()
 // ------------ method called to produce the data  ------------
 
 
-std::auto_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const EcalTPGPedestalsRcd & iRecord)
+std::unique_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const EcalTPGPedestalsRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGPedestals> prod(new EcalTPGPedestals());
+  auto prod = std::make_unique<EcalTPGPedestals>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
@@ -109,12 +109,12 @@ std::auto_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const E
     item.mean_x1  = (it->second)[6] ;
     prod->setValue(it->first,item) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLinearizationConst(const EcalTPGLinearizationConstRcd & iRecord)
+std::unique_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLinearizationConst(const EcalTPGLinearizationConstRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGLinearizationConst> prod(new EcalTPGLinearizationConst());
+  auto prod = std::make_unique<EcalTPGLinearizationConst>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
@@ -127,12 +127,12 @@ std::auto_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLineariz
     item.shift_x1  = (it->second)[8] ;
     prod->setValue(it->first,item) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGSlidingWindow> EcalTrigPrimESProducer::produceSlidingWindow(const EcalTPGSlidingWindowRcd & iRecord)
+std::unique_ptr<EcalTPGSlidingWindow> EcalTrigPrimESProducer::produceSlidingWindow(const EcalTPGSlidingWindowRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGSlidingWindow> prod(new EcalTPGSlidingWindow());
+  auto prod = std::make_unique<EcalTPGSlidingWindow>();
   parseTextFile() ;
   for (int subdet=0 ; subdet<2 ; subdet++) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -140,12 +140,12 @@ std::auto_ptr<EcalTPGSlidingWindow> EcalTrigPrimESProducer::produceSlidingWindow
       prod->setValue(it->first,(it->second)[0]) ;
     }
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd & iRecord)
+std::unique_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGFineGrainEBIdMap> prod(new EcalTPGFineGrainEBIdMap());
+  auto prod = std::make_unique<EcalTPGFineGrainEBIdMap>();
   parseTextFile() ;
   EcalTPGFineGrainConstEB fg ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -153,12 +153,12 @@ std::auto_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainE
     fg.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]) ;
     prod->setValue(it->first,fg) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd & iRecord)
+std::unique_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd & iRecord)
 {
-  std::auto_ptr<EcalTPGFineGrainStripEE> prod(new EcalTPGFineGrainStripEE());
+  auto prod = std::make_unique<EcalTPGFineGrainStripEE>();
   parseTextFile() ;
   // EE Strips
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -175,23 +175,23 @@ std::auto_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrainE
     item.lut  = (it->second)[3] ;
     prod->setValue(it->first,item) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGFineGrainTowerEE> EcalTrigPrimESProducer::produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd & iRecord)
+std::unique_ptr<EcalTPGFineGrainTowerEE> EcalTrigPrimESProducer::produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd & iRecord)
 {
-  std::auto_ptr<EcalTPGFineGrainTowerEE> prod(new EcalTPGFineGrainTowerEE());
+  auto prod = std::make_unique<EcalTPGFineGrainTowerEE>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapTower_[1].begin() ; it != mapTower_[1].end() ; it++) {
     prod->setValue(it->first,(it->second)[1]) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGLutIdMap> EcalTrigPrimESProducer::produceLUT(const EcalTPGLutIdMapRcd & iRecord)
+std::unique_ptr<EcalTPGLutIdMap> EcalTrigPrimESProducer::produceLUT(const EcalTPGLutIdMapRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGLutIdMap> prod(new EcalTPGLutIdMap());
+  auto prod = std::make_unique<EcalTPGLutIdMap>();
   parseTextFile() ;
   EcalTPGLut lut ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -201,12 +201,12 @@ std::auto_ptr<EcalTPGLutIdMap> EcalTrigPrimESProducer::produceLUT(const EcalTPGL
     lut.setLut(lutArray) ;
     prod->setValue(it->first,lut) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGWeightIdMap> EcalTrigPrimESProducer::produceWeight(const EcalTPGWeightIdMapRcd & iRecord)
+std::unique_ptr<EcalTPGWeightIdMap> EcalTrigPrimESProducer::produceWeight(const EcalTPGWeightIdMapRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGWeightIdMap> prod(new EcalTPGWeightIdMap());
+  auto prod = std::make_unique<EcalTPGWeightIdMap>();
   parseTextFile() ;
   EcalTPGWeights weights ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -218,12 +218,12 @@ std::auto_ptr<EcalTPGWeightIdMap> EcalTrigPrimESProducer::produceWeight(const Ec
 		      (it->second)[4]) ;
     prod->setValue(it->first,weights) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd & iRecord)
+std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGWeightGroup> prod(new EcalTPGWeightGroup());
+  auto prod = std::make_unique<EcalTPGWeightGroup>();
   parseTextFile() ;
   for (int subdet=0 ; subdet<2 ; subdet++) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -231,12 +231,12 @@ std::auto_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(con
       prod->setValue(it->first,(it->second)[1]) ;
     }
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGLutGroup> EcalTrigPrimESProducer::produceLutGroup(const EcalTPGLutGroupRcd & iRecord)
+std::unique_ptr<EcalTPGLutGroup> EcalTrigPrimESProducer::produceLutGroup(const EcalTPGLutGroupRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGLutGroup> prod(new EcalTPGLutGroup());
+  auto prod = std::make_unique<EcalTPGLutGroup>();
   parseTextFile() ;
   for (int subdet=0 ; subdet<2 ; subdet++) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
@@ -244,23 +244,23 @@ std::auto_ptr<EcalTPGLutGroup> EcalTrigPrimESProducer::produceLutGroup(const Eca
       prod->setValue(it->first,(it->second)[0]) ;
     }
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGFineGrainEBGroup> EcalTrigPrimESProducer::produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd & iRecord)
+std::unique_ptr<EcalTPGFineGrainEBGroup> EcalTrigPrimESProducer::produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGFineGrainEBGroup> prod(new EcalTPGFineGrainEBGroup());
+  auto prod = std::make_unique<EcalTPGFineGrainEBGroup>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapTower_[0].begin() ; it != mapTower_[0].end() ; it++) {
     prod->setValue(it->first,(it->second)[1]) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(const EcalTPGPhysicsConstRcd & iRecord)
+std::unique_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(const EcalTPGPhysicsConstRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGPhysicsConst> prod(new EcalTPGPhysicsConst());
+  auto prod = std::make_unique<EcalTPGPhysicsConst>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<float> >::const_iterator it ;
   for (it = mapPhys_.begin() ; it != mapPhys_.end() ; it++) {
@@ -274,12 +274,12 @@ std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(c
     item.FG_highRatio = (it->second)[6] ;
     prod->setValue(it->first,item) ;
   }
-  return prod;
+  return std::move(prod);
 }
 
-std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd & iRecord)
+std::unique_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGCrystalStatus> prod(new EcalTPGCrystalStatus());
+  auto prod = std::make_unique<EcalTPGCrystalStatus>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
@@ -288,21 +288,21 @@ std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const Ec
     badXValue.setStatusCode(0);
     prod->setValue(it->first,badXValue) ;
   }
-  return prod;
+  return std::move(prod);
   
 }
 
-std::auto_ptr<EcalTPGStripStatus> EcalTrigPrimESProducer::produceBadStrip(const EcalTPGStripStatusRcd & iRecord)
+std::unique_ptr<EcalTPGStripStatus> EcalTrigPrimESProducer::produceBadStrip(const EcalTPGStripStatusRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGStripStatus> prod(new EcalTPGStripStatus());
+  auto prod = std::make_unique<EcalTPGStripStatus>();
   // returns an empty map     
-  return prod;
+  return std::move(prod);
   
 }
 
-std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd & iRecord)
+std::unique_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd & iRecord)
 {
-  std::auto_ptr<EcalTPGTowerStatus> prod(new EcalTPGTowerStatus());
+  auto prod = std::make_unique<EcalTPGTowerStatus>();
   parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   //Barrel
@@ -316,12 +316,12 @@ std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const Eca
     prod->setValue(it->first,0) ;
   }
   
-  return prod; 
+  return std::move(prod); 
 }
 
-std::auto_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord)
+std::unique_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord)
 {
-  std::auto_ptr<EcalTPGSpike> prod(new EcalTPGSpike());
+  auto prod = std::make_unique<EcalTPGSpike>();
   parseTextFile();
   // Only need to do barrel
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it;
@@ -329,7 +329,7 @@ std::auto_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPGSp
   {
     prod->setValue(it->first, (it->second)[2]);
   }
-  return prod;
+  return std::move(prod);
 }
 
 void EcalTrigPrimESProducer::parseTextFile()

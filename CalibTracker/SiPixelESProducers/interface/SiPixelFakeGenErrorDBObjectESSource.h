@@ -17,7 +17,7 @@ class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::
   
   typedef std::vector<std::string> vstring;
   
-  virtual std::auto_ptr<SiPixelGenErrorDBObject>  produce(const SiPixelGenErrorDBObjectRcd &);
+  virtual std::unique_ptr<SiPixelGenErrorDBObject>  produce(const SiPixelGenErrorDBObjectRcd &);
   
  protected:
   
