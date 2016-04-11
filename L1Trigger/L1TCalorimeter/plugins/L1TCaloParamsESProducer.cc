@@ -215,6 +215,14 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream jetCalibrationLUTStream(jetCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> jetCalibrationLUT( new LUT(jetCalibrationLUTStream) );
   m_params_helper.setJetCalibrationLUT(*jetCalibrationLUT);
+  edm::FileInPath jetCalibrationEtaLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationEtaLUTFile");
+  std::ifstream jetCalibrationEtaLUTStream(jetCalibrationEtaLUTFile.fullPath());
+  std::shared_ptr<LUT> jetCalibrationEtaLUT( new LUT(jetCalibrationEtaLUTStream) );
+  m_params_helper.setJetCalibrationEtaLUT(*jetCalibrationEtaLUT);
+  edm::FileInPath jetCompressLUTFile = conf.getParameter<edm::FileInPath>("jetCompressLUTFile");
+  std::ifstream jetCompressLUTStream(jetCompressLUTFile.fullPath());
+  std::shared_ptr<LUT> jetCompressLUT( new LUT(jetCompressLUTStream) );
+  m_params_helper.setJetCompressLUT(*jetCompressLUT);
 
   // sums
   m_params_helper.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
@@ -233,6 +241,26 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   else {
     edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
   }
+
+  edm::FileInPath etSumXPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumXPUSLUTFile");
+  std::ifstream etSumXPUSLUTStream(etSumXPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumXPUSLUT( new LUT(etSumXPUSLUTStream) );
+  m_params_helper.setEtSumXPUSLUT(*etSumXPUSLUT);
+  
+  edm::FileInPath etSumYPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumYPUSLUTFile");
+  std::ifstream etSumYPUSLUTStream(etSumYPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumYPUSLUT( new LUT(etSumYPUSLUTStream) );
+  m_params_helper.setEtSumYPUSLUT(*etSumYPUSLUT);
+
+  edm::FileInPath etSumEttPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEttPUSLUTFile");
+  std::ifstream etSumEttPUSLUTStream(etSumEttPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumEttPUSLUT( new LUT(etSumEttPUSLUTStream) );
+  m_params_helper.setEtSumEttPUSLUT(*etSumEttPUSLUT);
+
+  edm::FileInPath etSumEcalSumPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumPUSLUTFile");
+  std::ifstream etSumEcalSumPUSLUTStream(etSumEcalSumPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumEcalSumPUSLUT( new LUT(etSumEcalSumPUSLUTStream) );
+  m_params_helper.setEtSumEcalSumPUSLUT(*etSumEcalSumPUSLUT);
 
   // HI centrality trigger
   edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
