@@ -49,7 +49,7 @@ struct AbstractHistogram {
   ~AbstractHistogram() {
     // if both are set the ME should own the TH1
     if (th1 && !me) {
-      std::cout << "+++ Deleting " << th1->GetTitle() << "\n";
+      //std::cout << "+++ Deleting " << th1->GetTitle() << "\n";
       delete th1;
     }
   };

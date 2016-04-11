@@ -383,7 +383,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
     AbstractHistogram& new_histo = out[new_vals];
     GeometryInterface::Values copy(new_vals);
     if (!new_histo.th1) {
-      std::cout << "+++ new TH1D for extend ";
+      //std::cout << "+++ new TH1D for extend ";
       // We need to book. Two cases here: 1D or 2D.
       if (th1->GetDimension() == 1) {
 	// Output is 1D
