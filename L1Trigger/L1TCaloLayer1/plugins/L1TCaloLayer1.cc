@@ -210,9 +210,9 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     else if(absCaloEta <= 41) {
       int caloPhi = hcalTp.id().iphi();
+      int et = hcalTp.SOI_compressedEt();
+      bool fg = hcalTp.SOI_fineGrain();
       if(caloPhi <= 72) {
-	int et = hcalTp.SOI_compressedEt();
-	bool fg = hcalTp.SOI_fineGrain();
 	if(et != 0) {
 	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
 	  uint32_t featureBits = 0;
@@ -227,7 +227,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
       else {
-	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et << std::endl;	
       }
     }
     else {
