@@ -613,11 +613,9 @@ int dqm::Hemisphere::RejectISR(){
         float newAxis1_Px = Axis1[0] * Axis1[3];
         float newAxis1_Py = Axis1[1] * Axis1[3];
         float newAxis1_Pz = Axis1[2] * Axis1[3];
-        //float newAxis1_E = Axis1[4];
         float newAxis2_Px = Axis2[0] * Axis2[3];
         float newAxis2_Py = Axis2[1] * Axis2[3];
         float newAxis2_Pz = Axis2[2] * Axis2[3];
-        //float newAxis2_E = Axis2[4];
 
         // loop over all objects associated to a hemisphere
         int vsize = (int) Object_Px.size();
@@ -629,17 +627,14 @@ int dqm::Hemisphere::RejectISR(){
                 float newPx = 0.;
                 float newPy = 0.;
                 float newPz = 0.;
-                //float newE = 0.;
                 if (Object_Group[i] == 1){
                     newPx = newAxis1_Px;
                     newPy = newAxis1_Py;
                     newPz = newAxis1_Pz;
-                    //newE = newAxis1_E;
                 } else if (Object_Group[i] == 2) {
                     newPx = newAxis2_Px;
                     newPy = newAxis2_Py;
                     newPz = newAxis2_Pz;
-                    //newE = newAxis2_E;
                 }
 
                 // compute the quantities to test whether the object is ISR
