@@ -15,6 +15,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateEB.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateEE.h"
 
 namespace reco {
   class EcalHaloData {
@@ -43,6 +45,15 @@ namespace reco {
 
     edm::ValueMap<float>& GetShowerShapesAngle() { return ShowerShapes_Angle;}
     const edm::ValueMap<float>& GetShowerShapesAngle() const { return ShowerShapes_Angle;}
+
+
+    const std::vector<HaloClusterCandidateEB>& getHaloClusterCandidatesEB() const {return thehaloclustercands_eb;} 
+    std::vector<HaloClusterCandidateEB>& getHaloClusterCandidatesEB(){return thehaloclustercands_eb;} 
+    const std::vector<HaloClusterCandidateEE>& getHaloClusterCandidatesEE() const {return thehaloclustercands_ee;} 
+    std::vector<HaloClusterCandidateEE>& getHaloClusterCandidatesEE(){return thehaloclustercands_ee;} 
+
+    void setHaloClusterCandidatesEB(std::vector<HaloClusterCandidateEB> x){thehaloclustercands_eb =x;};
+    void setHaloClusterCandidatesEE(std::vector<HaloClusterCandidateEE> x){thehaloclustercands_ee =x;};
   private:
     std::vector<PhiWedge> PhiWedgeCollection;
     edm::RefVector<reco::SuperClusterCollection> TheSuperClusterRefs;
@@ -50,6 +61,9 @@ namespace reco {
     edm::ValueMap<float> ShowerShapes_Roundness;
     edm::ValueMap<float> ShowerShapes_Angle;
     
+    std::vector<HaloClusterCandidateEB> thehaloclustercands_eb;
+    std::vector<HaloClusterCandidateEE> thehaloclustercands_ee;
+
   };
 }
 
