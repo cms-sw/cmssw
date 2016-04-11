@@ -64,15 +64,16 @@ void OMTFReconstruction::endJob(){
 /////////////////////////////////////////////////////
 void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
-  const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-  const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
+  const L1TMuonOverlapParamsRcd& omtfRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
+  //const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
   edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
-  omtfParamsRcd.get("params",omtfParamsHandle);
-  omtfPatternsRcd.get("patterns",omtfPatternsHandle);
+  omtfRcd.get("params",omtfParamsHandle);
+  omtfRcd.get("patterns",omtfPatternsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
   const L1TMuonOverlapParams* omtfPatterns = omtfPatternsHandle.product();
+
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }

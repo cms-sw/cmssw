@@ -356,7 +356,6 @@ OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *d
 							 const RPCDigiCollection *rpcDigis,
 							 unsigned int iProcessor,
 							 l1t::tftype type){
-  
   OMTFinput result(myOmtfConfig);
   result += processDT(dtPhDigis, dtThDigis, iProcessor, type);
   result += processCSC(cscDigis, iProcessor, type);

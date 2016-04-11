@@ -16,7 +16,6 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapTrackProducer",
                               dropDTPrimitives = cms.bool(False),                                    
                               dropCSCPrimitives = cms.bool(False),   
                               omtf = cms.PSet(
-                                  configFromXML = cms.bool(False),   
                                   patternsXMLFiles = cms.VPSet(
                                        cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00020007.xml")),
                                       ),
