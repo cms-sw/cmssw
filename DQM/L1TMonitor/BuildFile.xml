@@ -5,6 +5,7 @@
 <use   name="DQMServices/Components"/>
 <use   name="DQMServices/ClientConfig"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1TGlobal"/>
 <use   name="DataFormats/LTCDigi"/>
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/L1CSCTrackFinder"/>
@@ -31,6 +32,7 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="L1Trigger/CSCTrackFinder"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="L1Trigger/L1TMuon"/>
 <use   name="CondTools/L1Trigger"/>
 <use   name="root"/>
 <use   name="boost"/>
