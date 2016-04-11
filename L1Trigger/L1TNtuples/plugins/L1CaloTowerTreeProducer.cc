@@ -200,7 +200,7 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   }
   else {
-    edm::LogWarning("L1TNtuple") << "HCAL TPs not found, branch will not be filled";
+    edm::LogWarning("L1TNtuple") << "ECAL TPs not found, branch will not be filled";
   }
   
   
@@ -208,6 +208,7 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       
     for ( auto itr : (*hcalTPs.product()) ) {
 
+      int ver = itr.id().version();
       short ieta = (short) itr.id().ieta();
       unsigned short absIeta = (unsigned short) abs(ieta);
       short sign = ieta/absIeta;
@@ -224,7 +225,7 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       
       unsigned short fineGrain = (unsigned short) itr.SOI_fineGrain();
       
-      if (compEt > 0) {
+      if (compEt > 0 && (absIeta<29 || ver==1)) {
 	caloTPData_->hcalTPieta.push_back( ieta );
 	caloTPData_->hcalTPCaliphi.push_back( cal_iphi );
 	caloTPData_->hcalTPiphi.push_back( iphi );
