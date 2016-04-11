@@ -93,7 +93,12 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       /// trigger table
       edm::EDGetTokenT< edm::TriggerResults > triggerTable_;
-      edm::EDGetTokenT< trigger::TriggerEventWithRefs > triggerEventWithRefsTag_;
+//     edm::EDGetTokenT< trigger::TriggerEventWithRefs > triggerEventWithRefsTag_;
+      edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
+      edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenAOD;
+      bool hasRawTriggerSummary;
+	  	
+ 
       /// trigger paths for monitoring, expected 
       /// to be of form signalPath:MonitorPath
       std::vector<std::string> triggerPaths_;
