@@ -226,7 +226,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
             if(chargeDep_jt==0) continue;
             
             const int deltaT=(it-jt);
-            if(deltaT+2>(int)(adcPulse_.size())) continue;
+            if(deltaT+2>=(int)(adcPulse_.size())) continue;
             
             const float leakCharge( chargeDep_jt*adcPulse_[deltaT+2]/adcPulse_[2] );
             if(debug) edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
