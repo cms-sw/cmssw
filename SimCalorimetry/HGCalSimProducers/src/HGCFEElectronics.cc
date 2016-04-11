@@ -236,7 +236,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         for(int jt=0; jt<it; ++jt)
           {
             const unsigned int deltaT=(it-jt);
-            if((deltaT+2) >  adcPulse_.size() || chargeColl[jt]==0.f || totFlags[jt] || busyFlags[jt]) continue;
+            if((deltaT+2) >=  adcPulse_.size() || chargeColl[jt]==0.f || totFlags[jt] || busyFlags[jt]) continue;
             
             const float leakCharge = chargeColl[jt]*adcPulse_[deltaT+2];
             totalCharge += leakCharge;
@@ -284,31 +284,36 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     }
 
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
-  for(int it=0; it<(int)(chargeColl.size()); it++)
-    {
-      //if busy, charge has been already integrated
-      if(totFlags[it] || busyFlags[it]) continue;
-      if(chargeColl[it]==0.f) continue;
-      
-      if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
-      for(int ipulse=0; ipulse<(int)(adcPulse_.size()); ipulse++)
-	{
-          const int itoffset = it + ipulse - 2;
-	  if(itoffset<0) continue;
-	  if(itoffset>=(int)(newCharge.size())) continue;
-	  //notice that if the channel is already busy,
-	  //it has already been affected by the leakage of the SARS ADC
-	  if(totFlags[it] || busyFlags[itoffset]) continue;
-	  newCharge[itoffset]+=chargeColl[it]*adcPulse_[ipulse];
-          if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
-	  if(debug) edm::LogVerbatim("HGCFE") << newCharge[itoffset] << ") ";
-	}
-      
-      if(debug) edm::LogVerbatim("HGCFE") << std::endl;
-    }
+  auto runChargeSharing = [&]() {
+    int ipulse = 0;
+    for(int it=0; it<(int)(chargeColl.size()); ++it)
+      {
+        //if busy, charge has been already integrated
+        //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
+        if( !totFlags[it] && !busyFlags[it] ) {
+          const int start = std::max(0,2-it);
+          const int stop  = std::min((int)adcPulse_.size(),(int)newCharge.size()-it+2);          
+          for(ipulse = start; ipulse < stop; ++ipulse) {
+            const int itoffset = it + ipulse - 2; 
+            //notice that if the channel is already busy,
+            //it has already been affected by the leakage of the SARS ADC
+            //if(totFlags[itoffset] || busyFlags[itoffset]) continue;
+            if( totFlags[itoffset] || busyFlags[itoffset] ) {
+              newCharge[itoffset] += chargeColl[it]*adcPulse_[ipulse];
+            }
+            //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
+            //if(debug) edm::LogVerbatim("HGCFE") << newCharge[itoffset] << ") ";
+          }
+        }
+        
+        if(debug) edm::LogVerbatim("HGCFE") << std::endl;
+      }
+  };
+  runChargeSharing();
 
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
+  const float adj_thresh = thickness*adcThreshold_fC_;
   for(int it=0; it<(int)(newCharge.size()); it++)
     {
       if(debug) edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";
@@ -319,12 +324,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	  if(totFlags[it]) 
 	    {
 	      float finalToA(toaFromToT[it]);
-	      while(finalToA<0)  finalToA+=25.;
-	      while(finalToA>25) finalToA-=25;
+	      while(finalToA < 0.f)  finalToA+=25.f;
+	      while(finalToA > 25.f) finalToA-=25.f;
 
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
-	      newSample.set(true,true,finalToA/toaLSB_ns_,floor(saturatedCharge/tdcLSB_fC_));
+	      newSample.set(true,true,(uint16_t)(finalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	    }
 	  else
 	    {
@@ -335,7 +340,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
-	  newSample.set(newCharge[it]>thickness*adcThreshold_fC_,false,0,saturatedCharge/adcLSB_fC_);
+	  newSample.set(newCharge[it]>adj_thresh,false,(uint16_t)0,(uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	}
       dataFrame.setSample(it,newSample);
     }
