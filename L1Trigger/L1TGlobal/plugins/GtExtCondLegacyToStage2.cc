@@ -5,7 +5,7 @@
 ///
 /// 
 /// \author: D. Puigh OSU
-///
+/// \revised: V. Rekovic
 
 
 // system include files
@@ -129,6 +129,7 @@ namespace l1t {
       // //
 
       for( int ibx = 0; ibx < 5; ibx++ ){
+
 	int useBx = ibx - 2;
 	if( useBx<bxFirst_ || useBx>bxLast_ ) continue;
 
@@ -138,58 +139,57 @@ namespace l1t {
 	const TechnicalTriggerWord& gtTTWord = gtReadoutRecord->technicalTriggerWord(useBx);
 	int tbitNumber = 0;
 	TechnicalTriggerWord::const_iterator GTtbitItr;
-	bool pass_BptxAND = false;
-	bool pass_BptxPlus = false;
-	bool pass_BptxMinus = false;
-	bool pass_BptxOR = false;
+
+        std::vector<bool> pass_externs(4, false); //BptxAND, BptxPlus, BptxMinus, BptxOR
+
 	for(GTtbitItr = gtTTWord.begin(); GTtbitItr != gtTTWord.end(); GTtbitItr++) {
+
 	  int pass_l1t_tech = 0;
+
 	  if (*GTtbitItr) pass_l1t_tech = 1;
 
 	  if( pass_l1t_tech==1 ){
-	    if( tbitNumber==0 ) pass_BptxAND = true;
-	    else if( tbitNumber==1 ) pass_BptxPlus = true;
-	    else if( tbitNumber==2 ) pass_BptxMinus = true;
-	    else if( tbitNumber==3 ) pass_BptxOR = true;
+
+           pass_externs[tbitNumber] = true;
+
 	  }
 
 	  tbitNumber++;
+
+          if(tbitNumber>3) break;
 	}
 
 	if( useBx==-2 ){
-	  if( pass_BptxAND ) extCond_bx_m2.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_m2.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_m2.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_m2.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_m2.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==-1 ){
-	  if( pass_BptxAND ) extCond_bx_m1.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_m1.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_m1.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_m1.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_m1.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==0 ){
-	  if( pass_BptxAND ) extCond_bx_0.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_0.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_0.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_0.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_0.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==1 ){
-	  if( pass_BptxAND ) extCond_bx_p1.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_p1.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_p1.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_p1.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_p1.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==2 ){
-	  if( pass_BptxAND ) extCond_bx_p2.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_p2.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_p2.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_p2.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_p2.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
       }
     }
     else {
+
       LogWarning("MissingProduct") << "Input L1GlobalTriggerReadoutRecord collection not found\n";
+
     }
 
     //outputs
