@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
-
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/dom/DOM.hpp"
@@ -19,7 +17,9 @@ class XercesDOMParser;
 
 namespace l1t {
 
-class XmlConfigReader{
+class trigSystem;
+
+class XmlConfigReader {
 
  public:
 
@@ -30,8 +30,8 @@ class XmlConfigReader{
   XmlConfigReader(xercesc::DOMDocument* doc);
   void readDOMFromFile(const std::string& fName);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
-  void readContext(const xercesc::DOMElement* element, const std::string& sysId, const std::string& contextId);
-  void readContexts(const std::string& key, const std::string& sysId, const std::string& contextId);
+  void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
+  void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
   xercesc::DOMElement* getKeyElement(const std::string& key);
   void buildGlobalDoc(const std::string& key);
 
