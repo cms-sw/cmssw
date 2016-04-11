@@ -19,7 +19,7 @@ GeometryInterface::Column
 SummationSpecification::parse_columns(std::string name, GeometryInterface& geometryInterface) {
   std::vector<std::string> parts;
   boost::split(parts, name, boost::is_any_of("|"), boost::token_compress_on);
-  GeometryInterface::Column out;
+  GeometryInterface::Column out = {{0,0}};
   unsigned int i = 0;
   for (auto str : parts) {
     assert(i < out.size() || !"maximum number of alternative columns exceeded");
