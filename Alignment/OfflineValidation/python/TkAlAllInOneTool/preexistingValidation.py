@@ -1,7 +1,7 @@
 import os
 from genericValidation import GenericValidation, GenericValidationData
 from geometryComparison import GeometryComparison
-from helperFunctions import parsecolor, parsestyle
+from helperFunctions import getCommandOutput2, parsecolor, parsestyle
 from monteCarloValidation import MonteCarloValidation
 from offlineValidation import OfflineValidation
 from TkAlExceptions import AllInOneError
@@ -20,7 +20,7 @@ class PreexistingValidation(GenericValidation):
         self.config = config
         self.filesToCompare = {}
 
-        defaults = {"title": self.name}
+        defaults = {"title": self.name, "jobid": ""}
         defaults.update(addDefaults)
         mandatories = ["file", "color", "style"]
         mandatories += addMandatories
@@ -34,6 +34,14 @@ class PreexistingValidation(GenericValidation):
         if "|" in self.title or "," in self.title or '"' in self.title:
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"
             raise AllInOneError(msg)
+
+        self.jobid = self.general["jobid"]
+        if self.jobid:
+            try:  #make sure it's actually a valid jobid
+                output = getCommandOutput2("bjobs %(jobid)s 2>&1"%self.general)
+                if "is not found" in output: raise RuntimeError
+            except RuntimeError:
+                raise AllInOneError("%s is not a valid jobid.\nMaybe it finished already?"%self.jobid)
 
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
             self.general["file"]

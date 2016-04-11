@@ -141,6 +141,7 @@ class ValidationJob:
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
+
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -161,6 +162,8 @@ class ValidationJob:
 
     def runJob( self ):
         if self.__preexisting:
+            if self.validation.jobid:
+                self.batchJobIds.append(self.validation.jobid)
             log = ">             " + self.validation.name + " is already validated."
             print log
             return log
