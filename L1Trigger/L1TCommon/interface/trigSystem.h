@@ -7,21 +7,22 @@
 
 #include "./setting.h"
 #include "./mask.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 
 namespace l1t{
-	
+
 class trigSystem
 {
 	public:
 		trigSystem();
 		~trigSystem();
-		void addProcRole(std::string role, std::string processor);
-		void addSetting(std::string type, std::string id, std::string value, std::string procRole);
-		void addMask(std::string id, std::string procRole);
-		//std::vector<setting> getSettings(std::string proccessor);
-		std::map<std::string, setting> getSettings (std::string processor); //write code add same for mask
-		//std::vector<mask> getMasks(std::string proccessor);
-		std::map<std::string, mask> getMasks(std::string proccessor);
+		void configureSystem(const std::string& l1HltKey, const std::string& subSysName);
+		void setHwInfo(/*JSONConfigReader*/);
+		void addProcRole(const std::string& role, const std::string& processor);
+		void addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
+		void addMask(const std::string& id, const std::string& procRole);
+		std::map<std::string, setting> getSettings (const std::string& processor);
+		std::map<std::string, mask> getMasks(const std::string& proccessor);
 
 
 	private:
@@ -30,7 +31,12 @@ class trigSystem
 		std::map<std::string, std::vector<setting> > _procSettings;
 		std::map<std::string, std::vector<mask> > _procMasks;
 
-		template <class varType> bool checkIdExistsAndSetSetting(std::vector<varType>& vec, std::string id, std::string value, std::string procRole);
+                bool _isConfigured; // TODO: check this in getters
+                std::string _sysId; // TODO: get from JSON
+
+                XmlConfigReader _xmlRdr;
+
+		template <class varType> bool checkIdExistsAndSetSetting(std::vector<varType>& vec, const std::string& id, const std::string& value, const std::string& procRole);
 	
 };
 

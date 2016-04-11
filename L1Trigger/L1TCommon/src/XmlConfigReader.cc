@@ -3,6 +3,7 @@
 //#include <utility>
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
+#include "L1Trigger/L1TCommon/interface/trigSystem.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
@@ -60,13 +61,14 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 }
 
 
-void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, const std::string& contextId)
+void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
 {
   if (_toString(element->getAttribute(_toDOMS("id"))) == sysId) {
     DOMNodeList* contextElements = element->getElementsByTagName(_toDOMS("context"));
 
     for (XMLSize_t i = 0; i < contextElements->getLength(); ++i) {
       DOMElement* contextElement = static_cast<DOMElement*>(contextElements->item(i));
+      std::string contextId = _toString(contextElement->getAttribute(_toDOMS("id")));
 
       for (DOMElement* elem = static_cast<DOMElement*>(contextElement->getFirstChild()); elem; elem = static_cast<DOMElement*>(elem->getNextSibling())) {
         if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -91,11 +93,13 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 value = value.substr(alphanumBegin);
               }
             }
-            std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
+            //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
+            aTrigSystem.addSetting(type, id, value, contextId);
           } else if (_toString(elem->getTagName()) == "mask") {
             // found a mask
             std::string id = _toString(elem->getAttribute(_toDOMS("id")));
-            std::cout << "mask element node with id attribute " << id << std::endl;
+            //std::cout << "mask element node with id attribute " << id << std::endl;
+            aTrigSystem.addMask(id, contextId);
           }
         }
       }
@@ -104,14 +108,14 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 }
 
 
-void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, const std::string& contextId)
+void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {
     for (DOMElement* elem = static_cast<DOMElement*>(keyElement->getFirstChild()); elem; elem = static_cast<DOMElement*>(elem->getNextSibling())) {
       if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
         if (_toString(elem->getTagName()) == kModuleNameAlgo || _toString(elem->getTagName()) == kModuleNameRunSettings) {
-          readContext(elem, sysId, contextId);
+          readContext(elem, sysId, aTrigSystem);
         }
       }
     }

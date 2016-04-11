@@ -2,7 +2,7 @@
 
 namespace l1t{
 
-trigSystem::trigSystem()
+trigSystem::trigSystem() : _isConfigured(false)
 {
 
 }
@@ -12,7 +12,33 @@ trigSystem::~trigSystem()
 	;
 }
 
-void trigSystem::addProcRole(std::string role, std::string processor)
+void trigSystem::configureSystem(const std::string& l1HltKey, const std::string& subSysName)
+{
+        std::cout << "L1_HLT_key: " << l1HltKey << ", subsystem name: " << subSysName << std::endl;
+        // TODO: get _sysId from JSON
+	_sysId = "ugmt";
+        // TODO: get processors and roles from JSON
+        // loop to add all roles and processors found in the JSON
+	addProcRole("processors", "ugmt_processor");
+
+        // TODO: get subsystem key and subsystem RS key from DB using l1HltKey
+        // TODO: get clobs from subsystem keys
+
+        // this is for loading from clobs from DB
+        // loop over clobs received
+        // build DOM from clob
+        //_xmlRdr.readContext(domElement, _sysId, *this);
+
+        // this is for loading from xml config file
+        _xmlRdr.readDOMFromFile("ugmt_top_config_p5.xml");
+        _xmlRdr.buildGlobalDoc("TestKey1");
+        _xmlRdr.readContexts("TestKey1", _sysId, *this);
+
+        _isConfigured = true;
+}
+
+
+void trigSystem::addProcRole(const std::string& role, const std::string& processor)
 {
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
 	{
@@ -25,7 +51,7 @@ void trigSystem::addProcRole(std::string role, std::string processor)
 	_roleProcs[role].push_back(processor);
 }
 
-void trigSystem::addSetting(std::string type, std::string id, std::string value, std::string procRole)
+void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
 {
 	bool applyOnRole, foundRoleProc(false);
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
@@ -78,7 +104,7 @@ void trigSystem::addSetting(std::string type, std::string id, std::string value,
 	}
 }
 
-std::map<std::string, setting> trigSystem::getSettings(std::string proccessor)
+std::map<std::string, setting> trigSystem::getSettings(const std::string& proccessor)
 {
 	std::map<std::string, setting> settings;
 	std::vector<setting> vecSettings = _procSettings.at(proccessor);
@@ -88,7 +114,7 @@ std::map<std::string, setting> trigSystem::getSettings(std::string proccessor)
 	return settings;
 }
 
-template <class varType> bool trigSystem::checkIdExistsAndSetSetting(std::vector<varType>& vec, std::string id, std::string value, std::string procRole)
+template <class varType> bool trigSystem::checkIdExistsAndSetSetting(std::vector<varType>& vec, const std::string& id, const std::string& value, const std::string& procRole)
 {
 	bool found(false);
 	for(auto it = vec.begin(); it != vec.end(); it++)
@@ -104,7 +130,7 @@ template <class varType> bool trigSystem::checkIdExistsAndSetSetting(std::vector
 	return found;
 }
 
-void trigSystem::addMask(std::string id, std::string procRole)
+void trigSystem::addMask(const std::string& id, const std::string& procRole)
 {
 	bool applyOnRole, foundRoleProc(false);
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
@@ -154,7 +180,7 @@ void trigSystem::addMask(std::string id, std::string procRole)
 	}
 }
 
-std::map<std::string, mask> trigSystem::getMasks(std::string proccessor)
+std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 {
 	std::map<std::string, mask> masks;
 	std::vector<mask> vecMasks= _procMasks.at(proccessor);
