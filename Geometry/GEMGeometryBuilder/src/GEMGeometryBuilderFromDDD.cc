@@ -162,6 +162,10 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
     geometry->add(const_cast<GEMRegion*>(region));
   }
+
+  if ( geometry->idToDet(671320576) == nullptr) {
+    std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
+  }
   
   return geometry;
 }
