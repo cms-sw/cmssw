@@ -25,30 +25,30 @@ namespace l1t {
       // Converts station, CSC_ID, sector, subsector, and neighbor
       std::vector<int> convert_chamber_ME(int _station, int _csc_ID, int _sector) {
         int new_sector = _sector;
-	if      (_station == 0) { int arr[] = {       1, _csc_ID, new_sector,   1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
-	else if (_station == 1) { int arr[] = {       1, _csc_ID, new_sector,   2, 0}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_station <= 4) { int arr[] = {_station, _csc_ID, new_sector, -99, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+	int new_csc_ID = _csc_ID+1;
+	if      (_station == 0) { int arr[] = {       1, new_csc_ID, new_sector,   1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+	else if (_station == 1) { int arr[] = {       1, new_csc_ID, new_sector,   2, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (_station <= 4) { int arr[] = {_station, new_csc_ID, new_sector, -99, 0}; std::vector<int> vec(arr, arr+5); return vec; }
         else if (_station == 5) new_sector = (_sector != 1) ? _sector-1 : 6;
-	else { int arr[] = {-99, _csc_ID, _sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
+	else { int arr[] = {-99, new_csc_ID, _sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
 
-        if      (_csc_ID == 1) { int arr[] = {1, 3, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 2) { int arr[] = {1, 6, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 3) { int arr[] = {1, 9, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 4) { int arr[] = {2, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 5) { int arr[] = {2, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 6) { int arr[] = {3, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 7) { int arr[] = {3, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 8) { int arr[] = {4, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else if (_csc_ID == 9) { int arr[] = {4, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
-        else                   { int arr[] = {5, _csc_ID, new_sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
+        if      (new_csc_ID == 1) { int arr[] = {1, 3, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 2) { int arr[] = {1, 6, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 3) { int arr[] = {1, 9, new_sector,   2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 4) { int arr[] = {2, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 5) { int arr[] = {2, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 6) { int arr[] = {3, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 7) { int arr[] = {3, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 8) { int arr[] = {4, 3, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 9) { int arr[] = {4, 9, new_sector, -99, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else                   { int arr[] = {5, new_csc_ID, new_sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
       }
 
       // Calculates ring value
       int calc_ring_ME(int _station, int _csc_ID, int _strip) {
 	if (_station > 1) {
 	  if      (_csc_ID <  4) return 1;
-	  else if (_csc_ID <  7) return 2;
-	  else if (_csc_ID < 10) return 3;
+	  else if (_csc_ID < 10) return 2;
 	  else return -99;
 	}
 	else if (_station == 1) {
