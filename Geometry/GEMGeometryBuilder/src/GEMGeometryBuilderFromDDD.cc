@@ -105,7 +105,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 	
 	GEMEtaPartition *etaPart = buildEtaPartition(fv, detId);
 	gemChamber->add(etaPart);
-	//geometry->add(etaPart);
+	geometry->add(etaPart);
 	doEtaPart = fv.nextSibling();
       }
       fv.parent();
@@ -161,10 +161,6 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
     geometry->add(const_cast<GEMRegion*>(region));
-  }
-
-  if ( geometry->idToDet(671320576) == nullptr) {
-    std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
   }
   
   return geometry;
