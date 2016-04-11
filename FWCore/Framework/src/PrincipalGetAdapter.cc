@@ -37,7 +37,7 @@ namespace edm {
 	std::string const& productInstanceName) {
       throw Exception(errors::NullPointerError)
 	<< principalType
-	<< "::put: A null auto_ptr was passed to 'put'.\n"
+	<< "::put: A null auto_ptr or unique_ptr was passed to 'put'.\n"
 	<< "The pointer is of type "
 	<< productType
         << ".\nThe specified productInstanceName was '"
