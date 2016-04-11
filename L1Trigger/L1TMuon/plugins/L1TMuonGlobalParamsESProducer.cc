@@ -30,6 +30,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
+#include "L1Trigger/L1TCommon/interface/trigSystem.h"
 
 //
 // class declaration
@@ -63,6 +64,10 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
+
+   l1t::trigSystem trgSys;
+   trgSys.configureSystem("L1_key", "UGMT");
+   std::cout << "trgSys settings size: " << trgSys.getSettings("ugmt_processor").size() << std::endl;
 
    L1TMuonGlobalParamsHelper m_params_helper;
 
