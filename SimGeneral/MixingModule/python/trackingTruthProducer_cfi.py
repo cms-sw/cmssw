@@ -51,12 +51,9 @@ if eras.fastSim.isChosen():
     trackingParticles.simTrackCollection = cms.InputTag('famosSimHits')
     trackingParticles.simVertexCollection = cms.InputTag('famosSimHits')
 
-def _modifyTrackingParticlesForRun3( object ):
-    object.simHitCollections.muon.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-
-def _modifyTrackingParticlesForPhase2( object ):
-    object.simHitCollections.muon.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( trackingParticles, func=_modifyTrackingParticlesForRun3 )
-eras.phase2_muon.toModify( trackingParticles, func=_modifyTrackingParticlesForPhase2 )
+eras.run3_GEM.toModify(trackingParticles, simHitCollections = dict(
+        muon = trackingParticles.simHitCollections.muon+cmsInputTag("g4SimHits","MuonGEMHits")))
+
+eras.phase2_muon.toModify( trackingParticles, simHitCollections = dict(
+        muon = trackingParticles.simHitCollections.muon+cmsInputTag("g4SimHits","MuonME0Hits")))
