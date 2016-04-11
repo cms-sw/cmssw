@@ -89,7 +89,9 @@ class Jet(PhysicsObject):
         return self.jetID("POG_PFID_Loose")
 
     def puMva(self, label="pileupJetId:fullDiscriminant"):
-        return self.userFloat(label)
+        if self.hasUserFloat(label):
+            return self.userFloat(label)
+        return -99
 
     def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''
