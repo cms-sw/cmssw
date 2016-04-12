@@ -1,0 +1,13 @@
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+
+<use name="DataFormats/TotemRPDetId"/>
+<use name="Geometry/TotemRecords"/>
+<use name="Geometry/TotemRPGeometryBuilder"/>
+
+<!-- correlation-plot selectors unfortuantely need QString -->
+<use name="qt"/>
+
+<export>
+	<lib name="1"/>
+</export>
