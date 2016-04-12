@@ -8,6 +8,40 @@ _id(id),
 _value(value),
 _procRole(procRole)
 {
+	if ( type.find("bool") != std::string::npos )
+	{
+		std::ostringstream convString;
+
+		if ( type.find("vector") != std::string::npos )
+		{
+			std::string delim(","); //TODO: should be read dynamically
+			std::vector<std::string> vals;
+			if ( !parse ( std::string(_value+delim+" ").c_str(),
+			(
+				* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+			), boost::spirit::classic::nothing_p ).full )
+			{ 	
+				throw std::runtime_error ("Wrong value format: " + _value);
+			}
+
+			for(std::vector<std::string>::iterator it=vals.begin(); it!=vals.end(); it++)
+			{
+				if ( it->find("true") != std::string::npos )
+					convString << "1, ";
+				else
+					convString << "0, ";
+			}
+		}
+		else
+		{
+			if ( value.find("true") != std::string::npos )
+				convString << "1";
+			else
+				convString << "0";
+		}
+
+		_value = convString.str();
+	}
 }
 
 setting::~setting()
