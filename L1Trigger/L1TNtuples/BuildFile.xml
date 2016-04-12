@@ -6,6 +6,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="DataFormats/L1GlobalCaloTrigger"/>
