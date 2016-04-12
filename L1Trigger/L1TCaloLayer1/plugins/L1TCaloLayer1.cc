@@ -90,6 +90,8 @@ private:
   bool useHCALLUT;
   bool useHFLUT;
   bool verbose;
+  bool unpackHcalMask;
+  bool unpackEcalMask;
 
   UCTLayer1 *layer1;
 
@@ -120,7 +122,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
   useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
-  verbose(iConfig.getParameter<bool>("verbose")) 
+  verbose(iConfig.getParameter<bool>("verbose")), 
+  unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
+  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
 {
   produces<CaloTowerBxCollection>();
   layer1 = new UCTLayer1;
@@ -164,19 +168,6 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
-  // Check if collections are unpacked from Layer1 input links
-  // If so, we need to check the tower masks before processing
-  bool checkEcalMask = false;
-  auto ecalProvenance = iEvent.getProvenance(ecalTPs.id());
-  if ( ecalProvenance.product().moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
-    checkEcalMask = true;
-  }
-  bool checkHcalMask = false;
-  auto hcalProvenance = iEvent.getProvenance(hcalTPs.id());
-  if ( hcalProvenance.product().moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
-    checkHcalMask = true;
-  }
-
   std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
 
   uint32_t expectedTotalET = 0;
@@ -186,7 +177,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for ( const auto& ecalTp : *ecalTPs ) {
-    if ( checkEcalMask && ((ecalTp.sample(0).raw()>>13) & 0x1) ) continue;
+    if ( unpackEcalMask && ((ecalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = ecalTp.id().ieta();
     int caloPhi = ecalTp.id().iphi();
     int et = ecalTp.compressedEt();
@@ -202,7 +193,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for ( const auto& hcalTp : *hcalTPs ) {
-    if ( checkHcalMask && ((hcalTp.sample(0).raw()>>13) & 0x1) ) continue;
+    if ( unpackHcalMask && ((hcalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = hcalTp.id().ieta();
     uint32_t absCaloEta = abs(caloEta);
     // Tower 29 is not used by Layer-1
