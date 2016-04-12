@@ -277,3 +277,11 @@ workflows[145] = ['',['HydjetQ_MinBias_5020GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
 workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
+
+
+### pp Reference @ 5020GeV for HI
+workflows[146.0] = ['',['MiniBias_5020GeV','DIGIHIppRef','RECOHIppRefMB','HARVESTHIppRef']]
+workflows[146.1] = ['',['QCD_Pt_80_120_5020GeV','DIGIHIppRef','RECOHIppRef','HARVESTHIppRef']]
+workflows[146.2] = ['',['PhotonJets_Pt_10_5020GeV','DIGIHIppRef','RECOHIppRef','HARVESTHIppRef']]
+workflows[146.4] = ['',['ZEEMM_5020GeV','DIGIHIppRef','RECOHIppRef','HARVESTHIppRef']]
+
