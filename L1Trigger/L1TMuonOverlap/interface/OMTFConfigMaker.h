@@ -18,7 +18,7 @@ class OMTFConfigMaker{
 
  public:
 
-  OMTFConfigMaker(const edm::ParameterSet & cfg, OMTFConfiguration * omtf_config);
+  OMTFConfigMaker(OMTFConfiguration * omtf_config);
 
   ~OMTFConfigMaker();
 

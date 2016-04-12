@@ -15,21 +15,15 @@ L1MuonOverlapParamsDBProducer::L1MuonOverlapParamsDBProducer(const edm::Paramete
 void L1MuonOverlapParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup){
 
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-  const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
+  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
   
   omtfParamsRcd.get("params",omtfParamsHandle);
-  omtfPatternsRcd.get("patterns",omtfPatternsHandle);
 
   omtfParams = std::unique_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(*omtfParamsHandle.product()));
-  omtfPatterns = std::unique_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(*omtfPatternsHandle.product()));
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-  if (!omtfPatterns) {
-    edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve patterns from Event Setup" << std::endl;
-  }  
 }
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
@@ -39,7 +33,6 @@ void L1MuonOverlapParamsDBProducer::analyze(const edm::Event& ev, const edm::Eve
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if(poolDbService.isAvailable()){
     poolDbService->writeOne(omtfParams.get(), poolDbService->currentTime(),recordName);
-    //poolDbService->writeOne(omtfPatterns.get(), poolDbService->currentTime(),recordName);
   }
 }
 ///////////////////////////////////////////////////////////////

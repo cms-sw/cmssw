@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-OMTFConfigMaker::OMTFConfigMaker(const edm::ParameterSet & theConfig, OMTFConfiguration * omtfConfig) : myOmtfConfig(omtfConfig) { 
+OMTFConfigMaker::OMTFConfigMaker(OMTFConfiguration * omtfConfig) : myOmtfConfig(omtfConfig) { 
 
   std::vector<int> refPhi1D(myOmtfConfig->nLogicRegions(),2*myOmtfConfig->nPhiBins());
   minRefPhi2D.assign(myOmtfConfig->nRefLayers(),refPhi1D);

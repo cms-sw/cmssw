@@ -32,10 +32,6 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg):
   inputTokenSimHit = consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("g4SimTrackSrc"));
 
     
-  if(!theConfig.exists("omtf")){
-    edm::LogError("OMTFPatternMaker")<<"omtf configuration not found in cfg.py";
-  }
-  
   myInputMaker = new OMTFinputMaker();
   
   makeGoldenPatterns = theConfig.getParameter<bool>("makeGoldenPatterns");
@@ -58,21 +54,15 @@ OMTFPatternMaker::~OMTFPatternMaker(){
 void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup){
 
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-  const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
-  omtfParamsRcd.get("params",omtfParamsHandle);
-  omtfPatternsRcd.get("patterns",omtfPatternsHandle);
+  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
+  omtfParamsRcd.get(omtfParamsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
-  const L1TMuonOverlapParams* omtfPatterns = omtfPatternsHandle.product();
   
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-  if (!omtfPatterns) {
-    edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve patterns from Event Setup" << std::endl;
-  }  
   
   myOMTFConfig->configure(omtfParams);
   myOMTF->configure(myOMTFConfig, omtfParams);
@@ -94,11 +84,9 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginJob(){
 
-  if(theConfig.exists("omtf")){
     myOMTFConfig = new OMTFConfiguration();
-    myOMTFConfigMaker = new OMTFConfigMaker(theConfig.getParameter<edm::ParameterSet>("omtf"), myOMTFConfig);
+    myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
     myOMTF = new OMTFProcessor();
-  }
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////  
