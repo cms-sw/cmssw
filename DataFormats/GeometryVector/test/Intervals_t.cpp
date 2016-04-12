@@ -51,7 +51,7 @@ int main() {
     }
 
     //phi
-    for (float phi=-6;phi<6.5; phi+=0.2)
+    for (float phi=-6.001;phi<6.5; phi+=0.2)
     for (float dphi=-3.1;dphi<3.15; dphi+=0.2) {
       PhiInterval pi(phi,phi+dphi);
       auto in = pi.inside(p.basicVector());
