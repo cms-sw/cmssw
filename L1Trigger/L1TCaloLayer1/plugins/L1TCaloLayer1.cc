@@ -168,12 +168,12 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // If so, we need to check the tower masks before processing
   bool checkEcalMask = false;
   auto ecalProvenance = iEvent.getProvenance(ecalTPs.id());
-  if ( ecalProvenance.product().moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
+  if ( ecalProvenance.moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
     checkEcalMask = true;
   }
   bool checkHcalMask = false;
   auto hcalProvenance = iEvent.getProvenance(hcalTPs.id());
-  if ( hcalProvenance.product().moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
+  if ( hcalProvenance.moduleName().compare("L1TCaloLayer1RawToDigi") == 0 ) {
     checkHcalMask = true;
   }
 
