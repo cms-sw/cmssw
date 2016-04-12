@@ -129,7 +129,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     storeValueMap<reco::CandidatePtr>(iEvent, src, ptrs, "");
 
     if (writeExtraPATOutput_) {
-        std::auto_ptr<edm::OwnVector<pat::UserData> > outUDVect(new edm::OwnVector<pat::UserData>());
+        auto outUDVect = std::make_unique<edm::OwnVector<pat::UserData> >();
         std::vector<int>                              idxUD(nsrc, -1);
         for (isrc = 0; isrc < nsrc; ++isrc) {
             if (match[isrc] != -1) {
@@ -137,7 +137,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
                 idxUD[isrc] = outUDVect->size() - 1;
             }
         }
-        edm::OrphanHandle<edm::OwnVector<pat::UserData> > doneUDVect = iEvent.put(outUDVect);
+        edm::OrphanHandle<edm::OwnVector<pat::UserData> > doneUDVect = iEvent.put(std::move(outUDVect));
         std::vector<edm::Ptr<pat::UserData> > ptrUD(nsrc);
         for (isrc = 0; isrc < nsrc; ++isrc) {
             if (idxUD[isrc] != -1) ptrUD[isrc] = edm::Ptr<pat::UserData>(doneUDVect, idxUD[isrc]);
