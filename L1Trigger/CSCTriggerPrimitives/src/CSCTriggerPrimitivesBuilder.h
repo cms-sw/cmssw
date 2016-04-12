@@ -91,6 +91,9 @@ class CSCTriggerPrimitivesBuilder
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
+  /** SLHC: master switch. */
+  bool isSLHC;
+
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a;
 
