@@ -32,8 +32,8 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   ibooker.setCurrentFolder(monitorDir);
   
   bmtf_hwEta = ibooker.book1D("bmtf_hwEta", "HW #eta", 447, -223.5, 223.5);
-  bmtf_hwLocalPhi = ibooker.book1D("bmtf_hwLocalPhi", "HW Local #phi", 201, -100.5, 100.5);
-  bmtf_hwGlobalPhi = ibooker.book1D("bmtf_hwGlobalPhi", "HW Global #phi", 201, -100.5, 100.5);
+  bmtf_hwLocalPhi = ibooker.book1D("bmtf_hwLocalPhi", "HW Local #phi", 76, -10.5, 65.5);
+  bmtf_hwGlobalPhi = ibooker.book1D("bmtf_hwGlobalPhi", "HW Global #phi", 411, -10.5, 400.5);
   bmtf_hwPt  = ibooker.book1D("bmtf_hwPt", "HW p_{T}", 511, -0.5, 510.5);
   bmtf_hwQual= ibooker.book1D("bmtf_hwQual" , "HW Quality", 20, -0.5, 19.5);
   bmtf_proc  = ibooker.book1D("bmtf_proc" , "Processor", 12, -0.5, 11.5);

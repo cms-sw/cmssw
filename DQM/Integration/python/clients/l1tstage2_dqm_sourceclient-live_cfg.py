@@ -71,7 +71,7 @@ process.stage2UnpackPath = cms.Path(
     process.gmtStage2Digis +
     process.gtStage2Digis +
     process.BMTFStage2Digis + 
-#    process.emtfStage2Digis+
+    #process.omtfStage2Digis +
     process.emtfStage2Digis
 )
 
