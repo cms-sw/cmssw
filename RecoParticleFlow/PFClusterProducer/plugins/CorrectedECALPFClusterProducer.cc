@@ -119,8 +119,6 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   
   association_out->shrink_to_fit();
 
-  // std::cout << "ass " << association_out->size() << std::endl;
-  
   e.put(std::move(association_out));
   e.put(std::move(clusters_out));
 }

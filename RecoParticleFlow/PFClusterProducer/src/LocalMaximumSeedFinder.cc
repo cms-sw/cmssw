@@ -115,7 +115,6 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     }
   }
 
-  // auto ns = std::count(seedable.begin(),seedable.end(),true);
-  // std::cout << "seeds " << ns << std::endl;
+  LogDebug("LocalMaximumSeedFinder") << " found " << std::count(seedable.begin(),seedable.end(),true) << " seeds";
 
 }
