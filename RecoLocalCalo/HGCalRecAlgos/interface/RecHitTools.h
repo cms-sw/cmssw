@@ -1,5 +1,5 @@
-#ifndef __RecoHGCal_HGCalCoreTools_RecHitTools_h__
-#define __RecoHGCal_HGCalCoreTools_RecHitTools_h__
+#ifndef __RecoLocalCalo_HGCalRecAlgos_RecHitTools_h__
+#define __RecoLocalCalo_HGCalRecAlgos_RecHitTools_h__
 
 #include <array>
 #include <cmath>

@@ -1,4 +1,4 @@
-#include "RecoHGCal/HGCalCoreTools/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
