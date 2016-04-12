@@ -46,7 +46,6 @@ public:
   void statistics();
   bool generatePartonsAndHadronize();
   bool decay();
-  bool rearrangeWeights;
   bool residualDecay();
   void finalizeEvent();
   GenLumiInfoHeader *getGenLumiInfoHeader() const override;
@@ -69,6 +68,7 @@ private:
   SHERPA::Sherpa Generator;
   bool isInitialized;
   bool isRNGinitialized;
+  bool rearrangeWeights;  
   std::vector<std::string> weightlist;
   std::vector<std::string> variationweightlist;
 };
