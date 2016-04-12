@@ -290,7 +290,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
       {
         //if busy, charge has been already integrated
         //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
-        if( !totFlags[it] && !busyFlags[it] ) {
+        if( !totFlags[it] & !busyFlags[it] ) {
           const int start = std::max(0,2-it);
           const int stop  = std::min((int)adcPulse_.size(),(int)newCharge.size()-it+2);          
           for(ipulse = start; ipulse < stop; ++ipulse) {
@@ -298,7 +298,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
             //notice that if the channel is already busy,
             //it has already been affected by the leakage of the SARS ADC
             //if(totFlags[itoffset] || busyFlags[itoffset]) continue;
-            if( totFlags[itoffset] || busyFlags[itoffset] ) {
+            if( !totFlags[itoffset] & !busyFlags[itoffset] ) {
               newCharge[itoffset] += chargeColl[it]*adcPulse_[ipulse];
             }
             //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
