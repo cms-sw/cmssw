@@ -32,7 +32,7 @@ DefaultHisto = cms.PSet(
   # You can add specs here that you would like to see in addition to the ones declared in the source. 
   # Doing this in the default config is a very bad idea, just here for documentation.
   # This structure is output by the SpecficationBuilder.
-  specs = cms.VPSet(),
+  specs = cms.VPSet()
   #  cms.PSet(spec = 
   #    cms.VPset(
   #      cms.PSet(
@@ -50,6 +50,5 @@ DefaultHisto = cms.PSet(
   #   )
   # )
   #)
-  geometry = SiPixelPhase1Geometry
 )
 

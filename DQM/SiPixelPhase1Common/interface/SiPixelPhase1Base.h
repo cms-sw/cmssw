@@ -23,15 +23,17 @@
 // used as a mixin for Analyzer and Harvester.
 class HistogramManagerHolder {
   public:
-  HistogramManagerHolder(const edm::ParameterSet& iConfig) {
+  HistogramManagerHolder(const edm::ParameterSet& iConfig)
+    : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry")) {
     auto histograms = iConfig.getParameter<edm::VParameterSet>("histograms");
     for (auto histoconf : histograms) {
-      histo.emplace_back(HistogramManager(histoconf));
+      histo.emplace_back(HistogramManager(histoconf, geometryInterface));
     }
   };
 
   protected:
   std::vector<HistogramManager> histo;
+  GeometryInterface geometryInterface;
 };
 
 // This is the base class your plugin may derive from. You are not required to

@@ -33,7 +33,7 @@
 // TODO: Should we use a namespace, and if yes, which?
 class HistogramManager {
 public:
-  explicit HistogramManager(const edm::ParameterSet& iConfig);
+  explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
 
   // Add a specification for a set of plot. this has to happen before fill()'ing, since it optimizes for the spec.
   void addSpec(SummationSpecification spec);
@@ -53,7 +53,7 @@ public:
 
 private:
   const edm::ParameterSet& iConfig;
-  GeometryInterface geometryInterface;
+  GeometryInterface& geometryInterface;
 
   std::vector<SummationSpecification> specs;
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;

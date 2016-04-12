@@ -16,9 +16,9 @@
 // Logger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HistogramManager::HistogramManager(const edm::ParameterSet& iconfig) :
+HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInterface& geo) :
   iConfig(iconfig),
-  geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry")),
+  geometryInterface(geo),
   enabled(iconfig.getParameter<bool>("enabled")),
   bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
   top_folder_name(iconfig.getParameter<std::string>("topFolderName")),

@@ -68,9 +68,11 @@ SiPixelPhase1DigisConf = cms.VPSet(
 # TODO: names?
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         src = cms.InputTag("simSiPixelDigis"), 
-        histograms = SiPixelPhase1DigisConf
+        histograms = SiPixelPhase1DigisConf,
+	geometry = SiPixelPhase1Geometry
 )
 # TODO: better clone() here instead?
 SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
-        histograms = SiPixelPhase1DigisConf
+        histograms = SiPixelPhase1DigisConf,
+	geometry = SiPixelPhase1Geometry
 )
