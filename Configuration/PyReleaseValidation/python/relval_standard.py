@@ -255,6 +255,7 @@ workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATTUP
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1356] = ['', ['ZEE_13_DBLMINIAOD','DIGIUP15','RECOAODUP15','HARVESTUP15','DBLMINIAODMCUP15NODQM']] 
+workflows[5501329] = ['', ['ZEE_13_DigiSigTest','DIGIUP15_DigiSigTest','RECOUP15_DigiSigTest','HARVESTUP15_DigiSigTest']]
 workflows[1331] = ['', ['ZTT_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1332] = ['', ['H125GGgluonfusion_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15']]
