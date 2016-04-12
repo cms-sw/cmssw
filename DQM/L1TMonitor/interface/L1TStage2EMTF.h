@@ -1,14 +1,15 @@
 #ifndef DQM_L1TMonitor_L1TStage2EMTF_h
 #define DQM_L1TMonitor_L1TStage2EMTF_h
 
-#include "DataFormats/L1TMuon/interface/EMTFOutput.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/L1TMuon/interface/EMTFOutput.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 
 class L1TStage2EMTF : public DQMEDAnalyzer {
@@ -27,7 +28,8 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
 
  private:
 
-  edm::EDGetTokenT<l1t::EMTFOutputCollection> emtfToken;
+  edm::EDGetTokenT<l1t::EMTFOutputCollection> inputToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> outputToken;
   std::string monitorDir;
   bool verbose;
 
@@ -39,7 +41,8 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfChamberWire[18];
   MonitorElement* emtfChamberOccupancy;
   
-  MonitorElement* emtfnTracks;
+  MonitorElement* emtfnTracksEvent;
+  MonitorElement* emtfnTracksSP;
   MonitorElement* emtfnLCTs;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackPt;
@@ -48,7 +51,13 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTrackOccupancy;
   MonitorElement* emtfMode;
   MonitorElement* emtfQuality;
-  MonitorElement* emtfModeQuality;
+  MonitorElement* emtfQualityvsMode;
+
+  MonitorElement* emtfMuonBX;
+  MonitorElement* emtfMuonhwPt;
+  MonitorElement* emtfMuonhwEta;
+  MonitorElement* emtfMuonhwPhi;
+  MonitorElement* emtfMuonhwQual;
 };
 
 #endif

@@ -5,7 +5,8 @@
 
 
 L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps) 
-    : emtfToken(consumes<l1t::EMTFOutputCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+    : inputToken(consumes<l1t::EMTFOutputCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+      outputToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
@@ -17,15 +18,17 @@ void L1TStage2EMTF::beginLuminosityBlock(const edm::LuminosityBlock&, const edm:
 
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
-  int n_xbins;
-  std::vector<std::string> name = {"42", "41", "32", "31", "22", "21", "13", "12", "11"};
-  std::vector<std::string> label = {"4/2", "4/1", "3/2", "3/1", "2/2", "2/1", "1/3", "1/2", "1/1"};
-
+  // Monitor Elements for EMTF Output Collection
   ibooker.setCurrentFolder(monitorDir);
 
-  // ME (LCTs) Monitor Elements
+  int n_xbins;
+  std::string name, label;
+  std::vector<std::string> suffix_name = {"42", "41", "32", "31", "22", "21", "13", "12", "11"};
+  std::vector<std::string> suffix_label = {"4/2", "4/1", "3/2", "3/1", " 2/2", "2/1", "1/3", "1/2", "1/1"};
+
+  // ME (LCTs)
   emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 6, 0, 6);
-  emtfErrors->setAxisTitle("Error Type (Corruptions not implemented)", 1);
+  emtfErrors->setAxisTitle("Error Type (Corruptions Not Implemented)", 1);
   emtfErrors->setAxisTitle("Number of Errors", 2);
   emtfErrors->setBinLabel(1, "Corruptions", 1);
   emtfErrors->setBinLabel(2, "Synch. Err.", 1);
@@ -34,66 +37,51 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfErrors->setBinLabel(5, "Time Misalign.", 1);
   emtfErrors->setBinLabel(6, "FMM != Ready", 1);
 
-  emtfLCTBX = ibooker.book2D("emtfLCTBX", "EMTF LCT BX", 9, -1, 8, 18, -9, 9);
+  emtfLCTBX = ibooker.book2D("emtfLCTBX", "EMTF LCT BX", 9, -1, 8, 18, 0, 18);
   emtfLCTBX->setAxisTitle("BX", 1);
-  for (int bin = 1, j = -4; bin <= 9; ++bin, ++j) {
-    emtfLCTBX->setBinLabel(bin, std::to_string(j), 1);
+  for (int bin = 1, bin_label = -4; bin <= 9; ++bin, ++bin_label) {
+    emtfLCTBX->setBinLabel(bin, std::to_string(bin_label), 1);
+    emtfLCTBX->setBinLabel(bin, "ME-" + suffix_label[bin - 1], 2);
+    emtfLCTBX->setBinLabel(18 - bin, "ME+" + suffix_label[bin - 1], 2);
   }
 
-  for (int i = 0; i < 9; ++i) {
-    emtfLCTBX->setBinLabel(i + 1, "ME-" + label[i], 2);
-    emtfLCTBX->setBinLabel(18 - i, "ME+" + label[i], 2);
+  for (int hist = 0, i = 0; hist < 18; ++hist, i = hist % 9) {
 
-    emtfLCTStrip[i] = ibooker.book1D("emtfLCTStripMENeg" + name[i], "EMTF Halfstrip ME-" + label[i], 256, 0, 256);
-    emtfLCTStrip[i]->setAxisTitle("Cathode Halfstrip, ME-" + label[i], 1);
-
-    emtfLCTStrip[17 - i] = ibooker.book1D("emtfLCTStripMEPos" + name[i], "EMTF Halfstrip ME+" + label[i], 256, 0, 256);
-    emtfLCTStrip[17 - i]->setAxisTitle("Cathode Halfstrip, ME+" + label[i], 1);
-
-    emtfLCTWire[i] = ibooker.book1D("emtfLCTWireMENeg" + name[i], "EMTF Wiregroup ME-" + label[i], 128, 0, 128);
-    emtfLCTWire[i]->setAxisTitle("Anode Wiregroup, ME-" + label[i], 1);
-
-    emtfLCTWire[17 - i] = ibooker.book1D("emtfLCTWireMEPos" + name[i], "EMTF Wiregroup ME+" + label[i], 128, 0, 128);
-    emtfLCTWire[17 - i]->setAxisTitle("Anode Wiregroup, ME+" + label[i], 1);
-
-    if (i < 6) {
-      n_xbins = (i % 2) ? 18 : 36;
-
-      emtfChamberStrip[i] = ibooker.book2D("emtfChamberStripMENeg" + name[i], "EMTF Halfstrip ME-" + label[i], n_xbins, 0, n_xbins, 256, 0, 256);
-      emtfChamberStrip[i]->setAxisTitle("Chamber, ME-" + label[i], 1);
-      emtfChamberStrip[i]->setAxisTitle("Cathode Halfstrip", 2);
-    
-      emtfChamberWire[i] = ibooker.book2D("emtfChamberWireMENeg" + name[i], "EMTF Wiregroup ME-" + label[i], n_xbins, 0, n_xbins, 128, 0, 128);
-      emtfChamberWire[i]->setAxisTitle("Chamber, ME-" + label[i], 1);
-      emtfChamberWire[i]->setAxisTitle("Anode Wiregroup", 2);
-
-      emtfChamberStrip[17 - i] = ibooker.book2D("emtfChamberStripMEPos" + name[i], "EMTF Halfstrip ME+" + label[i], n_xbins, 0, n_xbins, 256, 0, 256);
-      emtfChamberStrip[17 - i]->setAxisTitle("Chamber, ME+" + label[i], 1);
-      emtfChamberStrip[17 - i]->setAxisTitle("Cathode Halfstrip", 2);
-    
-      emtfChamberWire[17 - i] = ibooker.book2D("emtfChamberWireMEPos" + name[i], "EMTF Wiregroup ME+" + label[i], n_xbins, 0, n_xbins, 128, 0, 128);
-      emtfChamberWire[17 - i]->setAxisTitle("Chamber, ME+" + label[i], 1);
-      emtfChamberWire[17 - i]->setAxisTitle("Anode Wiregroup", 2);
+    if (hist < 9) {
+      name = "MENeg" + suffix_name[i];
+      label = "ME-" + suffix_label[i];
     } else {
-      emtfChamberStrip[i] = ibooker.book2D("emtfChamberStripMENeg" + name[i], "EMTF Halfstrip ME-" + label[i], 36, 0, 36, 256, 0, 256);
-      emtfChamberStrip[i]->setAxisTitle("Chamber, ME-" + label[i], 1);
-      emtfChamberStrip[i]->setAxisTitle("Cathode Halfstrip", 2);
-   
-      emtfChamberWire[i] = ibooker.book2D("emtfChamberWireMENeg" + name[i], "EMTF Wiregroup ME-" + label[i], 36, 0, 36, 128, 0, 128);
-      emtfChamberWire[i]->setAxisTitle("Chamber, ME-" + label[i], 1);
-      emtfChamberWire[i]->setAxisTitle("Anode Wiregroup", 2);
+      name = "MEPos" + suffix_name[8 - i];
+      label = "ME+" + suffix_label[8 - i];
+    }
 
-      emtfChamberStrip[17 - i] = ibooker.book2D("emtfChamberStripMEPos" + name[i], "EMTF Halfstrip ME+" + label[i], 36, 0, 36, 256, 0, 256);
-      emtfChamberStrip[17 - i]->setAxisTitle("Chamber, ME+" + label[i], 1);
-      emtfChamberStrip[17 - i]->setAxisTitle("Cathode Halfstrip", 2);
-  
-      emtfChamberWire[17 - i] = ibooker.book2D("emtfChamberWireMEPos" + name[i], "EMTF Wiregroup ME+" + label[i], 36, 0, 36, 128, 0, 128);
-      emtfChamberWire[17 - i]->setAxisTitle("Chamber, ME+" + label[i], 1);
-      emtfChamberWire[17 - i]->setAxisTitle("Anode Wiregroup", 2);
+    if (hist < 6 || hist > 11) {
+      n_xbins = (i % 2) ? 18 : 36;
+    } else {
+      n_xbins = 36;
+    }
+
+    emtfLCTStrip[hist] = ibooker.book1D("emtfLCTStrip" + name, "EMTF Halfstrip " + label, 256, 0, 256);
+    emtfLCTStrip[hist]->setAxisTitle("Cathode Halfstrip, " + label, 1);
+
+    emtfLCTWire[hist] = ibooker.book1D("emtfLCTWire" + name, "EMTF Wiregroup " + label, 128, 0, 128);
+    emtfLCTWire[hist]->setAxisTitle("Anode Wiregroup, " + label, 1);
+
+    emtfChamberStrip[hist] = ibooker.book2D("emtfChamberStrip" + name, "EMTF Halfstrip " + label, n_xbins, 1, n_xbins + 1, 256, 0, 256);
+    emtfChamberStrip[hist]->setAxisTitle("Chamber, " + label, 1);
+    emtfChamberStrip[hist]->setAxisTitle("Cathode Halfstrip", 2);
+
+    emtfChamberWire[hist] = ibooker.book2D("emtfChamberWire" + name, "EMTF Wiregroup " + label, n_xbins, 1, n_xbins + 1, 128, 0, 128);
+    emtfChamberWire[hist]->setAxisTitle("Chamber, " + label, 1);
+    emtfChamberWire[hist]->setAxisTitle("Anode Wiregroup", 2);
+
+    for (int bin = 1; bin <= n_xbins; ++bin) {
+      emtfChamberStrip[hist]->setBinLabel(bin, std::to_string(bin), 1);
+      emtfChamberWire[hist]->setBinLabel(bin, std::to_string(bin), 1);
     }
   }
 
-  emtfChamberOccupancy = ibooker.book2D("emtfChamberOccupancy", "EMTF Chamber Occupancy", 55, 0, 55, 10, -5, 5);
+  emtfChamberOccupancy = ibooker.book2D("emtfChamberOccupancy", "EMTF Chamber Occupancy", 54, 1, 55, 10, -5, 5);
   emtfChamberOccupancy->setAxisTitle("Sector (CSCID 1-9 Unlabelled)", 1);
   for (int bin = 1; bin <= 46; bin += 9) {
     emtfChamberOccupancy->setBinLabel(bin, std::to_string(bin % 8), 1);
@@ -109,18 +97,25 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfChamberOccupancy->setBinLabel(9, "ME+3", 2);
   emtfChamberOccupancy->setBinLabel(10, "ME+4", 2);
 
-  // SP (Tracks) Monitor Elements
-  emtfnTracks = ibooker.book1D("emtfnTracks", "Number of EMTF Tracks per Event", 4, 0, 4);
-  for (int bin = 1; bin <= 4; ++bin) {
-    emtfnTracks->setBinLabel(bin, std::to_string(bin - 1), 1);
+  // SP (Tracks)
+  emtfnTracksEvent = ibooker.book1D("emtfnTracksEvent", "Number of EMTF Tracks per Event", 11, 0, 11);
+  for (int bin = 1; bin <= 10; ++bin) {
+    emtfnTracksEvent->setBinLabel(bin, std::to_string(bin - 1), 1);
   }
+  emtfnTracksEvent->setBinLabel(11, "Overflow", 1);
+
+  emtfnTracksSP = ibooker.book1D("emtfnTracksSP", "Number of EMTF Tracks per Sector Processor", 6, 0, 6);
+  for (int bin = 1; bin <= 5; ++bin) {
+    emtfnTracksSP->setBinLabel(bin, std::to_string(bin - 1), 1);
+  }
+  emtfnTracksSP->setBinLabel(6, "Overflow", 1);
 
   emtfnLCTs = ibooker.book1D("emtfnLCTs", "Number of LCTs per EMTF Track", 5, 0, 5);
   for (int bin = 1; bin <= 5; ++bin) {
     emtfnLCTs->setBinLabel(bin, std::to_string(bin - 1), 1);
   }
 
-  emtfTrackBX = ibooker.book2D("emtfTrackBX", "EMTF Track Bunch Crossings", 12, -6, 6, 7, 0, 7);
+  emtfTrackBX = ibooker.book2D("emtfTrackBX", "EMTF Track Bunch Crossing", 12, -6, 6, 7, 0, 7);
   emtfTrackBX->setAxisTitle("Sector (Endcap)", 1);
   for (int i = 0; i < 6; ++i) {
     emtfTrackBX->setBinLabel(i + 1, std::to_string(6 - i) + " (-)", 1);
@@ -144,15 +139,46 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackOccupancy->setAxisTitle("#eta", 1);
   emtfTrackOccupancy->setAxisTitle("#phi", 2);
   
-  emtfMode = ibooker.book1D("emtfMode", "EMTF Track Mode", 17, -0.5, 16.5);
+  emtfMode = ibooker.book1D("emtfMode", "EMTF Track Mode", 16, 0, 16);
   emtfMode->setAxisTitle("Mode", 1);
 
-  emtfQuality = ibooker.book1D("emtfQuality", "EMTF Track Quality", 17, -0.5, 16.5);
+  emtfQuality = ibooker.book1D("emtfQuality", "EMTF Track Quality", 16, 0, 16);
   emtfQuality->setAxisTitle("Quality", 1);
 
-  emtfModeQuality = ibooker.book2D("emtfModeQuality", "EMTF Track Mode vs Quality", 17, -0.5, 16.5, 17, -0.5, 16.5);
-  emtfModeQuality->setAxisTitle("Mode", 1);
-  emtfModeQuality->setAxisTitle("Qualtiy", 2);
+  emtfQualityvsMode = ibooker.book2D("emtfQualityvsMode", "EMTF Track Quality vs Mode", 16, 0, 16, 16, 0, 16);
+  emtfQualityvsMode->setAxisTitle("Mode", 1);
+  emtfQualityvsMode->setAxisTitle("Quality", 2);
+
+  for (int bin = 1; bin <= 16; ++bin) {
+    emtfMode->setBinLabel(bin, std::to_string(bin - 1), 1);
+    emtfQuality->setBinLabel(bin, std::to_string(bin - 1), 1);
+    emtfQualityvsMode->setBinLabel(bin, std::to_string(bin - 1), 1);
+    emtfQualityvsMode->setBinLabel(bin, std::to_string(bin - 1), 2);
+  }
+
+  // Monitor Elements for Muon Candidates (Output to uGMT)
+  ibooker.setCurrentFolder(monitorDir + "/Output");
+
+  emtfMuonBX = ibooker.book1D("emtfMuonBX", "EMTF Muon Cand BX", 7, -3, 4);
+  emtfMuonBX->setAxisTitle("BX", 1);
+  for (int bin = 1, bin_label = -3; bin <= 7; ++bin, ++bin_label) {
+    emtfMuonBX->setBinLabel(bin, std::to_string(bin_label), 1);
+  }
+
+  emtfMuonhwPt = ibooker.book1D("emtfMuonhwPt", "EMTF Muon Cand p_{T}", 512, 0, 512);
+  emtfMuonhwPt->setAxisTitle("Hardware p_{T}", 1);
+
+  emtfMuonhwEta = ibooker.book1D("emtfMuonhwEta", "EMTF Muon Cand #eta", 460, -230, 230);
+  emtfMuonhwEta->setAxisTitle("Hardware #eta", 1);
+
+  emtfMuonhwPhi = ibooker.book1D("emtfMuonhwPhi", "EMTF Muon Cand #phi", 125, -20, 105);
+  emtfMuonhwPhi->setAxisTitle("Hardware #phi", 1);
+
+  emtfMuonhwQual = ibooker.book1D("emtfMuonhwQual", "EMTF Muon Cand Quality", 16, 0, 16);
+  emtfMuonhwQual->setAxisTitle("Quality", 1);
+  for (int bin = 1; bin <= 16; ++bin) {
+    emtfMuonhwQual->setBinLabel(bin, std::to_string(bin - 1), 1);
+  }
 }
 
 void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -160,9 +186,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (verbose) edm::LogInfo("L1TStage2EMTF") << "L1TStage2EMTF: analyze..." << std::endl;
 
   edm::Handle<l1t::EMTFOutputCollection> EMTFOutputCollection;
-  e.getByToken(emtfToken, EMTFOutputCollection);
+  e.getByToken(inputToken, EMTFOutputCollection);
 
-  int nTracks = 0;
+  int nTracksEvent = 0;
  
   for (std::vector<l1t::EMTFOutput>::const_iterator EMTFOutput = EMTFOutputCollection->begin(); EMTFOutput != EMTFOutputCollection->end(); ++EMTFOutput) {
 
@@ -172,83 +198,87 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int Sector = EventHeader->SP_ts();
     if (Sector > 6) Sector -= 8;
 
-    // Check if FMM Signal was good
-    if (EventHeader->Rdy() == 0) emtfErrors->Fill(5);
+    if (!EventHeader->Rdy()) emtfErrors->Fill(5);
 
     // ME (LCTs) Data Record
     const l1t::emtf::MECollection* MECollection = EMTFOutput->PtrMECollection();
 
     for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
       int Station = ME->Station();
-      int CSCID = ME->CSC_ID();
-      int half_strip = ME->Strip();
-      int wire_group = ME->Wire();
-      float bin_offset;
-      int histogram_index;
+      int Ring = ME->Ring();
+      int Subsector = ME->Subsector();
+      int CSC_ID = ME->CSC_ID();
+      //int Neighbor = ME->Neighbor();
+      int Strip = ME->Strip();
+      int Wire = ME->Wire();
+
+      // Evaluate histogram index and chamber number with respect to station and ring.
+      int hist_index = 0, chamber_number = 0;
+
+      if (Station == 1) {
+        if (Ring == 1 || Ring == 4) {
+          hist_index = 8;
+          chamber_number = (Sector * 6) + CSC_ID;
+        } else if (Ring == 2) {
+          hist_index = 7;
+          chamber_number = (Sector * 6) + CSC_ID - 3;
+        } else if (Ring == 3) {
+          hist_index = 6;
+          chamber_number = (Sector * 6) + CSC_ID - 6;
+        }
+        if (Subsector == 2) chamber_number += 3;
+      } else if (Ring == 1) {
+        if (Station == 2) {
+          hist_index = 5;
+        } else if (Station == 3) {
+          hist_index = 3;
+        } else if (Station == 4) {
+          hist_index = 1;
+        }
+        chamber_number = (Sector * 3) + CSC_ID;
+      } else if (Ring == 2) {
+        if (Station == 2) {
+          hist_index = 4;
+        } else if (Station == 3) {
+          hist_index = 2;
+        } else if (Station == 4) {
+          hist_index = 0;
+        }
+        chamber_number = (Sector * 6) + CSC_ID - 3;
+      }
+
+      if (Endcap > 0) hist_index = 17 - hist_index;
 
       if (ME->SE()) emtfErrors->Fill(1);
       if (ME->SM()) emtfErrors->Fill(2);
       if (ME->BXE()) emtfErrors->Fill(3);
       if (ME->AF()) emtfErrors->Fill(4);
 
-      if (Station == 0 || Station == 1) {
-        if (CSCID < 3) {
-          bin_offset = 0.5;
-        } else if (CSCID > 2 && CSCID < 6) {
-          bin_offset = 1.5;
-        } else {
-          bin_offset = 2.5;
-        }
+      emtfLCTBX->Fill(ME->Tbin_num(), hist_index);
+
+      emtfLCTStrip[hist_index]->Fill(Strip);
+      emtfLCTWire[hist_index]->Fill(Wire);
+
+      emtfChamberStrip[hist_index]->Fill(chamber_number, Strip);
+      emtfChamberWire[hist_index]->Fill(chamber_number, Wire);
+
+      if (Subsector == 1) {
+        emtfChamberOccupancy->Fill((Sector * 9) + CSC_ID, Endcap * (Station - 0.5));
       } else {
-        if (CSCID < 3) {
-          if (Station == 2) {
-            bin_offset = 3.5;
-          } else if (Station == 3) {
-            bin_offset = 5.5;
-          } else {
-            bin_offset = 7.5;
-          }
-        } else {
-          if (Station == 2) {
-            bin_offset = 4.5;
-          } else if (Station == 3) {
-            bin_offset = 6.5;
-          } else {
-            bin_offset = 8.5;
-          }
-        }
+        emtfChamberOccupancy->Fill((Sector * 9) + CSC_ID, Endcap * (Station + 0.5));
       }
-   
-      histogram_index = int(8.5 + Endcap * bin_offset);
-
-      emtfLCTBX->Fill(ME->Tbin_num(), Endcap * bin_offset);
-      emtfLCTStrip[histogram_index]->Fill(half_strip);
-      emtfLCTWire[histogram_index]->Fill(wire_group);
-
-      if (bin_offset == 0.5) {
-          emtfChamberStrip[histogram_index]->Fill((Sector * 6) + (CSCID + Station *3 ), half_strip);
-	  emtfChamberWire[histogram_index]->Fill((Sector * 6) + (CSCID + Station *3 ), wire_group);
-      } else if (bin_offset == 1.5) {
-          emtfChamberStrip[histogram_index]->Fill((Sector * 6) + (CSCID + Station * 3 - 3), half_strip);
-	  emtfChamberWire[histogram_index]->Fill((Sector * 6) + (CSCID + Station * 3 - 3), wire_group);
-      } else if (bin_offset == 2.5) {
-          emtfChamberStrip[histogram_index]->Fill((Sector * 6) + (CSCID + Station * 3 - 6), half_strip);
-	  emtfChamberWire[histogram_index]->Fill((Sector * 6) + (CSCID + Station * 3 - 6), wire_group);
-      } else {
-        if(int(bin_offset) % 2) {
-          emtfChamberStrip[histogram_index]->Fill((Sector * 3) + CSCID, half_strip);
-	  emtfChamberWire[histogram_index]->Fill((Sector * 3) + CSCID, wire_group);
-        } else {
-          emtfChamberStrip[histogram_index]->Fill((Sector * 6) + (CSCID - 3), half_strip);
-	  emtfChamberWire[histogram_index]->Fill((Sector * 6) + (CSCID - 3), wire_group);
-        }
-      }
-
-      emtfChamberOccupancy->Fill((Sector * 9) + CSCID, Endcap * (Station + 0.5));
     }
 
     // SP (Tracks) Data Record
     const l1t::emtf::SPCollection* SPCollection = EMTFOutput->PtrSPCollection();
+
+    int nTracksSP = SPCollection->size();
+
+    if (nTracksSP <= 6) {
+      emtfnTracksSP->Fill(nTracksSP);
+    } else {
+      emtfnTracksSP->Fill(6);
+    }
 
     for (std::vector<l1t::emtf::SP>::const_iterator SP = SPCollection->begin(); SP != SPCollection->end(); ++SP) {
       float Pt = SP->Pt();
@@ -258,13 +288,13 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       int Quality = SP->Quality();
       int Mode = SP->Mode();
 
-      if (Quality == 0) {
+      if (Mode == 0) {
         emtfnLCTs->Fill(0);
-      } else if (Quality == 1 || Quality == 2 || Quality == 4 || Quality == 8) {
+      } else if (Mode == 1 || Mode == 2 || Mode == 4 || Mode == 8) {
         emtfnLCTs->Fill(1);
-      } else if (Quality == 3 || Quality == 5 || Quality == 9 || Quality == 10 || Quality == 12) {
+      } else if (Mode == 3 || Mode == 5 || Mode == 9 || Mode == 10 || Mode == 12) {
         emtfnLCTs->Fill(2);
-      } else if (Quality == 7 || Quality == 11 || Quality == 13 || Quality == 14) {
+      } else if (Mode == 7 || Mode == 11 || Mode == 13 || Mode == 14) {
         emtfnLCTs->Fill(3);
       } else {
         emtfnLCTs->Fill(4);
@@ -277,11 +307,29 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       emtfTrackOccupancy->Fill(Eta, Phi_GMT_global_rad);
       emtfMode->Fill(Mode);
       emtfQuality->Fill(Quality);
-      emtfModeQuality->Fill(Mode, Quality);      
+      emtfQualityvsMode->Fill(Mode, Quality);      
 
-      nTracks++;
+      ++nTracksEvent;
     }
   }
-  emtfnTracks->Fill(nTracks);
+
+  if (nTracksEvent <= 10) {
+    emtfnTracksEvent->Fill(nTracksEvent);
+  } else {
+    emtfnTracksEvent->Fill(10);
+  }
+
+  edm::Handle<l1t::RegionalMuonCandBxCollection> MuonBxCollection;
+  e.getByToken(outputToken, MuonBxCollection);
+
+  for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
+    for (l1t::RegionalMuonCandBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
+      emtfMuonBX->Fill(itBX);
+      emtfMuonhwPt->Fill(Muon->hwPt());
+      emtfMuonhwEta->Fill(Muon->hwEta());
+      emtfMuonhwPhi->Fill(Muon->hwPhi());
+      emtfMuonhwQual->Fill(Muon->hwQual());
+    }
+  }
 }
 
