@@ -25,7 +25,7 @@ struct SummationStep {
   // to allow fill() to exectute it very quickly.
   // For step2 stuff (after the first SAVE), we can also keep strings, since 
   // step2 will only be executed once by an executor.
-  enum Type  {NO_TYPE, GROUPBY, EXTEND_X, EXTEND_Y, COUNT, REDUCE, SAVE};
+  enum Type  {NO_TYPE, GROUPBY, EXTEND_X, EXTEND_Y, COUNT, REDUCE, SAVE, CUSTOM};
   Type type = NO_TYPE;
   enum Stage {NO_STAGE, FIRST, STAGE1, STAGE2};
   Stage stage = NO_STAGE;
