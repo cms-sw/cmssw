@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef _TotemSymbId_h_
-#define _TotemSymbId_h_
+#ifndef CondFormats_TotemReadoutObjects_TotemSymbId
+#define CondFormats_TotemReadoutObjects_TotemSymbId
 
 #include <iostream>
 

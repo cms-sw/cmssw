@@ -7,8 +7,8 @@
 *
 ****************************************************************************/
 
-#ifndef _TotemAnalysisMask_h_
-#define _TotemAnalysisMask_h_
+#ifndef CondFormats_TotemReadoutObjects_TotemAnalysisMask
+#define CondFormats_TotemReadoutObjects_TotemAnalysisMask
 
 #include "CondFormats/TotemReadoutObjects/interface/TotemSymbId.h"
 
@@ -42,7 +42,7 @@ class TotemAnalysisMask
   public:
     std::map<TotemSymbID, TotemVFATAnalysisMask> analysisMask;
 
-    void Insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam);
+    void insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam);
 };
 
 #endif
