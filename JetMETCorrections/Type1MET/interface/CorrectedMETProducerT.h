@@ -24,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "JetMETCorrections/Type1MET/interface/METCorrectionAlgorithm.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
@@ -82,6 +84,13 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
     delete algorithm_;
   }
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("@module_label");
+    desc.add<edm::InputTag>("src");
+    descriptions.addDefault(desc);
+  }
+
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)

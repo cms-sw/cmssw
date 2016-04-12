@@ -22,6 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -132,6 +134,23 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
       delete (*it);
     }
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("@module_label");
+    desc.add<edm::InputTag>("src");
+    desc.add<edm::InputTag>("offsetCorrLabel");
+    desc.add<edm::InputTag>("jetCorrLabel");
+    desc.add<edm::InputTag>("jetCorrLabelRes");
+    desc.add<double>("jetCorrEtaMax",9.9);
+    desc.add<double>("type1JetPtThreshold");
+    desc.add<bool>("skipEM");
+    desc.add<double>("skipEMfractionThreshold");
+    desc.add<bool>("skipMuons");
+    desc.add<std::string>("skipMuonSelection");
+    descriptions.addDefault(desc);
+    }
+
 
  private:
 
