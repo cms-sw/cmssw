@@ -81,6 +81,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
 	  break;
 	case SummationStep::GROUPBY: 
 	case SummationStep::REDUCE:
+	case SummationStep::CUSTOM:
 	case SummationStep::NO_TYPE:
 	  assert(!"Illegal step; booking should have caught this.");
 	}
@@ -183,6 +184,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    break;}
 	  case SummationStep::GROUPBY:
 	  case SummationStep::REDUCE:
+	  case SummationStep::CUSTOM:
 	  case SummationStep::NO_TYPE:
 	    assert(!"Operation not supported in step1. Try save() before to switch to Harvesting.");
 	  }
@@ -244,6 +246,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
 	  break;}
 	case SummationStep::GROUPBY:
 	case SummationStep::REDUCE:
+	case SummationStep::CUSTOM:
 	case SummationStep::NO_TYPE:
 	  assert(!"Illegal step; booking should have caught this.");
 	}
@@ -460,6 +463,9 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	  break;
 	case SummationStep::EXTEND_Y:
 	  assert(!"EXTEND_Y NIY"); break; // TODO: similar to EXTEND_X
+	case SummationStep::CUSTOM:
+	  assert(customHandler);
+	  customHandler(step, t);
 	case SummationStep::COUNT:
 	case SummationStep::NO_TYPE:
 	  assert(!"Operation not supported in harvesting.");

@@ -28,8 +28,6 @@
 #include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 #include "DQM/SiPixelPhase1Common/interface/AbstractHistogram.h"
 
-
-
 // TODO: Should we use a namespace, and if yes, which?
 class HistogramManager {
 public:
@@ -51,12 +49,20 @@ public:
   void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
   void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
+  typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
+  // Set a handler to be called when a custom() step is hit. This can do 
+  // arbitrary things to the histogram Table, including copying it for later 
+  // use. Using such saved tables form other HistogramManagers, e.g. 
+  // efficiencies can be computed here.
+  template<typename FUNC>
+  void setCustomHandler(FUNC handler) {customHandler = handler; };
+
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
+  std::function<void(SummationStep& step, Table& t)> customHandler;
 
   std::vector<SummationSpecification> specs;
-  typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
   std::vector<Table> tables;
 
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);

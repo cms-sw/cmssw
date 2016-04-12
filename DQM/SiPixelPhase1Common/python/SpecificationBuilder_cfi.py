@@ -13,6 +13,7 @@ EXTEND_Y = cms.int32(3)
 COUNT    = cms.int32(4)
 REDUCE   = cms.int32(5)
 SAVE     = cms.int32(6)
+CUSTOM     = cms.int32(7)
 
 NO_STAGE = cms.int32(0)
 FIRST    = cms.int32(1)
@@ -78,6 +79,17 @@ class Specification:
       arg = cms.string("")
     ))
     self.state = STAGE2
+    return self
+
+  def custom(self, arg):
+    if self.state != STAGE2:
+      raise Exception("Custom processing exists only in Harvesting.")
+    self.pset.spec.append(cms.PSet(
+      type = CUSTOM, 
+      stage = self.state, 
+      columns = cms.vstring(),
+      arg = cms.string(arg)
+    ))
     return self
 
   def reduce(self, sort):
