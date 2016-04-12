@@ -95,16 +95,19 @@ workflows[4.68] = ['',['WElSkim2012C','HLTDSKIM','RECODR1reHLT','HARVESTDR1reHLT
 
 workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODR1reHLT','HARVESTDR1reHLT']]
 workflows[4.72] = ['',['RunMu2012D','HLTD','RECODR1reHLT','HARVESTDR1reHLT']]
+workflows[5504.72] = ['',['RunMu2012D_DigiSigTest','HLTD_DigiSigTest','RECODR1reHLT_DigiSigTest','HARVESTDR1reHLT_DigiSigTest']]
 workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODR1reHLT','HARVESTDR1reHLT']]
 workflows[4.74] = ['',['RunEl2012D','HLTD','RECODR1reHLT','HARVESTDR1reHLT']]
 workflows[4.75] = ['',['RunJet2012D','HLTD','RECODR1reHLT','HARVESTDR1reHLT']]
 workflows[4.76] = ['',['ZMuSkim2012D','HLTDSKIM','RECODR1reHLT','HARVESTDR1reHLT']]
+workflows[5504.76] = ['',['ZMuSkim2012D_DigiSigTest','HLTDSKIM_DigiSigTest','RECODR1reHLT_DigiSigTest','HARVESTDR1reHLT_DigiSigTest']]
 workflows[4.77] = ['',['ZElSkim2012D','HLTDSKIM','RECODR1reHLT','HARVESTDR1reHLT']]
 workflows[4.78] = ['',['WElSkim2012D','HLTDSKIM','RECODR1reHLT','HARVESTDR1reHLT']]
 
 workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
 workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
 workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
+workflows[550140.53] = ['',['RunHI2011_DigiSigTest','RECOHID11_DigiSigTest','HARVESTDHI_DigiSigTest']]
 
 ### run2 2015B 50ns ###
 workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR2_50ns','RECODR2_50nsreHLT','HARVESTDR2_50nsreHLT']]
@@ -137,6 +140,7 @@ workflows[134.812] = ['',['RunZeroBias2015C','HLTDR2_25ns','RECODR2_25nsreHLT','
 workflows[134.901] = ['',['RunHLTPhy2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.902] = ['',['RunDoubleEG2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.903] = ['',['RunDoubleMuon2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[550134.903] = ['',['RunDoubleMuon2015D_DigiSigTest','HLTDR2_25ns_DigiSigTest','RECODR2_25nsreHLT_DigiSigTest','HARVESTDR2_25nsreHLT_DigiSigTest']]
 workflows[134.904] = ['',['RunJetHT2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.905] = ['',['RunMET2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.906] = ['',['RunMuonEG2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
@@ -144,6 +148,7 @@ workflows[134.907] = ['',['RunDoubleEGPrpt2015D','HLTDR2_25ns','RECODR2_25nsreHL
 workflows[134.908] = ['',['RunSingleMuPrpt2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.909] = ['',['RunSingleEl2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.910] = ['',['RunSingleMu2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[550134.910] = ['',['RunSingleMu2015D_DigiSigTest','HLTDR2_25ns_DigiSigTest','RECODR2_25nsreHLT_DigiSigTest','HARVESTDR2_25nsreHLT_DigiSigTest']]
 workflows[134.911] = ['',['RunSinglePh2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 workflows[134.912] = ['',['RunZeroBias2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
 

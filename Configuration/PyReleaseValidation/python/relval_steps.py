@@ -123,10 +123,12 @@ Run2012D=[208307]
 Run2012Dsk=Run2012D+[207454]
 steps['RunMinBias2012D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012D-v1/RAW',label='mb2012D',run=Run2012D, events=100000,location='STD')}
 steps['RunMu2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-v1/RAW',label='mu2012D',location='STD',run=Run2012D)}
+steps['RunMu2012D_DigiSigTest']=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },steps['RunMu2012D']])
 steps['RunPhoton2012D']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2012D-v1/RAW',label='photon2012D',location='STD',run=Run2012D)}
 steps['RunEl2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-v1/RAW',label='electron2012D',location='STD',run=Run2012D)}
 steps['RunJet2012D']={'INPUT':InputInfo(dataSet='/JetHT/Run2012D-v1/RAW',label='jet2012D',location='STD',run=Run2012D)}
 steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptSkim-v1/RAW-RECO',label='zMu2012D',location='STD',run=Run2012Dsk)}
+steps['ZMuSkim2012D_DigiSigTest']=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },steps['ZMuSkim2012D']])
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-22Jan2013-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
@@ -956,7 +958,12 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       '--datatier': 'FEVTDEBUGHLT',
 #                      '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
+
+steps['HLTD_DigiSigTest']=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HLTD']])
+
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
+
+steps['HLTDSKIM_DigiSigTest']=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HLTDSKIM']])
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODR1']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQMFakeHLT+@miniAODDQM'},dataReco])
@@ -1091,6 +1098,9 @@ steps['RECOUP15_DigiSigTest'] = merge([{'--customise_commands' : ' \'process.Glo
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODR1reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODR1']])
+
+steps['RECODR1reHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['RECODR1reHLT']])
+
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
 steps['RECODR2_25nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_25ns']])
@@ -1286,6 +1296,7 @@ steps['HARVESTDR1']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
 steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTDR1'] ])
+steps['HARVESTDR1reHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HARVESTDR1reHLT']])
 steps['HARVESTDR2_50nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 
