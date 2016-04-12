@@ -118,7 +118,7 @@ print "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobD
 system "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir";
 
 my $tmpc = "";
-$tmpc = " -c" if($onlyactivejobs);
+$tmpc = " -c" if($onlyactivejobs == 1);
 
 # create merge job script
 print "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool\n";
@@ -160,7 +160,7 @@ if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
    # print "Adding $newName to list of binary files\n";
    # $binaryList = "$binaryList$sep\'$newName\'";
   }
-  my $nn  = ($filebody =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
+  my $nn  = ($filebody =~ s/mergeBinaryFiles\s*=\s*\[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
   $nn += ($filebody =~ s/mergeBinaryFiles = cms.vstring\(\)/mergeBinaryFiles = \[$binaryList\]/);
   # build list of tree files
   my $treeList = "";
@@ -175,7 +175,7 @@ if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
     $treeList = "$treeList$sep\'$newName\'";
   }
   # replace list of tree files
-  $nn = ($filebody =~ s/mergeTreeFiles = \[(.|\n)*?\]/mergeTreeFiles = \[$treeList\]/);
+  $nn = ($filebody =~ s/mergeTreeFiles\s*=\s*\[(.|\n)*?\]/mergeTreeFiles = \[$treeList\]/);
   #print "$filebody\n";
   # store the output file
   open OUTFILE,">$theJobData/$theJobDir/alignment_merge.py";
