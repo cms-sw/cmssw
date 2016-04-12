@@ -60,7 +60,7 @@ trackingParticleSelection = cms.Sequence(mergedtruth)
 
 from Configuration.StandardSequences.Eras import eras
 eras.run3_GEM.toModify(trackingParticleSelection, simHitCollections = dict(
-        muon = trackingParticleSelection.simHitCollections.muon.append("g4SimHitsMuonGEMHits")))
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonGEMHits"]))
 
 eras.phase2_muon.toModify( trackingParticleSelection, simHitCollections = dict(
-        muon = trackingParticleSelection.simHitCollections.muon.append("g4SimHitsMuonME0Hits")))
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonME0Hits"]))

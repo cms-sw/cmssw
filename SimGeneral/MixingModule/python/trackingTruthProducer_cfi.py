@@ -53,7 +53,7 @@ if eras.fastSim.isChosen():
 
 from Configuration.StandardSequences.Eras import eras
 eras.run3_GEM.toModify(trackingParticles, simHitCollections = dict(
-        muon = trackingParticles.simHitCollections.muon.append(cms.InputTag("g4SimHits","MuonGEMHits"))))
+        muon = trackingParticles.simHitCollections.muon+[cms.InputTag("g4SimHits","MuonGEMHits")]))
 
 eras.phase2_muon.toModify( trackingParticles, simHitCollections = dict(
-        muon = trackingParticles.simHitCollections.muon.append(cms.InputTag("g4SimHits","MuonME0Hits"))))
+        muon = trackingParticles.simHitCollections.muon+[cms.InputTag("g4SimHits","MuonME0Hits")]))
