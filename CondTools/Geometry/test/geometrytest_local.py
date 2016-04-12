@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.AlCa.autoCond import autoCond
 
 process = cms.Process("GeometryTest")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(3),
@@ -9,9 +10,6 @@ process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
                             )
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
-process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("PCastorRcd"),
