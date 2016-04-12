@@ -15,4 +15,6 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     useHCALLUT = cms.bool(True),
     useHFLUT = cms.bool(True),
     verbose = cms.bool(False),
+    unpackEcalMask = cms.bool(False),
+    unpackHcalMask = cms.bool(False),
     )
