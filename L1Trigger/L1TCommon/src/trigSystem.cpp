@@ -190,4 +190,18 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 	return masks;
 }
 
+bool trigSystem::isMasked(const std::string& proccessor, const std::string& id)
+{
+	bool isMasked = false;
+	std::vector<mask> vecMasks= _procMasks.at(proccessor);
+	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++) {
+		if (it->getId() == id) {
+			isMasked = true;
+			break;
+		}
+        }
+
+	return isMasked;
+}
+
 }

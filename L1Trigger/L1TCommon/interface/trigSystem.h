@@ -23,6 +23,7 @@ class trigSystem
 		void addMask(const std::string& id, const std::string& procRole);
 		std::map<std::string, setting> getSettings (const std::string& processor);
 		std::map<std::string, mask> getMasks(const std::string& proccessor);
+		bool isMasked(const std::string& proccessor, const std::string& id);
 
 
 	private:

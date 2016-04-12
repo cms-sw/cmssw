@@ -11,15 +11,16 @@ namespace l1t{
 class mask
 {
 	public:
+		mask() {};
 		mask(std::string id, std::string procRole);
 		void setProcRole(std::string procRole) { _procRole = procRole; };
 		void setPort(std::string id);
 		std::string getProcRole() { return _procRole; };
-		int getPort() { return _port; };
+		unsigned getPort() { return _port; };
 		std::string getId() {return _id;};
 
 	private:
-		int _port;
+		unsigned _port;
 		std::string _procRole, _id;
 };
 
