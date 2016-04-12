@@ -18,8 +18,7 @@ double RPTopology::thickness_ = 0.3;
 double RPTopology::x_width_ = 36.07;
 double RPTopology::y_width_ = 36.07;
 double RPTopology::phys_edge_lenght_ = 22.276; //correct, but of vague impact, check sensitive edge efficiency curve
-double RPTopology::last_strip_to_border_dist_ = 1.4175;  //is was like this
-//double RPTopology::last_strip_to_border_dist_ = 5.4175;
+double RPTopology::last_strip_to_border_dist_ = 1.4175;  
 double RPTopology::last_strip_to_center_dist_ = RPTopology::x_width_/2. - RPTopology::last_strip_to_border_dist_;   // assumes square shape
 
 

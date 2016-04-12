@@ -1,5 +1,5 @@
-#ifndef Geometry_VeryForwardRPTopology_RP_DET_SIM_TOPOLOGY_H
-#define Geometry_VeryForwardRPTopology_RP_DET_SIM_TOPOLOGY_H
+#ifndef Geometry_VeryForwardRPTopology_RPSimTopology
+#define Geometry_VeryForwardRPTopology_RPSimTopology
 
 #include "TMath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -81,4 +81,4 @@ class RPSimTopology : public RPTopology
     }
 };
 
-#endif  //Geometry_VeryForwardRPTopology_RP_DET_SIM_TOPOLOGY_H
+#endif  //Geometry_VeryForwardRPTopology_RPSimTopology

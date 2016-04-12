@@ -5,11 +5,8 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="SimGeneral/HepPDTRecord"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="boost"/>
 <use   name="hepmc"/>
-<use   name="DataFormats/TotemRPDigi"/>
-<use   name="DataFormats/TotemRPReco"/>
 <export>
   <lib   name="1"/>
 </export>
