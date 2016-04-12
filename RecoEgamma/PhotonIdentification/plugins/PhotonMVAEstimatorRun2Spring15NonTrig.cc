@@ -1,4 +1,4 @@
-#include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimatorRun2Spring15NonTrig.h"
+#include "RecoEgamma/PhotonIdentification/plugins/PhotonMVAEstimatorRun2Spring15NonTrig.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -389,3 +389,6 @@ void PhotonMVAEstimatorRun2Spring15NonTrig::setConsumes(edm::ConsumesCollector&&
   cc.consumes<double>(_rhoLabel);
 }
 
+DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
+		  PhotonMVAEstimatorRun2Spring15NonTrig,
+		  "PhotonMVAEstimatorRun2Spring15NonTrig");
