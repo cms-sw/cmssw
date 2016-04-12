@@ -11,7 +11,6 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeDQMModule.h"
 
 /*** ROOT objects ***/
-#include "TCanvas.h"
 #include "TH1F.h"
 
 
