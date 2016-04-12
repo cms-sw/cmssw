@@ -22,7 +22,6 @@
          produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of 
          the object).  If multiple items are being Produced they the 'produce' method must return an
          ESProducts<> object which holds all of the items.
-         Note: std::auto_ptr and boost::shared_ptr are also supported, but are deprecated.
       2) add 'setWhatProduced(this);' to their classes constructor
 
 Example: one algorithm creating only one object
