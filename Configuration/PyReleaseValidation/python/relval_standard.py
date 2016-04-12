@@ -224,6 +224,7 @@ workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
 workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO','HARVEST']]
 workflows[27] = ['', ['WM','DIGI','RECO','HARVEST']]
 workflows[30] = ['', ['ZMM','DIGI','RECO','HARVEST']]
+workflows[55030] = ['', ['ZMM_DigiSigTest','DIGI_DigiSigTest','RECO_DigiSigTest','HARVEST_DigiSigTest']]
 
 workflows[10] = ['', ['ADDMonoJet_d3MD3','DIGI','RECO','HARVEST']]
 workflows[12] = ['', ['ZpMM','DIGI','RECO','HARVEST']]

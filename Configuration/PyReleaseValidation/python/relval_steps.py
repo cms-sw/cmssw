@@ -441,6 +441,7 @@ steps['WE']=genS('WE_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['WM']=genS('WM_8TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['WpM']=genS('WpM_8TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['ZMM']=genS('ZMM_8TeV_TuneCUETP8M1_cfi',Kby(18,300))
+steps['ZMM_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['ZMM']])
 steps['ZpMM']=genS('ZpMM_8TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
 steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(17,190)) 
@@ -870,6 +871,7 @@ steps['DIGIUP15_PU25HS']=merge([PU25HS,step2Upg2015Defaults])
 
 steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@fake','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
+steps['DIGI_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
@@ -1096,6 +1098,9 @@ steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2AlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
+
+steps['RECO_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},step3Defaults])
+
 steps['RECOAlCaCalo']=merge([step3DefaultsAlCaCalo])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
@@ -1306,6 +1311,9 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
+
+steps['HARVEST_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HARVEST']])
+
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:run1_mc',
                      '--mc':'',
