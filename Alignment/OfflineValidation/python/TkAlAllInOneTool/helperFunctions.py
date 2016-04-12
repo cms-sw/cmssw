@@ -24,8 +24,11 @@ def replaceByMap(target, the_map):
                            result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
                            result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
                     except AttributeError:   #try a list
-                        for index, value in enumerate(the_map[key]):
-                            result = result.replace(".oO[" + key + "[" + str(index) + "]]Oo.", value)
+                        try:
+                            for index, value in enumerate(the_map[key]):
+                                result = result.replace(".oO[" + key + "[" + str(index) + "]]Oo.", value)
+                        except TypeError:
+                            raise TypeError("Something is wrong in replaceByMap!  Need a string, dict, or list, but the_map(%s)=%s!"%(repr(key), repr(the_map[key])))
                 iteration += 1
             if iteration > lifeSaver:
                 problematicLines = ""
