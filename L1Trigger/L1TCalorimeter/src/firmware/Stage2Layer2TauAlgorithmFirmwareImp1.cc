@@ -119,7 +119,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
                 // Corrections function of ieta, ET, and cluster shape
                 int calibPt = calibratedPt(mainCluster, tau.hwPt(), false); // FIXME! for the moment no calibration
-                
+
                 //int calibPt = mainCluster.hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
                 
@@ -398,6 +398,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int calibPt = calibratedPt(mainCluster, tau.hwPt(), true); // FIXME! for the moment no calibration
                 //int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+
                 tau.setHwPt(calibPt);
                 
                 // isolation
@@ -411,7 +412,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
                 isolBit = (hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress)) ? 1 : 0);
                 tau.setHwIso(isolBit);
-
 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
@@ -756,7 +756,7 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta,
     //cout << "      * compressedEta = " << compressedEta << endl;
     //cout << "      * compressedEt = "  << compressedEt  << endl;
 
-    unsigned int address = ( (compressedEta<<6) | (compressedEt<<2) | (hasEM<<1) | isMerged );
+    unsigned int address =  (compressedEt<<4)+(compressedEta<<2)+(hasEM<<1)+isMerged;
     return address;
 }
 
@@ -781,7 +781,7 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
     if (rawPt > 255) rawPt = 255; // 8 bit
     
     int corrXrawPt = corr*rawPt; // 17 bits
-    int calibPt = (hwPt>>1) + (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
+    int calibPt = (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
     // saturation FIXME: to be done in demux?
     if (calibPt > 255) calibPt = 255;
     
@@ -800,9 +800,9 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     // int etaBits = 6  --> 64
     // int etBits  = 13 --> 8192
     // int nTTBits = 10 --> 1024
-    if (Et >= 8192) Et = 8191;
-    if (aeta >= 64) aeta = 63;
-    if (nrTowers >= 1024) nrTowers = 1023;
+    if (Et >= 255) Et = 255;
+    if (aeta >= 31) aeta = 31;
+    if (nrTowers >= 1023) nrTowers = 1023;
 
     //cout << " ****  -- normlized: eta, et, ntt: " << aeta << " " <<  Et << " " << nrTowers << endl;
 
@@ -810,19 +810,20 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     // NB: these also must MATCH the values in the LUT --> fix when new compression scheme is used
     // ultimately, the same compresison LUT as calibration will be used
     // etaCmprBits = 2;
-    // EtCmprBits  = 3;
+    // EtCmprBits  = 4;//changed from 3, transparent to user
     // nTTCmprBits = 3;
-    int etaCmpr = params_->tauIsolationLUT()->data(aeta);
-    int etCmpr  = params_->tauIsolationLUT()->data(Et+64);
-    int nTTCmpr = params_->tauIsolationLUT()->data(nrTowers+64+8192);
+
+    int etaCmpr = params_->tauCompressLUT()->data(aeta);
+    int etCmpr  = params_->tauCompressLUT()->data((0x1<<5)+Et);//offset: 5 bits from ieta
+    int nTTCmpr = params_->tauCompressLUT()->data((0x1<<5)+(0x1<<8)+nrTowers);//offset non-compressed: 5 bits from ieta, 8 bits from iEt
 
     //cout << " ****  -- compressed: eta, et, ntt: " << etaCmpr << " " <<  etCmpr << " " << nTTCmpr << endl;
 
     // get the address -- NOTE: this also depends on the compression scheme!
-    unsigned int address = ( (etCmpr << 5) | (etaCmpr << 3) | nTTCmpr ) ;
+    unsigned int address = ( (etCmpr << 7) | (nTTCmpr << 2) | etaCmpr );//ordering compressed: 5 bits iEt, 5 bits nTT, 2 bits iEta
 
     //cout << " ****  -- address without compression block: " << address << endl;
-    address += (64+8192+1024); // add offsets of compression block
+    address += 0; // add offsets of compression block
 
     //cout << " ****  ----> address is: " << address << endl;
 
