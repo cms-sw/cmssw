@@ -14,6 +14,7 @@ namespace l1t{
 class setting
 {
 	public:
+		setting() {};
 		setting(std::string type, std::string id, std::string value, std::string procRole);
 		void setProcRole(std::string procRole) { _procRole = procRole; };
 		void setValue(std::string value) {_value = value; };
