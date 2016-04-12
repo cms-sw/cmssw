@@ -128,7 +128,9 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self.sections():
             if "compare:" in section:
                 self.checkInput(section,
-                                knownSimpleOptions = ["levels", "dbOutput",
+                                knownSimpleOptions = ["levels", "dbOutput","moduleList","modulesToPlot","useDefaultRange","plotOnlyGlobal","plotPng",
+                                                      "dx_min","dx_max","dy_min","dy_max","dz_min","dz_max","dr_min","dr_max","rdphi_min","rdphi_max",
+                                                      "dalpha_min","dalpha_max","dbeta_min","dbeta_max","dgamma_min","dgamma_max",
                                                       "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor"])
                 levels = self.get( section, "levels" )
                 dbOutput = self.get( section, "dbOutput" )

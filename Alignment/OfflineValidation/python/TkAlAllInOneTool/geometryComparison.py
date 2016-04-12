@@ -28,7 +28,28 @@ class GeometryComparison(GenericValidation):
 	defaults = {
 	    "3DSubdetector1":"1",
 	    "3DSubdetector2":"2",
-	    "3DTranslationalScaleFactor":"50"
+	    "3DTranslationalScaleFactor":"50",
+	    "modulesToPlot":"all",
+	    "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
+	    "useDefaultRange":"false",
+	    "plotOnlyGlobal":"false",
+	    "plotPng":"true",
+	    "dx_min":"-99999",
+	    "dx_max":"-99999",
+	    "dy_min":"-99999",
+	    "dy_max":"-99999",
+	    "dz_min":"-99999",
+	    "dz_max":"-99999",
+	    "dr_min":"-99999",
+	    "dr_max":"-99999",
+	    "rdphi_min":"-99999",
+	    "rdphi_max":"-99999",
+	    "dalpha_min":"-99999",
+	    "dalpha_max":"-99999",
+	    "dbeta_min":"-99999",
+	    "dbeta_max":"-99999",
+	    "dgamma_min":"-99999",
+	    "dgamma_max":"-99999",
             }
         mandatories = ["levels", "dbOutput"]
         GenericValidation.__init__(self, valName, alignment, config, 
@@ -111,6 +132,13 @@ class GeometryComparison(GenericValidation):
         repMap["runComparisonScripts"] = ""
         scriptName = replaceByMap(("TkAlGeomCompare.%s..oO[name]Oo..sh"
                                    %self.name), repMap)
+        
+        y_ranges = ""
+        plottedDifferences = ["dx","dy","dz","dr","rdphi","dalpha","dbeta","dgamma"]
+        for diff in plottedDifferences:
+			y_ranges += ","+repMap["%s_min"%diff]
+			y_ranges += ","+repMap["%s_max"%diff]
+			
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
                 repMap["outputFile"] = (".oO[name]Oo..Comparison_common"+name+".root")
@@ -124,7 +152,7 @@ class GeometryComparison(GenericValidation):
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
-                     "./\")'\n"
+                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\",\".oO[plotOnlyGlobal]Oo.\",\".oO[plotPng]Oo.\""+y_ranges+")'\n"
 		     "rfcp "+path+"/TkAl3DVisualization_.oO[name]Oo..C .\n"
 		     "root -l -b -q TkAl3DVisualization_.oO[name]Oo..C+\n")
                 if  self.copyImages:
@@ -137,48 +165,41 @@ class GeometryComparison(GenericValidation):
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/Rotations\n")
-                   repMap["runComparisonScripts"] += \
-                       ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
-                        ".Comparison_common"+name+"_Images/CrossTalk\n")
 
 
-                   ### At the moment translations are immages with suffix _1 and _2, rotations _3 and _4, and cross talk _5, _6, _7 and _8
+                   ### At the moment translations are images with suffix _1 and _2, rotations _3 and _4
                    ### The numeration depends on the order of the MakePlots(x, y) commands in comparisonScript.C
                    ### If comparisonScript.C is changed, check if the following lines need to be changed as well
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_1*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_2*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
                    
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_3*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_4*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-                   
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_5*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_6*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_7*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_8*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   if repMap["plotPng"] == "true":
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_1*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_2*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+	                   
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_3*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_4*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+	                        
+                   else:
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_1*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+	                   
+	                   repMap["runComparisonScripts"] += \
+	                       ("find . -maxdepth 1 -name \"*_2*\" "
+	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
                    
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
@@ -232,6 +253,9 @@ class GeometryComparison(GenericValidation):
                 self.filesToCompare[ name ] = resultingFile
 
         repMap["CommandLine"]=""
+        repMap["CommandLine"]+= \
+                 ("# copy module list required for comparison script \n"
+                 "rfcp .oO[moduleList]Oo. .\n")
 
         for cfg in self.configFiles:
             # FIXME: produce this line only for enabled dbOutput
