@@ -14,7 +14,7 @@ namespace {
   inline Scalar Eta_FromRhoZ_fast(Scalar rho, Scalar z) {    
     using namespace ROOT::Math;
     // value to control Taylor expansion of sqrt
-    constexpr Scalar big_z_scaled =
+    const Scalar big_z_scaled =
       std::pow(std::numeric_limits<Scalar>::epsilon(),static_cast<Scalar>(-.25));
     if (rho > 0) {      
       Scalar z_scaled = z/rho;
