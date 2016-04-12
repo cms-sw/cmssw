@@ -27,6 +27,8 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v2', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v3', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v3', 
+    'HLT_DoubleEle33_CaloIdL_MW_v1', 
+    'HLT_DoubleEle33_CaloIdL_v1', 
     'HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_v1', 
     'HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v4', 
     'HLT_DoublePhoton60_v1', 
@@ -421,7 +423,10 @@ streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIso
     'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v4', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v1', 
-    'HLT_LooseIsoPFTau50_Trk30_eta2p1_v3')
+    'HLT_LooseIsoPFTau50_Trk30_eta2p1_v3', 
+    'HLT_PFTau120_eta2p1_v1', 
+    'HLT_PFTau140_eta2p1_v1', 
+    'HLT_PFTau95_eta2p1_v1')
 
 
 # dump of the Stream PhysicsMuons Datasets defined in the HLT table as Stream A Datasets
