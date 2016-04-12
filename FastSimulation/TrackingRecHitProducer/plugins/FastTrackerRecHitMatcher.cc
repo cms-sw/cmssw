@@ -47,13 +47,13 @@ class FastTrackerRecHitMatcher : public edm::stream::EDProducer<>  {
     // ----------internal functions ---------------------------
 
     // create projected hit
-    std::auto_ptr<FastTrackerRecHit> projectOnly( const FastSingleTrackerRecHit *originalRH,
+    std::unique_ptr<FastTrackerRecHit> projectOnly( const FastSingleTrackerRecHit *originalRH,
 						  const GeomDet * monoDet,
 						  const GluedGeomDet* gluedDet,
 						  LocalVector& ldir) const;
     
     // create matched hit
-    std::auto_ptr<FastTrackerRecHit> match( const FastSingleTrackerRecHit *monoRH,
+    std::unique_ptr<FastTrackerRecHit> match( const FastSingleTrackerRecHit *monoRH,
 					    const FastSingleTrackerRecHit *stereoRH,
 					    const GluedGeomDet* gluedDet,
 					    LocalVector& trackdirection,
@@ -102,8 +102,8 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(simHit2RecHitMapToken,simHit2RecHitMap);
     
     // output
-    std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
-    std::unique_ptr<FastTrackerRecHitRefCollection> output_simHit2RecHitMap(new FastTrackerRecHitRefCollection(simHit2RecHitMap->size(),FastTrackerRecHitRef()));
+    auto output_recHits = std::make_unique<FastTrackerRecHitCollection>();
+    auto output_simHit2RecHitMap = std::make_unique<FastTrackerRecHitRefCollection>(simHit2RecHitMap->size(),FastTrackerRecHitRef());
     edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = iEvent.getRefBeforePut<FastTrackerRecHitCollection>();
 
     bool skipNext = false;
@@ -175,7 +175,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 		    }
 		}
 		
-		std::auto_ptr<FastTrackerRecHit> newRecHit(0);
+                std::unique_ptr<FastTrackerRecHit> newRecHit(nullptr);
 		
 		// if partner found: create a matched hit
 		if( partnerRecHit ){
@@ -188,7 +188,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 		else{
 		    newRecHit = projectOnly( recHit , geometry->idToDet(detid),gluedDet, gluedLocalSimTrackDir  );
 		}
-		output_recHits->push_back(newRecHit);
+		output_recHits->push_back(std::move(newRecHit));
 		(*output_simHit2RecHitMap)[simHitCounter] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1);
 	    }
 	}
@@ -199,7 +199,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 
 }
 
-std::auto_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSingleTrackerRecHit *monoRH,
+std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSingleTrackerRecHit *monoRH,
 								 const FastSingleTrackerRecHit *stereoRH,
 								 const GluedGeomDet* gluedDet,
 								 LocalVector& trackdirection,
@@ -287,7 +287,7 @@ std::auto_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSingl
     //Added by DAO to make sure y positions are zero.
     DetId det(monoRH->geographicalId());
     if(det.subdetId() > 2) {
-	return std::auto_ptr<FastTrackerRecHit>(new FastMatchedTrackerRecHit(position, error, *gluedDet, *monoRH, *stereoRH,stereoHitFirst));
+	return std::make_unique<FastMatchedTrackerRecHit>(position, error, *gluedDet, *monoRH, *stereoRH,stereoHitFirst);
 	
     }
   
@@ -323,7 +323,7 @@ FastTrackerRecHitMatcher::StripPosition
 
 
 
-std::auto_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::projectOnly( const FastSingleTrackerRecHit *originalRH,
+std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::projectOnly( const FastSingleTrackerRecHit *originalRH,
 									const GeomDet * monoDet,
 									const GluedGeomDet* gluedDet,
 									LocalVector& ldir) const
@@ -357,7 +357,7 @@ std::auto_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::projectOnly( const Fa
     //Added by DAO to make sure y positions are zero and correct Mono or stereo Det is filled.
   
     if ((isMono && isStereo)||(!isMono&&!isStereo)) throw cms::Exception("FastTrackerRecHitMatcher") << "Something wrong with DetIds.";
-    return std::auto_ptr<FastTrackerRecHit>(new FastProjectedTrackerRecHit(projectedHitPos, rotatedError, *gluedDet, *originalRH));
+    return std::make_unique<FastProjectedTrackerRecHit>(projectedHitPos, rotatedError, *gluedDet, *originalRH);
 }
 
 
