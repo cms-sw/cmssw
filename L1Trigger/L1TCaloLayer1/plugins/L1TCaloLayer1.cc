@@ -216,7 +216,12 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(et != 0) {
 	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
 	  uint32_t featureBits = 0;
-	  if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
+	  if(fg) {
+	    // Set all six feature bits for the moment for HB/HE - they are not defined in HW / FW yet!
+	    if(absCaloEta <= 28) featureBits = 0x3F;
+	    // Set both feature bits for the moment for HF - they are not defined in HW / FW yet!
+	    else featureBits = 0x3;
+	  }
 	  if(!layer1->setHCALData(t, featureBits, et)) {
 	    LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
 	    LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
