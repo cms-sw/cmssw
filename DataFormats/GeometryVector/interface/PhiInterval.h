@@ -29,12 +29,7 @@ public:
   }
 
   bool inside(float ix, float iy) const {
-    auto norm = 1.f/std::sqrt(ix*ix+iy*iy);
-    ix *= norm;
-    iy *= norm;
-    
-    return ix*x+iy*y > dcos;
-
+    return ix*x+iy*y > dcos*std::sqrt(ix*ix+iy*iy);
   }
 
 private:
