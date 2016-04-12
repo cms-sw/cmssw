@@ -19,26 +19,30 @@ class DQMFileIterator {
  public:
   struct LumiEntry {
     std::string filename;
+    std::string run_path;
 
     unsigned int file_ls;
     std::size_t n_events_processed;
     std::size_t n_events_accepted;
     std::string datafn;
 
-    static LumiEntry load_json(const std::string& filename, int lumiNumber,
+    static LumiEntry load_json(const std::string& run_path, const std::string& filename, int lumiNumber,
                                int datafn_position);
 
+    std::string get_data_path() const;
+    std::string get_json_path() const;
     std::string state;
   };
 
   struct EorEntry {
     bool loaded = false;
     std::string filename;
+    std::string run_path;
 
     std::size_t n_events;
     std::size_t n_lumi;
 
-    static EorEntry load_json(const std::string& filename);
+    static EorEntry load_json(const std::string& run_path, const std::string& filename);
   };
 
   enum State {
@@ -66,7 +70,6 @@ class DQMFileIterator {
   LumiEntry open();
 
   void pop();
-  std::string make_path(const std::string& fn);
 
   /* control */
   void reset();
@@ -96,7 +99,7 @@ class DQMFileIterator {
 
   // file name position in the json file
   unsigned int datafnPosition_;
-  std::string runPath_;
+  std::vector<std::string> runPath_;
 
   EorEntry eor_;
   State state_;
@@ -113,6 +116,7 @@ class DQMFileIterator {
   /* this is for missing lumi files */
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
+  std::time_t mtimeHash() const;
   void collect(bool ignoreTimers);
   void monUpdateLumi(const LumiEntry& lumi);
 
