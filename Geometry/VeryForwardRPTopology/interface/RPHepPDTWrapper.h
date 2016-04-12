@@ -1,5 +1,5 @@
-#ifndef Geometry_VeryForwardRPTopology_RP_HEPPDT_WRAPPER_H
-#define Geometry_VeryForwardRPTopology_RP_HEPPDT_WRAPPER_H
+#ifndef Geometry_VeryForwardRPTopology_RPHepPDTWrapper
+#define Geometry_VeryForwardRPTopology_RPHepPDTWrapper
 
 #include <fstream>
 #include <string>
@@ -95,4 +95,4 @@ class RPHepPDTWrapper
     };
 };
 
-#endif  //SimTotemRP_RPCommon_RP_HEPPDT_WRAPPER_H
+#endif  //Geometry_VeryForwardRPTopology_RPHepPDTWrapper

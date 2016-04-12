@@ -7,15 +7,20 @@
 *
 ****************************************************************************/
 
-#ifndef Geometry_VeryForwardRPTopology_RP_DET_TOPOLOGY_H
-#define Geometry_VeryForwardRPTopology_RP_DET_TOPOLOGY_H
+#ifndef Geometry_VeryForwardRPTopology_RPTopology
+#define Geometry_VeryForwardRPTopology_RPTopology
+
+#include <HepMC/SimpleVector.h>
 
 #include "TMath.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
-using namespace std; 
+
+using namespace std;
+
 namespace HepMC {
 	class ThreeVector;
 }
@@ -62,9 +67,9 @@ class RPTopology
     static double last_strip_to_border_dist_;
     static double last_strip_to_center_dist_;
 
-    const HepMC::ThreeVector strip_readout_direction_;
-    const HepMC::ThreeVector strip_direction_;
-    const HepMC::ThreeVector normal_direction_;
+    HepMC::ThreeVector strip_readout_direction_;
+    HepMC::ThreeVector strip_direction_;
+    HepMC::ThreeVector normal_direction_;
 };
 
-#endif  //Geometry_VeryForwardRPTopology_RP_DET_TOPOLOGY_H
+#endif  //Geometry_VeryForwardRPTopology_RPTopology
