@@ -7,10 +7,10 @@
 *
 ****************************************************************************/
 
-#ifndef _TotemDAQMapping_h_
-#define _TotemDAQMapping_h_
+#ifndef CondFormats_TotemReadoutObjects_TotemDAQMapping
+#define CondFormats_TotemReadoutObjects_TotemDAQMapping
 
-#include "DataFormats/TotemRawData/interface/TotemFramePosition.h"
+#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
 
 #include "CondFormats/TotemReadoutObjects/interface/TotemSymbId.h"
 
@@ -46,7 +46,7 @@ class TotemDAQMapping
   public:
     std::map<TotemFramePosition, TotemVFATInfo> VFATMapping;
     
-    void Insert(const TotemFramePosition &fp, const TotemVFATInfo &vi);
+    void insert(const TotemFramePosition &fp, const TotemVFATInfo &vi);
 };
 
 #endif
