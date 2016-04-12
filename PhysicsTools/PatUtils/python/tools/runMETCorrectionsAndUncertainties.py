@@ -1192,16 +1192,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def updateJECs(self,process,jetCollection, patMetModuleSequence, postfix):
-        from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-        patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+        from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
+        patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
             src = jetCollection,
             levels = ['L1FastJet', 
                       'L2Relative', 
                       'L3Absolute'],
             payload = 'AK4PFchs' ) # always CHS from miniAODs
         
-        from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-        patJetsReapplyJEC = patJetsUpdated.clone(
+        from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
+        patJetsReapplyJEC = updatedPatJets.clone(
             jetSource = cms.InputTag("slimmedJets"),
             jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
             )
