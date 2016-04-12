@@ -17,14 +17,10 @@
 
 OMTFReconstruction::OMTFReconstruction() :
   m_OMTFConfig(0), m_OMTF(0), aTopElement(0), m_OMTFConfigMaker(0), m_Writer(0){}
-
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig) :
   m_Config(theConfig), m_OMTFConfig(0), m_OMTF(0), aTopElement(0), m_OMTFConfigMaker(0), m_Writer(0) {
-
-
-  if(!m_Config.exists("omtf")){
-    edm::LogError("L1TMuonOverlapTrackProducer")<<"omtf configuration not found in cfg.py";
-  }
 
   dumpResultToXML = m_Config.getParameter<bool>("dumpResultToXML");
   dumpDetailedResultToXML = m_Config.getParameter<bool>("dumpDetailedResultToXML");
@@ -44,12 +40,10 @@ OMTFReconstruction::~OMTFReconstruction(){
 /////////////////////////////////////////////////////
 void OMTFReconstruction::beginJob() {
   
-  if(m_Config.exists("omtf")){
     m_OMTFConfig = new OMTFConfiguration();
     m_OMTF = new OMTFProcessor();
-  }
-}
 
+}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFReconstruction::endJob(){
@@ -59,30 +53,23 @@ void OMTFReconstruction::endJob(){
     m_Writer->finaliseXMLDocument(fName);
   } 
 }
-
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
   const L1TMuonOverlapParamsRcd& omtfRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-  //const L1TMuonOverlapParamsRcd& omtfPatternsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle, omtfPatternsHandle;
-  omtfRcd.get("params",omtfParamsHandle);
-  omtfRcd.get("patterns",omtfPatternsHandle);
+  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
+  omtfRcd.get(omtfParamsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
-  const L1TMuonOverlapParams* omtfPatterns = omtfPatternsHandle.product();
 
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-  if (!omtfPatterns) {
-    edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve patterns from Event Setup" << std::endl;
-  }  
 
   m_OMTFConfig->configure(omtfParams);
-  m_OMTF->configure(m_OMTFConfig, omtfPatterns);
+  m_OMTF->configure(m_OMTFConfig, omtfParams);
   m_GhostBuster.setNphiBins(m_OMTFConfig->nPhiBins());
   m_Sorter.setNphiBins(m_OMTFConfig->nPhiBins());
 

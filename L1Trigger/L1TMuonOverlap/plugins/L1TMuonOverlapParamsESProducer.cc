@@ -17,8 +17,7 @@
 L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::ParameterSet& theConfig){
    //the following line is needed to tell the framework what
    // data is being produced
-  setWhatProduced(this, &L1TMuonOverlapParamsESProducer::produceParams, edm::es::Label("params"));
-  setWhatProduced(this, &L1TMuonOverlapParamsESProducer::producePatterns, edm::es::Label("patterns"));
+  setWhatProduced(this, &L1TMuonOverlapParamsESProducer::produceParams);
   
   if (!theConfig.exists("configXMLFile") ) return;
   std::string fName = theConfig.getParameter<edm::FileInPath>("configXMLFile").fullPath();
@@ -56,23 +55,23 @@ bool L1TMuonOverlapParamsESProducer::readPatternsXML(XMLConfigReader & aReader){
 
   l1t::LUT chargeLUT;
   aReader.readLUT(&chargeLUT,params,"iCharge");
-  patterns.setChargeLUT(chargeLUT);
+  params.setChargeLUT(chargeLUT);
 
   l1t::LUT etaLUT;
   aReader.readLUT(&etaLUT,params, "iEta");
-  patterns.setEtaLUT(etaLUT);
+  params.setEtaLUT(etaLUT);
 
   l1t::LUT ptLUT;
   aReader.readLUT(&ptLUT,params, "iPt");
-  patterns.setPtLUT(ptLUT);
+  params.setPtLUT(ptLUT);
 
   l1t::LUT meanDistPhiLUT;
   aReader.readLUT(&meanDistPhiLUT,params, "meanDistPhi");
-  patterns.setMeanDistPhiLUT(meanDistPhiLUT);
+  params.setMeanDistPhiLUT(meanDistPhiLUT);
   
   l1t::LUT pdfLUT;
   aReader.readLUT(&pdfLUT,params, "pdf");
-  patterns.setPdfLUT(pdfLUT);
+  params.setPdfLUT(pdfLUT);
   
   return true;  
 }
@@ -89,18 +88,6 @@ L1TMuonOverlapParamsESProducer::produceParams(const L1TMuonOverlapParamsRcd& iRe
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
-L1TMuonOverlapParamsESProducer::ReturnType
-L1TMuonOverlapParamsESProducer::producePatterns(const L1TMuonOverlapParamsRcd& iRecord)
-{
-   using namespace edm::es;
-   boost::shared_ptr<L1TMuonOverlapParams> aL1TMTFOverlapPatterns;
-  
-   aL1TMTFOverlapPatterns = boost::shared_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(patterns));
-   return aL1TMTFOverlapPatterns;
-}
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonOverlapParamsESProducer);
 
