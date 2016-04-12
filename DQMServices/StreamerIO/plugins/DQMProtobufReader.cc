@@ -4,14 +4,21 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+// #include "FWCore/Sources/interface/ProducerSourceBase.h"
+
 using namespace dqmservices;
 
 DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
     : InputSource(pset, desc), fiterator_(pset) {
+
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
+  flagLoadFiles_ = pset.getUntrackedParameter<bool>("loadFiles");
+
+  produces<std::string, edm::InLumi>("sourceDataPath");
+  produces<std::string, edm::InLumi>("sourceJsonPath");
 }
 
 DQMProtobufReader::~DQMProtobufReader() {}
@@ -86,12 +93,15 @@ DQMProtobufReader::readLuminosityBlockAuxiliary_() {
 void DQMProtobufReader::readLuminosityBlock_(
     edm::LuminosityBlockPrincipal& lbCache) {
   // fiterator_.logFileAction("readLuminosityBlock_");
-  edm::Service<DQMStore> store;
 
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(),
                              lbCache.id().luminosityBlock());
   lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+}
+
+void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
+  edm::Service<DQMStore> store;
 
   // clear the old lumi histograms
   std::vector<MonitorElement*> allMEs = store->getAllContents("");
@@ -103,21 +113,33 @@ void DQMProtobufReader::readLuminosityBlock_(
   }
 
   // load the new file
-  std::string p = fiterator_.make_path(currentLumi_.datafn);
+  std::string path = currentLumi_.get_data_path();
+  std::string jspath = currentLumi_.get_json_path();
 
-  if (!boost::filesystem::exists(p)) {
-    fiterator_.logFileAction("Data file is missing ", p);
-    fiterator_.logLumiState(currentLumi_, "error: data file missing");
-    return;
+  std::auto_ptr<std::string> path_product(new std::string(path));
+  std::auto_ptr<std::string> json_product(new std::string(jspath));
+
+  lb.put(path_product, "sourceDataPath");
+  lb.put(json_product, "sourceJsonPath");
+
+  if (flagLoadFiles_) {
+    if (!boost::filesystem::exists(path)) {
+      fiterator_.logFileAction("Data file is missing ", path);
+      fiterator_.logLumiState(currentLumi_, "error: data file missing");
+      return;
+    }
+
+    fiterator_.logFileAction("Initiating request to open file ", path);
+    fiterator_.logFileAction("Successfully opened file ", path);
+    store->load(path);
+    fiterator_.logFileAction("Closed file ", path);
+    fiterator_.logLumiState(currentLumi_, "close: ok");
+  } else {
+    fiterator_.logFileAction("Not loading the data file at source level ", path);
+    fiterator_.logLumiState(currentLumi_, "close: not loading");
   }
+}
 
-  fiterator_.logFileAction("Initiating request to open file ", p);
-  fiterator_.logFileAction("Successfully opened file ", p);
-  store->load(p);
-  fiterator_.logFileAction("Closed file ", p);
-
-  fiterator_.logLumiState(currentLumi_, "closed: ok");
-};
 
 void DQMProtobufReader::readEvent_(edm::EventPrincipal&){};
 
@@ -146,6 +168,10 @@ void DQMProtobufReader::fillDescriptions(
       ->setComment(
           "Kill the processing as soon as the end-of-run file appears, even if "
           "there are/will be unprocessed lumisections.");
+
+  desc.addUntracked<bool>("loadFiles", true)
+      ->setComment(
+          "Tells the source load the data files. If set to false, source will create skeleton lumi transitions.");
 
   DQMFileIterator::fillDescription(desc);
   descriptions.add("source", desc);
