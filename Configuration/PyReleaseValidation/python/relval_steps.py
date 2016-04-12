@@ -80,7 +80,7 @@ steps['HighMet2011B']={'INPUT':InputInfo(dataSet='/Jet/Run2011B-HighMET-19Nov201
 
 steps['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=[152698],events=10000,location='STD')}
 steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIMinBiasUPC/HIRun2011-v1/RAW',label='hi2011',run=[182124],events=10000,location='STD')}
-
+steps['RunHI2011_DigiSigTest']=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },steps['RunHI2011']])
 
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
@@ -1002,6 +1002,8 @@ steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
                         steps['RECOHID10']])
+steps['RECOHID11_DigiSigTest'] = merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},
+                                steps['RECOHID11']])
 steps['RECOHID10']['-s']+=',REPACK'
 steps['RECOHID10']['--datatier']+=',RAW'
 steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
@@ -1315,6 +1317,8 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'HeavyIons'}
+
+steps['HARVESTDHI_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HARVESTDHI']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
