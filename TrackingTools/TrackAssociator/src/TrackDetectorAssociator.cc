@@ -94,6 +94,12 @@
 
 #include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
+//temp
+#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
+
 using namespace reco;
 
 TrackDetectorAssociator::TrackDetectorAssociator() 
@@ -144,6 +150,9 @@ void TrackDetectorAssociator::init( const edm::EventSetup& iSetup )
       defProp_ = prop;
       setPropagator(defProp_);
    }
+
+   // access the GEM geometry
+   iSetup.get<MuonGeometryRecord>().get(gemGeom);
 
    iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_);
    iSetup.get<DetIdAssociatorRecord>().get("HcalDetIdAssociator", hcalDetIdAssociator_);
@@ -709,13 +718,51 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          float halfWidthAtYPrime = 0.5*narrowWidth+yPrime*tangent;
          distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
          distanceY = fabs(localPoint.y()-yCOWPOffset) - 0.5*length;
-	 sigmaX = distanceX/sqrt(localError.xx());
+	       sigmaX = distanceX/sqrt(localError.xx());
          sigmaY = distanceY/sqrt(localError.yy());
-      } else {
+      }
+      else {
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
 	 sigmaX = distanceX/sqrt(localError.xx());
          sigmaY = distanceY/sqrt(localError.yy());
+
+	 // if(detId->subdetId() == 3) {
+	 //    RPCDetId Rsid = RPCDetId(detId->rawId());
+	 //    std::cout<< Rsid <<std::endl;
+	 //    std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	 //  }
+	 // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	 //   if(gemChamber) {
+	 if(detId->subdetId() == 4) {
+	   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	   // std::cout<< Rsid <<std::endl;
+	   
+	   // gem width and length are interchanged - need to fix
+	   //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	   const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet);
+	   //int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
+	   //distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();//*nEtaPartitions; // FIXME temp fix for chambersize
+	   sigmaX = distanceX/sqrt(localError.xx());
+	   sigmaY = distanceY/sqrt(localError.yy());
+	   // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	   // std::cout<< Rsid <<std::endl;
+	   //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	   // auto& rolls(gemChamber->etaPartitions());
+	   // for (auto roll : rolls){
+	   //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+	   //   auto& parameters(roll->specs()->parameters());
+	   //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
+	   //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
+	   //   double height(parameters[2]);       height       = 2*height;
+	   //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
+	      
+	   //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
+	   // }
+	   // }
+	 }
+	 
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
@@ -750,6 +797,11 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
+   edm::Handle<GEMSegmentCollection> gemSegments;
+   iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
+   if (! gemSegments.isValid())
+     throw cms::Exception("FatalError") << "Unable to find GEMSegmentCollection in event!\n";
+
    ///// get a set of DetId's in a given direction
    
    // check the map of available segments
@@ -769,36 +821,48 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    // Iterate over all chamber matches and fill segment matching 
    // info if it's available
    for(std::vector<TAMuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
-       matchedChamber != matchedChambers.end(); matchedChamber++)
-     {
-	const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet((*matchedChamber).id);
-	// DT chamber
-	if(const DTChamber* chamber = dynamic_cast<const DTChamber*>(geomDet) ) {
-	   // Get the range for the corresponding segments
-	   DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
-	   // Loop over the segments of this chamber
-	   for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	     if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-                matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
-             }
-           }
-	}else{
-	   // CSC Chamber
-	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
-	      // Get the range for the corresponding segments
-	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
-	      // Loop over the segments
-	      for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-		 if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-                     matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
-                 }
-              }
-	   }else{
-	     // throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
+       matchedChamber != matchedChambers.end(); matchedChamber++){
+	   const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet((*matchedChamber).id);
+	   // DT chamber
+	   if(const DTChamber* chamber = dynamic_cast<const DTChamber*>(geomDet) ) {
+	     // Get the range for the corresponding segments
+	     DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
+	     // Loop over the segments of this chamber
+	     for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	       if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+           matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
+         }
+       }
 	   }
-	}
-	info.chambers.push_back(*matchedChamber);
+     // CSC Chamber
+     else if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+	     // Get the range for the corresponding segments
+	     CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
+	     // Loop over the segments
+	     for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		     if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+           matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
+         }
+	     }
      }
+     // GEM Chamber
+     //else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+     else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	     // Get the range for the corresponding segments
+	     GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+	     // Loop over the segments
+	     //std::cout<<"TrackDetectorAssociator::GEM::found gem chamber"<<std::endl;
+	     for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	       if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+	         //std::cout<<"TrackDetectorAssociator::GEM::matched to gem seg"<<std::endl;
+	         matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+	       }
+	     }
+     }
+   
+     info.chambers.push_back(*matchedChamber);
+
+   }
 }
 
 
@@ -831,12 +895,93 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
    double deltaPhi(fabs(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi()));
    if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
 
-   if( isDTWithoutY )
-     {
-	isGood = deltaPhi < parameters.dRMuon;
-	// Be in chamber
-	isGood &= fabs(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta()) < .3;
-     } else isGood = sqrt( pow(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta(),2) + 
+   if( isDTWithoutY ){
+	   isGood = deltaPhi < parameters.dRMuon;
+	   // Be in chamber
+	   isGood &= fabs(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta()) < .3;
+   }
+   else if(const GEMSuperChamber* gemchamber = dynamic_cast<const GEMSuperChamber*>(chamber) ) {
+     const GEMSegment* gemsegment = dynamic_cast<const GEMSegment*>(segment);
+     int station = gemsegment->specificRecHits()[0].gemId().station();
+     int chargeReco = trajectoryStateOnSurface.charge();
+     // segment hit
+     LocalPoint thisPosition(gemsegment->localPosition());
+     LocalVector thisDirection(gemsegment->localDirection());
+     GlobalPoint SegPos(gemchamber->toGlobal(thisPosition));
+     GlobalVector SegDir(gemchamber->toGlobal(thisDirection));
+/*
+     std::cout
+     << "[addTAMuonSegmentMatch]" << std::endl
+     << "chamber station = " << gemchamber->id().station() << std::endl
+     << "segment station = " << station << std::endl
+     << "nEtaPartitions  = " << gemchamber->nEtaPartitions() << std::endl
+     << "z position = " << SegPos.z() << std::endl << std::endl;
+*/
+     // track
+     GlobalPoint r3FinalReco_glob(trajectoryStateOnSurface.freeState()->position().x(), 
+                                  trajectoryStateOnSurface.freeState()->position().y(), 
+                                  trajectoryStateOnSurface.freeState()->position().z()   );
+     GlobalVector p3FinalReco_glob(trajectoryStateOnSurface.freeState()->momentum().x(), 
+                                   trajectoryStateOnSurface.freeState()->momentum().y(),
+                                   trajectoryStateOnSurface.freeState()->momentum().z()  );
+
+     LocalPoint r3FinalReco = gemchamber->toLocal(r3FinalReco_glob);
+     LocalVector p3FinalReco= gemchamber->toLocal(p3FinalReco_glob);
+     // track error 
+     LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
+     JacobianCartesianToLocal jctl(gemchamber->surface(),ltp);
+     AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian();
+     AlgebraicSymMatrix66 covFinalReco = trajectoryStateOnSurface.hasError() ? trajectoryStateOnSurface.cartesianError().matrix() : AlgebraicSymMatrix66();;
+ 
+     AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc);
+     AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
+     for(int i=0; i<5; ++i) {
+       for(int j=0; j<5; ++j) {
+         C[i][j] = Ctmp[i][j];
+       }
+     } 
+
+     Double_t sigmax = sqrt(C[3][3]+gemsegment->localPositionError().xx() ),
+              sigmay = sqrt(C[4][4]+gemsegment->localPositionError().yy() );
+/*
+     std::cout
+     << std::endl
+     << "station = " << station << std::endl
+     << "chamber = " << gemsegment->specificRecHits()[0].gemId().chamber() << std::endl
+     << "roll = " << gemsegment->specificRecHits()[0].gemId().roll() << std::endl
+     << "track r3 global : (" << r3FinalReco_glob.x() << ", " << r3FinalReco_glob.y() << ", " << r3FinalReco_glob.z() << ")" << std::endl
+     << "track p3 global : (" << p3FinalReco_glob.x() << ", " << p3FinalReco_glob.y() << ", " << p3FinalReco_glob.z() << ")" << std::endl
+     << "track r3 local : (" << r3FinalReco.x() << ", " << r3FinalReco.y() << ", " << r3FinalReco.z() << ")" << std::endl
+     << "track p3 local : (" << p3FinalReco.x() << ", " << p3FinalReco.y() << ", " << p3FinalReco.z() << ")" << std::endl
+     << "hit r3 global : (" << SegPos.x() << ", " << SegPos.y() << ", " << SegPos.z() << ")" << std::endl
+     << "hit p3 global : (" << SegDir.x() << ", " << SegDir.y() << ", " << SegDir.z() << ")" << std::endl
+     << "hit r3 local : (" << thisPosition.x() << ", " << thisPosition.y() << ", " << thisPosition.z() << ")" << std::endl
+     << "hit p3 local : (" << thisDirection.x() << ", " << thisDirection.y() << ", " << thisDirection.z() << ")" << std::endl
+     << "sigmax2 = " << C[3][3] << ", " << gemsegment->localPositionError().xx() << std::endl
+     << "sigmay2 = " << C[4][4] << ", " << gemsegment->localPositionError().yy() << std::endl;
+*/
+     bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
+    
+     if (station == 1){
+       if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (parameters.maxPullXGE11_ * sigmax)) &&
+      (std::abs(thisPosition.x()-r3FinalReco.x()) < parameters.maxDiffXGE11_ ) ) X_MatchFound = true;
+       if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (parameters.maxPullYGE11_ * sigmay)) &&
+      (std::abs(thisPosition.y()-r3FinalReco.y()) < parameters.maxDiffYGE11_ ) ) Y_MatchFound = true;
+     }
+     if (station == 3){
+       if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (parameters.maxPullXGE21_ * sigmax)) &&
+      (std::abs(thisPosition.x()-r3FinalReco.x()) < parameters.maxDiffXGE21_ ) ) X_MatchFound = true;
+       if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (parameters.maxPullYGE21_ * sigmay)) &&
+      (std::abs(thisPosition.y()-r3FinalReco.y()) < parameters.maxDiffYGE21_ ) ) Y_MatchFound = true;
+     }
+     double segLocalPhi = thisDirection.phi();
+     if (std::abs(reco::deltaPhi(p3FinalReco.phi(),segLocalPhi)) < parameters.maxDiffPhiDirection_) Dir_MatchFound = true;
+     //std::cout << "=============> X : " << X_MatchFound << ", Y : " << Y_MatchFound << ", Phi : " << Dir_MatchFound << std::endl;
+
+     isGood = X_MatchFound && Y_MatchFound && Dir_MatchFound;
+     //if(isGood) std::cout << "+++++++++++++++> pass" << std::endl;
+   }
+   else isGood = sqrt( pow(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta(),2) + 
 			   deltaPhi*deltaPhi) < parameters.dRMuon;
 
    if(isGood) {

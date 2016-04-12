@@ -46,6 +46,17 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    theHORecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
    theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
    theCSCSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+   theGEMSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("GEMSegmentCollectionLabel");
+
+   maxPullXGE11_   = iConfig.getParameter<double>("maxPullXGE11");
+   maxDiffXGE11_   = iConfig.getParameter<double>("maxDiffXGE11");
+   maxPullYGE11_   = iConfig.getParameter<double>("maxPullYGE11");
+   maxDiffYGE11_   = iConfig.getParameter<double>("maxDiffYGE11");
+   maxPullXGE21_   = iConfig.getParameter<double>("maxPullXGE21");
+   maxDiffXGE21_   = iConfig.getParameter<double>("maxDiffXGE21");
+   maxPullYGE21_   = iConfig.getParameter<double>("maxPullYGE21");
+   maxDiffYGE21_   = iConfig.getParameter<double>("maxDiffYGE21");
+   maxDiffPhiDirection_ = iConfig.getParameter<double>("maxDiffPhiDirection");
    
    accountForTrajectoryChangeCalo   = iConfig.getParameter<bool>("accountForTrajectoryChangeCalo");
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
@@ -63,6 +74,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    if (useMuon) {
      dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
      cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
+     gemSegmentsToken=iC.consumes<GEMSegmentCollection>(theGEMSegmentCollectionLabel);
    }
    if (truthMatch) {
      simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
