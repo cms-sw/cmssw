@@ -6,29 +6,9 @@
 #include <cmath>
 #include "CommonTools/Utils/interface/DynArray.h"
 #include<iterator>
+#include <boost/function_output_iterator.hpp>
 
 #include "vdt/vdtMath.h"
-
-namespace {
-template<class InputIt1, class InputIt2,
-         class Apply, class Compare1, class Compare2>
-void apply_to_set_intersection(InputIt1 first1, InputIt1 last1,
-                          InputIt2 first2, InputIt2 last2,
-                          Apply f, Compare1 comp1, Compare2 comp2)
-{
-    while ( (first1 != last1) & (first2 != last2) ) {
-        if (comp1(*first1, *first2)) {
-            ++first1;
-        } else {
-            if (!comp2(*first2, *first1)) {
-                f(*first1++);
-            }
-            ++first2;
-        }
-    }
-}
-}
-
 
 void Basic2DGenericPFlowPositionCalc::
 calculateAndSetPosition(reco::PFCluster& cluster) {
@@ -64,8 +44,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   auto const recHitCollection = &(*cluster.recHitFractions()[0].recHitRef()) - cluster.recHitFractions()[0].recHitRef().key();
   auto nhits = cluster.recHitFractions().size();
   struct LHit{ reco::PFRecHit const * hit; double energy; double fraction;};
-  declareDynArray(double,nhits,energies);
-  declareDynArray(double,nhits,fractions);
   declareDynArray(LHit,nhits,hits);
   for(auto i=0U; i<nhits; ++i) {
     auto const & hf = cluster.recHitFractions()[i];
@@ -145,7 +123,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     y += rhpos_xyz.Y() * norm;
     z += rhpos_xyz.Z() * norm;
     depth += refhit.depth()*norm;
-    
     position_norm += norm;
   };
 
@@ -159,9 +136,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       nei.push_back(&recHitCollection[k]);
      }
      std::sort(nei.begin(),nei.end());
-     apply_to_set_intersection(hits.begin(),hits.end(),nei.begin(),nei.end(), 
-       compute,[](LHit const &a, reco::PFRecHit const * b){return a.hit<b;},
-       [](reco::PFRecHit const * b, LHit const &a){return b<a.hit;}
+     struct LHitLess {
+       auto operator()(LHit const &a, reco::PFRecHit const * b) const {return a.hit<b;}
+       auto operator()(reco::PFRecHit const * b, LHit const &a) const {return b<a.hit;}
+     };
+     std::set_intersection(hits.begin(),hits.end(),nei.begin(),nei.end(), 
+       boost::make_function_output_iterator(compute),
+       LHitLess()
      );
   }
 
