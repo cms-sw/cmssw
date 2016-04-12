@@ -173,6 +173,7 @@ Run2015D=selectedLS([256677])
 steps['RunHLTPhy2015D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunDoubleEG2015D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015D-v1/RAW',label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunDoubleMuon2015D']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015D-v1/RAW',label='doubMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleMuon2015D_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['RunDoubleMuon2015D']])
 steps['RunJetHT2015D']={'INPUT':InputInfo(dataSet='/JetHT/Run2015D-v1/RAW',label='jetHT2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunMET2015D']={'INPUT':InputInfo(dataSet='/MET/Run2015D-v1/RAW',label='met2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunMuonEG2015D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015D-v1/RAW',label='muEG2015D',events=100000,location='STD', ls=Run2015D)}
@@ -180,6 +181,7 @@ steps['RunDoubleEGPrpt2015D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015D-ZEl
 steps['RunSingleMuPrpt2015D']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-ZMu-PromptReco-v3/RAW-RECO',label='sgMuPrpt2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunSingleEl2015D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2015D-v1/RAW',label='sigEl2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunSingleMu2015D']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-v1/RAW',label='sigMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMu2015D_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['RunSingleMu2015D']])
 steps['RunSinglePh2015D']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015D-v1/RAW',label='sigPh2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunZeroBias2015D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015D-v1/RAW',label='zb2015D',events=100000,location='STD',ib_block='38d4cab6-5d5f-11e5-824b-001e67ac06a0',ls=Run2015D)}
 
@@ -976,6 +978,7 @@ steps['HLTDR2_50ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditio
 hltKey25ns='relval25ns'
 menuR2_25ns = autoHLT[hltKey25ns]
 steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
+steps['HLTDR2_25ns_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['HLTDR2_25ns']])
 
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
@@ -1106,6 +1109,7 @@ steps['RECODR1reHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.Gl
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
 steps['RECODR2_25nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_25ns']])
+steps['RECODR2_25nsreHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['RECODR2_25nsreHLT']])
 steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2AlCaEle']])
 
@@ -1301,6 +1305,7 @@ steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, st
 steps['HARVESTDR1reHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},steps['HARVESTDR1reHLT']])
 steps['HARVESTDR2_50nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
+steps['HARVESTDR2_25nsreHLT_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['HARVESTDR2_25nsreHLT']])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
