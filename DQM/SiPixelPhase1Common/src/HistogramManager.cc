@@ -57,16 +57,17 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
     GeometryInterface::Values significantvalues; // TODO move this to a member 
     geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
     int dimensions = this->dimensions;
+    bool ignore = false; // if true, do not fill. 
     for (SummationStep step : s.steps) {
       if (step.stage == SummationStep::STAGE1) {
 	switch(step.type) {
 	case SummationStep::SAVE: break; // this happens automatically
-	case SummationStep::COUNT:
-	  // this does not really do anything. ATM only COUNT/EXTEND is supported, and
-	  // this is handled below.
+	case SummationStep::COUNT: {
 	  x = 0.0; y = 0.0;
 	  dimensions = 0;
-	  break;
+          auto& ctr = t[significantvalues];
+	  ctr.count++;
+	  break;}
 	case SummationStep::EXTEND_X:
 	  assert((x == 0.0 && dimensions != 1) || !"Can only EXTEND on COUNTs in step1");
 	  x = significantvalues[step.columns.at(0)];
@@ -80,6 +81,9 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
 	  dimensions = 2;
 	  break;
 	case SummationStep::GROUPBY: 
+	  assert(dimensions == 0 || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
+	  ignore = true;
+	  break;
 	case SummationStep::REDUCE:
 	case SummationStep::CUSTOM:
 	case SummationStep::NO_TYPE:
@@ -87,6 +91,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
 	}
       }
     }
+    if (ignore) continue;
     auto& histo = t[significantvalues];
     if (!histo.th1 && !histo.me) {
       // No histogram was booked.
@@ -111,7 +116,34 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event *sourceEvent, i
   assert(this->dimensions == 0);
   fill(0.0, 0.0, sourceModule, sourceEvent, col, row);
 }
-  
+// This is only used for ndigis-like counting. It could be more optimized, but
+// is probably fine for a per-event thing.
+void HistogramManager::executePerEventHarvesting() {
+  if (!enabled) return;
+  for (unsigned int i = 0; i < specs.size(); i++) {
+    auto& s = specs[i];
+    auto& t = tables[i];
+    for (SummationStep step : s.steps) {
+      if (step.stage == SummationStep::STAGE1) {
+	if (step.type == SummationStep::GROUPBY) {
+	  for (auto e : t) {
+	    // There are two types of entries: counters and histograms. We only want ctrs here.
+	    // TODO: now fully correct, if we have e.g. EXTEND/COUNT/GROUPBY. 
+	    if (e.first.values.size() == s.steps[0].columns.size()) {
+	      GeometryInterface::Values new_vals;
+	      for (auto c : step.columns) new_vals.put(e.first.get(c));
+	      auto histo = t.find(new_vals); // avoid modification in the loop.
+	      if (histo == t.end()) continue; // this is hopefully due to undefined values.
+	      histo->second.fill(e.second.count);
+	      e.second.count = 0;
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+ 
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
   if (!enabled) return;
   if (!geometryInterface.loaded()) {
@@ -143,10 +175,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       double range_y_min = this->range_min, range_y_max = this->range_max;
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1) {
-	  GeometryInterface::Values new_vals;
 	  switch(step.type) {
 	  case SummationStep::SAVE: break; // this happens automatically
-	  case SummationStep::COUNT:
+	  case SummationStep::COUNT: {
 	    dimensions = 0;
 	    title = "Count of " + title;
 	    name = "num_" + name;
@@ -155,7 +186,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    range_x_nbins = range_y_nbins = 1;
 	    range_x_min = range_y_min = 0;
 	    range_x_max = range_y_max = 1;
-	    break;
+            AbstractHistogram& ctr = t[significantvalues];
+	    ctr.count = 0;
+	    break;}
 	  case SummationStep::EXTEND_X: {
 	    GeometryInterface::Column col0 = significantvalues.get(step.columns.at(0)).first;
 	    std::string colname = geometryInterface.pretty(col0);
@@ -182,7 +215,21 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    range_y_max = range_y_nbins;
 	    significantvalues.erase(col0);
 	    break;}
-	  case SummationStep::GROUPBY:
+	  case SummationStep::GROUPBY: {
+	    assert(dimensions == 0 || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
+	    assert(!bookUndefined || !"bookUndefined and per-event harevsting are incopatible for now.");
+	    dimensions = 1;
+	    GeometryInterface::Values new_vals;
+	    for (auto c : step.columns) new_vals.put(significantvalues.get(c));
+	    significantvalues = new_vals;
+	    range_x_nbins = this->range_nbins;
+	    range_x_min = this->range_min;
+	    range_x_max = this->range_max;
+	    xlabel = ylabel + " per Event";
+	    if (s.steps[0].columns.size() > 0) 
+	      xlabel = xlabel + " and " + geometryInterface.pretty(s.steps[0].columns[s.steps[0].columns.size()-1]);
+	    ylabel = "#Entries";
+	    break;}
 	  case SummationStep::REDUCE:
 	  case SummationStep::CUSTOM:
 	  case SummationStep::NO_TYPE:
@@ -231,7 +278,6 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
     // TODO: if (!bookUndefined) we could skip a lot here.
     for (SummationStep step : s.steps) {
       if (step.stage == SummationStep::STAGE1) {
-	GeometryInterface::Values new_vals;
 	switch(step.type) {
 	case SummationStep::SAVE: break; // this happens automatically
 	case SummationStep::COUNT:
@@ -244,7 +290,11 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
 	  name = name + "_per_" + colname;
 	  significantvalues.erase(col0);
 	  break;}
-	case SummationStep::GROUPBY:
+	case SummationStep::GROUPBY: {
+	  GeometryInterface::Values new_vals;
+	  for (auto c : step.columns) new_vals.put(significantvalues.get(c));
+	  significantvalues = new_vals;
+	  break; }
 	case SummationStep::REDUCE:
 	case SummationStep::CUSTOM:
 	case SummationStep::NO_TYPE:
@@ -336,7 +386,7 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
     AbstractHistogram& new_histo = out[vals];
     double reduced_quantity = 0;
     std::string label = "";
-    std::string name = this->name;
+    std::string name = th1->GetName();
     // TODO: meaningful semantics in 2D case, errors
     if (step.arg == "MEAN") {
       reduced_quantity = th1->GetMean();

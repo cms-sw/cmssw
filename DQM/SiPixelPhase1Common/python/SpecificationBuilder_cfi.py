@@ -28,7 +28,6 @@ def val(maybecms):
 
 class Specification:
   def __init__(self):
-    self.stage = NO_STAGE
     self.activeColumns = set()
     self.state = FIRST
     self.pset = cms.PSet(spec = cms.VPSet())
@@ -37,6 +36,10 @@ class Specification:
     cnames = val(cols).split("/")
 
     if mode == "SUM":
+      if self.state == STAGE1:
+        if not "Event" in self.pset.spec[0].columns:
+          raise Exception("Only per-event counting supported for step1.")
+        self.pset.spec[0].columns.remove("Event"); # per-Event groupng is done automatically
       t = GROUPBY
       cstrings = cms.vstring(cnames)
     elif mode == "EXTEND_X" or mode == "EXTEND_Y":
@@ -81,7 +84,7 @@ class Specification:
     self.state = STAGE2
     return self
 
-  def custom(self, arg):
+  def custom(self, arg = ""):
     if self.state != STAGE2:
       raise Exception("Custom processing exists only in Harvesting.")
     self.pset.spec.append(cms.PSet(

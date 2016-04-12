@@ -30,14 +30,17 @@ SiPixelPhase1DigisConf = cms.VPSet(
   ),
   DefaultHisto.clone(
     enabled = True, # Ndigis
-    name = "ndigis",
-    title = "Number of Digis",
-    xlabel = "#digis",
+    name = "digis", # 'Count of' added automatically
+    title = "Digis",
+    xlabel = "digis",
     range_min = 0,
     range_max = 30,
     range_nbins = 30,
+    dimensions = 0, # this is a count
     specs = cms.VPSet(
-      Specification().groupBy(DefaultHisto.defaultGrouping)
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
+                     .reduce("COUNT")
+                     .groupBy(DefaultHisto.defaultGrouping)
                      .save()
                      .reduce("MEAN")
                      .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "EXTEND_X")
