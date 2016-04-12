@@ -149,7 +149,7 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key)
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
       std::string fileName = _toString(loadElement->getAttribute(_toDOMS("module")));
-      std::cout << "loading file " << fileName << std::endl;
+      //std::cout << "loading file " << fileName << std::endl;
       DOMDocument* subDoc = nullptr;
       readDOMFromFile(fileName, subDoc);
       if (subDoc) {
