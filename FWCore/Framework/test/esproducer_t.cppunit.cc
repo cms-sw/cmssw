@@ -30,7 +30,6 @@ CPPUNIT_TEST(registerTest);
 CPPUNIT_TEST(getFromTest);
 CPPUNIT_TEST(getfromShareTest);
 CPPUNIT_TEST(getfromUniqueTest);
-CPPUNIT_TEST(getfromAutoTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
@@ -46,7 +45,6 @@ public:
   void getFromTest();
   void getfromShareTest();
   void getfromUniqueTest();
-  void getfromAutoTest();
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
@@ -103,20 +101,6 @@ public:
    std::unique_ptr<DummyData> produce(const DummyRecord&) {
       ++data_.value_;
       return std::make_unique<DummyData>(data_);
-   }
-private:
-   DummyData data_;
-};
-
-class AutoProducer : public ESProducer {
-public:
-   AutoProducer() {
-      setWhatProduced(this);
-   }
-   std::auto_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
-      ++data_.value_;
-      std::auto_ptr<DummyData> ptr(new DummyData(data_));
-      return ptr;
    }
 private:
    DummyData data_;
@@ -218,27 +202,6 @@ void testEsproducer::getfromUniqueTest()
    EventSetupProvider provider;
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
-   provider.add(pProxyProv);
-   
-   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
-   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
-   
-   for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
-      eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
-      CPPUNIT_ASSERT(iTime == pDummy->value_);
-   }
-}
-
-void testEsproducer::getfromAutoTest()
-{
-   EventSetupProvider provider;
-   
-   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<AutoProducer>();
    provider.add(pProxyProv);
    
    std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
