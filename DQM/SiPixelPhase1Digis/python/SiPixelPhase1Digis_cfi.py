@@ -14,19 +14,17 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_nbins = 300,
     specs = cms.VPSet(
       Specification().groupBy(DefaultHisto.defaultGrouping)
-                     .saveAll()
-                     .end(),
+                     .saveAll(),
       Specification().groupBy("BX")
                      .reduce("COUNT")
                      .groupBy("", "EXTEND_X")
-                     .save()
-                     .end(),
+                     .save(),
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/row/col")
                      .reduce("COUNT")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/row", "EXTEND_X")
                      .groupBy(DefaultHisto.defaultGrouping, "EXTEND_Y")
                      .save()
-                     .end())
+    )
   ),
   DefaultHisto.clone(
     enabled = True, # Ndigis
@@ -45,7 +43,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
                      .reduce("MEAN")
                      .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "EXTEND_X")
                      .saveAll()
-                     .end())
+    )
   ),
   DefaultHisto.clone(
     enabled = True, # hitmaps
@@ -64,7 +62,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
                      .save()
                      .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "SUM")
                      .saveAll()
-                     .end())
+    )
   )
 )
 
@@ -72,10 +70,10 @@ SiPixelPhase1DigisConf = cms.VPSet(
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         src = cms.InputTag("simSiPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
-	geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry
 )
 # TODO: better clone() here instead?
 SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
-	geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry
 )

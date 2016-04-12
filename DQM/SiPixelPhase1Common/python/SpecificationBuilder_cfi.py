@@ -26,26 +26,26 @@ def val(maybecms):
   else:
     return maybecms
 
-class Specification:
+class Specification(cms.PSet):
   def __init__(self):
-    self.activeColumns = set()
-    self.state = FIRST
-    self.pset = cms.PSet(spec = cms.VPSet())
+    super(Specification, self).__init__(spec = cms.VPSet())
+    self._activeColumns = set()
+    self._state = FIRST
 
   def groupBy(self, cols, mode = "SUM"):
     cnames = val(cols).split("/")
 
     if mode == "SUM":
-      if self.state == STAGE1:
-        if not "Event" in self.pset.spec[0].columns:
+      if self._state == STAGE1:
+        if not "Event" in self.spec[0].columns:
           raise Exception("Only per-event counting supported for step1.")
-        self.pset.spec[0].columns.remove("Event"); # per-Event groupng is done automatically
+        self.spec[0].columns.remove("Event"); # per-Event groupng is done automatically
       t = GROUPBY
       cstrings = cms.vstring(cnames)
     elif mode == "EXTEND_X" or mode == "EXTEND_Y":
-      if self.state == FIRST: 
+      if self._state == FIRST: 
         raise Exception("First grouping must be SUM") 
-      cname = self.activeColumns.difference(cnames)
+      cname = self._activeColumns.difference(cnames)
       if len(cname) != 1:
         raise Exception("EXTEND must drop exactly one column.")
       cstrings = cms.vstring(cname)
@@ -57,59 +57,59 @@ class Specification:
     else:
       raise Exception("Summation mode %s unknown" % mode)
 
-    self.activeColumns = set(cnames)
-    self.lastColumns = cnames
-    self.lastMode = mode
+    self._activeColumns = set(cnames)
+    self._lastColumns = cnames
+    self._lastMode = mode
     
-    self.pset.spec.append(cms.PSet(
+    self.spec.append(cms.PSet(
       type = t, 
-      stage = self.state, 
+      stage = self._state, 
       columns = cstrings,
       arg = cms.string(mode)
     ))
 
-    if self.state == FIRST:
-      self.state = STAGE1
+    if self._state == FIRST:
+      self._state = STAGE1
     return self
 
   def save(self):
-    if self.state == FIRST:
+    if self._state == FIRST:
       raise Exception("First statement must be groupBy.")
-    self.pset.spec.append(cms.PSet(
+    self.spec.append(cms.PSet(
       type = SAVE, 
-      stage = self.state, 
+      stage = self._state, 
       columns = cms.vstring(),
       arg = cms.string("")
     ))
-    self.state = STAGE2
+    self._state = STAGE2
     return self
 
   def custom(self, arg = ""):
-    if self.state != STAGE2:
+    if self._state != STAGE2:
       raise Exception("Custom processing exists only in Harvesting.")
-    self.pset.spec.append(cms.PSet(
+    self.spec.append(cms.PSet(
       type = CUSTOM, 
-      stage = self.state, 
+      stage = self._state, 
       columns = cms.vstring(),
       arg = cms.string(arg)
     ))
     return self
 
   def reduce(self, sort):
-    if self.state == FIRST:
+    if self._state == FIRST:
       raise Exception("First statement must be groupBy.")
     if sort != "MEAN" and sort != "COUNT":
       raise Exception("reduction type %s not known" % sort)
-    if self.state == STAGE1:
+    if self._state == STAGE1:
       if sort != "COUNT":
         raise Exception("reduction type %s not allowed in step1" % sort)
       t = COUNT
     else:
       t = REDUCE
 
-    self.pset.spec.append(cms.PSet(
+    self.spec.append(cms.PSet(
       type = t, 
-      stage = self.state, 
+      stage = self._state, 
       columns = cms.vstring(),
       arg = cms.string(sort)
     ))
@@ -117,15 +117,10 @@ class Specification:
 
   def saveAll(self):
     self.save()
-    columns = self.lastColumns
+    columns = self._lastColumns
     for i in range(len(columns)-1, 0, -1):
       cols = columns[0:i]
-      self.groupBy("/".join(cols), self.lastMode)
+      self.groupBy("/".join(cols), self._lastMode)
       self.save()
     return self
     
-
-  def end(self):
-    return self.pset
-
-
