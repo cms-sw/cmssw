@@ -31,6 +31,8 @@
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 #include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/setting.h"
+#include "L1Trigger/L1TCommon/interface/mask.h"
 
 //
 // class declaration
@@ -65,32 +67,140 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    // data is being produced
    setWhatProduced(this);
 
-   l1t::trigSystem trgSys;
-   trgSys.configureSystem("L1_key", "UGMT");
-   std::cout << "trgSys settings size: " << trgSys.getSettings("ugmt_processor").size() << std::endl;
-
    L1TMuonGlobalParamsHelper m_params_helper;
 
    // Firmware version
    unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
-   m_params_helper.setFwVersion(fwVersion);
 
    // uGMT disabled inputs
    bool disableCaloInputs = iConfig.getParameter<bool>("caloInputsDisable");
+   std::vector<unsigned> bmtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("bmtfInputsToDisable");
+   std::vector<unsigned> omtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("omtfInputsToDisable");
+   std::vector<unsigned> emtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("emtfInputsToDisable");
+
+   // masked inputs
+   bool caloInputsMasked = iConfig.getParameter<bool>("caloInputsMasked");
+   std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
+   std::vector<unsigned> maskedOmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedOmtfInputs");
+   std::vector<unsigned> maskedEmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedEmtfInputs");
+
+   // get configuration from DB
+   if (iConfig.getParameter<bool>("configFromDb")) {
+      l1t::trigSystem trgSys;
+      trgSys.configureSystem("L1_key", iConfig.getParameter<std::string>("uGmtDbName"));
+      std::string procId = iConfig.getParameter<std::string>("uGmtProcessorId");
+      std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
+      std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
+      //for (auto& it: settings) {
+      //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
+      //}
+      //for (auto& it: masks) {
+      //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", id: " << it.second.getId() << std::endl;
+      //}
+
+      // uGMT disabled inputs
+      //disableCaloInputs = settings["disableCaloInputs"].getValue<bool>();
+      std::string bmtfInputsToDisableStr = settings["bmtfInputsToDisable"].getValueAsStr();
+      std::string omtfInputsToDisableStr = settings["omtfInputsToDisable"].getValueAsStr();
+      std::string emtfInputsToDisableStr = settings["emtfInputsToDisable"].getValueAsStr();
+      bmtfInputsToDisable.clear();
+      omtfInputsToDisable.clear();
+      emtfInputsToDisable.clear();
+      bmtfInputsToDisable.assign(12, 0);
+      omtfInputsToDisable.assign(12, 0);
+      emtfInputsToDisable.assign(12, 0);
+      stringstream ss;
+      for (unsigned i = 0; i < 12; ++i) {
+         ss.str("");
+         ss << "BMTF" << i+1;
+         if (bmtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+            bmtfInputsToDisable[i] = 1;
+         }
+         ss.str("");
+         ss << "OMTF";
+         if (i < 6) {
+            ss << "p" << i+1;
+         } else {
+            ss << "n" << i-5;
+         }
+         if (omtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+            omtfInputsToDisable[i] = 1;
+         }
+         ss.str("");
+         ss << "EMTF";
+         if (i < 6) {
+            ss << "p" << i+1;
+         } else {
+            ss << "n" << i-5;
+         }
+         if (emtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+            emtfInputsToDisable[i] = 1;
+         }
+      }
+
+      // uGMT masked inputs
+      maskedBmtfInputs.clear();
+      maskedOmtfInputs.clear();
+      maskedEmtfInputs.clear();
+      maskedBmtfInputs.assign(12, 0);
+      maskedOmtfInputs.assign(12, 0);
+      maskedEmtfInputs.assign(12, 0);
+      caloInputsMasked = true;
+      ss << std::setfill('0');
+      for (unsigned i = 0; i < 28; ++i) {
+         ss.str("");
+         ss << "inputPorts.CaloL2_" << std::setw(2) << i+1;
+         // for now set as unmasked if one input is not masked
+         if (!trgSys.isMasked(procId, ss.str())) {
+            caloInputsMasked = false;
+         }
+         if (i < 12) {
+            ss.str("");
+            ss << "inputPorts.BMTF_" << std::setw(2) << i+1;
+            if (trgSys.isMasked(procId, ss.str())) {
+               maskedBmtfInputs[i] = 1;
+            }
+            ss.str("");
+            ss << "inputPorts.OMTF";
+            if (i < 6) {
+               ss << "+_" << std::setw(2) << i+1;
+            } else {
+               ss << "-_" << std::setw(2) << i-5;
+            }
+            if (trgSys.isMasked(procId, ss.str())) {
+               maskedOmtfInputs[i] = 1;
+            }
+            ss.str("");
+            ss << "inputPorts.EMTF";
+            if (i < 6) {
+               ss << "+_" << std::setw(2) << i+1;
+            } else {
+               ss << "-_" << std::setw(2) << i-5;
+            }
+            if (trgSys.isMasked(procId, ss.str())) {
+               maskedEmtfInputs[i] = 1;
+            }
+         }
+      }
+      ss << std::setfill(' ');
+   }
+
+   // Firmware version
+   m_params_helper.setFwVersion(fwVersion);
+
+   // uGMT disabled inputs
    if (disableCaloInputs) {
       m_params_helper.setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
    } else {
       m_params_helper.setCaloInputsToDisable(std::bitset<28>());
    }
 
-   std::vector<unsigned> bmtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("bmtfInputsToDisable");
    std::bitset<12> bmtfDisables;
    for (size_t i = 0; i < bmtfInputsToDisable.size(); ++i) {
      bmtfDisables.set(i, bmtfInputsToDisable[i] > 0);
    }
    m_params_helper.setBmtfInputsToDisable(bmtfDisables);
 
-   std::vector<unsigned> omtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("omtfInputsToDisable");
    std::bitset<6> omtfpDisables;
    std::bitset<6> omtfnDisables;
    for (size_t i = 0; i < omtfInputsToDisable.size(); ++i) {
@@ -103,7 +213,6 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setOmtfpInputsToDisable(omtfpDisables);
    m_params_helper.setOmtfnInputsToDisable(omtfnDisables);
 
-   std::vector<unsigned> emtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("emtfInputsToDisable");
    std::bitset<6> emtfpDisables;
    std::bitset<6> emtfnDisables;
    for (size_t i = 0; i < emtfInputsToDisable.size(); ++i) {
@@ -117,21 +226,18 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setEmtfnInputsToDisable(emtfnDisables);
 
    // masked inputs
-   bool caloInputsMasked = iConfig.getParameter<bool>("caloInputsMasked");
    if (caloInputsMasked) {
       m_params_helper.setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
    } else {
       m_params_helper.setMaskedCaloInputs(std::bitset<28>());
    }
 
-   std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
    std::bitset<12> bmtfMasked;
    for (size_t i = 0; i < maskedBmtfInputs.size(); ++i) {
      bmtfMasked.set(i, maskedBmtfInputs[i] > 0);
    }
    m_params_helper.setMaskedBmtfInputs(bmtfMasked);
 
-   std::vector<unsigned> maskedOmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedOmtfInputs");
    std::bitset<6> omtfpMasked;
    std::bitset<6> omtfnMasked;
    for (size_t i = 0; i < maskedOmtfInputs.size(); ++i) {
@@ -144,7 +250,6 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setMaskedOmtfpInputs(omtfpMasked);
    m_params_helper.setMaskedOmtfnInputs(omtfnMasked);
 
-   std::vector<unsigned> maskedEmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedEmtfInputs");
    std::bitset<6> emtfpMasked;
    std::bitset<6> emtfnMasked;
    for (size_t i = 0; i < maskedEmtfInputs.size(); ++i) {
