@@ -4,7 +4,7 @@
 #include <queue>
 #include <cfloat>
 #include "CommonTools/Utils/interface/DynArray.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   const reco::PFRecHitRefVector _noNeighbours;
