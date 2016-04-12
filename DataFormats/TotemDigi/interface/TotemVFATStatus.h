@@ -7,10 +7,8 @@
 *    
 ****************************************************************************/
 
-#ifndef DataFormats_TotemRawData_TotemRawToDigiStatus
-#define DataFormats_TotemRawData_TotemRawToDigiStatus
-
-#include "DataFormats/TotemRawData/interface/TotemStructuralVFATId.h"
+#ifndef DataFormats_TotemDigi_TotemVFATStatus
+#define DataFormats_TotemDigi_TotemVFATStatus
 
 #include <bitset>
 #include <map>
@@ -22,11 +20,8 @@
  */
 class TotemVFATStatus
 {
-  private:
-    std::bitset<8> status;
-  
   public:
-    TotemVFATStatus() : status(0) {}
+    TotemVFATStatus(uint8_t _cp = 0) : chipPosition(_cp), status(0) {}
 
     /// VFAT is present in mapping but no data is present int raw event
     inline bool isMissing() const { return status[0]; }
@@ -53,8 +48,10 @@ class TotemVFATStatus
     inline bool isPartiallyMaskedOut() const { return status[7]; }
 
     /// None channels are masked out
-    inline bool isNotMasked() { return !(status[6] || status[7]); }
+    inline bool isNotMasked() const { return !(status[6] || status[7]); }
 
+    inline void setChipPosition(uint8_t _cp) { chipPosition = _cp; }
+    
     inline void setMissing() { status[0]=true; }
     inline void setIDMismatch() { status[1]=true; }
     inline void setFootprintError() { status[2]=true; }
@@ -65,7 +62,7 @@ class TotemVFATStatus
     inline void setPartiallyMaskedOut() { status[7]=true; }
     inline void setNotMasked() { status[6]=status[7]=false; }
 
-    bool OK() const
+    bool isOK() const
     {
 	  return !(status[0] || status[1] || status[2] || status[3] || status[4] || status[5]);
 	}
@@ -76,10 +73,13 @@ class TotemVFATStatus
 	}
   
     friend std::ostream& operator << (std::ostream& s, const TotemVFATStatus &st);
+
+  private:
+    /// describes placement of the VFAT within the detector
+    uint8_t chipPosition;
+
+    /// the status bits
+    std::bitset<8> status;
 };
-
-//----------------------------------------------------------------------------------------------------
-
-typedef std::map<TotemStructuralVFATId, TotemVFATStatus> TotemRawToDigiStatus;
 
 #endif
