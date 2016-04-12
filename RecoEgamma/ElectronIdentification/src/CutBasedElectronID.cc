@@ -557,7 +557,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
     if (mishits > cut[22]) // expected missing hits
       return result;
     // positive cut[23] means to demand a valid hit in 1st layer PXB
-    if (cut[23] > 0 && !electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel())
+    if (cut[23] > 0 && !electron->gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
       return result;
 
     // cut[24]: Dist cut[25]: dcot
