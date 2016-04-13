@@ -202,8 +202,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
             for (const auto& jet: jets) {
 
-                if (! m_enabled) {
-                    // Module disabled. Simply copy the input jet.
+                if ((! m_enabled) || (jet.pt() == 0)) {
+                    // Module disabled or invalid p4. Simply copy the input jet.
                     smearedJets->push_back(jet);
 
                     continue;
