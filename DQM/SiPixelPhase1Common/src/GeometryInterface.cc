@@ -13,11 +13,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Tracker Geometry/Topology  suff
+// Tracker Geometry/Topology  stuff
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // C++ stuff
@@ -34,6 +36,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFromTopology(iSetup, iConfig);
   loadTimebased(iSetup, iConfig);
   loadModuleLevel(iSetup, iConfig);
+  loadFEDCabling(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
   for (auto e : ids) log << "+++ column: " << e.first 
@@ -235,4 +238,33 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
   );
 
   // TODO: ROCs ans stuff here.
+}
+
+void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
+  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  std::map<DetId, Value> fedmap;
+
+  if (theCablingMap.isValid()) {
+    auto map = theCablingMap.product();
+
+    for(auto iq : all_modules) {
+      std::vector<sipixelobjects::CablingPathToDetUnit> paths = map->pathToDetUnit(iq.sourceModule.rawId());
+      for (auto p : paths) {
+	//std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
+	fedmap[iq.sourceModule] = Value(p.fed);
+      }
+    }
+  } else {
+    edm::LogError("GeometryInterface") << "+++ No cabling map. Cannot extract FEDs.\n";
+  }
+
+  addExtractor(intern("FED"),
+    [fedmap] (InterestingQuantities const& iq) {
+      auto it = fedmap.find(iq.sourceModule);
+      if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
+      return it->second;
+    },
+    1255
+  );
 }
