@@ -29,13 +29,13 @@ namespace l1t {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
                      
-		    //PackerFactory::get()->make("stage2::MuonPacker"),
-		    //PackerFactory::get()->make("stage2::EGammaPacker"),
-		    //PackerFactory::get()->make("stage2::EtSumPacker"),
-		    //PackerFactory::get()->make("stage2::JetPacker"),
-		    //PackerFactory::get()->make("stage2::TauPacker"),
-                     PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-                     PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
+		    PackerFactory::get()->make("stage2::MuonPacker"),
+		    PackerFactory::get()->make("stage2::EGammaPacker"),
+		    PackerFactory::get()->make("stage2::EtSumPacker"),
+		    PackerFactory::get()->make("stage2::JetPacker"),
+		    PackerFactory::get()->make("stage2::TauPacker"),
+		    PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
+		    PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
                   };
                }
 
@@ -60,11 +60,11 @@ namespace l1t {
 
             virtual UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override {
 
-	      //auto muon_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
-	      //auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
-	      //auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
-	      //auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
-	      //auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
+	       auto muon_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
+	       auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
+	       auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
+	       auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
+	       auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
                auto alg_unp = UnpackerFactory::get()->make("stage2::GlobalAlgBlkUnpacker");
                auto ext_unp = UnpackerFactory::get()->make("stage2::GlobalExtBlkUnpacker");
 
@@ -74,17 +74,17 @@ namespace l1t {
                if (fed == 1404) {
                   
 		 // From the rx buffers         
-		 //res[0]  = muon_unp;
-		 //res[2]  = muon_unp;
-		 //res[4]  = muon_unp;
-		 //res[6]  = muon_unp;
-		 //res[8]  = egamma_unp;
-		 //res[10] = egamma_unp;
-		 //res[12] = jet_unp;
-		 //res[14] = jet_unp;
-		 //res[16] = tau_unp;
-		 //res[18] = tau_unp;
-		 //res[20] = etsum_unp;
+		  res[0]  = muon_unp;
+		  res[2]  = muon_unp;
+		  res[4]  = muon_unp;
+		  res[6]  = muon_unp;
+		  res[8]  = egamma_unp;
+		  res[10] = egamma_unp;
+		  res[12] = jet_unp;
+		  res[14] = jet_unp;
+		  res[16] = tau_unp;
+		  res[18] = tau_unp;
+		  res[20] = etsum_unp;
 		  res[24] = ext_unp;
 		  //res[22] = empty link no data
 		  res[26] = ext_unp;
