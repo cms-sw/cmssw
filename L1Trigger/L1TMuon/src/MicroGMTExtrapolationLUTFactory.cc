@@ -28,4 +28,18 @@ namespace l1t {
     }
     return p;
   }
+
+  MicroGMTExtrapolationLUTFactory::ReturnType
+  MicroGMTExtrapolationLUTFactory::create(l1t::LUT* lut, const int type, const int fwVersion) {
+    ReturnType p;
+
+    switch (fwVersion) {
+      case 1:
+        p = ReturnType(new MicroGMTExtrapolationLUT(lut, type));
+        break;
+      default:
+        LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    }
+    return p;
+  }
 }

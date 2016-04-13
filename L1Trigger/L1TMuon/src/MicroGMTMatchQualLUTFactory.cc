@@ -28,4 +28,18 @@ namespace l1t {
     }
     return p;
   }
+
+  MicroGMTMatchQualLUTFactory::ReturnType
+  MicroGMTMatchQualLUTFactory::create(l1t::LUT* lut, cancel_t cancelType, const int fwVersion) {
+    ReturnType p;
+
+    switch (fwVersion) {
+      case 1:
+        p = ReturnType(new MicroGMTMatchQualLUT(lut, cancelType));
+        break;
+      default:
+        LogError("MicroGMTMatchQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    }
+    return p;
+  }
 }

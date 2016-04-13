@@ -22,6 +22,23 @@ l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const
   }
 }
 
+l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (l1t::LUT* lut, cancel_t cancelType) : MicroGMTLUT(lut), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(4), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(-1.), m_cancelType(cancelType)
+{
+  m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
+  m_outWidth = 1;
+
+  m_dPhiRedMask = (1 << m_dPhiRedInWidth) - 1;
+  m_dEtaRedMask = ((1 << m_dEtaRedInWidth) - 1) << m_dPhiRedInWidth;
+
+  m_inputs.push_back(MicroGMTConfiguration::DELTA_ETA_RED);
+  m_inputs.push_back(MicroGMTConfiguration::DELTA_PHI_RED);
+
+  m_phiScale = 2*TMath::Pi()/576.0;
+  m_etaScale = 0.010875;
+
+  m_initialized = true;
+}
+
 int
 l1t::MicroGMTMatchQualLUT::lookup(int dEtaRed, int dPhiRed) const
 {
