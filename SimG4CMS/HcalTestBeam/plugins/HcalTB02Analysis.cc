@@ -46,7 +46,7 @@ namespace CLHEP {
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): histo(0) {
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB02Analysis");
   hcalOnly      = m_Anal.getUntrackedParameter<bool>("HcalClusterOnly",true);
@@ -64,12 +64,7 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): histo(0) {
 HcalTB02Analysis::~HcalTB02Analysis() {
 
   finish();
-
-  if (histo)   {
-    delete histo;
-    histo  = 0;
-  }
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis is deleting";
+  delete histo;
 }
 
 //
@@ -106,8 +101,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
   // HCAL
   std::string sd = names[0];
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
-  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
-  HcalTB02HcalNumberingScheme *org = new HcalTB02HcalNumberingScheme();   
+  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid); 
   LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd 
 			<< " of ID " << HCHCid << " is obtained at " <<theHCHC;
 
@@ -123,10 +117,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     // XTALS
     sd      = names[1];
     XTALSid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
-    //    assert (XTALSid != 0);
     theXTHC = (CaloG4HitCollection*) allHC->GetHC(XTALSid);
-    //    assert (theXTHC != 0);
-    //HcalTB02XtalNumberingScheme *xorg = new HcalTB02XtalNumberingScheme();
     LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd
 			  << " of ID " << XTALSid << " is obtained at " 
 			  << theXTHC;
@@ -138,11 +129,10 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 			<< " HCal hits, and" << xentries  << " xtal hits";
 
   float ETot=0., xETot=0.;
-  //float maxE = 0.; 
-  //int maxI=0, 
   int scintID=0, xtalID=0;
 
   // HCAL
+  HcalTB02HcalNumberingScheme *org = new HcalTB02HcalNumberingScheme();   
 
   if (HCHCid >= 0 && theHCHC > 0) {
     for ( ihit = 0; ihit < nentries; ihit++) {
@@ -215,15 +205,8 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     for (int iphi=0 ; iphi<8; iphi++) {
       for (int jeta=0 ; jeta<18; jeta++) {
 	
-	//SEnergyN += TowerEneCF[iphi][jeta] + 3.2*randGauss.fire(); // LHEP
 	SEnergyN += TowerEneCF[iphi][jeta] + 3.*randGauss.fire(); // QGSP
 
-	//double dR=0.08727*sqrt( (jeta-8.)*(jeta-8.)+(iphi-3.)*(iphi-3.) );
-	//cout.testOut << " phi= " << iphi << " eta= " << jeta 
-	//	     << " TowerEne[iphi,jeta]= " << TowerEne[iphi][jeta] 
-	//	     << "dR= "  << dR << endl;
-	
-      	//double Rand = 3.2*randGauss.fire(); // LHEP
       	double Rand = 3.*randGauss.fire(); // QGSP
 	
 	if ( (iphi>=0) && (iphi<7) ) {
