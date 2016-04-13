@@ -10,6 +10,9 @@
 #ifndef DataFormats_TotemDigi_TotemRPDigi
 #define DataFormats_TotemDigi_TotemRPDigi
 
+/**
+ * Digi structure for TOTEM RP silicon strip sensors.
+**/
 class TotemRPDigi
 {
   public:
@@ -23,6 +26,7 @@ class TotemRPDigi
     }
   
   private:
+    /// index of the activated strip
     unsigned short strip_no_;
 };
 
