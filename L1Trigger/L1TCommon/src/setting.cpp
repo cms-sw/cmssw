@@ -51,31 +51,6 @@ setting::~setting()
 	;
 }
 
-template <typename varType> std::vector<varType> setting::getVector(std::string delim)
-{
-	if ( _type.find("vector") == std::string::npos )
-		throw std::runtime_error("The registered type: " + _type + " is not vector so you need to call the getValue method");
-
-	std::vector<varType> vals;
-
-	if ( !parse ( std::string(_value+delim+" ").c_str(),
-          (
-          	* ( boost::spirit::classic::uint_p[boost::spirit::classic::push_back_a ( vals ) ] >> delim.c_str() >> *boost::spirit::classic::space_p )
-          ), boost::spirit::classic::nothing_p ).full )
-	{ 	
-		throw std::runtime_error ("Wrong value format: " + _value);
-	}
-
-	return vals;
-}
-
-template <class varType> varType setting::getValue()
-{
-	if ( _type.find("vector") != std::string::npos )
-		throw std::runtime_error("The registered type: " + _type + " is vector so you need to call the getVector method");
-	
-	return boost::lexical_cast<varType>(_value);
-}
 
 l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::string delim)
 {
