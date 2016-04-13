@@ -115,6 +115,7 @@ class GeometryInterface {
 
   std::vector<InterestingQuantities> const& allModules() { return all_modules; };
   Value maxValue(ID id) { return max_value[id]; }; 
+  Value minValue(ID id) { return min_value[id]; }; 
   
   // turn string into an ID, adding it if needed.
   // needs the lock since this will be called from the spec builder, which will
@@ -163,9 +164,11 @@ class GeometryInterface {
   // An estimate of the max value for a column. Used for step1 EXTEND (but not step2)
   // map for ease of use.
   std::map<ID, Value> max_value;
+  std::map<ID, Value> min_value;
   
-  void addExtractor(ID id, std::function<Value(InterestingQuantities const& iq)> func, Value max) {
+  void addExtractor(ID id, std::function<Value(InterestingQuantities const& iq)> func, Value min, Value max) {
     max_value[id] = max;
+    min_value[id] = min;
     extractors[id] = func;
   }
 
