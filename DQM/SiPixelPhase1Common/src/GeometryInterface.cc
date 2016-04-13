@@ -40,7 +40,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
   for (auto e : ids) log << "+++ column: " << e.first 
-    << " ok " << bool(extractors[e.second]) << " max " << max_value[e.second] << "\n";
+    << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second] << " max " << max_value[e.second] << "\n";
   is_loaded = true;
 }
 
@@ -172,14 +172,17 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
   assert(trackerTopologyHandle.isValid());
 
+  std::vector<ID> geomquantities;
+
   for (std::pair<std::string, TrackerTopology::BitMask> e : trackerTopologyHandle->namedPartitions()) {
     auto mask = e.second;
+    geomquantities.push_back(intern(e.first));
     addExtractor(intern(e.first),
       [mask] (InterestingQuantities const& iq) {
 	if(!mask.valid(iq.sourceModule)) return UNDEFINED;
 	return Value(mask.apply(iq.sourceModule));
       },
-      1, mask.mask_ // TODO: precise number?
+      UNDEFINED, 0
     );
   }
   
@@ -190,9 +193,53 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // TODO: Just pixel would be fine for now.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
-    // for ROCs etc., they eed to be added here as well.
-    all_modules.push_back(InterestingQuantities{.sourceModule = id });
+    auto iq = InterestingQuantities{.sourceModule = id };
+    for (ID q : geomquantities) {
+      Value v = extractors[q](iq);
+      if (v != UNDEFINED) {
+	if (v < min_value[q]) min_value[q] = v;
+	if (v > max_value[q]) max_value[q] = v;
+      }
+    }
+    // for ROCs etc., they need to be added here as well.
+    all_modules.push_back(iq);
   }
+
+  // Shells are a concept that cannot be derived from bitmasks. 
+  // Use hardcoded logic here.
+  auto pxbarrel = extractors[intern("PXBarrel")];
+  auto pxendcap = extractors[intern("PXEndcap")];
+  auto pxmodule = extractors[intern("PXBModule")];
+  auto pxladder = extractors[intern("PXLadder")];
+  auto pxblade  = extractors[intern("PXBlade")];
+  Value maxladder = max_value[intern("PXLadder")];
+  Value maxblade  = max_value[intern("PXBlade")];
+  Value maxmodule = max_value[intern("PXBModule")];
+  addExtractor(intern("HalfCylinder"),
+    [pxendcap, pxblade, maxblade] (InterestingQuantities const& iq) {
+      auto ec = pxendcap(iq);
+      if (ec == UNDEFINED) return UNDEFINED;
+      auto blade = pxblade(iq);
+      int frac = (int) (((blade-1) % (maxblade/2)) / float(maxblade/2) * 4); // floor semantics here
+      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half
+      if (frac == 1 || frac == 2) return 10*ec + 2; // outer half
+      return UNDEFINED;
+    }, 0, 0 // N/A
+  );
+ 
+  addExtractor(intern("Shell"),
+    [pxbarrel, pxladder, pxmodule, maxladder, maxmodule] (InterestingQuantities const& iq) {
+      if(pxbarrel(iq) == UNDEFINED) return UNDEFINED;
+      auto ladder = pxladder(iq);
+      auto module = pxmodule(iq);
+      int frac = (int) ((ladder-1) / float(maxladder) * 4); // floor semantics
+      Value dir = module <= (maxmodule/2) ? 1 : 2;  // minus/plus TODO: or other way round?
+      if (frac == 0 || frac == 3) return 10*dir + 1; // inner half
+      if (frac == 1 || frac == 2) return 10*dir + 2; // outer half
+      return UNDEFINED;
+    }, 0, 0 // N/A
+  );
+
 }
  
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
