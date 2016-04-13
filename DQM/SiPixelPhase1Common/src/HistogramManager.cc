@@ -221,14 +221,15 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    dimensions = 1;
 	    GeometryInterface::Values new_vals;
 	    for (auto c : step.columns) new_vals.put(significantvalues.get(c));
-	    significantvalues = new_vals;
 	    range_x_nbins = this->range_nbins;
 	    range_x_min = this->range_min;
 	    range_x_max = this->range_max;
 	    xlabel = ylabel + " per Event";
 	    if (s.steps[0].columns.size() > 0) 
-	      xlabel = xlabel + " and " + geometryInterface.pretty(s.steps[0].columns[s.steps[0].columns.size()-1]);
+	      xlabel = xlabel + " and " + geometryInterface.pretty(
+	        significantvalues.get(s.steps[0].columns[s.steps[0].columns.size()-1]).first);
 	    ylabel = "#Entries";
+	    significantvalues = new_vals;
 	    break;}
 	  case SummationStep::REDUCE:
 	  case SummationStep::CUSTOM:
