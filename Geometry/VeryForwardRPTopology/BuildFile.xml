@@ -4,7 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometryVector"/>
-<use   name="SimGeneral/HepPDTRecord"/>
 <use   name="boost"/>
 <use   name="hepmc"/>
 <export>
