@@ -247,7 +247,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     }
 
                     std::normal_distribution<> d(0, sigma);
-                    smearFactor = 1. + d(m_random_generator) / jet.pt();
+                    smearFactor = 1. + d(m_random_generator);
                 } else if (m_debug) {
                     std::cout << "Impossible to smear this jet" << std::endl;
                 }
