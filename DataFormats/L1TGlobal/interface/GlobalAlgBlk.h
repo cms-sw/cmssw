@@ -56,6 +56,7 @@ public:
     void setFinalOR(bool fOR)          { m_finalOR        = fOR; }
     void setPreScColumn(int psC)       { m_preScColumn    = psC; }
     void setL1MenuUUID(int uuid)       { m_menuUUID       = uuid; }
+    void setL1FirmwareUUID(int fuuid)   { m_firmwareUUID   = fuuid; }
 
     /// get simple members
     inline const int getbxInEventNr() const     { return m_bxInEvent; }
@@ -64,6 +65,7 @@ public:
     inline const bool getFinalORVeto() const    { return m_finalORVeto; }
     inline const int getPreScColumn() const     { return m_preScColumn; }
     inline const int getL1MenuUUID() const      { return m_menuUUID; }
+    inline const int getL1FirmwareUUID() const  { return m_firmwareUUID; }
 
     /// Copy vectors words
     void copyInitialToInterm() { m_algoDecisionInterm   = m_algoDecisionInitial; }
@@ -101,6 +103,7 @@ private:
 
     //Menu UUID
     int m_menuUUID;
+    int m_firmwareUUID;
    
     std::vector<bool> m_algoDecisionInitial;
     std::vector<bool> m_algoDecisionInterm;

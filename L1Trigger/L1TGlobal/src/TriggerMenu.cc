@@ -31,7 +31,7 @@
 TriggerMenu::TriggerMenu()
   : m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName( "NULL" ),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" )
 {
     // empty
@@ -52,7 +52,7 @@ TriggerMenu::TriggerMenu(
 ) :
     m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName(triggerMenuNameVal),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" ),
             m_vecMuonTemplate(vecMuonTemplateVal),
             m_vecCaloTemplate(vecCaloTemplateVal),
@@ -313,11 +313,11 @@ void TriggerMenu::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
 
-void TriggerMenu::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
+void TriggerMenu::setGtTriggerMenuImplementation(const unsigned long menuImplementation) {
     m_triggerMenuImplementation = menuImplementation;
 }
 
-void TriggerMenu::setGtTriggerMenuUUID(const int uuid) {
+void TriggerMenu::setGtTriggerMenuUUID(const unsigned long uuid) {
     m_triggerMenuUUID = uuid;
 }
 
@@ -441,9 +441,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -490,9 +491,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -538,9 +540,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << std::endl;

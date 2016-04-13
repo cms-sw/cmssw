@@ -91,9 +91,13 @@ namespace stage2 {
 	         LogDebug("L1T") << "Found invalid alg bit ("<< algBit <<") out of range (128) on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	     }
            }
-	 } else if(block.header().getID()==initialBlkID+4 && wd==4) {
+	   
+	 } else if(block.header().getID()==initialBlkID+4 && (wd==4 || wd==5) ) {
 	   //This is the 32bit hash of menu name
-	   alg.setL1MenuUUID(raw_data);  
+	   if(wd==4) alg.setL1MenuUUID(raw_data);  
+           //This is the 32bit hash of menu firmware uuid
+	   if(wd==5) alg.setL1FirmwareUUID(raw_data); 	
+	      
 	 } else if(block.header().getID()==finalBlkID+4 && wd==4) {
            //This is the FINOR
            if ( (raw_data & 0x10000)>>16 ) alg.setFinalOR(true);

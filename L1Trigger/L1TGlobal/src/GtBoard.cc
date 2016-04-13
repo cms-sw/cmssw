@@ -918,7 +918,8 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 void l1t::GtBoard::fillAlgRecord(int iBxInEvent, 
 				    std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
                                     int prescaleSet,
-				    int menuUUID
+				    int menuUUID,
+				    int firmwareUUID
 				    ) 
 {
 
@@ -933,6 +934,7 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
     m_uGtAlgBlk.setPreScColumn(prescaleSet); 
     m_uGtAlgBlk.setL1MenuUUID(menuUUID);
+    m_uGtAlgBlk.setL1FirmwareUUID(firmwareUUID);
         
     m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
     m_uGtAlgBlk.setFinalORPreVeto(m_algFinalOrPreVeto); 
