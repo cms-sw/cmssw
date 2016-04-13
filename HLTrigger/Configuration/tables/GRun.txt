@@ -559,6 +559,11 @@ HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity135ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity160ForEndOfFill_v*			# JIRA: CMSHLT-486
 
+HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity130_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity150_v*				# JIRA: CMSHLT-716
+
 HLT_HISinglePhoton10_v*						# JIRA: CMSHLT-493, CMSHLT-748
 HLT_HISinglePhoton15_v*						# JIRA: CMSHLT-493, CMSHLT-748
 HLT_HISinglePhoton20_v*						# JIRA: CMSHLT-493, CMSHLT-748
@@ -621,7 +626,10 @@ HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 #HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252, removed by CMSHLT-698
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
-AlCa_Ele23_WPVeryLoose_Gsf_v*					# JIRA: CMSHLT-366, CMSHLT-556, CMSHLT-711
+
+AlCa_SingleEle_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-366, CMSHLT-556, CMSHLT-711, CMSHLT-713
+AlCa_DoubleEle_CaloIdL_TrackIdL_IsoVL_DZ_v*			# JIRA: CMSHLT-713
+AlCa_DoubleEle_CaloIdL_TrackIdL_IsoVL_v*			# JIRA: CMSHLT-713
 
 AlCa_EcalPi0EBonly_v*                                           # JIRA: CMSHLT-514
 AlCa_EcalPi0EEonly_v*                                           # JIRA: CMSHLT-514
