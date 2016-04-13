@@ -5,6 +5,7 @@ gtStage2Raw = cms.EDProducer(
     Setup = cms.string("stage2::GTSetup"),
 #    TowerInputLabel = cms.InputTag("simCaloStage2Digis"),
     GtInputLabel = cms.InputTag("simGtStage2Digis"),
+    ExtInputLabel = cms.InputTag("simGtStage2Digis"),
     CaloInputLabel = cms.InputTag("simCaloStage2Digis"),
     GmtInputLabel = cms.InputTag("simGmtStage2Digis"),
     FedId = cms.int32(1404),

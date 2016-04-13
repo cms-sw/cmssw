@@ -18,6 +18,7 @@ namespace l1t {
 
             virtual void fillDescription(edm::ParameterSetDescription& desc) override {
                desc.addOptional<edm::InputTag>("GtInputLabel")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("ExtInputLabel")->setComment("for stage2");
                desc.addOptional<edm::InputTag>("GmtInputLabel")->setComment("for stage2");
                desc.addOptional<edm::InputTag>("CaloInputLabel")->setComment("for stage2");
 	    };
