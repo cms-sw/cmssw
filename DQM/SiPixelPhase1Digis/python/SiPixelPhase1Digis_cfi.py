@@ -42,7 +42,19 @@ SiPixelPhase1DigisConf = cms.VPSet(
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
                      .reduce("COUNT")
                      .groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                     .save(),
+                     .save()
+    )
+  ),
+  DefaultHisto.clone(
+    enabled = True,  # Ndigis per FED
+    name = "digis",  # This is the same as above up to the ranges. maybe we 
+    title = "Digis", # should allow setting the range per spec, but OTOH a 
+    xlabel = "digis",# HistogramManager is almost free.
+    range_min = 0,
+    range_max = 200,
+    range_nbins = 200,
+    dimensions = 0, 
+    specs = cms.VPSet(
       Specification().groupBy("PXBarrel|PXEndcap/FED/Event")
                      .reduce("COUNT")
                      .groupBy("PXBarrel|PXEndcap/FED")
