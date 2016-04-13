@@ -12,9 +12,8 @@
 /**
  * Trigger counters from LoneG.
 **/
-class TotemTriggerCounters
+struct TotemTriggerCounters
 {
-  public:
     unsigned char type;
     unsigned int event_num, bunch_num, src_id;
     unsigned int orbit_num;
