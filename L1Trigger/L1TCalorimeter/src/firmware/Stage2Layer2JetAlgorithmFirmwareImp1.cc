@@ -438,12 +438,41 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     }
 
+  } 
+  else if( params_->jetCalibrationType() == "LUT" ){
+    //calibrate using 3 Luts for jet et, eta and compress
+
+    //Loop over jets and apply corrections
+    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+      
+      //Check jet is above the calibration threshold, if not do nothing
+      if(jet->hwPt() < calibThreshold) continue;
+      
+      unsigned int ptBin = params_->jetCalibrationLUT()->data((jet->hwPt()) >> 1);
+      unsigned int etaBin = params_->jetCalibrationEtaLUT()->data(abs(jet->hwEta()));
+      unsigned int compBin =  ( ptBin << 4 ) | etaBin ;
+      
+      unsigned int addPlusMult = params_->jetCompressLUT()->data(compBin);
+
+      unsigned int multiplier = addPlusMult & 0x3ff;
+      int addend = addPlusMult >> 10;
+
+      unsigned int jetPtCorr = (jet->hwPt()*multiplier) + addend;
+
+      //std::cout << "\t\t\t\t ===== pt bin = " << ptBin << ", ptbin <<4 = " << (ptBin << 4) << ", eta = " << abs(jet->hwEta()) << ", etabin = " << etaBin << ", comp bin = " << compBin << ", addPlusMult = " << addPlusMult << ", Pt orig = " << jet->hwPt() << ", corr Pt  = " << jetPtCorr << std::endl;
+
+      math::XYZTLorentzVector p4;
+      *jet = l1t::Jet( p4, jetPtCorr, jet->hwEta(), jet->hwPhi(), 0);
+    }
+
+
   } else {
     if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;
     return;
   }
 
+  
 
 }
 

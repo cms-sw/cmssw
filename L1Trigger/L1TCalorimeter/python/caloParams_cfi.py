@@ -88,22 +88,21 @@ caloParams = cms.ESProducer(
     jetSeedThreshold         = cms.double(0.),
     jetNeighbourThreshold    = cms.double(0.),
     jetPUSType               = cms.string("None"),
-    jetPUSParams             = cms.vdouble(),
     jetCalibrationType       = cms.string("None"),
     jetCalibrationParams     = cms.vdouble(),
-    jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
-    jetCalibrationEtaLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
-    jetCompressLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
+    jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    jetCalibrationEtaLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt"),
+    jetCompressLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt"),
 
     # sums
     etSumLsb                 = cms.double(0.5),
     etSumEtaMin              = cms.vint32(-999, -999, -999, -999),
     etSumEtaMax              = cms.vint32(999,  999,  999,  999),
     etSumEtThreshold         = cms.vdouble(0.,  0.,   0.,   0.),
-    etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
-    etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
-    etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
-    etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
+    etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
 
 
     # HI
