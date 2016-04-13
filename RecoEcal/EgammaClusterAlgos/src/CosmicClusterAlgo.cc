@@ -100,8 +100,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
       // looking for cluster seeds	  
 	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
 	  
-	  const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-	  GlobalPoint position = thisCell->getPosition();
+	  const CaloCellGeometry & thisCell = *geometry_p->getGeometry(it->id());
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -109,7 +108,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	if (regional) {
 	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(position)) {
+	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }
@@ -117,8 +116,6 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	}
 
 	if (!regional || withinRegion) {
-	  //float ET = it->energy() * sin(position.theta()); JHaupt Out 4-27-08 Et not needed for Cosmic Events...
-	 // if (energy >= threshold) 
 	  seeds.push_back(*it); // JHaupt 4-27-2008 Et -> energy, most likely not needed as there is already a threshold requirement.
 	}
       }

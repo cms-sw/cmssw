@@ -37,23 +37,19 @@ namespace edm {
         class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerMultiFit() {};
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
-
+        private:
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-		
+	public:	
 		edm::ParameterSetDescription getAlgoDescription();
-        protected:
-
-                double pedVec[3];
-		double pedRMSVec[3];
-                double gainRatios[3];
+        private:
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
@@ -64,7 +60,7 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
-                const SampleMatrix &noisecor(bool barrel, int gain) const;                
+                const SampleMatrix & noisecor(bool barrel, int gain) const { return *noisecors[barrel?1:0][gain];} 
                 
                 // multifit method
                 SampleMatrix noisecorEBg12;
@@ -73,10 +69,9 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 SampleMatrix noisecorEEg6;
                 SampleMatrix noisecorEBg1;
                 SampleMatrix noisecorEEg1;
-                FullSampleVector fullpulseEB;
-                FullSampleVector fullpulseEE;
-                FullSampleMatrix fullpulsecovEB;
-                FullSampleMatrix fullpulsecovEE;
+                SampleMatrix const * const noisecors[2][3] = 
+                       { {&noisecorEEg1, &noisecorEEg6, &noisecorEEg12}, 
+                         {&noisecorEBg1, &noisecorEBg6, &noisecorEBg12}};
                 BXVector activeBX;
                 bool ampErrorCalculation_;
                 bool useLumiInfoRunHeader_;
@@ -89,7 +84,8 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
                 
                 // time algorithm to be used to set the jitter and its uncertainty
-                std::string timealgo_;
+                enum TimeAlgo {noMethod, ratioMethod, weightsMethod};
+                TimeAlgo timealgo_=noMethod;
 
                 // time weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
