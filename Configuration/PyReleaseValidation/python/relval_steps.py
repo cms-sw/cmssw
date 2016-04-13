@@ -1540,6 +1540,8 @@ for k in upgradeKeys:
     k2=k
     if 'PU' in k[-2:]:
         k2=k[:-2]
+    if 'DigiSigTest' in k:
+        k2=k[:-len('DigiSigTest')]
     geom=upgradeGeoms[k2]
     gt=upgradeGTs[k2]
     cust=upgradeCustoms[k2]
@@ -1554,6 +1556,9 @@ for k in upgradeKeys:
                                        }
     if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
+
+    upgradeStepDict['GenSimFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['GenSimFull'][k]])
         
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
@@ -1575,6 +1580,8 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
+    upgradeStepDict['DigiFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['DigiFull'][k]])
     
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                                       '--conditions':gt,
@@ -1608,6 +1615,8 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+    upgradeStepDict['RecoFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['RecoFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
@@ -1634,6 +1643,8 @@ for k in upgradeKeys:
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
+    upgradeStepDict['HARVESTFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
