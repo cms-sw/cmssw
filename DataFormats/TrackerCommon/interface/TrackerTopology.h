@@ -599,6 +599,7 @@ class TrackerTopology {
 
       {"PXBlade"  , {pfVals_.bladeStartBit_ , pfVals_.bladeMask_ , PixelSubdetector::PixelEndcap }},
       {"PXDisk"   , {pfVals_.diskStartBit_  , pfVals_.diskMask_  , PixelSubdetector::PixelEndcap }},
+      {"PXPanel"  , {pfVals_.panelStartBit_ , pfVals_.panelMask_ , PixelSubdetector::PixelEndcap }},
       {"PXFModule", {pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap }},
     };
     return namedPartitions_; 
