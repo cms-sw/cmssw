@@ -33,7 +33,6 @@ class HistogramManager {
 public:
   explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
 
-  // Add a specification for a set of plot. this has to happen before fill()'ing, since it optimizes for the spec.
   void addSpec(SummationSpecification spec);
 
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
@@ -48,7 +47,7 @@ public:
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
 
   // These functions perform step2, for online (per lumisection) or offline (endRun) respectively.
-  // TODO: we need a EventSetup in offline as well. we'll see.:q
+  // TODO: we need a EventSetup in offline as well. we'll see.
   void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
   void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
@@ -68,6 +67,12 @@ private:
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
 
+  void executeStep1Spec(double x, double y,
+                        GeometryInterface::Values& significantvalues, 
+			SummationSpecification& s, 
+			Table& t,
+			SummationStep::Stage stage);
+ 
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
   void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
   void executeGroupBy(SummationStep& step, Table& t);

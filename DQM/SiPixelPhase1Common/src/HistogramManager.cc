@@ -43,6 +43,73 @@ void HistogramManager::addSpec(SummationSpecification spec) {
 }
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
+void HistogramManager::executeStep1Spec(double x, double y,
+                                        GeometryInterface::Values& significantvalues, 
+                                        SummationSpecification& s, 
+					Table& t,
+					SummationStep::Stage stage) {
+ int dimensions = this->dimensions;
+  for (unsigned int i = 0; i < s.steps.size(); i++) {
+    auto& step = s.steps[i];
+    if (step.stage == stage) {
+      switch(step.type) {
+      case SummationStep::SAVE: break; // this happens automatically
+      case SummationStep::COUNT: {
+	// Two cases here: COUNT/EXTEND where this is a noop, 
+	// COUNT/GROUPBY per event where this triggers a counter.
+	x = 0.0; y = 0.0;
+	dimensions = 0;
+	if (s.steps.at(i+1).stage == SummationStep::STAGE1_2) {
+	  auto& ctr = t[significantvalues];
+	  ctr.count++;
+	  return; // no more filling to be done
+	}
+	break;}
+      case SummationStep::EXTEND_X:
+	assert((x == 0.0 && dimensions != 1) || !"Can only EXTEND on COUNTs in step1");
+	x = significantvalues[step.columns.at(0)];
+	significantvalues.erase(step.columns.at(0));
+	dimensions = dimensions == 0 ? 1 : 2;
+	break;
+      case SummationStep::EXTEND_Y:
+	assert(y == 0.0 || !"Can only EXTEND on COUNTs in step1");
+	y = significantvalues[step.columns.at(0)];
+	significantvalues.erase(step.columns.at(0));
+	dimensions = 2;
+	break;
+      case SummationStep::GROUPBY: {
+	assert(stage == SummationStep::STAGE1_2 
+	       || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
+	dimensions = 1;
+	x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
+        t[significantvalues].count = 0;
+	GeometryInterface::Values new_vals; // PERF: static or member
+	for (auto c : step.columns) new_vals.put(significantvalues.get(c));
+	significantvalues.values.swap(new_vals.values);
+	break;}
+      case SummationStep::REDUCE:
+      case SummationStep::CUSTOM:
+      case SummationStep::NO_TYPE:
+	assert(!"Illegal step; booking should have caught this.");
+      }
+    }
+  }
+  auto histo = t.find(significantvalues); // avoid modification
+  if (histo == t.end() || (!histo->second.th1 && !histo->second.me)) {
+    // No histogram was booked.
+    assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
+    // else, ignore the sample.
+    return;
+  }
+  if (dimensions == 0) {
+    histo->second.fill(0);
+  } else if (dimensions == 1)
+    histo->second.fill(x);
+  else /* dimensions == 2 */ {
+    histo->second.fill(x, y);
+  }
+}
+
 void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
   if (!enabled) return;
   auto iq = GeometryInterface::InterestingQuantities{
@@ -51,61 +118,12 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
-    // TODO: we could recycle the last Values if iq has not changed (This is common)
+    // PERF: we could recycle the last Values if iq has not changed (This is common)
     // row/col is a bit harder then (only pass if needed, for perf reasons)
     // Caching has to happen per-spec, of course.
-    GeometryInterface::Values significantvalues; // TODO move this to a member 
+    GeometryInterface::Values significantvalues; // PERF move this to a member 
     geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
-    int dimensions = this->dimensions;
-    bool ignore = false; // if true, do not fill. 
-    for (SummationStep step : s.steps) {
-      if (step.stage == SummationStep::STAGE1) {
-	switch(step.type) {
-	case SummationStep::SAVE: break; // this happens automatically
-	case SummationStep::COUNT: {
-	  x = 0.0; y = 0.0;
-	  dimensions = 0;
-          auto& ctr = t[significantvalues];
-	  ctr.count++;
-	  break;}
-	case SummationStep::EXTEND_X:
-	  assert((x == 0.0 && dimensions != 1) || !"Can only EXTEND on COUNTs in step1");
-	  x = significantvalues[step.columns.at(0)];
-	  significantvalues.erase(step.columns.at(0));
-	  dimensions = dimensions == 0 ? 1 : 2;
-	  break;
-	case SummationStep::EXTEND_Y:
-	  assert(y == 0.0 || !"Can only EXTEND on COUNTs in step1");
-	  y = significantvalues[step.columns.at(0)];
-	  significantvalues.erase(step.columns.at(0));
-	  dimensions = 2;
-	  break;
-	case SummationStep::GROUPBY: 
-	  assert(dimensions == 0 || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
-	  ignore = true;
-	  break;
-	case SummationStep::REDUCE:
-	case SummationStep::CUSTOM:
-	case SummationStep::NO_TYPE:
-	  assert(!"Illegal step; booking should have caught this.");
-	}
-      }
-    }
-    if (ignore) continue;
-    auto& histo = t[significantvalues];
-    if (!histo.th1 && !histo.me) {
-      // No histogram was booked.
-      assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
-      // else, ignore the sample.
-      continue;
-    }
-    if (dimensions == 0) {
-      histo.fill(0);
-    } else if (dimensions == 1)
-      histo.fill(x);
-    else /* dimensions == 2 */ {
-      histo.fill(x, y);
-    }
+    executeStep1Spec(x, y, significantvalues, s, t, SummationStep::STAGE1); 
   }
 }
 void HistogramManager::fill(double x, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
@@ -116,6 +134,7 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event *sourceEvent, i
   assert(this->dimensions == 0);
   fill(0.0, 0.0, sourceModule, sourceEvent, col, row);
 }
+
 // This is only used for ndigis-like counting. It could be more optimized, but
 // is probably fine for a per-event thing.
 void HistogramManager::executePerEventHarvesting() {
@@ -123,22 +142,12 @@ void HistogramManager::executePerEventHarvesting() {
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
-    for (SummationStep step : s.steps) {
-      if (step.stage == SummationStep::STAGE1) {
-	if (step.type == SummationStep::GROUPBY) {
-	  for (auto e : t) {
-	    // There are two types of entries: counters and histograms. We only want ctrs here.
-	    // TODO: now fully correct, if we have e.g. EXTEND/COUNT/GROUPBY. 
-	    if (e.first.values.size() == s.steps[0].columns.size()) {
-	      GeometryInterface::Values new_vals;
-	      for (auto c : step.columns) new_vals.put(e.first.get(c));
-	      auto histo = t.find(new_vals); // avoid modification in the loop.
-	      if (histo == t.end()) continue; // this is hopefully due to undefined values.
-	      histo->second.fill(e.second.count);
-	      e.second.count = 0;
-	    }
-	  }
-	}
+    for (auto e : t) {
+      // There are two types of entries: counters and histograms. We only want ctrs here.
+      // TODO: not fully correct, if we have e.g. EXTEND/COUNT/GROUPBY. 
+      if (e.first.values.size() == s.steps[0].columns.size()) {
+	GeometryInterface::Values significantvalues(e.first); // PERF: avoid alloc here.
+	executeStep1Spec(0.0, 0.0, significantvalues, s, t, SummationStep::STAGE1_2);
       }
     }
   }
@@ -174,7 +183,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       int range_y_nbins = this->range_nbins;
       double range_y_min = this->range_min, range_y_max = this->range_max;
       for (SummationStep step : s.steps) {
-	if (step.stage == SummationStep::STAGE1) {
+	if (step.stage == SummationStep::STAGE1 || step.stage == SummationStep::STAGE1_2) {
 	  switch(step.type) {
 	  case SummationStep::SAVE: break; // this happens automatically
 	  case SummationStep::COUNT: {
