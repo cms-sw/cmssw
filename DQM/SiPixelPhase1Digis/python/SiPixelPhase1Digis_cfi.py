@@ -76,15 +76,15 @@ SiPixelPhase1DigisConf = cms.VPSet(
     ylabel = "#digis",
     dimensions = 0,
     specs = cms.VPSet(
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row/col")
-                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row", "EXTEND_X")
-                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_Y")
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row/col")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row", "EXTEND_X")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_Y")
                      .save(),
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/col")
-                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_X")
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/col")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
                      .save(),
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row")
-                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_X")
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
                      .save()
     )
   )
