@@ -48,7 +48,7 @@
 class HcalDigitizerTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
-  explicit HcalDigitizerTest(const edm::ParameterSet&);
+  explicit HcalDigitizerTest(const edm::ParameterSet& iConfig);
   ~HcalDigitizerTest();
 
 private:
@@ -59,12 +59,26 @@ private:
   void testHitCorrection(HcalHitCorrection*, MixCollection<PCaloHit>& , 
 			 CLHEP::HepRandomEngine*);
 
+  HcalDbHardcode dbHardcode;
   std::vector<PCaloHit>  hits;
   std::vector<DetId>     hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
   std::vector<HcalDetId> outerHcalDetIds;
 };
 
-HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet&) { }
+HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) { 
+  //DB helper preparation
+  dbHardcode.setHB(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hb")));
+  dbHardcode.setHE(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("he")));
+  dbHardcode.setHF(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hf")));
+  dbHardcode.setHO(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("ho")));
+  dbHardcode.setHBUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hbUpgrade")));
+  dbHardcode.setHEUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("heUpgrade")));
+  dbHardcode.setHFUpgrade(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hfUpgrade")));
+  dbHardcode.useHBUpgrade(iConfig.getParameter<bool>("useHBUpgrade"));
+  dbHardcode.useHEUpgrade(iConfig.getParameter<bool>("useHEUpgrade"));
+  dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
+  dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
+}
 
 HcalDigitizerTest::~HcalDigitizerTest() { } 
 
@@ -193,10 +207,10 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   HcalGainWidths gainWidths(&topology);
   // make a calibration service by hand
   for (auto detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValues(HcalDbHardcode::makePedestal(*detItr, false,0));
-    pedestalWidths.addValues(HcalDbHardcode::makePedestalWidth(*detItr));
-    gains.addValues(HcalDbHardcode::makeGain(*detItr));
-    gainWidths.addValues(HcalDbHardcode::makeGainWidth(*detItr));
+    pedestals.addValues(dbHardcode.makePedestal(*detItr, false));
+    pedestalWidths.addValues(dbHardcode.makePedestalWidth(*detItr));
+    gains.addValues(dbHardcode.makeGain(*detItr));
+    gainWidths.addValues(dbHardcode.makeGainWidth(*detItr));
   }
   
   //pedestals.sort();
