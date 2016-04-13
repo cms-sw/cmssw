@@ -60,6 +60,7 @@ namespace l1t {
       typedef std::shared_ptr<MicroGMTAbsoluteIsolationCheckLUT> ReturnType;
 
       static ReturnType create(const std::string& filename, const int fwVersion);
+      static ReturnType create(l1t::LUT* lut, const int fwVersion);
   };
 
   class MicroGMTRelativeIsolationCheckLUTFactory {
