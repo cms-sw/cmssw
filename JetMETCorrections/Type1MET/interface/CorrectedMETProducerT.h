@@ -86,9 +86,8 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
     
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("@module_label");
-    desc.add<edm::InputTag>("src");
-    descriptions.addDefault(desc);
+    desc.add<edm::InputTag>("src",edm::InputTag("corrPfMetType1", "type1"));
+    descriptions.add("CorrectedMETProducerT",desc);
   }
 
  private:

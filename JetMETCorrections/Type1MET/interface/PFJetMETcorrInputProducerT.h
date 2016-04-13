@@ -137,18 +137,17 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("@module_label");
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("offsetCorrLabel");
-    desc.add<edm::InputTag>("jetCorrLabel");
-    desc.add<edm::InputTag>("jetCorrLabelRes");
+    desc.add<edm::InputTag>("src",edm::InputTag("ak4PFJetsCHS"));
+    desc.add<edm::InputTag>("offsetCorrLabel",edm::InputTag("ak4PFCHSL1FastjetCorrector"));
+    desc.add<edm::InputTag>("jetCorrLabel",edm::InputTag("ak4PFCHSL1FastL2L3Corrector"));
+    desc.add<edm::InputTag>("jetCorrLabelRes",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"));
     desc.add<double>("jetCorrEtaMax",9.9);
-    desc.add<double>("type1JetPtThreshold");
-    desc.add<bool>("skipEM");
-    desc.add<double>("skipEMfractionThreshold");
-    desc.add<bool>("skipMuons");
-    desc.add<std::string>("skipMuonSelection");
-    descriptions.addDefault(desc);
+    desc.add<double>("type1JetPtThreshold",15);
+    desc.add<bool>("skipEM",true);
+    desc.add<double>("skipEMfractionThreshold",0.90);
+    desc.add<bool>("skipMuons",true);
+    desc.add<std::string>("skipMuonSelection","isGlobalMuon | isStandAloneMuon");
+    descriptions.add("PFJetMETcorrInputProducer",desc);
     }
 
 
