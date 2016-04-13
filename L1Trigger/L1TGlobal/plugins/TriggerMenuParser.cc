@@ -46,7 +46,7 @@
 // constructor
 l1t::TriggerMenuParser::TriggerMenuParser() :
     m_triggerMenuInterface("NULL"),
-    m_triggerMenuName("NULL"), m_triggerMenuImplementation("NULL"), m_scaleDbKey("NULL")
+    m_triggerMenuName("NULL"), m_triggerMenuImplementation(0x0), m_scaleDbKey("NULL")
 
 {
 
@@ -115,7 +115,7 @@ void l1t::TriggerMenuParser::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
 
-void l1t::TriggerMenuParser::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
+void l1t::TriggerMenuParser::setGtTriggerMenuImplementation(const unsigned long& menuImplementation) {
     m_triggerMenuImplementation = menuImplementation;
 }
 
@@ -221,10 +221,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   //get the meta data
   m_triggerMenuDescription = menu->getComment();
   m_triggerMenuDate = menu->getDatetime();
-  m_triggerMenuImplementation = menu->getFirmwareUuid(); //BLW: correct descriptor?
+  m_triggerMenuImplementation =   ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
-  m_triggerMenuUUID = 0x1; //Need to get method in utm lib.
+  m_triggerMenuUUID = ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();

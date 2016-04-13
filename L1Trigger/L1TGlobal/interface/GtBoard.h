@@ -114,7 +114,8 @@ public:
      void fillAlgRecord(int iBxInEvent, 
                         std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
 			int prescaleSet,
-			int menuUUID);
+			int menuUUID,
+			int firmwareUUID);
 
 
     /// clear uGT
