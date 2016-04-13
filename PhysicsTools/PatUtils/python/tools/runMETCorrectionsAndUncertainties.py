@@ -741,19 +741,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     cms.PSet(
                         binSelection = cms.string('pdgId==130'),
                         energyDependency = cms.bool(True),
-                        binUncertainty = cms.string('((abs(y)<1.3)?(max(0.25,sqrt(pow(0.8/sqrt(x), 2)+0.05*0.05))):(max(0.30,sqrt(pow(1.0/sqrt(x),2)+0.04*0.04))))')
+                        binUncertainty = cms.string('((abs(y)<1.3)?(min(0.25,sqrt(0.64/x+0.0025))):(min(0.30,sqrt(1.0/x+0.0016))))')
                         ),
                     # photon - ECAL resolution
                     cms.PSet(
                         binSelection = cms.string('pdgId==22'),
                         energyDependency = cms.bool(True),
-                        binUncertainty = cms.string('sqrt(pow(0.03/sqrt(x),2)+0.001*0.001)+0*y')
+                        binUncertainty = cms.string('sqrt(0.0009/x+0.000001)+0*y')
                         ),
                     # HF particules - HF resolution
                     cms.PSet(
                         binSelection = cms.string('pdgId==1 || pdgId==2'),
                         energyDependency = cms.bool(True),
-                        binUncertainty = cms.string('sqrt(pow(1/sqrt(x),2)+0.05*0.05)+0*y')
+                        binUncertainty = cms.string('sqrt(1./x+0.0025)+0*y')
                         ),
                     ),
                                              shiftBy = cms.double(+1.*varyByNsigmas)
