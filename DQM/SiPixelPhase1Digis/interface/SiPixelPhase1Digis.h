@@ -20,6 +20,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   enum {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module
+    NDIGIS_FED, // number of digis per event and FED
     EVENT, // event frequency
     MAP, // digi hitmap per module
 
