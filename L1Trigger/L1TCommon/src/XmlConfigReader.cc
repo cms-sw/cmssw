@@ -78,23 +78,29 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             std::string type = _toString(elem->getAttribute(_toDOMS("type")));
             std::string value = "";
             DOMNodeList* valNodes = elem->getChildNodes();
-            for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
-              if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-                value += _toString(valNodes->item(j)->getNodeValue());
+            // the type table needs special treatment since it consists of child nodes
+            if (type == "table") {
+              // TODO: handle table type
+              aTrigSystem.addSetting(type, id, value, contextId);
+            } else { // all other types
+              for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
+                if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+                  value += _toString(valNodes->item(j)->getNodeValue());
+                }
               }
-            }
-            // strip leading and trailing line breaks and spaces
-            std::size_t alphanumBegin = value.find_first_not_of("\n ");
-            std::size_t alphanumEnd = value.find_last_not_of("\n ");
-            if (alphanumBegin != std::string::npos) {
-              if (alphanumEnd != std::string::npos) {
-                value = value.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
-              } else {
-                value = value.substr(alphanumBegin);
+              // strip leading and trailing line breaks and spaces
+              std::size_t alphanumBegin = value.find_first_not_of("\n ");
+              std::size_t alphanumEnd = value.find_last_not_of("\n ");
+              if (alphanumBegin != std::string::npos) {
+                if (alphanumEnd != std::string::npos) {
+                  value = value.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
+                } else {
+                  value = value.substr(alphanumBegin);
+                }
               }
+              //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
+              aTrigSystem.addSetting(type, id, value, contextId);
             }
-            //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-            aTrigSystem.addSetting(type, id, value, contextId);
           } else if (_toString(elem->getTagName()) == "mask") {
             // found a mask
             std::string id = _toString(elem->getAttribute(_toDOMS("id")));
