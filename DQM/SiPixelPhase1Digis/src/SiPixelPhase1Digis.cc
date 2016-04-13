@@ -35,10 +35,11 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   for (it = input->begin(); it != input->end(); ++it) {
     for(PixelDigi const& digi : *it) {
       histo[ADC].fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
-      //histo[MAP].fill((double) digi.column(), (double) digi.row(), DetId(it->detId())); 
+      histo[MAP].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row()); 
       histo[NDIGIS].fill(DetId(it->detId()), &iEvent); // count
     }
   }
+  histo[EVENT].fill(DetId(0), &iEvent);
   histo[NDIGIS].executePerEventHarvesting(); // TODO: move to Base?
 }
 
