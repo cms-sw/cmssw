@@ -1,29 +1,38 @@
 <lcgdict>
-  <class name="GlobalAlgBlk" ClassVersion="12">
-   <version ClassVersion="12" checksum="1972925232"/>
+  <class name="GlobalAlgBlk" ClassVersion="15">
+   <version ClassVersion="15" checksum="1900541189"/>
+   <version ClassVersion="14" checksum="1972925232"/>
+   <version ClassVersion="13" checksum="2460401123"/>
+   <version ClassVersion="12" checksum="2404151857"/>
    <version ClassVersion="11" checksum="2460401123"/>
    <version ClassVersion="10" checksum="2404151857"/>
   </class>
   <class name="GlobalAlgBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
 
-  <class name="GlobalExtBlk" ClassVersion="11">
+  <class name="GlobalExtBlk" ClassVersion="13">
+   <version ClassVersion="13" checksum="3765126275"/>
+   <version ClassVersion="12" checksum="3371214087"/>
    <version ClassVersion="11" checksum="3765126275"/>
    <version ClassVersion="10" checksum="3371214087"/>
   </class>
   <class name="GlobalExtBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
 
-  <class name="L1TGtObjectMap" ClassVersion="10">
-   <version ClassVersion="10" checksum="2989798521"/>
-  </class>
-  <class name="edm::Wrapper<L1TGtObjectMap>" splitlevel="0"/>
-
   <class name="L1TGtObjectMapRecord" ClassVersion="10">
    <version ClassVersion="10" checksum="2808522020"/>
   </class>
-  <class name="edm::Wrapper<L1TGtObjectMapRecord>" splitlevel="0"/>
+  <class name="edm::Wrapper<L1TGtObjectMapRecord>"/>
+  <class name="L1TGtObjectMapRecordBxCollection"/>
+  <class name="edm::Wrapper<L1TGtObjectMapRecordBxCollection>"/>
 
+  <class name="L1TGtObjectMap" ClassVersion="10">
+   <version ClassVersion="10" checksum="2989798521"/>
+  </class>
+  <class name="edm::Wrapper<L1TGtObjectMap>"/>
+  <class name="L1TGtObjectMapBxCollection"/>
+  <class name="edm::Wrapper<L1TGtObjectMapBxCollection>"/>
 </lcgdict>
+
 
 

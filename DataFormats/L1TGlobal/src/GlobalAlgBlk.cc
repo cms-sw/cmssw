@@ -39,6 +39,7 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_finalORVeto = 0;    
     m_preScColumn=0;
     m_menuUUID=0;
+    m_firmwareUUID=0;
 
     // Reserve/Clear out the decision words
     m_algoDecisionInitial.reserve(maxPhysicsTriggers);
@@ -144,7 +145,9 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
     
     myCout << " uGtGlobalAlgBlk: " << std::endl;
     
-    myCout << "    L1 Menu UUID (hash):   " << m_menuUUID << std::endl; 
+    myCout << "    L1 Menu Name (hash):   0x" << std::hex << m_menuUUID << std::endl; 
+    
+    myCout << "    L1 firmware (hash):    0x" << std::hex << m_firmwareUUID << std::endl;
 
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
     

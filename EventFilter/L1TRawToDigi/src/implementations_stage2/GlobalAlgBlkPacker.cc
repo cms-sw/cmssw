@@ -59,10 +59,12 @@ namespace stage2 {
 		     }    
 		  }
 		
-		} else if(blk==2 && wd==4) {  
+		} else if(blk==2 && (wd==4 || wd==5) ) {  
 		 
-		   word |= j->getL1MenuUUID();
-		
+		   //putting hashed values of the menu name and firmware uuid into record.
+		   if(wd==4) word |= (j->getL1MenuUUID() & 0xFFFFFFFF);
+		   if(wd==5) word |= (j->getL1FirmwareUUID() & 0xFFFFFFFF);
+		   
 		} else if(blk==8){
 		
 		  if(wd == 4) {
