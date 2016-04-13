@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification
+from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification, parent
 
 SiPixelPhase1Geometry = cms.PSet(
   # No options atm.
