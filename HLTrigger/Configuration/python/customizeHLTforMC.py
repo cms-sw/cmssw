@@ -289,6 +289,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingTau3Mu",
       "HLTIterativeTrackingReg",
       "HLTIterativeTrackingForPA",
+      "HLTPAIterativeTracking",
       "HLTIterativeTrackingForElectronIter02",
       "HLTIterativeTrackingForPhotonsIter02",
       "HLTIterativeTrackingL3MuonIter02",
@@ -449,6 +450,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
+      ('hltPAIterativeTrackingMerged', 'generalTracks'),
 
       ('hltFastPVPixelTracks','hltPixelTracks'),
       ('hltFastPVPixelTracksRecover','hltPixelTracks'),
