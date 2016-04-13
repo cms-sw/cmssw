@@ -599,6 +599,8 @@ steps['TTbarFS_13']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),
 steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['NuGunFS_UP15']=merge([{'cfg':'SingleNuE10_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['ZEEFS_13']=merge([{'cfg':'ZEE_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
+steps['ZEEFS_13_DigiSigTest'] = merge([{'--customise_commands' : '\' process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},
+                                steps['ZEEFS_13']])
 steps['ZTTFS_13']=merge([{'cfg':'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
 steps['ZMMFS_13']=merge([{'cfg':'ZMM_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
 steps['QCDFlatPt153000FS_13']=merge([{'cfg':'QCDForPF_13TeV_TuneCUETP8M1_cfi'},Kby(27,2000),step1FastUpg2015Defaults])
@@ -1399,6 +1401,8 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
+steps['HARVESTUP15FS_DigiSigTest'] = merge([{'--customise_commands' : '\' process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},
+                                steps['HARVESTUP15FS']])
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
@@ -1483,6 +1487,8 @@ steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
 #steps['MINIAODMCUP1550']   =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},stepMiniAODMC])
 #steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_hi','--era':'Run2_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
+steps['MINIAODMCUP15FS_DigiSigTest'] = merge([{'--customise_commands' : '\' process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '},
+                                steps['MINIAODMCUP15FS']])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},steps['MINIAODMCUP15FS']])
 
 steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
@@ -1540,6 +1546,8 @@ for k in upgradeKeys:
     k2=k
     if 'PU' in k[-2:]:
         k2=k[:-2]
+    if 'DigiSigTest' in k:
+        k2=k[:-len('DigiSigTest')]
     geom=upgradeGeoms[k2]
     gt=upgradeGTs[k2]
     cust=upgradeCustoms[k2]
@@ -1554,6 +1562,9 @@ for k in upgradeKeys:
                                        }
     if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
+
+    upgradeStepDict['GenSimFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['GenSimFull'][k]])
         
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
@@ -1575,6 +1586,8 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
+    upgradeStepDict['DigiFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['DigiFull'][k]])
     
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                                       '--conditions':gt,
@@ -1608,6 +1621,8 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+    upgradeStepDict['RecoFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['RecoFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
@@ -1634,6 +1649,8 @@ for k in upgradeKeys:
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
+    upgradeStepDict['HARVESTFullDigiSigTest'][k]=merge([{'--customise_commands' : ' \'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\") \'' },
+                                                        upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
