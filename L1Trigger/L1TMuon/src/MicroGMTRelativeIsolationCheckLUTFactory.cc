@@ -28,4 +28,18 @@ namespace l1t {
     }
     return p;
   }
+
+  MicroGMTRelativeIsolationCheckLUTFactory::ReturnType
+  MicroGMTRelativeIsolationCheckLUTFactory::create(l1t::LUT* lut, const int fwVersion) {
+    ReturnType p;
+
+    switch (fwVersion) {
+      case 1:
+        p = ReturnType(new MicroGMTRelativeIsolationCheckLUT(lut));
+        break;
+      default:
+        LogError("MicroGMTRelativeIsolationCheckLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    }
+    return p;
+  }
 }
