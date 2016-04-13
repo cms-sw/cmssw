@@ -85,12 +85,12 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	position.SetCoordinates ( point.x(),
 				  point.y(),
 				  point.z() );
-  
-	reco::PFRecHit rh( detid.rawId(),layer,
+
+        out->emplace_back(  detid.rawId(),layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
 			   0.0,0.0,0.0);
-
+        auto & rh = out->back();
 	rh.setDepth(detid.plane());
 	rh.setTime(erh.time());
 	
@@ -113,11 +113,10 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	  }
 	}
 	
-	if(keep) {
-	  out->push_back(rh);
-	}
-	else if (rcleaned) 
-	  cleaned->push_back(rh);
+        if (rcleaned) 
+	  cleaned->push_back(std::move(out->back()));
+        if(!keep) 
+          out->pop_back();
       }
     }
 
