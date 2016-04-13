@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "CondFormats/L1TObjects/interface/LUT.h"
+
 //boost libraries
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic.hpp>
@@ -25,6 +27,7 @@ class setting
 		std::string getId() { return _id; } ;
 		template <class varType> varType getValue();
 		template <class varType> std::vector<varType> getVector(std::string delim = ",");
+		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
 
 		setting& operator=(const setting& aSet);

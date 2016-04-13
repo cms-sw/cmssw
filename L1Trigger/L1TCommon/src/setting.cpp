@@ -1,3 +1,5 @@
+#include <strstream>
+
 #include "L1Trigger/L1TCommon/interface/setting.h"
 
 namespace l1t{
@@ -73,6 +75,31 @@ template <class varType> varType setting::getValue()
 		throw std::runtime_error("The registered type: " + _type + " is vector so you need to call the getVector method");
 	
 	return boost::lexical_cast<varType>(_value);
+}
+
+l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::string delim)
+{
+	if ( _type.find("vector:uint") == std::string::npos )
+		throw std::runtime_error("Cannot build LUT from type: " + _type + ". Only vector:uint is allowed.");
+
+	std::vector<unsigned int> vec = getVector<unsigned int>(delim);
+	std::stringstream ss;
+        ss << "#<header> V1 " << addrWidth << " " << dataWidth << " </header>" << std::endl;
+        size_t i = 0;
+	for (; i < vec.size() && i < (size_t)(1<<addrWidth); ++i) {
+		ss << i << " " << vec[i] << std::endl;
+	}
+        // add padding to 2^addrWidth rows
+        if (padding >= 0 && i < (size_t)(1<<addrWidth)) {
+		for (; i < (size_t)(1<<addrWidth); ++i) {
+			ss << i << " " << padding << std::endl;
+		}
+	}
+	
+	l1t::LUT lut;
+	lut.read(ss);
+	
+	return lut;
 }
 
 setting& setting::operator=(const setting& aSet)
