@@ -23,7 +23,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class ModuleDescription;
-  class ProductHolderIndexAndSkipBit;
+  class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
 
@@ -48,7 +48,7 @@ namespace edm {
     virtual Types moduleType() const override;
 
     virtual void updateLookup(BranchType iBranchType,
-                              ProductHolderIndexHelper const&) override;
+                              ProductResolverIndexHelper const&) override;
 
 
     template<typename D>
@@ -124,15 +124,15 @@ namespace edm {
       return module_->consumesInfo();
     }
 
-    virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
+    virtual void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);
     }
 
-    virtual void itemsMayGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
+    virtual void itemsMayGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsMayGet(branchType, indexes);
     }
 
-    virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
+    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
 
     edm::propagate_const<std::shared_ptr<T>> module_;
   };

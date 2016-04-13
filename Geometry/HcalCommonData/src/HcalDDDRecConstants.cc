@@ -35,6 +35,9 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
   for (int ieta = iEtaMin[type]; ieta <= iEtaMax[type]; ++ieta) {
     int nfi = (int)((20.001*nModule[itype]*CLHEP::deg)/phibin[ieta-1]);
     HcalDDDRecConstants::HcalEtaBin etabin = HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
+    int n = (ieta == iEtaMax[type]) ? 0 : 1;
+    HcalDDDRecConstants::HcalEtaBin etabin0= HcalDDDRecConstants::HcalEtaBin(ieta, etaTable[ieta-1], etaTable[ieta+n], nfi, hpar->phioff[type], phibin[ieta-1]);
+    etabin0.depthStart = hcons.getDepthEta29(0)+1;
     int dstart = -1;
     if (layerGroupSize(ieta-1) > 0) {
       int lmin(0), lmax(0);
@@ -47,20 +50,27 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	  lmax = l + 1;
 	} else if ((int)layerGroup( ieta-1, l ) > dep) {
 	  if (dstart < 0) dstart = dep;
-	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	  int lmax0 = (lmax >= lmin) ? lmax : lmin;
+	  if (type == 1 && ieta+1 == hpar->noff[1] && dep > hcons.getDepthEta29(0)) {
+	    etabin0.layer.push_back(std::pair<int,int>(lmin,lmax0));
+	  } else {
+	    etabin.layer.push_back(std::pair<int,int>(lmin,lmax0));
+	  }
 	  lmin = (l + 1);
 	  lmax = l;
 	  dep  = layerGroup(ieta-1, l);
 	}
 	if (type == 0 && ieta == iEtaMax[type] && dep > hcons.getDepthEta16(0)) break;
+	if (type == 1 && ieta == hpar->noff[1] && dep > hcons.getDepthEta29(0)){
+	  lmax = lymx0;
+	  break;
+	}
       }
       if (lmax >= lmin) {
 	if (ieta+1 == hpar->noff[1]) {
-	} else if (ieta == hpar->noff[1]) {
-	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta-1, etaTable[ieta-2], etaTable[ieta], nfi, hpar->phioff[type], phibin[ieta-1]);
-	  etabin0.depthStart = dep;
 	  etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  bins.push_back(etabin0);
+	} else if (ieta == hpar->noff[1]) {
 	} else {
 	  etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  if (dstart < 0) dstart = dep;
@@ -229,9 +239,10 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
   unsigned int type  = (itype == 0) ? 0 : 1;
   unsigned int lymax = (type == 0) ? 17 : 19;
   if (layerGroupSize(ieta-1) > 0) {
-    if (layerGroupSize(ieta-1) > lymax) lymax = layerGroupSize(ieta-1);
+    if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
     lmax = (int)(layerGroup(ieta-1, lymax-1));
     if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16(0);
+    if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29(0);
   }
   return lmax;
 }
@@ -281,8 +292,10 @@ HcalDDDRecConstants::getThickActive(const int type) const {
     for (unsigned int i = 0; i < bins[k].layer.size(); ++i) {
       double thick(0);
       for (int j = bins[k].layer[i].first; j <= bins[k].layer[i].second; ++j) {
-	if (type == 0 || j > 1) 
-	  thick += ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
+	if (type == 0 || j > 1) {
+	  double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
+	  if (t > 0) thick += t;
+	}
       }
       thick *= (2.*scale);
       HcalDDDRecConstants::HcalActiveLength active(ieta,depth,eta,thick);
@@ -419,7 +432,7 @@ void HcalDDDRecConstants::initialize(void) {
   iEtaMin     = hpar->etaMin;
   iEtaMax     = hpar->etaMax;
   etaTable.clear(); ietaMap.clear(); etaSimValu.clear();
-  int ieta(0), ietaHB(0), ietaHE(0);
+  int ieta(0), ietaHB(0), ietaHE(0), ietaHEM(0);
   etaTable.push_back(hpar->etaTable[ieta]);
   for (int i=0; i<nEta; ++i) {
     int ef = ieta+1;
@@ -439,9 +452,11 @@ void HcalDDDRecConstants::initialize(void) {
     for (int k=0; k<(hpar->etagroup[i]); ++k) ietaMap.push_back(i+1);
     if (ieta <= hpar->etaMax[0]) ietaHB = i+1;
     if (ieta <= hpar->etaMin[1]) ietaHE = i+1;
+    if (ieta <= hpar->etaMax[1]) ietaHEM= i+1;
   }
   iEtaMin[1] = ietaHE;
   iEtaMax[0] = ietaHB;
+  iEtaMax[1] = ietaHEM;
 
   // Then Phi bins
   ieta = 0;
@@ -451,8 +466,8 @@ void HcalDDDRecConstants::initialize(void) {
     phibin.push_back(dphi);
     ieta += (hpar->etagroup[i]);
   }
-  for (unsigned int i=1; i<hpar->etaTable.size(); ++i) {
-    int unit = hcons.unitPhi(hpar->phibin[i-1]);
+  for (unsigned int i=1; i<etaTable.size(); ++i) {
+    int unit = hcons.unitPhi(phibin[i-1]);
     phiUnitS.push_back(unit);
   }
 

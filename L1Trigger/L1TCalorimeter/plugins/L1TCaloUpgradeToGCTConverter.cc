@@ -12,7 +12,7 @@
 
 
 #include "L1Trigger/L1TCalorimeter/plugins/L1TCaloUpgradeToGCTConverter.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"

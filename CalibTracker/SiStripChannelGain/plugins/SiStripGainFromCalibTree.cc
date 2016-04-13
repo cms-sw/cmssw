@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -76,6 +78,8 @@
 
 #include <ext/hash_map>
 
+
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -127,6 +131,12 @@ private:
 	virtual void algoEndJob        () override;
 	virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
+        int  statCollectionFromMode(const char* tag) const;
+        void bookDQMHistos(const char* dqm_dir, const char* tag);
+
+        bool isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const;
+        void swapBFieldMode(void);
+
 	void merge(TH2* A, TH2* B); //needed to add histograms with different number of bins
 	void algoAnalyzeTheTree();
 	void algoComputeMPVandGain();
@@ -150,7 +160,7 @@ private:
 
 	TFileService *tfs;
 	DQMStore* dbe;
-	bool         harvestingMode;
+        double       MagFieldCurrentTh;
 	double       MinNrEntries;
 	double       MaxMPVError;
 	double       MaxChi2OverNDF;
@@ -161,6 +171,7 @@ private:
 	unsigned int MaxNrStrips;
 	unsigned int MinTrackHits;
 	double       MaxTrackChiOverNdf;
+        int          MaxTrackingIteration;
 	bool         AllowSaturation;
 	bool         FirstSetOfConstants;
 	bool         Validation;
@@ -169,7 +180,11 @@ private:
 
 	bool         saveSummary;
 	bool         useCalibration;
+        bool         m_harvestingMode;
+        bool         m_splitDQMstat;
+        string       m_calibrationMode;
 	string       m_calibrationPath;
+        string       m_DQMdir;
 
 	double tagCondition_NClusters;
 	double tagCondition_GoodFrac;
@@ -178,16 +193,20 @@ private:
 	std::string  OutputGains;
 	vector<string> VInputFiles;
 
-	MonitorElement*        Charge_Vs_Index;
-	MonitorElement*        Charge_Vs_Index_Absolute;
-	MonitorElement*        Charge_Vs_PathlengthTIB;
-	MonitorElement*        Charge_Vs_PathlengthTOB;
-	MonitorElement*        Charge_Vs_PathlengthTIDP;
-	MonitorElement*        Charge_Vs_PathlengthTIDM;
-	MonitorElement*        Charge_Vs_PathlengthTECP1;
-	MonitorElement*        Charge_Vs_PathlengthTECP2;
-	MonitorElement*        Charge_Vs_PathlengthTECM1;
-	MonitorElement*        Charge_Vs_PathlengthTECM2;
+        enum statistic_type {None=-1, StdBunch, StdBunch0T, FaABunch, FaABunch0T, IsoBunch, IsoBunch0T, Harvest};
+
+        std::vector<string>    dqm_tag_;
+
+        std::vector<MonitorElement*>  Charge_Vs_Index;
+        //std::vector<MonitorElement*>  Charge_Vs_Index_Absolute;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTIB;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTOB;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDP;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDM;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP1;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP2;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM1;
+        std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM2;
 
 	unsigned int NEvent;    
 	unsigned int NTrack;
@@ -201,33 +220,38 @@ private:
 	unsigned int BAD;
 	unsigned int MASKED;
 
-	//data members for processing
-	unsigned int                 eventnumber    = 0;
-	unsigned int                 runnumber      = 0;
-	const std::vector<bool>*           TrigTech       = 0;  edm::EDGetTokenT<std::vector<bool>        	 > TrigTech_token_;
+	//Data members for processing
 
-	const std::vector<double>*         trackchi2ndof  = 0;  edm::EDGetTokenT<std::vector<double>      	 > trackchi2ndof_token_;
-	const std::vector<float>*          trackp         = 0;  edm::EDGetTokenT<std::vector<float>       	 > trackp_token_;
-	const std::vector<float>*          trackpt        = 0;  edm::EDGetTokenT<std::vector<float>       	 > trackpt_token_;
-	const std::vector<double>*         tracketa       = 0;  edm::EDGetTokenT<std::vector<double>      	 > tracketa_token_;
-	const std::vector<double>*         trackphi       = 0;  edm::EDGetTokenT<std::vector<double>      	 > trackphi_token_;
-	const std::vector<unsigned int>*   trackhitsvalid = 0;  edm::EDGetTokenT<std::vector<unsigned int>	 > trackhitsvalid_token_;
+	//Event data
+	unsigned int                       eventnumber    =0;
+	unsigned int                       runnumber      =0;
+	const std::vector<bool>*           TrigTech       =0;  edm::EDGetTokenT<std::vector<bool>           > TrigTech_token_;
 
-	const std::vector<int>*            trackindex     = 0;  edm::EDGetTokenT<std::vector<int>         	 > trackindex_token_;
-	const std::vector<unsigned int>*   rawid          = 0;  edm::EDGetTokenT<std::vector<unsigned int>	 > rawid_token_;
-	const std::vector<double>*         localdirx      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdirx_token_;
-	const std::vector<double>*         localdiry      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdiry_token_;
-	const std::vector<double>*         localdirz      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdirz_token_;
-	const std::vector<unsigned short>* firststrip     = 0;  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
-	const std::vector<unsigned short>* nstrips        = 0;  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
-	const std::vector<bool>*           saturation     = 0;  edm::EDGetTokenT<std::vector<bool>        	 > saturation_token_;
-	const std::vector<bool>*           overlapping    = 0;  edm::EDGetTokenT<std::vector<bool>        	 > overlapping_token_;
-	const std::vector<bool>*           farfromedge    = 0;  edm::EDGetTokenT<std::vector<bool>        	 > farfromedge_token_;
-	const std::vector<unsigned int>*   charge         = 0;  edm::EDGetTokenT<std::vector<unsigned int>	 > charge_token_;
-	const std::vector<double>*         path           = 0;  edm::EDGetTokenT<std::vector<double>       	 > path_token_;
-	const std::vector<double>*         chargeoverpath = 0;  edm::EDGetTokenT<std::vector<double>       	 > chargeoverpath_token_;
-	const std::vector<unsigned char>*  amplitude      = 0;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
-	const std::vector<double>*         gainused       = 0;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
+        // Track data
+	const std::vector<double>*         trackchi2ndof  =0;  edm::EDGetTokenT<std::vector<double>         > trackchi2ndof_token_;
+	const std::vector<float>*          trackp         =0;  edm::EDGetTokenT<std::vector<float>          > trackp_token_;
+	const std::vector<float>*          trackpt        =0;  edm::EDGetTokenT<std::vector<float>          > trackpt_token_;
+	const std::vector<double>*         tracketa       =0;  edm::EDGetTokenT<std::vector<double>         > tracketa_token_;
+	const std::vector<double>*         trackphi       =0;  edm::EDGetTokenT<std::vector<double>         > trackphi_token_;
+	const std::vector<unsigned int>*   trackhitsvalid =0;  edm::EDGetTokenT<std::vector<unsigned int>   > trackhitsvalid_token_;
+        const std::vector<int>*            trackalgo      =0;  edm::EDGetTokenT<std::vector<int>   >          trackalgo_token_;
+
+        // CalibTree data
+	const std::vector<int>*            trackindex     =0;  edm::EDGetTokenT<std::vector<int>            > trackindex_token_;
+	const std::vector<unsigned int>*   rawid          =0;  edm::EDGetTokenT<std::vector<unsigned int>   > rawid_token_;
+	const std::vector<double>*         localdirx      =0;  edm::EDGetTokenT<std::vector<double>         > localdirx_token_;
+	const std::vector<double>*         localdiry      =0;  edm::EDGetTokenT<std::vector<double>         > localdiry_token_;
+	const std::vector<double>*         localdirz      =0;  edm::EDGetTokenT<std::vector<double>         > localdirz_token_;
+	const std::vector<unsigned short>* firststrip     =0;  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
+	const std::vector<unsigned short>* nstrips        =0;  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
+	const std::vector<bool>*           saturation     =0;  edm::EDGetTokenT<std::vector<bool>           > saturation_token_;
+	const std::vector<bool>*           overlapping    =0;  edm::EDGetTokenT<std::vector<bool>           > overlapping_token_;
+	const std::vector<bool>*           farfromedge    =0;  edm::EDGetTokenT<std::vector<bool>           > farfromedge_token_;
+	const std::vector<unsigned int>*   charge         =0;  edm::EDGetTokenT<std::vector<unsigned int>   > charge_token_;
+	const std::vector<double>*         path           =0;  edm::EDGetTokenT<std::vector<double>         > path_token_;
+	const std::vector<double>*         chargeoverpath =0;  edm::EDGetTokenT<std::vector<double>         > chargeoverpath_token_;
+	const std::vector<unsigned char>*  amplitude      =0;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
+	const std::vector<double>*         gainused       =0;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
 
 	string EventPrefix_; //("");
 	string EventSuffix_; //("");
@@ -235,7 +259,6 @@ private:
 	string TrackSuffix_; //("");
 	string CalibPrefix_; //("GainCalibration");
 	string CalibSuffix_; //("");
-	string tree_path_;
 
 private :
 	class isEqual{
@@ -246,6 +269,20 @@ private :
 	std::vector<stAPVGain*> APVsCollOrdered;
 	__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual > APVsColl;
 };
+
+inline int
+SiStripGainFromCalibTree::statCollectionFromMode(const char* tag) const
+{
+    std::vector<string>::const_iterator it=dqm_tag_.begin();
+    while(it!=dqm_tag_.end()) {
+        if(*it==std::string(tag)) return it-dqm_tag_.begin();
+        it++;
+    }
+
+    if (std::string(tag)=="") return 0;  // return StdBunch calibration mode for backward compatibility
+
+    return None;
+}
 
 void SiStripGainFromCalibTree::merge(TH2* A, TH2* B){
 	if(A->GetNbinsX() ==  B->GetNbinsX()){
@@ -262,60 +299,93 @@ void SiStripGainFromCalibTree::merge(TH2* A, TH2* B){
 
 SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
 {
-	Charge_Vs_Index     = NULL;//make sure this is initialized to NULL 
-	OutputGains         = iConfig.getParameter<std::string>("OutputGains");
+	OutputGains             = iConfig.getParameter<std::string>("OutputGains");
 
-	AlgoMode            = iConfig.getUntrackedParameter<std::string>("AlgoMode", "CalibTree");
-	MinNrEntries        = iConfig.getUntrackedParameter<double>  ("minNrEntries"       ,  20);
-	MaxMPVError         = iConfig.getUntrackedParameter<double>  ("maxMPVError"        ,  500.0);
-	MaxChi2OverNDF      = iConfig.getUntrackedParameter<double>  ("maxChi2OverNDF"     ,  5.0);
-	MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  3.0);
-	MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0);
-	MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
-	MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
-	MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  2);
-	MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  8);
-	MaxTrackChiOverNdf  = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf" ,  3);
-	AllowSaturation     = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"    ,  false);
-	FirstSetOfConstants = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants",  true);
-	Validation          = iConfig.getUntrackedParameter<bool>    ("Validation"         ,  false);
-	OldGainRemoving     = iConfig.getUntrackedParameter<bool>    ("OldGainRemoving"    ,  false);
+	AlgoMode                = iConfig.getUntrackedParameter<std::string>("AlgoMode", "CalibTree");
+        MagFieldCurrentTh       = iConfig.getUntrackedParameter<double>  ("MagFieldCurrentTh"    ,  2000.);
+	MinNrEntries            = iConfig.getUntrackedParameter<double>  ("minNrEntries"         ,  20);
+	MaxMPVError             = iConfig.getUntrackedParameter<double>  ("maxMPVError"          ,  500.0);
+	MaxChi2OverNDF          = iConfig.getUntrackedParameter<double>  ("maxChi2OverNDF"       ,  5.0);
+	MinTrackMomentum        = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"     ,  3.0);
+	MaxTrackMomentum        = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"     ,  99999.0);
+	MinTrackEta             = iConfig.getUntrackedParameter<double>  ("minTrackEta"          , -5.0);
+	MaxTrackEta             = iConfig.getUntrackedParameter<double>  ("maxTrackEta"          ,  5.0);
+	MaxNrStrips             = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"          ,  2);
+	MinTrackHits            = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"         ,  8);
+	MaxTrackChiOverNdf      = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf"   ,  3);
+        MaxTrackingIteration    = iConfig.getUntrackedParameter<int>     ("MaxTrackingIteration" ,  7);
+	AllowSaturation         = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"      ,  false);
+	FirstSetOfConstants     = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants"  ,  true);
+	Validation              = iConfig.getUntrackedParameter<bool>    ("Validation"           ,  false);
+	OldGainRemoving         = iConfig.getUntrackedParameter<bool>    ("OldGainRemoving"      ,  false);
 
-	CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
-	VInputFiles         = iConfig.getUntrackedParameter<vector<string> >  ("InputFiles");
+	CalibrationLevel        = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
+	VInputFiles             = iConfig.getUntrackedParameter<vector<string> >  ("InputFiles");
 
 
-	useCalibration      = iConfig.getUntrackedParameter<bool>    ("UseCalibration"     , false);
-	m_calibrationPath   = iConfig.getUntrackedParameter<string>  ("calibrationPath");
-	harvestingMode      = iConfig.getUntrackedParameter<bool>    ("harvestingMode"     , false);
+	useCalibration          = iConfig.getUntrackedParameter<bool>    ("UseCalibration"     , false);
+        m_harvestingMode        = iConfig.getUntrackedParameter<bool>    ("harvestingMode"     , false);
+        m_splitDQMstat          = iConfig.getUntrackedParameter<bool>    ("splitDQMstat"       , false);
+        m_calibrationMode       = iConfig.getUntrackedParameter<string>  ("calibrationMode"    , "StdBunch");
+	m_calibrationPath       = iConfig.getUntrackedParameter<string>  ("calibrationPath");
+        m_DQMdir                = iConfig.getUntrackedParameter<string>  ("DQMdir"             , "AlCaReco/SiStripGains");
 
-	tagCondition_NClusters  = iConfig.getUntrackedParameter<double>    ("NClustersForTagProd"     , 2E8);
-	tagCondition_GoodFrac   = iConfig.getUntrackedParameter<double>    ("GoodFracForTagProd"     , 0.95);
+	tagCondition_NClusters  = iConfig.getUntrackedParameter<double>  ("NClustersForTagProd"     , 2E8);
+	tagCondition_GoodFrac   = iConfig.getUntrackedParameter<double>  ("GoodFracForTagProd"     , 0.95);
 
-	saveSummary          = iConfig.getUntrackedParameter<bool>    ("saveSummary"     , false);
-	tree_path_ = iConfig.getUntrackedParameter<string>  ("treePath");
+	saveSummary             = iConfig.getUntrackedParameter<bool>    ("saveSummary"     , false);
+
+
+        // Gather DQM Service
 	dbe = edm::Service<DQMStore>().operator->();
 	dbe->setVerbose(10);
 
+        //Set the monitoring element tag and store
+        dqm_tag_.reserve(7);
+        dqm_tag_.clear();
+        dqm_tag_.push_back( "StdBunch" );      // statistic collection from Standard Collision Bunch @ 3.8 T
+        dqm_tag_.push_back( "StdBunch0T" );    // statistic collection from Standard Collision Bunch @ 0 T
+        dqm_tag_.push_back( "AagBunch" );      // statistic collection from First Collision After Abort Gap @ 3.8 T
+        dqm_tag_.push_back( "AagBunch0T" );    // statistic collection from First Collision After Abort Gap @ 0 T
+        dqm_tag_.push_back( "IsoMuon" );       // statistic collection from Isolated Muon @ 3.8 T
+        dqm_tag_.push_back( "IsoMuon0T" );     // statistic collection from Isolated Muon @ 0 T
+        dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
+
+        Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
+        //Charge_Vs_Index_Absolute.insert( Charge_Vs_Index_Absolute.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTIDM.insert( Charge_Vs_PathlengthTIDM.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTECP1.insert( Charge_Vs_PathlengthTECP1.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTECP2.insert( Charge_Vs_PathlengthTECP2.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTECM1.insert( Charge_Vs_PathlengthTECM1.begin(), dqm_tag_.size(), 0);
+        Charge_Vs_PathlengthTECM2.insert( Charge_Vs_PathlengthTECM2.begin(), dqm_tag_.size(), 0);
+
+        
+
+
+        // configure token for gathering the ntuple variables 
 	edm::ParameterSet swhallowgain_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("gain");
+
 	string label = swhallowgain_pset.getUntrackedParameter<string>("label");
 	CalibPrefix_ = swhallowgain_pset.getUntrackedParameter<string>("prefix");
 	CalibSuffix_ = swhallowgain_pset.getUntrackedParameter<string>("suffix");
 
-	trackindex_token_		  = consumes<std::vector<int>         	 >(edm::InputTag(label, CalibPrefix_ + "trackindex"    + CalibSuffix_)); 
-	rawid_token_				  = consumes<std::vector<unsigned int>	 >(edm::InputTag(label, CalibPrefix_ + "rawid"         + CalibSuffix_)); 
-	localdirx_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirx"     + CalibSuffix_)); 
-	localdiry_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdiry"     + CalibSuffix_)); 
-	localdirz_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirz"     + CalibSuffix_)); 
-	firststrip_token_		  = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "firststrip"    + CalibSuffix_)); 
-	nstrips_token_			  = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "nstrips"       + CalibSuffix_)); 
-	saturation_token_		  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "saturation"    + CalibSuffix_)); 
-	overlapping_token_	  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "overlapping"   + CalibSuffix_)); 
-	farfromedge_token_	  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "farfromedge"   + CalibSuffix_)); 
-	charge_token_				  = consumes<std::vector<unsigned int>	 >(edm::InputTag(label, CalibPrefix_ + "charge"        + CalibSuffix_)); 
-	path_token_					  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "path"          + CalibSuffix_)); 
-	chargeoverpath_token_ = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
-	amplitude_token_		  = consumes<std::vector<unsigned char>  >(edm::InputTag(label, CalibPrefix_ + "amplitude"     + CalibSuffix_)); 
+	trackindex_token_     = consumes<std::vector<int>            >(edm::InputTag(label, CalibPrefix_ + "trackindex"    + CalibSuffix_)); 
+	rawid_token_          = consumes<std::vector<unsigned int>   >(edm::InputTag(label, CalibPrefix_ + "rawid"         + CalibSuffix_)); 
+	localdirx_token_      = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "localdirx"     + CalibSuffix_)); 
+	localdiry_token_      = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "localdiry"     + CalibSuffix_)); 
+	localdirz_token_      = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "localdirz"     + CalibSuffix_)); 
+	firststrip_token_     = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "firststrip"    + CalibSuffix_)); 
+	nstrips_token_        = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "nstrips"       + CalibSuffix_)); 
+	saturation_token_     = consumes<std::vector<bool>           >(edm::InputTag(label, CalibPrefix_ + "saturation"    + CalibSuffix_)); 
+	overlapping_token_    = consumes<std::vector<bool>           >(edm::InputTag(label, CalibPrefix_ + "overlapping"   + CalibSuffix_)); 
+	farfromedge_token_    = consumes<std::vector<bool>           >(edm::InputTag(label, CalibPrefix_ + "farfromedge"   + CalibSuffix_)); 
+	charge_token_         = consumes<std::vector<unsigned int>   >(edm::InputTag(label, CalibPrefix_ + "charge"        + CalibSuffix_)); 
+	path_token_           = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "path"          + CalibSuffix_)); 
+	chargeoverpath_token_ = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
+	amplitude_token_      = consumes<std::vector<unsigned char>  >(edm::InputTag(label, CalibPrefix_ + "amplitude"     + CalibSuffix_)); 
 	gainused_token_       = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "gainused"      + CalibSuffix_)); 
 
 	edm::ParameterSet evtinfo_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("evtinfo");
@@ -330,36 +400,72 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 	TrackSuffix_ = track_pset.getUntrackedParameter<string>("suffix");
 
 	trackchi2ndof_token_  = consumes<std::vector<double>      	 >(edm::InputTag(label, TrackPrefix_ + "chi2ndof"  + TrackSuffix_)); 
-	trackp_token_				  = consumes<std::vector<float>       	 >(edm::InputTag(label, TrackPrefix_ + "momentum"  + TrackSuffix_)); 
-	trackpt_token_			  = consumes<std::vector<float>       	 >(edm::InputTag(label, TrackPrefix_ + "pt"        + TrackSuffix_)); 
-	tracketa_token_			  = consumes<std::vector<double>      	 >(edm::InputTag(label, TrackPrefix_ + "eta"       + TrackSuffix_)); 
-	trackphi_token_			  = consumes<std::vector<double>      	 >(edm::InputTag(label, TrackPrefix_ + "phi"       + TrackSuffix_)); 
+	trackp_token_	      = consumes<std::vector<float>       	 >(edm::InputTag(label, TrackPrefix_ + "momentum"  + TrackSuffix_)); 
+	trackpt_token_	      = consumes<std::vector<float>       	 >(edm::InputTag(label, TrackPrefix_ + "pt"        + TrackSuffix_)); 
+	tracketa_token_	      = consumes<std::vector<double>      	 >(edm::InputTag(label, TrackPrefix_ + "eta"       + TrackSuffix_)); 
+	trackphi_token_	      = consumes<std::vector<double>      	 >(edm::InputTag(label, TrackPrefix_ + "phi"       + TrackSuffix_)); 
 	trackhitsvalid_token_ = consumes<std::vector<unsigned int>	 >(edm::InputTag(label, TrackPrefix_ + "hitsvalid" + TrackSuffix_)); 
+        trackalgo_token_      = consumes<std::vector<int>                >(edm::InputTag(label, TrackPrefix_ + "algo"      + TrackSuffix_));
 }
 
+void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag)
+{
+    edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
+                                             << tag << std::endl;
+
+    dbe->setCurrentFolder(dqm_dir);
+
+    std::string stag(tag);
+    if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+
+    std::string cvi      = std::string("Charge_Vs_Index") + stag;
+    //std::string cviA     = std::string("Charge_Vs_Index_Absolute")  + stag;
+    std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;
+    std::string cvpTOB   = std::string("Charge_Vs_PathlengthTOB")   + stag;
+    std::string cvpTIDP  = std::string("Charge_Vs_PathlengthTIDP")  + stag;
+    std::string cvpTIDM  = std::string("Charge_Vs_PathlengthTIDM")  + stag;
+    std::string cvpTECP1 = std::string("Charge_Vs_PathlengthTECP1") + stag;
+    std::string cvpTECP2 = std::string("Charge_Vs_PathlengthTECP2") + stag;
+    std::string cvpTECM1 = std::string("Charge_Vs_PathlengthTECM1") + stag;
+    std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
+
+    int elepos = (m_harvestingMode && AlgoMode=="PCL")? Harvest : statCollectionFromMode(tag);
+
+    Charge_Vs_Index[elepos]           = dbe->book2D(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
+    //Charge_Vs_Index_Absolute[elepos]  = dbe->book2D(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
+    Charge_Vs_PathlengthTIB[elepos]   = dbe->book2D(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTOB[elepos]   = dbe->book2D(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDP[elepos]  = dbe->book2D(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDM[elepos]  = dbe->book2D(cvpTIDM.c_str() , cvpTIDM.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP1[elepos] = dbe->book2D(cvpTECP1.c_str(), cvpTECP1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP2[elepos] = dbe->book2D(cvpTECP2.c_str(), cvpTECP2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM1[elepos] = dbe->book2D(cvpTECM1.c_str(), cvpTECM1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM2[elepos] = dbe->book2D(cvpTECM2.c_str(), cvpTECM2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+}
 
 void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
-	dbe->setCurrentFolder("AlCaReco/SiStripGains/");
-	if(AlgoMode != "PCL" or harvestingMode)dbe->setCurrentFolder("AlCaReco/SiStripGainsHarvesting/");
+        edm::LogInfo("SiStripGainFromCalibTree") << "AlgoMode        : " << AlgoMode          << "\n"
+                                                 << "CalibrationMode : " << m_calibrationMode << "\n"
+                                                 << "HarvestingMode  : " << m_harvestingMode  << std::endl;
+        //Setup DQM histograms
+	if(AlgoMode != "PCL" or m_harvestingMode) {
+            const char * dqm_dir = "AlCaReco/SiStripGainsHarvesting/";
+            this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+            //if (m_harvestingMode) this->bookDQMHistos( dqm_dir, dqm_tag_[Harvest].c_str() );
+            //else this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+        } else {
+            std::string dqm_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
+            int elem = statCollectionFromMode(m_calibrationMode.c_str());
+            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[elem].c_str() );
+            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[( (elem%2)? elem-1: elem+1 )].c_str() );
+        }
 
-	Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 88625, 0   , 88624,2000,0,4000);
-	Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 88625, 0   , 88624,1000,0,4000);
-//   Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
-//   Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
-	Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
-	Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
 
 	edm::ESHandle<TrackerGeometry> tkGeom;
 	iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
 	auto const & Det = tkGeom->dets();
-
+ 
 	NPixelDets = 0;
 	NStripAPVs = 0;
 	unsigned int Index=0;
@@ -469,14 +575,41 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 	MASKED     = 0;
 }
 
+bool SiStripGainFromCalibTree::isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const {
+    edm::ESHandle<RunInfo> runInfo;
+    iSetup.get<RunInfoRcd>().get(runInfo);
 
+    double average_current = runInfo.product()->m_avg_current;
+    bool isOn = (average_current > MagFieldCurrentTh);
+    bool is0T = (m_calibrationMode.substr( m_calibrationMode.length()-2 )=="0T");
+
+    return ( (isOn && !is0T) || (!isOn && is0T) );
+}
+
+void SiStripGainFromCalibTree::swapBFieldMode() {
+    if ( m_calibrationMode.substr( m_calibrationMode.length()-2 )=="0T" ) {
+        m_calibrationMode.erase( m_calibrationMode.length()-2,2);
+    } else {
+        m_calibrationMode.append( "0T" );
+    } 
+}
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
-	edm::ESHandle<SiStripGain> gainHandle;
-	iSetup.get<SiStripGainRcd>().get(gainHandle);
-	if(!gainHandle.isValid()){edm::LogError("SiStripGainFromCalibTree")<< "gainHandle is not valid\n"; exit(0);}
- 
+    if( !m_harvestingMode && AlgoMode=="PCL") { 
+        //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
+        if (!isBFieldConsistentWithMode(iSetup)) {
+            string prevMode = m_calibrationMode;
+            swapBFieldMode();
+            edm::LogInfo("SiStripGainFromCalibTree") << "Switching calibration mode for endorsing BField status: "
+                                                     << prevMode << " ==> " << m_calibrationMode << std::endl;
+        }
+    }
+
+    edm::ESHandle<SiStripGain> gainHandle;
+    iSetup.get<SiStripGainRcd>().get(gainHandle);
+    if(!gainHandle.isValid()){edm::LogError("SiStripGainFromCalibTree")<< "gainHandle is not valid\n"; exit(0);}
+
 	edm::ESHandle<SiStripQuality> SiStripQuality_;
 	iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
@@ -504,60 +637,148 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 }
 
 void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventSetup& iSetup){
-	if(AlgoMode == "PCL" && !harvestingMode)return;//nothing to do in that case
+	if(AlgoMode == "PCL" && !m_harvestingMode) return;//nothing to do in that case
 
-	if(AlgoMode == "PCL" and harvestingMode){
-		// Load the 2D histograms from the DQM objects
-		// When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
-		// DQMStore so that they can be used in the fit
-     
-//     edm::LogInfo("SiStripGainFromCalibTree")<< "Harvesting " << (dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index"))->getTH2F()->GetEntries() << " more clusters\n";
+	if(AlgoMode == "PCL" and m_harvestingMode){
+            // Load the 2D histograms from the DQM objects
+            // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
+            // DQMStore so that they can be used in the fit
+             
+            edm::LogInfo("SiStripGainFromCalibTree") << "Starting harvesting statistics" << std::endl;
 
-		merge(Charge_Vs_Index           ->getTH2F(), (dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index"))->getTH2F() );
-//     Charge_Vs_Index           ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index"))->getTH2F());
-		merge(Charge_Vs_Index_Absolute  ->getTH2F(), (dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute"))->getTH2F() );     
-//     Charge_Vs_Index_Absolute  ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute"))->getTH2F());
-		Charge_Vs_PathlengthTIB   ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIB"))->getTH2F());
-		Charge_Vs_PathlengthTOB   ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTOB"))->getTH2F());
-		Charge_Vs_PathlengthTIDP  ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDP"))->getTH2F());
-		Charge_Vs_PathlengthTIDM  ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDM"))->getTH2F());
-		Charge_Vs_PathlengthTECP1 ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP1"))->getTH2F());
-		Charge_Vs_PathlengthTECP2 ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP2"))->getTH2F());
-		Charge_Vs_PathlengthTECM1 ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM1"))->getTH2F());
-		Charge_Vs_PathlengthTECM2 ->getTH2F()->Add((dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM2"))->getTH2F());
+            // check the required tag before adding histograms
+            int elepos = statCollectionFromMode(m_calibrationMode.c_str());
+            if (elepos!=Harvest) {
+
+                //collect statistics from DQM into the related monitored elements
+                std::string stag = m_calibrationMode;
+                if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+ 
+                 
+                if (elepos==-1) {
+                    //implememt backward compatibility
+                    elepos=0;
+                    stag="";
+                }
+
+                std::string DQM_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"");
+
+                std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;
+                //std::string cviA     = DQM_dir + std::string("/Charge_Vs_Index_Absolute")  + stag;
+                std::string cvpTIB   = DQM_dir + std::string("/Charge_Vs_PathlengthTIB")   + stag;
+                std::string cvpTOB   = DQM_dir + std::string("/Charge_Vs_PathlengthTOB")   + stag;
+                std::string cvpTIDP  = DQM_dir + std::string("/Charge_Vs_PathlengthTIDP")  + stag;
+                std::string cvpTIDM  = DQM_dir + std::string("/Charge_Vs_PathlengthTIDM")  + stag;
+                std::string cvpTECP1 = DQM_dir + std::string("/Charge_Vs_PathlengthTECP1") + stag;
+                std::string cvpTECP2 = DQM_dir + std::string("/Charge_Vs_PathlengthTECP2") + stag;
+                std::string cvpTECM1 = DQM_dir + std::string("/Charge_Vs_PathlengthTECM1") + stag;
+                std::string cvpTECM2 = DQM_dir + std::string("/Charge_Vs_PathlengthTECM2") + stag;
+
+                Charge_Vs_Index[elepos]           = dbe->get(cvi.c_str());
+                //Charge_Vs_Index_Absolute[elepos]  = dbe->get(cviA.c_str());
+                Charge_Vs_PathlengthTIB[elepos]   = dbe->get(cvpTIB.c_str());
+                Charge_Vs_PathlengthTOB[elepos]   = dbe->get(cvpTOB.c_str());
+                Charge_Vs_PathlengthTIDP[elepos]  = dbe->get(cvpTIDP.c_str());
+                Charge_Vs_PathlengthTIDM[elepos]  = dbe->get(cvpTIDM.c_str());
+                Charge_Vs_PathlengthTECP1[elepos] = dbe->get(cvpTECP1.c_str());
+                Charge_Vs_PathlengthTECP2[elepos] = dbe->get(cvpTECP2.c_str());
+                Charge_Vs_PathlengthTECM1[elepos] = dbe->get(cvpTECM1.c_str());
+                Charge_Vs_PathlengthTECM2[elepos] = dbe->get(cvpTECM2.c_str());
+
+                if (Charge_Vs_Index[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvi.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else {
+                    merge( (Charge_Vs_Index[Harvest])->getTH2F(), (Charge_Vs_Index[elepos])->getTH2F() );
+                    edm::LogInfo("SiStripGainFromCalibTree") << "Harvesting " 
+                                << (Charge_Vs_Index[elepos])->getTH2F()->GetEntries() << " more clusters" << std::endl;
+                }
+
+                //if (Charge_Vs_Index_Absolute[elepos]==0) {
+                //    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cviA.c_str()
+                //                                              << ", statistics will not be summed!" << std::endl;
+                //} else merge( (Charge_Vs_Index_Absolute[Harvest])->getTH2F(), (Charge_Vs_Index_Absolute[elepos])->getTH2F() );
+
+                if (Charge_Vs_PathlengthTIB[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTIB.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTIB[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTIB[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTOB[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTOB.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTOB[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTOB[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTIDP[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTIDP.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTIDP[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTIDP[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTIDM[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTIDM.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTIDM[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTIDM[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTECP1[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTECP1.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTECP1[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTECP1[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTECP2[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTECP2.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTECP2[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTECP2[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTECM1[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTECM1.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTECM1[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTECM1[elepos])->getTH2F());
+
+                if (Charge_Vs_PathlengthTECM2[elepos]==0) {
+                    edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvpTECM2.c_str()
+                                                              << ", statistics will not be summed!" << std::endl;
+                } else (Charge_Vs_PathlengthTECM2[Harvest])->getTH2F()->Add((Charge_Vs_PathlengthTECM2[elepos])->getTH2F());
+            }
 	}
 }
+
 void 
 SiStripGainFromCalibTree::algoEndJob() {
-	if(AlgoMode == "PCL" && !harvestingMode)return;//nothing to do in that case
+	if(AlgoMode == "PCL" && !m_harvestingMode) return;//nothing to do in that case
 
 	if(AlgoMode == "CalibTree"){
+                edm::LogInfo("SiStripGainFromCalibTree") << "Analyzing calibration tree" << std::endl;
 		// Loop on calibTrees to fill the 2D histograms
 		algoAnalyzeTheTree();
-	}else if(harvestingMode){
-		NClusterStrip = Charge_Vs_Index->getTH2F()->Integral(0,NStripAPVs+1, 0, 99999 );
-		NClusterPixel = Charge_Vs_Index->getTH2F()->Integral(NStripAPVs+2, NStripAPVs+NPixelDets+2, 0, 99999 );
+	}else if(m_harvestingMode){
+		NClusterStrip = (Charge_Vs_Index[Harvest])->getTH2F()->Integral(0,NStripAPVs+1, 0, 99999 );
+		NClusterPixel = (Charge_Vs_Index[Harvest])->getTH2F()->Integral(NStripAPVs+2, NStripAPVs+NPixelDets+2, 0, 99999 );
 	}
 
 	// Now that we have the full statistics we can extract the information of the 2D histograms
 	algoComputeMPVandGain();
    
 	if(AlgoMode != "PCL" or saveSummary){
-		//also save the 2D monitor elements to this file as TH2D tfs
-		tfs = edm::Service<TFileService>().operator->();
-		tfs->make<TH2F> (*Charge_Vs_Index->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_Index_Absolute->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTIB->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTOB->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTIDP->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTIDM->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTECP1->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTECP2->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTECM1->getTH2F());
-		tfs->make<TH2F> (*Charge_Vs_PathlengthTECM2->getTH2F());
+            edm::LogInfo("SiStripGainFromCalibTree") << "Saving summary into root file" << std::endl;
 
+            //also save the 2D monitor elements to this file as TH2D tfs
+            tfs = edm::Service<TFileService>().operator->();
 
-		storeOnTree(tfs);
+            //save only the statistics for the calibrationTag 
+            int elepos = statCollectionFromMode(m_calibrationMode.c_str());
+
+            if( Charge_Vs_Index[elepos]!=0 )           tfs->make<TH2F> ( *(Charge_Vs_Index[elepos])->getTH2F() );
+            //if( Charge_Vs_Index_Absolute[elepos]!=0 )  tfs->make<TH2F> ( *(Charge_Vs_Index_Absolute[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTIB[elepos]!=0 )   tfs->make<TH2F> ( *(Charge_Vs_PathlengthTIB[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTOB[elepos]!=0 )   tfs->make<TH2F> ( *(Charge_Vs_PathlengthTOB[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTIDP[elepos]!=0 )  tfs->make<TH2F> ( *(Charge_Vs_PathlengthTIDP[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTIDM[elepos]!=0 )  tfs->make<TH2F> ( *(Charge_Vs_PathlengthTIDM[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTECP1[elepos]!=0 ) tfs->make<TH2F> ( *(Charge_Vs_PathlengthTECP1[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTECP2[elepos]!=0 ) tfs->make<TH2F> ( *(Charge_Vs_PathlengthTECP2[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTECM1[elepos]!=0 ) tfs->make<TH2F> ( *(Charge_Vs_PathlengthTECM1[elepos])->getTH2F() );
+            if( Charge_Vs_PathlengthTECM2[elepos]!=0 ) tfs->make<TH2F> ( *(Charge_Vs_PathlengthTECM2[elepos])->getTH2F() );
+
+            storeOnTree(tfs);
 	}
 }
 
@@ -598,23 +819,31 @@ bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
 
 void SiStripGainFromCalibTree::processEvent() {
 
+        edm::LogInfo("SiStripGainFromCalibTree") << "Processing run " << runnumber 
+                                                 << " and event " << eventnumber 
+                                                 << " for " << m_calibrationMode << " calibration." << std::endl;
+
 	if(runnumber<SRun)SRun=runnumber;
 	if(runnumber>ERun)ERun=runnumber;
 
 	NEvent++;
 	NTrack+=(*trackp).size();
 
+        int elepos = statCollectionFromMode(m_calibrationMode.c_str());
+
 	unsigned int FirstAmplitude=0;
 	for(unsigned int i=0;i<(*chargeoverpath).size();i++){
 		FirstAmplitude+=(*nstrips)[i];
 		int    TI = (*trackindex)[i];
+
 		//printf("%i - %i - %i %i %i\n", (int)(*rawid)[i], (int)(*firststrip)[i]/128, (int)(*farfromedge)[i], (int)(*overlapping)[i], (int)(*saturation )[i] );
-		if((*tracketa      )[TI]  < MinTrackEta        )continue;
-		if((*tracketa      )[TI]  > MaxTrackEta        )continue;
-		if((*trackp        )[TI]  < MinTrackMomentum   )continue;
-		if((*trackp        )[TI]  > MaxTrackMomentum   )continue;
-		if((*trackhitsvalid)[TI]  < MinTrackHits       )continue;
-		if((*trackchi2ndof )[TI]  > MaxTrackChiOverNdf )continue;
+		if((*tracketa      )[TI]  < MinTrackEta          )continue;
+		if((*tracketa      )[TI]  > MaxTrackEta          )continue;
+		if((*trackp        )[TI]  < MinTrackMomentum     )continue;
+		if((*trackp        )[TI]  > MaxTrackMomentum     )continue;
+		if((*trackhitsvalid)[TI]  < MinTrackHits         )continue;
+		if((*trackchi2ndof )[TI]  > MaxTrackChiOverNdf   )continue;
+                if((*trackalgo     )[TI]  > MaxTrackingIteration )continue;
 
 		stAPVGain* APV = APVsColl[((*rawid)[i]<<4) | ((*firststrip)[i]/128)];   //works for both strip and pixel thanks to firstStrip encoding for pixel in the calibTree
 
@@ -668,23 +897,23 @@ void SiStripGainFromCalibTree::processEvent() {
 			if(Validation)     {ClusterChargeOverPath/=(*gainused)[i];}
 			if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
 		}
-		Charge_Vs_Index_Absolute->Fill(APV->Index,Charge);   
-		Charge_Vs_Index         ->Fill(APV->Index,ClusterChargeOverPath);
+		//(Charge_Vs_Index_Absolute[elepos])->Fill(APV->Index,Charge);   
+		(Charge_Vs_Index[elepos])         ->Fill(APV->Index,ClusterChargeOverPath);
 
-		if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill((*path)[i],Charge); 
-		}else if(APV->SubDet==StripSubdetector::TOB){ Charge_Vs_PathlengthTOB  ->Fill((*path)[i],Charge);
+		if(APV->SubDet==StripSubdetector::TIB){ (Charge_Vs_PathlengthTIB[elepos])  ->Fill((*path)[i],Charge); 
+		}else if(APV->SubDet==StripSubdetector::TOB){ (Charge_Vs_PathlengthTOB[elepos])  ->Fill((*path)[i],Charge);
 		}else if(APV->SubDet==StripSubdetector::TID){
-			if(APV->Eta<0){			  Charge_Vs_PathlengthTIDM ->Fill((*path)[i],Charge);
-			}else if(APV->Eta>0){                      Charge_Vs_PathlengthTIDP ->Fill((*path)[i],Charge);
+			if(APV->Eta<0){			  (Charge_Vs_PathlengthTIDM[elepos]) ->Fill((*path)[i],Charge);
+			}else if(APV->Eta>0){                      (Charge_Vs_PathlengthTIDP[elepos]) ->Fill((*path)[i],Charge);
 			}
 		}else if(APV->SubDet==StripSubdetector::TEC){
 			if(APV->Eta<0){
-				if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECM1->Fill((*path)[i],Charge);
-				}else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECM2->Fill((*path)[i],Charge);
+				if(APV->Thickness<0.04){          (Charge_Vs_PathlengthTECM1[elepos])->Fill((*path)[i],Charge);
+				}else if(APV->Thickness>0.04){          (Charge_Vs_PathlengthTECM2[elepos])->Fill((*path)[i],Charge);
 				}
 			}else if(APV->Eta>0){
-				if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECP1->Fill((*path)[i],Charge);
-				}else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECP2->Fill((*path)[i],Charge);
+				if(APV->Thickness<0.04){          (Charge_Vs_PathlengthTECP1[elepos])->Fill((*path)[i],Charge);
+				}else if(APV->Thickness>0.04){          (Charge_Vs_PathlengthTECP2[elepos])->Fill((*path)[i],Charge);
 				}
 			}
 		}
@@ -697,7 +926,8 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 	for(unsigned int i=0;i<VInputFiles.size();i++){
 		printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
 		TFile *tfile = TFile::Open(VInputFiles[i].c_str());
-		TTree* tree  = dynamic_cast<TTree*> (tfile->Get(tree_path_.c_str()));
+                TString tree_path = TString::Format("gainCalibrationTree%s/tree",m_calibrationMode.c_str());
+		TTree* tree  = dynamic_cast<TTree*> (tfile->Get(tree_path.Data()));
 
 		tree->SetBranchAddress((EventPrefix_ + "event"          + EventSuffix_).c_str(), &eventnumber   , NULL);
 		tree->SetBranchAddress((EventPrefix_ + "run"            + EventSuffix_).c_str(), &runnumber     , NULL);
@@ -709,6 +939,7 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 		tree->SetBranchAddress((TrackPrefix_ + "eta"            + TrackSuffix_).c_str(), &tracketa      , NULL);
 		tree->SetBranchAddress((TrackPrefix_ + "phi"            + TrackSuffix_).c_str(), &trackphi      , NULL);
 		tree->SetBranchAddress((TrackPrefix_ + "hitsvalid"      + TrackSuffix_).c_str(), &trackhitsvalid, NULL);
+                tree->SetBranchAddress((TrackPrefix_ + "algo"           + TrackSuffix_).c_str(), &trackalgo     , NULL);
 
 		tree->SetBranchAddress((CalibPrefix_ + "trackindex"     + CalibSuffix_).c_str(), &trackindex    , NULL);
 		tree->SetBranchAddress((CalibPrefix_ + "rawid"          + CalibSuffix_).c_str(), &rawid         , NULL);
@@ -748,7 +979,17 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 	double FitResults[6];
 	double MPVmean = 300;
 
-	TH2F *chvsidx = Charge_Vs_Index->getTH2F();
+        int elepos = (AlgoMode == "PCL")? Harvest : statCollectionFromMode(m_calibrationMode.c_str());
+
+        if ( Charge_Vs_Index[elepos]==0 ) {
+            edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not execute algoComputeMPVandGain method because "
+                                                      << m_calibrationMode.c_str() << " statistics cannot be retrieved.\n"
+                                                      << "Please check if input contains " 
+                                                      << m_calibrationMode.c_str() << " data." << std::endl;
+            return;
+        }
+
+        TH2F *chvsidx = (Charge_Vs_Index[elepos])->getTH2F();
 
 
 	printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
@@ -883,6 +1124,8 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 	fprintf(Gains,"Number of Pixel Dets = %lu\n",static_cast<unsigned long>(NPixelDets));
 	fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f%%   (MASKED=%i)\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD), MASKED);
 
+        int elepos = statCollectionFromMode(m_calibrationMode.c_str());
+
 	for(unsigned int a=0;a<APVsCollOrdered.size();a++){
 		stAPVGain* APV = APVsCollOrdered[a];
 		if(APV==NULL)continue;
@@ -890,7 +1133,7 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 		fprintf(Gains,"%i | %i | PreviousGain = %7.5f(tick) x %7.5f(particle) NewGain (particle) = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGainTick, APV->PreviousGain,APV->Gain, APV->NEntries);
 
 		tree_Index      = APV->Index;
-		tree_Bin        = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+		tree_Bin        = (Charge_Vs_Index[elepos])->getTH2F()->GetXaxis()->FindBin(APV->Index);
 		tree_DetId      = APV->DetId;
 		tree_APVId      = APV->APVId;
 		tree_SubDet     = APV->SubDet;
@@ -928,22 +1171,38 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 
 bool SiStripGainFromCalibTree::produceTagFilter(){
   
-	// The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
-  if(Charge_Vs_Index->getTH2F()->Integral(0,NStripAPVs+1, 0, 99999 ) < tagCondition_NClusters) {
-    edm::LogWarning("SiStripGainFromCalibTree")<< "produceTagFilter -> Return false: Statistics is too low : " << Charge_Vs_Index->getTH2F()->Integral() << endl;
-    return false;
-  }
-  if((1.0 * GOOD) / (GOOD+BAD) < tagCondition_GoodFrac) {
-    edm::LogWarning("SiStripGainFromCalibTree")<< "produceTagFilter ->  Return false: ratio of GOOD/TOTAL is too low: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
-    return false;
-  }
-  return true; 
+    // The goal of this function is to check wether or not there is enough statistics
+    // to produce a meaningful tag for the DB
+    int elepos     = (AlgoMode == "PCL")? Harvest : statCollectionFromMode(m_calibrationMode.c_str());
+    if( Charge_Vs_Index[elepos]==0 ) {
+        edm::LogError("SiStripGainFromCalibTree") << "produceTagFilter -> Return false: could not retrieve the "
+                                                  << m_calibrationMode.c_str() << " statistics.\n"
+                                                  << "Please check if input contains " 
+                                                  << m_calibrationMode.c_str() << " data." << std::endl;
+        return false; 
+    }
+
+
+    float integral = (Charge_Vs_Index[elepos])->getTH2F()->Integral();
+    if( (Charge_Vs_Index[elepos])->getTH2F()->Integral(0,NStripAPVs+1, 0, 99999 ) < tagCondition_NClusters) {
+        edm::LogWarning("SiStripGainFromCalibTree") 
+                                     << "calibrationMode  -> " << m_calibrationMode << "\n"
+                                     << "produceTagFilter -> Return false: Statistics is too low : " << integral << endl;
+        return false;
+    }
+    if((1.0 * GOOD) / (GOOD+BAD) < tagCondition_GoodFrac) {
+        edm::LogWarning("SiStripGainFromCalibTree")
+              << "calibrationMode  -> " << m_calibrationMode << "\n"
+              << "produceTagFilter ->  Return false: ratio of GOOD/TOTAL is too low: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
+        return false;
+    }
+    return true; 
 }
 
 SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
 {
 	SiStripApvGain* obj = new SiStripApvGain();
-	if(!harvestingMode) return obj;
+	if(!m_harvestingMode) return obj;
 
 	if(!produceTagFilter()){
 		edm::LogWarning("SiStripGainFromCalibTree")<< "getNewObject -> will not produce a paylaod because produceTagFilter returned false " << endl;       
@@ -1006,7 +1265,7 @@ void
 SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // in AlCaHarvesting mode we just need to run the logic in the endJob step
-  if(harvestingMode) return;
+  if(m_harvestingMode) return;
   
 	if(AlgoMode=="CalibTree")return;
 
@@ -1035,6 +1294,8 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
 	auto handle23 = connect(amplitude     , amplitude_token_     , iEvent);
 	auto handle24 = connect(gainused      , gainused_token_      , iEvent);
 
+        auto handle25 = connect(trackalgo     , trackalgo_token_     , iEvent);
+     
 	processEvent();
 }
 

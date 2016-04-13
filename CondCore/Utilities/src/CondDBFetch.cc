@@ -14,13 +14,14 @@
 #include "CondFormats.h"
 
 //
+#include <memory>
 #include <sstream>
 
 namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
+    std::pair<std::string, std::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, std::shared_ptr<void> payloadPtr ){
 
       bool match = false;
       FETCH_PAYLOAD_CASE( std::string ) 
@@ -308,8 +309,8 @@ namespace cond {
       return std::make_pair( payloadTypeName, payloadPtr );
     }
 
-    std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
-      boost::shared_ptr<void> payloadPtr;
+    std::pair<std::string,std::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
+      std::shared_ptr<void> payloadPtr;
       cond::Binary data;
       cond::Binary streamerInfo;
       std::string payloadTypeName;

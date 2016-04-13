@@ -19,6 +19,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "G4ThreeVector.hh"
 
@@ -48,7 +49,7 @@ public:
 
   void       const    initHFShowerLibrary(const edm::EventSetup& );
   void                recoHFShowerLibrary(const FSimTrack &myTrack);
-
+  void                modifyDepth(uint32_t &id);
   const std::map<CaloHitID,float>& getHitsMap() { return hitMap; };
 
 private:
@@ -56,6 +57,7 @@ private:
   const edm::ParameterSet fast;
   std::unique_ptr<HFShowerLibrary> hfshower;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
+  HcalDDDSimConstants* hcalConstants;
   HcalNumberingScheme numberingScheme;
   
   std::map<CaloHitID,float> hitMap;

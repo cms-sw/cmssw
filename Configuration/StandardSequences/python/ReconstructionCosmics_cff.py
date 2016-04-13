@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 # no bunchspacing in cosmics
-bunchSpacingProducer.overrideBunchSpacing=True
-bunchSpacingProducer.bunchSpacingOverride=50
+bunchSpacingProducer.overrideBunchSpacing= cms.bool(True)
+bunchSpacingProducer.bunchSpacingOverride= cms.uint32(50)
 
 #
 # tracker

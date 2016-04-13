@@ -2,9 +2,9 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -99,12 +99,14 @@ namespace edm {
 
   PoolOutputModule::OutputItem::OutputItem() :
         branchDescription_(0),
+        token_(),
         product_(0),
         splitLevel_(BranchDescription::invalidSplitLevel),
         basketSize_(BranchDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, int splitLevel, int basketSize) :
+  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize) :
         branchDescription_(bd),
+        token_(token),
         product_(0),
         splitLevel_(splitLevel),
         basketSize_(basketSize) {}
@@ -161,11 +163,11 @@ namespace edm {
     }
 
     // Fill outputItemList with an entry for each branch.
-    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+    for(auto const& kept : keptVector) {
       int splitLevel = BranchDescription::invalidSplitLevel;
       int basketSize = BranchDescription::invalidBasketSize;
 
-      BranchDescription const& prod = **it;
+      BranchDescription const& prod = *kept.first;
       TBranch* theBranch = ((!prod.produced() && theInputTree != nullptr && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
 
       if(theBranch != nullptr) {
@@ -175,7 +177,7 @@ namespace edm {
         splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
         basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
       }
-      outputItemList.emplace_back(&prod, splitLevel, basketSize);
+      outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
 
     // Sort outputItemList to allow fast copying.
@@ -229,9 +231,9 @@ namespace edm {
   PoolOutputModule::~PoolOutputModule() {
   }
 
-  void PoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  void PoolOutputModule::write(EventForOutput const& e) {
     updateBranchParents(e);
-    rootOutputFile_->writeOne(e, mcc);
+    rootOutputFile_->writeOne(e);
       if (!statusFileName_.empty()) {
         std::ofstream statusFile(statusFileName_.c_str());
         statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
@@ -239,12 +241,12 @@ namespace edm {
       }
   }
 
-  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
-    rootOutputFile_->writeLuminosityBlock(lb, mcc);
+  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockForOutput const& lb) {
+    rootOutputFile_->writeLuminosityBlock(lb);
   }
 
-  void PoolOutputModule::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
-    rootOutputFile_->writeRun(r, mcc);
+  void PoolOutputModule::writeRun(RunForOutput const& r) {
+    rootOutputFile_->writeRun(r);
   }
 
   void PoolOutputModule::reallyCloseFile() {
@@ -326,15 +328,19 @@ namespace edm {
   }
 
   void
-  PoolOutputModule::updateBranchParents(EventPrincipal const& ep) {
-    for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-      if((*i) && (*i)->productProvenancePtr() != nullptr) {
-        BranchID const& bid = (*i)->branchDescription().branchID();
+  PoolOutputModule::updateBranchParents(EventForOutput const& e) {
+    ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    SelectedProducts const& products = keptProducts()[InEvent];
+    for(auto const& product : products) {
+      BranchDescription const& bd = *product.first;
+      BranchID const& bid = bd.branchID();
+      ProductProvenance const* provenance = provRetriever->branchIDToProvenance(bid);
+      if(provenance != nullptr) {
         BranchParents::iterator it = branchParents_.find(bid);
         if(it == branchParents_.end()) {
           it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
         }
-        it->second.insert((*i)->productProvenancePtr()->parentageID());
+        it->second.insert(provenance->parentageID());
         branchChildren_.insertEmpty(bid);
       }
     }
@@ -342,18 +348,15 @@ namespace edm {
 
   void
   PoolOutputModule::fillDependencyGraph() {
-    for(BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
-        i != iEnd; ++i) {
-      BranchID const& child = i->first;
-      std::set<ParentageID> const& eIds = i->second;
-      for(std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
-          it != itEnd; ++it) {
+    for(auto const& branchParent : branchParents_) {
+      BranchID const& child = branchParent.first;
+      std::set<ParentageID> const& eIds = branchParent.second;
+      for(auto const& eId : eIds) {
         Parentage entryDesc;
-        ParentageRegistry::instance()->getMapped(*it, entryDesc);
+        ParentageRegistry::instance()->getMapped(eId, entryDesc);
         std::vector<BranchID> const& parents = entryDesc.parents();
-        for(std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
-          j != jEnd; ++j) {
-          branchChildren_.insertChild(*j, child);
+        for(auto const& parent : parents) {
+          branchChildren_.insertChild(parent, child);
         }
       }
     }

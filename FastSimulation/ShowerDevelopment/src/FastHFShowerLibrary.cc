@@ -16,6 +16,8 @@
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -49,7 +51,7 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
 
   edm::ESHandle<HcalDDDSimConstants>    hdc;
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
-  HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+  hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
 
   std::string name = "HcalHits";
   numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
@@ -118,4 +120,19 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
     }  // end of isItinFidVolume check 
   } // end loop over hits
 
+}
+
+void FastHFShowerLibrary::modifyDepth(uint32_t &id) {
+
+  HcalDetId hid(id);
+  if (hid.subdet() == HcalForward) {
+    int eta = hid.ieta();
+    int phi = hid.iphi();
+    if (hcalConstants->maxHFDepth(eta,phi) > 2) {
+      if (hid.depth() <= 2) {
+	int dep = (G4UniformRand() > 0.5) ? (2+hid.depth()) : hid.depth();
+	id = HcalDetId(HcalForward,eta,phi,dep).rawId();
+      }
+    }
+  }
 }

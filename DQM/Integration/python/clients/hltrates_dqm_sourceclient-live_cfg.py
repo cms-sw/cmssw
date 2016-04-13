@@ -46,9 +46,9 @@ process.dqmSaver.tag = "HLTRates"
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
-#---- for offline DB access
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'GR_E_V19::All'
+#---- for offline DB access: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, "74X_dataRun2_Express_v3", "")
 
 
 

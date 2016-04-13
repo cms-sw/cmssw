@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ME0GeometryWriter")
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
@@ -14,11 +14,10 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.ME0GeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
 
-process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-process.CondDBCommon.timetype = cms.untracked.string('runnumber')
-process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
+process.CondDB.timetype = cms.untracked.string('runnumber')
+process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDBCommon,
+                                          process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('ME0RecoGeometryRcd'),tag = cms.string('ME0RECO_Geometry_Test01'))
                                                             )
                                           )

@@ -58,6 +58,7 @@ static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 static const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
+static const lat::Regexp s_rxself  ("^[^()]*DQMStore::.*");
 static const lat::Regexp s_rxpbfile (".*\\.pb$");
 
 //////////////////////////////////////////////////////////////////////
@@ -629,22 +630,31 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   size = backtrace (array, 10);
   strings = backtrace_symbols (array, size);
 
-  if ((size > 4)
-      &&s_rxtrace.match(strings[4], 0, 0, &m))
-  {
-    char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
+  size_t level = 1;
+  char * demangled = nullptr; 
+  for (; level < size; level++) {
+    if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
+    demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), 0, 0, &r);
+    if (!demangled) continue;
+    if (!s_rxself.match(demangled, 0, 0)) break;
+    free(demangled);
+    demangled = nullptr;
+  }
+
+  if (demangled != nullptr) {
     *stream_ << "\"" << dir << "/"
            << name << "\" "
-           << (r ? m.matchString(strings[4], 2) : demangled) << " "
-           << m.matchString(strings[4], 1) << "\n";
+           << (r ? m.matchString(strings[level], 2) : demangled) << " "
+           << m.matchString(strings[level], 1) << "\n";
     free(demangled);
-  }
-  else
+  } else {
     *stream_ << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
+  }
+
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
-  if (verbose_ > 4)
+  if (verbose_ > 4 || demangled == nullptr)
   {
     size_t i;
     m.reset();
@@ -828,17 +838,24 @@ DQMStore::book(const std::string &dir, const std::string &name,
                 me->addQReport(qi->second);
     }
 
-    // Assign reference if we have one.
+    // If we just booked a (plain) MonitorElement, and there is a reference
+    // MonitorElement with the same name, link the two together.
+    // The other direction is handled by the extract method.
     std::string refdir;
-    refdir.reserve(s_referenceDirName.size() + dir.size() + 2);
+    refdir.reserve(s_referenceDirName.size() + dir.size() + 1);
     refdir += s_referenceDirName;
     refdir += '/';
     refdir += dir;
-
-    if (findObject(refdir, name))
-    {
+    MonitorElement* referenceME = findObject(refdir, name); 
+    if (referenceME) {
+      // We have booked a new MonitorElement with a specific dir and name.
+      // Then, if we can find the corresponding MonitorElement in the reference
+      // dir we assign the object_ of the reference MonitorElement to the 
+      // reference_ property of our new MonitorElement.
       me->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
+      me->reference_ = referenceME->object_;
     }
+
     // Return the monitor element.
     return me;
   }
@@ -2408,14 +2425,19 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     return false;
   }
 
-  // If we just read in a reference monitor element, and there is a
-  // monitor element with the same name, link the two together. The
-  // other direction is handled by the initialise() method.
+  // If we just read in a reference MonitorElement, and there is a
+  // MonitorElement with the same name, link the two together.
+  // The other direction is handled by the book() method.
   if (refcheck && isSubdirectory(s_referenceDirName, dir))
   {
     std::string mdir(dir, s_referenceDirName.size()+1, std::string::npos);
     if (MonitorElement *master = findObject(mdir, obj->GetName()))
     {
+      // We have extracted a MonitorElement, and it's located in the reference
+      // dir. Then we find the corresponding MonitorElement in the
+      // non-reference dir and assign the object_ of the reference
+      // MonitorElement to the reference_ property of the corresponding
+      // non-reference MonitorElement.
       master->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
       master->reference_ = refcheck->object_;
     }

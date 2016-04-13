@@ -145,10 +145,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuTrackCtfTracksOnia",
 
       "hltFEDSelector",
-      "hltL3TrajSeedOIHit",
-      "hltL3TrajSeedIOHit",
-      "hltL3NoFiltersTrajSeedOIHit",
-      "hltL3NoFiltersTrajSeedIOHit",
       "hltL3TrackCandidateFromL2OIState",
       "hltL3TrackCandidateFromL2OIHit",
       "hltL3TrackCandidateFromL2IOHit",
@@ -255,8 +251,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuonCSCDigis",
       "hltMuonDTDigis",
       "hltMuonRPCDigis",
-      "hltGtDigis",
-#      "hltL1GtTrigReport",
+#     "hltGtDigis",
+#     "hltL1GtTrigReport",
       #   "hltCsc2DRecHits",
       #   "hltDt1DRecHits",
       #   "hltRpcRecHits",
@@ -320,6 +316,8 @@ def customizeHLTforMC(process,_fastSim=False):
     import fnmatch,re
     ExplicitList = []
     HLTSchedule = tuple( path.label_() for path in process.HLTSchedule)
+    for path in HLTSchedule:
+      getattr(process,path).insert(1,process.HLTL1UnpackerSequence)
     for black in fastSimUnsupportedPaths:
       compiled = re.compile(fnmatch.translate(black))
       for path in HLTSchedule:
@@ -419,8 +417,8 @@ def customizeHLTforMC(process,_fastSim=False):
 # Update InputTags
 
     InputTags = (
-      ('hltGtDigis','gtDigis'),
-      ('hltL1GtObjectMap','gtDigis'),
+#     ('hltGtDigis','gtDigis'),
+#     ('hltL1GtObjectMap','gtDigis'),
       ('hltEcalDigis:ebDigis','ecalDigis:ebDigis'),
       ('hltEcalDigis:eeDigis','ecalDigis:eeDigis'),
       ('hltMuonCSCDigis','muonCSCDigis'),
@@ -481,7 +479,7 @@ def customizeHLTforMC(process,_fastSim=False):
 
 # Update top-level named parameters
     NamedParameters = (
-      ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
+#     ('GMTReadoutCollection',cms.InputTag('gtDigis'),cms.InputTag('gmtDigis')),
       ('killDeadChannels',cms.bool(True),cms.bool(False)),
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
@@ -504,6 +502,20 @@ def customizeHLTforMC(process,_fastSim=False):
     fastsim.extend(process)
     fastsim.setSchedule_(fastsim.schedule)
     fastsim.prune()
+
+# muon seeds
+    import FastSimulation.HighLevelTrigger.full2fast as full2fast
+    if hasattr(fastsim,"hltL3TrajSeedOIHit"):
+      full2fast.modify_hltL3TrajSeedOIHit(fastsim.hltL3TrajSeedOIHit)
+    if hasattr(fastsim,"hltL3NoFiltersTrajSeedOIHit"):
+      full2fast.modify_hltL3TrajSeedOIHit(fastsim.hltL3NoFiltersTrajSeedOIHit)
+    if hasattr(fastsim,"hltL3TrajSeedIOHit"):
+      full2fast.modify_hltL3TrajSeedIOHit(fastsim.hltL3TrajSeedIOHit)
+    if hasattr(fastsim,"hltL3NoFiltersTrajSeedIOHit"):
+      full2fast.modify_hltL3NoFiltersTrajSeedIOHit(fastsim.hltL3NoFiltersTrajSeedIOHit)
+
+    if hasattr(fastsim,'hltL1extraParticles'):
+      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
 
     return fastsim
 

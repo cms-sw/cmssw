@@ -17,15 +17,16 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "TRandom3.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFReconstruction.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFinputMaker.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
+
+
 
 class L1TMuonOverlapParams;
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
-class OMTFinputMaker;
-class OMTFSorter;
-class OMTFinput;
 class XMLConfigWriter;
 
 
@@ -60,27 +61,9 @@ class L1TMuonOverlapTrackProducer : public edm::EDProducer {
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
   edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
 
-  void processCandidates(unsigned int iProcessor, int bx,
-			 std::auto_ptr<l1t::RegionalMuonCandBxCollection > & myCands,
-			 l1t::RegionalMuonCandBxCollection & myOTFCandidates,
-			 l1t::tftype mtfType);
+  bool dumpResultToXML, dumpDetailedResultToXML;
 
-  void writeMergedGPs();
-
-  bool dumpResultToXML, dumpDetailedResultToXML, dumpGPToXML;
-
-  ///OMTF objects
-  OMTFConfiguration *myOMTFConfig;
-  OMTFinputMaker *myInputMaker;
-  OMTFSorter *mySorter;
-  OMTFProcessor *myOMTF;
-  OMTFinput *myInputXML;
-  ///
-  xercesc::DOMElement *aTopElement;
-  OMTFConfigMaker *myOMTFConfigMaker;
-  XMLConfigWriter *myWriter;
-  std::shared_ptr<L1TMuonOverlapParams> omtfParams;
-  ///
+  OMTFReconstruction m_Reconstruction;
 
 };
 

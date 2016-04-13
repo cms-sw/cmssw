@@ -375,11 +375,7 @@ namespace xsd
          * @return A reference to the instance.
          */
         type&
-        operator= (const type& x)
-        {
-          while (&x == 0) /* unused */;
-          return *this;
-        }
+        operator= (const type& x) = delete;
 
         // Container API.
         //

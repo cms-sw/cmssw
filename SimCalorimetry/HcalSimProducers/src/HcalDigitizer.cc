@@ -36,6 +36,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 
 //#define DebugLog
 
@@ -107,6 +108,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCElectronicsSim(0),
   theUpgradeHBHEElectronicsSim(0),
   theUpgradeHFElectronicsSim(0),
+  theHFQIE10ElectronicsSim(0),
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
@@ -123,6 +125,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCDigitizer(0),
   theHBHEUpgradeDigitizer(0),
   theHFUpgradeDigitizer(0),
+  theHFQIE10Digitizer(0),
   theRelabeller(0),
   isZDC(true),
   isHCAL(true),
@@ -157,6 +160,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
+  bool doHFQIE10 = ps.getParameter<bool>("HFQIE10");
+  bool doHFQIE8 = ps.getParameter<bool>("HFQIE8");
 
   if(PreMix1 && PreMix2) {
      throw cms::Exception("Configuration")
@@ -190,6 +195,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory, PreMix1);
   theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory, PreMix1);
   theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1);
+  theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1); //should this use a different coder factory?
 
 //  std::cout << "HcalDigitizer: theUpgradeElectronicsSim created" <<  std::endl; 
 
@@ -265,7 +271,11 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
-  if (doHFUpgrade) {
+  if (doHFQIE10 || doHFQIE8) { //QIE8 and QIE10 can coexist in HF
+    if(doHFQIE10) theHFQIE10Digitizer = new QIE10Digitizer(theHFResponse, theHFQIE10ElectronicsSim, doEmpty);
+	if(doHFQIE8) theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
+  }
+  else if (doHFUpgrade) {
     theHFUpgradeDigitizer = new UpgradeDigitizer(theHFResponse, theUpgradeHFElectronicsSim, doEmpty);
 
 //    std::cout << "HcalDigitizer: theHFUpgradeDigitizer created" << std::endl;
@@ -278,9 +288,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   edm::ParameterSet ps0 = ps.getParameter<edm::ParameterSet>("HcalReLabel");
   relabel_ = ps0.getUntrackedParameter<bool>("RelabelHits");
 //  std::cout << "Flag to see if Hit Relabeller to be initiated " << relabel_ << std::endl;
-  if (relabel_) {
-    theRelabeller=new HcalHitRelabeller(ps0.getUntrackedParameter<edm::ParameterSet>("RelabelRules"));
-  }     
+  if (relabel_) theRelabeller=new HcalHitRelabeller(ps0);
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
@@ -315,6 +323,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
 //      std::cout << "HcalDigitizer: theHFUpgradeDigitizer setNoise" << std::endl;
     }
+	if(theHFQIE10Digitizer) theHFQIE10Digitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
 
@@ -369,6 +378,7 @@ void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
   noiseGenerator->setElectronicsSim(theHFElectronicsSim);
   if(theHFDigitizer) theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setNoiseSignalGenerator(noiseGenerator);
+  if(theHFQIE10Digitizer) theHFQIE10Digitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
@@ -397,6 +407,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theZDCAmplifier->setDbService(conditions.product());
   theUpgradeHBHEElectronicsSim->setDbService(conditions.product());
   theUpgradeHFElectronicsSim->setDbService(conditions.product());
+  theHFQIE10ElectronicsSim->setDbService(conditions.product());
 
   theCoderFactory->setDbService(conditions.product());
   theUpgradeCoderFactory->setDbService(conditions.product());
@@ -428,6 +439,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   if(theHODigitizer) theHODigitizer->initializeHits();
   if(theHOSiPMDigitizer) theHOSiPMDigitizer->initializeHits();
   if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->initializeHits();
+  if(theHFQIE10Digitizer) theHFQIE10Digitizer->initializeHits();
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->initializeHits();
   if(theHFDigitizer) theHFDigitizer->initializeHits();
   theZDCDigitizer->initializeHits();
@@ -457,7 +469,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       DetId id(hcalHitsOrig[i].id());
       HcalDetId hid(id);
       if (!htopoP->validHcal(hid)) {
-	edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
+	edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid << std::endl;
       } else {
 #ifdef DebugLog
 	std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
@@ -490,6 +502,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
     if(hfgeo) {
       if(theHFDigitizer) theHFDigitizer->add(hcalHits, bunchCrossing, engine);
       if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->add(hcalHits, bunchCrossing, engine);
+      if(theHFQIE10Digitizer) theHFQIE10Digitizer->add(hcalHits, bunchCrossing, engine);
     } 
   } else {
     edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
@@ -551,6 +564,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
   std::auto_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
   std::auto_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
+  std::auto_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection());
 
   // Step C: Invoke the algorithm, getting back outputs.
   if(isHCAL&&hbhegeo){
@@ -570,6 +584,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   if(isHCAL&&hfgeo) {
     if(theHFDigitizer) theHFDigitizer->run(*hfResult, engine);
     if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->run(*hfupgradeResult, engine);
+    if(theHFQIE10Digitizer) theHFQIE10Digitizer->run(*hfQIE10Result, engine);
   }
   if(isZDC&&zdcgeo) {
     theZDCDigitizer->run(*zdcResult, engine);
@@ -581,6 +596,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL ZDC digis   : " << zdcResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF upgrade digis : " << hfupgradeResult->size();
+  edm::LogInfo("HcalDigitizer") << "HCAL HF QIE10 digis : " << hfQIE10Result->size();
 
 #ifdef DebugLog
   std::cout << std::endl;
@@ -601,9 +617,12 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(zdcResult);
   e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
   e.put(hfupgradeResult, "HFUpgradeDigiCollection");
+  e.put(hfQIE10Result, "HFQIE10DigiCollection");
+
 #ifdef DebugLog
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
 #endif
+
   if(theHitCorrection) {
     theHitCorrection->clear();
   }
@@ -666,7 +685,10 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
   //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
   buildHOSiPMCells(hoCells, eventSetup);
-  if(theHFDigitizer) theHFDigitizer->setDetIds(hfCells);
+  //handle mixed QIE8/10 scenario in HF
+  if(theHFDigitizer && theHFQIE10Digitizer) buildHFQIECells(hfCells,eventSetup);
+  else if(theHFDigitizer) theHFDigitizer->setDetIds(hfCells);
+  else if(theHFQIE10Digitizer) theHFQIE10Digitizer->setDetIds(hfCells);
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
   if(theHBHEUpgradeDigitizer) {
@@ -678,6 +700,44 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
 
 }
 
+void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
+	//if results are already cached, no need to look again
+	if(theHFQIE8DetIds.size()>0 || theHFQIE10DetIds.size()>0) return;
+	
+	//get the QIETypes
+	edm::ESHandle<HcalQIETypes> q;
+    eventSetup.get<HcalQIETypesRcd>().get(q);
+	edm::ESHandle<HcalTopology> htopo;
+    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+   
+    HcalQIETypes qieTypes(*q.product());
+    if (qieTypes.topo()==0) {
+      qieTypes.setTopo(htopo.product());
+    }
+	
+	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
+      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
+      if(qieType == QIE8) {
+        theHFQIE8DetIds.push_back(*detItr);
+      } else if(qieType == QIE10) {
+        theHFQIE10DetIds.push_back(*detItr);
+      } else { //default is QIE8
+        theHFQIE8DetIds.push_back(*detItr);
+      }
+    }
+	
+	if(theHFQIE8DetIds.size()>0) theHFDigitizer->setDetIds(theHFQIE8DetIds);
+	else {
+		delete theHFDigitizer;
+		theHFDigitizer = NULL;
+	}
+	
+	if(theHFQIE10DetIds.size()>0) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+	else {
+		delete theHFQIE10Digitizer;
+		theHFQIE10Digitizer = NULL;
+	}
+}
 
 void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
   // all HPD

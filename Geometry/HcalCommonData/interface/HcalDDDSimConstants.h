@@ -31,6 +31,7 @@ public:
 				 int iphi) const;
   std::vector<std::pair<double,double> > getConstHBHE(const int type) const;
   int                       getDepthEta16(int i) const {return ((i==1) ? depthEta16[1] : depthEta16[0]);}
+  int                       getDepthEta29(int i) const {return ((i==1) ? depthEta29[1] : depthEta29[0]);}
   std::pair<int,double>     getDetEta(double eta, int depth);
   int                       getEta(int det,int lay, double hetaR);
   std::pair<int,int>        getEtaDepth(int det, int etaR, int phi, int depth,

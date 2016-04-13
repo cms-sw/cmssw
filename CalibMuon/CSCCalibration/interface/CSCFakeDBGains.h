@@ -17,8 +17,6 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-#include <boost/shared_ptr.hpp>
-
 class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBGains(const edm::ParameterSet&);
@@ -26,7 +24,7 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
 
       inline static CSCDBGains* prefillDBGains(); 
 
-      typedef boost::shared_ptr<CSCDBGains> Pointer;
+      typedef std::shared_ptr<CSCDBGains> Pointer;
       Pointer produceDBGains(const CSCDBGainsRcd&);
 
    private:

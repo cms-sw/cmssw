@@ -139,7 +139,7 @@ process.multiTrackValidator.UseAssociators = True
 #process.cutsRecoTracks.maxRapidity  = 1.0
 
 process.quickTrackAssociatorByHits.useClusterTPAssociation = True
-process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
 
 # BEGIN FASTSIM SPECIFIC: FastSim should not have the tpClusterProducer
 # note, if quickTrackAssociatorByHits fails to find the product from tpClusterProducer

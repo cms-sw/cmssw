@@ -12,7 +12,19 @@ ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("Trigge
 #ALCARECODtCalibHLTFilter.andOr = True ## choose logical OR between Triggerbits
 
 
-# ------------------------------------------------------------------------------
+# ****************************************************************************
+# ** Uncomment the following lines to set the LVL1 bit filter for the HTTxx **
+# ****************************************************************************
+
+#from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
+#from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
+#HTTFilter = hltLevel1GTSeed.clone(  
+#              #L1SeedsLogicalExpression = cms.string("L1_HTT125 OR L1_HTT150 OR L1_HTT175" ),
+#              L1SeedsLogicalExpression = cms.string("L1_HTT125 OR L1_HTT150"),
+#              L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+#            )
+# ----------------------------------------------------------------------------
+
 
 
 # FIXME: are the following blocks needed?
@@ -74,16 +86,21 @@ ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTr
 
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
 ALCARECOSiStripCalib = SiStripCalib.clone()
-ALCARECOSiStripCalib.AlgoMode = cms.untracked.string('PCL')
+ALCARECOSiStripCalib.AlgoMode            = cms.untracked.string('PCL')
+#ALCARECOSiStripCalib.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
 ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
-ALCARECOSiStripCalib.harvestingMode    = cms.untracked.bool(False)
+ALCARECOSiStripCalib.harvestingMode      = cms.untracked.bool(False)
+ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')
 ALCARECOSiStripCalib.doStoreOnDB         = cms.bool(False)
-ALCARECOSiStripCalib.gain.label    = cms.untracked.string('ALCARECOShallowGainCalibration')
-ALCARECOSiStripCalib.evtinfo.label = cms.untracked.string('ALCARECOShallowEventRun')
-ALCARECOSiStripCalib.tracks.label  = cms.untracked.string('ALCARECOShallowTracks')
+ALCARECOSiStripCalib.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibration')
+ALCARECOSiStripCalib.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')
+ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallowTracks')
+# ----------------------------------------------------------------------------
 
 
-# ------------------------------------------------------------------------------
+# ****************************************************************************
+# ** Conversion for the SiStripGain DQM dir not used for split statistics   **
+# ****************************************************************************
 MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
                                             Name = cms.untracked.string('MEtoEDMConverter'),
                                             Verbosity = cms.untracked.int32(0), # 0 provides no output
@@ -94,12 +111,7 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
                                             deleteAfterCopy = cms.untracked.bool(False)
 )
 
-
-
-
-
-
-# the actual sequence
+# The actual sequence
 seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
    ALCARECOCalMinBiasFilterForSiStripGains *
    ALCARECOTrackFilterRefit *
@@ -107,5 +119,3 @@ seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
    ALCARECOSiStripCalib *
    MEtoEDMConvertSiStripGains
 )
-
-

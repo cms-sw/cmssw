@@ -91,8 +91,7 @@ public:
 
   // In order to share the physics list with the worker threads, we
   // need a non-const pointer. Thread-safety is handled inside Geant4
-  // with TLS. Should we consider a friend declaration here in order
-  // to avoid misuse?
+  // with TLS. 
   PhysicsList *physicsListForWorker() const {
     return m_physicsList.get();
   }
@@ -100,8 +99,7 @@ public:
   // In order to share the ChordFinderSetter (for
   // G4MonopoleTransportation) with the worker threads, we need a
   // non-const pointer. Thread-safety is handled inside
-  // ChordFinderStter with TLS. Should we consider a friend
-  // declaration here in order to avoid misuse?
+  // ChordFinderStter with TLS. 
   sim::ChordFinderSetter *chordFinderSetterForWorker() const {
     return m_chordFinderSetter.get();
   }

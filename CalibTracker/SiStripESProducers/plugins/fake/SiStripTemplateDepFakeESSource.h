@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -27,7 +26,7 @@ class SiStripTemplateDepFakeESSource : public edm::ESProducer, public edm::Event
   ~SiStripTemplateDepFakeESSource(){};
   
   
-  std::auto_ptr<TObject> produce(const TRecord&);
+  std::unique_ptr<TObject> produce(const TRecord&);
   
 private:
   
@@ -47,7 +46,7 @@ SiStripTemplateDepFakeESSource<TObject,TRecord,TService,DepTRecord,DepTObj>::SiS
 }
 
 template< typename TObject , typename TRecord, typename TService, typename DepTRecord, typename DepTObj>
-std::auto_ptr<TObject> SiStripTemplateDepFakeESSource<TObject,TRecord,TService,DepTRecord,DepTObj>::produce(const TRecord& iRecord)
+std::unique_ptr<TObject> SiStripTemplateDepFakeESSource<TObject,TRecord,TService,DepTRecord,DepTObj>::produce(const TRecord& iRecord)
 {
   edm::ESHandle<DepTObj> depObjHandle;
   iRecord.template getRecord<DepTRecord>().get(depObjHandle);
@@ -56,7 +55,7 @@ std::auto_ptr<TObject> SiStripTemplateDepFakeESSource<TObject,TRecord,TService,D
   edm::Service<TService> condObjBuilder;
   TObject *obj=0; 
   condObjBuilder->getObj(obj,depObject);
-  std::auto_ptr<TObject> ptr(obj);
+  std::unique_ptr<TObject> ptr(obj);
   return ptr;
 }
 

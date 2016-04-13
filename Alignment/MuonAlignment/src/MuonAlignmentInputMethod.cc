@@ -60,13 +60,13 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 //
 
 AlignableMuon *MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 }
 
-boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
+std::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
    edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get(cpv);
 
@@ -74,13 +74,13 @@ boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const ed
    iSetup.get<MuonNumberingRecord>().get(mdc);
    DTGeometryBuilderFromDDD DTGeometryBuilder;
 
-   boost::shared_ptr<DTGeometry> boost_dtGeometry(new DTGeometry );
+   auto boost_dtGeometry = std::make_shared<DTGeometry>();
    DTGeometryBuilder.build(boost_dtGeometry, &(*cpv), *mdc);
 
    return boost_dtGeometry;
 }
 
-boost::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {
+std::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {
    edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get(cpv);
 
@@ -88,7 +88,7 @@ boost::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const 
    iSetup.get<MuonNumberingRecord>().get(mdc);
    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-   boost::shared_ptr<CSCGeometry> boost_cscGeometry(new CSCGeometry);
+   auto boost_cscGeometry = std::make_shared<CSCGeometry>();
    CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
 
    return boost_cscGeometry;

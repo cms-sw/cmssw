@@ -25,7 +25,7 @@ Example: register one Factory that creates a proxy that takes no arguments
 
    FooProd::FooProd(const edm::ParameterSet&) {
       typedef edm::eventsetup::ProxyFactoryTemplate<FooProxy> > TYPE;
-      registerFactory(std::auto_ptr<TYPE>(new TYPE());
+      registerFactory(std::make_unique<TYPE>();
    };
    
 \endcode
@@ -39,7 +39,7 @@ class BarProd : public edm::ESProxyFactoryProducer { ... };
 
 BarProd::BarProd(const edm::ParameterSet& iPS) {
    typedef edm::eventsetup::ProxyArgumentFactoryTemplate<FooProxy, edm::ParmeterSet> TYPE;
-   registerFactory(std::auto_ptr<TYPE>(new TYPE(iPS));
+   registerFactory(std::make_unique<TYPE>(iPS);
 };
 
 \endcode
@@ -97,24 +97,24 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
       virtual void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
                                     KeyedProxies& aProxyList) ;
 
-      /** \param iFactory auto_ptr holding a new instance of a Factory
+      /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
          Producer takes ownership of the Factory and uses it create the appropriate
          Proxy which is then registered with the EventSetup.  If used, this method should
          be called in inheriting class' constructor.
       */
       template< class TFactory>
-         void registerFactory(std::auto_ptr<TFactory> iFactory,
+         void registerFactory(std::unique_ptr<TFactory> iFactory,
                               const std::string& iLabel = std::string()) {
-            std::auto_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
+            std::unique_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
             registerFactoryWithKey(
                                    eventsetup::EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
-                                   temp,
+                                   std::move(temp),
                                    iLabel);
          }
       
       virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                          std::auto_ptr<eventsetup::ProxyFactoryBase>& iFactory,
+                                          std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
                                           const std::string& iLabel= std::string() );
 
    private:

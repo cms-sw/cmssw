@@ -1,5 +1,5 @@
 #ifndef Validation_RPCRecHits_RPCRecHitValidClient_h
-#define Validaiton_RPCRecHits_RPCRecHitValidClient_h
+#define Validation_RPCRecHits_RPCRecHitValidClient_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -27,4 +27,4 @@ private:
   std::string subDir_;
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCRecHitValidClient_h

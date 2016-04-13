@@ -1,4 +1,4 @@
-#ifndef DataMixingMuonWorker_h
+#ifndef SimDataMixingMuonWorker_h
 #define SimDataMixingMuonWorker_h
 
 /** \class DataMixingMuonWorker
@@ -109,4 +109,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingMuonWorker_h

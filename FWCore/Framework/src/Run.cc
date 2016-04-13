@@ -34,8 +34,8 @@ namespace edm {
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    runPrincipal().getAllProvenance(provenances);
+  Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    runPrincipal().getAllStableProvenance(provenances);
   }
 
 /* Not yet fully implemented
@@ -100,17 +100,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-  void
-  Run::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   BasicHandle
   Run::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
-    if(h.isValid()) {
-      addToGotBranchIDs(*(h.provenance()));
-    }
     return h;
   }
 }

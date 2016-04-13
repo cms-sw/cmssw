@@ -117,6 +117,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
               "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+	      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
               "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
               #dilepton path for the 7e33 menu at 25ns
@@ -163,7 +164,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),        
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
             "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
             "HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v",
             "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
@@ -275,11 +276,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     VBFHbb_2btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq200_v",
-            "HLT_QuadPFJet_BTagCSV_p037_0p11_VBF_Mqq240_v",
-	    # old csv version
-	    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
-            "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v"
+            "HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_v",
+            "HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
@@ -289,11 +287,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     VBFHbb_1btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_QuadPFJet_BTagCSV_p037_VBF_Mqq460_v",
-            "HLT_QuadPFJet_BTagCSV_p037_VBF_Mqq500_v",
-	    # old csv version
-            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v",
-            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
+            "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_v",
+            "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
@@ -383,11 +378,17 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p026_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p014_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_v",
+            "HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v",
+
 	    # old csv version
             "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
             "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
             "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
+
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),

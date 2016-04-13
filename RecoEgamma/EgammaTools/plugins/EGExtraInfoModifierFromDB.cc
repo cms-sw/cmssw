@@ -93,6 +93,7 @@ private:
   edm::InputTag vtxTag_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::Handle<reco::VertexCollection> vtxH_;
+  bool applyExtraHighEnergyProtection_;
 
   const edm::EventSetup* iSetup_;
 
@@ -112,6 +113,7 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
 
   bunchspacing_ = 450;
   autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
+  applyExtraHighEnergyProtection_ = conf.getParameter<bool>("applyExtraHighEnergyProtection");
 
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
   vtxTag_ = conf.getParameter<edm::InputTag>("vertexCollection");
@@ -531,7 +533,9 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   // CODE FOR STANDARD BDT
   double weight = 0.;
   if ( eOverP > 0.025 && 
-       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) ) {
+       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) &&
+       (!applyExtraHighEnergyProtection_ || ((momentumError < 10.*ep) || (ecor < 200.)))
+       ) {
     // protection against crazy track measurement
     weight = ep_forestH_weight_->GetResponse(eval_ep);
     if(weight>1.) 

@@ -14,6 +14,7 @@ import FWCore.ParameterSet.Config as cms
 
 class ppRun2B0T(Reco):
     def __init__(self):
+        Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
     """
@@ -36,9 +37,9 @@ class ppRun2B0T(Reco):
             args['skims']=['@allForPrompt']
 
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2B0T']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2DeprecatedB0T']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2B0T')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2DeprecatedB0T')
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -55,9 +56,9 @@ class ppRun2B0T(Reco):
         if not 'skims' in args:
             args['skims']=['@allForExpress']
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2DeprecatedB0T']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2DeprecatedB0T')
 
 
         process = Reco.expressProcessing(self,globalTag, **args)
@@ -72,9 +73,9 @@ class ppRun2B0T(Reco):
 
         """
         if not 'customs' in args:
-            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T']
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2DeprecatedB0T']
         else:
-            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T')
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2DeprecatedB0T')
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         

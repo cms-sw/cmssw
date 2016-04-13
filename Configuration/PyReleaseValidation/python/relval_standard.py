@@ -249,7 +249,7 @@ workflows[1339] = ['', ['QCD_Pt_600_800_13','DIGIUP15','RECOUP15','HARVESTUP15']
 
 workflows[1347] = ['', ['Upsilon1SToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1349] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1350] = ['', ['JpsiMuMu_Pt-15','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1350] = ['', ['JpsiMuMu_Pt-8','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATTUP15']]
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
@@ -284,6 +284,9 @@ workflows[1352] = ['', ['HSCPstop_M_200_13','DIGIUP15','RECOUP15','HARVESTUP15']
 workflows[1353] = ['', ['RSGravitonToGaGa_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1354] = ['', ['WpToENu_M-2000_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+# fullSim 13TeV normal workflows  wrapped from extended generator
+workflows[1360] = ['', ['TTbar012Jets_NLO_Mad_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 
 ### HI test ###

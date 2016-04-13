@@ -20,14 +20,14 @@ namespace edm {
     IfExistsDescription(ParameterDescriptionNode const& node_left,
                         ParameterDescriptionNode const& node_right);
 
-    IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+    IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                         ParameterDescriptionNode const& node_right);
 
     IfExistsDescription(ParameterDescriptionNode const& node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
-    IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+    IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
     virtual ParameterDescriptionNode* clone() const {
       return new IfExistsDescription(*this);
@@ -51,15 +51,15 @@ namespace edm {
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
-                        DocFormatHelper & dfh);
+                        DocFormatHelper & dfh) const;
 
-    virtual bool hasNestedContent_() {
+    virtual bool hasNestedContent_() const {
       return true;
     }
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & dfh);
+                                     DocFormatHelper & dfh) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 

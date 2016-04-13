@@ -123,7 +123,7 @@ namespace cond {
       }
       
     private:
-      boost::shared_ptr<DataT> m_data;
+      std::shared_ptr<DataT> m_data;
       Hash m_currentPayloadId;
     };
     

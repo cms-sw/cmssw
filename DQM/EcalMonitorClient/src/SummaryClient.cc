@@ -54,8 +54,6 @@ namespace ecaldqm
   void
   SummaryClient::producePlots(ProcessType _pType)
   {
-    if(_pType == kLumi && !onlineMode_) return;
-    // TODO: Implement offline per-lumi summary
 
     MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
     MESet& meReportSummary(MEs_.at("ReportSummary"));
@@ -80,7 +78,7 @@ namespace ecaldqm
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
     MESet& meReportSummaryMap(MEs_.at("ReportSummaryMap"));
 
-    MESet const& sIntegrity(sources_.at("Integrity"));
+    MESet const* sIntegrity(using_("Integrity") ? &sources_.at("Integrity") : 0);
     MESet const& sRawData(sources_.at("RawData"));
     MESet const* sPresample(using_("Presample") ? &sources_.at("Presample") : 0);
     MESet const* sTiming(using_("Timing") ? &sources_.at("Timing") : 0);
@@ -98,19 +96,16 @@ namespace ecaldqm
     std::map<uint32_t, int> badChannelsCount;
 
     MESet::iterator qEnd(meQualitySummary.end());
-    MESet::const_iterator iItr(sIntegrity);
     for(MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       DetId id(qItr->getId());
       unsigned iDCC(dccId(id) - 1);
 
-      iItr = qItr;
-
-      int integrity(iItr->getBinContent());
+      int integrity(sIntegrity ? sIntegrity->getBinContent(id) : kUnknown);
 
       if(integrity == kUnknown || integrity == kMUnknown){
         qItr->setBinContent(integrity);
-        continue;
+        if ( onlineMode_ ) continue;
       }
 
       int presample(sPresample ? sPresample->getBinContent(id) : kUnknown);
@@ -124,7 +119,8 @@ namespace ecaldqm
       if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
 
       int status(kGood);
-      if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
+      //if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
+      if(integrity == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
         status = kBad;
       else if(integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown && trigprim == kUnknown)
         status = kUnknown;
@@ -225,6 +221,3 @@ namespace ecaldqm
 
   DEFINE_ECALDQM_WORKER(SummaryClient);
 }
-
-
-

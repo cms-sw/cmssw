@@ -24,6 +24,13 @@ namespace hcaldqm
 		_xaxis(xaxis), _yaxis(yaxis)
 	{}
 
+	ContainerSingle1D::ContainerSingle1D(ContainerSingle1D const& c):
+		Container(c._folder, c._name)
+	{
+		_xaxis = c._xaxis->makeCopy();
+		_yaxis = c._yaxis->makeCopy();
+	}
+
 	/* virtual */ void ContainerSingle1D::initialize(std::string const& folder,
 		std::string const& nametitle,
 		Axis *xaxis, Axis *yaxis, int debug/*=0*/)

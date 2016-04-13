@@ -34,7 +34,7 @@ ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet & p)
 ME0GeometryESModule::~ME0GeometryESModule(){}
 
 
-boost::shared_ptr<ME0Geometry>
+std::shared_ptr<ME0Geometry>
 ME0GeometryESModule::produce(const MuonGeometryRecord & record) 
 {
   if(useDDD){
@@ -43,12 +43,12 @@ ME0GeometryESModule::produce(const MuonGeometryRecord & record)
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     ME0GeometryBuilderFromDDD builder;
-    return boost::shared_ptr<ME0Geometry>(builder.build(&(*cpv), *mdc));
+    return std::shared_ptr<ME0Geometry>(builder.build(&(*cpv), *mdc));
   }else{
     edm::ESHandle<RecoIdealGeometry> rigme0;
     record.getRecord<ME0RecoGeometryRcd>().get(rigme0);
     ME0GeometryBuilderFromCondDB builder;
-    return boost::shared_ptr<ME0Geometry>(builder.build(*rigme0));
+    return std::shared_ptr<ME0Geometry>(builder.build(*rigme0));
   }
 }
 

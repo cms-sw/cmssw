@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+
 #include "HLTrigger/HLTfilters/interface/HLTL1TSeed.h"
 
 using namespace std;
@@ -31,68 +33,55 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   HLTStreamFilter(parSet),
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
   m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
-  // InputTag for the L1 Global Trigger DAQ readout record
-  //m_l1GtReadoutRecordTag(parSet.getParameter<edm::InputTag> ( "L1GtReadoutRecordTag")),
-  //m_l1GtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordTag)),
-  // InputTag for L1 Global Trigger object maps
-  m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1GtObjectMapTag")),
+  m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1ObjectMapInputTag")),
   m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag)),
-  //dummyTag(parSet.getParameter<edm::InputTag>("myDummyTag")), // FIX WHEN UNPACKERS ADDED
-  m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("muonCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  m_l1GlobalTag(parSet.getParameter<edm::InputTag> ("L1GlobalInputTag")),
+  m_l1GlobalToken(consumes<GlobalAlgBlkBxCollection>(m_l1GlobalTag)),
+  m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("L1MuonInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1MuonTag(m_l1MuonCollectionsTag),
   m_l1MuonToken(consumes<l1t::MuonBxCollection>(m_l1MuonTag)),
-  m_l1EGammaCollectionsTag(parSet.getParameter<edm::InputTag>("egammaCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  m_l1EGammaCollectionsTag(parSet.getParameter<edm::InputTag>("L1EGammaInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1EGammaTag(m_l1EGammaCollectionsTag),
   m_l1EGammaToken(consumes<l1t::EGammaBxCollection>(m_l1EGammaTag)),
-  m_l1JetCollectionsTag(parSet.getParameter<edm::InputTag>("jetCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  m_l1JetCollectionsTag(parSet.getParameter<edm::InputTag>("L1JetInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1JetTag(m_l1JetCollectionsTag),
   m_l1JetToken(consumes<l1t::JetBxCollection>(m_l1JetTag)),
-  m_l1TauCollectionsTag(parSet.getParameter<edm::InputTag>("tauCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  m_l1TauCollectionsTag(parSet.getParameter<edm::InputTag>("L1TauInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1TauTag(m_l1TauCollectionsTag),
   m_l1TauToken(consumes<l1t::TauBxCollection>(m_l1TauTag)),
-  m_l1EtSumCollectionsTag(parSet.getParameter<edm::InputTag>("etsumCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  m_l1EtSumCollectionsTag(parSet.getParameter<edm::InputTag>("L1EtSumInputTag")), // FIX WHEN UNPACKERS ADDED
   m_l1EtSumTag(m_l1EtSumCollectionsTag),
   m_l1EtSumToken(consumes<l1t::EtSumBxCollection>(m_l1EtSumTag)),
+  m_l1GlobalDecision(false),
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
+  if (m_l1SeedsLogicalExpression == "") {
 
-  //m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
+    throw cms::Exception("FailModule") << "\nTrying to seed with an empty L1SeedsLogicalExpression.\n" << std::endl;
 
-  //m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
-  //m_l1GtObjectMapTag = edm::InputTag("L1GtObjectMapTag");
-  //m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
-  
+  }
+  else if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
-  
-  if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
+    // check also the logical expression - add/remove spaces if needed
+    m_l1AlgoLogicParser = L1GtLogicParser(m_l1SeedsLogicalExpression);
 
-        // check also the logical expression - add/remove spaces if needed
-        m_l1AlgoLogicParser = L1GtLogicParser(m_l1SeedsLogicalExpression);
+    // list of required algorithms for seeding
+    // dummy values for tokenNumber and tokenResult
+    m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
+    m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
+    size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
 
-        // list of required algorithms for seeding
-        // dummy values for tokenNumber and tokenResult
-        m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
-        m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
-        size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
+    m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
+    m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
 
-        m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
-        m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
+  } 
+  else {
 
-  } else {
-
-      
-      m_l1GlobalDecision = true;
+    m_l1GlobalDecision = true;
 
   }
 
-  //LogDebug("HLTL1TSeed") 
-  //<< "\n";
-    //<< "L1 Seeding using L1 trigger object maps:       "
-    //<< useL1TriggerObjectMaps_ << "\n"
-    //<< "  if false: seeding with all L1T objects\n"
-    //<< "L1 Seeds Logical Expression:                   " << "\n      "
-    //<< logicalExpression_ << "\n";
 }
 
 // destructor
@@ -107,15 +96,6 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
 
-  // # default: true
-  // #    seeding done via L1 trigger object maps, with objects that fired
-  // #    only objects from the central BxInEvent (L1A) are used
-  // # if false:
-  // #    seeding is done ignoring if a L1 object fired or not,
-  // #    adding all L1EXtra objects corresponding to the object types
-  // #    used in all conditions from the algorithms in logical expression
-  // #    for a given number of BxInEvent
-  //desc.add<bool>("L1UseL1TriggerObjectMaps",true);
 
   // # logical expression for the required L1 algorithms;
   // # the algorithms are specified by name
@@ -123,16 +103,14 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
   desc.add<string>("L1SeedsLogicalExpression","");
-  desc.add<edm::InputTag>("L1GtObjectMapTag",edm::InputTag("simGtStage2Digis"));
-
-  desc.add<edm::InputTag>("muonCollectionsTag",edm::InputTag("simGmtStage2Digis"));
-  desc.add<edm::InputTag>("egammaCollectionsTag",edm::InputTag("simCaloStage2Digis"));
-  desc.add<edm::InputTag>("jetCollectionsTag",edm::InputTag("simCaloStage2Digis"));
-  desc.add<edm::InputTag>("tauCollectionsTag",edm::InputTag("simCaloStage2Digis"));
-  desc.add<edm::InputTag>("etsumCollectionsTag",edm::InputTag("simCaloStage2Digis"));
-
+  desc.add<edm::InputTag>("L1ObjectMapInputTag",edm::InputTag("hltGtStage2ObjectMap"));
+  desc.add<edm::InputTag>("L1GlobalInputTag",edm::InputTag("hltGtStage2Digis"));
+  desc.add<edm::InputTag>("L1MuonInputTag",edm::InputTag("hltGmtStage2Digis:Muon"));
+  desc.add<edm::InputTag>("L1EGammaInputTag",edm::InputTag("hltCaloStage2Digis:EGamma"));
+  desc.add<edm::InputTag>("L1JetInputTag",edm::InputTag("hltCaloStage2Digis:Jet"));
+  desc.add<edm::InputTag>("L1TauInputTag",edm::InputTag("hltCaloStage2Digis:Tau"));
+  desc.add<edm::InputTag>("L1EtSumInputTag",edm::InputTag("hltCaloStage2Digis:EtSum"));
   descriptions.add("hltL1TSeed", desc);
-  //descriptions.add("hltL1TSeed", desc);
 }
 
 bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
@@ -162,176 +140,19 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
   //
   rc = seedsL1TriggerObjectMaps(iEvent, filterproduct);   
                                                      
-  //seedsAll(iEvent, filterproduct);
-
   if (m_isDebugEnabled) {
         dumpTriggerFilterObjectWithRefs(filterproduct);
   }
+
   return rc;
 
-}
-
-// seeding is done ignoring if a L1 object fired or not
-// if the event is selected at L1, fill all the L1 objects of types corresponding to the
-// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
-// directly from L1Extra and use them as seeds at HLT
-// method and filter return true if at least an object is filled
-bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
-
-    //
-    bool objectsInFilter = false;
-
-    // Muon L1T
-    
-    edm::Handle<l1t::MuonBxCollection> muons;
-    iEvent.getByToken(m_l1MuonToken, muons);
-    if (!muons.isValid()){ 
-      edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1MuonBxCollection with input tag "
-	<< m_l1MuonTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo muons added to filterproduct."
-	<< endl;	
-    } else {
-
-      l1t::MuonBxCollection::const_iterator iter;
-      for (iter = muons->begin(0); iter != muons->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::MuonRef myref(muons, muons->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Mu, myref);
-      }
-    }
-
-    //l1t::MuonBxCollection::const_iterator iter;
-
-    // EGamma L1T
-    
-    edm::Handle<l1t::EGammaBxCollection> egammas;
-    iEvent.getByToken(m_l1EGammaToken, egammas);
-    if (!egammas.isValid()){ 
-      edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1EGammaBxCollection with input tag "
-	<< m_l1EGammaTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo egammas added to filterproduct."
-	<< endl;	
-    } else {
-
-      l1t::EGammaBxCollection::const_iterator iter;
-      for (iter = egammas->begin(0); iter != egammas->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::EGammaRef myref(egammas, egammas->key(iter));
-	filterproduct.addObject(trigger::TriggerL1EG, myref);
-      }
-    }
-
-    //l1t::EGammaBxCollection::const_iterator iter;
-    
-    // Jet L1T
-    
-    edm::Handle<l1t::JetBxCollection> jets;
-    iEvent.getByToken(m_l1JetToken, jets);
-    if (!jets.isValid()){ 
-      edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1JetBxCollection with input tag "
-	<< m_l1JetTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo jets added to filterproduct."
-	<< endl;	
-    } else {
-
-      l1t::JetBxCollection::const_iterator iter;
-      for (iter = jets->begin(0); iter != jets->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::JetRef myref(jets, jets->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
-      }
-    }
-
-    //l1t::JetBxCollection::const_iterator iter;
-    
-    // Tau L1T
-    
-    edm::Handle<l1t::TauBxCollection> taus;
-    iEvent.getByToken(m_l1TauToken, taus);
-    if (!taus.isValid()){ 
-      edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1TauBxCollection with input tag "
-	<< m_l1TauTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo taus added to filterproduct."
-	<< endl;	
-    } else {
-
-      l1t::TauBxCollection::const_iterator iter;
-      for (iter = taus->begin(0); iter != taus->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::TauRef myref(taus, taus->key(iter));
-	filterproduct.addObject(trigger::TriggerL1Tau, myref); 
-      }
-    }
-
-    //l1t::TauBxCollection::const_iterator iter;
-    
-    // EtSum L1T
-    
-    edm::Handle<l1t::EtSumBxCollection> etsums;
-    iEvent.getByToken(m_l1EtSumToken, etsums);
-    if (!etsums.isValid()){ 
-      edm::LogWarning("HLTL1TSeed")
-	<< "\nWarning: L1EtSumBxCollection with input tag "
-	<< m_l1EtSumTag
-	<< "\nrequested in configuration, but not found in the event."
-	<< "\nNo etsums added to filterproduct."
-	<< endl;	
-    } else {
-
-      l1t::EtSumBxCollection::const_iterator iter;
-      for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
-	//objectsInFilter = true;
-	l1t::EtSumRef myref(etsums, etsums->key(iter));
-        switch(iter->getType()) {
-          case l1t::EtSum::kTotalEt : 
-	    filterproduct.addObject(trigger::TriggerL1ETT, myref); 
-            break;
-          case l1t::EtSum::kTotalHt : 
-	    filterproduct.addObject(trigger::TriggerL1HTT, myref); 
-            break;
-          case l1t::EtSum::kMissingEt: 
-	    filterproduct.addObject(trigger::TriggerL1ETM, myref); 
-            break;
-          case l1t::EtSum::kMissingHt: 
-	    filterproduct.addObject(trigger::TriggerL1HTM, myref); 
-            break;
-          default:
-            LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
-        }
-      }
-    }
-
-    //l1t::EtSumBxCollection::const_iterator iter;
-    
-    /*
-      int iObj = -1;
-
-      iObj++;    
-      int bxNr = objIter->bx();
-      if ((bxNr >= minBxInEvent) && (bxNr <= maxBxInEvent))	    
-      objectsInFilter = true;
-      filterproduct.addObject(
-      trigger::TriggerL1Mu,
-      l1extra::L1MuonParticleRef(
-      l1Muon, iObj));
-    */
-
-    return objectsInFilter;
 }
 
 // detailed print of filter content
 void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
-  LogDebug("HLTL1TSeed") 
+  LogTrace("HLTL1TSeed") 
   << "\nHLTL1TSeed::hltFilter "
   << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
   
@@ -477,6 +298,11 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
 bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         trigger::TriggerFilterObjectWithRefs & filterproduct
         ) {
+    
+    // Two GT objects are obtained from the Event: (1) the unpacked GT and (2) the emulated GT.
+    // Return value of the function is the score of seeding logical expression, evaluated using (1).
+    // Seeding is performed (per l1_algo) if ACCEPT both in (1) and (2). Seed objects are identified 
+    // and only available from ObjectMaps created in (2).
 
 
     // define index lists for all particle types
@@ -495,16 +321,41 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     std::list<int> listJetCounts;
 
+    // get handle to unpacked GT
+    edm::Handle<GlobalAlgBlkBxCollection> uGtAlgoBlocks;
+    iEvent.getByToken(m_l1GlobalToken, uGtAlgoBlocks);
 
-    // get handle to object maps (one object map per algorithm)
+    if (!uGtAlgoBlocks.isValid()) {
+
+      edm::LogWarning("HLTL1TSeed")
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
+      << m_l1GlobalTag
+      << " requested in configuration, but not found in the event." << std::endl;
+
+      return false;
+    }
+
+    // check size
+    if(uGtAlgoBlocks->size() == 0) {
+
+      edm::LogWarning("HLTL1TSeed")
+      << " Warning: GlobalAlgBlkBxCollection with input tag "
+      << m_l1GlobalTag
+      << " is empty." << std::endl;
+
+      return false;
+    }
+
+    // get handle to object maps from emulator (one object map per algorithm)
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (!gtObjectMapRecord.isValid()) {
+
         edm::LogWarning("HLTL1TSeed")
-        << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+        << " Warning: L1GlobalTriggerObjectMapRecord with input tag "
         << m_l1GtObjectMapTag
-        << "\nrequested in configuration, but not found in the event." << std::endl;
+        << " requested in configuration, but not found in the event." << std::endl;
 
         return false;
     }
@@ -515,20 +366,65 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       LogTrace("HLTL1TSeed") 
       << "\nHLTL1Seed"  
-      << "\n----------------------------------------------------" 
-      << "\n\tAlgorithms in L1TriggerObjectMapRecord: " << endl;
+      << "\n---------------------------------------------------------------------------------------------------------------------";
+
+      LogTrace("HLTL1TSeed") 
+      << "\n\tAlgorithms in L1TriggerObjectMapRecord and GT results ( emulated | initial | prescaled | final ) " << endl;
+
+      LogTrace("HLTL1TSeed") 
+      << "\n\tmap" <<"\tAlgoBit" << std::setw(40) << "algoName" << "\t (emul|ini|pre|fin)" << endl;
+
+      LogTrace("HLTL1TSeed")
+      << "---------------------------------------------------------------------------------------------------------------------";
+
       for (size_t imap =0; imap < objMaps.size(); imap++) {
 
+        int bit = objMaps[imap].algoBitNumber();   //  same as bit from L1T Menu
+
+        int emulDecision = objMaps[imap].algoGtlResult();
+
+        // For bx=0 , get 0th AlgoBlock, so in BXvector at(bx=0,i=0)
+        int initDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionInitial(bit);
+        int presDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionPreScaled(bit);
+        int finlDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
+
+        if(emulDecision != initDecision) {
+
+          LogTrace("HLTL1TSeed") 
+          << "L1T decision (emulated vs. unpacked initial) is not the same:"
+          << "\n\tbit = " << std::setw(3) << bit 
+          << std::setw(40) << objMaps[imap].algoName() 
+          << "\t emulated decision = " << emulDecision << "\t unpacked initial decision = " << initDecision
+          << "\nThis should not happen. Include the L1TGtEmulCompare module in the sequence."<< endl;
+
+        }
+        
+
         LogTrace("HLTL1TSeed")
-        << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
+        << "\t" << std::setw(3) << imap 
+        << "\tbit = " << std::setw(3) << bit 
+        << std::setw(40) << objMaps[imap].algoName() 
+        << "\t (  " << emulDecision << " | " << initDecision << " | " << presDecision << " | " << finlDecision << " ) ";
+        
 
       }
       LogTrace("HLTL1TSeed") << endl;
 
     }
 
+    // Filter decision in case of "L1GlobalDecision" logical expression.
+    // By convention, it means global decision.
+    // /////////////////////////////////////////////////////////////////
+    if (m_l1GlobalDecision) {
+
+      // For bx=0 , get 0th AlgoBlock, so in BXvector at(bx=0,i=0)
+      return (uGtAlgoBlocks->at(0,0)).getFinalOR();
+
+    }
+
+
     // Update/Reset m_l1AlgoLogicParser by reseting token result 
-    //
+    // /////////////////////////////////////////////////////////
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
@@ -540,32 +436,35 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     }
 
-    // Update m_l1AlgoLogicParser and store results for algOpTokens 
-    //
+    // Update m_l1AlgoLogicParser and store emulator results for algOpTokens 
+    // /////////////////////////////////////////////////////////////////////
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
 
         std::string algoName = (algOpTokenVector[i]).tokenName;
-
-        //LogTrace("HLTL1TSeed") 
-        //<< "tokenName = " << algoName << endl;
 
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
 
         if(objMap == 0) {
 
-          LogTrace("HLTL1TSeed") 
-          << "\nWarning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoName << " is present in the L1 menu\n" << std::endl;
 
         }
         else {
 
-          (algOpTokenVector[i]).tokenResult = objMap->algoGtlResult();
+          //(algOpTokenVector[i]).tokenResult = objMap->algoGtlResult();
+
+          int bit = objMap->algoBitNumber();
+          bool finalAlgoDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
+          (algOpTokenVector[i]).tokenResult = finalAlgoDecision;
 
         }
 
     }
 
+    // Filter decision 
+    // ///////////////
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
 
     if (m_isDebugEnabled ) {
@@ -576,25 +475,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         << std::endl;
     }
 
-
-    // TODO check that the L1GlobalTriggerObjectMapRecord corresponds to the same menu as
-    // the menu run by HLTL1TSeed
-    //     true normally online (they are run in the same job)
-    //     can be false offline, when re-running HLT without re-running the object map producer
-
-    // loop over the list of required algorithms for seeding
+    /// Loop over the list of required algorithms for seeding
+    /// /////////////////////////////////////////////////////
 
     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
             itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
-
-      bool matchedAlgo = false;
       
-      int algoSeedMapNumber = (*itSeed).tokenNumber;
       std::string algoSeedName = (*itSeed).tokenName;
-      bool algoSeedResult = (*itSeed).tokenResult;
 
       LogTrace("HLTL1TSeed") 
-        << "\n ----------------  seed name = " << algoSeedName << endl;
+      << "\n ----------------  algo seed name = " << algoSeedName << endl;
 
       const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
 
@@ -602,43 +492,45 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           // Should not get here
           //
-          edm::LogWarning("HLTL1TSeed")
-          << "\nWarning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          return false;
+          throw cms::Exception("FailModule") << "\nAlgorithm " << algoSeedName 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap\n" 
+            << "Please check if algorithm " << algoSeedName << " is present in the L1 menu\n" << std::endl;
 
       }
 
-      algoSeedResult = objMap->algoGtlResult();
+      int  algoSeedBitNumber = objMap->algoBitNumber();
+      bool algoSeedResult    = objMap->algoGtlResult();
 
-      algoSeedMapNumber = objMap->algoBitNumber();
+      // unpacked GT results: uGtAlgoBlock has decisions initial, prescaled, and final after masks
+      bool algoSeedResultMaskAndPresc = uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedBitNumber); 
 
-      // algorithm result is false - no seeds
-      if ( !algoSeedResult) {
-          continue;
-      }
+      LogTrace("HLTL1TSeed") 
+      << "\n\tAlgo seed " << algoSeedName << " result emulated | final = " << algoSeedResult  << " | " << algoSeedResultMaskAndPresc << endl;
+
+      /// Unpacked GT result of algorithm is false after masks and prescales  - no seeds
+      /// ////////////////////////////////////////////////////////////////////////////////
+      if(!algoSeedResultMaskAndPresc) continue;
+
+      /// Emulated GT result of algorithm is false - no seeds - but still save the event
+      //  This should not happen if the emulated and unpacked GT are consistent
+      /// ////////////////////////////////////////////////////////////////////////////////
+      if(!algoSeedResult) continue; 
 
       const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
       const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
       const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
 
       LogTrace("HLTL1TSeed")
-      << "\talgoMapNumber = " << algoSeedMapNumber 
-      << "\talgoName=" << objMap->algoName() 
-      << "\talgoGtlResult = " << objMap->algoGtlResult();
+      << "\n\talgoName =" << objMap->algoName() 
+      << "\talgoBitNumber = " << algoSeedBitNumber 
+      << "\talgoGtlResult = " << algoSeedResult << endl << endl;
 
-      if (matchedAlgo) 
-        LogTrace("HLTL1TSeed") 
-        << "\tmatched to seed algo = " << algoSeedName 
-        << "\talgo result = " << algoSeedResult; 
-
-      LogTrace("HLTL1TSeed")
-      << endl << endl;
 
       if (opTokenVecObjMap.size() != condObjTypeVec.size() ) {
           edm::LogWarning("HLTL1TSeed")
           << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
-          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
+          << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
     
           assert(opTokenVecObjMap.size() == condObjTypeVec.size());
       }
@@ -647,7 +539,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           edm::LogWarning("HLTL1TSeed")
           << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
-          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition object combinations!"  << std::endl;
+          << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object combinations!"  << std::endl;
     
           assert(opTokenVecObjMap.size() == condCombinations.size());
       }
@@ -656,18 +548,12 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       //
       for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
 
-        //LogTrace("HLTL1TSeed")
-        //<< "\ttokenName = " << opTokenVecObjMap[condNumber].tokenName
-        //<< "\ttokenNumber = " << opTokenVecObjMap[condNumber].tokenNumber 
-        //<< "\ttokenResult = " << opTokenVecObjMap[condNumber].tokenResult 
-        //<< endl;
-        
         std::vector<L1GtObject> condObjType = condObjTypeVec[condNumber];
 
         for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
 
           LogTrace("HLTL1TSeed")
-          << "\tcondObjType = " << condObjType[jOb] << endl;
+          << setw(15) << "\tcondObjType = " << condObjType[jOb] << endl;
 
         }
 
@@ -685,7 +571,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         const CombinationsInCond* condComb = objMap->getCombinationsInCond(condNumber);
 
         LogTrace("HLTL1TSeed")
-        << "\tcondCombinations = " << condComb->size() << endl;
+        << setw(15) << "\tcondCombinations = " << condComb->size() << endl;
 
         for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
 
@@ -702,8 +588,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                 const L1GtObject objTypeVal = condObjType.at(iType);
 
                 LogTrace("HLTL1TSeed")
-                << "\tAdd object of type " << objTypeVal
-                << " and index " << (*itObject) << " to the seed list."
+                << "\tAdd object of type " << objTypeVal << " and index " << (*itObject) << " to the seed list."
                 << std::endl;
 
                 switch (objTypeVal) {
@@ -787,7 +672,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                     default: {
                         // should not arrive here
 
-                        LogDebug("HLTL1TSeed")
+                        LogTrace("HLTL1TSeed")
                         << "\n    HLTL1TSeed::hltFilter "
                         << "\n      Unknown object of type " << objTypeVal
                         << " and index " << (*itObject) << " in the seed list."
@@ -802,17 +687,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           } // end for itObj
 
         } // end for itComb
-        //LogTrace("HLTL1TSeed")
-        //<< "Finished with all combinations" << endl;
 
       } // end for condition
-      //LogTrace("HLTL1TSeed")
-      //<< "Finished with all conditions" << endl;
 
     } // end for itSeed
-    //LogTrace("HLTL1TSeed")
-    //<< "Finished with all seeds" << endl;
-
 
 
     // eliminate duplicates
@@ -846,56 +724,59 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     
     // record the L1 physics objects in the HLT filterproduct
-    //
     // //////////////////////////////////////////////////////
 
     // Muon
     if (!listMuon.empty()) {
 
-        edm::Handle<l1t::MuonBxCollection> muons;
-        iEvent.getByToken(m_l1MuonToken, muons);
-        if (!muons.isValid()){ 
+      edm::Handle<l1t::MuonBxCollection> muons;
+      iEvent.getByToken(m_l1MuonToken, muons);
+
+      if (!muons.isValid()){ 
           edm::LogWarning("HLTL1TSeed")
-    	<< "\nWarning: L1MuonBxCollection with input tag "
-    	<< m_l1MuonTag
-    	<< "\nrequested in configuration, but not found in the event."
-    	<< "\nNo muons added to filterproduct."
-    	<< endl;	
-        } else {
+    	  << "\nWarning: L1MuonBxCollection with input tag "
+    	  << m_l1MuonTag
+    	  << "\nrequested in configuration, but not found in the event."
+    	  << "\nNo muons added to filterproduct."
+    	  << endl;	
+      } 
+      else {
     
-          l1t::MuonBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+        for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
     	
     	    l1t::MuonRef myref(muons, *itObj);
     	    filterproduct.addObject(trigger::TriggerL1Mu, myref);
 
-          }
         }
+
+      } 
+
     }
 
     // EG (isolated)
     if (!listEG.empty()) {
 
-        edm::Handle<l1t::EGammaBxCollection> egammas;
-        iEvent.getByToken(m_l1EGammaToken, egammas);
-        if (!egammas.isValid()){ 
-          edm::LogWarning("HLTL1TSeed")
-    	<< "\nWarning: L1EGammaBxCollection with input tag " << m_l1EGammaTag
-    	<< "\nrequested in configuration, but not found in the event."
-    	<< "\nNo egammas added to filterproduct."
-    	<< endl;	
-        } else {
+      edm::Handle<l1t::EGammaBxCollection> egammas;
+      iEvent.getByToken(m_l1EGammaToken, egammas);
+      if (!egammas.isValid()){ 
+        edm::LogWarning("HLTL1TSeed")
+        << "\nWarning: L1EGammaBxCollection with input tag " << m_l1EGammaTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo egammas added to filterproduct."
+        << endl;	
+      } 
+      else {
     
-          l1t::EGammaBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+        for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
 
     	    l1t::EGammaRef myref(egammas, *itObj);
     	    filterproduct.addObject(trigger::TriggerL1EG, myref);
 
-          }
-        }
+        } 
+
+      } 
     
-    }
+    } 
 
     // Jet
     if (!listJet.empty()) {
@@ -905,18 +786,20 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (!jets.isValid()){ 
         edm::LogWarning("HLTL1TSeed")
-  	<< "\nWarning: L1JetBxCollection with input tag " << m_l1JetTag
-  	<< "\nrequested in configuration, but not found in the event."
-  	<< "\nNo jets added to filterproduct."
-  	<< endl;	
-      } else {
+        << "\nWarning: L1JetBxCollection with input tag " << m_l1JetTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo jets added to filterproduct."
+        << endl;	
+      } 
+      else {
   
-        l1t::JetBxCollection::const_iterator iter;
         for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
-  	l1t::JetRef myref(jets, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+          l1t::JetRef myref(jets, *itObj);
+          filterproduct.addObject(trigger::TriggerL1Jet, myref); 
         }
+
       }
+
     }
 
     // Tau
@@ -927,115 +810,67 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (!taus.isValid()){ 
         edm::LogWarning("HLTL1TSeed")
-  	<< "\nWarning: L1TauBxCollection with input tag " << m_l1TauTag
-  	<< "\nrequested in configuration, but not found in the event."
-  	<< "\nNo taus added to filterproduct."
-  	<< endl;	
-      } else {
+        << "\nWarning: L1TauBxCollection with input tag " << m_l1TauTag
+        << "\nrequested in configuration, but not found in the event."
+        << "\nNo taus added to filterproduct."
+        << endl;	
+      } 
+      else {
   
-        l1t::TauBxCollection::const_iterator iter;
         for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
-  	l1t::TauRef myref(taus, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Tau, myref); 
+          l1t::TauRef myref(taus, *itObj);
+          filterproduct.addObject(trigger::TriggerL1Tau, myref); 
         }
+
       }
+
     }
 
-    // ETM
-    if (!listETM.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
+    // ETT, HTT, ETM, HTM
+		edm::Handle<l1t::EtSumBxCollection> etsums;
+		iEvent.getByToken(m_l1EtSumToken, etsums);
+		if (!etsums.isValid()){ 
+		  edm::LogWarning("HLTL1TSeed")
+		    << "\nWarning: L1EtSumBxCollection with input tag "
+		    << m_l1EtSumTag
+		    << "\nrequested in configuration, but not found in the event."
+		    << "\nNo etsums added to filterproduct."
+		    << endl;	
+		} else {
+		  
+			l1t::EtSumBxCollection::const_iterator iter;
+			
+			for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
+			
+			  l1t::EtSumRef myref(etsums, etsums->key(iter));
+			
+			  switch(iter->getType()) {
 
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1ETM, myref);
+			    case l1t::EtSum::kTotalEt : 
+            if(!listETT.empty())
+			        filterproduct.addObject(trigger::TriggerL1ETT, myref); 
+			      break;
+			    case l1t::EtSum::kTotalHt : 
+            if(!listHTT.empty())
+			        filterproduct.addObject(trigger::TriggerL1HTT, myref); 
+			      break;
+			    case l1t::EtSum::kMissingEt: 
+            if(!listETM.empty())
+			        filterproduct.addObject(trigger::TriggerL1ETM, myref); 
+			      break;
+			    case l1t::EtSum::kMissingHt: 
+            if(!listHTM.empty())
+			        filterproduct.addObject(trigger::TriggerL1HTM, myref); 
+			      break;
+			    default:
+			      LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
 
-          }
-        }
-    }
+			  } // end switch
 
-    // ETT
-    if (!listETT.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
+			} // end for
 
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1ETT, myref);
+		} // end else
 
-          }
-        }
-    }
-
-    // HTM
-    if (!listHTM.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listHTM.begin(); itObj != listHTM.end(); ++itObj) {
-
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1HTM, myref);
-
-          }
-        }
-    }
-
-    // HTT
-    if (!listHTT.empty()) {
-      
-	edm::Handle<l1t::EtSumBxCollection> etsums;
-	iEvent.getByToken(m_l1EtSumToken, etsums);
-	if (!etsums.isValid()){ 
-	  edm::LogWarning("HLTL1TSeed")
-	    << "\nWarning: L1EtSumBxCollection with input tag "
-	    << m_l1EtSumTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << "\nNo etsums added to filterproduct."
-	    << endl;	
-        } else {
-    
-          l1t::EtSumBxCollection::const_iterator iter;
-          for (std::list<int>::const_iterator itObj = listHTT.begin(); itObj != listHTT.end(); ++itObj) {
-
-    	    l1t::EtSumRef myref(etsums, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1HTT, myref);
-
-          }
-        }
-    }
 
     // TODO FIXME uncomment if block when JetCounts implemented
 

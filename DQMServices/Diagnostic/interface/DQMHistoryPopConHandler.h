@@ -1,4 +1,4 @@
-#ifndef SISTRIPPOPCON_DB_HANDLE_H
+#ifndef DQMHISTORYPOPCON_DB_HANDLER_H
 #define DQMHISTORYPOPCON_DB_HANDLER_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

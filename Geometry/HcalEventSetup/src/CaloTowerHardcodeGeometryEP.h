@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -26,7 +25,7 @@ public:
   CaloTowerHardcodeGeometryEP(const edm::ParameterSet&);
   ~CaloTowerHardcodeGeometryEP();
 
-  typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
   ReturnType produce(const CaloTowerGeometryRecord&);
 

@@ -246,7 +246,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
     //std::cout<<"**** ALCT constructor parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
-    if (isSLHC) std::cout<<"disableME1a = "<<disableME1a<<std::endl;
   }
 
   numWireGroups = 0;  // Will be set later.

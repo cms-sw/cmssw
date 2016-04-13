@@ -71,8 +71,8 @@ namespace edm {
                                "In VectorHolder<T, REFV> trying to push_back wrong reference type");
         refVector_.push_back( h->getRef() );
       }
-      virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const {
-        return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV>( refVector_ ) );
+      virtual std::unique_ptr<RefVectorHolderBase> vectorHolder() const {
+        return std::unique_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV>( refVector_ ) );
       }
       
       /// Checks if product collection is in memory or available

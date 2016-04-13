@@ -51,10 +51,10 @@ def L1NtupleRAW(process):
     process.schedule.append(process.l1ntupleraw)
 
     # for 5 BX of candidates in L1Extra
-    if process.producers.has_key("gctDigis"):
+    if "gctDigis" in process.producers:
         process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
-    if process.producers.has_key("l1extraParticles"):
+    if "l1extraParticles" in process.producers:
         process.l1extraParticles.centralBxOnly = cms.bool(False)
 
     return process
@@ -99,3 +99,24 @@ def L1NtupleAODRAWEMU(process):
 
     return process
 
+def L1NtupleAODEMU(process):
+
+    L1NtupleEMU(process)
+    L1NtupleAOD(process)
+
+    return process
+
+
+
+def L1NtupleEMUNoEventTree(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+    process.L1NtupleEMU = cms.Sequence( process.l1CaloTowerEmuTree+process.l1UpgradeEmuTree )
+    process.l1ntuplesim = cms.Path(
+        process.L1NtupleEMU
+    )
+    process.schedule.append(process.l1ntuplesim)
+
+    return process

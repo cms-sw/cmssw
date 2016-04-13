@@ -9,6 +9,7 @@
 
 using namespace std;
 const vector<double> * DDG4SolidConverter::par_ = nullptr; 
+G4RotationMatrix* DDG4SolidConverter::rot = nullptr;
 
 DDG4SolidConverter::DDG4SolidConverter()
 {
@@ -36,8 +37,7 @@ DDG4SolidConverter::DDG4SolidConverter()
   convDispatch_[ddparallelepiped] = DDG4SolidConverter::para;   
 }
 
-
-DDG4SolidConverter::~DDG4SolidConverter() { }
+DDG4SolidConverter::~DDG4SolidConverter() {}
 
 G4VSolid * DDG4SolidConverter::convert(const DDSolid & s)
 {
@@ -344,14 +344,11 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & s)
 #include "G4Trd.hh"
 G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & s)
 {
-  static G4RotationMatrix * rot = 0;
-  static bool firstTime=true;
-  if (firstTime) {
-    firstTime=false;
+  if(nullptr == rot) {
     rot = new G4RotationMatrix;
     rot->rotateX(90.*deg);
-    
-  }
+  }    
+
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pseudoTrap = " << s ;
   G4Trd * trap = 0;
   G4Tubs * tubs = 0;

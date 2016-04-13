@@ -18,7 +18,7 @@
     If only one algorithm is being encapsulated then the user needs to
       1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
          to the record that is to hold the data item being produced.  If only one data item is being produced,
-         the 'produce' method must return either an 'std::auto_ptr' or 'std::shared_ptr' to the object being
+         the 'produce' method must return either an 'std::unique_ptr' or 'std::shared_ptr' to the object being
          produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of 
          the object).  If multiple items are being Produced they the 'produce' method must return an
          ESProducts<> object which holds all of the items.
@@ -27,7 +27,7 @@
 Example: one algorithm creating only one object
 \code
     class FooProd : public edm::ESProducer {
-       std::auto_ptr<Foo> produce(const FooRecord&);
+       std::unique_ptr<Foo> produce(const FooRecord&);
        ...
     };
     FooProd::FooProd(const edm::ParameterSet&) {
@@ -38,7 +38,7 @@ Example: one algorithm creating only one object
 Example: one algorithm creating two objects
 \code
    class FoosProd : public edm::ESProducer {
-      edm::ESProducts<std::auto_ptr<Foo1>, std::auto_ptr<Foo2> > produce(const FooRecord&);
+      edm::ESProducts<std::unique_ptr<Foo1>, std::unique_ptr<Foo2> > produce(const FooRecord&);
       ...
    };
 \endcode
@@ -51,8 +51,8 @@ Example: one algorithm creating two objects
 Example: two algorithms each creating only one objects
 \code
    class FooBarProd : public edm::eventsetup::ESProducer {
-      std::auto_ptr<Foo> produceFoo(const FooRecord&);
-      std::auto_ptr<Bar> produceBar(const BarRecord&);
+      std::unique_ptr<Foo> produceFoo(const FooRecord&);
+      std::unique_ptr<Bar> produceBar(const BarRecord&);
       ...
    };
    FooBarProd::FooBarProd(const edm::ParameterSet&) {
@@ -155,16 +155,15 @@ class ESProducer : public ESProxyFactoryProducer
                               TReturn (T ::* iMethod)(const TRecord&),
                               const TArg& iDec,
                               const es::Label& iLabel = es::Label()) {
-            std::shared_ptr<eventsetup::Callback<T,TReturn,TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
-            callback(new eventsetup::Callback<T,
+            auto callback = std::make_shared<eventsetup::Callback<T,
                                           TReturn,
                                           TRecord, 
-                                          typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>(
+                                          typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(
                                                                iThis, 
                                                                iMethod, 
                                                                createDecoratorFrom(iThis, 
                                                                                     static_cast<const TRecord*>(nullptr),
-                                                                                    iDec)));
+                                                                                    iDec));
             registerProducts(callback,
                              static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                              static_cast<const TRecord*>(nullptr),
@@ -209,7 +208,7 @@ class ESProducer : public ESProxyFactoryProducer
          void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
 	    typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.default_);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
          }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
@@ -223,7 +222,7 @@ class ESProducer : public ESProxyFactoryProducer
             }
 	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.labels_[IIndex]);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
          }
       
       // ---------- member data --------------------------------

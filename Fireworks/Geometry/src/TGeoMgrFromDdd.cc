@@ -93,7 +93,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    iRecord.getRecord<IdealGeometryRecord>().get(viewH);
 
    if ( ! viewH.isValid()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
@@ -111,14 +111,14 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    // geometry AND the magnetic field volumes!
    walker.firstChild();
    if( ! walker.firstChild()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
    if (top == 0) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    geo_mgr->SetTopVolume(top);
@@ -209,7 +209,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    nameToMaterial_.clear();
    nameToMedium_.clear();
 
-   return boost::shared_ptr<TGeoManager>(geo_mgr);
+   return std::shared_ptr<TGeoManager>(geo_mgr);
 }
 
 

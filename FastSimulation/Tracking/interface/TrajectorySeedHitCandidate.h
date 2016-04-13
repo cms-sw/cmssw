@@ -1,4 +1,5 @@
 #ifndef FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
+
 #define FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -19,7 +20,6 @@
 #include <vector>
 
 class TrackerTopology;
-class TrackerGeometry;
 
 class TrajectorySeedHitCandidate {
 public:
@@ -27,12 +27,9 @@ public:
   /// Default Constructor
   TrajectorySeedHitCandidate() :
     theHit(0),
-    theGeomDet(0),
     seedingLayer(),
     theRingNumber(0), 
     theCylinderNumber(0), 
-    theLocalError(0.),
-    theLargerError(0.),
     forward(false)
     
    {
@@ -44,26 +41,21 @@ public:
   TrajectorySeedHitCandidate( const FastTrackerRecHit * hit, 
 			      const TrajectorySeedHitCandidate& other ) : 
     theHit(hit),
-    theGeomDet(other.geomDet()),
     seedingLayer(other.getTrackingLayer()),
     theRingNumber(other.ringNumber()), 
     theCylinderNumber(other.cylinderNumber()), 
-    theLocalError(0.),
-    theLargerError(0.),
     forward(other.isForward())
     
     {
         
     }
 
-  /// Constructor from a GSRecHit and the Geometry
+  /// Constructor from a FastTrackerRecHit and topology
   TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, 
-			     const TrackerGeometry* theGeometry,
 			     const TrackerTopology* tTopo);
   
   /// Initialization at construction time
-  void init(const TrackerGeometry* theGeometry,
-	    const TrackerTopology *tTopo);
+  void init(const TrackerTopology *tTopo);
   
   /// The Hit itself
   inline const FastTrackerRecHit * hit() const { return theHit; }
@@ -88,14 +80,6 @@ public:
   /// Is it a forward hit ?
   inline bool isForward() const { return forward; }
 
-  /// The GeomDet
-  inline const GeomDet* geomDet() const { return theGeomDet; }
-
-  /// The global position
-  inline GlobalPoint globalPosition() const { 
-    return theGeomDet->surface().toGlobal(hit()->localPosition());
-  }
-
   /// The local position
   inline LocalPoint localPosition() const { return hit()->localPosition(); }  
   /// Check if the hit is on one of the requested detector
@@ -113,43 +97,8 @@ public:
     return seedingLayer==other.seedingLayer;
   }
 
-  // The smaller local error
-  double localError() const
-  { 
-
-    // Check if it has been already computed
-    if ( theLocalError != 0. ) return theLocalError;
-
-    // Otherwise, compute it!
-    double xx = hit()->localPositionError().xx();
-    double yy = hit()->localPositionError().yy();
-    double xy = hit()->localPositionError().xy();
-    double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
-    theLocalError = 0.5 * (xx+yy-delta);
-    return theLocalError;
-
-  }
-  
-  // The larger local error
-  double largerError() const
-  {
-
-    // Check if it has been already computed
-    if ( theLargerError != 0. ) return theLargerError;
-
-    // Otherwise, compute it!
-    double xx = hit()->localPositionError().xx();
-    double yy = hit()->localPositionError().yy();
-    double xy = hit()->localPositionError().xy();
-    double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
-    theLargerError = 0.5 * (xx+yy+delta);
-    return theLargerError;
-
-  }
-  
   inline bool operator!=(const TrajectorySeedHitCandidate& aHit) const {
     return 
-      aHit.geomDet() != this->geomDet() ||
       aHit.hit()->localPosition().x() != this->hit()->localPosition().x() ||
       aHit.hit()->localPosition().y() != this->hit()->localPosition().y() ||
       aHit.hit()->localPosition().z() != this->hit()->localPosition().z();
@@ -160,12 +109,9 @@ public:
  private:
   
   const FastTrackerRecHit * theHit;
-  const GeomDet* theGeomDet;
   TrackingLayer seedingLayer;
   unsigned int theRingNumber;
   unsigned int theCylinderNumber;
-  mutable double theLocalError; //only for caching
-  mutable double theLargerError; //only for caching
   bool forward;
 
 };

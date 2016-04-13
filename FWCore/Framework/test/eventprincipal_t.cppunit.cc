@@ -21,7 +21,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -161,7 +160,7 @@ void test_ep::setUp() {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    std::unique_ptr<edm::WrapperBase> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    std::unique_ptr<edm::WrapperBase> product = std::make_unique<WDP>(std::make_unique<PRODUCT_TYPE>());
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);

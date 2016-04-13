@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
-GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS"
-GlobalTag.pfnPrefix = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/")
-GlobalTag.globaltag = "GR_E_V42"
-es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+GlobalTag.globaltag = "80X_dataRun2_Express_v1"
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
@@ -98,6 +95,9 @@ class Tier0DasInterface:
         resultList = []
         #FIXME try
         resultList = json['result']
+
+        if 'null' in resultList[0]:
+            resultList[0] = resultList[0].replace('null','None')
 
         #print self.getValues(json, 'result')
         return resultList
@@ -199,8 +199,8 @@ class Tier0DasInterface:
             gt = "UNKNOWN"
             json = self.getData(url)
             results = self.getResultList(json)
-            config = ast.literal_eval(results[0])[0]
-            gt = config['global_tag']
+            config = results[0]
+            gt = str(config['global_tag'])
             # FIXME: do we realluy need to raise?
             if gt == "UNKNOWN":
                 raise KeyError

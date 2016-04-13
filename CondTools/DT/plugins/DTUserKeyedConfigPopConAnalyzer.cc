@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
+#include <memory>
 
 //typedef popcon::PopConAnalyzer<DTUserKeyedConfigHandler> DTUserKeyedConfigPopConAnalyzer;
 class DTUserKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTUserKeyedConfigHandler> {
@@ -22,7 +23,7 @@ class DTUserKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTUserKeyed
     cond::persistency::KeyList const &  kl= *klh.product();
     cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
     for ( size_t i = 0; i < list->size(); i++ ) {
-      boost::shared_ptr<DTKeyedConfig> kentry = list->get<DTKeyedConfig>( i );
+      std::shared_ptr<DTKeyedConfig> kentry = list->get<DTKeyedConfig>( i );
       if ( kentry.get() )
            std::cout << kentry->getId() << std::endl;
     }
