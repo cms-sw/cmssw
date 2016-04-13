@@ -10,9 +10,6 @@
 // DQM. This class has no intelligence, it just manages the "program". It is
 // not encapsulated, the structure is exposed.
 //
-// TODO: terminology is a bit messed up, and the code is not very clean, but
-// there is really not much happening here except for input validation.
-// 
 // Original Author:  Marcel Schneider
 
 #include <vector>
@@ -27,7 +24,11 @@ struct SummationStep {
   // step2 will only be executed once by an executor.
   enum Type  {NO_TYPE, GROUPBY, EXTEND_X, EXTEND_Y, COUNT, REDUCE, SAVE, CUSTOM};
   Type type = NO_TYPE;
-  enum Stage {NO_STAGE, FIRST, STAGE1, STAGE2};
+  // STAGE1 is DQM step1, STAGE2 step2. STAGE1_2 is somewhere in between, it runs
+  // in the analyze()-method (step1) but does a sort of harvesting (per-event).
+  // STAGE1_2 is for ndigis-like counters.
+  // FIRST is the first group-by, which is special.
+  enum Stage {NO_STAGE, FIRST, STAGE1, STAGE1_2, STAGE2};
   Stage stage = NO_STAGE;
 
   std::vector<GeometryInterface::Column> columns;

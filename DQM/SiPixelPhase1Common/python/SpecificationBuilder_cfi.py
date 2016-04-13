@@ -18,7 +18,8 @@ CUSTOM   = cms.int32(7)
 NO_STAGE = cms.int32(0)
 FIRST    = cms.int32(1)
 STAGE1   = cms.int32(2)
-STAGE2   = cms.int32(3)
+STAGE1_2 = cms.int32(3)
+STAGE2   = cms.int32(4)
 
 def val(maybecms):
   if hasattr(maybecms, "value"):
@@ -44,6 +45,7 @@ class Specification(cms.PSet):
         if not "Event" in self.spec[0].columns:
           raise Exception("Only per-event counting supported for step1.")
         self.spec[0].columns.remove("Event"); # per-Event groupng is done automatically
+	self._state = STAGE1_2
       t = GROUPBY
       cstrings = cms.vstring(cnames)
     elif mode == "EXTEND_X" or mode == "EXTEND_Y":
