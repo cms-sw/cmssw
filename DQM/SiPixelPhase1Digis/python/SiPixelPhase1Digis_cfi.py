@@ -13,16 +13,12 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_max = 300,
     range_nbins = 300,
     specs = cms.VPSet(
-      Specification().groupBy(DefaultHisto.defaultGrouping)
+      Specification().groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
+                     .save()
+                     .reduce("MEAN")
+                     .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                      .saveAll(),
-      Specification().groupBy("BX")
-                     .reduce("COUNT")
-                     .groupBy("", "EXTEND_X")
-                     .save(),
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/row/col")
-                     .reduce("COUNT")
-                     .groupBy(DefaultHisto.defaultGrouping.value() + "/row", "EXTEND_X")
-                     .groupBy(DefaultHisto.defaultGrouping, "EXTEND_Y")
+      Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
                      .save()
     )
   ),
@@ -36,32 +32,60 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_nbins = 30,
     dimensions = 0, # this is a count
     specs = cms.VPSet(
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
-                     .reduce("COUNT")
-                     .groupBy(DefaultHisto.defaultGrouping)
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
+                     .reduce("COUNT") # per-event counting
+                     .groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
                      .save()
                      .reduce("MEAN")
-                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "EXTEND_X")
-                     .saveAll()
+                     .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                     .saveAll(),
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
+                     .reduce("COUNT")
+                     .groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
+                     .save(),
+      Specification().groupBy("PXBarrel|PXEndcap/FED/Event")
+                     .reduce("COUNT")
+                     .groupBy("PXBarrel|PXEndcap/FED")
+		     .save()
+                     #.groupBy("PXBarrel|PXEndcap", "EXTEND_Y")
+                     .save(),
+      Specification().groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/FED/Event")
+                     .reduce("COUNT")
+                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk")
+                     .save()
+    )
+  ),
+  DefaultHisto.clone(
+    enabled = True, # Event Rate
+    name = "eventrate",
+    title = "Rate of Pixel Events",
+    xlabel = "Lumisection",
+    ylabel = "#Events",
+    dimensions = 0,
+    specs = cms.VPSet(
+      Specification().groupBy("Lumisection")
+                     .groupBy("", "EXTEND_X").save(),
+      Specification().groupBy("BX")
+                     .groupBy("", "EXTEND_X").save()
     )
   ),
   DefaultHisto.clone(
     enabled = True, # hitmaps
     name = "hitmap",
     title = "Position of digis on module",
-    xlabel = "col",
-    ylabel = "row",
-    range_min = 0,
-    range_max = 200,
-    range_nbins = 200,
-    dimensions = 2,
+    ylabel = "#digis",
+    dimensions = 0,
     specs = cms.VPSet(
-      Specification().groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/PXLadder|PXBlade/DetId")
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row/col")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row", "EXTEND_X")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_Y")
+                     .save(),
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_X")
+                     .save(),
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule/row")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXFModule", "EXTEND_X")
                      .save()
-                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/PXLadder|PXBlade", "EXTEND_X")
-                     .save()
-                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk", "SUM")
-                     .saveAll()
     )
   )
 )

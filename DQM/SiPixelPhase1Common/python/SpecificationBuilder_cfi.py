@@ -13,7 +13,7 @@ EXTEND_Y = cms.int32(3)
 COUNT    = cms.int32(4)
 REDUCE   = cms.int32(5)
 SAVE     = cms.int32(6)
-CUSTOM     = cms.int32(7)
+CUSTOM   = cms.int32(7)
 
 NO_STAGE = cms.int32(0)
 FIRST    = cms.int32(1)
@@ -25,6 +25,10 @@ def val(maybecms):
     return maybecms.value()
   else:
     return maybecms
+
+def parent(path):
+  parts = val(path).split("/")
+  return "/".join(parts[0:len(parts)-1])
 
 class Specification(cms.PSet):
   def __init__(self):
