@@ -179,7 +179,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 	if(!mask.valid(iq.sourceModule)) return UNDEFINED;
 	return Value(mask.apply(iq.sourceModule));
       },
-      mask.mask_ 
+      1, mask.mask_ // TODO: precise number?
     );
   }
   
@@ -203,14 +203,14 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->luminosityBlock());
     },
-    5000
+    1, 5000
   );
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->bunchCrossing());
     },
-    3600 // TODO: put actual max. BX
+    1, 3600 // TODO: put actual max. BX
   );
 }
 
@@ -220,13 +220,13 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     [] (InterestingQuantities const& iq) {
       return Value(iq.row);
     },
-    200 //TODO: use actual number of rows here. Where can we find that?
+    1, 160
   );
   addExtractor(intern("col"),
     [] (InterestingQuantities const& iq) {
       return Value(iq.col);
     },
-    200 //TODO: use actual number of cols here. Where can we find that?
+    1, 416 
   );
 
   addExtractor(intern("DetId"),
@@ -234,7 +234,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       uint32_t id = iq.sourceModule.rawId();
       return Value(id);
     },
-    0 // No sane value possible here.
+    0, 0 // No sane value possible here.
   );
 
   // TODO: ROCs ans stuff here.
@@ -244,6 +244,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
   std::map<DetId, Value> fedmap;
+  uint32_t minFED = UNDEFINED, maxFED = 0;
 
   if (theCablingMap.isValid()) {
     auto map = theCablingMap.product();
@@ -253,6 +254,8 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       for (auto p : paths) {
 	//std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
 	fedmap[iq.sourceModule] = Value(p.fed);
+	if (p.fed > maxFED) maxFED = p.fed;
+	if (p.fed < minFED) minFED = p.fed;
       }
     }
   } else {
@@ -265,6 +268,6 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
       return it->second;
     },
-    1255
+    minFED, maxFED
   );
 }

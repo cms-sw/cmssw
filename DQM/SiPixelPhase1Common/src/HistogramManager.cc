@@ -190,7 +190,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    dimensions = 0;
 	    title = "Count of " + title;
 	    name = "num_" + name;
-	    ylabel = "# of " + xlabel;
+	    ylabel = "#" + xlabel;
 	    xlabel = "";
 	    range_x_nbins = range_y_nbins = 1;
 	    range_x_min = range_y_min = 0;
@@ -206,9 +206,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    title = title + " per " + colname;
 	    name = name + "_per_" + colname;
 	    xlabel = colname;
-	    range_x_min = 0;
-	    range_x_nbins = geometryInterface.maxValue(col0[0]);
-	    range_x_max = range_x_nbins;
+	    range_x_min = geometryInterface.minValue(col0[0]);
+	    range_x_max = geometryInterface.maxValue(col0[0]);
+	    range_x_nbins = int(range_x_max-range_x_min) + 1;
 	    significantvalues.erase(col0);
 	    break;}
 	  case SummationStep::EXTEND_Y: {
@@ -219,9 +219,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    title = title + " per " + colname;
 	    name = name + "_per_" + colname;
 	    ylabel = colname;
-	    range_y_min = 0;
-	    range_y_nbins = geometryInterface.maxValue(col0[0]);
-	    range_y_max = range_y_nbins;
+	    range_y_min = geometryInterface.minValue(col0[0]);
+	    range_y_max = geometryInterface.maxValue(col0[0]);
+	    range_y_nbins = int(range_y_max-range_y_min) + 1;
 	    significantvalues.erase(col0);
 	    break;}
 	  case SummationStep::GROUPBY: {
@@ -287,7 +287,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
     geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
     // TODO: if (!bookUndefined) we could skip a lot here.
     for (SummationStep step : s.steps) {
-      if (step.stage == SummationStep::STAGE1) {
+      if (step.stage == SummationStep::STAGE1 || step.stage == SummationStep::STAGE1_2) {
 	switch(step.type) {
 	case SummationStep::SAVE: break; // this happens automatically
 	case SummationStep::COUNT:
