@@ -74,6 +74,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
       "HLT_HT400_DisplacedDijet40_Inclusive_v*",
       "HLT_HT250_DisplacedDijet40_DisplacedTrack_v*",
+      "HLT_HT200_DisplacedDijet40_DisplacedTrack_v*",
+      "HLT_HT350_DisplacedDijet40_Inclusive_v*",
       "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
       "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
       "HLT_MET60_IsoTrk*",
