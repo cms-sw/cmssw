@@ -15,6 +15,7 @@
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "HERecalibration.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
 class ParameterSet;
 
@@ -93,13 +94,13 @@ protected:
 
 
 private:
+  HcalDbHardcode dbHardcode;
   double iLumi;
   HERecalibration* he_recalibration;  
   HFRecalibration* hf_recalibration;  
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;
-  double SipmLumi;
   bool testHFQIE10;
 };
 
