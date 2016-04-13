@@ -122,6 +122,7 @@ HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 bool
 HLTLevel1Activity::filter(edm::Event & event, edm::EventSetup const & setup)
 {
+  /*
   // apply L1 mask to the physics bits
   //  - mask & partition == part. --> fully masked
   //  - mask & partition == 0x00  --> fully unmasked
@@ -169,6 +170,8 @@ HLTLevel1Activity::filter(edm::Event & event, edm::EventSetup const & setup)
   }
  
   return m_invert; 
+  */
+  return false;
 }
 
 // define as a framework plugin
