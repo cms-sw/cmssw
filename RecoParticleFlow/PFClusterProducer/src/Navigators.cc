@@ -39,7 +39,7 @@ class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
   }
 };
 
-class PFRecHitEcalBarrelNavigator : public PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> {
+class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> {
  public:
   PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig) {
 
@@ -52,7 +52,7 @@ class PFRecHitEcalBarrelNavigator : public PFRecHitCaloNavigator<EBDetId,EcalBar
   }
 };
 
-class PFRecHitEcalEndcapNavigator : public PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> {
+class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> {
  public:
   PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig) {
 
@@ -65,7 +65,7 @@ class PFRecHitEcalEndcapNavigator : public PFRecHitCaloNavigator<EEDetId,EcalEnd
   }
 };
 
-class PFRecHitPreshowerNavigator : public PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> {
+class PFRecHitPreshowerNavigator final : public PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> {
  public:
   PFRecHitPreshowerNavigator(const edm::ParameterSet& iConfig) {
 
@@ -80,7 +80,7 @@ class PFRecHitPreshowerNavigator : public PFRecHitCaloNavigator<ESDetId,EcalPres
 };
 
 
-class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopology,false> {
+class PFRecHitHCALNavigator final : public PFRecHitCaloNavigator<HcalDetId,HcalTopology,false> {
  public:
   PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) {
 
