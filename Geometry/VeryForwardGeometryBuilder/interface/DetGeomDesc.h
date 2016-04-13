@@ -1,14 +1,13 @@
 /****************************************************************************
 *
-* This is a part of the TOTEM offline software.
-* Authors: 
+* Authors:
 *	Jan Kašpar (jan.kaspar@gmail.com) 
 *	CMSSW developpers (based on class GeometricDet)
 *
 ****************************************************************************/
 
-#ifndef Geometry_TotemRPGeometryBuilder_DetGeomDesc_H
-#define Geometry_TotemRPGeometryBuilder_DetGeomDesc_H
+#ifndef Geometry_VeryForwardGeometryBuilder_DetGeomDesc
+#define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
@@ -21,7 +20,6 @@ class RPAlignmentCorrection;
 
 
 /**
- * \ingroup TotemRPGeometry
  * \brief Geometrical description of a detector.
  *
  * See schema of \ref TotemRPGeometry "TOTEM RP geometry classes"
