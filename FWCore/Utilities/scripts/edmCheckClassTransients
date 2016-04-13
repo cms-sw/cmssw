@@ -68,7 +68,7 @@ ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
     print "Transient member check requires a specific library"
 else:
-    if 0 != ROOT.gSystem.Load(options.library):
+    if ROOT.gSystem.Load(options.library) < 0 :
         raise RuntimeError("failed to load library '"+options.library+"'")
 
 p = RMParser(options.rmfiles)
