@@ -9,8 +9,11 @@ namespace l1t {
       GTTokens::GTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
       {
          auto gttag = cfg.getParameter<edm::InputTag>("GtInputLabel");
+         auto exttag = cfg.getParameter<edm::InputTag>("ExtInputLabel");
          auto calotag = cfg.getParameter<edm::InputTag>("CaloInputLabel");
          auto muontag = cfg.getParameter<edm::InputTag>("GmtInputLabel");
+
+	 //cout << "DEBUG:  GmtInputLabel" <<  muontag << "\n";
 
          muonToken_ = cc.consumes<MuonBxCollection>(muontag);
 	 egammaToken_ = cc.consumes<EGammaBxCollection>(calotag);
@@ -18,7 +21,7 @@ namespace l1t {
          jetToken_ = cc.consumes<JetBxCollection>(calotag);
          tauToken_ = cc.consumes<TauBxCollection>(calotag);
          algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(gttag);
-         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(gttag);
+         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(exttag);
 
       }
    }
