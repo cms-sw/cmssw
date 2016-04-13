@@ -6,7 +6,7 @@
 
 #include <unordered_map>
 
-class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
+class PFMultiDepthClusterizer : public PFClusterBuilderBase {
   typedef PFMultiDepthClusterizer B2DGPF;
  public:
   PFMultiDepthClusterizer(const edm::ParameterSet& conf);

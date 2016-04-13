@@ -5,8 +5,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
 class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
@@ -14,7 +12,7 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
   Basic2DGenericPFlowPositionCalc(const edm::ParameterSet& conf) :
     PFCPositionCalculatorBase(conf),    
     _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
-    _logWeightDenom(1./conf.getParameter<double>("logWeightDenominator")),
+    _logWeightDenom(conf.getParameter<double>("logWeightDenominator")),
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization"))
 
   {  
@@ -30,20 +28,7 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
         conf.getParameterSet("timeResolutionCalcEndcap");
         _timeResolutionCalcEndcap.reset(new CaloRecHitResolutionProvider(timeResConf));
     }
-
-   switch( _posCalcNCrystals ) {
-    case 5:
-    case 9:
-    case -1:
-      break;
-    default:
-      edm::LogError("Basic2DGenericPFlowPositionCalc") << "posCalcNCrystals not valid";
-      assert(0); // bug
-   }
-
-
   }
-
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
   Basic2DGenericPFlowPositionCalc& operator=(const Basic2DGenericPFlowPositionCalc&) = delete;
 
