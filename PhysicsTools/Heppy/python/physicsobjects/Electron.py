@@ -242,8 +242,41 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
                     else              : return self.mvaRun2(name) > 0.05;
-                else: raise RuntimeError("Ele MVA ID Working point not found")
-            else: raise RuntimeError("Ele MVA ID type not found")
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            elif name == "NonTrigPhys14Fix":
+                if wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.712;
+                        else            : return self.mvaRun2(name) > -0.662;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.701;
+                        else            : return self.mvaRun2(name) > -0.350;
+            elif name == "NonTrigSpring15":
+                if wp=="VLoose":
+                    if self.pt() <= 10:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.55;
+                        else              : return self.mvaRun2(name) > -0.60;
+                    else:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.16;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.65;
+                        else              : return self.mvaRun2(name) > -0.74;                        
+                elif wp=="VLooseIdEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.70;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.83;
+                    else              : return self.mvaRun2(name) > -0.92;
+                elif wp=="VLooseIdIsoEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.155;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.56;
+                    else              : return self.mvaRun2(name) > -0.76;
+                elif wp=="Tight":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
+                    elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
+                    else              : return self.mvaRun2(name) > 0.17;
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            else: raise RuntimeError, "Ele MVA ID type not found"
 
 
 

@@ -73,8 +73,11 @@ class JetAnalyzer( Analyzer ):
         self.addJECShifts = self.cfg_ana.addJECShifts if hasattr(self.cfg_ana, 'addJECShifts') else 0
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
-        elif self.recalibrateJets not in [True,False]: raise RuntimeError("recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets)
-        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
+        elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
+       
+        calculateSeparateCorrections = getattr(cfg_ana,"calculateSeparateCorrections", False);
+        calculateType1METCorrection  = getattr(cfg_ana,"calculateType1METCorrection",  False);
+        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0) or self.addJECShifts or calculateSeparateCorrections or calculateType1METCorrection
         if self.doJEC:
           doResidual = getattr(cfg_ana, 'applyL2L3Residual', 'Data')
           if   doResidual == "MC":   doResidual = self.cfg_comp.isMC

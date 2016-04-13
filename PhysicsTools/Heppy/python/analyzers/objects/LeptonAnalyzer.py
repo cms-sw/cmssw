@@ -255,7 +255,15 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 2.000: mu.EffectiveArea04 = 0.0913
               elif aeta < 2.200: mu.EffectiveArea04 = 0.1212
               else:              mu.EffectiveArea04 = 0.2085
-          else: raise RuntimeError("Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)")
+          elif self.muEffectiveArea == "Spring15_25ns_v1":
+              aeta = abs(mu.eta())
+              if   aeta < 0.800: mu.EffectiveArea03 = 0.0735
+              elif aeta < 1.300: mu.EffectiveArea03 = 0.0619
+              elif aeta < 2.000: mu.EffectiveArea03 = 0.0465
+              elif aeta < 2.200: mu.EffectiveArea03 = 0.0433
+              else:              mu.EffectiveArea03 = 0.0577
+              mu.EffectiveArea04 = 0 # not computed
+          else: raise RuntimeError,  "Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_25ns_v1 or Spring15_25ns_v1 (rho: fixedGridRhoFastjetAll)"
         # Attach the vertex to them, for dxy/dz calculation
         for mu in allmuons:
             mu.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
@@ -328,8 +336,30 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 1.300: ele.EffectiveArea04 = 0.1734 
               elif aeta < 2.000: ele.EffectiveArea04 = 0.1077 
               elif aeta < 2.200: ele.EffectiveArea04 = 0.1565 
-              else:              ele.EffectiveArea04 = 0.2680 
-          else: raise RuntimeError("Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)")
+              else:              ele.EffectiveArea04 = 0.2680
+          elif self.eleEffectiveArea == "Spring15_50ns_v1":
+              SCEta = abs(ele.superCluster().eta())
+              ## ----- https://github.com/ikrav/cmssw/blob/egm_id_747_v2/RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt
+              if   SCEta < 0.800: ele.EffectiveArea03 = 0.0973
+              elif SCEta < 1.300: ele.EffectiveArea03 = 0.0954
+              elif SCEta < 2.000: ele.EffectiveArea03 = 0.0632
+              elif SCEta < 2.200: ele.EffectiveArea03 = 0.0727
+              else:              ele.EffectiveArea03 = 0.1337
+              # warning: EAs not computed for cone DR=0.4 yet. Do not correct
+              ele.EffectiveArea04 = 0.0
+          elif self.eleEffectiveArea == "Spring15_25ns_v1":
+              SCEta = abs(ele.superCluster().eta())
+              ## ----- https://github.com/ikrav/cmssw/blob/egm_id_747_v2/RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt
+              if   SCEta < 1.000: ele.EffectiveArea03 = 0.1752
+              elif SCEta < 1.479: ele.EffectiveArea03 = 0.1862
+              elif SCEta < 2.000: ele.EffectiveArea03 = 0.1411
+              elif SCEta < 2.200: ele.EffectiveArea03 = 0.1534
+              elif SCEta < 2.300: ele.EffectiveArea03 = 0.1903
+              elif SCEta < 2.400: ele.EffectiveArea03 = 0.2243
+              else:              ele.EffectiveArea03 = 0.2687
+              # warning: EAs not computed for cone DR=0.4 yet. Do not correct
+              ele.EffectiveArea04 = 0.0
+          else: raise RuntimeError,  "Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?), Phys14_v1 and Spring15_v1 (rho: fixedGridRhoFastjetAll)"
 
         # Electron scale calibrations
         if self.cfg_ana.doElectronScaleCorrections:
@@ -409,8 +439,9 @@ class LeptonAnalyzer( Analyzer ):
                 else:
                     mu.miniAbsIsoPU = self.IsolationComputer.puAbsIso(mu.physObj, mu.miniIsoR, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
                 mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - 0.5*mu.miniAbsIsoPU)
-            elif self.miniIsolationPUCorr != 'raw':
-                raise RuntimeError("Unsupported miniIsolationCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested).")
+            elif puCorr != 'raw':
+                raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested)."
+
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
 
