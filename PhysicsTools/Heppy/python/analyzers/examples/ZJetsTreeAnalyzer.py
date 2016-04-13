@@ -15,12 +15,15 @@ class ZJetsTreeAnalyzer(TreeAnalyzerNumpy):
 
         
     def process(self, event):
+        self.tree.reset()
         if len(event.jets)>0:
             ntuple.fillParticle(self.tree, 'jet1', event.jets[0])
-            ntuple.fillParticle(self.tree, 'jet1_gen', event.jets[0].gen)
+            if event.jets[0].gen:
+                ntuple.fillParticle(self.tree, 'jet1_gen', event.jets[0].gen)
         if len(event.jets)>1:
             ntuple.fillParticle(self.tree, 'jet2', event.jets[1])
-            ntuple.fillParticle(self.tree, 'jet2_gen', event.jets[0].gen)
+            if event.jets[1].gen:
+                ntuple.fillParticle(self.tree, 'jet2_gen', event.jets[1].gen)
         if len(event.dimuons)>1:
             ntuple.fillParticle(self.tree, 'dimuon', event.dimuons[0])
             ntuple.fillParticle(self.tree, 'dimuon_leg1', event.dimuons[0].leg1)
