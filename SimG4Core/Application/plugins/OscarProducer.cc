@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarProducer.h"
@@ -10,6 +11,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
@@ -67,8 +69,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManager.reset(new RunManager(p));
-  //m_runManager.reset(new RunManager(p, consumesCollector()));
+  m_runManager.reset(new RunManager(p, consumesCollector()));
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
