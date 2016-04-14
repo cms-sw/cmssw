@@ -401,6 +401,15 @@ L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
   //Note: Do not delete the iSummary pointer. The framework does something with it later on    
   //      and deleting it results in a segmentation fault.  
 
+  //Reninitalize HistoJ pointers to nullptr   
+  iSummary->processed               = nullptr;
+
+  iSummary->L1AlgoAccept            = nullptr;         
+  iSummary->L1AlgoAcceptPhysics     = nullptr;         
+  iSummary->L1AlgoAcceptCalibration = nullptr;         
+  iSummary->L1AlgoAcceptRandom      = nullptr;         
+  iSummary->L1Global                = nullptr;                       
+
 }//End globalEndLuminosityBlockSummary function     
 
 void
