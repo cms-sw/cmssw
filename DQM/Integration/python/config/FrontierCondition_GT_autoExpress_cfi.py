@@ -202,8 +202,8 @@ class Tier0DasInterface:
             gt = "UNKNOWN"
             json = self.getData(url)
             results = self.getResultList(json)
-            config = ast.literal_eval(results[0])[0]
-            gt = config['global_tag']
+            config = results[0]
+            gt = str(config['global_tag'])
             # FIXME: do we realluy need to raise?
             if gt == "UNKNOWN":
                 raise KeyError
