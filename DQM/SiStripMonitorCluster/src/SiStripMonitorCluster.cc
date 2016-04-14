@@ -56,7 +56,6 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   genTriggerEventFlagStripDCSfilter_ = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("StripDCSfilter"), consumesCollector(), *this );
 
   firstEvent = -1;
-  eventNb = 0;
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
@@ -504,13 +503,55 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   passStripDCSfilter_ = ( iEvent.isRealData() and genTriggerEventFlagStripDCSfilter_->on() ) ? genTriggerEventFlagStripDCSfilter_->accept( iEvent, iSetup) : true;
   //  std::cout << "passBPTXfilter_ ? " << passBPTXfilter_ << std::endl;
 
-  // Filter out events if DCS Event if requested
-  if (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup)) return;
-
-  runNb   = iEvent.id().run();
-  eventNb++;
   trendVar = trendVsLs_ ? iEvent.orbitNumber()/262144.0 : iEvent.orbitNumber()/11223.0; // lumisection : seconds
 
+  //fill cluster trend plots before DCS filter
+  for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
+       iSubdet != SubDetMEsMap.end(); iSubdet++) {
+    iSubdet->second.totNClusters = 0;
+  }
+
+  // get collection of DetSetVector of clusters from Event
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
+  iEvent.getByToken(clusterProducerStripToken_, cluster_detsetvektor);
+  if (!cluster_detsetvektor.isValid()) return;
+
+  SiStripFolderOrganizer folder_organizer;
+
+  for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
+       iterLayer != LayerDetMap.end(); iterLayer++) {
+    int ncluster_layer = 0;
+    
+    std::string label = "";
+
+    // loop over all modules in the layer
+    for (std::vector< uint32_t >::const_iterator iterDets = iterLayer->second.begin() ;
+	 iterDets != iterLayer->second.end() ; iterDets++) {
+      uint32_t detid = (*iterDets);
+
+      edmNew::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
+      edmNew::DetSet<SiStripCluster> cluster_detset = (*isearch);
+      ncluster_layer +=  cluster_detset.size();
+
+      // Get SubDet label once
+      if (label.size() == 0) label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
+    }
+
+    std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(label);
+    if(iSubdet != SubDetMEsMap.end()) iSubdet->second.totNClusters += ncluster_layer;
+  }
+
+  
+  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
+       it != SubDetMEsMap.end(); it++) {
+    SubDetMEs sdetmes = it->second;
+    if (subdetswitchtotclusprofon)
+      sdetmes.SubDetTotClusterProf->Fill(trendVar,sdetmes.totNClusters);
+  }
+  
+  // Filter out events based on DCS HV+DAQ info for all other MEs
+  if (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup)) return;
+  
   int NPixClusters=0, NStripClusters=0, MultiplicityRegion=0;
   bool isPixValid=false;
 
@@ -525,15 +566,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   iSetup.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
 
-  // get collection of DetSetVector of clusters from Event
-  edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  iEvent.getByToken(clusterProducerStripToken_, cluster_detsetvektor);
-
   //get pixel clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > cluster_detsetvektor_pix;
   iEvent.getByToken(clusterProducerPixToken_, cluster_detsetvektor_pix);
-
-  if (!cluster_detsetvektor.isValid()) return;
 
   const edmNew::DetSetVector<SiStripCluster> * StrC= cluster_detsetvektor.product();
   NStripClusters= StrC->data().size();
@@ -557,20 +592,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	NumberOfStripClus->Fill(NStripClusters);
     }
   }
-  // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
-       iSubdet != SubDetMEsMap.end(); iSubdet++) {
-    iSubdet->second.totNClusters = 0;
-  }
 
-  SiStripFolderOrganizer folder_organizer;
   bool found_layer_me = false;
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
 
     std::string layer_label = iterLayer->first;
 
-    int ncluster_layer = 0;
     std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(layer_label);
 
     //get Layer MEs
@@ -630,7 +658,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       if (found_layer_me && layerswitchnumclusterprofon)
 	layer_single.LayerNumberOfClusterProfile->Fill(iDet, static_cast<float>(cluster_detset.size()));
-      ncluster_layer +=  cluster_detset.size();
 
       short total_clusterized_strips = 0;
 
@@ -733,8 +760,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	  fillME(layer_single.LayerLocalOccupancyTrend,trendVar,local_occupancy);
       }
     }
-    std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
-    if(iSubdet != SubDetMEsMap.end()) iSubdet->second.totNClusters += ncluster_layer;
   }
 
   //  EventHistory
@@ -788,8 +813,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       if (subdetswitchtotclusth1on)
 	  sdetmes.SubDetTotClusterTH1->Fill(sdetmes.totNClusters);
-      if (subdetswitchtotclusprofon)
-	  sdetmes.SubDetTotClusterProf->Fill(trendVar,sdetmes.totNClusters);
       if (subdetswitchapvcycleprofon)
 	sdetmes.SubDetClusterApvProf->Fill(tbx_corr%70,sdetmes.totNClusters);
       if (subdetswitchapvcycleth2on)
