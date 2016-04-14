@@ -160,13 +160,13 @@ bool TrackerTopology::isStereo(const DetId &id) const {
     if ( subdet == PixelSubdetector::PixelEndcap )
       return false;
     if ( subdet == StripSubdetector::TIB )
-      return tibIsStereo(id);
+      return tibStereo(id)!=0;
     if ( subdet == StripSubdetector::TID )
-      return tidIsStereo(id);
+      return tidStereo(id)!=0;
     if ( subdet == StripSubdetector::TOB )
-      return tobIsStereo(id);
+      return tobStereo(id)!=0;
     if ( subdet == StripSubdetector::TEC )
-      return tecIsStereo(id);
+      return tecStereo(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isStereo";
     return 0;
@@ -180,13 +180,13 @@ bool TrackerTopology::isRPhi(const DetId &id) const {
     if ( subdet == PixelSubdetector::PixelEndcap )
       return false;
     if ( subdet == StripSubdetector::TIB )
-      return tibIsRPhi(id);
+      return tibRPhi(id)!=0;
     if ( subdet == StripSubdetector::TID )
-      return tidIsRPhi(id);
+      return tidRPhi(id)!=0;
     if ( subdet == StripSubdetector::TOB )
-      return tobIsRPhi(id);
+      return tobRPhi(id)!=0;
     if ( subdet == StripSubdetector::TEC )
-      return tecIsRPhi(id);
+      return tecRPhi(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isRPhi";
     return 0;
@@ -343,7 +343,9 @@ std::string TrackerTopology::print(DetId id) const {
     unsigned int              theModule = tobModule(id);
     std::string side;
     std::string part;
-    side = (theRod[0] == 1 ) ? "-" : "+";
+    side = (((theRod[0] == 1 ) ? "-" : ((theRod[0] == 2 ) ? "+" : (theRod[0] == 3 ) ? "0" : "")));
+//    side = (theRod[0] == 2 ) ? "+" : "";
+//    side = (theRod[0] == 3 ) ? "0" : "";
     std::string type;
     type = (isStereo(id)) ? "stereo" : type;
     type = (isRPhi(id)) ? "r-phi" : type;
