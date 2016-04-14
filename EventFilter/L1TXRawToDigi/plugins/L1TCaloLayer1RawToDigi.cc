@@ -163,9 +163,14 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
       const FEDRawData& fedRawData = fedRawDataCollection->FEDData(fed);
       
       //Check FED size
-      if(verbose) LogDebug("L1TCaloLayer1") << "Upacking FEDRawData for fed " << std::dec << fed << " of size " << fedRawData.size();
+      if(verbose) LogDebug("L1TCaloLayer1RawToDigi") << "Upacking FEDRawData for fed " << std::dec << fed << " of size " << fedRawData.size();
       
       const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
+
+      if ( fedRawData.size() == 0 || fedRawDataArray == nullptr ) {
+        LogError("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
+        continue;
+      }
       
       UCTDAQRawData daqData(fedRawDataArray);
       if(verbose && event < 5) daqData.print();
