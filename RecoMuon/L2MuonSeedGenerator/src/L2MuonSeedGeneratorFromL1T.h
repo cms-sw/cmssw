@@ -71,6 +71,7 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   const unsigned theL1MinQuality;
   const bool useOfflineSeed;
   const bool useUnassociatedL1;
+  const double matchingDR;
 
   /// use central bx only muons
   bool centralBxOnly_;
