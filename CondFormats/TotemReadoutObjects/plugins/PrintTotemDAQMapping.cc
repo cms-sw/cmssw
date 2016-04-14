@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,7 +22,7 @@
 /**
  *\brief Prints the DAQ mapping loaded by DAQMappingSourceXML.
  **/
-class PrintTotemDAQMapping : public edm::EDAnalyzer
+class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
 {
   public:
     PrintTotemDAQMapping(const edm::ParameterSet &ps) {}

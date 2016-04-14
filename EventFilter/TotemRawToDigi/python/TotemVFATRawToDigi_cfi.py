@@ -1,7 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-TotemRawToDigi = cms.EDProducer("TotemRawToDigi",
+TotemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
   rawDataTag = cms.InputTag(""),
+
+  # options: "RP"
+  subSystem = cms.string(""),
+
+  # IMPORTANT: leave empty to load the default configuration from
+  #    DataFormats/FEDRawData/interface/FEDNumbering.h
+  fedIds = cms.vuint32(),
 
   RawUnpacking = cms.PSet(
   ),

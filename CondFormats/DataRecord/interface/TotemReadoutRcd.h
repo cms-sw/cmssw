@@ -6,8 +6,8 @@
 *    
 ****************************************************************************/
 
-#ifndef TotemCondFormatsDataRecordTotemDAQMappingRecord_h
-#define TotemCondFormatsDataRecordTotemDAQMappingRecord_h
+#ifndef CondFormats_DataRecord_TotemReadoutRcd
+#define CondFormats_DataRecord_TotemReadoutRcd
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
  

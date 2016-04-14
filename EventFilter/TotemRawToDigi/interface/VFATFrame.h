@@ -1,13 +1,13 @@
 /**********************************************************
 *
-* This is a part of TOTEM offline software.
+* This is a part of the TOTEM offline software.
 * Authors:
 *    Jan Kaspar (jan.kaspar@gmail.com)
 *
 **********************************************************/
 
-#ifndef _Totem_VFATFrame_h_
-#define _Totem_VFATFrame_h_
+#ifndef EventFilter_TotemRawToDigi_VFATFrame
+#define EventFilter_TotemRawToDigi_VFATFrame
 
 #include <vector>
 #include <cstddef>

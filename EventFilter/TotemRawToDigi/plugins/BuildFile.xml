@@ -6,11 +6,9 @@
 	<use name="DataFormats/FEDRawData"/>
 	<use name="DataFormats/Common"/>
 	
-	<use name="DataFormats/TotemRPDigi"/>
-	<use name="DataFormats/TotemRPReco"/>
-	<use name="DataFormats/TotemRPL1"/>
-	<use name="DataFormats/TotemRawData"/>
+	<use name="DataFormats/TotemDigi"/>
 	
+	<use name="CondFormats/DataRecord"/>
 	<use name="CondFormats/TotemReadoutObjects"/>
 	
 	<use name="EventFilter/TotemRawToDigi"/>

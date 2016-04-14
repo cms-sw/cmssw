@@ -1,6 +1,5 @@
 /****************************************************************************
 *
-* This is a part of the TOTEM testbeam/monitoring software.
 * This is a part of the TOTEM offline software.
 * Authors: 
 *   Mate Csanad (mate.csanad@cern.ch)
@@ -9,8 +8,8 @@
 ****************************************************************************/
 
 
-#ifndef _Totem_SimpleVFATFrameCollection_h_
-#define _Totem_SimpleVFATFrameCollection_h_
+#ifndef EventFilter_TotemRawToDigi_SimpleVFATFrameCollection
+#define EventFilter_TotemRawToDigi_SimpleVFATFrameCollection
 
 #include "EventFilter/TotemRawToDigi/interface/VFATFrameCollection.h"
 

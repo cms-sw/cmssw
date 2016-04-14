@@ -28,7 +28,7 @@ std::ostream& operator << (std::ostream& s, const TotemVFATInfo &vi)
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemDAQMapping::Insert(const TotemFramePosition &fp, const TotemVFATInfo &vi)
+void TotemDAQMapping::insert(const TotemFramePosition &fp, const TotemVFATInfo &vi)
 {
   auto it = VFATMapping.find(fp);  
   if (it != VFATMapping.end())
