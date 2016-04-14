@@ -84,7 +84,8 @@ class SiPixelActionExecutor {
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & summary_freq);
  void readConfiguration(	    );
-
+ int getLadder(                     std::string                    dname_);
+ int getBlade(                     std::string                    dname_);
 
 private:
   
@@ -105,7 +106,8 @@ private:
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel,
 				    bool isUpgrade);
-  void fillDeviations(              DQMStore::IGetter            & iGetter);
+  void fillDeviations(              DQMStore::IGetter            & iGetter,
+				    bool isUpgrade);
   void fillFEDErrorSummary(         DQMStore::IBooker  		 & iBooker,
 				    DQMStore::IGetter            & iGetter,
                                     std::string 	     	   dir_name,
