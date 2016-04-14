@@ -455,11 +455,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       unsigned int addPlusMult = params_->jetCompressLUT()->data(compBin);
 
       unsigned int multiplier = addPlusMult & 0x3ff;
-      int addend = addPlusMult >> 10;
-
+      int addend = (addPlusMult>>17) ? ( 0x7f - (addPlusMult>>10) ) : ( (addPlusMult>>10) & 0x7f );
+      
       unsigned int jetPtCorr = (jet->hwPt()*multiplier) + addend;
-
-      //std::cout << "\t\t\t\t ===== pt bin = " << ptBin << ", ptbin <<4 = " << (ptBin << 4) << ", eta = " << abs(jet->hwEta()) << ", etabin = " << etaBin << ", comp bin = " << compBin << ", addPlusMult = " << addPlusMult << ", Pt orig = " << jet->hwPt() << ", corr Pt  = " << jetPtCorr << std::endl;
 
       math::XYZTLorentzVector p4;
       *jet = l1t::Jet( p4, jetPtCorr, jet->hwEta(), jet->hwPhi(), 0);
