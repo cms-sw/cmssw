@@ -34,14 +34,18 @@
 
 #include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "HepPDT/ParticleDataTable.hh"
@@ -106,9 +110,12 @@ void createWatchers(const edm::ParameterSet& iP,
   }
 }
 
-RunManager::RunManager(edm::ParameterSet const & p) 
-  :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
-      m_primaryTransformer(0), 
+RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC) 
+  :   m_generator(new Generator(p.getParameter<edm::ParameterSet>("Generator"))),
+      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))),
+      m_LHCtr(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
+      m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
+      m_primaryTransformer(nullptr), 
       m_managerInitialized(false), 
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       firstRun(true),
@@ -128,8 +135,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0), m_chordFinderSetter(nullptr),
-      m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
+      m_p(p), m_fieldBuilder(nullptr), m_chordFinderSetter(nullptr)
 {    
   m_kernel = new G4RunManagerKernel();
 
@@ -149,10 +155,6 @@ RunManager::RunManager(edm::ParameterSet const & p)
   }
 
   createWatchers(m_p, m_registry, m_watchers, m_producers);
-
-  m_generator = new Generator(m_pGenerator);
-  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
-
 }
 
 RunManager::~RunManager() 
@@ -162,6 +164,7 @@ RunManager::~RunManager()
   G4GeometryManager::GetInstance()->OpenGeometry();
   //   if (m_kernel!=0) delete m_kernel; 
   delete m_runInterface;
+  delete m_generator;
 }
 
 void RunManager::initG4(const edm::EventSetup & es)
@@ -376,7 +379,7 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
   
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   
-  inpevt.getByLabel( m_InTag, HepMCEvt ) ;
+  inpevt.getByToken( m_HepMC, HepMCEvt ) ;
   
   m_generator->setGenEvent(HepMCEvt->GetEvent());
 
@@ -507,7 +510,7 @@ void RunManager::abortRun(bool softAbort)
 void RunManager::resetGenParticleId( edm::Event& inpevt ) 
 {
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
-  inpevt.getByLabel( m_theLHCTlinkTag, theLHCTlink );
+  inpevt.getByToken( m_LHCtr, theLHCTlink );
   if ( theLHCTlink.isValid() ) {
     m_trackManager->setLHCTransportLink( theLHCTlink.product() );
   }

@@ -88,7 +88,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
 CSCGeometryESModule::~CSCGeometryESModule(){}
 
 
-boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
+std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
 
   initCSCGeometry_(record);
 
@@ -134,8 +134,8 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
 
   // Updates whenever a dependent Record was changed
 
-  cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
-								 useCentreTIOffsets ) );
+  cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
+								 useCentreTIOffsets );
 
   //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
   //  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
@@ -153,7 +153,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<IdealGeometryRecord>().get(cpv);
     record.getRecord<MuonNumberingRecord>().get( mdc );
     CSCGeometryBuilderFromDDD builder;
-    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
+    //    _cscGeometry = std::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
     builder.build(cscGeometry, &(*cpv), *mdc);
   } else {
     edm::ESHandle<RecoIdealGeometry> rig;
@@ -161,7 +161,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<CSCRecoGeometryRcd>().get(rig);
     record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
     CSCGeometryBuilder cscgb;
-    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
+    //    _cscGeometry = std::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
     cscgb.build(cscGeometry, *rig, *rdp);
   }
   recreateGeometry_=false;

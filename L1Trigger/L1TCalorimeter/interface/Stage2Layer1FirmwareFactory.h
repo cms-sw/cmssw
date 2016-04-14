@@ -11,7 +11,7 @@
 #ifndef Stage2Layer1FirmwareFactory_h
 #define Stage2Layer1FirmwareFactory_h
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 
@@ -22,7 +22,7 @@ namespace l1t {
 
   class Stage2Layer1FirmwareFactory {
   public:
-    typedef boost::shared_ptr<Stage2PreProcessor> ReturnType;
+    typedef std::shared_ptr<Stage2PreProcessor> ReturnType;
 
     ReturnType create(unsigned fwv, CaloParamsHelper* params);
 

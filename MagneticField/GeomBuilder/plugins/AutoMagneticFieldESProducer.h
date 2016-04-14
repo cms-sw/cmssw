@@ -25,7 +25,7 @@ namespace magneticfield {
     AutoMagneticFieldESProducer(const edm::ParameterSet&);
     ~AutoMagneticFieldESProducer();
     
-    std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
     edm::ParameterSet pset;
   private:
     std::string closerModel(float current);

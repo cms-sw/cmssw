@@ -9,15 +9,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  ParametersDefinerForTPESProducer: public edm::ESProducer{
-  typedef boost::shared_ptr<ParametersDefinerForTP> ReturnType;
+  typedef std::shared_ptr<ParametersDefinerForTP> ReturnType;
 
  public:
   ParametersDefinerForTPESProducer(const edm::ParameterSet & p);
   virtual ~ParametersDefinerForTPESProducer(); 
-  boost::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
+  std::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
   edm::ParameterSet pset_;
 

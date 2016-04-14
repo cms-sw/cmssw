@@ -56,6 +56,5 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
 private:
   float adcToGeVConstant_;
   bool  adcToGeVConstantIsSet_;
-
 };
 #endif

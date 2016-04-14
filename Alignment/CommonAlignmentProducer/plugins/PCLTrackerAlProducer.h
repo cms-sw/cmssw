@@ -228,10 +228,9 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /// GlobalPositions that might be read from DB, NULL otherwise
     const Alignments* globalPositions_;
 
-    // TODO: Change pointers to std::shared_ptr
-    boost::shared_ptr<TrackerGeometry> theTrackerGeometry;
-    boost::shared_ptr<DTGeometry>      theMuonDTGeometry;
-    boost::shared_ptr<CSCGeometry>     theMuonCSCGeometry;
+    std::shared_ptr<TrackerGeometry> theTrackerGeometry;
+    std::shared_ptr<DTGeometry>      theMuonDTGeometry;
+    std::shared_ptr<CSCGeometry>     theMuonCSCGeometry;
 
     int nevent_;
 
@@ -263,7 +262,12 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     edm::EDGetTokenT<TkFittedLasBeamCollection> tkLasBeamToken;
     edm::EDGetTokenT<TsosVectorCollection> tsosVectorToken;
     edm::EDGetTokenT<AliClusterValueMap> clusterValueMapToken;
- 
+    cond::Time_t theFirstRun;
+
+    // file-names
+    //std::string millePedeLogFile_ = "millepede.log";
+    //std::string millePedeResFile_ = "millepede.res";
+
 
     /*** ESWatcher ***/
 
@@ -287,7 +291,6 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     edm::ESWatcher<CSCSurveyErrorExtendedRcd>     watchCSCSurveyErrExtRcd;
 
 
-    cond::Time_t theFirstRun; 
 
     /*** Survey stuff ***/
 

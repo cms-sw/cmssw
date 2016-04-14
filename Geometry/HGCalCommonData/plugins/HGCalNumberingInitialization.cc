@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -39,7 +38,7 @@ public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
   ~HGCalNumberingInitialization();
 
-  typedef std::auto_ptr<HGCalDDDConstants> ReturnType;
+  typedef std::unique_ptr<HGCalDDDConstants> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

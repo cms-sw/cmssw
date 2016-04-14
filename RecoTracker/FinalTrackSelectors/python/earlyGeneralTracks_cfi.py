@@ -22,10 +22,37 @@ earlyGeneralTracks.inputClassifiers =["initialStep",
                                       "pixelLessStep",
                                       "tobTecStep"
                                       ]
+eras.trackingPhase1.toModify(
+    earlyGeneralTracks,
+    trackProducers = [
+        'initialStepTracks',
+        'highPtTripletStepTracks',
+        'jetCoreRegionalStepTracks',
+        'lowPtQuadStepTracks',
+        'lowPtTripletStepTracks',
+        'detachedQuadStepTracks',
+        #'detachedTripletStepTracks', # FIXME: disabled for now
+        'mixedTripletStepTracks',
+        'pixelLessStepTracks',
+        'tobTecStepTracks'
+    ],
+    inputClassifiers = [
+        "initialStep",
+        "highPtTripletStep",
+        "jetCoreRegionalStep",
+        "lowPtQuadStep",
+        "lowPtTripletStep",
+        "detachedQuadStep",
+        #"detachedTripletStep", # FIXME: disabled for now
+        "mixedTripletStep",
+        "pixelLessStep",
+        "tobTecStep"
+    ],
+)
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
-eras.trackingPhase1.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+eras.trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers = ['initialStepTracks',
                       'highPtTripletStepTracks',
                       'lowPtQuadStepTracks',

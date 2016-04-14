@@ -16,7 +16,7 @@ _pixelPairStepClustersBase = _trackClusterRemover.clone(
 pixelPairStepClusters = _pixelPairStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('lowPtTripletStep',"QualityMasks"),
 )
-eras.trackingPhase1.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
     trajectories                             = "mixedTripletStepTracks",
     oldClusterRemovalInfo                    = "mixedTripletStepClusters",
     overrideTrkQuals                         = "mixedTripletStep",
@@ -40,7 +40,7 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('pixelPairStepClusters')
     )
 )
-eras.trackingPhase1.toModify(pixelPairStepSeedLayers,
+eras.trackingPhase1PU70.toModify(pixelPairStepSeedLayers,
     layerList = [
         'BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
         'BPix2+BPix4', 'BPix3+BPix4',
@@ -69,7 +69,7 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache'),
     )
-eras.trackingPhase1.toModify(pixelPairStepSeeds,
+eras.trackingPhase1PU70.toModify(pixelPairStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
             ptMin = 1.2,
@@ -90,7 +90,7 @@ pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     seedPairPenalty =0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
-eras.trackingPhase1.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
+eras.trackingPhase1PU70.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.801,
 ))
@@ -114,7 +114,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
     pTChargeCutThreshold = cms.double(15.)
 )
-eras.trackingPhase1.toModify(pixelPairStepChi2Est,
+eras.trackingPhase1PU70.toModify(pixelPairStepChi2Est,
     MaxChi2 = 16.0,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
@@ -148,7 +148,7 @@ pixelPairStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clon
     fractionShared = 0.095,
     allowSharedFirstHit = True
 )
-eras.trackingPhase1.toModify(pixelPairStepTrackCandidates, TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits')
+eras.trackingPhase1PU70.toModify(pixelPairStepTrackCandidates, TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits')
 
 
 # TRACK FITTING
@@ -223,4 +223,4 @@ PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStep)
 _PixelPairStep_Phase1PU70 = PixelPairStep.copy()
 _PixelPairStep_Phase1PU70.replace(pixelPairStep, pixelPairStepSelector)
-eras.trackingPhase1.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1PU70)

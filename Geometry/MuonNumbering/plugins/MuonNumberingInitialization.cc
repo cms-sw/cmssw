@@ -17,7 +17,6 @@
 //
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -37,7 +36,7 @@ public:
   MuonNumberingInitialization( const edm::ParameterSet& );
   ~MuonNumberingInitialization();
 
-  typedef std::auto_ptr<MuonDDDConstants> ReturnType;
+  typedef std::unique_ptr<MuonDDDConstants> ReturnType;
 
   ReturnType produce( const MuonNumberingRecord& );
 

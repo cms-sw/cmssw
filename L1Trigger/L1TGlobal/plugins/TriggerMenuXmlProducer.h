@@ -21,7 +21,6 @@
 #include <memory>
 #include <string>
 
-#include "boost/shared_ptr.hpp"
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -54,7 +53,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    boost::shared_ptr<TriggerMenu> produceGtTriggerMenu(
+    std::shared_ptr<TriggerMenu> produceGtTriggerMenu(
         const L1TGlobalTriggerMenuRcd&);
 
 private:

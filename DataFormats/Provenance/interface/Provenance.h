@@ -40,9 +40,7 @@ namespace edm {
     StableProvenance const& stable() const {return stableProvenance_;}
     StableProvenance& stable() {return stableProvenance_;}
 
-    BranchDescription const& product() const {return branchDescription();}
     BranchDescription const& branchDescription() const {return stable().branchDescription();}
-    BranchDescription const& constBranchDescription() const {return branchDescription();}
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return stable().constBranchDescriptionPtr();}
 
     ProductProvenance const* productProvenance() const;

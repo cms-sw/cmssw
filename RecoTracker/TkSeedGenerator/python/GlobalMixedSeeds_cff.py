@@ -26,6 +26,6 @@ globalMixedSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProd
        maxElement = cms.uint32(1000000)
     )
 )
-eras.trackingPhase1.toModify(globalMixedSeeds,
+eras.trackingPhase1PU70.toModify(globalMixedSeeds,
     OrderedHitsFactoryPSet = dict(maxElement = 0),
 )

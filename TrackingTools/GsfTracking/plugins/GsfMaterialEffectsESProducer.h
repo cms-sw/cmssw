@@ -17,7 +17,7 @@ class  GsfMaterialEffectsESProducer: public edm::ESProducer{
  public:
   GsfMaterialEffectsESProducer(const edm::ParameterSet & p);
   virtual ~GsfMaterialEffectsESProducer(); 
-  boost::shared_ptr<GsfMaterialEffectsUpdator> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<GsfMaterialEffectsUpdator> produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };

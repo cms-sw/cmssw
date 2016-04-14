@@ -1,4 +1,3 @@
-<use   name="boost"/>
 <use   name="root"/>
 <use   name="classlib"/>
 <use   name="clhep"/>

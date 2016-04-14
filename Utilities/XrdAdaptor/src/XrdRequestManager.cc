@@ -277,7 +277,7 @@ RequestManager::updateCurrentServer()
 void
 RequestManager::queueUpdateCurrentServer(const std::string &id)
 {
-    std::unique_ptr<std::string> hostname(new std::string(id));
+    auto hostname = std::make_unique<std::string>(id);
     if (Source::getHostname(id, *hostname))
     {
         std::string *null_hostname = nullptr;

@@ -439,11 +439,36 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Energy Sums		
             case CondEnergySum: {
 
+    		l1t::EtSum::EtSumType type;
+    		switch( cndObjTypeVec[0] ){
+    		case ETM:
+      			type = l1t::EtSum::EtSumType::kMissingEt;
+      			break;
+    		case ETT:
+      			type = l1t::EtSum::EtSumType::kTotalEt;
+      			break;
+    		case HTM:
+      			type = l1t::EtSum::EtSumType::kMissingHt;
+      			break;
+    		case HTT:
+      			type = l1t::EtSum::EtSumType::kTotalHt;
+      			break;
+    		default:
+      			edm::LogError("l1t|Global")
+        		<< "\n  Error: "
+        		<< "Unmatched object type from template to EtSumType, cndObjTypeVec[0] = "
+        		<< cndObjTypeVec[0]
+        		<< std::endl;
+      			type = l1t::EtSum::EtSumType::kTotalEt;
+      		break;
+    		}
+
+                candEtSumVec = m_uGtB->getCandL1EtSum();
                 for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		  // this is clearly a bug:
 		  //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
 		  // untested bug fix, to quiet compile time warnings, will need to push back to GT experts:
-		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() ==  l1t::EtSum::kMissingEt ) {
+		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                     phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                     etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
@@ -539,11 +564,37 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 case CondEnergySum: {
 
+
+     		l1t::EtSum::EtSumType type;
+    		switch( cndObjTypeVec[1] ){
+    		case ETM:
+      			type = l1t::EtSum::EtSumType::kMissingEt;
+      			break;
+    		case ETT:
+      			type = l1t::EtSum::EtSumType::kTotalEt;
+      			break;
+    		case HTM:
+      			type = l1t::EtSum::EtSumType::kMissingHt;
+      			break;
+    		case HTT:
+      			type = l1t::EtSum::EtSumType::kTotalHt;
+      			break;
+    		default:
+      			edm::LogError("l1t|Global")
+        		<< "\n  Error: "
+        		<< "Unmatched object type from template to EtSumType, cndObjTypeVec[1] = "
+        		<< cndObjTypeVec[1]
+        		<< std::endl;
+      			type = l1t::EtSum::EtSumType::kTotalEt;
+      		break;
+    		}  
+
+                   candEtSumVec = m_uGtB->getCandL1EtSum();
                    for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
 		     // this is clearly a bug:		     
 		     //if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
 		     // untested bug fix, to quiet compile time warnings, will need to push back to GT experts:		    		    
-		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() ==  l1t::EtSum::kMissingEt ) {
+		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
                        phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                        etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 

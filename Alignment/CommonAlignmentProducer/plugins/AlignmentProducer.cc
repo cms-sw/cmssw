@@ -168,7 +168,7 @@ AlignmentProducer::~AlignmentProducer()
 
 //_____________________________________________________________________________
 // Produce tracker geometry
-boost::shared_ptr<TrackerGeometry>
+std::shared_ptr<TrackerGeometry>
 AlignmentProducer::produceTracker( const TrackerDigiGeometryRecord& iRecord )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceTracker";
@@ -177,7 +177,7 @@ AlignmentProducer::produceTracker( const TrackerDigiGeometryRecord& iRecord )
 
 //_____________________________________________________________________________
 // Produce muonDT geometry
-boost::shared_ptr<DTGeometry>
+std::shared_ptr<DTGeometry>
 AlignmentProducer::produceDT( const MuonGeometryRecord& iRecord )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceDT";
@@ -186,7 +186,7 @@ AlignmentProducer::produceDT( const MuonGeometryRecord& iRecord )
 
 //_____________________________________________________________________________
 // Produce muonCSC geometry
-boost::shared_ptr<CSCGeometry>
+std::shared_ptr<CSCGeometry>
 AlignmentProducer::produceCSC( const MuonGeometryRecord& iRecord )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceCSC";
@@ -658,7 +658,7 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      const TrackerTopology* const tTopo = tTopoHandle.product();
 
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp, tTopo ));
+     theTracker = std::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp, tTopo ));
    }
 
    if (doMuon_) {
@@ -666,9 +666,9 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      iSetup.get<MuonNumberingRecord>().get(mdc);
      DTGeometryBuilderFromDDD DTGeometryBuilder;
      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-     theMuonDT = boost::shared_ptr<DTGeometry>(new DTGeometry );
+     theMuonDT = std::make_shared<DTGeometry>();
      DTGeometryBuilder.build( theMuonDT, &(*cpv), *mdc);
-     theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+     theMuonCSC = std::make_shared<CSCGeometry>();
      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
 }

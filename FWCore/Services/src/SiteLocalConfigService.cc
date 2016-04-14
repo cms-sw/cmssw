@@ -351,7 +351,7 @@ namespace edm {
     void
     SiteLocalConfigService::parse(std::string const& url) {
       cms::concurrency::xercesInitialize();
-      std::auto_ptr<XercesDOMParser> parser(new XercesDOMParser);
+      auto parser = std::make_unique<XercesDOMParser>();
       try {
         parser->setValidationScheme(XercesDOMParser::Val_Auto);
         parser->setDoNamespaces(false);

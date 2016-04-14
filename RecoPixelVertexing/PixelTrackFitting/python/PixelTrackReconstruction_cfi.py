@@ -31,11 +31,12 @@ PixelTrackReconstructionBlock = cms.PSet (
         )
     ),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits')
+        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
+        useQuadrupletAlgo = cms.bool(False),
     )
 )
 
-eras.trackingPhase1.toModify(PixelTrackReconstructionBlock,
+eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
     SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
         addRemainingTriplets = cms.bool(False),

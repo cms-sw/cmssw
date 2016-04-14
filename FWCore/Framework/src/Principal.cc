@@ -285,14 +285,12 @@ namespace edm {
 
   void
   Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductResolverBase> phb(new InputProductResolver(std::move(bd)));
-    addProductOrThrow(std::move(phb));
+    addProductOrThrow(std::make_unique<InputProductResolver>(std::move(bd)));
   }
 
   void
   Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductResolverBase> phb(new UnscheduledProductResolver(std::move(bd)));
-    addProductOrThrow(std::move(phb));
+    addProductOrThrow(std::make_unique<UnscheduledProductResolver>(std::move(bd)));
   }
 
   void
@@ -300,14 +298,12 @@ namespace edm {
     ProductResolverIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductResolverIndexInvalid);
 
-    std::unique_ptr<ProductResolverBase> phb(new AliasProductResolver(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
-    addProductOrThrow(std::move(phb));
+    addProductOrThrow(std::make_unique<AliasProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
   }
 
   void
   Principal::addParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductResolverBase> phb(new ParentProcessProductResolver(std::move(bd)));
-    addProductOrThrow(std::move(phb));
+    addProductOrThrow(std::make_unique<ParentProcessProductResolver>(std::move(bd)));
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -767,7 +763,7 @@ namespace edm {
       if(productResolver->singleProduct() && productResolver->provenanceAvailable() && !productResolver->branchDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
-        if(productResolver->provenance()->product().present()) {
+        if(productResolver->provenance()->branchDescription().present()) {
            provenances.push_back(productResolver->provenance());
         }
       }
@@ -803,13 +799,13 @@ namespace edm {
 
   WrapperBase const*
   Principal::getIt(ProductID const&) const {
-    assert(nullptr);
+    assert(false);
     return nullptr;
   }
 
   WrapperBase const*
   Principal::getThinnedProduct(ProductID const&, unsigned int&) const {
-    assert(nullptr);
+    assert(false);
     return nullptr;
   }
 
@@ -817,7 +813,7 @@ namespace edm {
   Principal::getThinnedProducts(ProductID const&,
                                   std::vector<WrapperBase const*>&,
                                   std::vector<unsigned int>&) const {
-    assert(nullptr);
+    assert(false);
   }
 
   void

@@ -204,9 +204,12 @@ namespace cond {
 	m_session->iovSchema().iovTable().insertMany( m_data->tag, m_data->iovBuffer );
 	std::stringstream msg;
         msg << m_data->iovBuffer.size() << " iov(s) inserted.";
-	if( m_session->iovSchema().tagLogTable().exists() )
+	if( m_session->iovSchema().tagLogTable().exists() ){
+	  std::string lt = logText;
+	  if( lt.empty() ) lt = "-";
 	  m_session->iovSchema().tagLogTable().insert(  m_data->tag,  operationTime, cond::getUserName(), cond::getHostName(), cond::getCommand(), 
-							msg.str(),logText );
+							msg.str(),lt );
+	}
 	m_data->iovBuffer.clear();
 	ret = true;
       }

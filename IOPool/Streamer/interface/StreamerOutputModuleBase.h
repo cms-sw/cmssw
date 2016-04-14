@@ -35,8 +35,8 @@ namespace edm {
     virtual void doOutputHeader(InitMsgBuilder const& init_message) = 0;
     virtual void doOutputEvent(EventMsgBuilder const& msg) = 0;
 
-    std::auto_ptr<InitMsgBuilder> serializeRegistry();
-    std::auto_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e); 
+    std::unique_ptr<InitMsgBuilder> serializeRegistry();
+    std::unique_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e); 
     Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
     void setHltMask(EventForOutput const& e);
     void setLumiSection();

@@ -14,19 +14,19 @@
 #include "RecoTracker/Record/interface/MultiRecHitRecord.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/MultiRecHitCollector.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  MultiRecHitCollectorESProducer: public edm::ESProducer{
  public:
   MultiRecHitCollectorESProducer(const edm::ParameterSet& iConfig);
   virtual ~MultiRecHitCollectorESProducer(); 
-  boost::shared_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
+  std::shared_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
 
   // Set parameter set
   void setConf(const edm::ParameterSet& conf){ conf_ = conf; }
  
  private:
-  boost::shared_ptr<MultiRecHitCollector> collector_;
+  std::shared_ptr<MultiRecHitCollector> collector_;
   edm::ParameterSet conf_;
 
 };

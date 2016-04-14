@@ -41,7 +41,7 @@ protected:
                                edm::ValidityInterval& ) ;
   
    private:
-  virtual std::auto_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
+  virtual std::unique_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
   void printBin(const CentralityTable::CBin*);
 
   // ----------member data ---------------------------
@@ -71,10 +71,10 @@ HiTrivialConditionRetriever::HiTrivialConditionRetriever(const edm::ParameterSet
   inputFileName_ = iConfig.getParameter<string>("inputFile");
 }
 
-std::auto_ptr<CentralityTable> 
+std::unique_ptr<CentralityTable>
 HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
 
-  std::auto_ptr<CentralityTable> CT(new CentralityTable()) ;
+  auto CT = std::make_unique<CentralityTable>();
 
   // Get values from text file
   ifstream in( edm::FileInPath(inputFileName_).fullPath().c_str() );
@@ -98,7 +98,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
     i++;
   }
 
-  return CT; 
+  return std::move(CT);
 }
 
 void HiTrivialConditionRetriever::printBin(const CentralityTable::CBin* thisBin){

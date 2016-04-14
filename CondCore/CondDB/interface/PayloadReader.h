@@ -52,7 +52,7 @@ namespace cond {
       void close();
       
       //
-      template <typename T> boost::shared_ptr<T> fetch( const cond::Hash& payloadHash );
+      template <typename T> std::shared_ptr<T> fetch( const cond::Hash& payloadHash );
       
    private:
       
@@ -60,8 +60,8 @@ namespace cond {
       Session m_session;
     };
         
-    template <typename T> inline boost::shared_ptr<T> PayloadReader::fetch( const cond::Hash& payloadHash ){
-      boost::shared_ptr<T> ret;
+    template <typename T> inline std::shared_ptr<T> PayloadReader::fetch( const cond::Hash& payloadHash ){
+      std::shared_ptr<T> ret;
       if(m_session.connectionString().empty()) open( PRODUCTION_DB );
       m_session.transaction().start( true );
       ret = m_session.fetchPayload<T>( payloadHash );

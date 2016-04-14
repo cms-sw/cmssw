@@ -72,7 +72,7 @@ void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventS
 
 #ifdef EDM_ML_DEBUG
     edm::EDConsumerBase::Labels labels;
-    labelsForToken(trackProducer->trajectory_, labels);
+    labelsForToken(trackProducer->trajectory, labels);
 
     LogTrace("MinBiasTracking")
       << " [TrackListCombiner] " << labels.module

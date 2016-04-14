@@ -132,7 +132,7 @@ FWGeometry::loadMap( const char* fileName )
    if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
 
    if (m_versionInfo.productionTag)
-      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n",  tree->GetName(),  m_versionInfo.productionTag->GetTitle(), path.Data());  
    else 
       fwLog( fwlog::kInfo ) << Form("Load %s from %s\n",  tree->GetName(), path.Data());  
 
