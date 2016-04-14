@@ -851,6 +851,10 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
   edm::ParameterSetDescription desc_hfrecal;
+  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterA", std::vector<double>());
+  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterB", std::vector<double>());
+  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
+  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
   desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
 
 	edm::ParameterSetDescription desc_ho;
