@@ -15,13 +15,8 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedMETsNoHF_*_*',
         'keep *_slimmedMETsPuppi_*_*',
         'keep *_slimmedSecondaryVertices_*_*',
-        'keep *_cmsTopTaggerMap_*_*',
-        #'keep *_slimmedJetsAK8PFCHSSoftDropSubjets_*_*',
-        #'keep *_slimmedJetsCMSTopTagCHSSubjets_*_*',
         'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
-        'keep *_slimmedJetsCMSTopTagCHSPacked_SubJets_*',
-        #'keep *_packedPatJetsAK8_*_*',
-        ## add extra METs
+        'keep *_slimmedJetsAK8PFPuppiSoftDropPacked_SubJets_*',
         
         'keep recoPhotonCores_reducedEgamma_*_*',
         'keep recoGsfElectronCores_reducedEgamma_*_*',
@@ -40,7 +35,6 @@ MicroEventContent = cms.PSet(
 
         'keep *_bunchSpacingProducer_*_*',
 
-        #'keep double_fixedGridRho*__*',
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
@@ -60,8 +54,7 @@ MicroEventContent = cms.PSet(
         'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
         'keep recoCSCHaloData_CSCHaloData_*_*',
-        'keep recoBeamHaloSummary_BeamHaloSummary_*_*',
-        'keep *_caTopTagInfosPAT_*_*'
+        'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
     )
 )
 MicroEventContentMC = cms.PSet(
