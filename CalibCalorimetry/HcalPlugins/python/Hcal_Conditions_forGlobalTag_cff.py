@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ## HF Recalibration Parameters
-from CalibCalorimetry.HcalPlugins.HFRecalibrationParameters_cff import *
+from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
 
 hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),

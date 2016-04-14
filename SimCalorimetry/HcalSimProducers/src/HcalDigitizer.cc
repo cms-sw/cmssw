@@ -328,7 +328,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
 
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
-  if(agingFlagHF) m_HFRecalibration = new HFRecalibration();
+  if(agingFlagHF) m_HFRecalibration = new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 }
 
 

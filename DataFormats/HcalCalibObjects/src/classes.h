@@ -7,7 +7,6 @@
 namespace DataFormats_HcalCalibObjects {
   struct dictionary {
    HEDarkening                                  hed;       
-   HFRecalibration                              hfr;       
    HOCalibVariables                             rv1;
    std::vector<HOCalibVariables>                v1;
    edm::Wrapper<std::vector<HOCalibVariables> > wc1;
