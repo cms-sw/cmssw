@@ -8,7 +8,6 @@ WorkerT: Code common to all workers.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
@@ -26,8 +25,6 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-
-  UnscheduledHandler const* getUnscheduledHandler(EventPrincipal const& ep);
 
   template<typename T>
   class WorkerT : public Worker {

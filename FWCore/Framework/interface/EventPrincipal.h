@@ -42,7 +42,7 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class ProcessHistoryRegistry;
   class RunPrincipal;
-  class UnscheduledHandler;
+  class UnscheduledConfigurator;
 
   class EventPrincipal : public Principal {
   public:
@@ -138,8 +138,7 @@ namespace edm {
 
     ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const {return provRetrieverPtr_.get();}
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler);
-    std::shared_ptr<const UnscheduledHandler> unscheduledHandler() const;
+    void setupUnscheduled(UnscheduledConfigurator const&);
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
@@ -185,10 +184,6 @@ namespace edm {
 
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
-    virtual bool unscheduledFill(std::string const& moduleLabel,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const override;
-
     virtual void readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const override;
 
     virtual unsigned int transitionIndex_() const override;
@@ -204,9 +199,6 @@ namespace edm {
 
     // Pointer to the 'retriever' that will get provenance information from the persistent store.
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> provRetrieverPtr_;
-
-    // Handler for unscheduled modules
-    std::shared_ptr<UnscheduledHandler const> unscheduledHandler_;
 
     EventSelectionIDVector eventSelectionIDs_;
 

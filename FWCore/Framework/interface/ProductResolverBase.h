@@ -26,6 +26,7 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class Principal;
+  class UnscheduledConfigurator;
 
   class ProductResolverBase {
   public:
@@ -128,6 +129,7 @@ namespace edm {
     }
     
     virtual void connectTo(ProductResolverBase const&, Principal const*) = 0;
+    virtual void setupUnscheduled(UnscheduledConfigurator const&);
 
   private:
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
