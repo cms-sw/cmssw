@@ -734,34 +734,34 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	 //  }
 	 // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
 	 //   if(gemChamber) {
-	 if(detId->subdetId() == 4) {
-	   // GEMDetId Rsid = GEMDetId(detId->rawId());
-	   // std::cout<< Rsid <<std::endl;
+	 // if(detId->subdetId() == 4) {
+	 //   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	 //   // std::cout<< Rsid <<std::endl;
 	   
-	   // gem width and length are interchanged - need to fix
-	   //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
-	   const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet);
-	   //int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
-	   //distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();//*nEtaPartitions; // FIXME temp fix for chambersize
-	   sigmaX = distanceX/sqrt(localError.xx());
-	   sigmaY = distanceY/sqrt(localError.yy());
-	   // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
-	   // GEMDetId Rsid = GEMDetId(detId->rawId());
-	   // std::cout<< Rsid <<std::endl;
-	   //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
-	   // auto& rolls(gemChamber->etaPartitions());
-	   // for (auto roll : rolls){
-	   //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
-	   //   auto& parameters(roll->specs()->parameters());
-	   //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
-	   //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
-	   //   double height(parameters[2]);       height       = 2*height;
-	   //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
+	 //   // gem width and length are interchanged - need to fix
+	 //   //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	 //   const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet);
+	 //   //int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
+	 //   //distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();//*nEtaPartitions; // FIXME temp fix for chambersize
+	 //   sigmaX = distanceX/sqrt(localError.xx());
+	 //   sigmaY = distanceY/sqrt(localError.yy());
+	 //   // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	 //   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	 //   // std::cout<< Rsid <<std::endl;
+	 //   //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	 //   // auto& rolls(gemChamber->etaPartitions());
+	 //   // for (auto roll : rolls){
+	 //   //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+	 //   //   auto& parameters(roll->specs()->parameters());
+	 //   //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
+	 //   //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
+	 //   //   double height(parameters[2]);       height       = 2*height;
+	 //   //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
 	      
-	   //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
-	   // }
-	   // }
-	 }
+	 //   //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
+	 //   // }
+	 //   // }
+	 // }
 	 
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
