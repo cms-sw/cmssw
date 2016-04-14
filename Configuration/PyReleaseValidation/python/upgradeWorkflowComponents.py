@@ -18,7 +18,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                '2023Reco' : 'Extended2023Reco'
                }
 	       
-upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
+upgradeGTs={ '2017' : 'auto:phase1_2017_design',
 	     '2023' :  'auto:run2_mc',
 	     '2023dev' :  'auto:run2_mc',
 	     '2023sim' : 'auto:run2_mc',

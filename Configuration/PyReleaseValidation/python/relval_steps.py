@@ -1468,7 +1468,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_8_1_0_pre2-80X_upgrade2017_realistic_v1_UPG17realGT-v'
+defaultDataSets['2017']='CMSSW_8_1_0_pre2-80X_upgrade2017_design_v9_UPG17designGT-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
