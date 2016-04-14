@@ -65,8 +65,8 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 
 #Calibration options 
 # e.g. function6PtParams22EtaBins
-caloStage2Params.jetCalibrationType    = cms.string("LUT")
-#caloStage2Params.jetCalibrationType    = cms.string("None")
+#caloStage2Params.jetCalibrationType    = cms.string("LUT")
+caloStage2Params.jetCalibrationType    = cms.string("None")
 #caloStage2Params.jetCalibrationType = cms.string("function6PtParams22EtaBins")
 
 
