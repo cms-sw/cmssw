@@ -113,6 +113,11 @@ class GeometryInterface {
     }
   };
 
+  Value extract(ID id, DetId did, edm::Event* ev = nullptr, int col = 0, int row = 0) {
+    InterestingQuantities iq = {did, ev, col, row};
+    return extractors[id](iq);
+  }
+
   std::vector<InterestingQuantities> const& allModules() { return all_modules; };
   Value maxValue(ID id) { return max_value[id]; }; 
   Value minValue(ID id) { return min_value[id]; }; 
