@@ -10,8 +10,20 @@ namespace l1t {
    namespace stage2 {
       class TauPacker : public Packer {
          public:
+	    TauPacker(int b1, int b2) : b1_(b1), b2_(b2) {}
             virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+	    int b1_, b2_;
       };
+
+      class GTTauPacker : public TauPacker {
+         public:
+             GTTauPacker() : TauPacker(16,18) {}
+      };
+      class CaloTauPacker : public TauPacker {
+         public:
+	     CaloTauPacker() : TauPacker(17,19) {}
+      };
+
    }
 }
 
@@ -53,10 +65,11 @@ namespace stage2 {
       while (load1.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
       while (load2.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
 
-      return {Block(17, load1), Block(19, load2)};
+      return {Block(b1_, load1), Block(b2_, load2)};
 
    }
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::TauPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTTauPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloTauPacker);
