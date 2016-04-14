@@ -17,7 +17,7 @@ class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::
   
   typedef std::vector<std::string> vstring;
   
-  virtual std::auto_ptr<SiPixelTemplateDBObject>  produce(const SiPixelTemplateDBObjectRcd &);
+  virtual std::unique_ptr<SiPixelTemplateDBObject>  produce(const SiPixelTemplateDBObjectRcd &);
   
  protected:
   

@@ -35,7 +35,7 @@ class L1CaloGeometryProd : public edm::ESProducer {
       L1CaloGeometryProd(const edm::ParameterSet&);
       ~L1CaloGeometryProd();
 
-      typedef std::auto_ptr<L1CaloGeometry> ReturnType;
+      typedef std::unique_ptr<L1CaloGeometry> ReturnType;
 
       ReturnType produce(const L1CaloGeometryRecord&);
    private:

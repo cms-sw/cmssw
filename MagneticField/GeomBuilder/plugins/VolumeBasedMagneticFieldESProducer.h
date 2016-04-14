@@ -22,7 +22,7 @@ namespace magneticfield {
   public:
     VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
   
-    std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
 
   private:
     // forbid copy ctor and assignment op.

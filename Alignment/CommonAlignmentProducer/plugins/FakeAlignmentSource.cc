@@ -49,38 +49,38 @@ public:
   ~FakeAlignmentSource() {}
 
   /// Tracker and its APE
-  std::auto_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) { 
-    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
+  std::unique_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) { 
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// DT and its APE
-  std::auto_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
-    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
+  std::unique_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// CSC and its APE
-  std::auto_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
-    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
+  std::unique_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// GlobalPositions
-  std::auto_ptr<Alignments> produceGlobals(const GlobalPositionRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceGlobals(const GlobalPositionRcd&) {
+    return std::make_unique<Alignments>();
   }
 
   /// Tracker surface deformations
-  std::auto_ptr<AlignmentSurfaceDeformations>
+  std::unique_ptr<AlignmentSurfaceDeformations>
   produceTrackerSurfaceDeformation(const TrackerSurfaceDeformationRcd&) {
-    return std::auto_ptr<AlignmentSurfaceDeformations>(new AlignmentSurfaceDeformations);
+    return std::make_unique<AlignmentSurfaceDeformations>();
   }
 
  protected:

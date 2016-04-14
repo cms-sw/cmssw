@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //#include<iostream>
+#include<memory>
 #include<sstream>
 #include<vector>
 #include<string>
@@ -13,7 +14,7 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 namespace cond {
-  template <> boost::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
+  template <> std::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
                                                                                      const Binary& payloadData,
                                                                                      const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( condex::Efficiency );  abstract

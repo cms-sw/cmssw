@@ -28,7 +28,7 @@ class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetu
   ~SiStripQualityFakeESSource(){};
   
   
-  std::auto_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
+  std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
   
 private:
   

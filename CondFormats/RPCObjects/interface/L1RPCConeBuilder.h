@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <cstdlib>
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 class L1RPCConeBuilder
@@ -116,10 +116,10 @@ class L1RPCConeBuilder
       virtual ~L1RPCConeBuilder();
 
             
-      void setConeConnectionMap(const boost::shared_ptr< TConMap > connMap) 
+      void setConeConnectionMap(const std::shared_ptr< TConMap > connMap) 
                       { m_coneConnectionMap = connMap;};
                       
-      void setCompressedConeConnectionMap(const boost::shared_ptr< TCompressedConMap >
+      void setCompressedConeConnectionMap(const std::shared_ptr< TCompressedConMap >
                                               cmpConnMap) 
       {  
             m_compressedConeConnectionMap = cmpConnMap;
@@ -141,8 +141,8 @@ class L1RPCConeBuilder
      int m_firstTower;
      int m_lastTower;
 
-     boost::shared_ptr< TConMap > m_coneConnectionMap; 
-     boost::shared_ptr< TCompressedConMap >  m_compressedConeConnectionMap;
+     std::shared_ptr< TConMap > m_coneConnectionMap; 
+     std::shared_ptr< TCompressedConMap >  m_compressedConeConnectionMap;
 
    COND_SERIALIZABLE;
 };

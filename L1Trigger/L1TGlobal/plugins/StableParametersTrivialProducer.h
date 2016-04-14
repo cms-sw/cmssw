@@ -20,7 +20,6 @@
 
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -50,7 +49,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    boost::shared_ptr<GlobalStableParameters> produceGtStableParameters(
+    std::shared_ptr<GlobalStableParameters> produceGtStableParameters(
         const L1TGlobalStableParametersRcd&);
 
 private:

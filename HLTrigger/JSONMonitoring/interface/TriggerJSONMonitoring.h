@@ -42,7 +42,7 @@
 
 #include <atomic>
 
-namespace hltJson {
+namespace trigJson {
   //Struct for storing variables that must be written and reset every lumi section 
   struct lumiVars {
     jsoncollector::HistoJ<unsigned int> *processed; // # of events processed
@@ -80,12 +80,12 @@ namespace hltJson {
     mutable std::string streamL1Destination;
     mutable std::string streamHLTDestination;
   };
-}//End hltJson namespace   
+}//End trigJson namespace   
 
 // 
 // class declaration
 // 
-class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJson::runVars>, edm::LuminosityBlockSummaryCache<hltJson::lumiVars>>
+class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<trigJson::runVars>, edm::LuminosityBlockSummaryCache<trigJson::lumiVars>>
 {
  public:
   explicit TriggerJSONMonitoring(const edm::ParameterSet&);
@@ -98,8 +98,8 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
   void beginRun(edm::Run const&,
                 edm::EventSetup const&);
 
-  static std::shared_ptr<hltJson::runVars> globalBeginRun(edm::Run const&, edm::EventSetup const&, void const*){
-    std::shared_ptr<hltJson::runVars> rv(new hltJson::runVars);
+  static std::shared_ptr<trigJson::runVars> globalBeginRun(edm::Run const&, edm::EventSetup const&, void const*){
+    std::shared_ptr<trigJson::runVars> rv(new trigJson::runVars);
     if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
       rv->streamHLTDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
       rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
@@ -112,19 +112,19 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-  static std::shared_ptr<hltJson::lumiVars> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+  static std::shared_ptr<trigJson::lumiVars> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                                               edm::EventSetup const&,
                                                                               LuminosityBlockContext const*);
 
   void endLuminosityBlockSummary(edm::LuminosityBlock const&,
                                  edm::EventSetup const&,
-                                 hltJson::lumiVars*) const;
+                                 trigJson::lumiVars*) const;
 
 
   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
                                               edm::EventSetup const&,
                                               LuminosityBlockContext const*,
-                                              hltJson::lumiVars*);
+                                              trigJson::lumiVars*);
 
   void resetRun(bool changed);   //Reset run-related info
   void resetLumi();              //Reset all counters 
