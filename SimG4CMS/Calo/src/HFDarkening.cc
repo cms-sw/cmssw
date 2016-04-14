@@ -14,27 +14,28 @@
 
 using namespace edm;
 
-HFDarkening::HFDarkening(const edm:Parameter& pset) {
+HFDarkening::HFDarkening(const edm::ParameterSet& pset) {
   //HF area of consideration is 1115 cm from interaction point to 1280cm in z-axis
   //Radius (cm) - 13 cm from Beam pipe to 130cm (the top of HF active area)
   //Dose in MRad
   
   vecOfDoubles HFDosePars = pset.getParameter<vecOfDoubles>("doseLayerDepth");
-  
-  for (int Z = 0; Z != numberOfZLayers; ++Z) {
-    for (int R = 0; R != numberOfRLayers; ++R) {
-      HFDoseLayerDarkeningPars[Z][R] = HFDosePars[(Z+(Z*numberOfRLayers))+R];
+  int i = 0;
+  for (int Z = 0; Z != _numberOfZLayers; ++Z) {
+    for (int R = 0; R != _numberOfRLayers; ++R) {
+      HFDoseLayerDarkeningPars[Z][R] = HFDosePars[i];
+      ++i;
     }
   }
 }
 
 HFDarkening::~HFDarkening() { }
 
-double HFDarkening::dose(int layer, double Radius) {
+double HFDarkening::dose(unsigned int layer, double Radius) {
   // Radii are 13-17, 17-20, 20-24, 24-29, 29-34, 34-41, 41-48, 48-58, 58-69, 69-82, 82-98, 98-116, 116-130
   // These radii are specific to the geometry of the dose map, which closely matches HF Tower Geometry,
   // but not exactly.
-  if (layer < 0 || layer > 32)
+  if (layer > (_numberOfZLayers-1))
   {
     return 0.;
   }
