@@ -190,9 +190,16 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
   assert(trackerGeometryHandle.isValid());
-  // TODO: Just pixel would be fine for now.
+  
+  // We need to track some extra stuff here for the Shells later.
+  auto pxlayer  = extractors[intern("PXLayer")];
+  auto pxladder = extractors[intern("PXLadder")];
+  std::vector<Value> maxladders;
+
+  // Now travrse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
+    if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
     auto iq = InterestingQuantities{.sourceModule = id };
     for (ID q : geomquantities) {
       Value v = extractors[q](iq);
@@ -201,18 +208,24 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 	if (v > max_value[q]) max_value[q] = v;
       }
     }
+    auto layer = pxlayer(iq);
+    if (layer != UNDEFINED) {
+      if (layer >= Value(maxladders.size())) maxladders.resize(layer+1);
+      auto ladder = pxladder(iq);
+      if (ladder > maxladders[layer]) maxladders[layer] = ladder;
+    }
     // for ROCs etc., they need to be added here as well.
     all_modules.push_back(iq);
   }
 
   // Shells are a concept that cannot be derived from bitmasks. 
   // Use hardcoded logic here.
+  // This contains a lot more assumptions about general geometry than the rest
+  // of the code, but it might work for Phase0 as well.
   auto pxbarrel = extractors[intern("PXBarrel")];
   auto pxendcap = extractors[intern("PXEndcap")];
   auto pxmodule = extractors[intern("PXBModule")];
-  auto pxladder = extractors[intern("PXLadder")];
   auto pxblade  = extractors[intern("PXBlade")];
-  Value maxladder = max_value[intern("PXLadder")];
   Value maxblade  = max_value[intern("PXBlade")];
   Value maxmodule = max_value[intern("PXBModule")];
   addExtractor(intern("HalfCylinder"),
@@ -223,19 +236,22 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       int frac = (int) (((blade-1) % (maxblade/2)) / float(maxblade/2) * 4); // floor semantics here
       if (frac == 0 || frac == 3) return 10*ec + 1; // inner half
       if (frac == 1 || frac == 2) return 10*ec + 2; // outer half
+      assert(!"HalfCylinder logic problem");
       return UNDEFINED;
     }, 0, 0 // N/A
   );
  
   addExtractor(intern("Shell"),
-    [pxbarrel, pxladder, pxmodule, maxladder, maxmodule] (InterestingQuantities const& iq) {
+    [pxbarrel, pxladder, pxlayer, pxmodule, maxladders, maxmodule] (InterestingQuantities const& iq) {
       if(pxbarrel(iq) == UNDEFINED) return UNDEFINED;
+      auto layer  = pxlayer(iq);
       auto ladder = pxladder(iq);
       auto module = pxmodule(iq);
-      int frac = (int) ((ladder-1) / float(maxladder) * 4); // floor semantics
+      int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
       Value dir = module <= (maxmodule/2) ? 1 : 2;  // minus/plus TODO: or other way round?
       if (frac == 0 || frac == 3) return 10*dir + 1; // inner half
       if (frac == 1 || frac == 2) return 10*dir + 2; // outer half
+      assert(!"Shell logic problem");
       return UNDEFINED;
     }, 0, 0 // N/A
   );
