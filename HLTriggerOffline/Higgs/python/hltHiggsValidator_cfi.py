@@ -113,6 +113,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 
     HWW = cms.PSet( 
         hltPathsToCheck = cms.vstring(
+              # Single lepton paths
+              "HLT_Ele25_eta2p1_WPTight_Gsf_v",
+              "HLT_Ele25_WPTight_Gsf_v",
+              "HLT_Ele25_eta2p1_WPLoose_Gsf_v",
+              "HLT_Ele35_WPLoose_Gsf_v",
+              "HLT_Ele27_eta2p1_WPTight_Gsf_v",
+              "HLT_Ele27_WPTight_Gsf_v",
+              "HLT_Ele27_eta2p1_WPLoose_Gsf_v",
+              "HLT_Ele45_WPLoose_Gsf_v",
+              "HLT_IsoMu20_eta2p1_v",
+              "HLT_IsoMu22_v",
+              
               #dileptons for Hww and Hzz
               "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
@@ -198,9 +210,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
      HiggsDalitz = cms.PSet(
         hltPathsToCheck = cms.vstring(
             "HLT_Mu17_Photon22_CaloIdL_L1ISO_v",
-            "HLT_Mu17_Photon30_CaloIdL_L1ISO_v",
-            "HLT_Mu12_Photon25_CaloIdL_v",
             "HLT_Mu12_Photon25_CaloIdL_L1ISO_v",
+            "HLT_Mu17_Photon30_CaloIdL_L1ISO_v",
+            "HLT_Mu17_Photon35_CaloIdL_L1ISO_v",
+            "HLT_Mu12_Photon25_CaloIdL_v",
             "HLT_Mu12_Photon25_CaloIdL_L1OR_v"
         ),
         recMuonLabel  = cms.string("muons"),
