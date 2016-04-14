@@ -65,11 +65,15 @@ def _modifyDigitizerPhase2Common( theProcess ):
                 'PFCorrs',
                 'ElectronicsMap',
                 'CholeskyMatrices',
-                'CovarianceMatrices'
+                'CovarianceMatrices',
+                'FlagHFDigiTimeParams'
                 )    
     # Special Upgrade trick (if absent - regular case assumed)
     theProcess.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     theProcess.es_hardcode.HEreCalibCutoff = cms.double(100.)
+    theProcess.es_hardcode.useHBUpgrade = cms.bool(True)
+    theProcess.es_hardcode.useHEUpgrade = cms.bool(True)
+    theProcess.es_hardcode.useHFUpgrade = cms.bool(True)
 
 from Configuration.StandardSequences.Eras import eras
 modifyDigitizerPhase2Common_ = eras.phase2_common.makeProcessModifier( _modifyDigitizerPhase2Common )
