@@ -6,6 +6,9 @@ from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase
 
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
+from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
+
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 from Configuration.StandardSequences.Eras import eras
@@ -25,6 +28,12 @@ def cust_2023sim(process):
 
 def cust_2023dev(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK(process)
+    return process
+
+def cust_2023LReco(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseFlatTK(process)
     return process
 
 
