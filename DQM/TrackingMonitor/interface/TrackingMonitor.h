@@ -43,6 +43,7 @@ class VertexMonitor;
 class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
+class SiStripDCSStatus;
 
 class TrackingMonitor : public DQMEDAnalyzer 
 {
@@ -160,6 +161,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 
 	StringCutObjectSelector<reco::Track,true> numSelection_;
 	StringCutObjectSelector<reco::Track,true> denSelection_;
+
+	SiStripDCSStatus* dcsStatus_;
 
 };
 
