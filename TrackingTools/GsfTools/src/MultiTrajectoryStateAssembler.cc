@@ -1,5 +1,5 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateAssembler.h"
-
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 #include "TrackingTools/GsfTools/src/TrajectoryStateLessWeight.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,7 +34,8 @@ void MultiTrajectoryStateAssembler::addState (const TrajectoryStateOnSurface tso
   //
   // Add components (i.e. state to be added can be single or multi state)
   //
-  MultiTSOS components(tsos.components());
+  GetComponents comps(tsos);
+  MultiTSOS components(comps());
   addStateVector(components);
 }
 

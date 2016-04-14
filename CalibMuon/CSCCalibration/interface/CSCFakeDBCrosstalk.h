@@ -16,7 +16,6 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -25,7 +24,7 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
 
       inline static CSCDBCrosstalk * prefillDBCrosstalk(); 
 
-      typedef  boost::shared_ptr<CSCDBCrosstalk> Pointer;
+      typedef  std::shared_ptr<CSCDBCrosstalk> Pointer;
 
       Pointer produceDBCrosstalk(const CSCDBCrosstalkRcd&);
 

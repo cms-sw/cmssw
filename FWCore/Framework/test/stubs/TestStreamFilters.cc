@@ -49,7 +49,7 @@ struct Cache {
     
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
       ++m_count;
-      return std::unique_ptr<Cache>{ new Cache };
+      return std::make_unique<Cache>();
     }
 
     GlobalIntFilter(edm::ParameterSet const& p, const Cache* iGlobal) {

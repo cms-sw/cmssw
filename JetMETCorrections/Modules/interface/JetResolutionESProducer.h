@@ -6,7 +6,7 @@
 //
 
 #include <string>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -31,7 +31,7 @@ class JetResolutionESProducer : public edm::ESProducer
 
         ~JetResolutionESProducer() {}
 
-        boost::shared_ptr<JME::JetResolution> produce(JetResolutionRcd const& iRecord) {
+        std::shared_ptr<JME::JetResolution> produce(JetResolutionRcd const& iRecord) {
             
             // Get object from record
             edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
@@ -39,7 +39,7 @@ class JetResolutionESProducer : public edm::ESProducer
 
             // Convert this object to a JetResolution object
             JME::JetResolutionObject const& jerObject = (*jerObjectHandle);
-            return boost::shared_ptr<JME::JetResolution>(new JME::JetResolution(jerObject));
+            return std::make_shared<JME::JetResolution>(jerObject);
         }
 };
 
@@ -57,7 +57,7 @@ class JetResolutionScaleFactorESProducer : public edm::ESProducer
 
         ~JetResolutionScaleFactorESProducer() {}
 
-        boost::shared_ptr<JME::JetResolutionScaleFactor> produce(JetResolutionScaleFactorRcd const& iRecord) {
+        std::shared_ptr<JME::JetResolutionScaleFactor> produce(JetResolutionScaleFactorRcd const& iRecord) {
             
             // Get object from record
             edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
@@ -65,7 +65,7 @@ class JetResolutionScaleFactorESProducer : public edm::ESProducer
 
             // Convert this object to a JetResolution object
             JME::JetResolutionObject const& jerObject = (*jerObjectHandle);
-            return boost::shared_ptr<JME::JetResolutionScaleFactor>(new JME::JetResolutionScaleFactor(jerObject));
+            return std::make_shared<JME::JetResolutionScaleFactor>(jerObject);
         }
 };
 #endif

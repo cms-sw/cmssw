@@ -39,7 +39,7 @@ namespace edm {
 
   ProductProvenanceRetriever const*
   EventForOutput::productProvenanceRetrieverPtr() const {
-   return eventPrincipal().productProvenanceRetrieverPtr();;
+   return eventPrincipal().productProvenanceRetrieverPtr();
   }
 
   BranchListIndexes const&

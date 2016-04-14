@@ -203,6 +203,30 @@ def getFullTrackVPSet():
         )
         ret.append(hltFullTrack)
     
+    thresholds3 = [80,100,130,150]
+    for t in thresholds3:
+        partialPathName = "HLT_FullTracks_Multiplicity"+str(t)+"_v"
+#        partialPathName = "HLT_FullTracks_Multiplicity80_v"
+        hltFullTrackMult =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltPAFullTrackHighMult"),
+            dqmhistolabel  = cms.string("hltPAFullTrackHighMult"),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(0), max = cms.double(100)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+        )
+	ret.append(hltFullTrackMult)
+
     return ret
 
 def getHILowLumi():

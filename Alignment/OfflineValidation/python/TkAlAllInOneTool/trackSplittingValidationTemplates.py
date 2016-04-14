@@ -27,28 +27,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
-###########################################
-##necessary fix for the moment to avoid
-##Assymmetric forward layers in TrackerException going through path p
-##---- ScheduleExecutionFailure END
-##an exception occurred during current event processing
-##cms::Exception caught in EventProcessor and rethrown
-##---- EventProcessorFailure END
-############################################
-#import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-from CondCore.DBCommon.CondDBSetup_cfi import *
-#load the Global Position Rcd
-process.globalPosition = cms.ESSource("PoolDBESSource", CondDBSetup,
-                                  toGet = cms.VPSet(cms.PSet(
-                                          record =cms.string('GlobalPositionRcd'),
-                                          tag= cms.string('IdealGeometry')
-                                          )),
-                                  connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
-                                  )
-process.es_prefer_GPRcd = cms.ESPrefer("PoolDBESSource","globalPosition")
-########################################## 
-
-
 # track selectors and refitting
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")

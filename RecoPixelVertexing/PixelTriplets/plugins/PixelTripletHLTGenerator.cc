@@ -57,7 +57,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   OrderedHitTriplets & result,
 					   const edm::Event & ev,
 					   const edm::EventSetup& es,
-					   SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+					   const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
 					   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
 

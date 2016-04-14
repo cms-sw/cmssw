@@ -18,7 +18,6 @@
 //
 #include <memory>
 #include <fstream>
-#include "boost/shared_ptr.hpp"
 #include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 #include "FWCore/Framework/interface/ESProducer.h"

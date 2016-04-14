@@ -2,25 +2,24 @@
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
-#include "boost/shared_ptr.hpp"
 
 using namespace SurfaceSideDefinition;
 
 namespace GaussianStateConversions {
 
-  MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface tsos)
+  MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface & tsos)
   {
     if ( !tsos.isValid() )  return MultiGaussianState<5>();
 
-    using SingleStatePtr = boost::shared_ptr<SingleGaussianState<5>>;
+    using SingleStatePtr = std::shared_ptr<SingleGaussianState<5>>;
     auto const & components = tsos.components();
     MultiGaussianState<5>::SingleStateContainer singleStates;
     singleStates.reserve(components.size());
     for (auto const & ic : components) {
       if ( ic.isValid() ) {
-	SingleStatePtr sgs(new SingleGaussianState<5>(ic.localParameters().vector(),
+	auto sgs = std::make_shared<SingleGaussianState<5>>(ic.localParameters().vector(),
 							      ic.localError().matrix(),
-							      ic.weight()));
+							      ic.weight());
 	singleStates.push_back(sgs);
       }
     }
@@ -28,7 +27,7 @@ namespace GaussianStateConversions {
   }
 
   TrajectoryStateOnSurface tsosFromMultiGaussianState (const MultiGaussianState<5>& multiState,
-							  const TrajectoryStateOnSurface refTsos)
+							  const TrajectoryStateOnSurface & refTsos)
   {
     if ( multiState.components().empty() )  return TrajectoryStateOnSurface();
     const Surface & surface = refTsos.surface();

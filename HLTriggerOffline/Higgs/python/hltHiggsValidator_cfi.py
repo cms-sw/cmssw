@@ -117,6 +117,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
               "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+	      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
               "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
               #dilepton path for the 7e33 menu at 25ns
@@ -163,7 +164,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),        
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
             "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
             "HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v",
             "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",

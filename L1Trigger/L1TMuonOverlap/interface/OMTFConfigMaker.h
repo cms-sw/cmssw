@@ -5,6 +5,7 @@
 
 #include "L1Trigger/L1TMuonOverlap/interface/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 
 class XMLConfigReader;
 class OMTFinput;
@@ -17,7 +18,7 @@ class OMTFConfigMaker{
 
  public:
 
-  OMTFConfigMaker(const edm::ParameterSet & cfg);
+  OMTFConfigMaker(const edm::ParameterSet & cfg, OMTFConfiguration * omtf_config);
 
   ~OMTFConfigMaker();
 
@@ -58,13 +59,16 @@ class OMTFConfigMaker{
   void fillInputRange(unsigned int iConfigMaker,
 		      unsigned int iCone,
 		      unsigned int iRefLayer,
-		      unsigned int iHit);
+		      unsigned int iInput);
 
-  ///Map of phi starting points
+  ///Map of phi starting and ending points
+  ///for each logic region.
   ///First index: reference layer number
-  ///Second index: processor number
+  ///Second index: logic region number
   std::vector<std::vector<int> > minRefPhi2D;
-    
+  std::vector<std::vector<int> > maxRefPhi2D;
+
+  OMTFConfiguration * m_omtf_config;    
 };
 
 

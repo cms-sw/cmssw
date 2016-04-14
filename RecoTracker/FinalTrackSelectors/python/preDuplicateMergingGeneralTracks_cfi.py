@@ -20,7 +20,7 @@ preDuplicateMergingGeneralTracks.lostHitPenalty =   1.0
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
-eras.trackingPhase1.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
+eras.trackingPhase1PU70.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
     TrackProducers = [
         "earlyGeneralTracks",
         "muonSeededTracksInOut",

@@ -20,7 +20,7 @@ preDuplicateMergingDisplacedTracks.lostHitPenalty =   1.0
 # that configuration is indended only for tracking comparisons (not
 # for production), it is not worth of the effort to try to fix the
 # situation.
-eras.trackingPhase1.toModify(preDuplicateMergingDisplacedTracks,
+eras.trackingPhase1PU70.toModify(preDuplicateMergingDisplacedTracks,
     trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
     inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
 )

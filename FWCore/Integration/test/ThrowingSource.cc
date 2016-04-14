@@ -101,7 +101,7 @@ namespace edm {
   std::unique_ptr<FileBlock>
   ThrowingSource::readFile_() {
     if (whenToThrow_ == kReadFile) throw cms::Exception("TestThrow") << "ThrowingSource::readFile_";
-    return std::unique_ptr<FileBlock>(new FileBlock);
+    return std::make_unique<FileBlock>();
   }
 
   void

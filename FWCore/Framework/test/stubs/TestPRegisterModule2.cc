@@ -56,6 +56,5 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
      e.getByLabel("m2",stringp);
      CPPUNIT_ASSERT(stringp->name_=="m1");
 
-     std::unique_ptr<edmtest::DoubleProduct> product(new edmtest::DoubleProduct);
-     e.put(std::move(product));
+     e.put(std::make_unique<edmtest::DoubleProduct>());
   }

@@ -33,13 +33,13 @@ class HGCFEElectronics
      @short switches according to the firmware version
    */
   inline void runShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, 
-                        hgc::HGCSimHitData& toa, CLHEP::HepRandomEngine* engine)
+                        hgc::HGCSimHitData& toa, int thickness, CLHEP::HepRandomEngine* engine)
   {    
     switch(fwVersion_)
       {
-      case SIMPLE :  { runSimpleShaper(dataFrame,chargeColl);      break; }
-      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa,engine); break; }
-      default :      { runTrivialShaper(dataFrame,chargeColl);     break; }
+      case SIMPLE :  { runSimpleShaper(dataFrame,chargeColl, thickness);      break; }
+      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa, thickness, engine); break; }
+      default :      { runTrivialShaper(dataFrame,chargeColl, thickness);     break; }
       }
   }
 
@@ -55,18 +55,18 @@ class HGCFEElectronics
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl);
+  void runTrivialShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, int thickness);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl);
+  void runSimpleShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, int thickness);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
    */
   void runShaperWithToT(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, 
-                        hgc::HGCSimHitData& toa, CLHEP::HepRandomEngine* engine);
+                        hgc::HGCSimHitData& toa, int thickness, CLHEP::HepRandomEngine* engine);
 
   /**
      @short returns how ToT will be computed

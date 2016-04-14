@@ -12,7 +12,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class RPCGeometryESModule : public edm::ESProducer {
 public:
@@ -23,7 +23,7 @@ public:
   virtual ~RPCGeometryESModule();
 
   /// Produce RPCGeometry.
-  boost::shared_ptr<RPCGeometry>  produce(const MuonGeometryRecord & record);
+  std::shared_ptr<RPCGeometry>  produce(const MuonGeometryRecord & record);
 
 private:  
 

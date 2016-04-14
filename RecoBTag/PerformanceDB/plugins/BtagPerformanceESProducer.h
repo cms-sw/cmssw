@@ -7,15 +7,15 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  BtagPerformanceESProducer : public edm::ESProducer{
  public:
   BtagPerformanceESProducer(const edm::ParameterSet & p);
   virtual ~BtagPerformanceESProducer(); 
-  boost::shared_ptr<BtagPerformance> produce(const  BTagPerformanceRecord &);
+  std::shared_ptr<BtagPerformance> produce(const  BTagPerformanceRecord &);
  private:
-  boost::shared_ptr<BtagPerformance> _perf;
+  std::shared_ptr<BtagPerformance> _perf;
   edm::ParameterSet pset_;
   std::string mypl;
   std::string mywp;

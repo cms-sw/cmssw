@@ -41,8 +41,7 @@ namespace edm {
       }
       
       std::unique_ptr<DummyEventSetupData> produce(const DummyEventSetupRecord&) {
-         std::unique_ptr<DummyEventSetupData> data(new DummyEventSetupData(1));
-         return data;
+         return std::make_unique<DummyEventSetupData>(1);
       }
    protected:
 

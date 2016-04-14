@@ -169,4 +169,15 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
 randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
+def _modifyRandomNumberGeneratorServiceForPhase2( object ):
+    object.simMuonGEMDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
+    object.simMuonME0Digis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
 
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( RandomNumberGeneratorService, func=_modifyRandomNumberGeneratorServiceForPhase2 )

@@ -24,7 +24,6 @@
 #include <memory>
 #include <fstream>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "FWCore/Framework/interface/ESProducer.h"

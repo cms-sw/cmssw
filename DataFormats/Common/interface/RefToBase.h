@@ -102,7 +102,7 @@ namespace edm {
 
     void swap(RefToBase& other);
 
-    std::auto_ptr<reftobase::RefHolderBase> holder() const;
+    std::unique_ptr<reftobase::RefHolderBase> holder() const;
 
     EDProductGetter const* productGetter() const;
 
@@ -374,8 +374,8 @@ namespace edm {
   }
 
   template <class T>
-  std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
-    return holder_? holder_->holder() : std::auto_ptr<reftobase::RefHolderBase>();
+  std::unique_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
+    return holder_? holder_->holder() : std::unique_ptr<reftobase::RefHolderBase>();
   }
 
   // Free swap function

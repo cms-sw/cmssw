@@ -21,6 +21,7 @@
 #include <sstream>
 #include <utility>
 
+#include <memory>
 #include "boost/shared_ptr.hpp"
 
 #include "Alignment/Geners/interface/CompressedIO.hh"
@@ -52,7 +53,7 @@ static void insertLUTItem(FFTJetLookupTableSequence& seq,
     it->second.insert(std::make_pair(name, fptr));
 }
 
-static boost::shared_ptr<FFTJetLookupTableSequence>
+static std::shared_ptr<FFTJetLookupTableSequence>
 buildLookupTables(
     const FFTJetCorrectorParameters& tablePars,
     const std::vector<edm::ParameterSet>& tableDefs,
@@ -68,8 +69,7 @@ buildLookupTables(
             ar = gs::read_item<gs::StringArchive>(is);
     }
 
-    boost::shared_ptr<FFTJetLookupTableSequence> ptr(
-        new FFTJetLookupTableSequence());
+    auto ptr = std::make_shared<FFTJetLookupTableSequence>();
 
     // Avoid loading the same item more than once
     std::set<unsigned long long> loadedSet;
@@ -112,7 +112,7 @@ template<typename CT>
 class FFTJetLookupTableESProducer : public edm::ESProducer
 {
 public:
-    typedef boost::shared_ptr<FFTJetLookupTableSequence> ReturnType;
+    typedef std::shared_ptr<FFTJetLookupTableSequence> ReturnType;
     typedef FFTJetLookupTableRcd<CT> MyRecord;
     typedef FFTJetCorrectorParametersRcd<CT> ParentRecord;
 

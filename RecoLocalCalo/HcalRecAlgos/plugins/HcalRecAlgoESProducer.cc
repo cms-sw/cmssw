@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -43,7 +42,7 @@ class HcalRecAlgoESProducer : public edm::ESProducer {
 
       ~HcalRecAlgoESProducer();
 
-      typedef boost::shared_ptr<HcalSeverityLevelComputer> ReturnType;
+      typedef std::shared_ptr<HcalSeverityLevelComputer> ReturnType;
 
       ReturnType produce(const HcalSeverityLevelComputerRcd&);
    private:

@@ -3,7 +3,10 @@
 
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+#ifdef TR_DEBUG
+#include<iostream>
+#endif
 
 #include "ChurnAllocator.h"
 
@@ -64,8 +67,7 @@ public:
 
   void check() const {
 #ifdef TR_DEBUG
-    if  unlikely(!theData)
-      throw TrajectoryStateException("Error: uninitialized ProxyBase11 used");
+    if  unlikely(!theData) std::cout << "dead proxyBase11 " << references() << std::endl;
 #endif
   }
 
