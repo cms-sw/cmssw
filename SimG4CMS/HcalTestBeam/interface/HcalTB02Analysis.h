@@ -37,8 +37,6 @@
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
 
-#include <boost/cstdint.hpp>
-
 class HcalTB02Analysis : public SimProducer,
 			 public Observer<const BeginOfEvent *>,
 			 public Observer<const EndOfEvent *> {

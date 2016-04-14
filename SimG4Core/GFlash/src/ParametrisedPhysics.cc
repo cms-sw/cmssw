@@ -23,7 +23,6 @@ ParametrisedPhysics::~ParametrisedPhysics() {
     delete tpdata->theEMShowerModel;
     delete tpdata->theHadShowerModel;
     delete tpdata->theHadronShowerModel;
-    delete tpdata->theHadronShowerModel;
     delete tpdata->theFastSimulationManagerProcess;
     tpdata = nullptr;
   }
