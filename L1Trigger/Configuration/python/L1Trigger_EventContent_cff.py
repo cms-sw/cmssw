@@ -95,8 +95,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
 )
 
 
-if eras.stage2L1Trigger.isChosen():
-    # stage 2 L1 trigger
+def _appendStage2Digis(obj):
     l1Stage2Digis = [
         'keep *_gtStage2Digis__*', 
         'keep *_gmtStage2Digis_Muon_*',
@@ -104,10 +103,11 @@ if eras.stage2L1Trigger.isChosen():
         'keep *_caloStage2Digis_Tau_*',
         'keep *_caloStage2Digis_EGamma_*',
         'keep *_caloStage2Digis_EtSum_*',
-    ]
-    # adding them to all places where we had l1extraParticles
-    L1TriggerRAWDEBUG.outputCommands += l1Stage2Digis
-    L1TriggerRECO.outputCommands += l1Stage2Digis
-    L1TriggerAOD.outputCommands += l1Stage2Digis
-    L1TriggerFEVTDEBUG.outputCommands += l1Stage2Digis   
- 
+        ]
+    obj.outputCommands += l1Stage2Digis
+
+# adding them to all places where we had l1extraParticles
+eras.stage2L1Trigger.toModify(L1TriggerRAWDEBUG, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
