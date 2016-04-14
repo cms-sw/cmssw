@@ -30,7 +30,7 @@ namespace l1t {
                   // Use amc_no and board id 1 for packing
                   res[{1, 1}] = {
                      PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"),
-                     PackerFactory::get()->make("stage2::MuonPacker"),
+                     PackerFactory::get()->make("stage2::GMTMuonPacker"),
                   };
                }
 
