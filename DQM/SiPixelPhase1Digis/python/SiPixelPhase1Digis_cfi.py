@@ -91,12 +91,32 @@ SiPixelPhase1DigisConf = cms.VPSet(
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row/col")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row", "EXTEND_X")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_Y")
-                     .save(),
+                     .save()
+		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/col")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
-                     .save(),
+                     .save()
+		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
+                     .save()
+		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll()
+    )
+  ),
+  DefaultHisto.clone(
+    enabled = True, # Geometry Debug
+    name = "debug",
+    xlabel = "ladder #",
+    range_min = 1,
+    range_max = 64,
+    range_nbins = 64,
+    specs = cms.VPSet(
+      Specification().groupBy(DefaultHisto.defaultGrouping) 
+                     .save()
+                     .reduce("MEAN")
+                     .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                     .saveAll(),
+      Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
                      .save()
     )
   )
