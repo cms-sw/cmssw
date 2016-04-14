@@ -43,8 +43,6 @@ public:
   
   explicit DDValue( unsigned int );
   
-  ~DDValue( void );
-  
   //! returns the ID of the DDValue
   unsigned int id( void ) const { return id_; }
   
