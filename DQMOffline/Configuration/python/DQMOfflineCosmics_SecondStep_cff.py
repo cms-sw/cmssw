@@ -13,9 +13,11 @@ from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cosmic_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
+from DQM.HcalTasks.HcalHarvesting import *
 
 DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient * 
                                                     ecal_dqm_client_offline *
+													hcalHarvesting *
                                                     SiStripCosmicDQMClient *
                                                     PixelOfflineDQMClientNoDataCertification *
                                                     dtClientsCosmics *

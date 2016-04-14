@@ -1,105 +1,113 @@
 #ifndef RecHitTask_h
 #define RecHitTask_h
 
-/*
- *	file:		RecHitTask.h
- *	Author:		Viktor Khristenko
- *	Date:		13.10.2015
+/**
+ *	file:
+ *	Author:
+ *	Description:
  */
 
 #include "DQM/HcalCommon/interface/DQTask.h"
+#include "DQM/HcalCommon/interface/Utilities.h"
+#include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
+#include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
-#include "DQM/HcalCommon/interface/Container2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
+#include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-	using namespace hcaldqm;
-	class RecHitTask : public DQTask
-	{
-		public:
-			RecHitTask(edm::ParameterSet const& ps);
-			virtual ~RecHitTask()
-			{}
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+class RecHitTask : public DQTask
+{
+	public:
+		RecHitTask(edm::ParameterSet const&);
+		virtual ~RecHitTask() {}
 
-			virtual void bookHistograms(DQMStore::IBooker &,
-				edm::Run const&, edm::EventSetup const&);
-			virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&);
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
-			enum RecHitFlag
-			{
-				fLowOcp = 0,
-				fUniphi = 1,
-				fTCDS = 2,
+		enum RecoFlag
+		{
+			fOcpUniSlot = 0,
+			fTimeUniSlot = 1,
+			fTCDS = 2,
+			fMsn1LS = 3,
+			nRecoFlag = 4
+		};
 
-				nRecHitFlag = 3
-			};
+	protected:
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(UpdateFreq);
 
-		protected:
-			//	protected funcs
-			virtual void _process(edm::Event const&, edm::EventSetup const&);
-			virtual void _resetMonitors(UpdateFreq);
+		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHO;
+		edm::InputTag		_tagHF;
+		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
+		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
+		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
 
-			//	tags and tokens
-			edm::InputTag	_tagHBHE;
-			edm::InputTag	_tagHO;
-			edm::InputTag	_tagHF;
-			edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
-			edm::EDGetTokenT<HORecHitCollection> _tokHO;
-			edm::EDGetTokenT<HFRecHitCollection> _tokHF;
+		double _cutE_HBHE, _cutE_HO, _cutE_HF;
 
-			//	counters
-			int		_nRecHits[constants::SUBDET_NUM];
-			int		_nRecHitsCut[constants::SUBDET_NUM];
-//			bool	_nDups[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
+		//	hashes/FED vectors
+		std::vector<uint32_t> _vhashFEDs;
 
-			//	Flag Names
-			std::vector<std::string>	_fNames;
+		//	emap
+		HcalElectronicsMap const* _emap;
+		electronicsmap::ElectronicsMap _ehashmap;
 
-			//	cuts
-			double _cutE_HBHE, _cutE_HO, _cutE_HF;
+		//	Filters
+		HashFilter _filter_VME;
+		HashFilter _filter_uTCA;
+		HashFilter _filter_FEDsVME;
+		HashFilter _filter_FEDsuTCA;
 
-			//	Energy
-			Container1D		_cEnergy_SubDet;
-			Container1D		_cEnergy_SubDet_ieta;
-			Container1D		_cEnergy_SubDetPM_iphi;
-			ContainerProf1D _cEnergyvsieta_SubDet;
-			ContainerProf1D _cEnergyvsiphi_SubDet;
-			ContainerProf2D	_cEnergy_depth;
+		//	Energy
+		Container1D _cEnergy_Subdet;
+		Container1D _cEnergyTotal_Subdet;
+		Container2D _cEnergyTotalPM_Subdet;
+		ContainerProf2D _cEnergy_depth;
+		ContainerProf2D _cEnergy_FEDVME;
+		ContainerProf2D _cEnergy_FEDuTCA;
+		ContainerProf2D _cEnergy_ElectronicsVME;
+		ContainerProf2D _cEnergy_ElectronicsuTCA;
 
-			ContainerProf1D _cEnergyvsietaCut_SubDet;
-			ContainerProf1D _cEnergyvsiphiCut_SubDet;
-			ContainerProf2D	_cEnergyCut_depth;
+		//	Timing vs Energy
+		Container2D _cTimingvsEnergy_SubdetPM;
 
-			//	Timing
-			Container1D		_cTimingCut_SubDet;
-			Container1D		_cTimingCut_SubDetPM_iphi;
-			ContainerProf1D _cTimingCutvsLS_SubDetPM_iphi;
-			Container1D		_cTimingCut_SubDet_ieta;
-			ContainerProf1D _cTimingvsietaCut_SubDet_iphi;
-			ContainerProf1D	_cTimingvsiphiCut_SubDet_ieta;
-			ContainerProf2D _cTimingCut_depth;
-			Container1D		_cTimingCut_HBHEPrt;
+		//	Timing
+		Container1D		_cTimingCut_Subdet;
+		Container1D		_cTimingCut_FEDSlot;
+		Container1D		_cTimingCut_HBHEPartition;
+		ContainerProf2D _cTimingCut_FEDVME;
+		ContainerProf2D	_cTimingCut_FEDuTCA;
+		ContainerProf2D _cTimingCut_ElectronicsVME;
+		ContainerProf2D _cTimingCut_ElectronicsuTCA;
+		ContainerProf2D _cTimingCut_depth;
 
-			//	Occupancy
-			Container2D		_cOccupancy_depth;
-			ContainerProf1D _cOccupancyvsLS_SubDet;
-			ContainerProf1D	_cOccupancyCutvsLS_SubDet;
-			Container2D		_cOccupancyCut_depth;
-			Container1D		_cOccupancyvsiphi_SubDetPM;
-			Container1D		_cOccupancyCutvsiphi_SubDetPM;
+		Container2D _cOccupancy_depth;
+		Container2D _cOccupancy_FEDVME;
+		Container2D _cOccupancy_FEDuTCA;
+		Container2D _cOccupancy_ElectronicsVME;
+		Container2D _cOccupancy_ElectronicsuTCA;
+		ContainerProf1D _cOccupancyvsLS_Subdet;
 
-			//	Energy vs Timing
-			Container2D		_cTimingvsEnergyCut_SubDetPM_iphi;
+		Container2D _cOccupancyCut_FEDVME;
+		Container2D _cOccupancyCut_FEDuTCA;
+		Container2D _cOccupancyCut_ElectronicsVME;
+		Container2D _cOccupancyCut_ElectronicsuTCA;
+		ContainerProf1D _cOccupancyCutvsLS_Subdet;
+		Container2D _cOccupancyCut_depth;
 
-			//	Summaries
-			ContainerSingle2D		_cSummary;
-			Container2D				_cSummaryvsLS_SubDet;
-	};
+		Container2D _cMissing1LS_FEDVME;
+		Container2D _cMissing1LS_FEDuTCA;
+
+		ContainerSingle2D _cSummary;
+};
 
 #endif
-
-
-
-
