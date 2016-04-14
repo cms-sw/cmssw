@@ -150,7 +150,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
       he_recalibration = new HERecalibration(iLumi,cutoff);
     }
-    if(hf_recalib)  hf_recalibration = new HFRecalibration();
+    if(hf_recalib)  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
     
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
