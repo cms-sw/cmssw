@@ -150,7 +150,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
       he_recalibration = new HERecalibration(iLumi,cutoff);
     }
-    if(hf_recalib)  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+    if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
     
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
@@ -849,6 +849,9 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.297, 0.298, 0.298, 0.313}));
 	desc_hfUpgrade.add<int>("qieType", 1);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
+  
+  edm::ParameterSetDescription desc_hfrecal;
+  desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
 
 	edm::ParameterSetDescription desc_ho;
 	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));
