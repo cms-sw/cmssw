@@ -17,7 +17,7 @@ SiStripGainESSource::SiStripGainESSource( const edm::ParameterSet& pset ) {
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGainRcd& ) { 
+std::unique_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGainRcd& ) { 
   
   SiStripApvGain* gain = makeGain();
   
@@ -27,7 +27,7 @@ std::auto_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGain
       << " Null pointer to SiStripApvGain object!";
   }
   
-  std::auto_ptr<SiStripApvGain> ptr(gain);
+  std::unique_ptr<SiStripApvGain> ptr(gain);
   return ptr;
 
 }

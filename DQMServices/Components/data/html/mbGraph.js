@@ -1,17 +1,67 @@
 var app = angular.module('mbGraph', []);
 
+app.controller('InfoCtrl', function($scope, $http, $location, Profile, LocParams) {
+    var me = this;
+
+    me.fetch_info = function () {
+        var p = $http({
+            url: "mbGraph.json",
+            method: 'GET',
+        });
+
+        p.then(function (b) {
+            me.info = b.data;
+
+            if (! LocParams.p.profile) {
+                LocParams.p.profile = me.info.file;         
+            }
+
+            // try to find a (auto) reference
+            var ib = me.info.env["CMSSW_GIT_HASH"];
+            var arch = me.info.env["SCRAM_ARCH"];
+
+            var find_prefix = function (p) {
+                var re_search = [
+                    new RegExp("\/DQMTestsResults\/DQMTestsResults\/([0-9a-zA-Z\_\.\/]*)\/mbGraph.html"),
+                ];
+
+                for (var i = 0; i < re_search.length; i++) {
+                    var m = re_search[i].exec(p);
+                    if (m) return m[1];
+                }
+
+                return null;
+            };
+
+
+            var prefix = find_prefix(window.location.pathname);
+            if (prefix) {
+                var ref_base = "/SDT/jenkins-artifacts/ib-dqm-tests/" + ib + "/" + arch + "/" + prefix;
+                if (! LocParams.p.reference) {
+                    LocParams.p.reference = ref_base + "/performance.json";
+                }
+            };
+        });
+    };
+
+    me.fetch_info();
+});
+
 app.controller('GraphCtrl', function($scope, $http, $location, Profile, LocParams) {
     var me = this;
 
     me.set_profile = function () {
         var target = LocParams.p.profile;
-        if (!target) {
-            target = "performance.json";
-        }
 
         me.profile = null;
-		me.profile_url = target;
+        me.profile_url = target;
         me.profile_error = null;
+
+        if (! me.profile_url) {
+            me.profile_error = "No profile provided";
+            me.update_graph_data();
+            return;
+        }
 
         var p = Profile.load(target);
         p.then(function (body) {
@@ -49,12 +99,12 @@ app.controller('GraphCtrl', function($scope, $http, $location, Profile, LocParam
         me.graph_data_reference = null;
 
         if (!me.profile) return;
-		
-		var pid = LocParams.p.pid;
-		if (pid === undefined) {
-			LocParams.setKey("pid", "_sum");
-			return; // <- next digest will redraw
-		}
+        
+        var pid = LocParams.p.pid;
+        if (pid === undefined) {
+            LocParams.setKey("pid", "_sum");
+            return; // <- next digest will redraw
+        }
 
         me.graph_data = me.profile[pid];
 

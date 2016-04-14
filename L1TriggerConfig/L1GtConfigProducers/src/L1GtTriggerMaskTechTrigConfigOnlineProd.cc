@@ -41,12 +41,11 @@ L1GtTriggerMaskTechTrigConfigOnlineProd::~L1GtTriggerMaskTechTrigConfigOnlinePro
 
 // public methods
 
-boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newObject(
+std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // shared pointer for L1GtTriggerMask
-    boost::shared_ptr<L1GtTriggerMask> pL1GtTriggerMask = boost::shared_ptr<L1GtTriggerMask>(
-            new L1GtTriggerMask());
+    auto pL1GtTriggerMask = std::make_shared<L1GtTriggerMask>();
 
     // l1GtTriggerMaskTechTrig: FINOR_TT_FK key in GT_PARTITION_FINOR_TT
 

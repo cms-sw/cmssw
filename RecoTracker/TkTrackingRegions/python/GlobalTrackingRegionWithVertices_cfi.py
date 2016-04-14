@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 RegionPSetWithVerticesBlock = cms.PSet(
     RegionPSet = cms.PSet(
@@ -17,6 +16,4 @@ RegionPSetWithVerticesBlock = cms.PSet(
         nSigmaZ = cms.double(4.0)
     )
 )
-eras.trackingLowPU.toModify(RegionPSetWithVerticesBlock,
-    RegionPSet = dict(VertexCollection = "pixelVertices")
-)
+

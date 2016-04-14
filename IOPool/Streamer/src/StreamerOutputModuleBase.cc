@@ -3,12 +3,11 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -107,16 +106,16 @@ namespace edm {
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 
   void
-  StreamerOutputModuleBase::beginRun(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::beginRun(RunForOutput const&) {
     start();
-    std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
+    std::unique_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
     serializeDataBuffer_.header_buf_.clear();
     serializeDataBuffer_.header_buf_.shrink_to_fit();
   }
 
   void
-  StreamerOutputModuleBase::endRun(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::endRun(RunForOutput const&) {
     stop();
   }
 
@@ -129,18 +128,18 @@ namespace edm {
   }
 
   void
-  StreamerOutputModuleBase::writeRun(RunPrincipal const&, ModuleCallingContext const*) {}
+  StreamerOutputModuleBase::writeRun(RunForOutput const&) {}
 
   void
-  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) {}
+  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockForOutput const&) {}
 
   void
-  StreamerOutputModuleBase::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
-    std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e, mcc);
+  StreamerOutputModuleBase::write(EventForOutput const& e) {
+    std::unique_ptr<EventMsgBuilder> msg = serializeEvent(e);
     doOutputEvent(*msg); // You can't use msg in StreamerOutputModuleBase after this point
   }
 
-  std::auto_ptr<InitMsgBuilder>
+  std::unique_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
 
     serializer_.serializeRegistry(serializeDataBuffer_, *branchIDLists(), *thinnedAssociationsHelper());
@@ -183,13 +182,13 @@ namespace edm {
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
-    std::auto_ptr<InitMsgBuilder> init_message(
-        new InitMsgBuilder(&serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
+    auto init_message = std::make_unique<InitMsgBuilder>(
+                           &serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
                            run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serializeDataBuffer_.adler32_chksum()));
+                           (uint32)serializeDataBuffer_.adler32_chksum());
 
     // copy data into the destination message
     unsigned char* src = serializeDataBuffer_.bufferPointer();
@@ -199,22 +198,18 @@ namespace edm {
   }
 
   Trig
-  StreamerOutputModuleBase::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
-    //This cast is safe since we only call const functions of the EventPrincipal after this point
-    PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription());
-    adapter.setConsumer(this);
+  StreamerOutputModuleBase::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const {
     Trig result;
-    auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
-    convert_handle(std::move(bh), result);
+    e.getByToken<TriggerResults>(token, result);
     return result;
   }
 
   void
-  StreamerOutputModuleBase::setHltMask(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  StreamerOutputModuleBase::setHltMask(EventForOutput const& e) {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(trToken_, e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_, e);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 
@@ -250,8 +245,8 @@ namespace edm {
     if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
   }
 
-  std::auto_ptr<EventMsgBuilder>
-  StreamerOutputModuleBase::serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  std::unique_ptr<EventMsgBuilder>
+  StreamerOutputModuleBase::serializeEvent(EventForOutput const& e) {
     //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
@@ -261,7 +256,7 @@ namespace edm {
     l1bit_.push_back(false);
     //End of dummy data
 
-    setHltMask(e, mcc);
+    setHltMask(e);
 
     if (lumiSectionInterval_ == 0) {
       lumi_ = e.luminosityBlock();
@@ -269,7 +264,7 @@ namespace edm {
       setLumiSection();
     }
 
-    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serializeDataBuffer_, mcc);
+    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serializeDataBuffer_);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
@@ -277,11 +272,11 @@ namespace edm {
     unsigned int new_size = src_size + 50000;
     if(serializeDataBuffer_.bufs_.size() < new_size) serializeDataBuffer_.bufs_.resize(new_size);
 
-    std::auto_ptr<EventMsgBuilder>
-      msg(new EventMsgBuilder(&serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
+    auto msg = std::make_unique<EventMsgBuilder>(
+                              &serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_, 0,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
-                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_) );
+                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_);
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message

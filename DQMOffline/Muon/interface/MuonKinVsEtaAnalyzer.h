@@ -54,7 +54,7 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   std::string metname;
 
   //Vertex requirements
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   
@@ -157,5 +157,6 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> chi2HighPtTrack;
   std::vector<MonitorElement*> chi2probHighPtTrack;
 
+  std::string theFolder;
 };
 #endif

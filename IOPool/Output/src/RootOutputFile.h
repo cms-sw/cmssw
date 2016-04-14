@@ -38,9 +38,8 @@ class TFile;
 class TClass;
 
 namespace edm {
-  class ModuleCallingContext;
+  class OccurrenceForOutput;
   class PoolOutputModule;
-
 
   class RootOutputFile {
   public:
@@ -50,10 +49,10 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
-    void writeOne(EventPrincipal const& e, ModuleCallingContext const*);
+    void writeOne(EventForOutput const& e);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*);
-    void writeRun(RunPrincipal const& r, ModuleCallingContext const*);
+    void writeLuminosityBlock(LuminosityBlockForOutput const& lb);
+    void writeRun(RunForOutput const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
@@ -84,15 +83,15 @@ namespace edm {
     void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
     void fillBranches(BranchType const& branchType,
-                      Principal const& principal,
-                      StoredProductProvenanceVector* productProvenanceVecPtr,
-                      ModuleCallingContext const*);
+                      OccurrenceForOutput const& occurrence,
+                      StoredProductProvenanceVector* productProvenanceVecPtr = nullptr,
+                      ProductProvenanceRetriever const* provRetriever = nullptr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
-                          EventPrincipal const& principal,
+                          ProductProvenanceRetriever const* iMapper,
                           bool produced,
-                          std::set<StoredProductProvenance>& oToFill,
-                          ModuleCallingContext const*);
+                          std::set<BranchID> const& producedBranches,
+                          std::set<StoredProductProvenance>& oToFill);
 
     bool insertProductProvenance(const ProductProvenance&,
                                  std::set<StoredProductProvenance>& oToInsert);

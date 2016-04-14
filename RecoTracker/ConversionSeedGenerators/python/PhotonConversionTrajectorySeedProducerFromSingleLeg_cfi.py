@@ -45,11 +45,12 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                       TTRHBuilder = cms.string('WithTrackAngle')
                                                       )
                                                   )
-eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
-    OrderedHitsFactoryPSet = dict(maxElement = 10000),
+eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
-        MaxNumberOfCosmicClusters = 150000,
-        MaxNumberOfPixelClusters = 20000,
-        cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
-    )
+        MaxNumberOfCosmicClusters = 1000000,
+        MaxNumberOfPixelClusters = 100000,
+        cut = 'strip < 1000000 && pixel < 100000 && (strip < 100000 + 20*pixel) && (pixel < 20000 + 0.1*strip)'
+    ),
+    OrderedHitsFactoryPSet = dict(maxElement = 100000),
+    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
 )

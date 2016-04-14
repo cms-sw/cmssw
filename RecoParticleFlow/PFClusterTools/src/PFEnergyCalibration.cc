@@ -9,6 +9,7 @@
 #include <TF1.h>
 #include <map>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 

@@ -11,18 +11,15 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.Modifiers import modifyExpressHI
 
 class HeavyIons(Reco):
     def __init__(self):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='HeavyIons'
-        self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePromptHI' ]
-        self.expressCustoms= [ ]
-        self.expressModifiers = modifyExpressHI
-        self.visCustoms= [ ]
-        self.visModifiers = modifyExpressHI
+        self.promptCustoms='Configuration/DataProcessing/RecoTLR.customisePromptHI'
+        self.expressCustoms='Configuration/DataProcessing/RecoTLR.customiseExpressHI'
+        self.visCustoms='Configuration/DataProcessing/RecoTLR.customiseExpressHI'
     """
     _HeavyIons_
 
@@ -58,8 +55,7 @@ class HeavyIons(Reco):
         if not 'customs' in args:
             args['customs']=[ ]
 
-        for c in self.promptCustoms:
-            args['customs'].append(c)
+        args['customs'].append(self.promptCustoms)
 
         process = Reco.promptReco(self,globalTag, **args)
 
@@ -82,8 +78,7 @@ class HeavyIons(Reco):
         if not 'customs' in args:
             args['customs']=[ ]
 
-        for c in self.expressCustoms:
-            args['customs'].append(c)
+        args['customs'].append( self.expressCustoms )
 
         process = Reco.expressProcessing(self,globalTag, **args)
         
@@ -102,8 +97,7 @@ class HeavyIons(Reco):
         if not 'customs' in args:
             args['customs']=[ ]
 
-        for c in self.visCustoms:
-            args['customs'].append(c)
+        args['customs'].append( self.visCustoms )
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         

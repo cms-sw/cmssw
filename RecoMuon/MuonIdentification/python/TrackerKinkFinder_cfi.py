@@ -17,3 +17,8 @@ TrackerKinkFinderParametersBlock = cms.PSet(
         Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
     )
 )
+
+# This customization will be removed once we get the templates for
+# phase1 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase1Pixel.toModify(TrackerKinkFinderParametersBlock, TrackerKinkFinderParameters = dict(TrackerRecHitBuilder = 'WithTrackAngle')) # FIXME

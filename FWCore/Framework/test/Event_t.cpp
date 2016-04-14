@@ -334,7 +334,7 @@ void testEvent::setUp() {
 
   ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
 
-  std::auto_ptr<ProcessHistory> processHistory(new ProcessHistory);
+  auto processHistory = std::make_unique<ProcessHistory>();
   ProcessHistory& ph = *processHistory;
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
@@ -416,16 +416,14 @@ void testEvent::getByTokenFromEmpty() {
 }
 
 void testEvent::putAnIntProduct() {
-  std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
-  currentEvent_->put(three, "int1");
+  currentEvent_->put(std::make_unique<edmtest::IntProduct>(3), "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
   ProducerBase::commitEvent(*currentEvent_);
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
 }
 
 void testEvent::putAndGetAnIntProduct() {
-  std::auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
-  currentEvent_->put(four, "int1");
+  currentEvent_->put(std::make_unique<edmtest::IntProduct>(4), "int1");
   ProducerBase::commitEvent(*currentEvent_);
 
   InputTag should_match("modMulti", "int1", "CURRENT");
@@ -497,10 +495,10 @@ void testEvent::transaction() {
   CPPUNIT_ASSERT(principal_->size() == 0);
   {
     typedef edmtest::IntProduct product_t;
-    typedef std::auto_ptr<product_t> ap_t;
+    typedef std::unique_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
-    currentEvent_->put(three, "int1");
+    currentEvent_->put(std::move(three), "int1");
     CPPUNIT_ASSERT(principal_->size() == 0);
     CPPUNIT_ASSERT(currentEvent_->size() == 1);
     // DO NOT COMMIT!
@@ -525,13 +523,13 @@ void testEvent::getByLabel() {
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
 
-  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::unique_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   ProducerBase::commitEvent(*currentEvent_);
 
@@ -610,13 +608,13 @@ void testEvent::getByToken() {
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
   
-  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
   
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
   
-  std::unique_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   ProducerBase::commitEvent(*currentEvent_);
   
@@ -691,17 +689,17 @@ void testEvent::getManyByType() {
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
 
-  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
 
-  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing2(new std::vector<edmtest::Thing>);
+  auto ap_vthing2 = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing2), "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
+  currentEvent_->put(std::move(twoHundred), "int1");
   ProducerBase::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 8);
@@ -736,7 +734,7 @@ void testEvent::deleteProduct() {
       id = iDesc.branchID();
     }});
 
-  const ProductHolderBase* phb = principal_->getProductHolder(id);
+  const ProductResolverBase* phb = principal_->getProductResolver(id);
   CPPUNIT_ASSERT(phb != nullptr);
   
   CPPUNIT_ASSERT(!phb->productWasDeleted());  

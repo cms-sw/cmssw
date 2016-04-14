@@ -19,9 +19,6 @@ class Reco(Scenario):
         Scenario.__init__(self)
         self.recoSeq=''
         self.cbSc=self.__class__.__name__
-        self.promptModifiers = cms.ModifierChain()
-        self.expressModifiers = cms.ModifierChain()
-        self.visModifiers = cms.ModifierChain()
     """
     _pp_
 
@@ -84,7 +81,7 @@ class Reco(Scenario):
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
-        process = cms.Process('RECO', cms.ModifierChain(self.eras, self.promptModifiers) )
+        process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
@@ -124,12 +121,10 @@ class Reco(Scenario):
         options.step = 'RAW2DIGI,L1Reco,RECO'+eiStep+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
-
-        
         options.filein = 'tobeoverwritten.xyz'
         if 'inputSource' in args:
             options.filetype = args['inputSource']
-        process = cms.Process('RECO', cms.ModifierChain(self.eras, self.expressModifiers) )
+        process = cms.Process('RECO', self.eras)
 
         if 'customs' in args:
             options.customisation_file=args['customs']
@@ -180,7 +175,7 @@ class Reco(Scenario):
 
         print "Using %s source"%options.filetype            
 
-        process = cms.Process('RECO', cms.ModifierChain(self.eras, self.visModifiers) )
+        process = cms.Process('RECO', self.eras)
 
         if 'customs' in args:
             options.customisation_file=args['customs']

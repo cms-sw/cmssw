@@ -41,18 +41,42 @@ class TrackerGeometry final : public TrackingGeometry {
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
 
-  enum class ModuleType;
- 
+  enum class ModuleType {
+    UNKNOWN, 
+      PXB, 
+      PXF, 
+      IB1, 
+      IB2, 
+      OB1, 
+      OB2, 
+      W1A, 
+      W2A, 
+      W3A, 
+      W1B, 
+      W2B, 
+      W3B, 
+      W4, 
+      W5, 
+      W6, 
+      W7, 
+      Ph1PXB, 
+      Ph1PXF, 
+      Ph2PXB, 
+      Ph2PXF, 
+      Ph2PSP, 
+      Ph2PSS, 
+      Ph2SS
+   };
+
   virtual ~TrackerGeometry() ;
 
-
-  virtual const DetTypeContainer&  detTypes()         const;
-  virtual const DetUnitContainer&  detUnits()         const;
-  virtual const DetContainer&      dets()             const;
-  virtual const DetIdContainer&    detUnitIds()       const;
-  virtual const DetIdContainer&    detIds()           const;
-  virtual const TrackerGeomDet*    idToDetUnit(DetId) const;
-  virtual const TrackerGeomDet*    idToDet(DetId)     const;
+  const DetTypeContainer&  detTypes()         const {return theDetTypes;}
+  const DetUnitContainer&  detUnits()         const {return theDetUnits;}
+  const DetContainer&      dets()             const {return theDets;}
+  const DetIdContainer&    detUnitIds()       const {return theDetUnitIds;}
+  const DetIdContainer&    detIds()           const { return theDetIds;}
+  const TrackerGeomDet*    idToDetUnit(DetId) const;
+  const TrackerGeomDet*    idToDet(DetId)     const;
 
   const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;

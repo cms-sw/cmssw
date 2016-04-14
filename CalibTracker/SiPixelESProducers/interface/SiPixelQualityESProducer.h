@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,7 +43,7 @@ class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupR
   ~SiPixelQualityESProducer();
   
   
-  /* virtual*/ std::auto_ptr<SiPixelQuality> produce(const SiPixelQualityRcd & iRecord) ;
+  /* virtual*/ std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityRcd & iRecord) ;
   
 protected:
   

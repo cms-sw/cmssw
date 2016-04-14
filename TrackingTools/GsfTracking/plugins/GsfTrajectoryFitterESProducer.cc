@@ -29,7 +29,7 @@ GsfTrajectoryFitterESProducer::GsfTrajectoryFitterESProducer(const edm::Paramete
 
 GsfTrajectoryFitterESProducer::~GsfTrajectoryFitterESProducer() {}
 
-boost::shared_ptr<TrajectoryFitter> 
+std::shared_ptr<TrajectoryFitter> 
 GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
   //
   // material effects
@@ -67,7 +67,7 @@ GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){
   //
   // create algorithm
   //
-  return boost::shared_ptr<TrajectoryFitter>(new GsfTrajectoryFitter(propagator,
+  return std::shared_ptr<TrajectoryFitter>(new GsfTrajectoryFitter(propagator,
 								     GsfMultiStateUpdator(), 
 								     estimator,merger,
 								     geo.product()));

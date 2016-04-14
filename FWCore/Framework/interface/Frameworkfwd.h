@@ -18,12 +18,14 @@ namespace edm {
   class EDLooper;
   class EDProducer;
   class Event;
+  class EventForOutput;
   class EventPrincipal;
   class EventSetup;
   class FileBlock;
   class InputSource;
   struct InputSourceDescription;
   class LuminosityBlock;
+  class LuminosityBlockForOutput;
   class LuminosityBlockPrincipal;
   class OutputModule;
   struct OutputModuleDescription;
@@ -34,6 +36,7 @@ namespace edm {
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Run;
+  class RunForOutput;
   class RunPrincipal;
   class Schedule;
   class TypeID;

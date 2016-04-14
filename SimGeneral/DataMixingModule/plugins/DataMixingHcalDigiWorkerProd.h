@@ -1,4 +1,4 @@
-#ifndef DataMixingHcalDigiWorkerProd_h
+#ifndef SimDataMixingHcalDigiWorkerProd_h
 #define SimDataMixingHcalDigiWorkerProd_h
 
 /** \class DataMixingHcalDigiWorkerProd
@@ -97,4 +97,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingHcalDigiWorkerProd_h

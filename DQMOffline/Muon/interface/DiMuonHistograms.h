@@ -53,13 +53,10 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   int etaBin;
   int etaBBin;
   int etaEBin;
-  int etaBinLM;
-  int etaBBinLM;
-  int etaEBinLM;
   int etaOvlpBin;
 
   //Defining relevant eta regions
-  std::string EtaName;
+  std::string EtaName[3];
 
   double EtaCutMin;
   double EtaCutMax;
@@ -84,10 +81,18 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
   
+  MonitorElement* test; // my test
+
   // Labels used
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+
+  std::string theFolder;
+
+  int nTightTight;
+  int nGlbGlb;
+
 };
 #endif 
 

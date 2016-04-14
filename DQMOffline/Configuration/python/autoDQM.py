@@ -5,7 +5,8 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                                        'PostDQMOffline',
                                        'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
             'trackingOnlyDQM' : ["DQMOfflineTracking",
-                             "DQMHarvestTracking"],
+                                 "PostDQMOffline",
+                                 "DQMHarvestTracking"],
             'muon': ['DQMOfflineMuon',
                      'PostDQMOffline',
                      'DQMHarvestMuon+DQMCertMuon'],
@@ -47,4 +48,3 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'PostDQMOffline',
                           'dqmHarvesting']
             }
-

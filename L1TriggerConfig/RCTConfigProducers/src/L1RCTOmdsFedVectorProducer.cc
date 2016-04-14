@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -58,7 +57,7 @@ public:
   L1RCTOmdsFedVectorProducer(const edm::ParameterSet&);
   ~L1RCTOmdsFedVectorProducer();
   
-  typedef boost::shared_ptr<RunInfo> ReturnType;
+  typedef std::shared_ptr<RunInfo> ReturnType;
   
   ReturnType produce(const RunInfoRcd&);
 private:
@@ -113,7 +112,7 @@ L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
   //  std::cout << "ENTERING L1RCTOmdsFedVectorProducer::produce()" << std::endl;
 
   using namespace edm::es;
-  boost::shared_ptr<RunInfo> pRunInfo ;
+  std::shared_ptr<RunInfo> pRunInfo ;
 
   //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
   
@@ -124,7 +123,7 @@ L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
   int runNumber = summary->m_run; 
   
   // CREATING NEW RUNINFO WHICH WILL GET NEW FED VECTOR AND BE RETURNED
-  pRunInfo = boost::shared_ptr<RunInfo>( new RunInfo() ); 
+  pRunInfo = std::make_shared<RunInfo>(); 
   
   
   // DO THE DATABASE STUFF

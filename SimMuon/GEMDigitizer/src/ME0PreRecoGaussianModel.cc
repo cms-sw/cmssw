@@ -22,10 +22,11 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   sigma_t(config.getParameter<double>("timeResolution")), 
   sigma_u(config.getParameter<double>("phiResolution")), 
   sigma_v(config.getParameter<double>("etaResolution")), 
+  gaussianSmearing_(config.getParameter<bool>("gaussianSmearing")),
+  constPhiSmearing_(config.getParameter<bool>("constantPhiSpatialResolution")),
   corr(config.getParameter<bool>("useCorrelation")), 
   etaproj(config.getParameter<bool>("useEtaProjectiveGEO")), 
   digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")), 
-  gaussianSmearing_(config.getParameter<bool>("gaussianSmearing")),
   averageEfficiency_(config.getParameter<double>("averageEfficiency")), 
   // simulateIntrinsicNoise_(config.getParameter<bool>("simulateIntrinsicNoise")),
   // averageNoiseRate_(config.getParameter<double>("averageNoiseRate")), 
@@ -59,15 +60,19 @@ for (const auto & hit: simHits)
   // create digi
   auto entry = hit.entryPoint();
   double x=0.0, y=0.0;
+
+  double sigma_u_new = sigma_u;
+  if(constPhiSmearing_) sigma_u_new = correctSigmaU(roll, entry.y());
+
   if(gaussianSmearing_) { // Gaussian Smearing
-    x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
+    x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u_new);
     y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
   }
   else { // Uniform Smearing ... use the sigmas as boundaries
-    x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u;
+    x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u_new;
     y=entry.y()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_v;
   }
-  double ex=sigma_u;
+  double ex=sigma_u_new;
   double ey=sigma_v;
   double corr=0.;
   double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
@@ -134,6 +139,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     // max length in x for given y coordinate (cfr trapezoidal eta partition)
     double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
+    double sigma_u_new = sigma_u;
+    if(constPhiSmearing_) sigma_u_new = correctSigmaU(roll, yy_rand);
+
+
     // 1) Intrinsic Noise ... Not implemented right now
     // ------------------------------------------------
     // if (simulateIntrinsicNoise_)
@@ -169,7 +178,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	//calculate xx_rand at a given yy_rand
 	double myRandX = CLHEP::RandFlat::shoot(engine);
 	double xx_rand = 2 * xMax * (myRandX - 0.5);
-	double ex = sigma_u;
+	double ex = sigma_u_new;
 	double ey = sigma_v;
 	double corr = 0.;
 	// extract random BX
@@ -217,7 +226,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	//calculate xx_rand at a given yy_rand
 	double myRandX = CLHEP::RandFlat::shoot(engine);
 	double xx_rand = 2 * xMax * (myRandX - 0.5);
-	double ex = sigma_u;
+	double ex = sigma_u_new;
 	double ey = sigma_v;
 	double corr = 0.;
 	// extract random BX
@@ -242,3 +251,13 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   } // end loop over strips (= pseudo rolls)
 }
 
+double ME0PreRecoGaussianModel::correctSigmaU(const ME0EtaPartition* roll, double y) {
+  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  auto& parameters(roll->specs()->parameters());
+  double height(parameters[2]);       // height     = height from Center of Roll
+  double rollRadius = top_->radius(); // rollRadius = Radius at Center of Roll
+  double Rmax = rollRadius+height;    // MaxRadius  = Radius at top of Roll
+  double Rx = rollRadius+y;           // y in [-height,+height]
+  double sigma_u_new = Rx/Rmax*sigma_u;
+  return sigma_u_new;
+}

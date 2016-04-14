@@ -4,8 +4,8 @@
 #include "CondCore/CondDB/interface/DecodingKey.h"
 //
 #include <map>
+#include <memory>
 #include <string>
-#include <boost/shared_ptr.hpp>
 //
 #include "CoralBase/MessageStream.h"
 
@@ -160,8 +160,8 @@ namespace cond {
 
     private:
 
-      boost::shared_ptr<coral::IConnection> m_connection;
-      boost::shared_ptr<coral::ISession> m_session;
+      std::shared_ptr<coral::IConnection> m_connection;
+      std::shared_ptr<coral::ISession> m_session;
 
       int m_principalId;
       std::string m_principalKey;

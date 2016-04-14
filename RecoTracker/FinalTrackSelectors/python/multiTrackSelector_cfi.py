@@ -90,6 +90,6 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
                                tightMTS,
                                highpurityMTS)
  ) 
-eras.trackingLowPU.toModify(multiTrackSelector,
+eras.trackingPhase1PU70.toModify(multiTrackSelector,
     vertices = "pixelVertices"
 )

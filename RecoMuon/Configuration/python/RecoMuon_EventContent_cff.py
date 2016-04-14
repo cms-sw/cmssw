@@ -93,4 +93,11 @@ RecoMuonFEVT.outputCommands.extend(RecoMuonIsolationFEVT.outputCommands)
 RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
 RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
 
+def _modifyRecoMuonEventContentForPhase2( object ):
+    object.outputCommands.append('keep *_me0SegmentMatching_*_*')
+    object.outputCommands.append('keep *_me0MuonConverting_*_*')
 
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( RecoMuonFEVT, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2_muon.toModify( RecoMuonRECO, func=_modifyRecoMuonEventContentForPhase2 )
+eras.phase2_muon.toModify( RecoMuonAOD,  func=_modifyRecoMuonEventContentForPhase2 )

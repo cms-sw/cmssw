@@ -31,11 +31,23 @@ PixelTrackReconstructionBlock = cms.PSet (
         )
     ),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits')
+        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
+        useQuadrupletAlgo = cms.bool(False),
     )
 )
 
-eras.trackingLowPU.toModify(PixelTrackReconstructionBlock,
+eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
+    SeedMergerPSet = cms.PSet(
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+        addRemainingTriplets = cms.bool(False),
+        mergeTriplets = cms.bool(True),
+        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+    ),
+    FilterPSet = dict(
+        chi2 = 50.0,
+        tipMax = 0.05
+    ),
+    RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
     OrderedHitsFactoryPSet = dict(
         SeedingLayers = "PixelLayerTripletsPreSplitting",
         GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))

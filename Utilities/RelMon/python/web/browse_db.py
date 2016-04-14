@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # coding: utf-8
 '''
 CherryPy application, which enables dynamic SQLite3 database file with release

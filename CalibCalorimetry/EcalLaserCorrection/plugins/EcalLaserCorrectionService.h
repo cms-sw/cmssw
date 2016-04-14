@@ -4,7 +4,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -24,7 +23,7 @@ public:
   EcalLaserCorrectionService( const edm::ParameterSet& );
   ~EcalLaserCorrectionService();
   
-  boost::shared_ptr<EcalLaserDbService> produce( const EcalLaserDbRecord& );
+  std::shared_ptr<EcalLaserDbService> produce( const EcalLaserDbRecord& );
   
   // callbacks
   void alphaCallback (const EcalLaserAlphasRcd& fRecord);
@@ -34,7 +33,7 @@ public:
   
 private:
   // ----------member data ---------------------------
-  boost::shared_ptr<EcalLaserDbService> mService_;
+  std::shared_ptr<EcalLaserDbService> mService_;
   //  std::vector<std::string> mDumpRequest;
   //  std::ostream* mDumpStream;
 };

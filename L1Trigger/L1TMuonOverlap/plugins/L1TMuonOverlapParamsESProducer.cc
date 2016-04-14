@@ -88,10 +88,8 @@ L1TMuonOverlapParamsESProducer::ReturnType
 L1TMuonOverlapParamsESProducer::produce(const L1TMuonOverlapParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonOverlapParams> aL1TMTFOverlapParams;
   
-   aL1TMTFOverlapParams = boost::shared_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(m_params));
-   return aL1TMTFOverlapParams;
+   return std::make_shared<L1TMuonOverlapParams>(m_params);
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////

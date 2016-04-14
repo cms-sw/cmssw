@@ -28,7 +28,6 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
-#include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -126,7 +125,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     ProcessHistoryID const& processHistoryID() const;
 
@@ -159,14 +158,11 @@ namespace edm {
 
 
     void commit_();
-    void addToGotBranchIDs(Provenance const& prov) const;
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
     std::shared_ptr<Run const> const run_;
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;

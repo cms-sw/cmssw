@@ -507,7 +507,7 @@ void PCLTrackerAlProducer
     edm::ESHandle<PTrackerParameters> ptp;
     setup.get<PTrackerParametersRcd>().get( ptp );
 
-    theTrackerGeometry = boost::shared_ptr<TrackerGeometry>(
+    theTrackerGeometry = std::shared_ptr<TrackerGeometry>(
         trackerBuilder.build(&(*geometricDet), *ptp, tTopo )
     );
   }
@@ -519,8 +519,8 @@ void PCLTrackerAlProducer
     setup.get<IdealGeometryRecord>().get(cpv);
     setup.get<MuonNumberingRecord>().get(mdc);
 
-    theMuonDTGeometry  = boost::shared_ptr<DTGeometry> (new DTGeometry);
-    theMuonCSCGeometry = boost::shared_ptr<CSCGeometry>(new CSCGeometry);
+    theMuonDTGeometry  = std::make_shared<DTGeometry>();
+    theMuonCSCGeometry = std::make_shared<CSCGeometry>();
 
     DTGeometryBuilderFromDDD  DTGeometryBuilder;
     CSCGeometryBuilderFromDDD CSCGeometryBuilder;

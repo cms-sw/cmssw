@@ -15,7 +15,7 @@ Phase2TrackerCablingESProducer::~Phase2TrackerCablingESProducer() {}
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<Phase2TrackerCabling> Phase2TrackerCablingESProducer::produce( const Phase2TrackerCablingRcd& rcd ) { 
+std::unique_ptr<Phase2TrackerCabling> Phase2TrackerCablingESProducer::produce( const Phase2TrackerCablingRcd& rcd ) { 
   
   Phase2TrackerCabling* temp = make( rcd );
   
@@ -25,7 +25,7 @@ std::auto_ptr<Phase2TrackerCabling> Phase2TrackerCablingESProducer::produce( con
       << " Null pointer to Phase2TrackerCabling object!";
   }
   
-  std::auto_ptr<Phase2TrackerCabling> ptr( temp );
+  std::unique_ptr<Phase2TrackerCabling> ptr( temp );
   return ptr;
 
 }
