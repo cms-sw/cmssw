@@ -1,13 +1,13 @@
 /****************************************************************************
 *
-* This is a part of TOTEM offline software.
+* This is a part of the TOTEM offline software.
 * Authors: 
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
 
-#ifndef _RawToDigiConverter_h_
-#define _RawToDigiConverter_h_
+#ifndef EventFilter_TotemRawToDigi_RawToDigiConverter
+#define EventFilter_TotemRawToDigi_RawToDigiConverter
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -17,10 +17,8 @@
 #include "CondFormats/TotemReadoutObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
 
-#include "DataFormats/TotemRPDigi/interface/TotemRPDigi.h"
-#include "DataFormats/TotemRPL1/interface/TotemRPCCBits.h"
-#include "DataFormats/TotemRawData/interface/TotemRawEvent.h"
-#include "DataFormats/TotemRawData/interface/TotemRawToDigiStatus.h"
+#include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
+#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -29,7 +27,7 @@ class RawToDigiConverter
 {
   private:
   unsigned char verbosity;
-
+    
   unsigned int printErrorSummary;
   unsigned int printUnknownFrameSummary;
 
@@ -57,18 +55,13 @@ class RawToDigiConverter
   public:
     RawToDigiConverter(const edm::ParameterSet &conf);
 
-    /// Converts vfat data in `coll'' into digi.
-    int Run(const VFATFrameCollection &coll,
-      const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
-      edm::DetSetVector<TotemRPDigi> &rpData, std::vector<TotemRPCCBits> &rpCC, TotemRawToDigiStatus &status);
+    /// Common processing for all VFAT based sub-systems.
+    void RunCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
+      std::map<TotemFramePosition, TotemVFATStatus> &status);
 
-    /// Produce Digi from one RP data VFAT.
-    void RPDataProduce(VFATFrameCollection::Iterator &fr, const TotemVFATInfo &info,
-      const TotemVFATAnalysisMask &analysisMask, edm::DetSetVector<TotemRPDigi> &rpData);
-
-    /// Produce Digi from one RP trigger VFAT.
-    void RPCCProduce(VFATFrameCollection::Iterator &fr, const TotemVFATInfo &info,
-      const TotemVFATAnalysisMask &analysisMask, std::vector <TotemRPCCBits> &rpCC);
+    /// Creates RP digi.
+    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<TotemRPDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Print error summaries.
     void PrintSummaries();

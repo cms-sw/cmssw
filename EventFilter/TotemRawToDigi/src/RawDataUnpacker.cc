@@ -21,18 +21,15 @@ RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &conf)
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::Run(int fedId, const FEDRawData &data, SimpleVFATFrameCollection &coll, TotemRawEvent &rawEvent)
+int RawDataUnpacker::Run(int fedId, const FEDRawData &data, SimpleVFATFrameCollection &coll)
 {
-  // implements the "best guess" by Michele: FEDRawData will most likely contain OptoRx blocks
   unsigned int size_in_words = data.size() / 8; // bytes -> words
-  ProcessOptoRxFrame((word *) data.data(), size_in_words, &coll, rawEvent);
-
-  return 10;
+  return ProcessOptoRxFrame((word *) data.data(), size_in_words, &coll);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc, TotemRawEvent &event)
+int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
@@ -41,8 +38,8 @@ int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, Simpl
   unsigned int BOE = (head >> 60) & 0xF;
   unsigned int H0 = (head >> 0) & 0xF;
 
-  unsigned long LV1 = (head >> 32) & 0xFFFFFF;
-  unsigned long BX = (head >> 20) & 0xFFF;
+  //unsigned long LV1 = (head >> 32) & 0xFFFFFF;
+  //unsigned long BX = (head >> 20) & 0xFFF;
   unsigned int OptoRxId = (head >> 8) & 0xFFF;
   unsigned int FOV = (head >> 4) & 0xF;
 
@@ -64,17 +61,6 @@ int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, Simpl
     printf(">> RawDataUnpacker::ProcessOptoRxFrame > OptoRxId = %u, BX = %lu, LV1 = %lu, frameSize = %u, subFrames = %u)\n",
       OptoRxId, BX, LV1, frameSize, subFrames);
   #endif
-
-  // save metadata to event
-  auto &md = event.optoRxMetaData[OptoRxId];
-  md.BX = BX;
-  md.LV1 = LV1;
-
-  // is it OptoRx transmitting LoneG data?
-  if (OptoRxId == 0x29c)
-  {
-      return ProcessLoneGFrame(buf + 2, frameSize - 4, event);
-  }
 
   // parallel or serial transmission?
   if (FOV == 1)
@@ -354,55 +340,4 @@ int RawDataUnpacker::ProcessVFATDataParallel(unsigned short *buf, unsigned int O
   fc->Insert(fp, f);
 
   return wordsProcessed;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-int RawDataUnpacker::ProcessLoneGFrame(word *oBuf, unsigned long size, TotemRawEvent &ev)
-{
-  if (size != 20)
-  {
-    cerr << "Error in RawDataUnpacker::ProcessLoneGFrame > " << "Wrong LoneG frame size: " << size << " (shall be 20)." << endl;
-    return 1;
-  }
-
-  // buffer mapping: OptoRx buffer --> LoneG buffer
-  RawDataUnpacker::word buf[5];
-  for (unsigned int i = 0; i < 5; i++)
-    buf[i] = 0;
-
-  for (unsigned int i = 0; i < 20; i++)
-  {
-      int row = i / 4;
-      int col = i % 4;
-      buf[row] |= (oBuf[i] & 0xFFFF) << (col * 16);
-  }
-
-  ev.triggerData.type = (buf[0] >> 56) & 0xF;
-  ev.triggerData.event_num = (buf[0] >> 32) & 0xFFFFFF;
-  ev.triggerData.bunch_num = (buf[0] >> 20) & 0xFFF;
-  ev.triggerData.src_id = (buf[0] >> 8) & 0xFFF;
-
-  ev.triggerData.orbit_num = (buf[1] >> 32) & 0xFFFFFFFF;
-  ev.triggerData.revision_num = (buf[1] >> 24) & 0xFF;
-
-  ev.triggerData.run_num = (buf[2] >> 32) & 0xFFFFFFFF;
-  ev.triggerData.trigger_num = (buf[2] >> 0) & 0xFFFFFFFF;
-
-  ev.triggerData.inhibited_triggers_num = (buf[3] >> 32) & 0xFFFFFFFF;
-  ev.triggerData.input_status_bits = (buf[3] >> 0) & 0xFFFFFFFF;
-
-#ifdef DEBUG
-  printf(">> RawDataUnpacker::ProcessLoneGFrame > size = %li\n", size);
-  printf("\ttype = %x, event number = %x, bunch number = %x, id = %x\n",
-    ev.triggerData.type, ev.triggerData.event_num, ev.triggerData.bunch_num, ev.triggerData.src_id);
-  printf("\torbit number = %x, revision = %x\n",
-    ev.triggerData.orbit_num, ev.triggerData.revision_num);
-  printf("\trun number = %x, trigger number = %x\n",
-    ev.triggerData.run_num, ev.triggerData.trigger_num);
-  printf("\tinhibited triggers = %x, input status bits = %x\n",
-    ev.triggerData.inhibited_triggers_num, ev.triggerData.input_status_bits);
-#endif
-
-  return 0;
 }
