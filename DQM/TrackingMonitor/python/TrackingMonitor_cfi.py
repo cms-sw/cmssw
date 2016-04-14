@@ -5,6 +5,7 @@ from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
 TrackMon = cms.EDAnalyzer("TrackingMonitor",
     
     # input tags
+    UseDCSFiltering  = cms.bool(True),
     numCut           = cms.string(" pt >= 1 & quality('highPurity') "),
     denCut           = cms.string(" pt >= 1 "),
     allTrackProducer = cms.InputTag("generalTracks"),
