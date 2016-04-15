@@ -18,7 +18,6 @@ numWFSkip=200
 
 for i,key in enumerate(upgradeKeys):
     numWF=numWFStart+i*numWFSkip
-    print "come here"
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
