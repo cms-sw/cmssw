@@ -108,7 +108,9 @@ const int GtCondition::nrObjects() const
         case l1t::TypeETT:
         case l1t::TypeETM:
         case l1t::TypeHTT:
-        case l1t::TypeHTM: {
+        case l1t::TypeHTM:
+	case l1t::TypeETM2:
+	case l1t::TypeMinBias: {
                 return 1;
             }
 
@@ -252,6 +254,14 @@ void GtCondition::print(std::ostream& myCout) const
                 myCout << "  Condition type:     " << "TypeHTM"  << std::endl;
             }
 
+        case l1t::TypeETM2: {
+                myCout << "  Condition type:     " << "TypeETM2"  << std::endl;
+            }
+
+        case l1t::TypeMinBias: {
+                myCout << "  Condition type:     " << "TypeMinBias"  << std::endl;
+            }
+
             break;
         case l1t::TypeExternal: {
                 myCout << "  Condition type:     " << "TypeExternal"  << std::endl;
@@ -314,6 +324,15 @@ void GtCondition::print(std::ostream& myCout) const
                 }
 
                 break;
+
+            case l1t::gtETM2: {
+                    myCout << " ETM2 ";
+                }
+		
+            case l1t::gtMinBias: {
+                    myCout << " MinBias ";
+                }		
+
 
             case l1t::gtExternal: {
                     myCout << " External ";

@@ -37,6 +37,8 @@ enum L1TGtObject
     gtETT,
     gtHTT,
     gtHTM,
+    gtETM2,
+    gtMinBias,
     gtExternal,
     ObjNull
 };

@@ -37,6 +37,8 @@ l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
             {"ETT", gtETT},
             {"HTT", gtHTT},
             {"HTM", gtHTM},
+	    {"ETM2", gtETM2},
+	    {"MinBias", gtMinBias},
             {"External", gtExternal},
             {"ObjNull", ObjNull},
             {0, (L1TGtObject) - 1}
@@ -114,6 +116,15 @@ std::string l1t::l1TGtObjectEnumToString(const L1TGtObject& gtObject) {
         }
             break;
 
+        case gtETM2: {
+            gtObjectString = "ETM2";
+        }
+            break;
+
+        case gtMinBias: {
+            gtObjectString = "MinBias";
+        }
+            break;
 
         case gtExternal: {
             gtObjectString = "External";
