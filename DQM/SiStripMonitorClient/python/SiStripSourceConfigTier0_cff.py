@@ -78,31 +78,32 @@ SiStripMonitorTrackCommon = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiSt
 SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
 
+from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.andOr         = cms.bool( False )
-SiStripMonitorTrackMB.dbLabel       = cms.string("SiStripDQMTrigger")
-SiStripMonitorTrackMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
-SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
-SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
+SiStripMonitorTrackMB.andOr         = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
+SiStripMonitorTrackMB.dbLabel       = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
+SiStripMonitorTrackMB.hltInputTag   = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
+SiStripMonitorTrackMB.hltPaths      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths 
+SiStripMonitorTrackMB.hltDBKey      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
+SiStripMonitorTrackMB.errorReplyHlt = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
+SiStripMonitorTrackMB.andOrHlt      = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.Tracks          = 'generalTracks'
-MonitorTrackResiduals.Mod_On        = False
-MonitorTrackResiduals.andOr         = cms.bool( False )
-MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
-MonitorTrackResiduals.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-MonitorTrackResiduals.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-MonitorTrackResiduals.hltDBKey = cms.string("Tracker_MB")
-MonitorTrackResiduals.errorReplyHlt  = cms.bool( False )
-MonitorTrackResiduals.andOrHlt = cms.bool(True) 
+MonitorTrackResiduals.Mod_On          = False
+MonitorTrackResiduals.andOr           = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
+MonitorTrackResiduals.dbLabel         = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
+MonitorTrackResiduals.hltInputTag     = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
+MonitorTrackResiduals.hltPaths        = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths
+MonitorTrackResiduals.hltDBKey        = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
+MonitorTrackResiduals.errorReplyHlt   = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
+MonitorTrackResiduals.andOrHlt        = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
 
 # DQM Services
 dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",

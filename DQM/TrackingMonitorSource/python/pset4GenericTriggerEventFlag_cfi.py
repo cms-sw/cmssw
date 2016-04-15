@@ -7,9 +7,9 @@ genericTriggerEventFlag4fullTrackerAndHLTdb = cms.PSet(
    andOrDcs      = cms.bool( False ),
    errorReplyDcs = cms.bool( True ),
    dbLabel       = cms.string("TrackerDQMTrigger"),
-   andOrHlt      = cms.bool(True),
+   andOrHlt      = cms.bool(True),# True:=OR; False:=AND
    hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
-   hltPaths      = cms.vstring(""),
+   hltPaths      = cms.vstring(""), # HLT_ZeroBias_v*
    hltDBKey      = cms.string("Tracking_HLT"),
    errorReplyHlt = cms.bool( False ),
 )
