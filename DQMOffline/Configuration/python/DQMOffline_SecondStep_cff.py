@@ -16,7 +16,7 @@ from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
-from DQM.HcalTasks.HcalHarvesting import *
+from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -26,7 +26,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
-											 hcalHarvesting *
+											 hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
                                              dqmFEDIntegrityClient )
 
@@ -116,7 +116,7 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
 
-DQMHarvestHcal = cms.Sequence(hcalHarvesting)
+DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
