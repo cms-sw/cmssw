@@ -100,7 +100,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger','GenSimFullDigiSigTest','DigiFullDigiSigTest','RecoFullDigiSigTest','HARVESTFullDigiSigTest']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger','GenSimFullDigiSigTest','DigiFullDigiSigTest','RecoFullDigiSigTest','HARVESTFullDigiSigTest','DigiFulllocalreco']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
@@ -109,7 +109,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
 		   '2023dev':['GenSimFull','DigiFulllocalreco'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFulllocalreco'],#local reco scneario
-		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
+		   '2023Reco':['GenSimFull','DigiFull','RecoFull'],#full reco scenario
                    '2017DigiSigTest':['GenSimFullDigiSigTest','DigiFullDigiSigTest','RecoFullDigiSigTest','HARVESTFullDigiSigTest']
                    }
 
