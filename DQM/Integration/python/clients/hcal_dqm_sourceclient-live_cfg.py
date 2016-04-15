@@ -34,7 +34,6 @@ if useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
-process.load('DQMServices.Components.DQMEnvironment_cfi')
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -95,7 +94,7 @@ process.hcalDigis.InputLabel = rawTag
 process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
-process.load('DQM.HcalTasks.HcalHarvesting')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
 #-------------------------------------
 #	To force using uTCA
@@ -129,47 +128,36 @@ process.tpTask.runkeyName = runTypeName
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
 #-------------------------------------
-process.tasksSequence = cms.Sequence(
+process.tasksPath = cms.Path(
 		process.rawTask
 		+process.digiTask
 		+process.tpTask
 )
 
-process.harvestingSequence = cms.Sequence(
-	process.hcalHarvesting
+process.harvestingPath = cms.Path(
+	process.hcalOnlineHarvesting
 )
-
-#-------------------------------------
-#	Quality Tester. May be in the future
-#-------------------------------------
-#process.qTester = cms.EDAnalyzer(
-#	"QualityTester",
-#	prescaleFactor = cms.untracked.int32(1),
-#	qtList = cms.untracked.FileInPath(
-#		"DQM/HcalMonitorClient/data/hcal_qualitytest_config.xml"),
-#	getQualityTestsFromFile = cms.untracked.bool(True),
-#	qtestOnEndLumi = cms.untracked.bool(True),
-#	qtestOnEndRun = cms.untracked.bool(True)
-#)
 
 #-------------------------------------
 #	Paths/Sequences Definitions
 #-------------------------------------
-process.preRecoSequence = cms.Sequence(
+process.preRecoPath = cms.Path(
 		process.hcalDigis
 		*process.emulTPDigis
 )
 
-process.dqmSequence = cms.Sequence(
-		process.dqmEnv
-		*process.dqmSaver
+process.dqmPath = cms.EndPath(
+		process.dqmEnv)
+process.dqmPath1 = cms.EndPath(
+		process.dqmSaver
 )
 
-process.p = cms.Path(
-		process.preRecoSequence
-		*process.tasksSequence
-		*process.harvestingSequence
-		*process.dqmSequence
+process.schedule = cms.Schedule(
+	process.preRecoPath,
+	process.tasksPath,
+	process.harvestingPath,
+	process.dqmPath,
+	process.dqmPath1
 )
 
 #-------------------------------------
@@ -183,3 +171,7 @@ process.options = cms.untracked.PSet(
 		)
 )
 process.options.wantSummary = cms.untracked.bool(True)
+
+# tracer
+#process.Tracer = cms.Service("Tracer")
+process = customise(process)

@@ -20,7 +20,12 @@ tpTask = cms.EDAnalyzer(
 	cutEt = cms.untracked.int32(3),
 
 	#	some speacial features
-	skip1x1 = cms.untracked.bool(True)
+	skip1x1 = cms.untracked.bool(True),
+
+	thresh_EtMsmRate = cms.untracked.double(0.1),
+	thresh_FGMsmRate = cms.untracked.double(0.1),
+	thresh_DataMsn = cms.untracked.double(0.1),
+	thresh_EmulMsn = cms.untracked.double(0.1),
 )
 
 

@@ -19,25 +19,20 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
+#include "DQM/HcalCommon/interface/Flag.h"
 
 using namespace hcaldqm;
 using namespace hcaldqm::filter;
 class RawTask : public DQTask
 {
-	enum RawFlags
-	{
-		fEvnMsm = 0,
-		fBcnMsm = 1,
-		fBadQuality = 2,
-		nRawFlags = 3
-	};
-
 	public:
 		RawTask(edm::ParameterSet const&);
 		virtual ~RawTask() {}
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
 
@@ -49,6 +44,16 @@ class RawTask : public DQTask
 		edm::InputTag		_tagReport;
 		edm::EDGetTokenT<FEDRawDataCollection>	_tokFEDs;
 		edm::EDGetTokenT<HcalUnpackerReport> _tokReport;
+
+		//	flag vector
+		std::vector<flag::Flag> _vflags;
+		enum RawFlag
+		{
+			fEvnMsm = 0,
+			fBcnMsm = 1,
+			fBadQ = 2,
+			nRawFlag = 3
+		};
 
 		//	emap
 		HcalElectronicsMap const* _emap;
@@ -67,6 +72,7 @@ class RawTask : public DQTask
 		Container2D _cBadQuality_FEDVME;
 		Container2D _cBadQuality_FEDuTCA;
 		Container2D _cBadQuality_depth;
+		Container2D _cBadQualityLS_depth; // online only
 		ContainerSingleProf1D _cBadQualityvsLS;
 		ContainerSingleProf1D _cBadQualityvsBX;
 
@@ -77,14 +83,10 @@ class RawTask : public DQTask
 		Container2D _cEvnMsm_ElectronicsuTCA;
 		Container2D _cBcnMsm_ElectronicsuTCA;
 		Container2D _cOrnMsm_ElectronicsuTCA;
-
-		//	Occupancies
-		Container2D _cOccupancy_ElectronicsVME;
-		Container2D _cOccupancy_ElectronicsuTCA;
+		ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xBadQLS;
 	
-		//	Summary
-		ContainerSingle2D _cSummary;
-		Container2D		  _cSummaryvsLS_FED;
+		Container2D	_cSummaryvsLS_FED; // online only
+		ContainerSingle2D	_cSummaryvsLS; // online only
 };
 
 #endif

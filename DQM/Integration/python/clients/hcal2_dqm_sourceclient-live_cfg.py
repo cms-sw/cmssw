@@ -36,7 +36,6 @@ if useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
-process.load('DQMServices.Components.DQMEnvironment_cfi')
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -107,6 +106,14 @@ process.emulTPPrim.InputTagFEDRaw = rawTag
 process.emulTPSec.FG_threshold = cms.uint32(2)
 process.emulTPSec.InputTagFEDRaw = rawTag
 process.hbhereco = process.hbheprereco.clone()
+
+#	UPDATES REQUESTED BY STEPH
+process.hbheprereco.puCorrMethod = cms.int32(2) 
+process.hbheprereco.ts4chi2 = cms.double(9999.) 
+process.hbheprereco.timeMin = cms.double(-100.)
+process.hbheprereco.timeMax = cms.double(100.)
+process.hbheprereco.applyTimeConstraint = cms.bool(False) 
+
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag
 
@@ -114,11 +121,8 @@ process.hcalDigis.InputLabel = rawTag
 #	Hcal DQM Tasks and Clients import
 #	New Style
 #-------------------------------------
-process.load("DQM.HcalTasks.RawTask")
-process.load("DQM.HcalTasks.DigiTask")
-process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RecHitTask')
-process.load('DQM.HcalTasks.HcalHarvesting')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load('DQM.HcalTasks.DigiComparisonTask')
 process.load('DQM.HcalTasks.TPComparisonTask')
 
@@ -182,51 +186,49 @@ process.recHitTask.runkeyName = runTypeName
 process.recHitTask.tagRaw = rawTagUntracked
 process.recHitTask.subsystem = cms.untracked.string(subsystem)
 
-process.hcalHarvesting.subsystem = cms.untracked.string(subsystem)
+process.hcalOnlineHarvesting.subsystem = cms.untracked.string(subsystem)
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
 #-------------------------------------
-process.tasksSequence = cms.Sequence(
+process.tasksPath = cms.Path(
 		process.recHitTask
 		+process.digiComparisonTask
 		+process.tpComparisonTask
 )
 
-process.harvestingSequence = cms.Sequence(
-	process.hcalHarvesting
+process.harvestingPath = cms.Path(
+	process.hcalOnlineHarvesting
 )
 
 #-------------------------------------
 #	Paths/Sequences Definitions
 #-------------------------------------
-process.preRecoSequence = cms.Sequence(
+process.preRecoPath = cms.Path(
 		process.primDigis
 		*process.secDigis
 		*process.emulTPPrim
 		*process.emulTPSec
 )
 
-process.recoSequence = cms.Sequence(
+process.recoPath = cms.Path(
 		process.hfreco
 		*process.hbhereco
 		*process.horeco
 )
 
-process.dqmSequence = cms.Sequence(
+process.dqmPath = cms.Path(
 		process.dqmEnv
 		*process.dqmSaver
 )
 
-process.p = cms.Path(
-		process.preRecoSequence
-		*process.recoSequence
-		*process.tasksSequence
-		*process.harvestingSequence
-		*process.dqmSequence
+process.schedule = cms.Schedule(
+		process.preRecoPath,
+		process.recoPath,
+		process.tasksPath,
+		process.harvestingPath,
+		process.dqmPath
 )
-
-#process.schedule = cms.Schedule(process.p)
 
 #-------------------------------------
 #	Scheduling and Process Customizations

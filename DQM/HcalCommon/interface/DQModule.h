@@ -66,7 +66,7 @@ namespace hcaldqm
 			int						_evsTotal;
 			int						_evsPerLS;
 			int						_currentLS;
-			int						_numLSstart;
+			int						_maxLS;
 			Logger					_logger;
 	};
 }

@@ -11,7 +11,7 @@ namespace hcaldqm
 
 		int getValue_TTieta(HcalTrigTowerDetId const& tid)
 		{
-			return tid.ieta()<0 ? tid.ieta()+32 : tid.ieta()+31;
+			return tid.ieta()<0 ? tid.ieta()+41 : tid.ieta()+40;
 		}
 
 		int getValue_TTdepth(HcalTrigTowerDetId const& tid)
@@ -28,6 +28,11 @@ namespace hcaldqm
 		{
 			int x = tid.ietaAbs()<29 ? 0 : 2;
 			return tid.ieta()>0 ? x+1 : x;
+		}
+
+		int getValue_TTieta2x3(HcalTrigTowerDetId const& tid)
+		{
+			return tid.ieta()<0?tid.ieta()+32:tid.ieta()-29+4;
 		}
 
 		uint32_t getBin_TTiphi(HcalTrigTowerDetId const& tid)
@@ -55,6 +60,9 @@ namespace hcaldqm
 			return (uint32_t)(getValue_TTSubdetPM(tid)+1);
 		}
 
+		uint32_t getBin_TTieta2x3(HcalTrigTowerDetId const& tid)
+		{return (uint32_t)(getValue_TTieta2x3(tid)+1);}
+
 		HcalTrigTowerDetId getTid_TTiphi(int v)
 		{
 			return HcalTrigTowerDetId(1, v);
@@ -62,7 +70,7 @@ namespace hcaldqm
 
 		HcalTrigTowerDetId getTid_TTieta(int v)
 		{
-			return HcalTrigTowerDetId(v<32?v-32:v-31, 1);
+			return HcalTrigTowerDetId(v<41?v-41:v-40, 1);
 		}
 
 		HcalTrigTowerDetId getTid_TTdepth(int v)
@@ -80,6 +88,14 @@ namespace hcaldqm
 			return HcalTrigTowerDetId(v%2==0?-(v>=2?29:1):(v>=2?29:1), 1);
 		}
 
+		HcalTrigTowerDetId getTid_TTieta2x3(int v)
+		{
+			//	since numbering goes as
+			//	-32 -29 29 32
+			//	0   3   4   7
+			return HcalTrigTowerDetId(v<4?-(3-v+29):(v-4)+29, 1);
+		}
+
 		std::vector<std::string> getLabels_TTiphi()
 		{
 			return std::vector<std::string>();
@@ -88,9 +104,21 @@ namespace hcaldqm
 		{
 			char name[10];
 			std::vector<std::string> labels;
-			for (int i=0; i<64; i++)
+			for (int i=0; i<82; i++)
 			{
 				sprintf(name, "%d", getTid_TTieta(i).ieta());
+				labels.push_back(name);
+			}
+			return labels;
+		}
+
+		std::vector<std::string> getLabels_TTieta2x3()
+		{
+			char name[10];
+			std::vector<std::string> labels;
+			for (int i=0; i<8; i++)
+			{
+				sprintf(name, "%d", getTid_TTieta2x3(i).ieta());
 				labels.push_back(name);
 			}
 			return labels;

@@ -25,6 +25,12 @@ namespace hcaldqm
 			ContainerSingle2D(std::string const& folder, 
 				Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN));
+			ContainerSingle2D(std::string const& folder, 
+				std::string const&,
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN),
+				int debug=0);
+			ContainerSingle2D(ContainerSingle2D const&);
 			virtual ~ContainerSingle2D();
 
 			virtual void initialize(std::string const& folder, 
@@ -145,6 +151,8 @@ namespace hcaldqm
 
 			virtual void load(DQMStore::IGetter&, std::string subsystem="Hcal",
 				std::string aux="");
+
+			virtual void extendAxisRange(int);
 
 		protected:
 			MonitorElement					*_me;

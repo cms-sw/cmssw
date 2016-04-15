@@ -33,14 +33,6 @@ class PedestalTask : public DQTask
 			edm::EventSetup const&);
 		virtual void endRun(edm::Run const&, edm::EventSetup const&);
 
-		enum PedestalFlag
-		{
-			fMsn = 0,
-			fBadMean = 1,
-			fBadRMS = 2,
-			nPedestalFlag = 3
-		};
-
 	protected:
 		//	funcs
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
@@ -58,6 +50,15 @@ class PedestalTask : public DQTask
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
+		std::vector<flag::Flag> _vflags;
+		enum PedestalFlag
+		{
+			fMsn = 0,
+			fBadM = 1,
+			fBadR = 2,
+			nPedestalFlag=3
+		};
+
 		//	emap
 		HcalElectronicsMap const*	_emap;
 		electronicsmap::ElectronicsMap _ehashmap;
@@ -65,58 +66,99 @@ class PedestalTask : public DQTask
 		HashFilter _filter_VME;
 		HashFilter _filter_C36;
 
+		//	thresholds
+		double _thresh_mean, _thresh_rms, _thresh_badm, _thresh_badr;
+
+		//	hashed ids of FEDs
 		std::vector<uint32_t> _vhashFEDs;
-		ContainerXXX<double> _xPedSum;
-		ContainerXXX<double> _xPedSum2;
-		ContainerXXX<int>	_xPedEntries;
+
+		//	need containers total over the run and per 1LS
+		ContainerXXX<double> _xPedSum1LS;
+		ContainerXXX<double> _xPedSum21LS;
+		ContainerXXX<int>	_xPedEntries1LS;
+		ContainerXXX<double> _xPedSumTotal;
+		ContainerXXX<double> _xPedSum2Total;
+		ContainerXXX<int>	_xPedEntriesTotal;
+		ContainerXXX<int> _xNChs; // number of channels per FED as in emap
+		ContainerXXX<int> _xNMsn1LS; // #missing for 1LS per FED
+		ContainerXXX<int> _xNBadMean1LS,_xNBadRMS1LS;
+
+		//	CondBD Reference
 		ContainerXXX<double> _xPedRefMean;
 		ContainerXXX<double> _xPedRefRMS;
-		ContainerXXX<int> _xNMsn;
-		ContainerXXX<int> _xNBadMean;
-		ContainerXXX<int> _xNBadRMS;
 
-		//	1D Means/RMSs
-		Container1D		_cMean_Subdet;
-		Container1D		_cRMS_Subdet;
+		//	1D actual Means/RMSs
+		Container1D		_cMeanTotal_Subdet;
+		Container1D		_cRMSTotal_Subdet;
+		Container1D		_cMean1LS_Subdet; // 1LS
+		Container1D		_cRMS1LS_Subdet; // 1LS 
 
-		//	1D Means/RMSs Conditions DB comparison
-		Container1D		_cMeanDBRef_Subdet;
-		Container1D		_cRMSDBRef_Subdet;
-
-		//	2D
-		ContainerProf2D		_cMean_depth;
-		ContainerProf2D		_cRMS_depth;
-		ContainerProf2D		_cMean_FEDVME;
-		ContainerProf2D		_cMean_FEDuTCA;
-		ContainerProf2D		_cRMS_FEDVME;
-		ContainerProf2D		_cRMS_FEDuTCA;
+		//	2D actual values
+		ContainerProf2D		_cMean1LS_depth; // 1LS
+		ContainerProf2D		_cRMS1LS_depth; //  1lS
+		ContainerProf2D		_cMean1LS_FEDVME; // 1ls
+		ContainerProf2D		_cMean1LS_FEDuTCA; // 1ls
+		ContainerProf2D		_cRMS1LS_FEDVME; // 1ls
+		ContainerProf2D		_cRMS1LS_FEDuTCA; // 1ls
 		
-		//	with DB Conditions comparison
-		ContainerProf2D		_cMeanDBRef_depth;
-		ContainerProf2D		_cRMSDBRef_depth;
-		ContainerProf2D		_cMeanDBRef_FEDVME;
-		ContainerProf2D		_cMeanDBRef_FEDuTCA;
-		ContainerProf2D		_cRMSDBRef_FEDVME;
-		ContainerProf2D		_cRMSDBRef_FEDuTCA;
+		ContainerProf2D		_cMeanTotal_depth;
+		ContainerProf2D		_cRMSTotal_depth;
+		ContainerProf2D		_cMeanTotal_FEDVME;
+		ContainerProf2D		_cMeanTotal_FEDuTCA;
+		ContainerProf2D		_cRMSTotal_FEDVME;
+		ContainerProf2D		_cRMSTotal_FEDuTCA;
+		
+		//	Comparison with DB Conditions
+		Container1D		_cMeanDBRef1LS_Subdet; // 1LS 
+		Container1D		_cRMSDBRef1LS_Subdet; // 1LS
+		Container1D		_cMeanDBRefTotal_Subdet;
+		Container1D		_cRMSDBRefTotal_Subdet;
+		ContainerProf2D		_cMeanDBRef1LS_depth;
+		ContainerProf2D		_cRMSDBRef1LS_depth;
+		ContainerProf2D		_cMeanDBRef1LS_FEDVME;
+		ContainerProf2D		_cMeanDBRef1LS_FEDuTCA;
+		ContainerProf2D		_cRMSDBRef1LS_FEDVME;
+		ContainerProf2D		_cRMSDBRef1LS_FEDuTCA;
+		
+		ContainerProf2D		_cMeanDBRefTotal_depth;
+		ContainerProf2D		_cRMSDBRefTotal_depth;
+		ContainerProf2D		_cMeanDBRefTotal_FEDVME;
+		ContainerProf2D		_cMeanDBRefTotal_FEDuTCA;
+		ContainerProf2D		_cRMSDBRefTotal_FEDVME;
+		ContainerProf2D		_cRMSDBRefTotal_FEDuTCA;
 
-		//	Missing + Bad Quality
-		Container2D		_cMissing_depth;
-		Container2D		_cMeanBad_depth;
-		Container2D		_cRMSBad_depth;
-
-		Container1D _cMissingvsLS_FED;
+		//	vs LS
+		Container1D _cMissingvsLS_Subdet;
 		Container1D _cOccupancyvsLS_Subdet;
-		Container1D _cNBadMeanvsLS_FED;
-		Container1D _cNBadRMSvsLS_FED;
+		Container1D _cNBadMeanvsLS_Subdet;
+		Container1D _cNBadRMSvsLS_Subdet;
 
-		Container2D		_cMissing_FEDVME;
-		Container2D		_cMissing_FEDuTCA;
-		Container2D		_cMeanBad_FEDVME;
-		Container2D		_cRMSBad_FEDuTCA;
-		Container2D		_cRMSBad_FEDVME;
-		Container2D		_cMeanBad_FEDuTCA;
+		//	map of missing channels
+		Container2D	_cMissing1LS_depth;
+		Container2D	_cMissing1LS_FEDVME;
+		Container2D	_cMissing1LS_FEDuTCA;
+		Container2D _cMissingTotal_depth;
+		Container2D _cMissingTotal_FEDVME;
+		Container2D _cMissingTotal_FEDuTCA;
 
-		ContainerSingle2D _cSummary;
+		//	Mean/RMS Bad Maps
+		Container2D	_cMeanBad1LS_depth;
+		Container2D _cRMSBad1LS_depth;
+		Container2D	_cMeanBad1LS_FEDVME;
+		Container2D	_cRMSBad1LS_FEDuTCA;
+		Container2D	_cRMSBad1LS_FEDVME;
+		Container2D	_cMeanBad1LS_FEDuTCA;
+
+		Container2D	_cMeanBadTotal_depth;
+		Container2D _cRMSBadTotal_depth;
+		Container2D	_cMeanBadTotal_FEDVME;
+		Container2D	_cRMSBadTotal_FEDuTCA;
+		Container2D	_cRMSBadTotal_FEDVME;
+		Container2D	_cMeanBadTotal_FEDuTCA;
+		
+		//	Summaries
+		Container2D _cSummaryvsLS_FED;
+		ContainerSingle2D _cSummaryvsLS;
 };
 
 #endif

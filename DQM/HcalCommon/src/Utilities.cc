@@ -120,6 +120,67 @@ namespace hcaldqm
 			std::sort(vfeds.begin(), vfeds.end());
 			return vfeds;
 		}
+
+		bool isFEDHBHE(HcalElectronicsId const& eid)
+		{
+			if (eid.isVMEid())
+			{
+				int fed = eid.dccid()+FED_VME_MIN;	
+				if (fed>=700 && fed<=717)
+					return true;
+				else
+					return false;
+			}
+			else
+			{
+				int fed = crate2fed(eid.crateId());
+				if (fed>=1100 && fed<1118)
+					return true;
+				else
+					return false;
+			}
+
+			return false;
+		}
+
+		bool isFEDHF(HcalElectronicsId const& eid)
+		{
+			/*
+			if (eid.isVMEid())
+			{
+				int fed = eid.dccid()+FED_VME_MIN;
+				if (fed>=718 && fed<=723)
+					return true;
+				else
+					return false;
+			}*/
+//			else
+//			{
+			if (eid.isVMEid())
+				return false;
+			int fed = crate2fed(eid.crateId());
+				if (fed>=1118 && fed<=1122)
+					return true;
+				else
+					return false;
+//			}
+
+			return false;
+		}
+
+		bool isFEDHO(HcalElectronicsId const& eid)
+		{
+			if (!eid.isVMEid())
+				return false;
+
+			int fed = eid.dccid()+FED_VME_MIN;
+			if (fed>=724 && fed<=731)
+				return true;
+			else
+				return false;
+
+			return false;
+		}
 	}
 }
 

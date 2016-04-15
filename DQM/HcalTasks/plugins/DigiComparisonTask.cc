@@ -44,12 +44,14 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		_cADC_Subdet[i].initialize(_name, "ADC",
 			hashfunctions::fSubdet,
 			new quantity::ValueQuantity(quantity::fADCCorr_128),
-			new quantity::ValueQuantity(quantity::fADCCorr_128));
+			new quantity::ValueQuantity(quantity::fADCCorr_128),
+			new quantity::ValueQuantity(quantity::fN, true));
 	}
 	_cADCall_Subdet.initialize(_name, "ADC",
 		hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fADCCorr_128),
-		new quantity::ValueQuantity(quantity::fADCCorr_128));
+		new quantity::ValueQuantity(quantity::fADCCorr_128),
+		new quantity::ValueQuantity(quantity::fN, true));
 	_cADCMsnuTCA_Subdet.initialize(_name, "ADCMsnuTCA",
 		hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fADC_128),

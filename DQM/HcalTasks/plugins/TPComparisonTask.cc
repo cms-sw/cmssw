@@ -49,18 +49,18 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 			hashfunctions::fTTSubdet,
 			new quantity::ValueQuantity(quantity::fEtCorr_256),
 			new quantity::ValueQuantity(quantity::fEtCorr_256),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN, true));
 		_cFG_TTSubdet[i].initialize(_name, "FG",
 			hashfunctions::fTTSubdet,
 			new quantity::ValueQuantity(quantity::fFG),
 			new quantity::ValueQuantity(quantity::fFG),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN, true));
 	}
 	_cEtall_TTSubdet.initialize(_name, "Et",
 		hashfunctions::fTTSubdet,
 		new quantity::ValueQuantity(quantity::fEtCorr_256),
 		new quantity::ValueQuantity(quantity::fEtCorr_256),
-		new quantity::ValueQuantity(quantity::fN));
+		new quantity::ValueQuantity(quantity::fN, true));
 	_cMsn_FEDVME.initialize(_name, "Missing",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSpigot),
@@ -171,8 +171,6 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		if (_skip1x1)
 			if (it1->id().version()>0)
 				continue;
-		if (it1->id().ietaAbs()>=29)    //  skip HF
-			continue;
 		//	\tmp
 
 		HcalTrigTowerDetId tid = it1->id();

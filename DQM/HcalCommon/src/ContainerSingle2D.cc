@@ -20,6 +20,24 @@ namespace hcaldqm
 		_qy->setAxisType(quantity::fYAxis);
 		_qz->setAxisType(quantity::fZAxis);
 	}
+	
+	ContainerSingle2D::ContainerSingle2D(std::string const& folder,
+		std::string const& qname,
+		Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/):
+		Container(folder, qname), _qx(qx), _qy(qy), _qz(qz)
+	{
+		_qx->setAxisType(quantity::fXAxis);
+		_qy->setAxisType(quantity::fYAxis);
+		_qz->setAxisType(quantity::fZAxis);
+	}
+
+	ContainerSingle2D::ContainerSingle2D(ContainerSingle2D const& c) :
+		Container(c._folder, c._qname)
+	{
+		_qx = c._qx->makeCopy();
+		_qy = c._qy->makeCopy();
+		_qz = c._qz->makeCopy();
+	}
 
 	ContainerSingle2D::~ContainerSingle2D()
 	{
@@ -95,10 +113,10 @@ namespace hcaldqm
 		_me->setAxisTitle(_qy->name(), 2);
 		_me->setAxisTitle(_qz->name(), 3);
 
-		TObject *o = _me->getRootObject();
-		_qx->setBits(o);
-		_qy->setBits(o);
-		_qz->setBits(o);
+		TH1 *h = _me->getTH1();
+		_qx->setBits(h);
+		_qy->setBits(h);
+		_qz->setBits(h);
 
 		std::vector<std::string> xlabels = _qx->getLabels();
 		std::vector<std::string> ylabels = _qy->getLabels();
@@ -669,6 +687,20 @@ namespace hcaldqm
 			_me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
 		else
 			_me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
+	}
+
+	/* virtual */ void ContainerSingle2D::extendAxisRange(int l)
+	{
+		if (l<_qx->nbins())
+			return;
+
+		int x=_qx->nbins();
+		while(l>=x)
+		{
+			_me->getTH1()->LabelsInflate();
+			x*=2;
+			_qx->setMax(x);
+		}
 	}
 }
 

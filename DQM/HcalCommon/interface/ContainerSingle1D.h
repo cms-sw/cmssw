@@ -99,6 +99,8 @@ namespace hcaldqm
 			virtual void reset() {_me->Reset();}
 			virtual void print() {std::cout << _qname << std::endl;}
 
+			virtual void extendAxisRange(int);
+
 		protected:
 			MonitorElement				*_me;
 			Quantity					*_qx;

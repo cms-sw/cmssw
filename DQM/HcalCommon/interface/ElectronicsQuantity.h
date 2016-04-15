@@ -296,6 +296,20 @@ namespace hcaldqm
 			protected:
 				typedef boost::unordered_map<int, uint32_t> FEDMap;
 				FEDMap _feds;
+
+			public:
+				virtual FEDQuantity* makeCopy()
+				{
+					std::vector<int> vfeds;
+					BOOST_FOREACH(FEDMap::value_type &p, _feds)
+					{
+						vfeds.push_back(p.first);
+					}
+
+					//	MUST SORT BEFORE EXITING!
+					std::sort(vfeds.begin(), vfeds.end());
+					return new FEDQuantity(vfeds);
+				}
 		};
 	}
 }

@@ -71,6 +71,19 @@ namespace hcaldqm
 		std::string name_HBHEPartition(HcalDetId const&);
 		std::string name_DChannel(HcalDetId const&);
 
+		uint32_t hash_Subdet(std::string const&);
+		uint32_t hash_Subdetiphi(std::string const&);
+		uint32_t hash_Subdetieta(std::string const&);
+		uint32_t hash_Subdetdepth(std::string const&);
+		uint32_t hash_SubdetPM(std::string const&);
+		uint32_t hash_SubdetPMiphi(std::string const&);
+		uint32_t hash_iphi(std::string const&);
+		uint32_t hash_ieta(std::string const&);
+		uint32_t hash_depth(std::string const&);
+		uint32_t hash_HFPMiphi(std::string const&);
+		uint32_t hash_HBHEPartition(std::string const&);
+		uint32_t hash_DChannel(std::string const&);
+
 		std::string name_FED(HcalElectronicsId const&);
 		std::string name_FEDSpigot(HcalElectronicsId const&);
 		std::string name_FEDSlot(HcalElectronicsId const&);
@@ -83,12 +96,31 @@ namespace hcaldqm
 		std::string name_Electronics(HcalElectronicsId const&);
 		std::string name_EChannel(HcalElectronicsId const&);
 
+		uint32_t hash_FED(std::string const&);
+		uint32_t hash_FEDSpigot(std::string const&);
+		uint32_t hash_FEDSlot(std::string const&);
+		uint32_t hash_Crate(std::string const&);
+		uint32_t hash_CrateSpigot(std::string const&);
+		uint32_t hash_CrateSlot(std::string  const&);
+		uint32_t hash_Fiber(std::string const&);
+		uint32_t hash_FiberFiberCh(std::string const&);
+		uint32_t hash_FiberCh(std::string const&);
+		uint32_t hash_Electronics(std::string const&);
+		uint32_t hash_EChannel(std::string const&);
+
 		std::string name_TTSubdet(HcalTrigTowerDetId const&);
 		std::string name_TTSubdetPM(HcalTrigTowerDetId const&);
 		std::string name_TTSubdetPMiphi(HcalTrigTowerDetId const&);
 		std::string name_TTSubdetieta(HcalTrigTowerDetId const&);
 		std::string name_TTdepth(HcalTrigTowerDetId const&);
 		std::string name_TChannel(HcalTrigTowerDetId const&);
+
+		uint32_t hash_TTSubdet(std::string const&);
+		uint32_t hash_TTSubdetPM(std::string const&);
+		uint32_t hash_TTSubdetPMiphi(std::string const&);
+		uint32_t hash_TTSubdetieta(std::string const&);
+		uint32_t hash_TTdepth(std::string const&);
+		uint32_t hash_TChannel(std::string const&);
 
 		enum HashType
 		{

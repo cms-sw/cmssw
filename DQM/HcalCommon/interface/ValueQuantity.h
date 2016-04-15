@@ -2,6 +2,7 @@
 #define ValueQuantity_h
 
 #include "DQM/HcalCommon/interface/Quantity.h"
+#include "DQM/HcalCommon/interface/Flag.h"
 
 namespace hcaldqm
 {
@@ -46,30 +47,34 @@ namespace hcaldqm
 			fADCCorr_128 = 32,
 
 			fBX = 33,
-			nValueQuantityType = 34
+			fEnergy_1TeV = 34,
+			fState = 35,
+			nValueQuantityType = 36
 		};
 		std::string const name_value[nValueQuantityType] = {
 			"N", "Events", "Energy", "Timing", "ADC", "ADC", "ADC",
 			"fC", "fC", "fC", "Timing", "Timing", "LS", "Et", "Et",
 			"FG", "Ratio", "DigiSize", "Q", "Ratio",
 			"dEtRatio", "SumdEt", "Timing", "ADC", "TDC", "TDC",
-			"Q", "Ratio", "N", "Energy", "N", "Et", "ADC", "BX"
+			"Q", "Ratio", "N", "Energy", "N", "Et", "ADC", "BX",
+			"Energy", "State"
 		};
 		double const min_value[nValueQuantityType] = {
 			-0.05, 0, 0, -50, -0.5, -0.5, -0.5, 0, 0, 0, -0.5, 0, 0.5, 0,
 			0, 0, 0, -0.5, -1, 0.5, 0, 0, -0.5, -0.5, -0.5, -0.5,
-			0, 0, 0, 0, -0.05, -2, -2, -0.5
+			0, 0, 0, 0, -0.05, -2, -2, -0.5, 0, flag::fNA
 		};
 		double const max_value[nValueQuantityType] = {
 			1000, 1000, 200, 50, 127.5, 5, 15, 10000, 1000, 3000,
 			9.5, 9.5, 4000.5, 255.5, 255.5, 2, 1, 20.5, 1, 1.5, 
 			1, 1000, 9.5, 255.5, 63.5, 15.5, 1, 2, 3000, 100000, 10000,
-			256, 128, 3600.5
+			256, 128, 3600.5, 1000, flag::nState
 		};
 		int const nbins_value[nValueQuantityType] = {
 			200, 200, 100, 200, 128, 100, 300, 1000, 200, 600, 
 			10, 200, 4000, 256, 128, 2, 100, 20, 100, 100, 100, 100, 10,
-			256, 64, 16, 200, 100, 3000, 500, 100, 258, 130, 3601
+			256, 64, 16, 200, 100, 3000, 500, 100, 258, 130, 3601, 200,
+			flag::nState
 		};
 
 		class ValueQuantity : public Quantity
@@ -96,40 +101,52 @@ namespace hcaldqm
 				virtual double min() {return min_value[_type];}
 				virtual double max() {return max_value[_type];}
 
-				virtual void setBits(TObject* o)
+				virtual void setBits(TH1* o)
 				{Quantity::setBits(o);setLS(o);}
-				virtual void setLS(TObject* o)
+				virtual void setLS(TH1* o)
 				{
 					if (_type==fLS)
+					{
+						//	for LS axis - set the bit
+						//	set extendable axes.
 						o->SetBit(BIT(BIT_OFFSET+BIT_AXIS_LS));
+		//				o->SetCanExtend(TH1::kXaxis);
+					}
 				}
 
 			protected:
 				ValueQuantityType _type;
 		};
 
-		enum Quality
-		{
-			fNA = 1,
-			fGood = 2,
-			fProblematic = 3,
-			fLow = 4,
-			fVeryLow = 5,
-			fXXX = 6,
-			nQuality = 7
-		};
-		class QualityQuantity : public ValueQuantity
+		class FlagQuantity : public ValueQuantity
 		{
 			public:
-				QualityQuantity() {}
-				virtual ~QualityQuantity() {}
+				FlagQuantity(){}
+				FlagQuantity(std::vector<flag::Flag> const& flags) :
+					_flags(flags) {}
+				virtual ~FlagQuantity() {}
+				
+				virtual FlagQuantity* makeCopy()
+				{return new FlagQuantity(_flags);}
 
-				virtual std::string name() {return "Quality";}
-				virtual int nbins() {return nQuality-fNA;}
-				virtual double min() {return (int)fNA;}
-				virtual double max() {return (int)nQuality;}
-				virtual int getValue(int q) {return q;}
-				virtual uint32_t getBin(int q) {return this->getValue(q);}
+				virtual std::string name() {return "Flag";}
+				virtual int nbins() {return _flags.size();}
+				virtual double min() {return 0;}
+				virtual double max() {return _flags.size();}
+				virtual int getValue(int f) {return f;}
+				virtual uint32_t getBin(int f) {return f+1;}
+				virtual std::vector<std::string> getLabels()
+				{
+					std::vector<std::string> vnames;
+					for (std::vector<flag::Flag>::const_iterator
+						it=_flags.begin(); it!=_flags.end(); ++it)
+						vnames.push_back(it->_name);
+
+					return vnames;
+				}
+			protected:
+
+				std::vector<flag::Flag> _flags;
 		};
 
 		class LumiSection : public ValueQuantity
@@ -141,38 +158,21 @@ namespace hcaldqm
 					_n(n) 
 				{}
 				virtual ~LumiSection() {}
+				
+				virtual LumiSection* makeCopy()
+				{return new LumiSection(_n);}
 
 				virtual std::string name() {return "LS";}
 				virtual int nbins() {return _n;}
-				virtual double min() {return 0.5;}
-				virtual double max() {return _n+0.5;}
+				virtual double min() {return 1;}
+				virtual double max() {return _n+1;}
 				virtual int getValue(int l) {return l;}
-				virtual uint32_t getBin(int l) {return getValue(l);}
+				virtual uint32_t getBin(int l) 
+				{return getValue(l);}
+				virtual void setMax(double x) {_n=x;}
 
 			protected:
 				int _n;
-		};
-
-		class FlagQuantity : public ValueQuantity
-		{
-			public:
-				FlagQuantity() {}
-				FlagQuantity( std::vector<std::string> const& names) :
-					_names(names)
-				{}
-				virtual ~FlagQuantity() {}
-
-				virtual std::string name() {return "Flag";}
-				virtual int nbins() {return _names.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _names.size();}
-				virtual std::vector<std::string> getLabels()
-				{return _names;}
-				virtual int getValue(int f) {return f;}
-				virtual uint32_t getBin(int f) {return this->getValue(f)+1;}
-
-			protected:
-				std::vector<std::string> _names;
 		};
 
 		class RunNumber : public ValueQuantity

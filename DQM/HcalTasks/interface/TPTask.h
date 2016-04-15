@@ -31,20 +31,8 @@ class TPTask : public DQTask
 			edm::Run const&, edm::EventSetup const&);
 		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
-
-		enum TPFlag
-		{
-			fOcpUniSlotData = 0,
-			fOcpUniSlotEmul = 1,
-			fEtMsmUniSlot = 2,
-			fFGMsmUniSlot = 3,
-			fMsnUniSlotData = 4,
-			fMsnUniSlotEmul = 5,
-			fEtCorrRatio = 6,
-			fEtMsmNumber = 7,
-			fFGMsmNumber = 8,
-			nTPFlag = 9
-		};
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
@@ -55,9 +43,22 @@ class TPTask : public DQTask
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
 
-		//	switches
+		//	flag vector
+		std::vector<flag::Flag> _vflags;
+		enum TPFlag
+		{
+			fEtMsm=0,
+			fFGMsm=1,
+			fDataMsn=2,
+			fEmulMsn=3,
+			nTPFlag=4
+		};
+
+		//	switches/cuts/etc...
 		bool _skip1x1;
 		int _cutEt;
+		double _thresh_EtMsmRate,_thresh_FGMsmRate,_thresh_DataMsn,
+			_thresh_EmulMsn;
 
 		//	hashes/FEDs vectors
 		std::vector<uint32_t> _vhashFEDs;
@@ -75,7 +76,12 @@ class TPTask : public DQTask
 		Container1D _cEtData_TTSubdet;
 		Container1D _cEtEmul_TTSubdet;
 		Container2D	_cEtCorr_TTSubdet;
+		Container2D _cEtCorr2x3_TTSubdet;	//	online only
 		Container2D _cFGCorr_TTSubdet;
+		ContainerProf1D _cEtCutDatavsLS_TTSubdet;	// online only!
+		ContainerProf1D _cEtCutEmulvsLS_TTSubdet;	// online only!
+		ContainerProf1D _cEtCutDatavsBX_TTSubdet;	// online only!
+		ContainerProf1D _cEtCutEmulvsBX_TTSubdet;	// online only!
 
 		ContainerProf2D _cEtData_ElectronicsVME;
 		ContainerProf2D _cEtData_ElectronicsuTCA;
@@ -85,11 +91,15 @@ class TPTask : public DQTask
 		//	depth like
 		ContainerSingleProf2D _cEtData_depthlike;
 		ContainerSingleProf2D _cEtEmul_depthlike;
+		ContainerSingleProf2D _cEtCutData_depthlike;
+		ContainerSingleProf2D _cEtCutEmul_depthlike;
 
 		//	Et Correlation Ratio
 		ContainerProf2D _cEtCorrRatio_ElectronicsVME;
 		ContainerProf2D _cEtCorrRatio_ElectronicsuTCA;
 		ContainerSingleProf2D _cEtCorrRatio_depthlike;
+		ContainerProf1D _cEtCorrRatiovsLS_TTSubdet;	// online only!
+		ContainerProf1D _cEtCorrRatiovsBX_TTSubdet; // online only!
 
 		//	Occupancies
 		Container2D _cOccupancyData_ElectronicsVME;
@@ -108,24 +118,55 @@ class TPTask : public DQTask
 		ContainerSingle2D _cOccupancyCutData_depthlike;
 		ContainerSingle2D _cOccupancyCutEmul_depthlike;
 
+		//	2x3 occupancies just in case
+		ContainerSingle2D _cOccupancyData2x3_depthlike;	// online only!
+		ContainerSingle2D _cOccupancyEmul2x3_depthlike; // online only!
+
 		//	Mismatches: Et and FG
 		Container2D _cEtMsm_ElectronicsVME;
 		Container2D _cEtMsm_ElectronicsuTCA;
 		Container2D _cFGMsm_ElectronicsVME;
 		Container2D _cFGMsm_ElectronicsuTCA;
 		ContainerSingle2D _cEtMsm_depthlike;
+		ContainerSingle2D _cFGMsm_depthlike;
+		ContainerProf1D _cEtMsmvsLS_TTSubdet;	// online only
+		ContainerProf1D _cEtMsmRatiovsLS_TTSubdet; // online only
+		ContainerProf1D _cEtMsmvsBX_TTSubdet;	// online only
+		ContainerProf1D _cEtMsmRatiovsBX_TTSubdet; // online only
 
 		//	Missing Data w.r.t. Emulator
 		Container2D _cMsnData_ElectronicsVME;
 		Container2D _cMsnData_ElectronicsuTCA;
 		ContainerSingle2D _cMsnData_depthlike;
+		ContainerProf1D _cMsnDatavsLS_TTSubdet;	//	online only
+		ContainerProf1D _cMsnCutDatavsLS_TTSubdet;	// online only
+		ContainerProf1D _cMsnDatavsBX_TTSubdet;	// online only
+		ContainerProf1D _cMsnCutDatavsBX_TTSubdet; // online only
 
 		//	Missing Emulator w.r.t. Data
 		Container2D _cMsnEmul_ElectronicsVME;
 		Container2D _cMsnEmul_ElectronicsuTCA;
 		ContainerSingle2D _cMsnEmul_depthlike;
+		ContainerProf1D _cMsnEmulvsLS_TTSubdet;	// online only
+		ContainerProf1D _cMsnCutEmulvsLS_TTSubdet; //	online only
+		ContainerProf1D _cMsnEmulvsBX_TTSubdet;	// online only
+		ContainerProf1D _cMsnCutEmulvsBX_TTSubdet; // online only
 
-		ContainerSingle2D _cSummary;
+		//	Occupancy vs BX and LS
+		ContainerProf1D _cOccupancyDatavsBX_TTSubdet;	// online only
+		ContainerProf1D _cOccupancyEmulvsBX_TTSubdet;	// online only
+		ContainerProf1D _cOccupancyCutDatavsBX_TTSubdet; // online only
+		ContainerProf1D _cOccupancyCutEmulvsBX_TTSubdet; // online only
+		ContainerProf1D _cOccupancyDatavsLS_TTSubdet;	// online only
+		ContainerProf1D _cOccupancyEmulvsLS_TTSubdet;	// online only
+		ContainerProf1D _cOccupancyCutDatavsLS_TTSubdet;	// online only
+		ContainerProf1D _cOccupancyCutEmulvsLS_TTSubdet; // online only
+
+
+		Container2D _cSummaryvsLS_FED; // online only
+		ContainerSingle2D _cSummaryvsLS; // online only
+		ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
+			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
 };
 
 #endif

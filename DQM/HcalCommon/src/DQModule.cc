@@ -16,7 +16,7 @@ namespace hcaldqm
 
 		bool mtype = ps.getUntrackedParameter<bool>("mtype", true);
 		int ptype = ps.getUntrackedParameter<int>("ptype", 0);
-		_numLSstart = ps.getUntrackedParameter<int>("numLSstart", 4000);
+		_maxLS = ps.getUntrackedParameter<int>("maxLS", 4000);
 		if (mtype==true)
 			_mtype = fTask;
 		else

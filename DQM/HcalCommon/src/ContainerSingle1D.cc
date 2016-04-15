@@ -90,9 +90,9 @@ namespace hcaldqm
 		_me->setAxisTitle(_qx->name(), 1);
 		_me->setAxisTitle(_qy->name(), 2);
 
-		TObject *o = _me->getRootObject();
-		_qx->setBits(o);
-		_qy->setBits(o);
+		TH1 *h = _me->getTH1();
+		_qx->setBits(h);
+		_qy->setBits(h);
 
 		std::vector<std::string> xlabels = _qx->getLabels();
 		for (unsigned int i=0; i<xlabels.size(); i++)
@@ -289,6 +289,20 @@ namespace hcaldqm
 		double x)
 	{
 		_me->setBinContent(_qx->getBin(id), x);
+	}
+
+	/* virtual */ void ContainerSingle1D::extendAxisRange(int l)
+	{
+		if (l<_qx->nbins())
+			return;
+
+		int x=_qx->nbins();
+		while(l>=x)
+		{
+			_me->getTH1()->LabelsInflate();
+			x*=2;
+			_qx->setMax(x);
+		}
 	}
 }
 

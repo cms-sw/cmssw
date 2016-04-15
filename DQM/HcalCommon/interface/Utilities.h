@@ -105,6 +105,9 @@ namespace hcaldqm
 
 		uint16_t fed2crate(int fed);
 		uint16_t crate2fed(int crate);
+		bool isFEDHBHE(HcalElectronicsId const&);
+		bool isFEDHF(HcalElectronicsId const&);
+		bool isFEDHO(HcalElectronicsId const&);
 
 		/**
 		 *	This is wrap around in case hashing scheme changes in the future

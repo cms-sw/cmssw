@@ -62,9 +62,9 @@ namespace hcaldqm
 				virtual int getValue(int x) {return x;}
 				virtual double getValue(double x) {return x;}
 
-				virtual void setBits(TObject* o)
+				virtual void setBits(TH1* o)
 				{setLog(o);}
-				virtual void setLog(TObject* o) 
+				virtual void setLog(TH1* o) 
 				{
 					if (_isLog)
 						o->SetBit(BIT(BIT_OFFSET+_axistype));
@@ -77,6 +77,10 @@ namespace hcaldqm
 				virtual bool isCoordinate() {return false;}
 				virtual std::vector<std::string> getLabels() 
 				{return std::vector<std::string>();}
+
+				virtual void setMax(double) {}
+				virtual void setMin(double) {}
+				virtual void setNbins(int) {}
 
 			protected:
 				std::string		_name;

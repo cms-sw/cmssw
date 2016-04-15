@@ -128,11 +128,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		new quantity::ValueQuantity(quantity::ffC_3000));
 	_cTimingvsLS_SubdetPM.initialize(_name, "TimingvsLS",
 		hashfunctions::fSubdetPM,
-		new quantity::LumiSection(_numLSstart),
+		new quantity::LumiSection(_maxLS),
 		new quantity::ValueQuantity(quantity::fTiming_TS200));
 	_cSignalvsLS_SubdetPM.initialize(_name, "SignalvsLS",
 		hashfunctions::fSubdetPM,
-		new quantity::LumiSection(_numLSstart),
+		new quantity::LumiSection(_maxLS),
 		new quantity::ValueQuantity(quantity::ffC_3000));
 
 	_cSignalMean_depth.initialize(_name, "SignalMean",
