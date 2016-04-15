@@ -983,7 +983,7 @@ steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--cond
 
 hltKey2016='relval2016'
 menuR2_2016 = autoHLT[hltKey2016]
-steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
+steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
 steps['HLTDR2_2016_DigiSigTest']=merge([{'--customise_commands' : '\'process.GlobalTag.DBParameters.security = cms.untracked.string(\"sig\")\' '}, steps['HLTDR2_2016']])
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
