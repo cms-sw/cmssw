@@ -16,10 +16,10 @@ upgradeGeoms={ '2017' : 'Extended2017',
                '2023dev' : 'Extended2023dev', 
                '2023sim' : 'Extended2023sim',
                '2023LReco': 'Extended2023LReco',
-               '2023Reco' : 'Extended2023Reco',
+               '2023Reco' : 'Extended2023Reco'
                }
 	       
-upgradeGTs={ '2017' : 'auto:phase1_2017_design',
+upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
 	     '2023' :  'auto:run2_mc',
 	     '2023dev' :  'auto:run2_mc',
 	     '2023sim' : 'auto:run2_mc',
@@ -100,7 +100,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger','GenSimFullDigiSigTest','DigiFullDigiSigTest','RecoFullDigiSigTest','HARVESTFullDigiSigTest','DigiFulllocalreco']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','DigiFulllocalreco','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger','GenSimFullDigiSigTest','DigiFullDigiSigTest','RecoFullDigiSigTest','HARVESTFullDigiSigTest']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
