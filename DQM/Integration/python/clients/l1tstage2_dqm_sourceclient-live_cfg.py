@@ -36,11 +36,9 @@ process.dqmEndPath = cms.EndPath(
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
 process.rawToDigiPath = cms.Path(process.RawToDigi)
-
-# For GCT, unpack all five samples.
-process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
-
-process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+process.rawToDigiPath.remove(process.siStripDigis) # don't need it and it takes time
+process.rawToDigiPath.remove(process.gtDigis)
+process.rawToDigiPath.remove(process.gtEvmDigis)
 
 #--------------------------------------------------
 # Legacy DQM Paths
@@ -55,12 +53,17 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
 
 # Remove Subsystem Modules
-#process.l1tStage2online.remove(process.l1tLayer1)
+#process.l1tStage2online.remove(process.l1tStage2CaloLayer1)
 #process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
 #process.l1tStage2online.remove(process.l1tStage2uGMT)
 #process.l1tStage2online.remove(process.l1tStage2uGt)
 #process.l1tStage2online.remove(process.l1tStage2Bmtf)
 #process.l1tStage2online.remove(process.l1tStage2Emtf)
+
+#--------------------------------------------------
+# Stage2 Quality Tests
+process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
+process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 
 #--------------------------------------------------
 # Stage2 Unpacking Path
@@ -81,9 +84,8 @@ process.schedule = cms.Schedule(
     process.rawToDigiPath,
     process.stage2UnpackPath,
     process.l1tMonitorPath,
-    #process.l1tMonitorClientPath,
+    process.l1tStage2MonitorClientPath,
     process.l1tMonitorEndPath,
-    #process.l1tMonitorClientEndPath,
     process.dqmEndPath
 )
 
