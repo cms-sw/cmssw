@@ -99,10 +99,9 @@ namespace {
 
     float dzErrPV = std::sqrt(dzE*dzE+zPVerr*zPVerr);
     for (int i=2; i>=0; --i) {
+      dzCut[i] = par[i]*dzErrPV; 	
       if (exp[i] != 0)
-	dzCut[i] = par[i]*pow(nLayers,exp[i])*dzErrPV; 
-      else
-	dzCut[i] = par[i]*dzErrPV; 	
+	dzCut[i] *= pow(nLayers,exp[i]);
     }
   }
 
@@ -112,10 +111,9 @@ namespace {
 
     float drErrPV = std::sqrt(drE*drE+rPVerr*rPVerr);
     for (int i=2; i>=0; --i) {
+      drCut[i] = par[i]*drErrPV;
       if (exp[i] != 0)
-	drCut[i] = par[i]*pow(nLayers,exp[i])*drErrPV;
-      else
-	drCut[i] = par[i]*drErrPV;
+	drCut[i] *= pow(nLayers,exp[i]);
     }
 
   }
