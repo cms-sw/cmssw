@@ -243,65 +243,65 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
       if (tsos.isValid()) {
 
-   	  edm::OwnVector<TrackingRecHit> container;
+        edm::OwnVector<TrackingRecHit> container;
    
-   	  if(useOfflineSeed && !valid_charge ) {
+        if(useOfflineSeed && ( !valid_charge || charge == 0) ) {
 
-   	    const TrajectorySeed *assoOffseed = 
-   	      associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos);
+          const TrajectorySeed *assoOffseed = 
+            associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos);
     
-    	if(assoOffseed!=0) {
-    	  PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
-    	  TrajectorySeed::const_iterator 
-    	  tsci  = assoOffseed->recHits().first,
-    	  tscie = assoOffseed->recHits().second;
-    	  for(; tsci!=tscie; ++tsci) {
-    		container.push_back(*tsci);
-    	  }
-    	  output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-    	}
-    	else {
-    	  if(useUnassociatedL1) {
-    	    // convert the TSOS into a PTSOD
-    	    PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
-    	    output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+          if(assoOffseed!=0) {
+            PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
+            TrajectorySeed::const_iterator 
+            tsci  = assoOffseed->recHits().first,
+            tscie = assoOffseed->recHits().second;
+            for(; tsci!=tscie; ++tsci) {
+              container.push_back(*tsci);
+            }
+            output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
                               MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-    	  }
-    	}
-      }
-      else if (useOfflineSeed && valid_charge){
-        // Get the compatible dets on the layer
-        std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
-      detsWithStates = detLayer->compatibleDets(tsos, 
-                            *theService->propagator(thePropagatorName), 
-                            *theEstimator);   
-        if (detsWithStates.size()){
-
-          TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
-          const GeomDet *newTSOSDet = detsWithStates.front().first;
+          }
+          else {
+            if(useUnassociatedL1) {
+              // convert the TSOS into a PTSOD
+              PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
+              output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                                MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+            }
+          }
+        }
+        else if (useOfflineSeed && valid_charge){
+          // Get the compatible dets on the layer
+          std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
+            detsWithStates = detLayer->compatibleDets(tsos, 
+                              *theService->propagator(thePropagatorName), 
+                              *theEstimator);   
+          if (detsWithStates.size()){
   
-          LogTrace(metname) << "Most compatible det";
-          LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-          LogDebug(metname) << "L1 info: Det and State:";
-          LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-          if (newTSOS.isValid()){
-
-            //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
-            //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
-            LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
-                              << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
-            LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
-                              << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
-
-            //LogDebug(metname) << "State on it";
-            //LogDebug(metname) << debug.dumpTSOS(newTSOS);
-
-            const TrajectorySeed *assoOffseed = 
-              associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
-
+            TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+            const GeomDet *newTSOSDet = detsWithStates.front().first;
+    
+            LogTrace(metname) << "Most compatible det";
+            LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+  
+            LogDebug(metname) << "L1 info: Det and State:";
+            LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+  
+            if (newTSOS.isValid()){
+  
+              //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
+              //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
+              LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
+                                << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
+              LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
+                                << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
+  
+              //LogDebug(metname) << "State on it";
+              //LogDebug(metname) << debug.dumpTSOS(newTSOS);
+  
+              const TrajectorySeed *assoOffseed = 
+                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
+  
               if(assoOffseed!=0) {
                 PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
                 TrajectorySeed::const_iterator 
@@ -312,7 +312,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                 }
                 output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
                                   MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-
               }
               else {
                 if(useUnassociatedL1) {
@@ -323,17 +322,15 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                 }
               } 
             }
-         } 
-      }
-      else {
-        // convert the TSOS into a PTSOD
-        PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
-        output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-    				      MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-	  }
-           
-      }
-
+          } 
+        }
+        else {
+          // convert the TSOS into a PTSOD
+          PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
+          output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+        }      
+      }  
     }
   }
   
