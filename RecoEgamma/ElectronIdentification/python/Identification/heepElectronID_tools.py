@@ -68,6 +68,69 @@ class HEEP_WorkingPoint_V1:
         self.dxyCut                  = dxyCut                 
         self.maxMissingHitsCut       = maxMissingHitsCut      
         self.ecalDrivenCut           = ecalDrivenCut
+
+class HEEP_WorkingPoint_V2:
+    """
+    This is a container class to hold numerical cut values for either
+    the barrel or endcap set of cuts
+    """
+    def __init__(self, 
+                 idName,
+                 dEtaInSeedCut,
+                 dPhiInCut,
+                 full5x5SigmaIEtaIEtaCut,
+                 # Two constants for the GsfEleFull5x5E2x5OverE5x5Cut
+                 minE1x5OverE5x5Cut,
+                 minE2x5OverE5x5Cut,
+                 # Three constants for the GsfEleHadronicOverEMLinearCut:
+                 #     cut = constTerm if value < slopeStart
+                 #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
+                 hOverESlopeTerm,
+                 hOverESlopeStart,
+                 hOverEConstTerm,
+                 # Three constants for the GsfEleTrkPtIsoCut: 
+                 #     cut = constTerm if value < slopeStart
+                 #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
+                 trkIsoSlopeTerm,
+                 trkIsoSlopeStart,
+                 trkIsoConstTerm,
+                 trkIsoRhoCorrStart,
+                 trkIsoEffArea,
+                 # Three constants for the GsfEleEmHadD1IsoRhoCut: 
+                 #     cut = constTerm if value < slopeStart
+                 #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
+                 # Also for the same cut, the effective area for the rho correction of the isolation
+                 ehIsoSlopeTerm,
+                 ehIsoSlopeStart,
+                 ehIsoConstTerm,
+                 effAreaForEHIso, 
+                 # other cuts:
+                 dxyCut,
+                 maxMissingHitsCut,
+                 ecalDrivenCut
+                 ):
+        # assign values taken from all the arguments above
+        self.idName                  = idName
+        self.dEtaInSeedCut           = dEtaInSeedCut          
+        self.dPhiInCut               = dPhiInCut              
+        self.full5x5SigmaIEtaIEtaCut = full5x5SigmaIEtaIEtaCut
+        self.minE1x5OverE5x5Cut      = minE1x5OverE5x5Cut     
+        self.minE2x5OverE5x5Cut      = minE2x5OverE5x5Cut     
+        self.hOverESlopeTerm         = hOverESlopeTerm        
+        self.hOverESlopeStart        = hOverESlopeStart       
+        self.hOverEConstTerm         = hOverEConstTerm        
+        self.trkIsoSlopeTerm         = trkIsoSlopeTerm        
+        self.trkIsoSlopeStart        = trkIsoSlopeStart       
+        self.trkIsoConstTerm         = trkIsoConstTerm
+        self.trkIsoRhoCorrStart      = trkIsoRhoCorrStart
+        self.trkIsoEffArea           = trkIsoEffArea
+        self.ehIsoSlopeTerm          = ehIsoSlopeTerm         
+        self.ehIsoSlopeStart         = ehIsoSlopeStart        
+        self.ehIsoConstTerm          = ehIsoConstTerm         
+        self.effAreaForEHIso         = effAreaForEHIso
+        self.dxyCut                  = dxyCut                 
+        self.maxMissingHitsCut       = maxMissingHitsCut      
+        self.ecalDrivenCut           = ecalDrivenCut
 # ==============================================================
 # Define individual cut configurations used by complete cut sets
 # ==============================================================
@@ -176,6 +239,27 @@ def psetGsfEleTrkPtIsoCut(wpEB, wpEE):
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
+# Configure the cut on the tracker isolation with a rho correction (hack for 76X)
+def psetGsfEleTrkPtIsoRhoCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleTrkPtIsoRhoCut'),
+        # Three constants for the GsfEleTrkPtIsoCut
+        #     cut = constTerm if value < slopeStart
+        #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
+        slopeTermEB = cms.double( wpEB.trkIsoSlopeTerm ),
+        slopeTermEE = cms.double( wpEE.trkIsoSlopeTerm ),
+        slopeStartEB = cms.double( wpEB.trkIsoSlopeStart ),
+        slopeStartEE = cms.double( wpEE.trkIsoSlopeStart ),
+        constTermEB = cms.double( wpEB.trkIsoConstTerm ),
+        constTermEE = cms.double( wpEE.trkIsoConstTerm ),
+        rhoEtStartEB = cms.double( wpEB.trkIsoRhoCorrStart),
+        rhoEtStartEE = cms.double( wpEE.trkIsoRhoCorrStart),
+        rhoEAEB = cms.double( wpEB.trkIsoEffArea),
+        rhoEAEE = cms.double( wpEE.trkIsoEffArea),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
 
 # Configure the cut on the EM + Had_depth_1 isolation with rho correction
 def psetGsfEleEmHadD1IsoRhoCut(wpEB, wpEE):
@@ -272,6 +356,31 @@ def configureHEEPElectronID_V60(wpEB, wpEE):
             psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB,wpEE),  #5
             psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
             psetGsfEleTrkPtIsoCut(wpEB,wpEE),             #7
+            psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
+            psetGsfEleDxyCut(wpEB,wpEE),                  #9
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
+            )
+        )
+    return parameterSet
+
+def configureHEEPElectronID_V61(wpEB, wpEE):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type HEEP_WorkingPoint_V2, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    """
+    parameterSet = cms.PSet(
+        idName = cms.string("heepElectronID-HEEPV61"),
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),                               #0
+            psetGsfEleSCEtaMultiRangeCut(),               #1
+            psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
+            psetGsfEleDPhiInCut(wpEB,wpEE),               #3
+            psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB,wpEE), #4
+            psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB,wpEE),  #5
+            psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
+            psetGsfEleTrkPtIsoRhoCut(wpEB,wpEE),          #7
             psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
             psetGsfEleDxyCut(wpEB,wpEE),                  #9
             psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
