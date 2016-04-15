@@ -91,8 +91,6 @@ If you plugin derives from `SiPixelPhase1Base`, you should automatically have ac
     enum {
       ADC, // digi ADC readouts
       NDIGIS, // number of digis per event and module
-      NDIGIS_FED, // number of digis per event and FED
-      EVENT, // event frequency
       MAP // digi hitmap per module
     };
 
@@ -103,18 +101,21 @@ In the Analyzer code, call the `fill` function on the `histo[...]` whenever you 
 The `fill` function takes a number of mandatory and optional parameters the the left-hand side columns are derived from. You always have to pass a module ID (`DetId`), the `Event`is only for time-based things (if you want per lumisection or per bunchcrossing plots), and `row` and `col` are needed for ROC information, or if you want a 2D map of the module.
 
 Now, you need to add some specifications in the config file.
+
+    SiPixelPhase1DigisADC = DefaultHisto.clone(
+      ...
+    )
+    SiPixelPhase1DigisNDigis = DefaultHisto.clone(
+      ...
+    )
+    SiPixelPhase1DigisHitmaps = DefaultHisto.clone(
+      ...
+    )
    
     SiPixelPhase1DigisConf = cms.VPSet(
-      DefaultHisto.clone(
-      ),
-      DefaultHisto.clone(
-      ),
-      DefaultHisto.clone(
-      ),
-      DefaultHisto.clone(
-      ),
-      DefaultHisto.clone(
-      )
+      SiPixelPhase1DigisADC,
+      SiPixelPhase1Digis,
+      SiPixelPhase1DigisHitmaps 
     )
 
 Add a `VPSet` with one clone of a `DefaultHisto` per histogram you want to use. These have to be the same number and same order as in the `enum` in the C++ code. In the `clone` you can set various parameters, refer to `HistogramManager_cfi.py` for details.
@@ -180,4 +181,42 @@ For all the specifications, the steps up to the first `save` are executed in DQM
 How it really works
 -------------------
 
-(coming soon)
+This section explains for every class in the framework what it does. This might also include hints how to use it correctly. Ordered roughly from simple to complex.
+
+### AbstractHistogram
+
+This is an unspectacluar wrapper aroud histogram-like things. It is used as the right-hand side of all tables that are actually kept in memory. It can contain either a root `TH1`, a `MonitorElement` (then the `th1` points to the MEs TH1) or a simple counter (`int`). The counter can be used independently of the histogram and is used to concatenate histograms in harvesting and count things per event in step1.
+
+### SiPixelPhase1Base
+
+This is the base class that all plugins should derive from. It instantiates `HistogramManager`s from config, sets up a `GeometryInterface`, and callls the `book` method of the `HistogramManager`s. If you need anything special, you can also do this yourself ad ignore the base class.
+
+The same file delcares the `SiPixelPhase1Harvester`, which is very similar to the base class but is an `DQMEDHarvester` and calls the harvesting methods. Usually this does not need to be modified, it is enough instantiate a copy and set the configuration to be the same as for the analyzer. If you want too use a `custom` step, derive from this class and call the `setCustomHandler` on the HistogramManager before the actual harvesting starts.
+
+### SummationSpecification
+
+A dumb datastructure that represents a specifiaction, as introduced above. The specification is in an inernal, slightly different format, which is created by the SpecfiactionBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
+
+### SpecficationBuilder
+
+This is the Python class that provides the specification syntax used above. It creates a nested structure of `PSet`s with all the information, and also transforms the specification from the simple language explaind above into something closer to the implementation. This includes 
+  - attaching the DQM step (here called `Stage`) where the step is to be executed to every `Step`.
+  - creating different internal commands for `groupBy` steps, depending on whether it is a summation or a extension. A detail here is that while a normal `GROUPBY`has a list of columns to keep, the internal `EXTEND_*` lists the columns to be dropped, to simplify step1 processing.
+  - special-casing "/Event" grouping, which has to be done using a special `STAGE1_2` only used for this purpose.
+  - checking for all sorts of well-formedness, to catch possible problems as soon as possible.
+
+### GeometryInterface
+
+This is a class, but one of the more important things are the types declared within it. They get used extensively in the HistogramManager, but we try to avoid that they leak into the plugin code. You need to know these types if you want to touch the actual implemenation of the framework.
+
+#### GeometryInterface::Value
+
+The value of "cells" in the table. Defined to be `int`.
+
+#### GeometryInterface::ID
+
+The internal form of a column name, like `"PXLadder"` or `"DetId"`. Also defined to be `int`. To get an ID, call `intern` with the name. To get back to the string form, use `unintern`. The ID to string mapping is done with a `std::map` that grows automatically, so there is no such thing as a list of reserved names. 
+
+Only pass things returned by `intern` as an `ID`. Other values can make things crash.
+
+(to be continued)
