@@ -225,6 +225,9 @@ class MatrixInjector(object):
                     # for double miniAOD test
                     if len( [step for step in s[3] if "DBLMINIAODMCUP15NODQM" in step] )>0:
                         thisLabel=thisLabel+"_dblMiniAOD"
+                    # label for Frontier Digital signature test
+                    if len( [step for step in s[3] if "DigiSigTest" in step] )>0:
+                        thisLabel=thisLabel+"_DigiSig"
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:
