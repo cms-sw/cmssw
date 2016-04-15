@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-genericTriggerEventFlag4fullTrackerAndHLTdb = cms.PSet(
+genericTriggerEventFlag4HLTdb = cms.PSet(
    andOr         = cms.bool( False ),
    dbLabel       = cms.string("TrackerDQMTrigger"),
    andOrHlt      = cms.bool(True), # True:=OR; False:=AND
@@ -8,4 +8,13 @@ genericTriggerEventFlag4fullTrackerAndHLTdb = cms.PSet(
    hltPaths      = cms.vstring(""), #cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
    hltDBKey      = cms.string("SiStrip_HLT"),
    errorReplyHlt = cms.bool( False ),
+)
+
+genericTriggerEventFlag4L1bd = cms.PSet(
+   andOr         = cms.bool( False ),
+   dbLabel       = cms.string("TrackerDQMTrigger"),
+   l1Algorithms  = cms.vstring(""), # cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' )
+   andOrL1       = cms.bool( True ),
+   errorReplyL1  = cms.bool( True ),
+   l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
 )

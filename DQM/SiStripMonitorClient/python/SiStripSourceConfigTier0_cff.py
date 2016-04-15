@@ -47,14 +47,8 @@ SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
 SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.ClusterHisto = True
-SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dbLabel       = cms.string("SiStripDQMTrigger"),
-    l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
-    andOrL1       = cms.bool( True ),
-    errorReplyL1  = cms.bool( True ),
-    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
-)
+SiStripMonitorClusterBPTX.BPTXfilter = genericTriggerEventFlag4L1bd
+
 SiStripMonitorClusterBPTX.PixelDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
@@ -84,26 +78,26 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.andOr         = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
-SiStripMonitorTrackMB.dbLabel       = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
-SiStripMonitorTrackMB.hltInputTag   = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
-SiStripMonitorTrackMB.hltPaths      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths 
-SiStripMonitorTrackMB.hltDBKey      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
-SiStripMonitorTrackMB.errorReplyHlt = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
-SiStripMonitorTrackMB.andOrHlt      = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
+SiStripMonitorTrackMB.andOr         = genericTriggerEventFlag4HLTdb.andOr
+SiStripMonitorTrackMB.dbLabel       = genericTriggerEventFlag4HLTdb.dbLabel
+SiStripMonitorTrackMB.hltInputTag   = genericTriggerEventFlag4HLTdb.hltInputTag
+SiStripMonitorTrackMB.hltPaths      = genericTriggerEventFlag4HLTdb.hltPaths 
+SiStripMonitorTrackMB.hltDBKey      = genericTriggerEventFlag4HLTdb.hltDBKey
+SiStripMonitorTrackMB.errorReplyHlt = genericTriggerEventFlag4HLTdb.errorReplyHlt
+SiStripMonitorTrackMB.andOrHlt      = genericTriggerEventFlag4HLTdb.andOrHlt
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.Tracks          = 'generalTracks'
 MonitorTrackResiduals.Mod_On          = False
-MonitorTrackResiduals.andOr           = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
-MonitorTrackResiduals.dbLabel         = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
-MonitorTrackResiduals.hltInputTag     = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
-MonitorTrackResiduals.hltPaths        = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths
-MonitorTrackResiduals.hltDBKey        = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
-MonitorTrackResiduals.errorReplyHlt   = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
-MonitorTrackResiduals.andOrHlt        = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
+MonitorTrackResiduals.andOr           = genericTriggerEventFlag4HLTdb.andOr
+MonitorTrackResiduals.dbLabel         = genericTriggerEventFlag4HLTdb.dbLabel
+MonitorTrackResiduals.hltInputTag     = genericTriggerEventFlag4HLTdb.hltInputTag
+MonitorTrackResiduals.hltPaths        = genericTriggerEventFlag4HLTdb.hltPaths
+MonitorTrackResiduals.hltDBKey        = genericTriggerEventFlag4HLTdb.hltDBKey
+MonitorTrackResiduals.errorReplyHlt   = genericTriggerEventFlag4HLTdb.errorReplyHlt
+MonitorTrackResiduals.andOrHlt        = genericTriggerEventFlag4HLTdb.andOrHlt
 
 # DQM Services
 dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
