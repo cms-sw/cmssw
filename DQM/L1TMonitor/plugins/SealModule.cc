@@ -1,7 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include <DQM/L1TMonitor/interface/L1TFED.h>
 DEFINE_FWK_MODULE(L1TFED);
 
@@ -26,14 +24,23 @@ DEFINE_FWK_MODULE(L1TRPCTF);
 #include <DQM/L1TMonitor/interface/L1TGMT.h>
 DEFINE_FWK_MODULE(L1TGMT);
 
+#include <DQM/L1TMonitor/interface/L1TLayer1.h>
+DEFINE_FWK_MODULE(L1TLayer1);
+
 #include <DQM/L1TMonitor/interface/L1TStage2CaloLayer2.h>
 DEFINE_FWK_MODULE(L1TStage2CaloLayer2);
 
-#include <DQM/L1TMonitor/interface/L1TStage2mGMT.h>
-DEFINE_FWK_MODULE(L1TStage2mGMT);
+#include <DQM/L1TMonitor/interface/L1TStage2uGMT.h>
+DEFINE_FWK_MODULE(L1TStage2uGMT);
+
+#include <DQM/L1TMonitor/interface/L1TStage2uGT.h>
+DEFINE_FWK_MODULE(L1TStage2uGT);
 
 #include <DQM/L1TMonitor/interface/L1TStage2BMTF.h>
 DEFINE_FWK_MODULE(L1TStage2BMTF);
+
+#include <DQM/L1TMonitor/interface/L1TStage2EMTF.h>
+DEFINE_FWK_MODULE(L1TStage2EMTF);
 
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
@@ -69,3 +76,18 @@ DEFINE_FWK_MODULE(L1TdeCSCTF);
 
 //#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
 //DEFINE_FWK_MODULE(L1GtHwValidation);
+
+#include "DQM/L1TMonitor/interface/L1TSync.h"
+DEFINE_FWK_MODULE(L1TSync);
+
+#include "DQM/L1TMonitor/interface/L1TRate.h"
+DEFINE_FWK_MODULE(L1TRate);
+
+#include "DQM/L1TMonitor/interface/L1TBPTX.h"
+DEFINE_FWK_MODULE(L1TBPTX);
+
+#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
+DEFINE_FWK_MODULE( L1GtHwValidation);
+
+#include "DQM/L1TMonitor/interface/L1ExtraDQM.h"
+DEFINE_FWK_MODULE(L1ExtraDQM);
