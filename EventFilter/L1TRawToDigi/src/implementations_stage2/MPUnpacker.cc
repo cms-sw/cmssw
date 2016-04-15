@@ -118,7 +118,8 @@ namespace stage2 {
 
        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
-       jet.setHwEta(etasign*(raw_data & 0x3F));
+       int mpEta = etasign*(raw_data & 0x3F);
+       jet.setHwEta(CaloTools::caloEta(mpEta));
        jet.setHwPhi((raw_data >> 6) & 0x7F);
        jet.setHwPt((raw_data >> 13) & 0xFFFF);
          
