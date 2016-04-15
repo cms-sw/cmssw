@@ -7,19 +7,15 @@
 #include <iostream>
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Rtypes.h" 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-//C decide what is the default rechit index. 
-//C maybe 0 ? -> compression 
-//C then the position is index-1. 
-//C provide a helper class to access the rechit. 
-
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 
 namespace reco {
