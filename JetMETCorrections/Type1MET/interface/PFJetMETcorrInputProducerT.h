@@ -38,6 +38,8 @@
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
 #include <string>
 #include <type_traits>
 
@@ -147,7 +149,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
     desc.add<double>("skipEMfractionThreshold",0.90);
     desc.add<bool>("skipMuons",true);
     desc.add<std::string>("skipMuonSelection","isGlobalMuon | isStandAloneMuon");
-    descriptions.add("PFJetMETcorrInputProducer",desc);
+    descriptions.add(defaultModuleLabel< PFJetMETcorrInputProducerT<T, Textractor> >(), desc);
     }
 
 

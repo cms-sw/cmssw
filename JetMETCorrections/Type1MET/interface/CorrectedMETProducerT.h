@@ -31,6 +31,8 @@
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
 #include <vector>
 
 namespace CorrectedMETProducer_namespace
@@ -87,7 +89,7 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src",edm::InputTag("corrPfMetType1", "type1"));
-    descriptions.add("CorrectedMETProducerT",desc);
+    descriptions.add(defaultModuleLabel<CorrectedMETProducerT<T> >(),desc);
   }
 
  private:
