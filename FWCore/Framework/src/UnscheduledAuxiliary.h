@@ -1,5 +1,5 @@
 #ifndef FWCore_Framework_UnscheduledAuxiliary_h
-#define Subsystem_Framework_UnscheduledAuxiliary_h
+#define FWCore_Framework_UnscheduledAuxiliary_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
