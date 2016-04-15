@@ -5,9 +5,10 @@
 
 #include "L1Trigger/L1TMuonOverlap/interface/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+
 
 class L1TMuonOverlapParams;
-class OMTFConfiguration;
 class XMLConfigReader;
 class OMTFinput;
 
@@ -23,7 +24,7 @@ class OMTFProcessor{
 
   typedef std::map<Key,OMTFResult> resultsMap;
 
-  OMTFProcessor(const edm::ParameterSet & cfg);
+  OMTFProcessor(const edm::ParameterSet & cfg, OMTFConfiguration * omtf_config);
 
   ~OMTFProcessor();
   
@@ -31,7 +32,7 @@ class OMTFProcessor{
   bool configure(XMLConfigReader *aReader);
 
   ///Fill GP map with patterns from CondFormats object
-  bool configure(std::shared_ptr<L1TMuonOverlapParams> omtfParams);
+  bool configure(const L1TMuonOverlapParams* omtfParams);
 
   ///Process input data from a single event
   ///Input data is represented by hits in logic layers expressed in local coordinates
@@ -42,12 +43,6 @@ class OMTFProcessor{
 
   ///Return map of GoldenPatterns
   const std::map<Key,GoldenPattern*> & getPatterns() const;
-
-  ///Shift phi values in input to fit the 11 bits
-  ///range. For each processor the global phi beggining-511 
-  ///is added, so it starts at -551
-  OMTFinput shiftInput(unsigned int iProcessor,
-		       const OMTFinput & aInput);
 
   ///Fill counts for a GoldenPattern of this
   ///processor unit. Pattern key is selcted according 
@@ -102,6 +97,7 @@ class OMTFProcessor{
   ///Reference hit number is isued as a vector index.
   std::vector<OMTFProcessor::resultsMap> myResults;
 
+  OMTFConfiguration * m_omtf_config;
 };
 
 

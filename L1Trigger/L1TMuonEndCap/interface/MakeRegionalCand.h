@@ -37,6 +37,17 @@ int GetPackedEta(float theta, int sector){
 
 }
 
+float GetGlobalEta(float theta, int sector){
+
+	float theta_angle = (theta*0.2851562 + 8.5)*(3.14159265359/180);
+	float eta = (-1)*log(tan(theta_angle/2));
+	if(sector > 5)
+		eta *= -1;
+		
+	return eta;
+
+}
+
 int GetPackedPhi(int phi){
 
 	float phiDeg = (phi*0.0166666);
@@ -77,6 +88,38 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 		iPt = 0;
 
 	int iQual = quality;
+	
+	int LSB = quality & 3;
+	
+	float eta = GetGlobalEta(theta,sector);
+	
+	if(eta < 1.2){
+	
+		switch(quality){
+			case(15): iQual = 8;break;
+			case(14): iQual = 4;break;
+			case(13): iQual = 4;break;
+			case(12): iQual = 4;break;
+			case(11): iQual = 4;break;
+			default: iQual = 4;break;
+		}
+	
+	}
+	else{
+	
+		switch(quality){
+			case(15): iQual = 12;break;
+			case(14): iQual = 12;break;
+			case(13): iQual = 12;break;
+			case(12): iQual = 8;break;
+			case(11): iQual = 12;break;
+			case(10): iQual = 8;break;
+			case(7): iQual = 8;break;
+			default: iQual = 4;break;
+		}
+	
+	}
+	iQual |= LSB;
 
 	Cand.setHwPt(iPt);
 	Cand.setHwEta(iEta);
