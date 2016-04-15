@@ -55,14 +55,14 @@ SiPixelPhase1DigisConf = cms.VPSet(
     range_nbins = 200,
     dimensions = 0, 
     specs = cms.VPSet(
-      Specification().groupBy("PXBarrel|PXEndcap/FED/Event")
+      Specification().groupBy("PXBarrel|PXForward/FED/Event")
                      .reduce("COUNT")
-                     .groupBy("PXBarrel|PXEndcap/FED")
-                     .groupBy("PXBarrel|PXEndcap", "EXTEND_Y")
+                     .groupBy("PXBarrel|PXForward/FED")
+                     .groupBy("PXBarrel|PXForward", "EXTEND_Y")
                      .save(),
-      Specification().groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk/FED/Event")
+      Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/FED/Event")
                      .reduce("COUNT")
-                     .groupBy("PXBarrel|PXEndcap/PXLayer|PXDisk")
+                     .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
                      .save()
     )
   ),
@@ -83,6 +83,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
   ),
   DefaultHisto.clone(
     enabled = True, # hitmaps
+    bookUndefined = True,
     name = "hitmap",
     title = "Position of digis on module",
     ylabel = "#digis",
@@ -93,12 +94,29 @@ SiPixelPhase1DigisConf = cms.VPSet(
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_Y")
                      .save()
 		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
+
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/col")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
                      .save()
 		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
+
       Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel/row")
                      .groupBy(DefaultHisto.defaultGrouping.value() + "/PXBModule|PXPanel", "EXTEND_X")
+                     .save()
+		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
+
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade/LumiDecade")
+                     .groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade", "EXTEND_X")
+                     .groupBy(DefaultHisto.defaultGrouping, "EXTEND_Y")
+                     .save(),
+
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROC")
+                     .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
+                     .save()
+		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
+
+      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
+                     .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
                      .save()
 		     .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll()
     )
