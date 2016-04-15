@@ -207,8 +207,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    name = name + "_per_" + colname;
 	    xlabel = colname;
 	    range_x_min = geometryInterface.minValue(col0[0]);
-	    range_x_max = geometryInterface.maxValue(col0[0]);
-	    range_x_nbins = int(range_x_max-range_x_min) + 1;
+	    range_x_max = geometryInterface.maxValue(col0[0]) + 1;
+	    range_x_nbins = int(range_x_max-range_x_min);
 	    significantvalues.erase(col0);
 	    break;}
 	  case SummationStep::EXTEND_Y: {
@@ -220,7 +220,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    name = name + "_per_" + colname;
 	    ylabel = colname;
 	    range_y_min = geometryInterface.minValue(col0[0]);
-	    range_y_max = geometryInterface.maxValue(col0[0]);
+	    range_y_max = geometryInterface.maxValue(col0[0]) + 1;
 	    range_y_nbins = int(range_y_max-range_y_min) + 1;
 	    significantvalues.erase(col0);
 	    break;}
@@ -435,11 +435,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
     GeometryInterface::Column col0 = old_vals.get(step.columns.at(0)).first;
     GeometryInterface::Values new_vals(old_vals);
     new_vals.erase(step.columns.at(0));
-    //std::cout << "+++ Extending for " << geometryInterface.pretty(step.columns.at(0)) << 
-     //" actually " << geometryInterface.pretty(col0) << " value "<< old_vals.get(step.columns.at(0)).second << "\n";
-    //std::cout << "+++ old_vals: "; for (auto e : old_vals.values) std::cout << e.first[0] << " " << e.first[1] << ":" << e.second << " "; std::cout << "\n";
     std::string colname = geometryInterface.pretty(col0);
-    //std::cout << "+++ new_vals: "; for (auto e : new_vals.values) std::cout << geometryInterface.pretty(e.first) << ":" << e.second << " "; std::cout << "\n";
     TH1 *th1 = e.second.th1;
     assert(th1);
     

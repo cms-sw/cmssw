@@ -276,6 +276,13 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     },
     1, 5000
   );
+  addExtractor(intern("LumiDecade"),
+    [] (InterestingQuantities const& iq) {
+      if(!iq.sourceEvent) return UNDEFINED;
+      return Value(iq.sourceEvent->luminosityBlock() % 10);
+    },
+    0, 9
+  );
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
@@ -300,6 +307,39 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     0, 415 
   );
 
+  // TODO: ROC dimensions could be configurable
+  addExtractor(intern("ROC"),
+    [] (InterestingQuantities const& iq) {
+      int fedrow = int(iq.row / 80.0f);
+      int fedcol = int(iq.col / 52.0f);
+      if (fedrow == 0) return Value(fedcol);
+      if (fedrow == 1) return Value(15 - fedcol);
+      return UNDEFINED;
+    },
+    0, 15
+  );
+
+  // arbitrary per-ladder numbering (for inefficiencies)
+  auto pxmodule = extractors[intern("PXBModule")];
+  auto pxpanel  = extractors[intern("PXPanel")];
+  auto roc      = extractors[intern("ROC")];
+  addExtractor(intern("ROCinLadder"),
+    [pxmodule, roc] (InterestingQuantities const& iq) {
+      auto mod = pxmodule(iq);
+      if (mod == UNDEFINED) return UNDEFINED;
+      return Value(roc(iq) + 16 * (mod-1));
+    },
+    0, 127
+  );
+  addExtractor(intern("ROCinBlade"),
+    [pxmodule, pxpanel, roc] (InterestingQuantities const& iq) {
+      auto mod = pxpanel(iq);
+      if (mod == UNDEFINED) return UNDEFINED;
+      return Value(roc(iq) + 16 * (mod-1));
+    },
+    0, 31
+  );
+
   addExtractor(intern("DetId"),
     [] (InterestingQuantities const& iq) {
       uint32_t id = iq.sourceModule.rawId();
@@ -307,8 +347,6 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     },
     0, 0 // No sane value possible here.
   );
-
-  // TODO: ROCs ans stuff here.
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
