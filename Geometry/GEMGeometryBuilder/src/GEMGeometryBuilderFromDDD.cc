@@ -102,7 +102,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 	GEMNumberingScheme gemNum(muonConstants);
 	int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
 	GEMDetId detId = GEMDetId(rawid);
-	
+
 	GEMEtaPartition *etaPart = buildEtaPartition(fv, detId);
 	gemChamber->add(etaPart);
 	geometry->add(etaPart);
@@ -186,8 +186,7 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
 
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1,dx2,dy,dz) ));
 
-  GEMDetId detIdSC(detId.region(),detId.ring(),detId.station(),0,detId.chamber(),0);
-  GEMSuperChamber* superChamber = new GEMSuperChamber(detIdSC, surf);
+  GEMSuperChamber* superChamber = new GEMSuperChamber(detId.superChamberId(), surf);
   return superChamber;
 }
 
@@ -208,8 +207,7 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId
 
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1,dx2,dy,dz) ));
 
-  GEMDetId detIdCh(detId.region(),detId.ring(),detId.station(),detId.layer(),detId.chamber(),0);
-  GEMChamber* chamber = new GEMChamber(detIdCh, surf);
+  GEMChamber* chamber = new GEMChamber(detId.chamberId(), surf);
   return chamber;
 }
 
