@@ -1,14 +1,8 @@
-////
-/// \class l1t::L1TGlobalUtil.cc
-///
-/// Description: Dump Accessors for L1 GT Result.
-///
-/// Implementation:
-///    
-///
-/// \author: Brian Winer Ohio State
-///
-/// 
+// L1TGlobalUtil
+//
+// author: Brian Winer Ohio State
+//
+
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 #include <iostream>
@@ -31,25 +25,25 @@
 
 
 // constructor
-l1t::L1TGlobalUtil::L1TGlobalUtil(std::string preScaleFileName, unsigned int psColumn) 
-{
-
+l1t::L1TGlobalUtil::L1TGlobalUtil(){
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
-
     m_filledPrescales = false;
-
-    m_preScaleFileName = preScaleFileName;
-
+    edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/prescale_L1TGlobal.csv");
+    m_preScaleFileName = f1.fullPath();
     m_numberPhysTriggers = 512; //need to get this out of the EventSetup
-
-    m_PreScaleColumn = psColumn;
+    m_PreScaleColumn = 1;
 
 }
 
+void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
+  edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
+  m_preScaleFileName = f1.fullPath();
+  m_PreScaleColumn = psColumn;
+}
+
 // destructor
-l1t::L1TGlobalUtil::~L1TGlobalUtil() {
- 
+l1t::L1TGlobalUtil::~L1TGlobalUtil() { 
 }
 
 
@@ -64,10 +58,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
+        m_l1GtMenu =  l1GtMenu.product();
 
         //std::cout << "Attempting to fill the map " << std::endl;
-        m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
+        m_algorithmMap = &(m_l1GtMenu->getAlgorithmMap());
 
 	//reset vectors since we have new menu
 	resetDecisionVectors();
@@ -93,15 +87,15 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
        //Pick which set we are using
        if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
-	  LogTrace("L1TGlobal")
+	  LogTrace("l1t|Global")
 	   << "\nNo Prescale Set: " << m_PreScaleColumn
 	   << "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()  
 	    << "\nSetting prescale column to 1"
 	    << std::endl;
 	 m_PreScaleColumn = 1;
        }
-       LogDebug("L1TGlobal") << "Grabing prescale column "<< m_PreScaleColumn << endl;
-       const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig).at(m_PreScaleColumn-1);
+       LogDebug("l1t|Global") << "Grabing prescale column "<< m_PreScaleColumn << endl;
+       const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn-1];
            
        for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
@@ -110,14 +104,13 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
           int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
 
 	  (m_prescales[algBit]).first  = algName;
-	  (m_prescales[algBit]).second = prescaleSet.at(algBit);
+	  (m_prescales[algBit]).second = prescaleSet[algBit];
 
 	  (m_masks[algBit]).first  = algName;
-	  (m_masks[algBit]).second = m_triggerMaskAlgoTrig->at(algBit);	  
+	  (m_masks[algBit]).second = (*m_triggerMaskAlgoTrig)[algBit];	  
 
 	  (m_vetoMasks[algBit]).first  = algName;
-	  (m_vetoMasks[algBit]).second = m_triggerMaskVetoAlgoTrig->at(algBit);
-	  
+	  (m_vetoMasks[algBit]).second = (*m_triggerMaskVetoAlgoTrig)[algBit];
        }
        
       m_filledPrescales = true;
@@ -149,7 +142,7 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 	 (m_decisionsInitial[algBit]).first  = algName;
 	 (m_decisionsInitial[algBit]).second = decisionInitial;
 
-	 bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit);
+	 bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit); 
 	 (m_decisionsPrescaled[algBit]).first  = algName;
 	 (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
 
@@ -168,7 +161,7 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 
 void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
-    std::fstream inputPrescaleFile;
+    std::ifstream inputPrescaleFile;
     inputPrescaleFile.open(m_preScaleFileName);
 
     std::vector<std::vector<int> > vec;
@@ -287,7 +280,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 	    }
 	  }
 	  else{
-	    LogTrace("L1TGlobal")
+	    LogTrace("l1t|Global")
 	      << "\nPrescale file has algo bit: " << algoBit
 	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
 	      << "\nSomething is wrong. Ignoring."
@@ -298,7 +291,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
     }
     else {
-      LogTrace("L1TGlobal")
+      LogTrace("l1t|Global")
 	<< "\nCould not find file: " << m_preScaleFileName
 	<< "\nFilling the prescale vectors with prescale 1"
 	<< "\nSetting prescale set to 1"
@@ -336,14 +329,14 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
 
   for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
-    (m_decisionsInitial.at(algBit)).first = "NULL";
-    (m_decisionsInitial.at(algBit)).second = false;
+    (m_decisionsInitial[algBit]).first = "NULL";
+    (m_decisionsInitial[algBit]).second = false;
 
-    (m_decisionsPrescaled.at(algBit)).first = "NULL";
-    (m_decisionsPrescaled.at(algBit)).second = false;
+    (m_decisionsPrescaled[algBit]).first = "NULL";
+    (m_decisionsPrescaled[algBit]).second = false;
     
-    (m_decisionsFinal.at(algBit)).first = "NULL";
-    (m_decisionsFinal.at(algBit)).second = false;    
+    (m_decisionsFinal[algBit]).first = "NULL";
+    (m_decisionsFinal[algBit]).second = false;    
 
   }
 
@@ -358,8 +351,8 @@ void l1t::L1TGlobalUtil::resetPrescaleVectors() {
   
   for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
-    (m_prescales.at(algBit)).first = "NULL";
-    (m_prescales.at(algBit)).second = 1;  
+    (m_prescales[algBit]).first = "NULL";
+    (m_prescales[algBit]).second = 1;  
 
   }
 
@@ -375,11 +368,11 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
   
   for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
-    (m_masks.at(algBit)).first = "NULL";
-    (m_masks.at(algBit)).second = true;
+    (m_masks[algBit]).first = "NULL";
+    (m_masks[algBit]).second = true;
 
-    (m_vetoMasks.at(algBit)).first = "NULL";
-    (m_vetoMasks.at(algBit)).second = false;     
+    (m_vetoMasks[algBit]).first = "NULL";
+    (m_vetoMasks[algBit]).second = false;     
 
   }
 
@@ -399,8 +392,8 @@ const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int
 const bool l1t::L1TGlobalUtil::getAlgNameFromBit(int& bit, std::string& algName) const {
 
   // since we are just looking up the name, doesn't matter which vector we get it from
-  if((m_decisionsInitial.at(bit)).first != "NULL") {
-    algName = (m_decisionsInitial.at(bit)).first;
+  if((m_decisionsInitial[bit]).first != "NULL") {
+    algName = (m_decisionsInitial[bit]).first;
     return true;
   }
   return false; //No name associated with this bit
@@ -415,8 +408,8 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByBit(int& bit, bool& decision)
     } 
   */
   // Need some check that this is a valid bit
-  if((m_decisionsInitial.at(bit)).first != "NULL") {
-    decision = (m_decisionsInitial.at(bit)).second;
+  if((m_decisionsInitial[bit]).first != "NULL") {
+    decision = (m_decisionsInitial[bit]).second;
     return true;
   }
   
@@ -425,8 +418,8 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByBit(int& bit, bool& decision)
 const bool l1t::L1TGlobalUtil::getPrescaledDecisionByBit(int& bit, bool& decision) const {
 
   // Need some check that this is a valid bit
-  if((m_decisionsPrescaled.at(bit)).first != "NULL") {
-    decision = (m_decisionsPrescaled.at(bit)).second;
+  if((m_decisionsPrescaled[bit]).first != "NULL") {
+    decision = (m_decisionsPrescaled[bit]).second;
     return true;
   }
   
@@ -435,8 +428,8 @@ const bool l1t::L1TGlobalUtil::getPrescaledDecisionByBit(int& bit, bool& decisio
 const bool l1t::L1TGlobalUtil::getFinalDecisionByBit(int& bit, bool& decision) const {
 
   // Need some check that this is a valid bit
-  if((m_decisionsFinal.at(bit)).first != "NULL") {
-    decision = (m_decisionsFinal.at(bit)).second;
+  if((m_decisionsFinal[bit]).first != "NULL") {
+    decision = (m_decisionsFinal[bit]).second;
     return true;
   }
   
@@ -445,8 +438,8 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByBit(int& bit, bool& decision) c
 const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, int& prescale) const {
 
   // Need some check that this is a valid bit
-  if((m_prescales.at(bit)).first != "NULL") {
-    prescale = (m_prescales.at(bit)).second;
+  if((m_prescales[bit]).first != "NULL") {
+    prescale = (m_prescales[bit]).second;
     return true;
   }
   
@@ -455,8 +448,8 @@ const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, int& prescale) const {
 const bool l1t::L1TGlobalUtil::getMaskByBit(int& bit, bool& mask) const {
 
   // Need some check that this is a valid bit
-  if((m_masks.at(bit)).first != "NULL") {
-    mask = (m_masks.at(bit)).second;
+  if((m_masks[bit]).first != "NULL") {
+    mask = (m_masks[bit]).second;
     return true;
   }
   
@@ -466,8 +459,8 @@ const bool l1t::L1TGlobalUtil::getMaskByBit(int& bit, bool& mask) const {
 const bool l1t::L1TGlobalUtil::getVetoMaskByBit(int& bit, bool& veto) const {
 
   // Need some check that this is a valid bit
-  if((m_vetoMasks.at(bit)).first != "NULL") {
-    veto = (m_vetoMasks.at(bit)).second;
+  if((m_vetoMasks[bit]).first != "NULL") {
+    veto = (m_vetoMasks[bit]).second;
     return true;
   }
   
@@ -478,7 +471,7 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByName(const std::string& algNa
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    decision = (m_decisionsInitial.at(bit)).second;
+    decision = (m_decisionsInitial[bit]).second;
     return true;
   }
   
@@ -489,7 +482,7 @@ const bool l1t::L1TGlobalUtil::getPrescaledDecisionByName(const std::string& alg
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    decision = (m_decisionsPrescaled.at(bit)).second;
+    decision = (m_decisionsPrescaled[bit]).second;
     return true;
   }
   
@@ -500,7 +493,7 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByName(const std::string& algName
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    decision = (m_decisionsFinal.at(bit)).second;
+    decision = (m_decisionsFinal[bit]).second;
     return true;
   }
   
@@ -510,7 +503,7 @@ const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, int
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    prescale = (m_prescales.at(bit)).second;
+    prescale = (m_prescales[bit]).second;
     return true;
   }
   
@@ -520,7 +513,7 @@ const bool l1t::L1TGlobalUtil::getMaskByName(const std::string& algName, bool& m
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    mask = (m_masks.at(bit)).second;
+    mask = (m_masks[bit]).second;
     return true;
   }
   
@@ -530,7 +523,7 @@ const bool l1t::L1TGlobalUtil::getVetoMaskByName(const std::string& algName, boo
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    veto = (m_vetoMasks.at(bit)).second;
+    veto = (m_vetoMasks[bit]).second;
     return true;
   }
   
