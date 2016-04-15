@@ -111,6 +111,9 @@ L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
   // set firmware version from python config for now
   m_fwv = ps.getParameter<int>("firmware");
 
+  //initialize
+  m_paramsCacheId=0;
+
 }
 
 L1TStage2Layer2Producer::~L1TStage2Layer2Producer() {
