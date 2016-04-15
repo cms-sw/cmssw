@@ -1468,11 +1468,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-<<<<<<< HEAD
 defaultDataSets['2017']='CMSSW_8_1_0_pre2-80X_upgrade2017_realistic_v1_UPG17realGT-v'
-=======
-defaultDataSets['2017']='CMSSW_8_1_0_pre2-80X_upgrade2017_realistic_v1_UPG17realGT-v1'
->>>>>>> 56d9115... update gensim input for 2017 workflows
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
