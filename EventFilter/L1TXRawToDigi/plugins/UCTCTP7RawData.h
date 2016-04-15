@@ -191,14 +191,14 @@ public:
     return (data >> 16);
   }
 
-  uint32_t getSummaryIndex(bool negativeEta) {
-    uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4;
-    if(negativeEta) index++;
+  uint32_t getSummaryIndex(bool negativeEta, uint32_t region) {
+    uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4 + (region / 2);
+    if(negativeEta) index += 4;
     return index;
   }
 
   uint32_t getRegionSummary(bool negativeEta, uint32_t region) {
-    uint32_t index = getSummaryIndex(negativeEta);
+    uint32_t index = getSummaryIndex(negativeEta, region);
     const uint32_t data = myDataPtr[index];
     return (data >> (16 * (region % 2)));
   }

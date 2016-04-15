@@ -76,7 +76,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
     
     // the 4 groups of rings
     std::vector<int> ringGroup1, ringGroup2, ringGroup3, ringGroup4;
-    for (int i=1; i<=CaloTools::kHFEnd; i++) {
+    for (int i=1; i<=CaloTools::kHFEnd-5; i++) {
       if      ( ! ((i-1)%4) ) ringGroup1.push_back( i * etaSide );
       else if ( ! ((i-2)%4) ) ringGroup2.push_back( i * etaSide );
       else if ( ! ((i-3)%4) ) ringGroup3.push_back( i * etaSide );
@@ -157,7 +157,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
             if (iEt<=0) continue;
  
 	    math::XYZTLorentzVector p4;
-	    l1t::Jet jet( p4, iEt, ieta, iphi, 0);
+	    int caloEta = CaloTools::caloEta(ieta);
+	    l1t::Jet jet( p4, iEt, caloEta, iphi, 0);
 	    
 	    jetsRing.push_back(jet);
 	    alljets.push_back(jet);
@@ -227,10 +228,10 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
-
+    
     if (abs(ieta) > CaloTools::kHFEnd || abs(ieta) < 1) continue;
     int towerEta;
-
+    
     if (jetEta > 0 && ieta <=0){
       towerEta = ieta-1;
     } else if (jetEta < 0 && ieta >=0){
@@ -238,36 +239,36 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
     } else {
       towerEta=ieta;
     }
-
+    
     const CaloTower& tow = CaloTools::getTower(towers, towerEta, iphiUp);
     int towEt = tow.hwPt();
     ring[0]+=towEt;
-
+    
     const CaloTower& tow2 = CaloTools::getTower(towers, towerEta, iphiDown);
     towEt = tow2.hwPt();
     ring[1]+=towEt;
-
+    
   } 
-
+  
   for (int iphi = jetPhi - size+1; iphi < jetPhi + size; ++iphi)   
   {
-
+      
     int towerPhi = iphi;
     while ( towerPhi > CaloTools::kHBHENrPhi ) towerPhi -= CaloTools::kHBHENrPhi;
     while ( towerPhi < 1 ) towerPhi += CaloTools::kHBHENrPhi;
-
+    
     const CaloTower& tow = CaloTools::getTower(towers, ietaUp, towerPhi);
     int towEt = tow.hwPt();
     ring[2]+=towEt;
-
+    
     const CaloTower& tow2 = CaloTools::getTower(towers, ietaDown, towerPhi);
     towEt = tow2.hwPt();
     ring[3]+=towEt;
   } 
-
+  
   //for the Donut Subtraction we only use the middle 2 (in energy) ring strips
   std::sort(ring.begin(), ring.end(), std::greater<int>());
-
+  
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
@@ -275,8 +276,8 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 								     int jetPhi, 
 								     int size, 
 								     const std::vector<l1t::CaloTower> & towers){
-
-  // ring is a vector with 4 ring strips, one for each side of the ring
+ 
+   // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
   std::vector<int> ring(4,0);
 
@@ -299,7 +300,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (abs(ieta)>CaloTools::kHFEnd) continue;
+      if (abs(ieta) > CaloTools::kHFEnd) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
@@ -318,7 +319,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (ietaUp<=CaloTools::kHFEnd) {    
+      if (abs(ietaUp) <= CaloTools::kHFEnd-1) {    
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
@@ -327,6 +328,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
       }else{
+        ring[2] = 0;
         break;
       }
       
@@ -335,7 +337,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (abs(ietaDown)<=CaloTools::kHFEnd) {
+      if (abs(ietaDown) <= CaloTools::kHFEnd-1) {
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
@@ -344,6 +346,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
       }else{
+        ring[3] = 0;
         break;
       }
       
@@ -374,7 +377,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     if( params_->jetCalibrationParams().size() != 6*22){
       edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-           params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
+	params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -399,6 +402,36 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       //This needs to be addressed in the future
       double ptPhys = jet->hwPt() * params_->jetLsb();
       double correction = calibFit(ptPhys, params);
+
+      math::XYZTLorentzVector p4;
+      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+
+    }
+
+  }
+  else if( params_->jetCalibrationType() == "function8PtParams22EtaBins" ){
+    // as above but with cap on max correction at low pT
+
+    if( params_->jetCalibrationParams().size() != 8*22){
+      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
+           params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
+      return;
+    }
+
+    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+
+      if(jet->hwPt() < calibThreshold) continue;
+
+      int etaBin = CaloTools::regionEta( jet->hwEta() );
+
+      double params[8];
+      for(int i=0; i<8; i++){
+        params[i] = params_->jetCalibrationParams()[etaBin*8 + i];
+      }
+
+      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double correction = params[6];
+      if (ptPhys>params[7]) correction = calibFit(ptPhys, params);
 
       math::XYZTLorentzVector p4;
       *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);

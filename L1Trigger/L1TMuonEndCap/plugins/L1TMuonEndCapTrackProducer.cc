@@ -28,6 +28,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Deltas.h"
 #include "L1Trigger/L1TMuonEndCap/interface/BestTracks.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
+#include "L1Trigger/L1TMuonEndCap/interface/ChargeAssignment.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h"
 
 
@@ -250,6 +251,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		bool ME13 = false;
 		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
 		int ebx = 20, sebx = 20;
+		int phis[4] = {-99,-99,-99,-99};
 
 		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
 
@@ -258,6 +260,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				int station = A->TP().detId<CSCDetId>().station();
 				int id = A->TP().getCSCData().cscID;
 				int trknm = A->TP().getCSCData().trknmb;//A->TP().getCSCData().bx
+				
+				phis[station-1] = A->Phi();
 				
 				
 				if(A->TP().getCSCData().bx < ebx){
@@ -322,9 +326,10 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
 		CombAddress = (me2address<<4) | me1address;
 
+		int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
 
 		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
-														         CombAddress,mode,1,sector);
+														         charge,mode,CombAddress,sector);
         // NOTE: assuming that all candidates come from the central BX:
         //int bx = 0;
 		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
