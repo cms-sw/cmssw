@@ -57,7 +57,16 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
                         std::inserter(ecalTPSentRecd_, ecalTPSentRecd_.begin()), EcalTrigPrimDigiCollection::key_compare());
 
   for ( const auto& tpPair : ecalTPSentRecd_ ) {
-    const auto& sentTp = tpPair.first;
+    auto sentTp = tpPair.first;
+    if ( sentTp.compressedEt() < 0 && !tccFullReadout ) {
+      // This means there was some sort of issue with TCC unpacking for this particular event
+      updateMismatch(event, 4);
+      EcalTriggerPrimitiveSample sample(0); 
+      EcalTriggerPrimitiveDigi tpg(sentTp.id());
+      tpg.setSize(1);
+      tpg.setSample(0, sample);
+      swap(sentTp, tpg);
+    }
     const auto& recdTp = tpPair.second;
     const int ieta = sentTp.id().ieta();
     const int iphi = sentTp.id().iphi();
