@@ -65,20 +65,4 @@ def autoCondHLT(autoCond):
         else:
            autoCond[key] = ( autoCond[val[0]],) + val[1]
 
-#    payLoad = ('pfscecal_EBCorrection_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EBCorrection_online,2016-02-17 21:00:00.000',)
-#    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-#    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-#    payLoad = ('pfscecal_EECorrection_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EECorrection_online,2016-02-17 21:00:00.000',)
-#    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-#    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-#    payLoad = ('pfscecal_EBUncertainty_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EBUncertainty_online,2016-02-17 21:00:00.000',)
-#    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-#    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-#    payLoad = ('pfscecal_EEUncertainty_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EEUncertainty_online,2016-02-17 21:00:00.000',)
-#    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-#    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
     return autoCond
