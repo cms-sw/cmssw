@@ -44,11 +44,18 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       int dep = layerGroup(ieta-1, 0);
       if (type == 1 && ieta == iEtaMin[1]) dep = hcons.getDepthEta16(1);
       unsigned lymx0 = (layerGroupSize(ieta-1) > lymax) ? lymax : layerGroupSize(ieta-1);
+#ifdef DebugLog
+      std::cout << "Eta " << ieta << ":" << hpar->noff[1] << " lymax " << lymx0
+		<< ":" << lymax << " Depth " << dep;
+      for (unsigned int l=0; l<lymax; ++l)
+	std::cout << " [" << l << "] " << layerGroup(ieta-1, l);
+      std::cout  << std::endl;
+#endif
       for (unsigned int l=0; l<lymx0; ++l) {
-	if ((int)layerGroup( ieta-1, l) == dep) {
+	if ((int)layerGroup(ieta-1, l) == dep) {
 	  if (lmin == 0) lmin = l + 1;
 	  lmax = l + 1;
-	} else if ((int)layerGroup( ieta-1, l ) > dep) {
+	} else if ((int)layerGroup(ieta-1, l) > dep) {
 	  if (dstart < 0) dstart = dep;
 	  int lmax0 = (lmax >= lmin) ? lmax : lmin;
 	  if (type == 1 && ieta+1 == hpar->noff[1] && dep > hcons.getDepthEta29(0)) {
@@ -65,6 +72,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	  lmax = lymx0;
 	  break;
 	}
+	if (lmax < (int)(lymx0)) lmax = lymx0;
       }
       if (lmax >= lmin) {
 	if (ieta+1 == hpar->noff[1]) {
