@@ -27,10 +27,12 @@ DefaultHisto = cms.PSet(
   range_nbins = cms.int32(100),
   dimensions = cms.int32(1),
 
-  # Ths grouping is used if the plugin uses histo[...].defaultGrouping(). It should be era-dependent.
-  defaultGrouping = cms.string("PXBarrel|PXEndcap/Shell|HalfCylinder/PXLayer|PXDisk/PXLadder|PXBlade"),
-  # You can add specs here that you would like to see in addition to the ones declared in the source. 
-  # Doing this in the default config is a very bad idea, just here for documentation.
+  # This grouping should be used as a default (explicitly in the Plugin config). It should be era-dependent.
+  # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
+  # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
+  # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
+  defaultGrouping = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXLadder|PXBlade"),
+
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
   #  cms.PSet(spec = 
