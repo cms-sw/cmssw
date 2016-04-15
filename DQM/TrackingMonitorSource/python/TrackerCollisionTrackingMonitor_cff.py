@@ -10,20 +10,20 @@ TrackerCollisionTrackMonCommon.andOrDcs      = cms.bool( False )
 TrackerCollisionTrackMonCommon.errorReplyDcs = cms.bool( True )
 TrackerCollisionTrackMonCommon.setLabel("TrackerCollisionTrackMonCommon")
 
+from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
 # Clone for TrackingMonitor for MinBias ###
-import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackerCollisionTrackMonMB = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonMB.andOr                = cms.bool( False )
-TrackerCollisionTrackMonMB.dcsInputTag          = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionTrackMonMB.dcsPartitions        = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionTrackMonMB.andOrDcs             = cms.bool( False )
-TrackerCollisionTrackMonMB.errorReplyDcs        = cms.bool( True )
-TrackerCollisionTrackMonMB.dbLabel              = cms.string("SiStripDQMTrigger")
-TrackerCollisionTrackMonMB.hltInputTag          = cms.InputTag( "TriggerResults::HLT" )
-TrackerCollisionTrackMonMB.hltPaths             = cms.vstring("HLT_ZeroBias_*")
-TrackerCollisionTrackMonMB.hltDBKey             = cms.string("Tracker_MB")
-TrackerCollisionTrackMonMB.errorReplyHlt        = cms.bool( False )
-TrackerCollisionTrackMonMB.andOrHlt             = cms.bool(True)
+TrackerCollisionTrackMonMB.andOr                = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
+TrackerCollisionTrackMonMB.dcsInputTag          = genericTriggerEventFlag4fullTrackerAndHLTdb.dcsInputTag
+TrackerCollisionTrackMonMB.dcsPartitions        = genericTriggerEventFlag4fullTrackerAndHLTdb.dcsPartitions
+TrackerCollisionTrackMonMB.andOrDcs             = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrDcs
+TrackerCollisionTrackMonMB.errorReplyDcs        = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyDcs
+TrackerCollisionTrackMonMB.dbLabel              = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
+TrackerCollisionTrackMonMB.andOrHlt             = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
+TrackerCollisionTrackMonMB.hltInputTag          = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
+TrackerCollisionTrackMonMB.hltPaths             = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths
+TrackerCollisionTrackMonMB.hltDBKey             = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
+TrackerCollisionTrackMonMB.errorReplyHlt        = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
 TrackerCollisionTrackMonMB.doPrimaryVertexPlots = cms.bool(True)
 TrackerCollisionTrackMonMB.setLabel("TrackerCollisionTrackMonMB")
 
