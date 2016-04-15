@@ -255,6 +255,14 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       return UNDEFINED;
     }, 0, 0 // N/A
   );
+  
+  addExtractor(intern("PXForward"),
+    [pxendcap] (InterestingQuantities const& iq) {
+      if (pxendcap(iq) == UNDEFINED) return UNDEFINED;
+      else return 0;
+    },
+    0, 0
+  );
 
 }
  
@@ -283,13 +291,13 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     [] (InterestingQuantities const& iq) {
       return Value(iq.row);
     },
-    1, 160
+    0, 159
   );
   addExtractor(intern("col"),
     [] (InterestingQuantities const& iq) {
       return Value(iq.col);
     },
-    1, 416 
+    0, 415 
   );
 
   addExtractor(intern("DetId"),

@@ -40,7 +40,7 @@ class HistogramManagerHolder {
 // use it but if you just need some normal HistogramManager this should be perfect.
 class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   public:
-  SiPixelPhase1Base(const edm::ParameterSet& iConfig, int NQuantities = 1) 
+  SiPixelPhase1Base(const edm::ParameterSet& iConfig) 
     : DQMEDAnalyzer(), HistogramManagerHolder(iConfig) {};
 
   // You should analyze something, and call histoman.fill(...).
@@ -62,7 +62,7 @@ class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
 // For custom harvesting, you have to derive from this one.
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
   public:
-  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig, int NQuantities = 1) 
+  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig) 
     : DQMEDHarvester(), HistogramManagerHolder(iConfig) {};
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) {
