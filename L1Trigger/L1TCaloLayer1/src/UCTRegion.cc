@@ -53,6 +53,21 @@ bool vetoBit(bitset<4> etaPattern, bitset<4> phiPattern) {
 
 }
 
+uint32_t getHitTowerLocation(uint32_t *et) {
+  uint32_t etSum = et[0] + et[1] + et[2] + et[3];
+  uint32_t iEtSum = 
+    (et[0] >> 1)                +  // 0.5xet[0]
+    (et[1] >> 1) + et[1]        +  // 1.5xet[1]
+    (et[2] >> 1) + (et[2] << 1) +  // 2.5xet[2]
+    (et[3] << 2) - (et[3] >> 1) ;  // 3.5xet[3]
+  uint32_t iAve = 0xDEADBEEF;
+  if(     iEtSum <= etSum) iAve = 0;
+  else if(iEtSum <= (etSum << 1)) iAve = 1;
+  else if(iEtSum <= (etSum + (etSum << 1))) iAve = 2;
+  else iAve = 3;
+  return iAve;
+}
+
 UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn) :
   crate(crt),
   card(crd),
@@ -116,18 +131,13 @@ bool UCTRegion::process() {
   if(region < NRegionsInCard) {
     // Identify active towers
     // Tower ET must be a decent fraction of RegionET
-    // Also determine "hit" tower as weighted position of ET
     bool activeTower[nEta][nPhi];
     uint32_t activityLevel = ((uint32_t) ((float) regionET) * activityFraction);
     uint32_t nActiveTowers = 0;
     uint32_t activeTowerET = 0;
-    uint32_t sumETxIEta = 0;
-    uint32_t sumETxIPhi = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
       for(uint32_t iEta = 0; iEta < nEta; iEta++) {
 	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
-	sumETxIEta += ((iEta + 1) * towerET);
-	sumETxIPhi += ((iPhi + 1) * towerET);
 	if(towerET > activityLevel) {
 	  activeTower[iEta][iPhi] = true;
 	  nActiveTowers++;
@@ -138,20 +148,24 @@ bool UCTRegion::process() {
       }
     }
     if(activeTowerET > RegionETMask) activeTowerET = RegionETMask;
-    uint32_t hitTowerLocation = 0;
-    if(regionET > 0) {
-      uint32_t hitIEta;
-      if(     sumETxIEta <= ((regionET << 0) + (regionET >> 1))) hitIEta = 0; // 1.0 - 1.5
-      else if(sumETxIEta <= ((regionET << 1) + (regionET >> 1))) hitIEta = 1; // 1.5 - 2.5
-      else if(sumETxIEta <= ((regionET << 2) - (regionET >> 1))) hitIEta = 2; // 2.5 - 3.5
-      else                                                       hitIEta = 3; // 3.5 - 4.0
-      uint32_t hitIPhi;
-      if(     sumETxIPhi <= ((regionET << 0) + (regionET >> 1))) hitIPhi = 0; // 1.0 - 1.5
-      else if(sumETxIPhi <= ((regionET << 1) + (regionET >> 1))) hitIPhi = 1; // 1.5 - 2.5
-      else if(sumETxIPhi <= ((regionET << 2) - (regionET >> 1))) hitIPhi = 2; // 2.5 - 3.5
-      else                                                       hitIPhi = 3; // 3.5 - 4.0
-      hitTowerLocation = hitIEta * nPhi + hitIPhi;
+    // Determine "hit" tower as weighted position of ET
+    uint32_t sumETIEta[4] = {0, 0, 0, 0};
+    for(uint32_t iEta = 0; iEta < nEta; iEta++) {
+      for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
+	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
+	sumETIEta[iEta] += towerET;
+      }
     }
+    uint32_t hitIEta = getHitTowerLocation(sumETIEta);
+    uint32_t sumETIPhi[4] = {0, 0, 0, 0};
+    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
+      for(uint32_t iEta = 0; iEta < nEta; iEta++) {
+	uint32_t towerET = towers[iEta*nPhi+iPhi]->et();
+	sumETIPhi[iPhi] += towerET;
+      }
+    }
+    uint32_t hitIPhi = getHitTowerLocation(sumETIPhi);
+    uint32_t hitTowerLocation = hitIEta * nPhi + hitIPhi;
     // Calculate (energy deposition) active tower pattern
     bitset<4> activeTowerEtaPattern = 0;
     for(uint32_t iEta = 0; iEta < nEta; iEta++) {
