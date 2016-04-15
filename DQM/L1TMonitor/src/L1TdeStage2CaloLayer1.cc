@@ -107,8 +107,9 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
     }
 
     etCorrelation_->Fill(dataTower.et(), emulTower.et());
+
+    HcalTrigTowerDetId id(dataTower.ieta_, dataTower.iphi_);
     if ( abs(dataTower.ieta_) >= 30 ) {
-      HcalTrigTowerDetId id(dataTower.ieta_, dataTower.iphi_);
       id.setVersion(1);
       auto hcal = hcalTowers->find(id);
       hcalDataCorrelation_->Fill(hcal->SOI_compressedEt(), dataTower.et());
@@ -141,6 +142,14 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
     if ( tower.et() > tpFillThreshold_ ) {
       matchOcc_->Fill(tower.ieta_, tower.iphi_);
       matchEtDistribution_->Fill(tower.et());
+
+      HcalTrigTowerDetId id(tower.ieta_, tower.iphi_);
+      if ( abs(tower.ieta_) >= 30 ) {
+        id.setVersion(1);
+        auto hcal = hcalTowers->find(id);
+        hcalDataCorrelation_->Fill(hcal->SOI_compressedEt(), tower.et());
+        hcalEmulCorrelation_->Fill(hcal->SOI_compressedEt(), tower.et());
+      }
     }
   }
 }
@@ -201,8 +210,8 @@ void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm
   dataEtDistribution_ = bookEt("dataEtDistribution", "ET distribution for towers in data");
   emulEtDistribution_ = bookEt("emulEtDistribution", "ET distribution for towers in emulator");
   etCorrelation_ = bookEtCorrelation("EtCorrelation", "Et correlation for Mismatched towers;Data tower Et;Emulator tower Et");
-  hcalDataCorrelation_ = bookEtCorrelation("hcalDataCorrelation", "Et correlation for Mismatched towers;HCal tower Et;Data tower Et");
-  hcalEmulCorrelation_ = bookEtCorrelation("hcalEmulCorrelation", "Et correlation for Mismatched towers;HCal tower Et;Emul tower Et");
+  hcalDataCorrelation_ = bookEtCorrelation("hcalDataCorrelation", "Et correlation uHTR - Layer 2 Input;HF tower Et;Data tower Et");
+  hcalEmulCorrelation_ = bookEtCorrelation("hcalEmulCorrelation", "Et correlation uHTR - Layer 1 Emulator Output;HF tower Et;Emul tower Et");
   matchEtDistribution_ = bookEt("matchEtDistribution", "ET distribution for towers matched between data and emulator");
   etMismatchDiff_ = bookEtDiff("etMismatchDiff", "ET difference (data-emulator) for ET mismatches");
 
