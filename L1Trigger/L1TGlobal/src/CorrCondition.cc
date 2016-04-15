@@ -537,6 +537,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  type = l1t::EtSum::EtSumType::kTotalHt;
 		  lutObj0 = "HTT";
 		  break;
+		case gtETM2:
+		  type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+		  lutObj0 = "ETM2";
+		  break;
+		case gtMinBias:
+		  type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+		  lutObj0 = "MinBias";
+		  break;
 		default:
 		  edm::LogError("L1TGlobal")
 		    << "\n  Error: "
@@ -556,17 +564,23 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
 
                     //  Get the floating point numbers
-		    if(cndObjTypeVec[0] == gtETM) {
+		    if(cndObjTypeVec[0] == gtETM ) {
 		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
 		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
-		    } else {
+		    } else if (cndObjTypeVec[0] == gtHTM) {
 		      std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
 		      binEdges = m_gtScales->getHTMScales().etBins.at(etIndex0);
+		      et0Phy = 0.5*(binEdges.second + binEdges.first);
+		    } else if (cndObjTypeVec[0] == gtETM2) {
+		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
+		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		      eta0Phy = 0.; //No Eta for Energy Sums
+		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } 
 
@@ -751,6 +765,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     type = l1t::EtSum::EtSumType::kTotalHt;
 		     lutObj1 = "HTT";
 		     break;
+		   case gtETM2:
+		     type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+		     lutObj1 = "ETM2";
+		     break;
+		   case gtMinBias:
+		     type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+		     lutObj1 = "MinBias";
+		     break;		     
 		   default:
 		     edm::LogError("L1TGlobal")
 		       << "\n  Error: "
@@ -779,13 +801,19 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			 eta1Phy = 0.; //No Eta for Energy Sums
 			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
-		       } else {
+		       } else if(cndObjTypeVec[1] == gtHTM) {
 		         std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
 			 binEdges = m_gtScales->getHTMScales().etBins.at(etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
-		       } 
+		       } else if(cndObjTypeVec[1] == gtETM2) {
+		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
+			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			 eta1Phy = 0.; //No Eta for Energy Sums
+			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 et1Phy = 0.5*(binEdges.second + binEdges.first);
+		       }
 
 
                        //If needed convert calo scales to muon scales for comparison (only phi for energy sums)   

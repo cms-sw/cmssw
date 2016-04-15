@@ -161,6 +161,14 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       type = l1t::EtSum::EtSumType::kTotalHt;
       MissingEnergy = false;
       break;
+    case gtETM2:
+      type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+      MissingEnergy = true;
+      break;      
+    case gtMinBias:
+      type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+      MissingEnergy = false;
+      break;      
     default:
       edm::LogError("L1TGlobal")
 	<< "\n  Error: "

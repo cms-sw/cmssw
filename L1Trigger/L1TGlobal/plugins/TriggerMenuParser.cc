@@ -282,6 +282,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                     condition.getType() == esConditionType::TotalHt ||
 		    condition.getType() == esConditionType::MissingEt ||
 		    condition.getType() == esConditionType::MissingHt )
+		    //condition.getType() == esConditionType::MissingEt2 ||
+		    //condition.getType() == esConditionType::MinBias )
 	  {
              parseEnergySum(condition,chipNr,false); 	
 
@@ -1992,6 +1994,14 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
       energySumObjType = L1TGtObject::gtHTM;
       cType = TypeHTM;
     }
+/*    else if( condEnergySum.getType() == esConditionType::MissingEt2 ){
+      energySumObjType = L1TGtObject::gtETM2;
+      cType = TypeETM2;
+    }
+    else if( condEnergySum.getType() == esConditionType::MinBias ){
+      energySumObjType = L1TGtObject::gtMinBias;
+      cType = TypeMinBias;
+    }  */      
     else {
       edm::LogError("TriggerMenuParser")
 	<< "Wrong type for energy-sum condition (" << type
@@ -2196,6 +2206,10 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
       energySumObjType = L1TGtObject::gtHTM;
       cType = TypeHTM;
     }
+/*    else if( corrESum->getType()== esObjectType::ETM2 ){
+      energySumObjType = L1TGtObject::gtETM2;
+      cType = TypeETM2;
+    } */
     else {
       edm::LogError("TriggerMenuParser")
 	<< "Wrong type for energy-sum correclation condition (" << type
@@ -2646,6 +2660,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  
 	  
         } else if(object.getType() == esObjectType::ETM  ||
+	        //  object.getType() == esObjectType::ETM2 ||
 	          object.getType() == esObjectType::HTM ) {
 	 
 	  // we have Energy Sum
@@ -2663,6 +2678,10 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	      objType[jj] = L1TGtObject::gtHTM;
 	     }
 	        break;
+/*	     case esObjectType::ETM2: { 
+	      objType[jj] = L1TGtObject::gtETM2;
+	     }
+	        break; */		
 	      default: {
 	      }
 	        break;			
