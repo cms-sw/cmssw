@@ -65,8 +65,6 @@ class TriggerBitAnalyzer( Analyzer ):
                         setup.globalVariables = []
                 setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), int, help="OR of %s"%TL) )
                 if self.saveIsUnprescaled or self.force1prescale: setup.globalVariables.append( NTupleVariable(outname+'_isUnprescaled', eval("lambda ev: ev.%s_isUnprescaled" % outname), int, help="OR of %s is Unprescaled flag"%TL) )
-                if self.saveIsUnprescaled or self.force1prescale:
-                    if not self.cfg_comp.isMC: setup.globalVariables.append( NTupleVariable(outname+'_Prescale', eval("lambda ev: ev.%s_Prescale" % outname), int, help="OR of %s get precscale"%TL) )
                 self.triggerBitCheckers.append( (T, ROOT.heppy.TriggerBitChecker(trigVec)) )
                 
 

@@ -43,7 +43,7 @@ bool TriggerBitChecker::check_unprescaled(const edm::EventBase &event, const edm
 int TriggerBitChecker::getprescale(const edm::EventBase &event, const edm::TriggerResults &result_tr, const pat::PackedTriggerPrescales &result) const {
     if (result_tr.parameterSetID() != lastID_) { syncIndices(event, result_tr); lastID_ = result_tr.parameterSetID(); }
         if (indices_.size() == 0 ){
-            std::cout << " trying to check an inexistent trigger" << std::endl;
+	  //            std::cout << " trying to check an inexistent trigger" << std::endl;
             return  -999;                                                                                            
         }
         if (indices_.size() > 1 ){
