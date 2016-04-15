@@ -61,6 +61,8 @@ enum GtConditionType {
     TypeETT,
     TypeHTT,
     TypeHTM,
+    TypeETM2,
+    TypeMinBias,
     TypeExternal
 };
 
