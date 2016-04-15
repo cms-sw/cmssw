@@ -102,8 +102,8 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 
 
 ///Read Pt assignment Luts
-    std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
-    std::vector<int> pta_threshold(6); pta_threshold.reserve(9);
+    std::vector<LUT> pta_lut; pta_lut.reserve(19);
+    std::vector<int> pta_threshold(10); 
     if ( load_pt(pta_lut,pta_threshold, PT_Assignment_nbits_Phi, AssLUTpath) != 0 ) {
       cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
@@ -111,7 +111,7 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
    m_params.setpta_threshold(pta_threshold);
 
 ///Read Phi assignment Luts
-    std::vector<LUT> phi_lut(0); phi_lut.reserve(2);
+    std::vector<LUT> phi_lut; phi_lut.reserve(2);
     if ( load_phi(phi_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB, AssLUTpath) != 0 ) {
       cout << "Can not open files to load phi-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
