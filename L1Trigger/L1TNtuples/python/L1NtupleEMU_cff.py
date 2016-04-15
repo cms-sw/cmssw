@@ -18,7 +18,8 @@ l1UpgradeEmuTree.jetToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.muonToken = cms.untracked.InputTag("simGmtStage2Digis")
 l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
 
-l1uGTTree.ugtToken = cms.InputTag("simGtStage2Digis")
+l1uGTEmuTree = l1uGTTree.clone()
+l1uGTEmuTree.ugtToken = cms.InputTag("simGtStage2Digis")
 
 if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
     l1UpgradeEMUTree.egToken = "simCaloStage1FinalDigis"
@@ -28,8 +29,8 @@ if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
     l1UpgradeEMUTree.sumToken = "simCaloStage1FinalDigis"
 
 L1NtupleEMU = cms.Sequence(
-  l1CaloTowerEmuTree
+  l1EventTree
+  +l1CaloTowerEmuTree
   +l1UpgradeEmuTree
-  +l1EventTree
-  +l1uGTTree
+  +l1uGTEmuTree
 )
