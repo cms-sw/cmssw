@@ -72,7 +72,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	  lmax = lymx0;
 	  break;
 	}
-	if (lmax < (int)(lymx0)) lmax = lymx0;
+	if (l+1 == lymx0) lmax = lymx0;
       }
       if (lmax >= lmin) {
 	if (ieta+1 == hpar->noff[1]) {
