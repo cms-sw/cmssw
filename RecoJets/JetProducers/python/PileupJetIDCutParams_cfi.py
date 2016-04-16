@@ -7,22 +7,22 @@ full_80x_chs_wp  = cms.PSet(
     #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
 
     #Tight Id            
-    Pt010_Tight    = cms.vdouble(-0.15, -0.59, -0.55, -0.61),
-    Pt1020_Tight   = cms.vdouble(-0.15, -0.59, -0.55, -0.61),
-    Pt2030_Tight   = cms.vdouble(-0.15, -0.59, -0.55, -0.61),
-    Pt3050_Tight   = cms.vdouble( 0.34, -0.46, -0.38, -0.43),
+    Pt010_Tight    = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt1020_Tight   = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt2030_Tight   = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt3050_Tight   = cms.vdouble( 0.62, -0.21, -0.07, -0.03),
 
     #Medium Id
-    Pt010_Medium   = cms.vdouble(-0.74, -0.71 -0.68 -0.69),
-    Pt1020_Medium  = cms.vdouble(-0.74, -0.71 -0.68 -0.69),
-    Pt2030_Medium  = cms.vdouble(-0.74, -0.71 -0.68 -0.69),
-    Pt3050_Medium  = cms.vdouble(-0.42, -0.63 -0.55 -0.56),
+    Pt010_Medium   = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt1020_Medium  = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt2030_Medium  = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt3050_Medium  = cms.vdouble(-0.06, -0.42, -0.3 , -0.23),
 
     #Loose Id
-    Pt010_Loose    = cms.vdouble(-0.98, -0.77, -0.75, -0.75),
-    Pt1020_Loose   = cms.vdouble(-0.98, -0.77, -0.75, -0.75),
-    Pt2030_Loose   = cms.vdouble(-0.98, -0.77, -0.75, -0.75),
-    Pt3050_Loose   = cms.vdouble(-0.96, -0.73, -0.66, -0.65)
+    Pt010_Loose    = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt1020_Loose   = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt2030_Loose   = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt3050_Loose   = cms.vdouble(-0.92, -0.56, -0.44, -0.39)
 )
 
 ###########################################################
