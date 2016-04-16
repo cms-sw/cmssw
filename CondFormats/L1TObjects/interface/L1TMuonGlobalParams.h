@@ -36,12 +36,15 @@ public:
     COND_SERIALIZABLE;
   };
 
-  L1TMuonGlobalParams() : pnodes_(0) { version_=Version; }
+ L1TMuonGlobalParams() : fwVersion_(0), bxMin_(0), bxMax_(0), pnodes_(0) { version_=Version; }
   ~L1TMuonGlobalParams() {}
 
-protected:
+public:
   unsigned version_;
-
+  unsigned fwVersion_; //obsolete
+  
+  int bxMin_;  //obsolete
+  int bxMax_;  //obsolete
   std::vector<Node> pnodes_;
 
   COND_SERIALIZABLE;
