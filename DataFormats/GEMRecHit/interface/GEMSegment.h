@@ -73,7 +73,7 @@ public:
     GEMDetId gemDetId() const {
       DetId detid = geographicalId();
       GEMDetId rollid = GEMDetId(detid);
-      GEMDetId chamid = rollid.chamberId();
+      GEMDetId chamid = rollid.superChamberId();
 	return chamid;
     }
 

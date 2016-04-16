@@ -1,19 +1,19 @@
-#ifndef GEMSegment_GEMSegFit_h
-#define GEMSegment_GEMSegFit_h
+#ifndef GEMSegment_MuonSegFit_h
+#define GEMSegment_MuonSegFit_h
 
-// GEMSegFit.h - Segment fitting factored oout of GEM segment builder based on
+// MuonSegFit.h - Segment fitting factored out of MuonRecHit segment builder based on
 // CSCSegFit.h  - Segment fitting factored out of CSC segment builders - Tim Cox
-// Last mod: 03.02.2015
+// Last mod: 15.04.2016 Jason Lee
 
 
 /* This as an object which is initialized by a set of rechits (2 to 6) in a 
- * specific GEM chamber and has the functionality to make a least squares fit 
+ * specific MuonRecHit and has the functionality to make a least squares fit 
  * to a straight line in 2-dim for those rechits.
  * The covariance matrix and chi2 of the fit are calculated.
  * The original code made use of CLHEP matrices but this version uses 
  * ROOT SMatrices because they are  multithreading compatible.
  * Because of this, the no. of rechits that can be handled is limited to
- * a maximum of 6, one per layer of a GEM chamber. This means maximum dimensions
+ * a maximum of 6, one per layer of a Muon chamber. This means maximum dimensions
  * can be specified at compile time and hence satisfies SMatrix constraints.
  * This means that if at a later stage we would change the geometry to have
  * for instance 10 detection layers, we will have to modify this code too.
@@ -22,12 +22,7 @@
  *
  */
 
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>   
-#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
-
-#include <Geometry/GEMGeometry/interface/GEMSuperChamber.h>
-// #include <Geometry/GEMGeometry/interface/GEMChamber.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -37,13 +32,12 @@
 
 #include <vector>
 
-class GEMSegFit {
+class MuonSegFit {
 
-public:
+ public:
 
-// TYPES
-
-   typedef std::vector<const GEMRecHit*> GEMSetOfHits;
+  // TYPES
+  typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
    
   // 12 x12 Symmetric
   typedef ROOT::Math::SMatrix<double,12,12,ROOT::Math::MatRepSym<double,12> > SMatrixSym12;
@@ -63,28 +57,13 @@ public:
 
 
   // PUBLIC FUNCTIONS
-
+  
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
-  GEMSegFit(const GEMSuperChamber* chamber, std::map<uint32_t, const GEMEtaPartition*> gemetapartmap, GEMSetOfHits hits) : 
-  gemetapartmap_( gemetapartmap ), hits_( hits ), uslope_(.0), vslope_(.0),
-    chi2_(.0), ndof_(0), scaleXError_( 1.0 ), gemchamber_(chamber), fitdone_( false )
-    {
-      // --- LogDebug info about reading of GEM Eta Partition map ------------------------------------------
-      edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::ctor] cached the gemetapartmap";
+  // NOTE - We need local position of a RecHit w.r.t. the CHAMBER  
+ MuonSegFit(MuonRecHitContainer hits) : hits_( hits ), uslope_(.0), vslope_(.0), 
+    chi2_(.0), ndof_(0), scaleXError_( 1.0 ), fitdone_( false ) {}
 
-      // --- LogDebug for GEM Eta Partition map ------------------------------------------------------------
-      std::stringstream gemetapartmapss; gemetapartmapss<<"[GEMSegFit::ctor] :: gemetapartmap :: elements ["<<std::endl;
-      for(std::map<uint32_t, const GEMEtaPartition*>::const_iterator mapIt = gemetapartmap_.begin(); mapIt != gemetapartmap_.end(); ++mapIt)
-	{
-	  gemetapartmapss<<"[GEM DetId "<<mapIt->first<<" ="<<GEMDetId(mapIt->first)<<", GEM EtaPart "<<mapIt->second<<"],"<<std::endl;
-	}
-      gemetapartmapss<<"]"<<std::endl;
-      std::string gemetapartmapstr = gemetapartmapss.str();
-      edm::LogVerbatim("GEMSegFit") << gemetapartmapstr;
-      // --- End LogDebug -----------------------------------------------------------------------------------
-    }
-
-  virtual ~GEMSegFit() {}
+  virtual ~MuonSegFit() {}
 
   // Least-squares fit
   bool fit( void ); // fill uslope_, vslope_, intercept_  @@ FKA fitSlopes()
@@ -105,18 +84,16 @@ public:
   float Rdev( float x, float y, float z ) const;
 
   // Other public functions are accessors
-  GEMSetOfHits hits(void) const { return hits_; }
+  MuonRecHitContainer hits(void) const { return hits_; }
   double scaleXError(void) const { return scaleXError_; }
   size_t nhits(void) const { return hits_.size(); }
   double chi2(void) const { return chi2_; }
   int ndof(void) const { return ndof_; }
   LocalPoint intercept() const { return intercept_;}
   LocalVector localdir() const { return localdir_;}
-  const GEMEtaPartition* gemetapartition(uint32_t id) const { return gemetapartmap_.find(id)->second; }
-  const GEMSuperChamber* gemchamber() const { return gemchamber_; }
   bool fitdone() const { return fitdone_; }
   
-  private:  
+ private:  
   
   // PRIVATE FUNCTIONS
 
@@ -129,7 +106,7 @@ public:
 
   // PROTECTED FUNCTIONS - derived class needs access
 
- // Set segment direction 'out' from IP
+  // Set segment direction 'out' from IP
   void setOutFromIP(void); // fill localdir_  @@ FKA fillLocalDirection()
 
   SMatrix12by4 derivativeMatrix(void);
@@ -138,9 +115,7 @@ public:
   
   // PROTECTED MEMBER VARIABLES - derived class needs access
 
-  std::map<uint32_t, const GEMEtaPartition*> gemetapartmap_;
-
-  GEMSetOfHits           hits_;      //@@ FKA protoSegment
+  MuonRecHitContainer    hits_;      //@@ FKA protoSegment
   float                  uslope_;    //@@ FKA protoSlope_u
   float                  vslope_;    //@@ FKA protoSlope_v
   LocalPoint             intercept_; //@@ FKA protoIntercept		
@@ -148,7 +123,6 @@ public:
   double                 chi2_;      //@@ FKA protoChi2
   int                    ndof_;      //@@ FKA protoNDF, which was double!!
   double                 scaleXError_;
-  const GEMSuperChamber* gemchamber_;
   bool                   fitdone_;  
 };
   
