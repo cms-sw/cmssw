@@ -14,6 +14,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
+
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
@@ -62,7 +64,11 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	auto time = erh.time();
 
 	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
+	auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+	assert(zp);
+	thisCell = zp->forPF();
 
+	
 	// find rechit geometry
 	if(!thisCell) {
 	  edm::LogError("PFHFRecHitCreator")
