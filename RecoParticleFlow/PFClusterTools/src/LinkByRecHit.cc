@@ -18,11 +18,9 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 #endif
   
   //cluster position
-  double clustereta  = cluster.positionREP().Eta();
-  double clusterphi  = cluster.positionREP().Phi();
-  //double clusterX    = cluster.position().X();
-  //double clusterY    = cluster.position().Y();
-  double clusterZ    = cluster.position().Z();
+  auto clustereta  = cluster.positionREP().Eta();
+  auto clusterphi  = cluster.positionREP().Phi();
+  auto clusterZ    = cluster.position().Z();
 
   bool barrel = false;
   bool hcal = false;
@@ -53,8 +51,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   case PFLayer::ECAL_ENDCAP:
 #ifdef PFLOW_DEBUG
     if( debug )
-      std::cout << "Fetching Ecal Resolution Maps"
-	   << std::endl;
+      std::cout << "Fetching Ecal Resolution Maps"<< std::endl;
 #endif
     // did not reach ecal, cannot be associated with a cluster.
     if( ! atECAL.isValid() ) return -1.;   
@@ -77,8 +74,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   case PFLayer::HCAL_ENDCAP:  
 #ifdef PFLOW_DEBUG
     if( debug )
-      std::cout << "Fetching Hcal Resolution Maps"
-	   << std::endl;
+      std::cout << "Fetching Hcal Resolution Maps" << std::endl;
 #endif
     if( isBrem ) {  
       return  -1.;
@@ -113,8 +109,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   case PFLayer::HCAL_BARREL2: barrel = true; 
 #ifdef PFLOW_DEBUG
     if( debug )
-     std::cout << "Fetching HO Resolution Maps"
-	       << std::endl;
+     std::cout << "Fetching HO Resolution Maps" << std::endl;
 #endif
     if( isBrem ) {  
       return  -1.;
@@ -217,18 +212,17 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
     if(rh.isNull()) continue;
     
     //getting rechit center position
-    const reco::PFRecHit& rechit_cluster = *rh;
-    const math::XYZPoint& posxyz 
+    const auto & rechit_cluster = *rh;
+    const auto & posxyz 
       = rechit_cluster.position();
-    const reco::PFRecHit::REPPoint& posrep 
+    const auto & posrep 
       = rechit_cluster.positionREP();
     
     //getting rechit corners
-    const std::vector< math::XYZPoint >& 
+    const auto & 
       cornersxyz = rechit_cluster.getCornersXYZ();
-    const std::vector<reco::PFRecHit::REPPoint>& corners = 
-      rechit_cluster.getCornersREP();
-    assert(corners.size() == 4);
+    const auto & corners = rechit_cluster.getCornersREP();
+
     
     if( barrel || hcal ){ // barrel case matching in eta/phi 
                           // (and HCAL endcap too!)
@@ -237,13 +231,13 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       // blown up by 50% (HCAL) to 100% (ECAL) to include cracks & gaps
       // also blown up to account for multiple scattering at low pt.
       double rhsizeEta 
-	= fabs(corners[0].Eta() - corners[2].Eta());
+	= std::abs(corners[0].eta() - corners[2].eta());
       double rhsizePhi 
-	= fabs(corners[0].Phi() - corners[2].Phi());
+	= std::abs(corners[0].phi() - corners[2].phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
       if ( hcal ) { 
 	const double mult = horesolscale * (1.50 + 0.5/fracs.size());
-	rhsizeEta = rhsizeEta * mult + 0.2*fabs(dHEta);
+	rhsizeEta = rhsizeEta * mult + 0.2*std::abs(dHEta);
 	rhsizePhi = rhsizePhi * mult + 0.2*fabs(dHPhi); 
 	
       } else { 
@@ -260,8 +254,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	     << rechit_cluster.energy() 
 	     << std::endl; 
 	for ( unsigned jc=0; jc<4; ++jc ) 
-	  std::cout<<"corners "<<jc<<" "<<corners[jc].Eta()
-	      <<" "<<corners[jc].Phi()<<std::endl;
+	  std::cout<<"corners "<<jc<<" "<<corners[jc].eta()
+	      <<" "<<corners[jc].phi()<<std::endl;
 	
 	std::cout << "RecHit SizeEta=" << rhsizeEta
 	     << " SizePhi=" << rhsizePhi << std::endl;
@@ -271,8 +265,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       //distance track-rechit center
       // const math::XYZPoint& posxyz 
       // = rechit_cluster.position();
-      double deta = fabs(posrep.Eta() - tracketa);
-      double dphi = fabs(posrep.Phi() - trackphi);
+      double deta = fabs(posrep.eta() - tracketa);
+      double dphi = fabs(posrep.phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
 #ifdef PFLOW_DEBUG
@@ -295,11 +289,11 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       
 #ifdef PFLOW_DEBUG
       if( debug ){
-	const math::XYZPoint& posxyz 
+	const auto & posxyz 
 	  = rechit_cluster.position();
 	
-	std::cout << "RH " << posxyz.X()
-	     << " "   << posxyz.Y()
+	std::cout << "RH " << posxyz.x()
+	     << " "   << posxyz.y()
 	     << std::endl;
 	
 	std::cout << "TRACK " << track_X
@@ -312,16 +306,16 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       double y[5];
       
       for ( unsigned jc=0; jc<4; ++jc ) {
-	const math::XYZPoint& cornerposxyz = cornersxyz[jc];
+	const auto & cornerposxyz = cornersxyz[jc];
 	const double mult = (1.00+0.50/(fracs.size()*std::min(1.,0.5*trackPt)));
-	x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X()) * mult;
-	y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y()) * mult;
+	x[jc] = cornerposxyz.x() + (cornerposxyz.y()-posxyz.x()) * mult;
+	y[jc] = cornerposxyz.y() + (cornerposxyz.y()-posxyz.y()) * mult;
 	
 #ifdef PFLOW_DEBUG
 	if( debug ){
 	  std::cout<<"corners "<<jc
-	      << " " << cornerposxyz.X()
-	      << " " << cornerposxyz.Y()
+	      << " " << cornerposxyz.x()
+	      << " " << cornerposxyz.y()
 	      << std::endl;
 	}
 #endif
@@ -433,7 +427,7 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
   //loop rechits
   for(unsigned int rhit = 0; rhit < fracs.size(); ++rhit){
 
-    const reco::PFRecHitRef& rh = fracs[rhit].recHitRef();
+    const auto & rh = fracs[rhit].recHitRef();
     double fraction = fracs[rhit].fraction();
     if(fraction < 1E-4) continue;
     if(rh.isNull()) continue;
@@ -442,10 +436,9 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     const reco::PFRecHit& rechit_cluster = *rh;
     
     //getting rechit corners
-    const std::vector< math::XYZPoint >&  corners = rechit_cluster.getCornersXYZ();
-    assert(corners.size() == 4);
+    const auto &  corners = rechit_cluster.getCornersXYZ();
     
-    const math::XYZPoint& posxyz = rechit_cluster.position() * zPS/zECAL;
+    auto posxyz = rechit_cluster.position() * zPS/zECAL;
 #ifdef PFLOW_DEBUG
     if( debug ){
       std::cout << "Ecal rechit " << posxyz.X() << " "   << posxyz.Y() << std::endl;
@@ -457,16 +450,16 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     double y[5];
     for ( unsigned jc=0; jc<4; ++jc ) {
       // corner position projected onto the preshower
-      math::XYZPoint cornerpos = corners[jc] * zPS/zECAL;
+      auto cornerpos = corners[jc].basicVector() * zPS/zECAL;
       // Inflate the size by the size of the PS strips, and by 5% to include ECAL cracks.
-      x[jc] = cornerpos.X() + (cornerpos.X()-posxyz.X()) * (0.05 +1.0/fabs((cornerpos.X()-posxyz.X()))*0.5*deltaX);
-      y[jc] = cornerpos.Y() + (cornerpos.Y()-posxyz.Y()) * (0.05 +1.0/fabs((cornerpos.Y()-posxyz.Y()))*0.5*deltaY);
+      x[jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
+      y[jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
       
 #ifdef PFLOW_DEBUG
       if( debug ){
 	std::cout<<"corners "<<jc
-	    << " " << cornerpos.X() << " " << x[jc] 
-	    << " " << cornerpos.Y() << " " << y[jc]
+	    << " " << cornerpos.x() << " " << x[jc] 
+	    << " " << cornerpos.y() << " " << y[jc]
 	    << std::endl;
       }
 #endif
@@ -489,7 +482,9 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
   }//loop rechits
   
   if( linkedbyrechit ) {
+#ifdef PFLOW_DEBUG
     if( debug ) std::cout << "Cluster PS and Cluster ECAL LINKED BY RECHIT" << std::endl;
+#endif
     double dist = computeDist( xECAL/1000.,yECAL/1000.,
 			       xPS/1000.  ,yPS/1000, 
 			       false);    
@@ -507,8 +502,8 @@ LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM,
 				      const reco::PFCluster& clusterHFHAD,
 				      bool debug) {
   
-  math::XYZPoint posxyzEM = clusterHFEM.position();
-  math::XYZPoint posxyzHAD = clusterHFHAD.position();
+  auto posxyzEM = clusterHFEM.position();
+  auto posxyzHAD = clusterHFHAD.position();
 
   double dX = posxyzEM.X()-posxyzHAD.X();
   double dY = posxyzEM.Y()-posxyzHAD.Y();
@@ -533,8 +528,8 @@ LinkByRecHit::computeDist( double eta1, double phi1,
 			   double eta2, double phi2,
 			   bool etaPhi )  {
   
-  const double phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
-  const double etadiff = eta1 - eta2;
+  auto phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
+  auto etadiff = eta1 - eta2;
   
   // double chi2 =  
   //  (eta1 - eta2)*(eta1 - eta2) / ( reta1*reta1+ reta2*reta2 ) +

@@ -118,7 +118,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const double norm = ( rhf.fraction < _minFractionInCalc ? 
 			  0.0 : 
 			  std::max(0.0,vdt::fast_log(rh_energy*_logWeightDenom)) );
-    const math::XYZPoint& rhpos_xyz = refhit.position();
+    const math::XYZPoint rhpos_xyz(refhit.position());
     x += rhpos_xyz.X() * norm;
     y += rhpos_xyz.Y() * norm;
     z += rhpos_xyz.Z() * norm;

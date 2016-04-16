@@ -31,7 +31,7 @@ namespace reco {
   class PFRecHit {
 
   public:
-
+    using PositionType = GlobalPoint::BasicVectorType;
     using REPPoint = RhoEtaPhi;
     using RepCorners = CaloCellGeometry::RepCorners;
     using REPPointVector = RepCorners;
@@ -89,8 +89,8 @@ namespace reco {
 
 
     /// calo cell
-    CaloCellGeometry const & callCell() const { return  *caloCell_; }
-    bool hasCaloCel() const { return caloCell_; }
+    CaloCellGeometry const & caloCell() const { return  *caloCell_; }
+    bool hasCaloCell() const { return caloCell_; }
     
     /// rechit detId
     unsigned detId() const {return detId_;}
@@ -110,18 +110,18 @@ namespace reco {
 
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ *
-	( position().basicVector().perp2()/ position().basicVector().mag2());}
+	( position().perp2()/ position().mag2());}
 
 
     /// rechit cell centre x, y, z
-    GlobalPoint const & position() const { return callCell().getPosition(); }
+    PositionType const & position() const { return caloCell().getPosition().basicVector(); }
     
-    RhoEtaPhi const &  positionREP() const { return callCell().repPos(); }
+    RhoEtaPhi const &  positionREP() const { return caloCell().repPos(); }
 
     /// rechit corners
-    CornersVec const & getCornersXYZ() const { return callCell().getCorners(); }    
+    CornersVec const & getCornersXYZ() const { return caloCell().getCorners(); }    
 
-    RepCorners const & getCornersREP() const { return callCell().getCornersREP();}
+    RepCorners const & getCornersREP() const { return caloCell().getCornersREP();}
  
  
     /// comparison >= operator
@@ -136,14 +136,13 @@ namespace reco {
     /// comparison < operator
     bool operator< (const PFRecHit& rhs) const { return (energy_< rhs.energy_); }
 
-    friend std::ostream& operator<<(std::ostream& out, 
-                                    const reco::PFRecHit& hit);
-
+ 
   private:
 
+    /// cell geometry
     CaloCellGeometry const * caloCell_=nullptr;
  
-    ///C cell detid - should be detid or index in collection ?
+    ///cell detid
     unsigned  int        detId_=0;             
 
     /// rechit layer
@@ -168,6 +167,7 @@ namespace reco {
     PFRecHitRefVector   neighbours8_;
   };
 
-
 }
+std::ostream& operator<<(std::ostream& out, const reco::PFRecHit& hit);
+
 #endif
