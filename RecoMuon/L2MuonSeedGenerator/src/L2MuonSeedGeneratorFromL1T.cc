@@ -52,7 +52,8 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
   useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
             iConfig.getParameter<bool>("UseUnassociatedL1") : true),
-  matchingDR(iConfig.getParameter<double>("MatchDR")),          
+  matchingDR(iConfig.getParameter<std::vector<double> >("MatchDR")),          
+  etaBins(iConfig.getParameter<std::vector<double> >("EtaMatchingBins")),          
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") )
   {
 
@@ -93,7 +94,8 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned int>("L1MinQuality",0);   
   desc.addUntracked<bool>("UseOfflineSeed",false);
   desc.add<bool>("UseUnassociatedL1", true);
-  desc.add<double>("MatchDR", 0.3);
+  desc.add<std::vector<double>>("MatchDR", {0.3});
+  desc.add<std::vector<double>>("EtaMatchingBins", {0., 2.5});
   desc.add<bool>("CentralBxOnly", true);
   desc.addUntracked<edm::InputTag>("OfflineSeedLabel", edm::InputTag(""));
 
@@ -241,6 +243,12 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       LogTrace(metname) << debug.dumpLayer(detLayer);
       LogTrace(metname) << debug.dumpTSOS(tsos);
 
+ 	  double dRcone = matchingDR[0];
+	  if ( fabs(eta) < etaBins.back() ){
+		std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(eta));     
+		dRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);   
+	  }
+
       if (tsos.isValid()) {
 
         edm::OwnVector<TrackingRecHit> container;
@@ -248,7 +256,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         if(useOfflineSeed && ( !valid_charge || charge == 0) ) {
 
           const TrajectorySeed *assoOffseed = 
-            associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos);
+   	        associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos, dRcone );
     
           if(assoOffseed!=0) {
             PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
@@ -300,7 +308,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
               //LogDebug(metname) << debug.dumpTSOS(newTSOS);
   
               const TrajectorySeed *assoOffseed = 
-                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
+                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS, dRcone);
   
               if(assoOffseed!=0) {
                 PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
@@ -341,7 +349,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 // FIXME: does not resolve ambiguities yet! 
 const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > & offseeds, 
                                      std::vector<int> & offseedMap, 
-                                     TrajectoryStateOnSurface & newTsos) {
+                                     TrajectoryStateOnSurface & newTsos,
+                                     double dRcone ) {
 
   const std::string metlabel = "Muon|RecoMuon|L2MuonSeedGeneratorFromL1T";
   MuonPatternRecoDumper debugtmp;
@@ -385,7 +394,7 @@ const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm:
       double newDr = deltaR( newTsos.globalPosition().eta(),     newTsos.globalPosition().phi(), 
                  offseedTsos.globalPosition().eta(), offseedTsos.globalPosition().phi() );
       LogDebug(metlabel) << "   -- DR = " << newDr << std::endl;
-      if( newDr < matchingDR && newDr<bestDr ) {  
+      if( newDr < dRcone && newDr<bestDr ) {  
         LogDebug(metlabel) << "          --> OK! " << newDr << std::endl << std::endl;
         selOffseed = &*offseed;
         bestDr = newDr;
