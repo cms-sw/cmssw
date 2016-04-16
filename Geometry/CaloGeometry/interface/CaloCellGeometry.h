@@ -66,15 +66,20 @@ public:
   typedef std::vector<ParVec> ParVecVec ;
   typedef EZMgrFL< CCGFloat > ParMgr ;
 
-  enum CornersSize { k_cornerSize = 8 };
+  static constexpr unsigned int k_cornerSize = 8;
+
+  using RepCorners = std::array<RhoEtaPhi,k_cornerSize>;
+  
 
   static const CCGFloat k_ScaleFromDDDtoGeant ;
 
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  const CornersVec& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  CornersVec const & getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  RepCorners const & getCornersREP() const {  return m_repCorners;}
 
+  
   /// Returns the position of reference for this cell 
   const GlobalPoint& getPosition() const {return m_refPoint;}
   const GlobalPoint& getBackPoint() const {return m_backPoint;} 
@@ -143,7 +148,7 @@ private:
                               0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));   
   }
   void initReps() {
-    for (int i=0;i<k_cornerSize; ++i) m_repCorners[i]= {getCorners()[i].perp(), getCorners()[i].eta(), getCorners()[i].barePhi()}; 
+    for (auto i=0U;i<k_cornerSize; ++i) m_repCorners[i]= {getCorners()[i].perp(), getCorners()[i].eta(), getCorners()[i].barePhi()}; 
       
   }
   

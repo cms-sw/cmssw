@@ -32,34 +32,25 @@ namespace reco {
 
   public:
 
-    // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
-    // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
-    // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
-
-    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double> > REPPoint;
-
-    typedef std::vector<REPPoint> REPPointVector;
-
+    using REPPoint = RhoEtaPhi;
+    using RepCorners = CaloCellGeometry::RepCorners;
+    using REPPointVector = RepCorners;
+    using CornersVec = CaloCellGeometry::CornersVec;
+    
     enum {
       NONE=0
     };
     /// default constructor. Sets energy and position to zero
-    PFRecHit();
+    PFRecHit(){}
 
-    /// constructor from values
-    PFRecHit(unsigned detId,
+    PFRecHit(CaloCellGeometry const * caloCell, unsigned detId,
              PFLayer::Layer layer,
-             double energy, 
-             const math::XYZPoint& posxyz, 
-             const math::XYZVector& axisxyz, 
-             const std::vector< math::XYZPoint >& cornersxyz);
+             double energy) :
+        caloCell_(caloCell),  detId_(detId),
+        layer_(layer), energy_(energy){}
 
-    PFRecHit(unsigned detId,
-             PFLayer::Layer layer,
-             double energy, 
-             double posx, double posy, double posz, 
-             double axisx, double axisy, double axisz);    
 
+    
     /// copy
     PFRecHit(const PFRecHit& other) = default;
     PFRecHit(PFRecHit&& other) = default;
@@ -72,7 +63,6 @@ namespace reco {
 
     void setEnergy( double energy) { energy_ = energy; }
 
-    void calculatePositionREP();
 
     void addNeighbour(short x,short y, short z,const PFRecHitRef&);
     const PFRecHitRef getNeighbour(short x,short y, short z);
@@ -98,11 +88,10 @@ namespace reco {
     }
 
 
-    void      setNWCorner( double posx, double posy, double posz );
-    void      setSWCorner( double posx, double posy, double posz );
-    void      setSECorner( double posx, double posy, double posz );
-    void      setNECorner( double posx, double posy, double posz );
-
+    /// calo cell
+    CaloCellGeometry const & callCell() const { return  *caloCell_; }
+    bool hasCaloCel() const { return caloCell_; }
+    
     /// rechit detId
     unsigned detId() const {return detId_;}
 
@@ -121,30 +110,20 @@ namespace reco {
 
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ *
-			   ( position_.X()*position_.X() + 
-			     position_.Y()*position_.Y() ) / 
-			   ( position_.X()*position_.X() +
-			     position_.Y()*position_.Y() + 
-			     position_.Z()*position_.Z()) ; }
+	( position().basicVector().perp2()/ position().basicVector().mag2());}
 
 
     /// rechit cell centre x, y, z
-    const math::XYZPoint& position() const { return position_; }
-
-    const REPPoint& positionREP() const { return positionrep_; }
-
-
-    /// rechit cell axis x, y, z
-    const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
+    GlobalPoint const & position() const { return callCell().getPosition(); }
+    
+    RhoEtaPhi const &  positionREP() const { return callCell().repPos(); }
 
     /// rechit corners
-    const std::vector< math::XYZPoint >& getCornersXYZ() const 
-      { return cornersxyz_; }    
+    CornersVec const & getCornersXYZ() const { return callCell().getCorners(); }    
 
-    const std::vector<REPPoint>& getCornersREP() const { return cornersrep_; }
-
-    void size(double& deta, double& dphi) const;
-
+    RepCorners const & getCornersREP() const { return callCell().getCornersREP();}
+ 
+ 
     /// comparison >= operator
     bool operator>=(const PFRecHit& rhs) const { return (energy_>=rhs.energy_); }
 
@@ -160,50 +139,25 @@ namespace reco {
     friend std::ostream& operator<<(std::ostream& out, 
                                     const reco::PFRecHit& hit);
 
-    const edm::RefToBase<CaloRecHit>& originalRecHit() const {
-      return originalRecHit_;
-    }
-
-    template<typename T> 
-    void setOriginalRecHit(const T& rh) {
-      originalRecHit_ = edm::RefToBase<CaloRecHit>(rh);
-    }
-
   private:
 
-    // original rechit
-    edm::RefToBase<CaloRecHit> originalRecHit_;
-
+    CaloCellGeometry const * caloCell_=nullptr;
+ 
     ///C cell detid - should be detid or index in collection ?
-    unsigned            detId_;             
+    unsigned  int        detId_=0;             
 
     /// rechit layer
-    PFLayer::Layer      layer_;
+    PFLayer::Layer      layer_=PFLayer::NONE;
 
     /// rechit energy 
-    double              energy_;
+    double              energy_=0;
 
     /// time
-    double              time_;
-
+    double              time_=-1;
 
     /// depth
-    int      depth_;
+    int      depth_=0;
 
-    /// rechit cell centre: x, y, z
-    math::XYZPoint      position_;
-
-    /// rechit cell centre: rho, eta, phi (transient)
-    REPPoint positionrep_;
-
-    /// rechit cell axisxyz
-    math::XYZVector     axisxyz_;
-
-    /// rechit cell corners
-    std::vector< math::XYZPoint > cornersxyz_;
-
-    /// rechit cell corners rho/eta/phi
-    std::vector< REPPoint > cornersrep_;
   
     /// indices to existing neighbours (1 common side)
     PFRecHitRefVector   neighbours_;
@@ -212,15 +166,8 @@ namespace reco {
     //Caching the neighbours4/8 per request of Lindsey
     PFRecHitRefVector   neighbours4_;
     PFRecHitRefVector   neighbours8_;
-
-
-    /// number of corners
-    static const unsigned    nCorners_;
-
-    /// set position of one of the corners
-    void      setCorner( unsigned i, double posx, double posy, double posz );
   };
-  
-}
 
+
+}
 #endif
