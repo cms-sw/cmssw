@@ -663,15 +663,15 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
     TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
     ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
 
-    if (TkHistoMap_On_ && (numTracks > 0)) {
+    if (TkHistoMap_On_) {
       uint32_t thedetid=ttrh->rawId();
-      if ( thedetid > 369120277-1 ) {
+      if ( SiStripDetId(thedetid).subDetector() !=0) {
         if ( (ttrh->getType()==1) )
-          tkhisto_NumMissingHits->add(thedetid,static_cast<float>(1./numTracks));
+          tkhisto_NumMissingHits->add(thedetid,1.);
         if ( (ttrh->getType()==2) )
-          tkhisto_NumberInactiveHits->add(thedetid,static_cast<float>(1./numTracks));
+          tkhisto_NumberInactiveHits->add(thedetid,1.);
         if ( (ttrh->getType()==0) )
-          tkhisto_NumberValidHits->add(thedetid,static_cast<float>(1./numTracks));
+          tkhisto_NumberValidHits->add(thedetid,1.);
       }
     }
 
@@ -851,7 +851,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   //  es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
   //  const TransientTrackBuilder* transientTrackBuilder = builder.product();
   
-  numTracks = trackCollectionHandle->size();    
+  //numTracks = trackCollectionHandle->size();    
   reco::TrackCollection trackCollection = *trackCollectionHandle;
   for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end(); 
        track!=etrack; ++track) {
@@ -862,15 +862,15 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
     for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd();
 	 hit!=ehit; ++hit) {
 
-      if (TkHistoMap_On_ && (numTracks > 0)) {
+      if (TkHistoMap_On_) {
         uint32_t thedetid=(*hit)->rawId();
-        if ( thedetid > 369120277-1 ) {
+        if ( SiStripDetId(thedetid).subDetector() !=0) {
           if ( ((*hit)->getType()==1) )
-            tkhisto_NumMissingHits->add(thedetid,static_cast<float>(1./numTracks));
+            tkhisto_NumMissingHits->add(thedetid,1.);
           if ( ((*hit)->getType()==2) )
-            tkhisto_NumberInactiveHits->add(thedetid,static_cast<float>(1./numTracks));
+            tkhisto_NumberInactiveHits->add(thedetid,1.);
           if ( ((*hit)->getType()==0) )
-            tkhisto_NumberValidHits->add(thedetid,static_cast<float>(1./numTracks));
+            tkhisto_NumberValidHits->add(thedetid,1.);
         }
       }
 
