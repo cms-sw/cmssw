@@ -18,6 +18,9 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1TCaloLayer1FetchLUTs.hh"
 #include "UCTLogging.hh"
 
@@ -30,6 +33,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    bool useECALLUT,
 			    bool useHCALLUT,
                             bool useHFLUT) {
+
+  int hfValid = 1;
+  edm::ESHandle<HcalTrigTowerGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  if (! pG->use1x1()){
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "Using Stage2-Layer1 but HCAL Geometry has use1x1 = 0! HF will be suppressed.  Check Global Tag, etc.";
+    hfValid = 0;
+  } 
 
   // CaloParams contains all persisted parameters for Layer 1
   edm::ESHandle<l1t::CaloParams> paramsHandle;
@@ -85,6 +96,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloTPGTranscoder object! Check Global Tag, etc.";
     return false;
   }
+
   // TP compression scale is always phi symmetric
   // We default to 3 since HF has no ieta=41 iphi=1,2
   auto decodeHcalEt = [&decoder](uint32_t iEta, uint32_t compressedEt, uint32_t iPhi=3) -> double {
@@ -146,7 +158,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 	  if(linearizedHcalInput != decodeHcalEt(-absCaloEta, hcalInput)) {
 	    edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - hcal scale factors are different for positive and negative eta ! :(" << std::endl;
 	  }
-
+	  
           uint32_t etBin = 0;
           for(; etBin < hcalScaleETBins.size(); etBin++) {
             if(linearizedHcalInput < hcalScaleETBins[etBin]) break;
@@ -180,10 +192,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     for(uint32_t etCode = 0; etCode < 256; etCode++) {
       uint32_t value = etCode;
       if(useHFLUT) {
-        double linearizedHFInput = decodeHcalEt(30+etaBin, value); // in GeV
-        if(linearizedHFInput != decodeHcalEt(-30-etaBin, value)) {
-          edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - HF scale factors are different for positive and negative eta ! :(" << std::endl;
-        }
+        
+	double linearizedHFInput = 0;
+	if (hfValid){
+	  linearizedHFInput = decodeHcalEt(30+etaBin, value); // in GeV
+	  if(linearizedHFInput != decodeHcalEt(-30-etaBin, value)) {
+	    edm::LogError("L1TCaloLayer1FetchLUTs") << "L1TCaloLayer1FetchLUTs - HF scale factors are different for positive and negative eta ! :(" << std::endl;
+	  }
+	}
 
 	uint32_t etBin = 0;
 	for(; etBin < hfScaleETBins.size(); etBin++) {
