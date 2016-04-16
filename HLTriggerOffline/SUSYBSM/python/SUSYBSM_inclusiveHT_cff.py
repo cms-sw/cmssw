@@ -8,8 +8,8 @@ SUSY_HLT_InclusiveHT_800 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT800_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT800', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT800Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -30,8 +30,8 @@ SUSY_HLT_InclusiveHT_900 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT900', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT900Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -52,8 +52,8 @@ SUSY_HLT_InclusiveHT_aux125 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT125_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT125', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT125Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -74,8 +74,8 @@ SUSY_HLT_InclusiveHT_aux200 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT200_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT200', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT200Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -96,8 +96,8 @@ SUSY_HLT_InclusiveHT_aux250 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT250_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT250', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT250Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -118,8 +118,8 @@ SUSY_HLT_InclusiveHT_aux300 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT300_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT300', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT300Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -140,8 +140,8 @@ SUSY_HLT_InclusiveHT_aux350 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT350_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT350Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -162,8 +162,8 @@ SUSY_HLT_InclusiveHT_aux400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT400_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT400', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT400Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -184,8 +184,8 @@ SUSY_HLT_InclusiveHT_aux475 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT475_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT475', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT475Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -206,8 +206,8 @@ SUSY_HLT_InclusiveHT_aux600 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT600_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
-  TriggerFilter = cms.InputTag('hltPFHT600', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  TriggerFilter = cms.InputTag('hltPFHT600Jet30', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
