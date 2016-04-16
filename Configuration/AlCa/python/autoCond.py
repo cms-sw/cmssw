@@ -10,13 +10,13 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '80X_mcRun1_pA_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '80X_mcRun2_design_v11',
+    'run2_design'       :   '80X_mcRun2_design_v12',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '80X_mcRun2_startup_v11',
+    'run2_mc_50ns'      :   '80X_mcRun2_startup_v12',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '80X_mcRun2_asymptotic_v11',
+    'run2_mc'           :   '80X_mcRun2_asymptotic_v12',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v10',
+    'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v11',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '80X_mcRun2_HeavyIon_v8',
     # GlobalTag for Run1 data reprocessing
@@ -30,15 +30,17 @@ autoCond = {
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '80X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v7',
+    'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v8',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '80X_dataRun2_HLTHI_frozen_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '80X_upgrade2017_design_v10',
+    'phase1_2017_design' :  '80X_upgrade2017_design_v11',
+    # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
+    'phase1_2017_realistic': '80X_upgrade2017_realistic_v3',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
+    'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
-    'phase2_design'     :   'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
+    'phase2_design'        : 'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
 }
 
 aliases = {
