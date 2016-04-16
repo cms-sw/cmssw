@@ -382,8 +382,7 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
 
    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
    {
-      // FIXME reading from reco file we will need to get the corners from the geometry...
-      const auto & corners = it->getCornersXYZ();
+      const std::vector< math::XYZPoint >& corners = it->getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
          continue;
      

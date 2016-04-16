@@ -23,6 +23,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -861,9 +862,13 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
   switch ( layer ) { 
   case PFLayer::HF_EM:
     // depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
-    break;
   case PFLayer::HF_HAD:
+  {
     //  depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+    auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+    assert(zp);
+    thisCell = zp->forPF();
+  }
     break;
   default:
     break;
