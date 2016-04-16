@@ -62,6 +62,14 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   if(useOfflineSeed) {
     theOfflineSeedLabel = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
     offlineSeedToken_ = consumes<edm::View<TrajectorySeed> >(theOfflineSeedLabel);
+  
+  // check that number of eta bins -1 matches number of dR cones
+  if( matchingDR.size()!=etaBins.size() - 1  ) {
+    throw cms::Exception("Configuration") << "Size of MatchDR "
+					  << "does not match number of eta bins." << endl;
+  }
+
+  
   }
   
   // service parameters
