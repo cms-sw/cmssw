@@ -1,8 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-using namespace reco;
-using namespace std;
-
+namespace reco {
 
 void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
   //bitmask interface  to accomodate more advanced naighbour finding [i.e in z as well]
@@ -66,17 +64,19 @@ const PFRecHitRef PFRecHit::getNeighbour(short x,short y,short z) {
   return PFRecHitRef();
 }
 
+}
 
-ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
+std::ostream& operator<<(std::ostream& out, const reco::PFRecHit& hit) {
 
   if(!out) return out;
-
-  auto const & pos = hit.positionREP();
 
   out<<"hit id:"<<hit.detId()
      <<" l:"<<hit.layer()
      <<" E:"<<hit.energy()
-     <<" t:"<<hit.time()
-     <<" rep:"<<pos.rho()<<","<<pos.eta()<<","<<pos.phi()<<"| N:";
+     <<" t:"<<hit.time();
+  if (hit.hasCaloCell()) {
+    auto const & pos = hit.positionREP();
+    out  <<" rep:"<<pos.rho()<<","<<pos.eta()<<","<<pos.phi()<<"|";
+  }
   return out;
 }
