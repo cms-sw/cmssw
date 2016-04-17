@@ -46,7 +46,7 @@ class PFRecHitNavigatorBase {
 					return a.detId() < id;
 				      });
     if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+      hit.addNeighbour(eta,phi,depth,found_hit-hits->begin());
     }    
   }
 

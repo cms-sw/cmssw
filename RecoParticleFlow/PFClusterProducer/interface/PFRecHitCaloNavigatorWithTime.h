@@ -136,7 +136,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
       sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
       const double deltaTime = hit.time()-found_hit->time();
       if(deltaTime*deltaTime<sigmaCut2_*sigma2) {
-	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+	hit.addNeighbour(eta,phi,0,found_hit-hits->begin());
       }
     }
 

@@ -100,13 +100,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   double depth = 0.0;  
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
-  const reco::PFRecHitRefVector* seedNeighbours = nullptr;
+  auto seedNeighbours = mySeed.hit->neighbours();
   switch( _posCalcNCrystals ) {
   case 5:
-    seedNeighbours = &mySeed.hit->neighbours4();
+    seedNeighbours = mySeed.hit->neighbours4();
     break;
   case 9:
-    seedNeighbours = &mySeed.hit->neighbours8();
+    seedNeighbours = mySeed.hit->neighbours8();
     break;
   default:
     break;
@@ -131,9 +131,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   else {  // only seed and its neighbours
      compute(mySeed);
      // search seedNeighbours to find energy fraction in cluster (sic)
-     unInitDynArray(reco::PFRecHit const *,seedNeighbours->size(),nei);	  
-     for(auto k :seedNeighbours->refVector().keys()){ 
-      nei.push_back(&recHitCollection[k]);
+     unInitDynArray(reco::PFRecHit const *,seedNeighbours.size(),nei);	  
+     for(auto k : seedNeighbours){ 
+      nei.push_back(recHitCollection+k);
      }
      std::sort(nei.begin(),nei.end());
      struct LHitLess {
