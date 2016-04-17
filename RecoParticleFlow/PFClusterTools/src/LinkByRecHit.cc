@@ -307,7 +307,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       for ( unsigned jc=0; jc<4; ++jc ) {
 	const auto & cornerposxyz = cornersxyz[jc];
 	const double mult = (1.00+0.50/(fracs.size()*std::min(1.,0.5*trackPt)));
-	x[3-jc] = cornerposxyz.x() + (cornerposxyz.y()-posxyz.x()) * mult;
+	x[3-jc] = cornerposxyz.x() + (cornerposxyz.x()-posxyz.x()) * mult;
 	y[3-jc] = cornerposxyz.y() + (cornerposxyz.y()-posxyz.y()) * mult;
 	
 #ifdef PFLOW_DEBUG

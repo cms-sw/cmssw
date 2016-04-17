@@ -33,8 +33,10 @@ void PFPhotonClusters::SetSeed(){
     auto frac=it->fraction();
     float E= RefPFRecHit->energy()* frac;
     if(E>PFSeedE){
-      PFSeedE=E;  
-      axis=  dynamic_cast<TruncatedPyramid const &>(RefPFRecHit->caloCell()).axis();
+      PFSeedE=E;
+      // FIXME will optimize later...
+      auto const & pyr = dynamic_cast<TruncatedPyramid const &>(RefPFRecHit->caloCell());
+      axis = pyr.getPosition(1) - pyr.getPosition(0);
       position=RefPFRecHit->position();
       idseed = RefPFRecHit->detId();
     }
