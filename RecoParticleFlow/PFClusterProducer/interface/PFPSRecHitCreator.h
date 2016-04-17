@@ -48,7 +48,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
 	ESDetId detid(erh.detid());
-	double energy = erh.energy();
+	auto energy = erh.energy();
 
 	PFLayer::Layer layer = PFLayer::NONE;
 	
@@ -77,8 +77,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
 	  continue;
 	}
 
-        out->emplace_back(thisCell, detid.rawId(),layer,
-			   energy);
+        out->emplace_back(thisCell, detid.rawId(),layer,energy);
         auto & rh = out->back();
 	rh.setDepth(detid.plane());
 	rh.setTime(erh.time());

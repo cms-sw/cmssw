@@ -43,9 +43,9 @@ namespace reco {
     /// default constructor. Sets energy and position to zero
     PFRecHit(){}
 
-    PFRecHit(CaloCellGeometry const * caloCell, unsigned detId,
+    PFRecHit(CaloCellGeometry const * caloCell, unsigned int detId,
              PFLayer::Layer layer,
-             double energy) :
+             float energy) :
         caloCell_(caloCell),  detId_(detId),
         layer_(layer), energy_(energy){}
 
@@ -61,7 +61,7 @@ namespace reco {
     /// destructor
     ~PFRecHit()=default;
 
-    void setEnergy( double energy) { energy_ = energy; }
+    void setEnergy( float energy) { energy_ = energy; }
 
 
     void addNeighbour(short x,short y, short z,const PFRecHitRef&);
@@ -99,11 +99,11 @@ namespace reco {
     PFLayer::Layer layer() const { return layer_; }
 
     /// rechit energy
-    double energy() const { return energy_; }
+    float energy() const { return energy_; }
 
 
     /// timing for cleaned hits
-    double time() const { return time_; }
+    float time() const { return time_; }
 
     /// depth for segemntation
     int  depth() const { return depth_; }
@@ -149,10 +149,10 @@ namespace reco {
     PFLayer::Layer      layer_=PFLayer::NONE;
 
     /// rechit energy 
-    double              energy_=0;
+    float              energy_=0;
 
     /// time
-    double              time_=-1;
+    float              time_=-1;
 
     /// depth
     int      depth_=0;
