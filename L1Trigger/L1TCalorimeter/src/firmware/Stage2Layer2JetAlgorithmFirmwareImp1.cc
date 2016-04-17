@@ -440,24 +440,36 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
   } 
   else if( params_->jetCalibrationType() == "LUT" ){
-    //calibrate using 3 Luts for jet et, eta and compress
+    // Calibrate using 3 LUTs: pt and eta compression LUTs, and a multiplicand/addend LUT.
+    // The pt and eta are each converted to a compressed scale using individual LUTs
+    // pt : 8 -> 4 bits, eta 6 -> 4 bits
+    // This then forms an address. Using the third LUT, we get a
+    // multiplicand & addend, so we can do y = m*x + c on the original
+    // (i.e. non-compressed) jet pt
 
     //Loop over jets and apply corrections
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
-      
+
       //Check jet is above the calibration threshold, if not do nothing
       if(jet->hwPt() < calibThreshold) continue;
-      
-      unsigned int ptBin = params_->jetCalibrationLUT()->data((jet->hwPt()) >> 1);
+
+      // In the firmware, we take bits 1 to 8 of the hwPt.
+      // To avoid getting nonsense by only taking smaller bits,
+      // any values larger than 511 are automatically set to 511.
+      int jetHwPt = jet->hwPt();
+      if (jetHwPt >= 0x200) {
+        jetHwPt = 0x1FF;
+      }
+      unsigned int ptBin = params_->jetCalibrationLUT()->data(jetHwPt>>1);
       unsigned int etaBin = params_->jetCalibrationEtaLUT()->data(abs(jet->hwEta()));
-      unsigned int compBin =  ( ptBin << 4 ) | etaBin ;
-      
+      unsigned int compBin =  (etaBin<<4) | ptBin;
+
       unsigned int addPlusMult = params_->jetCompressLUT()->data(compBin);
 
       unsigned int multiplier = addPlusMult & 0x3ff;
-      int addend = (addPlusMult>>17) ? ( 0x7f - (addPlusMult>>10) ) : ( (addPlusMult>>10) & 0x7f );
-      
-      unsigned int jetPtCorr = (jet->hwPt()*multiplier) + addend;
+      // CHECK: 0x80 or 0x7F for two's complement?
+      int addend = (addPlusMult>>17) ? ((addPlusMult>>10) - 0x100) : ( (addPlusMult>>10) & 0x7f );
+      unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
 
       math::XYZTLorentzVector p4;
       *jet = l1t::Jet( p4, jetPtCorr, jet->hwEta(), jet->hwPhi(), 0);
