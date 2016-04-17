@@ -152,8 +152,8 @@ KDTreeLinkerTrackHcal::searchLinks()
       const auto &rhrep		   = rhit->ptr->positionREP();
       const auto & corners = rhit->ptr->getCornersREP();
       
-      double rhsizeeta = fabs(corners[0].eta() - corners[2].eta());
-      double rhsizephi = fabs(corners[0].phi() - corners[2].phi());
+      double rhsizeeta = fabs(corners[3].eta() - corners[1].eta());
+      double rhsizephi = fabs(corners[3].phi() - corners[1].phi());
       if ( rhsizephi > M_PI ) rhsizephi = 2.*M_PI - rhsizephi;
       
       double deta = fabs(rhrep.eta() - tracketa);
