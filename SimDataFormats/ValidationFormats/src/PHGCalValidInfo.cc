@@ -4,7 +4,8 @@
 //// PHGCalValidInfo
 ///////////////////////////////////////////////////////////////////////////////
 
-void PHGCalValidInfo::fillhgcHits(const std::vector<unsigned int> & hitindex,
+void PHGCalValidInfo::fillhgcHits(const std::vector<unsigned int> & hitdets,
+				  const std::vector<unsigned int> & hitindex,
 				  const std::vector<double> & hitvtxX, 
 				  const std::vector<double> & hitvtxY, 
 				  const std::vector<double> & hitvtxZ) { 
@@ -12,6 +13,7 @@ void PHGCalValidInfo::fillhgcHits(const std::vector<unsigned int> & hitindex,
     hgcHitVtxX.push_back((float)hitvtxX.at(i));
     hgcHitVtxY.push_back((float)hitvtxY.at(i)); 
     hgcHitVtxZ.push_back((float)hitvtxZ.at(i));
+    hgcHitDets.push_back(hitdets.at(i));
     hgcHitIndex.push_back(hitindex.at(i));
   }
 }
