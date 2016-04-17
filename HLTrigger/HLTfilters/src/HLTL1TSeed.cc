@@ -385,7 +385,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         // For bx=0 , get 0th AlgoBlock, so in BXvector at(bx=0,i=0)
         int initDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionInitial(bit);
-        int presDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionPreScaled(bit);
+        int presDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionInterm(bit);
         int finlDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
 
         if(emulDecision != initDecision) {
