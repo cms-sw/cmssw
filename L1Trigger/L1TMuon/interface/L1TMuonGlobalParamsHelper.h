@@ -15,9 +15,10 @@
 #include <iostream>
 #include <vector>
 
-#include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
+//this is temp hack to avoid ALCA/DB signoff requirement for now:
+#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
 
-class L1TMuonGlobalParamsHelper : public L1TMuonGlobalParams {
+class L1TMuonGlobalParamsHelper : public L1TMuonGlobalParams_PUBLIC {
 
 public:
   enum {absIsoCheckMem=0,
@@ -58,7 +59,7 @@ public:
   enum linkNr {CALOLINK1=8, EMTFPLINK1=36, OMTFPLINK1=42, BMTFLINK1=48, OMTFNLINK1=60, EMTFNLINK1=66}; // link numbers start at 0
 
   L1TMuonGlobalParamsHelper() { pnodes_.resize(NUM_GMTPARAMNODES); }
-  L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams);
+  L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams &);
   ~L1TMuonGlobalParamsHelper() {}
 
   // FW version

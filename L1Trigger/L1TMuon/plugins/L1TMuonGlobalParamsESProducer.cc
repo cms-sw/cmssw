@@ -226,7 +226,8 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setFEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"));
    m_params_helper.setSortRankLUTPath              (iConfig.getParameter<std::string>("SortRankLUTPath"));
 
-   m_params = (L1TMuonGlobalParams)m_params_helper;
+   // temp hack to avoid ALCA/DB signoff:
+   m_params = cast_to_L1TMuonGlobalParams((L1TMuonGlobalParams_PUBLIC)m_params_helper);
 }
 
 

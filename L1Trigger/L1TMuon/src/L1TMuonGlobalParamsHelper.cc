@@ -1,6 +1,6 @@
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 
-L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams p) : L1TMuonGlobalParams(p)
+L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams & p) : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p))
 {
   if (pnodes_.size() != NUM_GMTPARAMNODES) {
     pnodes_.resize(NUM_GMTPARAMNODES);
