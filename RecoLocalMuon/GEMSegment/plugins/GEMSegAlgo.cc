@@ -495,9 +495,11 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
 
-  std::cout << "GEMSegment "<< suCh->toGlobal(tmp.localPosition()) << std::endl;
-  std::cout << "GEMSegment "<< tmp.localDirection() << std::endl;
-  std::cout << "GEMSegment "<< suCh->toGlobal(tmp.localDirection()) << std::endl;
+  //std::cout << "GEMSegment "<< suCh->toGlobal(tmp.localPosition()) << std::endl;
+  std::cout << "GEMSegment local dir  "<< tmp.localDirection() << std::endl;
+  std::cout << "GEMSegment global dir "<< suCh->toGlobal(tmp.localDirection()) << std::endl;
+  std::cout << "GEMSegment "<< suCh->position() << std::endl;
+  std::cout << "GEMSegment "<< suCh->rotation() << std::endl;
 
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] "<<tmp;

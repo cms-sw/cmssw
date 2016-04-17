@@ -247,45 +247,63 @@ GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
 				      Bounds* bounds) const {
   // extract the position
   const DDTranslation & trans(fv.translation());
-  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
-
   const Surface::PositionType posResult(float(trans.x()/cm), 
                                         float(trans.y()/cm), 
                                         float(trans.z()/cm));
-  // now the rotation
-  //  DDRotationMatrix tmp = fv.rotation();
-  // === DDD uses 'active' rotations - see CLHEP user guide ===
-  //     ORCA uses 'passive' rotation. 
-  //     'active' and 'passive' rotations are inverse to each other
-  //  DDRotationMatrix tmp = fv.rotation();
-  DD3Vector x, y, z;
-  rotation.GetComponents(x,y,z);
-  // std::cout << "translation: "<< fv.translation() << std::endl;
-  // std::cout << "rotation   : "<< fv.rotation() << std::endl;
-  // std::cout << "INVERSE rotation manually: \n"
-  // 	    << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
-  // 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
-  // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
-
-  Surface::RotationType rotResult(float(x.X()),float(x.Y()),float(x.Z()),
-				  float(y.X()),float(y.Y()),float(y.Z()),
-				  float(z.X()),float(z.Y()),float(z.Z()));
-
-  //Change of axes for the forward
-  Basic3DVector<float> newX(1.,0.,0.);
-  Basic3DVector<float> newY(0.,0.,1.);
-  //      if (tran.z() > 0. )
-  newY *= -1;
-  Basic3DVector<float> newZ(0.,1.,0.);
-  rotResult.rotateAxes (newX, newY, newZ);
   
-  //   std::cout << "rotation by its own operator: "<< tmp << std::endl;
-  //   DD3Vector tx, ty,tz;
-  //   tmp.GetComponents(tx, ty, tz);
-  //   std::cout << "rotation manually: "
-  // 	    << tx.X() << ", " << tx.Y() << ", " << tx.Z() << std::endl
-  // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
-  // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
+  // // now the rotation
+  // //  DDRotationMatrix tmp = fv.rotation();
+  // // === DDD uses 'active' rotations - see CLHEP user guide ===
+  // //     ORCA uses 'passive' rotation. 
+  // //     'active' and 'passive' rotations are inverse to each other
+  // //  DDRotationMatrix tmp = fv.rotation();
+  // DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  // DD3Vector x, y, z;
+  // rotation.GetComponents(x,y,z);
+  // // std::cout << "translation: "<< fv.translation() << std::endl;
+  // // std::cout << "rotation   : "<< fv.rotation() << std::endl;
+  // // std::cout << "INVERSE rotation manually: \n"
+  // // 	    << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
+  // // 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
+  // // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
-  return RCPBoundPlane( new BoundPlane( posResult, rotResult, bounds));
+  // Surface::RotationType rotResult(float(x.X()),float(x.Y()),float(x.Z()),
+  // 				  float(y.X()),float(y.Y()),float(y.Z()),
+  // 				  float(z.X()),float(z.Y()),float(z.Z()));
+  
+  // //Change of axes for the forward
+  // Basic3DVector<float> newX(1.,0.,0.);
+  // Basic3DVector<float> newY(0.,0.,1.);
+  // Basic3DVector<float> newZ(0.,1.,0.);
+  // if (trans.z() > 0. ) newX *= -1;
+  
+  // rotResult.rotateAxes (newX, newY, newZ);
+
+  // std::cout << "\nposition   : \n"<< posResult << std::endl;
+  // std::cout << "rotation   : \n"<< fv.rotation() << std::endl;
+  // std::cout << "new        : \n"<< rotResult  << std::endl;
+
+  // easier way to get rotation matrix
+  float angle = atan2(trans.x(),trans.y());
+  float zdir = 1;
+  if (trans.z() < 0. ) zdir = -1;
+  Surface::RotationType simpleRot(cos(angle), -sin(angle), 0,
+				  sin(angle),  cos(angle), 0,
+				  0         ,0           , zdir);
+  
+  // std::cout << "angle "<< angle  << std::endl;
+  // std::cout << "good       : \n"<< simpleRot  << std::endl;
+
+  // if (fabs(simpleRot.xx() - rotResult.xx()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.xy() - rotResult.xy()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.xz() - rotResult.xz()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.yx() - rotResult.yx()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.yy() - rotResult.yy()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.yz() - rotResult.yz()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.zx() - rotResult.zx()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.zy() - rotResult.zy()) > 0.00001) std::cout << "bad match " << std::endl;
+  // if (fabs(simpleRot.zz() - rotResult.zz()) > 0.00001) std::cout << "bad match " << std::endl;
+
+   return RCPBoundPlane( new BoundPlane( posResult, simpleRot, bounds));
+  // return RCPBoundPlane( new BoundPlane( posResult, rotResult, bounds));
 }
