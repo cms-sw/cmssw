@@ -67,7 +67,6 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
 	assert(zp);
 	thisCell = zp->forPF();
-
 	
 	// find rechit geometry
 	if(!thisCell) {
@@ -77,28 +76,10 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	  continue;
 	}
 
-	// auto const point =  thisCell->getPosition();
+	PFLayer::Layer layer  =  depth==1 ? PFLayer::HF_EM : PFLayer::HF_HAD;
+       
 
-
-	PFLayer::Layer layer;
-	//	double depth_correction;
-	if (depth==1) {
-	  layer = PFLayer::HF_EM;
-          // depth_correction = point.z() > 0. ? EM_Depth_ : -EM_Depth_;
-	}
-	else {
-	  layer = PFLayer::HF_HAD;
-	  // depth_correction = point.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
-	}
-
-        /*
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z()+depth_correction );
-	*/
-
-	reco::PFRecHit rh(thisCell, detid.rawId(),layer,
-			   energy);
+	reco::PFRecHit rh(thisCell, detid.rawId(),layer,energy);
 	rh.setTime(time); 
 	rh.setDepth(depth);
 
@@ -114,10 +95,10 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	}
 	  
 	if(keep) {
-	  tmpOut.push_back(rh);
+	  tmpOut.push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
       //Sort by DetID the collection
       DetIDSorter sorter;

@@ -261,6 +261,8 @@ void FWPFCandidateDetailView::voteMaxEtEVal( const std::vector<reco::PFRecHit> *
 {
    if (!hits) return;
 
+   // FIXME: require access to geometry while reading from reco file
+   if ( (!hits->empty()) && hits->front().hasCaloCell())
    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
    {
       TEveVector centre(it->position().x(), it->position().y(), it->position().z());
@@ -380,9 +382,11 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
    m_eventList->AddElement(ps);
    ps->SetMainColor(kOrange);
 
+      // FIXME, requires access to geometry
+   if ( (!hits->empty()) && hits->front().hasCaloCell()) 
    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
    {
-      const std::vector< math::XYZPoint >& corners = it->getCornersXYZ();
+      const auto & corners = it->getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
          continue;
      
