@@ -219,8 +219,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       = rechit_cluster.positionREP();
     
     //getting rechit corners
-    const auto & 
-      cornersxyz = rechit_cluster.getCornersXYZ();
+    const auto & cornersxyz = rechit_cluster.getCornersXYZ();
     const auto & corners = rechit_cluster.getCornersREP();
 
     
@@ -231,9 +230,9 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       // blown up by 50% (HCAL) to 100% (ECAL) to include cracks & gaps
       // also blown up to account for multiple scattering at low pt.
       double rhsizeEta 
-	= std::abs(corners[0].eta() - corners[2].eta());
+	= std::abs(corners[3].eta() - corners[1].eta());
       double rhsizePhi 
-	= std::abs(corners[0].phi() - corners[2].phi());
+	= std::abs(corners[3].phi() - corners[1].phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
       if ( hcal ) { 
 	const double mult = horesolscale * (1.50 + 0.5/fracs.size());
@@ -308,8 +307,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       for ( unsigned jc=0; jc<4; ++jc ) {
 	const auto & cornerposxyz = cornersxyz[jc];
 	const double mult = (1.00+0.50/(fracs.size()*std::min(1.,0.5*trackPt)));
-	x[jc] = cornerposxyz.x() + (cornerposxyz.y()-posxyz.x()) * mult;
-	y[jc] = cornerposxyz.y() + (cornerposxyz.y()-posxyz.y()) * mult;
+	x[3-jc] = cornerposxyz.x() + (cornerposxyz.y()-posxyz.x()) * mult;
+	y[3-jc] = cornerposxyz.y() + (cornerposxyz.y()-posxyz.y()) * mult;
 	
 #ifdef PFLOW_DEBUG
 	if( debug ){
@@ -452,8 +451,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
       // corner position projected onto the preshower
       auto cornerpos = corners[jc].basicVector() * zPS/zECAL;
       // Inflate the size by the size of the PS strips, and by 5% to include ECAL cracks.
-      x[jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
-      y[jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
+      x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
+      y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
       
 #ifdef PFLOW_DEBUG
       if( debug ){

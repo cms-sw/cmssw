@@ -188,8 +188,8 @@ KDTreeLinkerPSEcal::searchLinks()
 	double y[5];
 	for ( unsigned jc=0; jc<4; ++jc ) {
 	  auto cornerpos = corners[jc].basicVector() * zPS / clusterz;
-	  x[jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*deltaX/2.);
-	  y[jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*deltaY/2.);
+	  x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*deltaX/2.);
+	  y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*deltaY/2.);
 	}
 
 	x[4] = x[0];
