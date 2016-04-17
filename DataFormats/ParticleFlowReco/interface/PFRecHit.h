@@ -36,6 +36,16 @@ namespace reco {
     using RepCorners = CaloCellGeometry::RepCorners;
     using REPPointVector = RepCorners;
     using CornersVec = CaloCellGeometry::CornersVec;
+
+    struct Neighbours {
+      using Pointer = unsigned int const *;
+      Neighbours(){}
+      Neighbours(Pointer ib, unsigned int n) : b(ib), e(ib+n){}
+      Pointer b, e;
+      Pointer begin() const {return b;}
+      Pointer end() const {return e;}
+      unsigned int size() const { return e-b;}
+    };
     
     enum {
       NONE=0
@@ -64,23 +74,25 @@ namespace reco {
     void setEnergy( float energy) { energy_ = energy; }
 
 
-    void addNeighbour(short x,short y, short z,const PFRecHitRef&);
-    const PFRecHitRef getNeighbour(short x,short y, short z);
+    void addNeighbour(short x,short y, short z, unsigned int);
+    unsigned int getNeighbour(short x,short y, short z) const;
     void setTime( double time) { time_ = time; }
     void setDepth( int depth) { depth_ = depth; }
     void clearNeighbours() {
       neighbours_.clear();
+      neighbourInfos_.clear();
+      neighbours4_ = neighbours8_ = 0;
     }
 
-    const PFRecHitRefVector& neighbours4() const {
-      return neighbours4_;
+    Neighbours neighbours4() const {
+      return buildNeighbours(neighbours4_);
     }
-    const PFRecHitRefVector& neighbours8() const {
-      return neighbours8_;
+    Neighbours neighbours8() const {
+	return buildNeighbours(neighbours8_);
     }
 
-    const PFRecHitRefVector& neighbours() const {
-      return neighbours_;
+    Neighbours neighbours() const {
+      return buildNeighbours(neighbours_.size());
     }
 
     const std::vector<unsigned short>& neighbourInfos() {
@@ -139,6 +151,8 @@ namespace reco {
  
   private:
 
+    Neighbours buildNeighbours(unsigned int n) const { return  Neighbours(&neighbours_.front(),n);}
+    
     /// cell geometry
     CaloCellGeometry const * caloCell_=nullptr;
  
@@ -159,12 +173,12 @@ namespace reco {
 
   
     /// indices to existing neighbours (1 common side)
-    PFRecHitRefVector   neighbours_;
+    std::vector< unsigned int > neighbours_;
     std::vector< unsigned short >   neighbourInfos_;
 
     //Caching the neighbours4/8 per request of Lindsey
-    PFRecHitRefVector   neighbours4_;
-    PFRecHitRefVector   neighbours8_;
+    unsigned int neighbours4_ = 0;
+    unsigned int neighbours8_ = 0;
   };
 
 }

@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
-  const reco::PFRecHitRefVector _noNeighbours;
+  const reco::PFRecHit::Neighbours  _noNeighbours(nullptr,0);
 }
 
 LocalMaximumSeedFinder::
@@ -81,36 +81,36 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     if( !usable[idx] ) continue;
     //get the neighbours of this seed
     const auto & maybeseed = (*input)[idx];
-    const reco::PFRecHitRefVector* myNeighbours;
+    reco::PFRecHit::Neighbours  myNeighbours;
     switch( _nNeighbours ) {
     case -1:
-      myNeighbours = &maybeseed.neighbours();
+      myNeighbours = maybeseed.neighbours();
       break;
     case 0: // for HF clustering
-      myNeighbours = &_noNeighbours;
+      myNeighbours = _noNeighbours;
       break;
     case 4:
-      myNeighbours = &maybeseed.neighbours4();
+      myNeighbours = maybeseed.neighbours4();
       break;
     case 8:
-      myNeighbours = &maybeseed.neighbours8();
+      myNeighbours = maybeseed.neighbours8();
       break;
     default:
       throw cms::Exception("InvalidConfiguration")
 	<< "LocalMaximumSeedFinder only accepts nNeighbors = {-1,0,4,8}";    
     }
     seedable[idx] = true;
-    for( const reco::PFRecHitRef& neighbour : *myNeighbours ) {
-      if( !mask[neighbour.key()] ) continue;
-      if( energies[neighbour.key()] > energies[idx] ) {
+    for( auto neighbour : myNeighbours ) {
+      if( !mask[neighbour] ) continue;
+      if( energies[neighbour] > energies[idx] ) {
 //        std::cout << "how this can be?" << std::endl;
 	seedable[idx] = false;	
 	break;
       }
     }
     if( seedable[idx] ) {
-      for( const reco::PFRecHitRef& neighbour : *myNeighbours ) {
-	usable[neighbour.key()] = false;
+      for( auto neighbour : myNeighbours ) {
+	usable[neighbour] = false;
       }
     }
   }
