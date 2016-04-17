@@ -109,9 +109,6 @@ DDValue::DDValue( unsigned int i )
     id_ = i;
 }
 
-DDValue::~DDValue( void )
-{}
-
 DDValue::NamesToIndicies&
 DDValue::indexer( void )
 { 
