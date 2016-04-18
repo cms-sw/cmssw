@@ -339,19 +339,19 @@ std::vector<ME0Segment> ME0SegAlgo::buildSegments(const EnsembleHitContainer& re
   if (rechits.size() < minHitsPerSegment){
     return me0segs;
   }
-  auto rh=rechits.begin();  
-  const ME0EtaPartition * firstPartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
+  uint32_t refid = theEnsemble.second.begin()->first;
+  const ME0EtaPartition * refPart = (theEnsemble.second.find(refid))->second;
   // select hits from the ensemble and sort it 
-  for (; rh!=rechits.end();rh++){
+  for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
 
     // for segFit - using local point in first partition frame
     const ME0EtaPartition * thePartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
-    const LocalPoint lp = firstPartition->toLocal(gp);
-
+    const LocalPoint lp = refPart->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
+    
     muonRecHits.push_back(newRH);    
   }
   if (proto_segment.size() < minHitsPerSegment){
@@ -388,10 +388,6 @@ std::vector<ME0Segment> ME0SegAlgo::buildSegments(const EnsembleHitContainer& re
 
   edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] ME0Segment made";
   edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] "<<tmp;
-
-  std::cout << "ME0Segment "<< firstPartition->toGlobal(tmp.localPosition()) << std::endl;
-  std::cout << "ME0Segment "<< tmp.localDirection() << std::endl;
-  std::cout << "ME0Segment "<< firstPartition->toGlobal(tmp.localDirection()) << std::endl;
   
   me0segs.push_back(tmp);
   return me0segs;
