@@ -408,7 +408,6 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
     return gemsegs;
   }  
   const GEMSuperChamber * suCh   = theEnsemble.first;
-  //std::cout << "GEMSegAlgo::GEMSuperChamber " <<suCh->id()<< std::endl;  
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
     
@@ -424,11 +423,6 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   if (proto_segment.size() < minHitsPerSegment){
     return gemsegs;
   }
-
-  // auto mh=muonRecHits.begin();
-  // for (auto rh=rechits.begin(); rh!=rechits.end();rh++,mh++){
-  //   //std::cout << "gemhit "<< (*rh)->localPosition() << std::endl;
-  // }
   
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
@@ -494,12 +488,6 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2);
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
-
-  //std::cout << "GEMSegment "<< suCh->toGlobal(tmp.localPosition()) << std::endl;
-  std::cout << "GEMSegment local dir  "<< tmp.localDirection() << std::endl;
-  std::cout << "GEMSegment global dir "<< suCh->toGlobal(tmp.localDirection()) << std::endl;
-  std::cout << "GEMSegment "<< suCh->position() << std::endl;
-  std::cout << "GEMSegment "<< suCh->rotation() << std::endl;
 
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] "<<tmp;
