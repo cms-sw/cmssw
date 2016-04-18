@@ -23,15 +23,11 @@
    <version ClassVersion="10" checksum="2808522020"/>
   </class>
   <class name="edm::Wrapper<L1TGtObjectMapRecord>"/>
-  <class name="L1TGtObjectMapRecordBxCollection"/>
-  <class name="edm::Wrapper<L1TGtObjectMapRecordBxCollection>"/>
 
   <class name="L1TGtObjectMap" ClassVersion="10">
    <version ClassVersion="10" checksum="2989798521"/>
   </class>
   <class name="edm::Wrapper<L1TGtObjectMap>"/>
-  <class name="L1TGtObjectMapBxCollection"/>
-  <class name="edm::Wrapper<L1TGtObjectMapBxCollection>"/>
 </lcgdict>
 
 
