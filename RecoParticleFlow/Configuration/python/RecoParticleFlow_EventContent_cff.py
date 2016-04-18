@@ -143,8 +143,19 @@ def _modifyPFEventContentForHGCalFEVT( obj ):
 
 
 # mods for HGCAL
+
+_phase2_RecoParticleFlowFEVT_outputCommands = RecoParticleFlowFEVT.outputCommands
+_phase2_RecoParticleFlowFEVT_outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL__*')
+_phase2_RecoParticleFlowFEVT_outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*')
+
+_phase2_RecoParticleFlowRECO_outputCommands = RecoParticleFlowRECO.outputCommands
+_phase2_RecoParticleFlowRECO_outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*')
+
+_phase2_RecoParticleFlowAOD_outputCommands = RecoParticleFlowAOD.outputCommands
+_phase2_RecoParticleFlowAOD_outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*')
+
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, func=_modifyPFEventContentForHGCalFEVT)
-eras.phase2_hgcal.toModify( RecoParticleFlowRECO, func=_modifyPFEventContentForHGCalRECO )
-eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  func=_modifyPFEventContentForHGCalRECO )
+eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = _phase2_RecoParticleFlowFEVT_outputCommands )
+eras.phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = _phase2_RecoParticleFlowRECO_outputCommands )
+eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = _phase2_RecoParticleFlowAOD_outputCommands )
 

@@ -24,13 +24,17 @@ SimGeneralAOD = cms.PSet(
                                            'keep int_*_bunchSpacing_*')
 )
 
-def _modifySimGeneralEventContentForHGCal( obj ):
-    obj.outputCommands.append('keep *_mix_HGCDigisEE_*')
-    obj.outputCommands.append('keep *_mix_HGCDigisHEfront_*')
-    obj.outputCommands.append('keep *_mix_HGCDigisHEback_*')
+_phase2_SimGeneralRAW_outputCommands = SimGeneralRAW.outputCommands
+_phase2_SimGeneralFEVTDEBUG_outputCommands = SimGeneralFEVTDEBUG.outputCommands
+_phase2_SimGeneralRECO_outputCommands = SimGeneralRECO.outputCommands
+
+for _phase2_output in [_phase2_SimGeneralRAW_outputCommands, _phase2_SimGeneralFEVTDEBUG_outputCommands, _phase2_SimGeneralRECO_outputCommands]:
+    _phase2_output.append('keep *_mix_HGCDigisEE_*')
+    _phase2_output.append('keep *_mix_HGCDigisHEfront_*')
+    _phase2_output.append('keep *_mix_HGCDigisHEback_*')
 
 # mods for HGCAL
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( SimGeneralRAW, func=_modifySimGeneralEventContentForHGCal )
-eras.phase2_hgcal.toModify( SimGeneralFEVTDEBUG, func=_modifySimGeneralEventContentForHGCal )
-eras.phase2_hgcal.toModify( SimGeneralRECO, func=_modifySimGeneralEventContentForHGCal )
+eras.phase2_hgcal.toModify( SimGeneralRAW, outputCommands = _phase2_SimGeneralRAW_outputCommands )
+eras.phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = _phase2_SimGeneralFEVTDEBUG_outputCommands )
+eras.phase2_hgcal.toModify( SimGeneralRECO, outputCommands = _phase2_SimGeneralRECO_outputCommands )

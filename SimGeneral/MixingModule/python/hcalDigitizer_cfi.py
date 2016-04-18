@@ -7,25 +7,31 @@ hcalDigitizer = cms.PSet(
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
 
-def _modifyHcalDigitizerForHGCal( obj ):
-    newFactors = cms.vdouble(
-        210.55, 197.93, 186.12, 189.64, 189.63,
-        189.96, 190.03, 190.11, 190.18, 190.25,
-        190.32, 190.40, 190.47, 190.54, 190.61,
-        190.69, 190.83, 190.94, 190.94, 190.94,
-        190.94, 190.94, 190.94, 190.94, 190.94,
-        190.94, 190.94, 190.94, 190.94, 190.94,
-        190.94, 190.94, 190.94, 190.94, 190.94,
-        190.94, 190.94, 190.94, 190.94, 190.94 )    
-    obj.HBHEUpgradeQIE = True
-    obj.hb.siPMCells = cms.vint32([1])
-    obj.hb.photoelectronsToAnalog = cms.vdouble([10.]*16)
-    obj.hb.pixels = cms.int32(4500*4*2)
-    obj.he.samplingFactors = newFactors
-    obj.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
-    obj.he.pixels = cms.int32(4500*4*2)
-    obj.HFUpgradeQIE = True
-    obj.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+_newFactors = cms.vdouble(
+    210.55, 197.93, 186.12, 189.64, 189.63,
+    189.96, 190.03, 190.11, 190.18, 190.25,
+    190.32, 190.40, 190.47, 190.54, 190.61,
+    190.69, 190.83, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( hcalDigitizer, func=_modifyHcalDigitizerForHGCal)
+eras.phase2_hgcal.toModify( hcalDigitizer,
+                            HBHEUpgradeQIE = cms.bool(True),
+                            HFUpgradeQIE = cms.bool(True)
+)
+eras.phase2_hgcal.toModify( hcalDigitizer.HcalReLabel,
+                            RelabelHits=cms.untracked.bool(True)
+)
+eras.phase2_hgcal.toModify( hcalDigitizer.hb,
+                            siPMCells = cms.vint32([1]),
+                            photoelectronsToAnalog = cms.vdouble([10.]*16),
+                            pixels = cms.int32(4500*4*2)
+)
+eras.phase2_hgcal.toModify( hcalDigitizer.he,
+                            samplingFactors = _newFactors,
+                            photoelectronsToAnalog = cms.vdouble([10.]*len(_newFactors)),
+                            pixels = cms.int32(4500*4*2)
+)
