@@ -222,19 +222,31 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // Use hardcoded logic here.
   // This contains a lot more assumptions about general geometry than the rest
   // of the code, but it might work for Phase0 as well.
+  Value innerring = 22; //TODO: Hardcoded number here.
+  Value outerring = max_value[intern("PXBlade")] - innerring;
+  auto pxblade  = extractors[intern("PXBlade")];
+  addExtractor(intern("PXRing"), 
+    [pxblade, innerring] (InterestingQuantities const& iq) {
+      auto blade = pxblade(iq);
+      if (blade == UNDEFINED) return UNDEFINED;
+      if (blade <= innerring) return Value(1);
+      else return Value(2);
+    }, 1, 2
+  );
+
   auto pxbarrel = extractors[intern("PXBarrel")];
   auto pxendcap = extractors[intern("PXEndcap")];
   auto pxmodule = extractors[intern("PXBModule")];
-  auto pxblade  = extractors[intern("PXBlade")];
-  Value maxblade  = max_value[intern("PXBlade")];
   Value maxmodule = max_value[intern("PXBModule")];
   addExtractor(intern("HalfCylinder"),
-    [pxendcap, pxblade, maxblade] (InterestingQuantities const& iq) {
+    [pxendcap, pxblade, innerring, outerring] (InterestingQuantities const& iq) {
       auto ec = pxendcap(iq);
       if (ec == UNDEFINED) return UNDEFINED;
       auto blade = pxblade(iq);
-      int frac = (int) (((blade-1) % (maxblade/2)) / float(maxblade/2) * 4); // floor semantics here
-      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half
+      auto inring  = blade > innerring ? blade - innerring : blade;
+      auto perring = blade > innerring ? outerring : innerring;
+      int frac = (int) ((inring-1) / float(perring) * 4); // floor semantics here
+      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half TODO: with 22 this is not well defined.
       if (frac == 1 || frac == 2) return 10*ec + 2; // outer half
       assert(!"HalfCylinder logic problem");
       return UNDEFINED;
@@ -261,6 +273,11 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       if (pxendcap(iq) == UNDEFINED) return UNDEFINED;
       else return 0;
     },
+    0, 0
+  );
+
+  addExtractor(intern(""), // A dummy column. Not much special handling required.
+    [] (InterestingQuantities const& iq) { return 0; },
     0, 0
   );
 
