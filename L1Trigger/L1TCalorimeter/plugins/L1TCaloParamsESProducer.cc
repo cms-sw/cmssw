@@ -215,14 +215,14 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream jetCalibrationLUTStream(jetCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> jetCalibrationLUT( new LUT(jetCalibrationLUTStream) );
   m_params_helper.setJetCalibrationLUT(*jetCalibrationLUT);
-  edm::FileInPath jetCalibrationEtaLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationEtaLUTFile");
-  std::ifstream jetCalibrationEtaLUTStream(jetCalibrationEtaLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCalibrationEtaLUT( new LUT(jetCalibrationEtaLUTStream) );
-  m_params_helper.setJetCalibrationEtaLUT(*jetCalibrationEtaLUT);
-  edm::FileInPath jetCompressLUTFile = conf.getParameter<edm::FileInPath>("jetCompressLUTFile");
-  std::ifstream jetCompressLUTStream(jetCompressLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCompressLUT( new LUT(jetCompressLUTStream) );
-  m_params_helper.setJetCompressLUT(*jetCompressLUT);
+  edm::FileInPath jetCompressEtaLUTFile = conf.getParameter<edm::FileInPath>("jetCompressEtaLUTFile");
+  std::ifstream jetCompressEtaLUTStream(jetCompressEtaLUTFile.fullPath());
+  std::shared_ptr<LUT> jetCompressEtaLUT( new LUT(jetCompressEtaLUTStream) );
+  m_params_helper.setJetCompressEtaLUT(*jetCompressEtaLUT);
+  edm::FileInPath jetCompressPtLUTFile = conf.getParameter<edm::FileInPath>("jetCompressPtLUTFile");
+  std::ifstream jetCompressPtLUTStream(jetCompressPtLUTFile.fullPath());
+  std::shared_ptr<LUT> jetCompressPtLUT( new LUT(jetCompressPtLUTStream) );
+  m_params_helper.setJetCompressPtLUT(*jetCompressPtLUT);
 
   // sums
   m_params_helper.setEtSumLsb(conf.getParameter<double>("etSumLsb"));

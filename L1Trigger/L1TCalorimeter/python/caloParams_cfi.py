@@ -90,9 +90,9 @@ caloParams = cms.ESProducer(
     jetPUSType               = cms.string("None"),
     jetCalibrationType       = cms.string("None"),
     jetCalibrationParams     = cms.vdouble(),
-    jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
-    jetCalibrationEtaLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt"),
-    jetCompressLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt"),
+    jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt"),
+    jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt"),
 
     # sums
     etSumLsb                 = cms.double(0.5),

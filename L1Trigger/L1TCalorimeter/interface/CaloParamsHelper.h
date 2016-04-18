@@ -33,7 +33,7 @@ namespace l1t {
            layer1ECal=17,
            layer1HCal=18,
            layer1HF=19,
-	   jetCalibrationEta=20, jetCompress=21,
+	   jetCompressEta=20, jetCompressPt=21,
 	   etSumXPUS=22, etSumYPUS=23, etSumEttPUS=24, etSumEcalSumPUS=25,
 	   NUM_CALOPARAMNODES=26
     };
@@ -246,8 +246,9 @@ namespace l1t {
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
     std::vector<double> jetCalibrationParams() { return pnode_[jetCalibration].dparams_; }
     l1t::LUT* jetCalibrationLUT() { return &pnode_[jetCalibration].LUT_; }
-    l1t::LUT* jetCalibrationEtaLUT() { return &pnode_[jetCalibrationEta].LUT_; }
-    l1t::LUT* jetCompressLUT() { return &pnode_[jetCompress].LUT_; }
+
+    l1t::LUT* jetCompressPtLUT() { return &pnode_[jetCompressPt].LUT_; }
+    l1t::LUT* jetCompressEtaLUT() { return &pnode_[jetCompressEta].LUT_; }
 
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
@@ -261,8 +262,8 @@ namespace l1t {
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = params; }
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
-    void setJetCalibrationEtaLUT(const l1t::LUT & lut) { pnode_[jetCalibrationEta].LUT_ = lut; }
-    void setJetCompressLUT(const l1t::LUT & lut) { pnode_[jetCompress].LUT_ = lut; }
+    void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
+    void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
 
     // sums
 
@@ -270,7 +271,7 @@ namespace l1t {
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
     double etSumEtThreshold(unsigned isum) const;
-    
+
     l1t::LUT* etSumXPUSLUT() { return &pnode_[etSumXPUS].LUT_; }
     l1t::LUT* etSumYPUSLUT() { return &pnode_[etSumYPUS].LUT_; }
     l1t::LUT* etSumEttPUSLUT() { return &pnode_[etSumEttPUS].LUT_; }
