@@ -47,7 +47,7 @@ public:
 		   const HitDoublets & doublets,
 		   const RecHitsSortedInPhi ** thirdHitMap,
 		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
-		   const int nThirdLayers);
+		   const int nThirdLayers)override;
 private:
   using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;
 
