@@ -41,11 +41,6 @@ patPFMetT1T2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     jetCorrLabel = cms.InputTag("L3Absolute"), # for MC
     jetCorrLabelRes = cms.InputTag("L2L3Residual"), # for Data automatic switch
     type1JetPtThreshold = cms.double(15.0),
-    type2ResidualCorrLabel = cms.InputTag(""),
-    type2ResidualCorrEtaMax = cms.double(9.9),
-    type2ExtraCorrFactor = cms.double(1.),
-    type2ResidualCorrOffset = cms.double(0.),
-    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -181,7 +176,6 @@ patPFMetT1 = cms.EDProducer("CorrectedPATMETProducer",
     srcCorrections = cms.VInputTag(
         cms.InputTag('patPFMetT1T2Corr', 'type1'),
     ),
-    applyType2Corrections = cms.bool(False)
 )
 
 patPFMetT1T2 = patPFMetT1.clone()
