@@ -1097,7 +1097,9 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # for each geometry define the GT and processing string here
 defaultDataSets={}
-defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
+#defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
+defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeHLLHC-v'
+#defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC27-PH2_1K_FB_V6_FastTimeCrab-v'
 defaultDataSets['Extended2023HGCalMuonPandora']=defaultDataSets['Extended2023HGCalMuon'] # Geometry is the same, only reco is different
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
 defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
@@ -1126,6 +1128,7 @@ for ds in defaultDataSets:
     key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
     name=baseDataSetReleaseBetter[key]
     PUDataSets[ds]={'-n':10,'--pileup':'AVE_140_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
+    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_20_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
 
 
 upgradeStepDict={}
@@ -1173,7 +1176,19 @@ for k in upgradeKeys:
                                        '--geometry' : geom
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotfixFull'][k]['--customise']=cust
-    
+   
+    upgradeStepDict['GenSimHLBeamSpotCrabKissFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHCCrabKissing',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotCrabKissFull'][k]['--customise']=cust
+
+ 
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
