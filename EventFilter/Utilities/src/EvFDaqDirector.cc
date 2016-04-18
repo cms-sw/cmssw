@@ -482,9 +482,16 @@ namespace evf {
     int stopFileLS = -1;
     if (stat(stopFilePath_.c_str(),&buf)==0) {
         stopFileLS = readLastLSEntry(stopFilePath_);
+        if (!stop_ls_override_) {
+          //if lumisection is higher than in stop file, should quit at next from current
+          if (stopFileLS>=0 && (int)ls>=stopFileLS) stopFileLS = stop_ls_override_ = ls;
+        }
+        else stopFileLS = stop_ls_override_;
         edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process after LS -: " << stopFileLS;
         //return runEnded;
     }
+    else //if file was removed before reaching stop condition, reset this
+      stop_ls_override_ = 0;
 
     timeval ts_lockbegin;
     gettimeofday(&ts_lockbegin,0);
