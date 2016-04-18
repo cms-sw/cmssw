@@ -421,6 +421,7 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
   }
 
   // Get the rechits
+  auto zCorr = zPS/zECAL;
   const std::vector< reco::PFRecHitFraction >&  fracs = clusterECAL.recHitFractions();
   bool linkedbyrechit = false;
   //loop rechits
@@ -437,7 +438,7 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     //getting rechit corners
     const auto &  corners = rechit_cluster.getCornersXYZ();
     
-    auto posxyz = rechit_cluster.position() * zPS/zECAL;
+    auto posxyz = rechit_cluster.position() * zCorr;
 #ifdef PFLOW_DEBUG
     if( debug ){
       std::cout << "Ecal rechit " << posxyz.X() << " "   << posxyz.Y() << std::endl;
@@ -449,10 +450,10 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     double y[5];
     for ( unsigned jc=0; jc<4; ++jc ) {
       // corner position projected onto the preshower
-      auto cornerpos = corners[jc].basicVector() * zPS/zECAL;
+      auto cornerpos = corners[jc].basicVector() * zCorr;
       // Inflate the size by the size of the PS strips, and by 5% to include ECAL cracks.
-      x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
-      y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
+      x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/std::abs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
+      y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/std::abs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
       
 #ifdef PFLOW_DEBUG
       if( debug ){
