@@ -68,6 +68,7 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
     virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+    void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   
   private:
     void updateMismatch(const edm::Event& e, int mismatchType);
@@ -131,6 +132,19 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *hcalLinkErrorByLumi_;
     MonitorElement *hcalMismatchByLumi_;
 
+    MonitorElement *maxEvtLinkErrorsByLumiECAL_;
+    MonitorElement *maxEvtLinkErrorsByLumiHCAL_;
+    MonitorElement *maxEvtLinkErrorsByLumi_;
+    int maxEvtLinkErrorsECALCurrentLumi_{0};
+    int maxEvtLinkErrorsHCALCurrentLumi_{0};
+
+    MonitorElement *maxEvtMismatchByLumiECAL_;
+    MonitorElement *maxEvtMismatchByLumiHCAL_;
+    MonitorElement *maxEvtMismatchByLumi_;
+    int maxEvtMismatchECALCurrentLumi_{0};
+    int maxEvtMismatchHCALCurrentLumi_{0};
+
+    MonitorElement *ECALmismatchesPerBx_;
     MonitorElement *HBHEmismatchesPerBx_;
     MonitorElement *HFmismatchesPerBx_;
 

@@ -7,6 +7,7 @@ from DQM.L1TMonitor.L1TStage2uGT_cfi import *
 from DQM.L1TMonitor.L1TStage2BMTF_cfi import *
 from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 
+# These should be removed once in standard RawToDigi sequence!
 from EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
