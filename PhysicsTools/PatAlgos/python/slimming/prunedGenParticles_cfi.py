@@ -22,6 +22,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 # keep b and c hadrons for hadron-based jet flavour
 	"keep (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",
 # keep onia states
+        "keep abs(pdgId) == 333",
         "keep abs(pdgId) == 443 || abs(pdgId) == 100443 || abs(pdgId) == 10441 || abs(pdgId) == 20443 || abs(pdgId) == 445 || abs(pdgId) == 30443",
         "keep abs(pdgId) == 553 || abs(pdgId) == 100553 || abs(pdgId) == 200553 || abs(pdgId) == 10551 || abs(pdgId) == 20553 || abs(pdgId) == 555",
 # additional c hadrons for jet fragmentation studies
