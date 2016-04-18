@@ -56,11 +56,15 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
                         ecalTPsRecd->begin(), ecalTPsRecd->end(), 
                         std::inserter(ecalTPSentRecd_, ecalTPSentRecd_.begin()), EcalTrigPrimDigiCollection::key_compare());
 
+  int nEcalLinkErrors{0};
+  int nEcalMismatch{0};
+
   for ( const auto& tpPair : ecalTPSentRecd_ ) {
     auto sentTp = tpPair.first;
     if ( sentTp.compressedEt() < 0 && !tccFullReadout ) {
       // This means there was some sort of issue with TCC unpacking for this particular event
       updateMismatch(event, 4);
+      // But we don't want to compare to a tp set to -1
       EcalTriggerPrimitiveSample sample(0); 
       EcalTriggerPrimitiveDigi tpg(sentTp.id());
       tpg.setSize(1);
@@ -98,6 +102,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
     if ( linkError ) {
       ecalLinkError_->Fill(ieta, iphi);
       ecalLinkErrorByLumi_->Fill(event.id().luminosityBlock());
+      nEcalLinkErrors++;
     }
 
     ecalTPRawEtCorrelation_->Fill(sentTp.compressedEt(), recdTp.compressedEt());
@@ -115,13 +120,17 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
     if ( sentTp.compressedEt() == recdTp.compressedEt() && sentTp.fineGrain() == recdTp.fineGrain() ) {
       // Full match
-      ecalOccSentAndRecd_->Fill(ieta, iphi);
-      ecalTPRawEtSentAndRecd_->Fill(sentTp.compressedEt());
+      if ( sentTp.compressedEt() > tpFillThreshold_ ) {
+        ecalOccSentAndRecd_->Fill(ieta, iphi);
+        ecalTPRawEtSentAndRecd_->Fill(sentTp.compressedEt());
+      }
     }
     else {
       // There is some issue
       ecalDiscrepancy_->Fill(ieta, iphi);
       ecalMismatchByLumi_->Fill(event.id().luminosityBlock());
+      ECALmismatchesPerBx_->Fill(event.bunchCrossing());
+      nEcalMismatch++;
 
       if ( sentTp.compressedEt() != recdTp.compressedEt() ) {
         ecalOccEtDiscrepancy_->Fill(ieta, iphi);
@@ -137,6 +146,12 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
   }
 
+  if ( nEcalLinkErrors > maxEvtLinkErrorsECALCurrentLumi_ ) {
+    maxEvtLinkErrorsECALCurrentLumi_ = nEcalLinkErrors;
+  }
+  if ( nEcalMismatch > maxEvtMismatchECALCurrentLumi_ ) {
+    maxEvtMismatchECALCurrentLumi_  = nEcalMismatch;
+  }
 
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
@@ -149,6 +164,9 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
   ComparisonHelper::zip(hcalTPsSent->begin(), hcalTPsSent->end(), 
                         hcalTPsRecd->begin(), hcalTPsRecd->end(), 
                         std::inserter(hcalTPSentRecd_, hcalTPSentRecd_.begin()), HcalTrigPrimDigiCollection::key_compare());
+
+  int nHcalLinkErrors{0};
+  int nHcalMismatch{0};
 
   for ( const auto& tpPair : hcalTPSentRecd_ ) {
     const auto& sentTp = tpPair.first;
@@ -183,6 +201,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
     if ( linkError ) {
       hcalLinkError_->Fill(ieta, iphi);
       hcalLinkErrorByLumi_->Fill(event.id().luminosityBlock());
+      nHcalLinkErrors++;
     }
 
     if ( recdTp.SOI_compressedEt() > tpFillThreshold_ ) {
@@ -202,7 +221,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
     if ( sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt() && sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain() ) {
       // Full match
-      if ( sentTp.SOI_compressedEt() > 0 ) {
+      if ( sentTp.SOI_compressedEt() > tpFillThreshold_ ) {
         hcalOccSentAndRecd_->Fill(ieta, iphi);
         hcalTPRawEtSentAndRecd_->Fill(sentTp.SOI_compressedEt());
       }
@@ -211,6 +230,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       // There is some issue
       hcalDiscrepancy_->Fill(ieta, iphi);
       hcalMismatchByLumi_->Fill(event.id().luminosityBlock());
+      nHcalMismatch++;
 
       if ( sentTp.SOI_compressedEt() != recdTp.SOI_compressedEt() ) {
         if ( abs(ieta) > 29 ) {
@@ -233,8 +253,16 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
   }
 
 
+  if ( nHcalLinkErrors > maxEvtLinkErrorsHCALCurrentLumi_ ) {
+    maxEvtLinkErrorsHCALCurrentLumi_ = nHcalLinkErrors;
+  }
+  if ( nHcalMismatch > maxEvtMismatchHCALCurrentLumi_ ) {
+    maxEvtMismatchHCALCurrentLumi_ = nHcalMismatch;
+  }
+
+
   // Monitorables stored in Layer 1 raw data but
-  // not accessible from persistent data formats
+  // not accessible from existing persistent data formats
   Handle<FEDRawDataCollection> fedRawDataCollection;
   event.getByToken(fedRawData_, fedRawDataCollection);
   if (fedRawDataCollection.isValid()) {
@@ -287,6 +315,46 @@ void L1TStage2CaloLayer1::beginLuminosityBlock(const edm::LuminosityBlock&, cons
       last20Mismatches_->setBinContent(itype+1, ibin, binContent);
     }
   }
+}
+
+void L1TStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
+  auto id = static_cast<double>(lumi.id().luminosityBlock()); // uint64_t
+
+  if ( maxEvtLinkErrorsECALCurrentLumi_ > 0 ) {
+    maxEvtLinkErrorsByLumiECAL_->Fill(id, maxEvtLinkErrorsECALCurrentLumi_);
+  }
+  if ( maxEvtLinkErrorsHCALCurrentLumi_ > 0 ) {
+    maxEvtLinkErrorsByLumiHCAL_->Fill(id, maxEvtLinkErrorsHCALCurrentLumi_);
+  }
+  if ( maxEvtLinkErrorsECALCurrentLumi_+maxEvtLinkErrorsHCALCurrentLumi_ > 0 ) {
+    maxEvtLinkErrorsByLumi_->Fill(id, maxEvtLinkErrorsECALCurrentLumi_+maxEvtLinkErrorsHCALCurrentLumi_);
+  }
+  maxEvtLinkErrorsECALCurrentLumi_ = 0;
+  maxEvtLinkErrorsHCALCurrentLumi_ = 0;
+
+  if ( maxEvtMismatchECALCurrentLumi_ > 0 ) {
+    maxEvtMismatchByLumiECAL_->Fill(id, maxEvtMismatchECALCurrentLumi_);
+  }
+  if ( maxEvtMismatchHCALCurrentLumi_ > 0 ) {
+    maxEvtMismatchByLumiHCAL_->Fill(id, maxEvtMismatchHCALCurrentLumi_);
+  }
+  if ( maxEvtMismatchECALCurrentLumi_+maxEvtMismatchHCALCurrentLumi_ > 0 ) {
+    maxEvtMismatchByLumi_->Fill(id, maxEvtMismatchECALCurrentLumi_+maxEvtMismatchHCALCurrentLumi_);
+  }
+  maxEvtMismatchECALCurrentLumi_ = 0;
+  maxEvtMismatchHCALCurrentLumi_ = 0;
+
+  // Simple way to embed current lumi to auto-scale axis limits in render plugin
+  ecalLinkErrorByLumi_->getTH1F()->SetBinContent(0, id);
+  ecalMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  hcalLinkErrorByLumi_->getTH1F()->SetBinContent(0, id);
+  hcalMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  maxEvtLinkErrorsByLumiECAL_->getTH1F()->SetBinContent(0, id);
+  maxEvtLinkErrorsByLumiHCAL_->getTH1F()->SetBinContent(0, id);
+  maxEvtLinkErrorsByLumi_->getTH1F()->SetBinContent(0, id);
+  maxEvtMismatchByLumiECAL_->getTH1F()->SetBinContent(0, id);
+  maxEvtMismatchByLumiHCAL_->getTH1F()->SetBinContent(0, id);
+  maxEvtMismatchByLumi_->getTH1F()->SetBinContent(0, id);
 }
 
 void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , const edm::EventSetup& es) 
@@ -354,7 +422,7 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   hcalTPRawEtSent_           = bookEt("hcalTPRawEtSent", "HCal Raw Et uHTR Readout");
 
 
-  ibooker.setCurrentFolder(histFolder_+"/Mismatch");
+  ibooker.setCurrentFolder(histFolder_+"/MismatchDetail");
 
   const int nMismatchTypes = 5;
   last20Mismatches_ = ibooker.book2D("last20Mismatches", 
@@ -369,13 +437,24 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, "-");
 
   const int nLumis = 2000;
-  ecalLinkErrorByLumi_ = ibooker.book1D("ecalLinkErrorByLumi", "Link error counts per lumi section for ECAL", nLumis, .5, nLumis+0.5);
-  ecalMismatchByLumi_ = ibooker.book1D("ecalMismatchByLumi", "Mismatch counts per lumi section for ECAL", nLumis, .5, nLumis+0.5);
-  hcalLinkErrorByLumi_ = ibooker.book1D("hcalLinkErrorByLumi", "Link error counts per lumi section for HCAL", nLumis, .5, nLumis+0.5);
-  hcalMismatchByLumi_ = ibooker.book1D("hcalMismatchByLumi", "Mismatch counts per lumi section for HCAL", nLumis, .5, nLumis+0.5);
+  ecalLinkErrorByLumi_ = ibooker.book1D("ecalLinkErrorByLumi", "Link error counts per lumi section for ECAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  ecalMismatchByLumi_  = ibooker.book1D("ecalMismatchByLumi", "Mismatch counts per lumi section for ECAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  hcalLinkErrorByLumi_ = ibooker.book1D("hcalLinkErrorByLumi", "Link error counts per lumi section for HCAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  hcalMismatchByLumi_  = ibooker.book1D("hcalMismatchByLumi", "Mismatch counts per lumi section for HCAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
 
+  ECALmismatchesPerBx_ = ibooker.book1D("ECALmismatchesPerBx", "Mismatch counts per bunch crossing for ECAL", 3564, -.5, 3563.5);
   HBHEmismatchesPerBx_ = ibooker.book1D("HBHEmismatchesPerBx", "Mismatch counts per bunch crossing for HBHE", 3564, -.5, 3563.5);
   HFmismatchesPerBx_   = ibooker.book1D("HFmismatchesPerBx", "Mismatch counts per bunch crossing for HF", 3564, -.5, 3563.5);
+
+  maxEvtLinkErrorsByLumiECAL_ = ibooker.book1D("maxEvtLinkErrorsByLumiECAL", "Max number of single-event ECAL link errors per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  maxEvtLinkErrorsByLumiHCAL_ = ibooker.book1D("maxEvtLinkErrorsByLumiHCAL", "Max number of single-event HCAL link errors per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+
+  maxEvtMismatchByLumiECAL_ = ibooker.book1D("maxEvtMismatchByLumiECAL", "Max number of single-event ECAL discrepancies per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  maxEvtMismatchByLumiHCAL_ = ibooker.book1D("maxEvtMismatchByLumiHCAL", "Max number of single-event HCAL discrepancies per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+
+  ibooker.setCurrentFolder(histFolder_);
+  maxEvtLinkErrorsByLumi_     = ibooker.book1D("maxEvtLinkErrorsByLumi", "Max number of single-event link errors per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  maxEvtMismatchByLumi_       = ibooker.book1D("maxEvtMismatchByLumi", "Max number of single-event discrepancies per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
 
   ibooker.setCurrentFolder(histFolder_+"/AMC13ErrorCounters");
   bxidErrors_  = ibooker.book1D("bxidErrors", "bxid mismatch between AMC13 and CTP Cards;Layer1 Phi;Counts", 18, -.5, 17.5);

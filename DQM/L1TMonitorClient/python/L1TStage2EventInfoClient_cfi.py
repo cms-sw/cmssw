@@ -43,10 +43,15 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
+                                QualityTestName = cms.string("Layer1LinkErrorThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiECAL"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("Layer1MismatchThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiECAL"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
                             )
                         ),
                     cms.PSet(
@@ -55,10 +60,15 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
+                                QualityTestName = cms.string("Layer1LinkErrorThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiHCAL"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("Layer1MismatchThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiHCAL"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
                             )
                         ),
                     cms.PSet(
@@ -67,13 +77,13 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("Layer1LinkError"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/ecalLinkError"),
+                                QualityTestName = cms.string("Layer1LinkErrorThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/maxEvtLinkErrorsByLumi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("Layer1LinkError"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/hcalLinkError"),
+                                QualityTestName = cms.string("Layer1MismatchThreshold"),
+                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/maxEvtMismatchByLumi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
