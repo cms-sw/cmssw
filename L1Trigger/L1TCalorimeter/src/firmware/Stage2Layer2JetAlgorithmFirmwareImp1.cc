@@ -465,10 +465,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       unsigned int compBin =  (etaBin<<4) | ptBin;
 
       unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
-
       unsigned int multiplier = addPlusMult & 0x3ff;
-      // CHECK: 0x80 or 0x7F for two's complement?
-      int addend = (addPlusMult>>17) ? ((addPlusMult>>10) - 0x100) : ( (addPlusMult>>10) & 0x7f );
+      // handles -ve numbers correctly
+      int8_t addend = (addPlusMult>>10);
       unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
 
       math::XYZTLorentzVector p4;
