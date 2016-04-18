@@ -152,6 +152,20 @@ void HistogramManager::executePerEventHarvesting() {
     }
   }
 }
+
+std::string HistogramManager::makePath(GeometryInterface::Values const& significantvalues) {
+  // TODO: maybe more magic here for p/m, I/O, etc. 
+  std::ostringstream dir("");
+  for (auto e : significantvalues.values) {
+    std::string name = geometryInterface.pretty(e.first);
+    std::string value = "_" + std::to_string(e.second);
+    if (e.second == 0) value = ""; // hide Barrel_0 etc.
+    if (name == "") continue; // nameless dummy column is dropped
+    dir << name << value << "/";
+  }
+  return top_folder_name + "/" + dir.str();
+}
+
  
 void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup) {
   if (!enabled) return;
@@ -251,14 +265,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       AbstractHistogram& histo = t[significantvalues];
       if (histo.me) continue;
 
-      std::ostringstream dir("");
-      for (auto c : s.steps[0].columns) {
-	  auto entry = significantvalues.get(c);
-	  // col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
-	  if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
-      }
-
-      iBooker.setCurrentFolder(top_folder_name + "/" + dir.str());
+      iBooker.setCurrentFolder(makePath(significantvalues));
 
       if (dimensions == 0 || dimensions == 1) {
       	histo.me = iBooker.book1D(name.c_str(), (title + ";" + xlabel).c_str(), range_x_nbins, range_x_min, range_x_max);
@@ -312,19 +319,13 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
 	}
       }
     }
-
-    std::ostringstream dir(top_folder_name + "/", std::ostringstream::ate);
-    for (auto c : s.steps[0].columns) {
-	auto entry = significantvalues.get(c);
-	// col[0] = 0 implies col[1] = 0 which means invalid colum. This one was not there.
-	if (entry.first[0] != 0) dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
-    }
     // note that we call get() here for every single module. But the string 
     // ops above are probably more expensive anyways...
-    MonitorElement* me = iGetter.get(dir.str() + name);
+    std::string path = makePath(significantvalues) + name;
+    MonitorElement* me = iGetter.get(path);
     if (!me) {
       if(bookUndefined)
-	edm::LogError("HistogramManager") << "ME " << dir.str() + name << " not found\n";
+	edm::LogError("HistogramManager") << "ME " << path << " not found\n";
       // else this will happen quite often
     } else {
       // only touch the able if a me is added. Empty items are illegal.
@@ -342,12 +343,7 @@ void HistogramManager::executeSave(SummationStep& step, Table& t, DQMStore::IBoo
     assert(!bookUndefined || e.second.th1 || !"Missing histogram. Something is broken.");
     if (!e.second.th1) continue;
 
-    GeometryInterface::Values vals(e.first);
-    std::ostringstream dir("");
-    for (auto entry : vals.values) {
-	dir << geometryInterface.pretty(entry.first) << "_" << entry.second << "/";
-    }
-    iBooker.setCurrentFolder(top_folder_name + "/" + dir.str());
+    iBooker.setCurrentFolder(makePath(e.first));
 
     if (e.second.th1->GetDimension() == 1) {
       TAxis* ax = e.second.th1->GetXaxis();

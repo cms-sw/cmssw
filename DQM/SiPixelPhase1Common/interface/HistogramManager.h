@@ -67,6 +67,8 @@ private:
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
 
+  std::string makePath(GeometryInterface::Values const&);
+
   void executeStep1Spec(double x, double y,
                         GeometryInterface::Values& significantvalues, 
 			SummationSpecification& s, 
