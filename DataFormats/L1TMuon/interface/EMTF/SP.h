@@ -20,7 +20,7 @@ namespace l1t {
 	me4_CSC_ID(-99), me4_sector(-99), me4_neighbor(-99), me4_trk_stub_num(-99), me1_delay(-99), 
 	me2_delay(-99), me3_delay(-99), me4_delay(-99), tbin_num(-99), hl(-99), c(-99), vc(-99), 
 	vt(-99), se(-99), bc0(-99), pt(-99), phi_local(-99), phi_local_rad(-99), phi_global(-99), 
-	phi_GMT(-99), phi_GMT_corr(-99), phi_GMT_rad(-99), phi_GMT_global(-99), eta_GMT(-99), 
+	phi_GMT(-99), phi_GMT_corr(-99), phi_GMT_rad(-99), phi_GMT_global(-99),phi_GMT_global_rad(-99), eta_GMT(-99), 
 	format_errors(0), dataword(-99) 
 	{};
 
@@ -45,6 +45,9 @@ namespace l1t {
       float calc_eta_GMT(int bits)               { return bits * 0.010875;                                   };
       int   calc_eta_GMT_int(float val)          { return val / 0.010875;                                    };
       float calc_phi_global(float loc, int sect) { return loc + 15 + (sect - 1) * 60;                        };
+      float calc_phi_global_rad(float loc, int sect) {  float _phi_global_rad = (loc + 15 + (sect - 1) *60)*(pi/180); 
+                                                        if (_phi_global_rad>pi) _phi_global_rad-=2*pi;
+                                                        return _phi_global_rad; };
       int   calc_mode()                          { return 8*(me1_CSC_ID > 0) + 4*(me2_CSC_ID > 0) + 2*(me3_CSC_ID > 0) + (me4_CSC_ID > 0); };
 
       // Converts CSC_ID, sector, subsector, and neighbor
@@ -100,6 +103,7 @@ namespace l1t {
                                                      set_phi_GMT_corr_only(calc_phi_GMT_corr(phi_GMT_int));     };
       void set_phi_global(float loc, int sect)     { set_phi_global_only(calc_phi_global(loc, sect));           };
       void set_phi_GMT_global(float loc, int sect) { set_phi_GMT_global_only(calc_phi_global(loc, sect));       };
+      void set_phi_GMT_global_rad(float loc, int sect) {set_phi_GMT_global_rad_only(calc_phi_global_rad(loc, sect));};
       void set_eta_GMT_int(int  bits)              { eta_GMT_int = bits;
                                                      set_eta_GMT_only(calc_eta_GMT(eta_GMT_int));               };
       void set_eta_GMT(float val)                  { eta_GMT= val;
@@ -184,6 +188,7 @@ namespace l1t {
       float    Phi_GMT_corr()     const { return phi_GMT_corr;     };
       float    Phi_GMT_rad()      const { return phi_GMT_rad;      };
       float    Phi_GMT_global()   const { return phi_GMT_global;   };
+      float    Phi_GMT_global_rad() const { return phi_GMT_global_rad; };
       float    Eta_GMT()          const { return eta_GMT;          };
       int      Format_Errors()    const { return format_errors;    };
       uint64_t Dataword()         const { return dataword;         }; 
@@ -201,6 +206,7 @@ namespace l1t {
       void set_phi_GMT_rad_only(float val)    { phi_GMT_rad = val;    };
       void set_phi_GMT_int_only(int  bits)    { phi_GMT_int = bits;   };
       void set_phi_GMT_global_only(float val) { phi_GMT_global = val; };
+      void set_phi_GMT_global_rad_only(float val) {phi_GMT_global_rad = val; };
       void set_eta_GMT_only(float val)        { eta_GMT = val;        };
       void set_eta_GMT_int_only(int  bits)    { eta_GMT_int = bits;   };
 
@@ -248,6 +254,7 @@ namespace l1t {
       float phi_GMT_corr;
       float phi_GMT_rad;
       float phi_GMT_global;
+      float phi_GMT_global_rad;
       float eta_GMT;
       int  format_errors;
       uint64_t dataword;

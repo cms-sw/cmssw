@@ -13,24 +13,24 @@ namespace l1t {
       explicit EventHeader(uint64_t dataword);
     
     EventHeader() : 
-      l1a(-99), l1a_bxn(-99), sp_ts(-99), endcap(-99), sector(-99), sp_ersv(-99), sp_addr(-99), 
+      l1a(-99), l1a_bxn(-99), endcap(-99), sector(-99), sp_ersv(-99), sp_addr(-99), 
 	tbin(-99), ddm(-99), spa(-99), rpca(-99), skip(-99), rdy(-99), bsy(-99), osy(-99), 
 	wof(-99), me1a(-99), me1b(-99), me2(-99), me3(-99), me4(-99), format_errors(0), dataword(-99) 
 	{};
       
-    EventHeader(int int_l1a, int int_l1a_bxn, int int_sp_ts, int int_endcap, int int_sector, int int_sp_ersv, int int_sp_addr, 
+    EventHeader(int int_l1a, int int_l1a_bxn, int int_endcap, int int_sector, int int_sp_ersv, int int_sp_addr, 
 		int int_tbin, int int_ddm, int int_spa, int int_rpca, int int_skip, int int_rdy, int int_bsy, int int_osy, 
 		int int_wof, int int_me1a, int int_me1b, int int_me2, int int_me3, int int_me4) :
-      l1a(int_l1a), l1a_bxn(int_l1a_bxn), sp_ts(int_sp_ts), endcap(int_endcap), sector(int_sector), sp_ersv(int_sp_ersv), sp_addr(int_sp_addr), 
+      l1a(int_l1a), l1a_bxn(int_l1a_bxn), endcap(int_endcap), sector(int_sector), sp_ersv(int_sp_ersv), sp_addr(int_sp_addr), 
 	tbin(int_tbin), ddm(int_ddm), spa(int_spa), rpca(int_rpca), skip(int_skip), rdy(int_rdy), bsy(int_bsy), osy(int_osy), 
 	wof(int_wof), me1a(int_me1a), me1b(int_me1b), me2(int_me2), me3(int_me3), me4(int_me4), format_errors(0), dataword(-99)
     	{};
       
       virtual ~EventHeader() {};
-      
+     
+
       void set_l1a(int bits)           { l1a = bits;         };
       void set_l1a_bxn(int bits)       { l1a_bxn = bits;     };
-      void set_sp_ts(int bits)         { sp_ts = bits;       };
       void set_endcap(int bits)        { endcap = bits;      };
       void set_sector(int bits)        { sector = bits;      };
       void set_sp_ersv(int bits)       { sp_ersv = bits;     };
@@ -54,7 +54,6 @@ namespace l1t {
       
       int      L1A()           const { return l1a;           };
       int      L1A_BXN()       const { return l1a_bxn;       };
-      int      SP_ts()         const { return sp_ts;         };
       int      Endcap()        const { return endcap;        };
       int      Sector()        const { return sector;        };
       int      SP_ersv()       const { return sp_ersv;       };
@@ -79,7 +78,6 @@ namespace l1t {
     private:
       int l1a;
       int l1a_bxn;
-      int sp_ts;
       int endcap;
       int sector;
       int sp_ersv;
