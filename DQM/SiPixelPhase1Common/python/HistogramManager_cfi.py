@@ -31,7 +31,7 @@ DefaultHisto = cms.PSet(
   # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
   # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
   # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
-  defaultGrouping = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXLadder|PXBlade"),
+  defaultGrouping = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
 
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
