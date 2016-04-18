@@ -60,11 +60,12 @@ class ShiftedParticleProducer : public edm::stream::EDProducer<>
     }
   binningEntryType(const edm::ParameterSet& cfg, std::string moduleLabel)
   : binSelection_(new StringCutObjectSelector<reco::Candidate>(cfg.getParameter<std::string>("binSelection"))),
-      //binUncertainty_(cfg.getParameter<double>("binUncertainty")),
-      binUncertainty_(cfg.getParameter<std::string>("binUncertainty"))
+      binUncertainty_(cfg.getParameter<std::string>("binUncertainty")),
+      energyDep_(false)
     {
       binUncFormula_ = std::unique_ptr<TF2>(new TF2(std::string(moduleLabel).append("_uncFormula").c_str(), binUncertainty_.c_str() ) );
-      if(cfg.exists("energyDep") ) energyDep_=cfg.getParameter<bool>("energyDependency");
+      if(cfg.exists("energyDependency") ) {energyDep_=cfg.getParameter<bool>("energyDependency");
+      }
     }
     ~binningEntryType()
     {

@@ -52,7 +52,6 @@ full_80x_chs = cms.PSet(
  label = cms.string("full")
  )
 
-
 ####################################################################################################################                                                                                      
 full_76x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
