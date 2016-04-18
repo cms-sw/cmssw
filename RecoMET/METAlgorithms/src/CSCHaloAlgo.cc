@@ -11,7 +11,9 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 #include "TMath.h"
-#define c_cm_per_ns 29.9792458
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+};
 CSCHaloAlgo::CSCHaloAlgo()
 {
   deta_threshold = 0.;
@@ -397,10 +399,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,dt_highthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
        bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,dt_highthresh_segvsrh_eb,iZ,iR,iT,iPhi);
        bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,dt_highthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
-       calomatched = calomatched? true : (hbhematched|| ebmatched|| eematched);
-       HCALmatched = HCALmatched? true :hbhematched;
-       ECALBmatched = ECALBmatched? true :ebmatched;
-       ECALEmatched = ECALEmatched? true :eematched;
+       calomatched  |= (hbhematched || ebmatched || eematched);
+       HCALmatched  |= hbhematched;
+       ECALBmatched |= ebmatched;
+       ECALEmatched |= eematched;
 
        short int nSegs = 0;
        short int nSegs_alt = 0;

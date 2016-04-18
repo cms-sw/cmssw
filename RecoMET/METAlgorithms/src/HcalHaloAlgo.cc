@@ -7,9 +7,12 @@
   [description]: See HcalHaloAlgo.h
   [date]: October 15, 2009
 */
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+  constexpr float zseparation_HBHE = 380.;
+};
 
-#define c_cm_per_ns 29.9792458
-#define zseparation_HBHE 380.
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -236,10 +239,10 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   
   //Et threshold hardcoded for now. Might one to get it from config
 
-  std::vector<HaloClusterCandidateHB> haloclustercands_HB;
+  std::vector<HaloClusterCandidateHCAL> haloclustercands_HB;
   haloclustercands_HB=  GetHaloClusterCandidateHB(TheEBRecHits , TheHBHERecHits, 5);
 
-  std::vector<HaloClusterCandidateHE> haloclustercands_HE;
+  std::vector<HaloClusterCandidateHCAL> haloclustercands_HE;
   haloclustercands_HE=  GetHaloClusterCandidateHE(TheEERecHits , TheHBHERecHits, 10);
 
   TheHcalHaloData.setHaloClusterCandidatesHB(haloclustercands_HB);
@@ -257,14 +260,14 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
  
 
-std::vector<HaloClusterCandidateHB> HcalHaloAlgo::GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+std::vector<HaloClusterCandidateHCAL> HcalHaloAlgo::GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
 
-  std::vector<HaloClusterCandidateHB> TheHaloClusterCandsHB;
+  std::vector<HaloClusterCandidateHCAL> TheHaloClusterCandsHB;
 
   reco::Vertex::Point vtx(0,0,0);
 
   for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
-    HaloClusterCandidateHB  clustercand;
+    HaloClusterCandidateHCAL  clustercand;
     
     const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
     math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
@@ -367,14 +370,14 @@ std::vector<HaloClusterCandidateHB> HcalHaloAlgo::GetHaloClusterCandidateHB(edm:
 } 
 
 
-std::vector<HaloClusterCandidateHE> HcalHaloAlgo::GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+std::vector<HaloClusterCandidateHCAL> HcalHaloAlgo::GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
 
-  std::vector<HaloClusterCandidateHE> TheHaloClusterCandsHE;
+  std::vector<HaloClusterCandidateHCAL> TheHaloClusterCandsHE;
 
   reco::Vertex::Point vtx(0,0,0);
 
   for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
-    HaloClusterCandidateHE  clustercand;
+    HaloClusterCandidateHCAL  clustercand;
     
     const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
     math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
@@ -466,7 +469,7 @@ std::vector<HaloClusterCandidateHE> HcalHaloAlgo::GetHaloClusterCandidateHE(edm:
 
 
 
-bool HcalHaloAlgo::HBClusterShapeandTimeStudy( HaloClusterCandidateHB hcand, bool ishlt){
+bool HcalHaloAlgo::HBClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, bool ishlt){
   //Conditions on the central strip size in eta.
   //For low size, extra conditions on seed et, isolation and cluster timing 
   //Here we target both IT and OT beam halo. Two separate discriminators were built for the two cases.
@@ -492,7 +495,7 @@ bool HcalHaloAlgo::HBClusterShapeandTimeStudy( HaloClusterCandidateHB hcand, boo
 
 
 
-bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHE hcand, bool ishlt){
+bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, bool ishlt){
   //Conditions on H1/H123 to spot halo interacting only in one HCAL layer. 
   //For R> about 170cm, HE has only one layer and this condition cannot be applied
   //Note that for R>170 cm, the halo is in CSC acceptance and will most likely be spotted by the CSC-calo matching method

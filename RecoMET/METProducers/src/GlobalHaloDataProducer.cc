@@ -15,7 +15,7 @@ using namespace reco;
 GlobalHaloDataProducer::GlobalHaloDataProducer(const edm::ParameterSet& iConfig)
 {
 
-  ishlt = iConfig.getUntrackedParameter< bool> ("IsHLT",false);
+  ishlt = iConfig.getParameter< bool> ("IsHLT");
 
   //Higher Level Reco 
   IT_met = iConfig.getParameter<edm::InputTag>("metLabel");

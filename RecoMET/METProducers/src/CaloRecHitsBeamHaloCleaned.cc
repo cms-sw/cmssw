@@ -75,7 +75,7 @@ private:
 CaloRecHitsBeamHaloCleaned::CaloRecHitsBeamHaloCleaned(const edm::ParameterSet& iConfig)
 {
 
-  ishlt = iConfig.getUntrackedParameter< bool> ("IsHLT",false);
+  ishlt = iConfig.getParameter< bool> ("IsHLT");
 
 
 

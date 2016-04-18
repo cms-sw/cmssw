@@ -81,8 +81,11 @@ metFilters = cms.Sequence(
 #   HcalStripHaloFilter *
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *
-#  CSCTightHaloTrkMuUnvetoFilter *
-# CSCTightHalo2015Filter *
+   #Various proposals for updated halo filters.
+   ##2015 proposals: 
+   #CSCTightHaloTrkMuUnvetoFilter *
+   #CSCTightHalo2015Filter *
+   ##2016 proposals
    #globalTightHalo2016Filter*
    #globalSuperTightHalo2016Filter*
    EcalDeadCellTriggerPrimitiveFilter* 

@@ -1,5 +1,5 @@
-#ifndef DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHE_H
-#define DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHE_H
+#ifndef DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEECAL_H
+#define DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEECAL_H
 
 
 
@@ -7,6 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
@@ -14,21 +15,17 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "FWCore/Framework/interface/Event.h"
 
 
 namespace reco {
-class HaloClusterCandidateHE {
+class HaloClusterCandidateECAL {
 
  public:
-  HaloClusterCandidateHE();
-  ~HaloClusterCandidateHE(){};
+  HaloClusterCandidateECAL();
+  ~HaloClusterCandidateECAL(){}
 
   
 
@@ -42,15 +39,20 @@ class HaloClusterCandidateHE {
   double getTimeDiscriminator() const {return timediscriminator;}
   bool getIsHaloFromPattern() const {return ishalofrompattern;}
   bool getIsHaloFromPattern_HLT() const {return ishalofrompattern_hlt;}
-  //Specific to HE:
-  edm::RefVector<HBHERecHitCollection>  getBeamHaloRecHitsCandidates() const {return bhrhcandidates;}
-  double getEtStripPhiSeedPlus1() const {return etstrip_phiseedplus1;}
-  double getEtStripPhiSeedMinus1() const {return etstrip_phiseedminus1;}
-  double getEoverH() const {return eoverh;}
-  double getH1overH123() const {return h1overh123;}
+  const edm::RefVector<EcalRecHitCollection>&  getBeamHaloRecHitsCandidates() const {return bhrhcandidates;}
+
+  //Specific to EB:
+  double getEtStripIPhiSeedPlus1() const {return etstrip_iphiseedplus1;}
+  double getEtStripIPhiSeedMinus1() const {return etstrip_iphiseedminus1;}
+  double getHoverE() const {return hovere;}
+  int getNbofCrystalsInEta() const {return numberofcrystalsineta;}
+  //Specific to EE:
+  double getH2overE() const {return h2overe;}
+  int getNbEarlyCrystals() const {return nbearlycrystals;}
+  int getNbLateCrystals() const {return nblatecrystals;}
   int getClusterSize() const {return clustersize;}
-  
-  
+
+
   void setClusterEt(double x){ et=x;}
   void setSeedEt(double x){ seed_et=x;}
   void setSeedEta(double x){ seed_eta=x;}
@@ -61,27 +63,36 @@ class HaloClusterCandidateHE {
   void setTimeDiscriminator(double x){ timediscriminator=x;}
   void setIsHaloFromPattern(bool x) { ishalofrompattern=x;}
   void setIsHaloFromPattern_HLT(bool x) { ishalofrompattern_hlt=x;}
-  //Specific to HE:
-  void setBeamHaloRecHitsCandidates(edm::RefVector<HBHERecHitCollection>  x) {bhrhcandidates =x;}
-  void setEtStripPhiSeedPlus1(double x){ etstrip_phiseedplus1=x;}
-  void setEtStripPhiSeedMinus1(double x){ etstrip_phiseedminus1=x;}
-  void setEoverH(double x){eoverh=x;}
-  void setH1overH123(double x){h1overh123=x;}
+  void setBeamHaloRecHitsCandidates(edm::RefVector<EcalRecHitCollection>  x) {bhrhcandidates =x;}
+  //Specific to EB:
+  void setEtStripIPhiSeedPlus1(double x){ etstrip_iphiseedplus1=x;}
+  void setEtStripIPhiSeedMinus1(double x){ etstrip_iphiseedminus1=x;}
+  void setHoverE(double x){hovere=x;}
+  void setNbofCrystalsInEta(double x){numberofcrystalsineta=x;}
+  //Specific to EE:
+  void setH2overE(double x){h2overe=x;}
+  void setNbEarlyCrystals(int x){nbearlycrystals=x;}
+  void setNbLateCrystals(int x){nblatecrystals=x;}
   void setClusterSize(int x){clustersize=x;}
-  
+
+
  private:
   double et;
   double seed_et, seed_eta, seed_phi, seed_Z, seed_R, seed_time;
   double timediscriminator;
   bool ishalofrompattern;
   bool ishalofrompattern_hlt;
-  //Specific to HE:
-  double eoverh,h1overh123;
-  int clustersize;
-  double etstrip_phiseedplus1, etstrip_phiseedminus1;
-  edm::RefVector<HBHERecHitCollection>  bhrhcandidates;
-  
+  //Specific to EB:
+  double hovere;
+  int numberofcrystalsineta;
+  double etstrip_iphiseedplus1, etstrip_iphiseedminus1;
+  //Specific to EE:
+  double h2overe;
+  int nbearlycrystals, nblatecrystals, clustersize;
+
+  edm::RefVector<EcalRecHitCollection>  bhrhcandidates;
+    
 };
- typedef std::vector<HaloClusterCandidateHE> HaloClusterCandidateHECollection;
+ typedef std::vector<HaloClusterCandidateECAL> HaloClusterCandidateECALCollection;
 }
 #endif

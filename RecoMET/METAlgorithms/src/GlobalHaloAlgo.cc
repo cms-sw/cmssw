@@ -1,5 +1,7 @@
 #include "RecoMET/METAlgorithms/interface/GlobalHaloAlgo.h"
-#define c_cm_per_ns 29.9792458
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+};
 /*
   [class]:  GlobalHaloAlgo
   [authors]: R. Remington, The University of Florida
@@ -236,10 +238,10 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 
   
 
-  std::vector<HaloClusterCandidateEB> hccandEB= TheEcalHaloData.getHaloClusterCandidatesEB();
-  std::vector<HaloClusterCandidateEE> hccandEE= TheEcalHaloData.getHaloClusterCandidatesEE();
-  std::vector<HaloClusterCandidateHB> hccandHB= TheHcalHaloData.getHaloClusterCandidatesHB();
-  std::vector<HaloClusterCandidateHE> hccandHE= TheHcalHaloData.getHaloClusterCandidatesHE();
+  std::vector<HaloClusterCandidateECAL> hccandEB= TheEcalHaloData.getHaloClusterCandidatesEB();
+  std::vector<HaloClusterCandidateECAL> hccandEE= TheEcalHaloData.getHaloClusterCandidatesEE();
+  std::vector<HaloClusterCandidateHCAL> hccandHB= TheHcalHaloData.getHaloClusterCandidatesHB();
+  std::vector<HaloClusterCandidateHCAL> hccandHE= TheHcalHaloData.getHaloClusterCandidatesHE();
 
   //CSC-calo matching
   bool ECALBmatched(false), ECALEmatched(false),HCALBmatched(false),HCALEmatched(false);
@@ -309,10 +311,10 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       bool hbmatched =SegmentMatchingHB(TheGlobalHaloData,hccandHB,iZ,iR,iT,iPhi,ishlt);
       bool hematched =SegmentMatchingHE(TheGlobalHaloData,hccandHE,iZ,iR,iT,iPhi,ishlt);
       
-      ECALBmatched = ECALBmatched? true :ebmatched;
-      ECALEmatched = ECALEmatched? true :eematched;
-      HCALBmatched = HCALBmatched? true :hbmatched;
-      HCALEmatched = HCALEmatched? true :hematched;
+      ECALBmatched |= ebmatched;
+      ECALEmatched |= eematched;
+      HCALBmatched |= hbmatched;
+      HCALEmatched |= hematched;
       
     }
   }
@@ -370,7 +372,21 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   TheGlobalHaloData.SetHaloPatternFoundEE(HaloPatternFoundInEE);
   TheGlobalHaloData.SetHaloPatternFoundHB(HaloPatternFoundInHB);
   TheGlobalHaloData.SetHaloPatternFoundHE(HaloPatternFoundInHE);
-  
+    if(
+     HaloPatternFoundInEB||HaloPatternFoundInEE||HaloPatternFoundInHB||HaloPatternFoundInHE||
+     ECALBmatched||ECALEmatched||HCALBmatched||HCALEmatched
+     ){
+  cout <<"CSCCaloMatched in EB/EE/HB/HE : "
+       <<ECALBmatched <<", " 
+       <<ECALEmatched <<", " 
+       <<HCALBmatched <<", " 
+       <<HCALEmatched <<endl;
+
+  cout << "HaloPatternFoundIn EB/EE/HB/HE : "
+       << HaloPatternFoundInEB<<", "
+       << HaloPatternFoundInEE<<", "
+       << HaloPatternFoundInHB<<", "
+       << HaloPatternFoundInHE<<", "<<endl;}
   return TheGlobalHaloData;
 }
 
@@ -379,7 +395,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 
 
 
-bool GlobalHaloAlgo::SegmentMatchingEB(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateEB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+bool GlobalHaloAlgo::SegmentMatchingEB(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateECAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
   bool rhmatchingfound =false;
 
   for(auto & hcand : haloclustercands){
@@ -398,7 +414,7 @@ bool GlobalHaloAlgo::SegmentMatchingEB(reco::GlobalHaloData & thehalodata, std::
 }
 
 
-bool GlobalHaloAlgo::SegmentMatchingEE(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateEE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+bool GlobalHaloAlgo::SegmentMatchingEE(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateECAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
   bool rhmatchingfound =false;
   
   for(auto & hcand : haloclustercands){
@@ -417,7 +433,7 @@ bool GlobalHaloAlgo::SegmentMatchingEE(reco::GlobalHaloData & thehalodata, std::
 
 }
 
-bool GlobalHaloAlgo::SegmentMatchingHB(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateHB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+bool GlobalHaloAlgo::SegmentMatchingHB(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateHCAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
   bool rhmatchingfound =false;
 
   for(auto & hcand : haloclustercands){
@@ -436,7 +452,7 @@ bool GlobalHaloAlgo::SegmentMatchingHB(reco::GlobalHaloData & thehalodata, std::
 
 }
 
-bool GlobalHaloAlgo::SegmentMatchingHE(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateHE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
+bool GlobalHaloAlgo::SegmentMatchingHE(reco::GlobalHaloData & thehalodata, std::vector<HaloClusterCandidateHCAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt){
   bool rhmatchingfound =false;
 
   for(auto & hcand : haloclustercands){

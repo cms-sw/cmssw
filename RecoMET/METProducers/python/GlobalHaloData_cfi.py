@@ -49,7 +49,7 @@ GlobalHaloData = cms.EDProducer("GlobalHaloDataProducer",
                                 rcalominrsegm_highthresh_he = cms.double(30.),
                                 dtcalosegm_thresh_he = cms.double(15.),
                                 dphicalosegm_thresh_he = cms.double(0.1),
-                                IsHLT = cms.untracked.bool(False)
+                                IsHLT = cms.bool(False)
                                 
                                                                 
                                 )

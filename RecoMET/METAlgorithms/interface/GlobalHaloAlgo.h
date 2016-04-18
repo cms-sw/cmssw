@@ -142,10 +142,10 @@ class GlobalHaloAlgo {
 
   void AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata, bool isbarrel);
   void AddtoBeamHaloHBHERechits(edm::RefVector<HBHERecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata);
-  bool SegmentMatchingEB(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateEB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
-  bool SegmentMatchingEE(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateEE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
-  bool SegmentMatchingHB(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateHB>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
-  bool SegmentMatchingHE(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateHE>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingEB(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateECAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingEE(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateECAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHB(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateHCAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHE(reco::GlobalHaloData & thehalodata, std::vector<reco::HaloClusterCandidateHCAL>haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
   bool ApplyMatchingCuts(int subdet, bool ishlt, double rhet, double segZ, double rhZ, double segR, double rhR, double segT, double rhT, double segPhi, double rhPhi);
 
 };
