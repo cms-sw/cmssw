@@ -10,6 +10,16 @@
 
 #include "vdt/vdtMath.h"
 
+
+namespace {
+  inline
+  bool isBarrel(int cell_layer){
+    return (cell_layer == PFLayer::HCAL_BARREL1 ||
+	    cell_layer == PFLayer::HCAL_BARREL2 ||
+	    cell_layer == PFLayer::ECAL_BARREL);
+  }  
+}
+
 void Basic2DGenericPFlowPositionCalc::
 calculateAndSetPosition(reco::PFCluster& cluster) {
   calculateAndSetPositionActual(cluster);
@@ -53,6 +63,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   }
 
 
+  bool resGiven = bool(_timeResolutionCalcBarrel) & bool(_timeResolutionCalcEndcap);
   LHit mySeed={nullptr};
   for( auto const & rhf : hits ) {
     const reco::PFRecHit & refhit = *rhf.hit;
@@ -60,21 +71,19 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const auto rh_fraction = rhf.fraction;
     const auto rh_rawenergy = rhf.energy;
     const auto rh_energy = rh_rawenergy * rh_fraction;   
-    if( edm::isNotFinite(rh_energy) ) {
+#ifdef PF_DEBUG
+    if unlikely( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit.detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
+#endif
     cl_energy += rh_energy;
     // If time resolution is given, calculated weighted average
-    if ( bool(_timeResolutionCalcBarrel) & bool(_timeResolutionCalcEndcap) ) {
+    if ( resGiven ) {
       double res2 = 1.e-4;
       int cell_layer = (int)refhit.layer();
-      if (cell_layer == PFLayer::HCAL_BARREL1 ||
-          cell_layer == PFLayer::HCAL_BARREL2 ||
-          cell_layer == PFLayer::ECAL_BARREL)
-        res2 = 1./_timeResolutionCalcBarrel->timeResolution2(rh_rawenergy);
-      else
+      res2 =  isBarrel(cell_layer) ? 1./_timeResolutionCalcBarrel->timeResolution2(rh_rawenergy) :
         res2 = 1./_timeResolutionCalcEndcap->timeResolution2(rh_rawenergy);
       cl_time += rh_fraction*refhit.time()*res2;
       cl_timeweight += rh_fraction*res2;
@@ -115,12 +124,12 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHit & refhit = *rhf.hit;  
     const auto rh_energy = rhf.energy * rhf.fraction;
     const auto norm = ( rhf.fraction < _minFractionInCalc ? 
-			  0.0 : 
+			  0.0f : 
 			  std::max(0.0f,vdt::fast_logf(rh_energy*_logWeightDenom)) );
-    const auto rhpos_xyz = refhit.position();
-    x += rhpos_xyz.x() * norm;
-    y += rhpos_xyz.y() * norm;
-    z += rhpos_xyz.z() * norm;
+    const auto rhpos_xyz = refhit.position()*norm;
+    x += rhpos_xyz.x();
+    y += rhpos_xyz.y();
+    z += rhpos_xyz.z();
     depth += refhit.depth()*norm;
     position_norm += norm;
   };
