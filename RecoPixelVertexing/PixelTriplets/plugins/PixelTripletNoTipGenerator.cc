@@ -180,5 +180,5 @@ void PixelTripletNoTipGenerator::hitTriplets(
 					     const std::vector<const DetLayer *> & thirdLayerDetLayer,
 					     const int nThirdLayers)
 {
-  throw cms::Exception("Error")<<"[PixelTripletNoTipGenerator] dummy hitTriplets called but not supposed to be called \n";
+  throw cms::Exception("Error")<<"PixelTripletNoTipGenerator::hitTriplets is not implemented \n";
 }

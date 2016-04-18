@@ -217,7 +217,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
 					   const int nThirdLayers)
 {
-  throw cms::Exception("Error")<<"[PixelTripletLowPtGenerator] dummy hitTriplets called but not supposed to be called \n";
+  throw cms::Exception("Error")<<"PixelTripletLowPtGenerator::hitTriplets is not implemented \n";
 }
 
 
