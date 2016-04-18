@@ -445,7 +445,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     // pt : 8 -> 4 bits, eta 6 -> 4 bits
     // This then forms an address. Using the third LUT, we get a
     // multiplicand & addend, so we can do y = m*x + c on the original
-    // (i.e. non-compressed) jet pt
+    // (i.e. non-compressed) jet pt.
+    // The multiplicand is 10-bit unsigned, addend is 8-bit signed.
 
     //Loop over jets and apply corrections
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
