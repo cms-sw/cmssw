@@ -108,7 +108,8 @@ confAliProducer.setConfiguration(process,
     mode         = setupAlgoMode,
     monitorFile  = setupMonitorFile,
     binaryFile   = setupBinaryFile,
-    primaryWidth = setupPrimaryWidth)
+    primaryWidth = setupPrimaryWidth,
+    cosmicsZeroTesla = setupCosmicsZeroTesla)
 
 
 #########################
