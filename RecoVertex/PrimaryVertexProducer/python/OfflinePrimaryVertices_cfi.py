@@ -47,3 +47,11 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
                                         
 )
 
+# This customization is needed in the trackingLowPU era to be able to
+# produce vertices also in the cases in which the pixel detector is
+# not included in data-taking, like it was the case for "Quiet Beam"
+# collisions on 2016 with run 269207.
+
+from Configuration.StandardSequences.Eras import eras
+eras.trackingLowPU.toModify(offlinePrimaryVertices,
+                            TkFilterParameters = dict(minPixelLayersWithHits = 0))
