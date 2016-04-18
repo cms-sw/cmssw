@@ -460,11 +460,11 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       if (jetHwPt >= 0x200) {
         jetHwPt = 0x1FF;
       }
-      unsigned int ptBin = params_->jetCalibrationLUT()->data(jetHwPt>>1);
-      unsigned int etaBin = params_->jetCalibrationEtaLUT()->data(abs(jet->hwEta()));
+      unsigned int ptBin = params_->jetCompressPtLUT()->data(jetHwPt>>1);
+      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(jet->hwEta()));
       unsigned int compBin =  (etaBin<<4) | ptBin;
 
-      unsigned int addPlusMult = params_->jetCompressLUT()->data(compBin);
+      unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
 
       unsigned int multiplier = addPlusMult & 0x3ff;
       // CHECK: 0x80 or 0x7F for two's complement?

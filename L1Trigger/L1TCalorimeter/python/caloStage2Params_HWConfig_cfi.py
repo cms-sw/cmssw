@@ -100,9 +100,9 @@ jetCalibParamsVector.extend([
 ])
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector
 
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
-caloStage2Params.jetCalibrationEtaLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt") 
-caloStage2Params.jetCompressLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt")  
+caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
+caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt")
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
