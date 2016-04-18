@@ -202,8 +202,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
             for (const auto& jet: jets) {
 
-                if (! m_enabled) {
-                    // Module disabled. Simply copy the input jet.
+                if ((! m_enabled) || (jet.pt() == 0)) {
+                    // Module disabled or invalid p4. Simply copy the input jet.
                     smearedJets->push_back(jet);
 
                     continue;
@@ -233,12 +233,12 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                         std::cout << "gen jet:  pt: " << genJet->pt() << "  eta: " << genJet->eta() << "  phi: " << genJet->phi() << "  e: " << genJet->energy() << std::endl;
                     }
 
-                    double dE = jet.energy() - genJet->energy();
-                    smearFactor = 1 + (jer_sf - 1.) * dE / jet.energy();
+                    double dPt = jet.pt() - genJet->pt();
+                    smearFactor = 1 + (jer_sf - 1.) * dPt / jet.pt();
 
                 } else if (jer_sf > 1) {
                     /*
-                     * Case 2: we don't have a gen jet. Smear jet energy using a random gaussian variation
+                     * Case 2: we don't have a gen jet. Smear jet pt using a random gaussian variation
                      */
 
                     double sigma = jet_resolution * std::sqrt(jer_sf * jer_sf - 1);
@@ -247,7 +247,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     }
 
                     std::normal_distribution<> d(0, sigma);
-                    smearFactor = 1. + d(m_random_generator) / jet.energy();
+                    smearFactor = 1. + d(m_random_generator);
                 } else if (m_debug) {
                     std::cout << "Impossible to smear this jet" << std::endl;
                 }
