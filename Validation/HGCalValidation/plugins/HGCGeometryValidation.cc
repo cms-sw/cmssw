@@ -38,15 +38,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include <TH1.h>
-#include <TH2.h>
-#include <TH3.h>
-#include <TSystem.h>
-#include <TFile.h>
-#include <TProfile.h>
-
-#define SEP "\t"
-
 class HGCGeometryValidation : public DQMEDAnalyzer {
 
 public:
@@ -199,10 +190,10 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 				    const edm::EventSetup &iSetup) {
 
   //Accessing G4 information
-  try{
-    edm::Handle<PHGCalValidInfo> infoLayer;
-    iEvent.getByToken(g4Token_,infoLayer);
-	
+  edm::Handle<PHGCalValidInfo> infoLayer;
+  iEvent.getByToken(g4Token_,infoLayer);
+
+  if (infoLayer.isValid()) {
     //step vertex information
     std::vector<float> hitVtxX = infoLayer->hitvtxX();
     std::vector<float> hitVtxY = infoLayer->hitvtxY();
@@ -331,7 +322,7 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 
     }//end G4 hits
     
-  } catch(...) {
+  } else {
     edm::LogWarning("HGCalValid") << "No PHGCalInfo " << std::endl;
   }
 
