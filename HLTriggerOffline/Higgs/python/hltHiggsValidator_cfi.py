@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
+    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection 
@@ -173,7 +173,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2),
         PFMET_recCut = cms.untracked.string("pt > 20."), 
-        ),        
+        ),   
+    MuonJet = cms.PSet( 
+        hltPathsToCheck = cms.vstring(            
+            "HLT_Mu3_PFJet40_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        # -- Analysis specific cuts
+        Mu_genCut     = cms.string("pt > 0 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
+        Mu_recCut     = cms.string("pt > 0 && abs(eta) < 2.4 && isGlobalMuon"),
+        minCandidates = cms.uint32(2),
+        ),  
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
