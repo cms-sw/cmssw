@@ -690,7 +690,10 @@ public:
 
     std::string serialise(size_t _indent=0) {
       std::ostringstream json;
-      json << key_int("s", int(s)) << ',';   // line
+      json << key_int("s", int(s));   // line
+      // No more information needed if the state is 'accepted'
+      if (s == State::Pass) return json.str();
+      json << ',';
       json << key_int("m", m) << ',';
       json << key_int("l", l) << ',';
       json << key_int("t", t);
