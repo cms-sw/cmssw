@@ -99,10 +99,10 @@ caloParams = cms.ESProducer(
     etSumEtaMin              = cms.vint32(-999, -999, -999, -999),
     etSumEtaMax              = cms.vint32(999,  999,  999,  999),
     etSumEtThreshold         = cms.vdouble(0.,  0.,   0.,   0.),
-    etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
-    etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
-    etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
-    etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
 
 
     # HI
