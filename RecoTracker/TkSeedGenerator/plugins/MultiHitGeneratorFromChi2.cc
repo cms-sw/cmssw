@@ -201,7 +201,7 @@ void MultiHitGeneratorFromChi2::hitTriplets(
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
-  //std::map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
+
   //gc: loop over each layer
   for(int il = 0; il < nThirdLayers; il++) {
     LogTrace("MultiHitGeneratorFromChi2") << "considering third layer: with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first;

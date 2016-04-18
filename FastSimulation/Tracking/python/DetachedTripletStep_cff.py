@@ -17,7 +17,7 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
     hitMasks = cms.InputTag("detachedTripletStepMasks")
     )
 
-#del detachedTripletStepSeeds.pixelTripletGeneratorFactory.SeedComparitorPSet
+
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
