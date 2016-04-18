@@ -46,9 +46,19 @@ void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigne
 l1t::L1TGlobalUtil::~L1TGlobalUtil() { 
 }
 
-
 void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     edm::EDGetToken gtAlgToken) {
+
+  // typically, the L1T menu (may change only between Runs)
+  retrieveL1Run(evSetup);
+  // typically the L1T prescales and index of specific prescale set used (may change only between LumiBlocks)
+  retrieveL1LumiBlock(evSetup);
+  // typically the event by event accept/reject info (changes between Events)
+  retrieveL1Event(iEvent,evSetup,gtAlgToken);
+
+}
+
+void l1t::L1TGlobalUtil::retrieveL1Run(const edm::EventSetup& evSetup) {
 
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
@@ -68,6 +78,9 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 	
 	m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
+}
+
+void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
 
     // Fill the mask and prescales (dummy for now)
     if(!m_filledPrescales) {
@@ -115,9 +128,11 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        
       m_filledPrescales = true;
     }
+}
 
+void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
+					 edm::EDGetToken gtAlgToken) {
 
-   
 // Get the Global Trigger Output Algorithm block
      iEvent.getByToken(gtAlgToken,m_uGtAlgBlk);
      m_finalOR = false;
