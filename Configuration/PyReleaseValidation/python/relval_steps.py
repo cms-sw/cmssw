@@ -555,7 +555,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,R
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                           step1Defaults])
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,DIGI2RAW,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,DIGI2RAW,HLT:@relval25ns,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
                            '--beamspot'    : 'Realistic50ns13TeVCollision',
@@ -622,7 +622,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
 
 ### Fastsim: template to produce signal and overlay it with premixed minbias events
 FS_PREMIXUP15_PU25_OVERLAY = merge([
-        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval2016,VALIDATION",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
          "--datamix" : "PreMix",
          "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
          "--customise":"SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
