@@ -242,7 +242,8 @@ void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 	   ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x8000;
 	EcalTriggerPrimitiveSample sample(towerDatum); 
 	int zSide = cEta / ((int) iEta);
-	EcalSubdetector ecalTriggerTower = EcalSubdetector::EcalTriggerTower;
+        // As far as I can tell, the ECal unpacker only uses barrel and endcap IDs, never EcalTriggerTower
+	const EcalSubdetector ecalTriggerTower = (iEta > 17 ) ? EcalSubdetector::EcalEndcap : EcalSubdetector::EcalBarrel;
 	EcalTrigTowerDetId id(zSide, ecalTriggerTower, iEta, cPhi);
 	EcalTriggerPrimitiveDigi tpg(id);
 	tpg.setSize(1);
@@ -307,6 +308,8 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
       for(uint32_t iPhi = 0; iPhi < 2; iPhi++) {
 	if(iPhi == 1 && iEta == 40) iEta = 41;
 	int cPhi = 1 + lPhi * 4 + iPhi * 2; // Calorimeter phi index: 1, 3, 5, ... 71
+        if(iEta == 41) cPhi -= 2; // Last two HF are 3, 7, 11, ...
+        cPhi = (cPhi+69)%72 + 1; // cPhi -= 2 mod 72
 	int cEta = iEta;
 	if(negativeEta) cEta = -iEta;
 	// This code is fragile! Note that towerDatum is packed as is done in HcalTriggerPrimitiveSample
