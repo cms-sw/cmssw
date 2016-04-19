@@ -4,6 +4,7 @@
 // system
 #include <vector>
 #include <functional>
+#include <array>
 
 // fastsim tracking
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
@@ -12,13 +13,60 @@
 class TrackerTopology;
 class FastTrackerRecHit;
 
+
+
 class SeedFinder
 {
 
 public:
-    typedef std::function<bool(const std::vector<const FastTrackerRecHit *>& hits)> Selector;
+    class AbstractSelectorFunction
+    {
+        public:
+            virtual bool pass(const std::vector<const FastTrackerRecHit *>& hits) const = 0;
+            virtual unsigned int nHits() const = 0;
+    };
+
+    template<unsigned int N>
+    class SelectorFunction:
+        public AbstractSelectorFunction
+    {
+        public:
+            typedef std::function<bool(const std::array<const FastTrackerRecHit *, N>& hits)> Selector;
+        private:
+            Selector _selector;
+        public:
+            SelectorFunction(Selector selector):
+                _selector(selector)
+            {
+            }
+
+            SelectorFunction operator=(Selector selector)
+            {
+                return SelectorFunction(selector);
+            }
+
+            virtual bool pass(const std::vector<const FastTrackerRecHit *>& hits) const
+            {
+                std::array<const FastTrackerRecHit*,N> args;
+                for (unsigned int i = 0; i < N; ++i)
+                {
+                    if (hits[i]==nullptr)
+                    {
+                        throw cms::Exception("FastSimulation/Tracking/SeedFinder") << "hit in selector function is null";
+                    }
+                    args[i]=hits[i];
+                }
+                return _selector(args);
+            }
+            virtual unsigned int nHits() const
+            {
+                return N;
+            }
+    };
+
+
 private:
-    Selector _selector;
+    std::vector<std::vector<AbstractSelectorFunction*>> _selectorFunctionsByHits;
     const SeedingTree<TrackingLayer>& _seedingTree;
     const TrackerTopology * _trackerTopology;
 
@@ -27,15 +75,17 @@ public:
         _seedingTree(seedingTree),
         _trackerTopology(&trackerTopology)
     {
-        _selector=[](const std::vector<const FastTrackerRecHit*>& hits) -> bool
-        {
-            return true;
-        };
     }
 
-    void setHitSelector(Selector selector)
+    void addHitSelector(AbstractSelectorFunction& abstractSelectorFunction)
     {
-        _selector = selector;
+        const unsigned int N = abstractSelectorFunction.nHits();
+        if (_selectorFunctionsByHits.size()<N)
+        {
+            _selectorFunctionsByHits.reserve(N);
+        }
+        //shift indices by -1 so that _selectorFunctionsByHits[0] tests 1 hit
+        _selectorFunctionsByHits[N-1].emplace_back(&abstractSelectorFunction);
     }
 
     std::vector<unsigned int> getSeed(const std::vector<const FastTrackerRecHit *>& trackerRecHits) const
@@ -64,7 +114,8 @@ public:
         //TODO: create pairs of TrackingLayer -> remove TrajectorySeedHitCandidate class
     }
     
-        
+    //this method attempts to insert the hit at position 'trackerRecHit' in 'trackerRecHits'
+    //into the seeding tree (stored as 'hitIndicesInTree')
     const SeedingNode<TrackingLayer>* insertHit(
         const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
         std::vector<int>& hitIndicesInTree,
@@ -80,21 +131,34 @@ public:
                     return nullptr;
                 }
 
-                //fill vector of Hits from node to root to be passed to the selector function
-                std::vector<const FastTrackerRecHit*> seedCandidateHitList(node->getDepth()+1);
-                seedCandidateHitList[node->getDepth()]=currentTrackerHit.hit();
-                const SeedingNode<TrackingLayer>* parentNode = node->getParent();
-                while (parentNode!=nullptr)
+                const unsigned int NHits = node->getDepth()+1;
+                if (_selectorFunctionsByHits.size()>=NHits)
                 {
-                    seedCandidateHitList[parentNode->getDepth()]=trackerRecHits[hitIndicesInTree[parentNode->getIndex()]].hit();
-                    parentNode = parentNode->getParent();
+                    //are there any selector functions stored for NHits?
+                    if (_selectorFunctionsByHits[NHits-1].size()>0)
+                    {
+                        //fill vector of Hits from node to root to be passed to the selector function
+                        std::vector<const FastTrackerRecHit*> seedCandidateHitList(node->getDepth()+1);
+                        seedCandidateHitList[node->getDepth()]=currentTrackerHit.hit();
+                        const SeedingNode<TrackingLayer>* parentNode = node->getParent();
+                        while (parentNode!=nullptr)
+                        {
+                            seedCandidateHitList[parentNode->getDepth()]=trackerRecHits[hitIndicesInTree[parentNode->getIndex()]].hit();
+                            parentNode = parentNode->getParent();
+                        }
+
+                        //loop over selector functions
+                        for (AbstractSelectorFunction* selectorFunction: _selectorFunctionsByHits[NHits-1])
+                        {
+                            if (!selectorFunction->pass(seedCandidateHitList))
+                            {
+                                return nullptr;
+                            }
+                        }
+                    }
                 }
 
-                if (!_selector(seedCandidateHitList))
-                {
-                    return nullptr;
-                }
-
+                //the hit was not rejected by all selector functions -> insert it into the tree
                 hitIndicesInTree[node->getIndex()]=trackerHit;
                 if (node->getChildrenSize()==0)
                 {

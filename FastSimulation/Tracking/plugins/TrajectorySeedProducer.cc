@@ -197,65 +197,44 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     {
         MultiHitGenerator->initES(es);
     }
-    std::unique_ptr<HitDoublets> hitDoublets;
-       
+
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
-    SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr,&hitDoublets](const std::vector<const FastTrackerRecHit*>& hits) mutable -> bool
+
+    SeedFinder::SelectorFunction<3> tripletSelector([&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
     {
-        // criteria for hit pairs
-        // based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
-        if (hits.size()==2)
+        const FastTrackerRecHit * innerHit = hits[0];
+        const FastTrackerRecHit * outerHit = hits[1];
+
+        const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
+        const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
+
+        std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
+        std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
+
+        const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
+        const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
+
+        HitDoublets result(ihm,ohm);
+        HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
+
+        if(result.size()!=0)
         {
-            const FastTrackerRecHit * innerHit = hits[0];
-            const FastTrackerRecHit * outerHit = hits[1];
-
-            const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
-            const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
-
-            std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
-            std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
-
-            //const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
-            //const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
-            const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
-            const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
-
-            HitDoublets result(ihm,ohm);
-            HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
-
-            if(result.size()!=0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
         else
         {
-
-            // no criteria for hit combinations that are not pairs
-            return true;
+            return false;
         }
-
-    };
+    });
     
-    if(skipSeedFinderSelector)
-    {
-        selectedTrackingRegion = regions[0].get();
-        selectorFunction = [](const std::vector<const FastTrackerRecHit*>& hits) -> bool
-        {
-            return true;
-        };
-    }
-
-
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
-    seedFinder.setHitSelector(selectorFunction);
-    
+    if(!skipSeedFinderSelector)
+    {
+        seedFinder.addHitSelector(tripletSelector);
+    }
+
     // loop over the combinations
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
     {
@@ -275,7 +254,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         // loop over the regions
         for(auto region = regions.begin();region != regions.end(); ++region)
         {
-
             // set the region
             selectedTrackingRegion = region->get();
 
