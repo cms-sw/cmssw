@@ -33,6 +33,9 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
 { 
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
   for (auto spec : spec_configs) {
+    // this would fit better in SummationSpecification(...), but it has to happen here.
+    auto conf = spec.getParameter<edm::ParameterSet>("conf");
+    if ( !conf.getParameter<bool>("enabled")) continue;
     addSpec(SummationSpecification(spec, geometryInterface));
   }
 }

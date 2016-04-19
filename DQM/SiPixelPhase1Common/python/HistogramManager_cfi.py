@@ -6,6 +6,9 @@ SiPixelPhase1Geometry = cms.PSet(
   # No options atm.
 )
 
+# the wrapping here is necessary to switch 'enabled' later.
+PerModule = cms.PSet(enabled = cms.bool(True))
+
 # Default histogram configuration. This is _not_ used automatically, but you 
 # can import and pass this (or clones of it) in the plugin config.
 DefaultHisto = cms.PSet(
@@ -31,7 +34,8 @@ DefaultHisto = cms.PSet(
   # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
   # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
   # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
-  defaultGrouping = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
+  defaultGrouping  = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
+  defaultPerModule = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade/PXBModule|PXPanel"),
 
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()

@@ -31,9 +31,14 @@ def parent(path):
   parts = val(path).split("/")
   return "/".join(parts[0:len(parts)-1])
 
+# do not change values here, Pass in a PSet instead
+DefaultConf = cms.PSet(enabled = cms.bool(True))
+
 class Specification(cms.PSet):
-  def __init__(self):
-    super(Specification, self).__init__(spec = cms.VPSet())
+  def __init__(self, conf = DefaultConf):
+    super(Specification, self).__init__()
+    self.spec = cms.VPSet()
+    self.conf = conf
     self._activeColumns = set()
     self._state = FIRST
 
