@@ -199,7 +199,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             {
                DTChamberId id( iWheel, iStation, iSector );
                unsigned int rawid = id.rawId();
+               printf("makeMuonGeometryRhoZ %d\n", rawid);
                FWGeometry::IdToInfoItr det = m_geom->find( rawid );
+               if (det == m_geom->mapEnd()) return container;
                estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
@@ -242,6 +244,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
       {
          unsigned int rawid = i->rawId();
          TEveGeoShape* shape = m_geom->getEveShape(rawid);
+         if (!shape) return cscContainer;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
          shape->SetName(Form(" e:%d r:%d s:%d chamber %d",i->endcap(), i->ring(), i->station(), i->chamber() ));
          cscContainer->AddElement(shape);
@@ -368,6 +371,7 @@ FWRPZViewGeometry::showPixelBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          shape->SetTitle(Form("PixelBarrel %d",*id));
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
@@ -394,7 +398,7 @@ FWRPZViewGeometry::showPixelEndcap( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("PixelEndCap %d",*id));
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
@@ -423,7 +427,8 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
            id != ids.end(); ++id )
       {
-         TEveGeoShape* shape = m_geom->getEveShape( *id ); 
+         TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
@@ -432,7 +437,7 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("TrackerBarrel %d",*id));
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
@@ -462,6 +467,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          addToCompound(shape, kFWTrackerEndcapColorIndex);
+
+         if (!shape) return;
          m_trackerEndcapElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
@@ -469,8 +476,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-
          shape->SetTitle(Form("TrackerEndcap %d",*id));
+         if (!shape) return;
          addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
@@ -528,6 +535,7 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
       for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
       {
          TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+         if (!shape) return;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
          m_rpcEndcapElements->AddElement(shape);
          gEve->AddToListTree(shape, true);
