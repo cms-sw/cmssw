@@ -48,7 +48,6 @@ public:
   bool decay();
   bool residualDecay();
   void finalizeEvent();
-  GenLumiInfoHeader *getGenLumiInfoHeader() const override;
   const char *classname() const { return "SherpaHadronizer"; }
 
 
@@ -249,8 +248,16 @@ void SherpaHadronizer::statistics()
   //set the internal cross section in pb in GenRunInfoProduct
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec_val,xsec_err));
   
+  if(rearrangeWeights){
+      edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;
+      for(auto &i: weightlist){
+          edm::LogVerbatim("SherpaHadronizer") << i;
+      }
+      for(auto &i: variationweightlist) {
+          edm::LogVerbatim("SherpaHadronizer") << i;
+      }
+  }
 
-  //~ runInfo().setWeightList(newWeightList);
 }
 
 
@@ -381,22 +388,7 @@ double CMS_SHERPA_RNG::Get() {
   return randomEngine->flat();
 
 }
-GenLumiInfoHeader *SherpaHadronizer::getGenLumiInfoHeader() const {
-  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
-  
-  if(rearrangeWeights){
-      edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;
-      for(auto &i: weightlist){
-          genLumiInfoHeader->weightNames().push_back(i);
-          edm::LogVerbatim("SherpaHadronizer") << i;
-      }
-      for(auto &i: variationweightlist) {
-          genLumiInfoHeader->weightNames().push_back(i);
-          edm::LogVerbatim("SherpaHadronizer") << i;
-      }
-  }
-  return genLumiInfoHeader;
-}
+
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 typedef edm::GeneratorFilter<SherpaHadronizer, gen::ExternalDecayDriver> SherpaGeneratorFilter;
