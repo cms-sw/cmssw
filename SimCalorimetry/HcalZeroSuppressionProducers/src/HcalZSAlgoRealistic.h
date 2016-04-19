@@ -29,7 +29,7 @@ private:
   bool keepMe(const HBHEDataFrame& inp, int start, int finish, int threshold, uint32_t hbhezsmask) const;
   bool keepMe(const HODataFrame& inp, int start, int finish, int threshold, uint32_t hozsmask) const;
   bool keepMe(const HFDataFrame& inp, int start, int finish, int threshold, uint32_t hfzsmask) const;
-  bool keepMe(const QIE10DataFrame& inp, int start, int finish, int threshold, uint32_t hfzsmask) const;
+  bool keepMe(const QIE10DataFrame& inp, int start, int finish, int threshold) const;
   bool keepMe(const HcalUpgradeDataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const;
 };
 
