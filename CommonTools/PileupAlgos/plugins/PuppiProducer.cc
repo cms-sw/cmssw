@@ -157,7 +157,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     else if(lPack->vertexRef().isNonnull() )  {
       pDZ        = lPack->dz();
       pD0        = lPack->dxy();
-      closestVtx = &(*(lPack->vertexRef()));
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
   
