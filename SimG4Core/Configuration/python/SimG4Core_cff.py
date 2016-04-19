@@ -6,3 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #
 from SimG4Core.Application.g4SimHits_cfi import *
 
+def _modifySimPhase2Common( obj ):
+    obj.HCalSD.TestNumberingScheme = True
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( g4SimHits, func=_modifySimPhase2Common )
