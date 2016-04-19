@@ -8,7 +8,7 @@ def main():
     path_formats = join(os.environ['CMSSW_BASE'],
                         'src/CondFormats/BTauObjects')
     path_tools = join(os.environ['CMSSW_BASE'],
-                      'src/RecoBTag/PerformanceDB/test')
+                      'src/CondTools/BTau/test')
 
     #  headers
     file_h = join(path_tools, 'BTagCalibrationStandalone.h')
@@ -26,7 +26,7 @@ def main():
             fout.write('\n\n')
 
     # implementation
-    file_cc = join(path_tools, 'BTagCalibrationStandalone.cc')
+    file_cc = join(path_tools, 'BTagCalibrationStandalone.cpp')
     print 'Creating', file_cc
     with open(file_cc, 'w') as fout:
         fout.write('#include "BTagCalibrationStandalone.h"\n')
@@ -41,6 +41,10 @@ def main():
                     if (line.startswith('#include "CondFormats') or
                         line.startswith('#include "FWCore')):
                         continue
+
+                    # cms exceptions cannot be used in the standalone version
+                    # in the cpp source, exceptions must be formatted to span three lines, where
+                    # the first and last lines are replaced.
                     elif 'throw cms::Exception' in line:
                         line = 'std::cerr << "ERROR in BTagCalibration: "\n'
                         err_on_line = line_no
