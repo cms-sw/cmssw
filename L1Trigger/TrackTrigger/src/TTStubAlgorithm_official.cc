@@ -1,4 +1,4 @@
-/*! \brief   Implementation of methods of TTStubAlgorithm_tab2013
+/*! \brief   Implementation of methods of TTStubAlgorithm_official
  *  \details Here, in the source file, the methods which do depend
  *           on the specific type <T> that can fit the template.
  *
@@ -8,11 +8,11 @@
  *
  */
 
-#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_tab2013.h"
+#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_tab2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement, 
                                                                        int &anOffset, 
                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const

@@ -1,5 +1,5 @@
-/*! \class   TTClusterAlgorithm_2d2013
- *  \brief   Class for "2d2013" algorithm to be used
+/*! \class   TTClusterAlgorithm_official
+ *  \brief   Class for "official" algorithm to be used
  *           in TTClusterBuilder
  *  \details 2D clusters: make 1D and then attach them to each other
  *           if their pixels are close to each other, CW cut at the end
@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef L1_TRACK_TRIGGER_CLUSTER_ALGO_2d2013_H
-#define L1_TRACK_TRIGGER_CLUSTER_ALGO_2d2013_H
+#ifndef L1_TRACK_TRIGGER_CLUSTER_ALGO_official_H
+#define L1_TRACK_TRIGGER_CLUSTER_ALGO_official_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,7 +29,7 @@
 #include <map>
 
 template< typename T >
-class TTClusterAlgorithm_2d2013 : public TTClusterAlgorithm< T >
+class TTClusterAlgorithm_official : public TTClusterAlgorithm< T >
 {
   private:
     /// Data members
@@ -41,14 +41,14 @@ class TTClusterAlgorithm_2d2013 : public TTClusterAlgorithm< T >
   public:
     /// Constructor
 
-    TTClusterAlgorithm_2d2013( int aWidthCut )
+    TTClusterAlgorithm_official( int aWidthCut )
       : TTClusterAlgorithm< T >( __func__ )
     {
       mWidthCut = aWidthCut;
     }
 
     /// Destructor
-    ~TTClusterAlgorithm_2d2013(){}
+    ~TTClusterAlgorithm_official(){}
 
     /// Clustering operations  
     void Cluster( std::vector< std::vector< T > > &output,
@@ -66,11 +66,11 @@ class TTClusterAlgorithm_2d2013 : public TTClusterAlgorithm< T >
 
 /// Function to compare clusters and sort them by row
 template< >
-bool TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b );
+bool TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b );
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
                                                            const std::vector< Ref_Phase2TrackerDigi_ > &input,
                                                            bool isPS ) const;
 
@@ -78,7 +78,7 @@ void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< 
 
 
 
-/*! \class   ES_TTClusterAlgorithm_2d2013
+/*! \class   ES_TTClusterAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
  *
  *  \author Nicola Pozzobon
@@ -87,7 +87,7 @@ void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< 
  */
 
 template< typename T >
-class  ES_TTClusterAlgorithm_2d2013: public edm::ESProducer
+class  ES_TTClusterAlgorithm_official: public edm::ESProducer
 {
   private:
     /// Data members
@@ -96,20 +96,20 @@ class  ES_TTClusterAlgorithm_2d2013: public edm::ESProducer
 
   public:
     /// Constructor
-    ES_TTClusterAlgorithm_2d2013( const edm::ParameterSet & p )
+    ES_TTClusterAlgorithm_official( const edm::ParameterSet & p )
       : mWidthCut( p.getParameter< int >("WidthCut") )
     {
       setWhatProduced( this );
     }
 
     /// Destructor
-    virtual ~ES_TTClusterAlgorithm_2d2013(){}
+    virtual ~ES_TTClusterAlgorithm_official(){}
 
     /// Implement the producer
     std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_2d2013< T >( mWidthCut );
+        new TTClusterAlgorithm_official< T >( mWidthCut );
 
       _theAlgo = std::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

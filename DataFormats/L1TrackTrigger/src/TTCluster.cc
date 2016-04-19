@@ -16,8 +16,7 @@ unsigned int TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2
 {
   int rowMin = 99999999;
   int rowMax = 0;
-  /// For broadside Clusters this is equivalent to theHits.size()
-  /// but for 2d or neighbor Clusters this is only the actual size in RPhi
+  /// this is only the actual size in RPhi
   for ( unsigned int i = 0; i < theHits.size(); i++ )
   {
     int row = 0;

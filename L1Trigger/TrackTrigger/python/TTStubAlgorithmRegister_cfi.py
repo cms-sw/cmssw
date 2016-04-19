@@ -2,43 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # First register all the hit matching algorithms, then specify preferred ones at end.
 
-# Hit matching algorithm a
-TTStubAlgorithm_a_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_a_Phase2TrackerDigi_")
-
-# Global geometry hit matching algorithm
-TTStubAlgorithm_globalgeometry_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_globalgeometry_Phase2TrackerDigi_",
-    ipWidth = cms.double(200.0),
-    minPtThreshold = cms.double(2.0),
-)
-
-# Pixel ray hit matching algorithm
-TTStubAlgorithm_pixelray_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_pixelray_Phase2TrackerDigi_",
-    ipWidth = cms.double(40.0),
-    minPtThreshold = cms.double(2.0),
-)
-
-# Window hit matching algorithm
-TTStubAlgorithm_window_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_window_Phase2TrackerDigi_",
-    ipWidth = cms.double(15.0),
-    minPtThreshold = cms.double(2.0),
-    RowResolution = cms.double(1.0),
-    ColResolution = cms.double(1.0)
-)
-
-# Window2012 hit matching algorithm
-TTStubAlgorithm_window2012_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_window2012_Phase2TrackerDigi_",
-    minPtThreshold = cms.double(2.0),
-)
-
-# Window2013 hit matching algorithm
-TTStubAlgorithm_window2013_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_window2013_Phase2TrackerDigi_",
-   minPtThreshold = cms.double(2.0),
-   zMatchingPS = cms.bool(False),
-   zMatching2S = cms.bool(True),
-)
-
 # Tab2013 hit matching algorithm
-TTStubAlgorithm_tab2013_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_tab2013_Phase2TrackerDigi_",
+TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
    zMatchingPS = cms.bool(False),
    zMatching2S = cms.bool(True),
    BarrelCut = cms.vdouble( 0, 2.5, 2.5, 3.0, 4.5, 5.5, 6.5 ), #Use 0 as dummy to have direct access using DetId to the correct element
@@ -64,5 +29,5 @@ TTStubAlgorithm_cbc3_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_cbc3_P
 # We prefer the global geometry algorithm for now in order not to break
 # anything. Override with process.TTStubAlgorithm_PSimHit_ = ...,
 # etc. in your configuration.
-TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer("TTStubAlgorithm_window2013_Phase2TrackerDigi_")
+TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer("TTStubAlgorithm_official_Phase2TrackerDigi_")
 

@@ -41,7 +41,7 @@ class TTClusterAlgorithm
     virtual ~TTClusterAlgorithm(){}
 
     /// Clustering operations
-    /// Overloaded method (***) to preserve the interface of all the algorithms but 2d2013
+    /// Overloaded method (***) to preserve the interface of all the algorithms but official
     virtual void Cluster( std::vector< std::vector< T > > &output,
                           const std::vector< T > &input,
                           bool module ) const
@@ -49,7 +49,7 @@ class TTClusterAlgorithm
       Cluster( output, input );
     }
 
-    /// Basic version common to all the algorithms but 2d2013
+    /// Basic version common to all the algorithms but official
     virtual void Cluster( std::vector< std::vector< T > > &output,
                           const std::vector< T > &input ) const
     {
@@ -59,9 +59,9 @@ class TTClusterAlgorithm
     /// NOTE
     /// When calling TTClusterAlgoHandle->Cluster( output, input, module )
     /// in L1TkClusterBuilder, this will go in the following way
-    /// * case 2d2013
+    /// * case official
     /// it will go with the overloaded method (***) which has its
-    /// specific implementation in TTClusterAlgorithm_2d2013.h
+    /// specific implementation in TTClusterAlgorithm_official.h
     /// * case "everything else"
     /// the overloaded method will call the basic one
     /// it is the basic one which has its specific implementation

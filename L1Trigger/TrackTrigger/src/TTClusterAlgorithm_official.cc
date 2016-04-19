@@ -1,4 +1,4 @@
-/*! \brief   Implementation of methods of TTClusterAlgorithm_2d2013
+/*! \brief   Implementation of methods of TTClusterAlgorithm_official
  *  \details Here, in the source file, the methods which do depend
  *           on the specific type <T> that can fit the template.
  *
@@ -7,18 +7,18 @@
  *
  */
 
-#include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_2d2013.h"
+#include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_official.h"
 
 /// Function to compare clusters and sort them by row
 template< >
-bool TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b )
+bool TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b )
 {
   return ( a->row() < b->row() );
 }
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d2013< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
                                                            const std::vector< Ref_Phase2TrackerDigi_ > &input,
                                                            bool isPS ) const
 {

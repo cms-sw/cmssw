@@ -1,5 +1,5 @@
-/*! \class   TTStubAlgorithm_tab2013
- *  \brief   Class for "tab2013" algorithm to be used
+/*! \class   TTStubAlgorithm_official
+ *  \brief   Class for "official" algorithm to be used
  *           in TTStubBuilder
  *  \details HW-friendly algorithm: layer-wise LUT.
  *           After moving from SimDataFormats to DataFormats,
@@ -35,7 +35,7 @@
 #include <typeinfo>
 
 template< typename T >
-class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
+class TTStubAlgorithm_official : public TTStubAlgorithm< T >
 {
   private:
     /// Data members
@@ -48,7 +48,7 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_tab2013( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
+    TTStubAlgorithm_official( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                              std::vector< double > setBarrelCut,
                              std::vector< std::vector< double > > setRingCut,
                              bool aPerformZMatchingPS, bool aPerformZMatching2S )
@@ -61,7 +61,7 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
     }
 
     /// Destructor
-    ~TTStubAlgorithm_tab2013(){}
+    ~TTStubAlgorithm_official(){}
 
     /// Matching operations
     void PatternHitCorrelation( bool &aConfirmation,
@@ -80,12 +80,12 @@ class TTStubAlgorithm_tab2013 : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_tab2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement,
                                                                        int &anOffset,
                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
-/*! \class   ES_TTStubAlgorithm_tab2013
+/*! \class   ES_TTStubAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
  *
  *  \author Nicola Pozzobon
@@ -94,7 +94,7 @@ void TTStubAlgorithm_tab2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( b
  */
 
 template< typename T >
-class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
+class ES_TTStubAlgorithm_official : public edm::ESProducer
 {
   private:
     /// Data members
@@ -110,7 +110,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
 
   public:
     /// Constructor
-    ES_TTStubAlgorithm_tab2013( const edm::ParameterSet & p )
+    ES_TTStubAlgorithm_official( const edm::ParameterSet & p )
     {
       mPerformZMatchingPS =  p.getParameter< bool >("zMatchingPS");
       mPerformZMatching2S =  p.getParameter< bool >("zMatching2S");
@@ -127,7 +127,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
     }
 
     /// Destructor
-    virtual ~ES_TTStubAlgorithm_tab2013(){}
+    virtual ~ES_TTStubAlgorithm_official(){}
 
     /// Implement the producer
     std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
@@ -139,7 +139,7 @@ class ES_TTStubAlgorithm_tab2013 : public edm::ESProducer
       record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
-      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_tab2013< T >( theTrackerGeom, theTrackerTopo, 
+      TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_official< T >( theTrackerGeom, theTrackerTopo, 
 	                                       setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );

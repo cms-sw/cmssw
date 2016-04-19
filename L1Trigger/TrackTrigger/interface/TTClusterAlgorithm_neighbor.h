@@ -85,7 +85,7 @@ void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::v
 
 
 
-/*! \class   ES_TTClusterAlgorithm_broadside
+/*! \class   ES_TTClusterAlgorithm_neighbor
  *  \brief   Class to declare the algorithm to the framework
  *
  *  \author Kristofer Henriksson
