@@ -228,13 +228,15 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
       // create the digi
       unsigned short offset = chipPosition * 128;
       const vector<unsigned char> &activeChannels = fr.Data()->getActiveChannels();
-      DetSet<TotemRPDigi> &digiDetSet = rpData.find_or_insert(detId);
     
       for (auto ch : activeChannels)
       {
         // skip masked channels
         if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end())
+        {
+          DetSet<TotemRPDigi> &digiDetSet = rpData.find_or_insert(detId);
           digiDetSet.push_back(TotemRPDigi(offset + ch));
+        }
       }
     }
 

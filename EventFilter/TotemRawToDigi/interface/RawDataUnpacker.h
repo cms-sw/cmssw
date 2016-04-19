@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
 
 #include "EventFilter/TotemRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/TotemRawToDigi/interface/SimpleVFATFrameCollection.h"
@@ -32,19 +33,19 @@ class RawDataUnpacker
     RawDataUnpacker(const edm::ParameterSet &conf);
 
     /// Unpack data from FED with fedId into `coll' collection.
-    int Run(int fedId, const FEDRawData &data, SimpleVFATFrameCollection &coll);
+    int Run(int fedId, const FEDRawData &data, std::vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll);
 
     /// Process one Opto-Rx (or LoneG) frame.
-    int ProcessOptoRxFrame(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc);
+    int ProcessOptoRxFrame(word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc);
 
     /// Process one Opto-Rx frame in serial (old) format
     int ProcessOptoRxFrameSerial(word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc);
 
     /// Process one Opto-Rx frame in parallel (new) format
-    int ProcessOptoRxFrameParallel(word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc);
+    int ProcessOptoRxFrameParallel(word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc);
 
     /// Process data from one VFAT in parallel (new) format
-    int ProcessVFATDataParallel(unsigned short *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc);
+    int ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc);
 };
 
 #endif
