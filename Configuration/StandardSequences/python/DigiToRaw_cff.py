@@ -26,6 +26,9 @@ ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 
 
+#until we have hcal raw data for phase 2....
+eras.phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
+
 # Remove siPixelRawData until we have phase1 pixel digis
 eras.phase1Pixel.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
 

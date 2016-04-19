@@ -46,4 +46,11 @@ particleFlowCluster = cms.Sequence(
     pfClusteringHO 
 )
 
+#HGCal
+def _modifyParticleFlowForHGCal( theProcess ):
+    theProcess.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff')
+    theProcess.pfClusteringHGCal = cms.Sequence(theProcess.particleFlowRecHitHGC)
+    theProcess.particleFlowCluster += theProcess.pfClusteringHGCal
 
+from Configuration.StandardSequences.Eras import eras
+modifyParticleFlowForHGCal_ = eras.phase2_hgcal.makeProcessModifier( _modifyParticleFlowForHGCal )

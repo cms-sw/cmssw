@@ -9,3 +9,9 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
 #
 #from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff import *
 
+#Common
+def _modifyecalTriggerPrimitiveDigisCommon( obj ):
+    obj.BarrelOnly = cms.bool(True)  
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( simEcalTriggerPrimitiveDigis, func=_modifyecalTriggerPrimitiveDigisCommon )
