@@ -33,6 +33,8 @@ SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
 SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
+from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
+
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
@@ -72,7 +74,6 @@ SiStripMonitorTrackCommon = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiSt
 SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
 
-from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
