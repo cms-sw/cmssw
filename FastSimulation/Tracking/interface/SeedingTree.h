@@ -61,18 +61,15 @@ class SeedingNode
         {
             if (_depth+1>=dataList.size())
             {
-                //std::cout<<"\tSeedingNode::insert: return"<<std::endl;
                 return false;
             }
             for (unsigned int ichild=0; ichild<_children.size();++ichild)
             {
                 if (allNodes[_children[ichild]]->getData()==dataList[_depth+1])
                 {
-                    //std::cout<<"\tSeedingNode::insert: has child "<<dataList[_depth+1].print()<<std::endl;
                     return allNodes[_children[ichild]]->insert(dataList,allNodes);
                 }
             }
-            //std::cout<<"\tSeedingNode::insert: create child "<<dataList[_depth+1].print()<<std::endl;
             SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[_depth+1],allNodes,_index);
             if (node->getDepth()+1>=dataList.size())
             {
@@ -170,9 +167,6 @@ class SeedingTree
         
         SingleSet _singleSet;
     public:
-        SeedingTree()
-        {
-        }
         
         //returns true if successfully inserted into tree
         bool insert(const std::vector<DATA>& dataList)
@@ -190,11 +184,9 @@ class SeedingTree
             {
                 if (_roots[iroot]->getData()==dataList[0])
                 {
-                    //std::cout<<"\tfound root: "<<dataList[0].print()<<std::endl;
                     return _roots[iroot]->insert(dataList,_allNodes);
                 }
             }
-            //std::cout<<"\tnew root: "<<dataList[0].print()<<std::endl;
             SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[0],_allNodes);
             _roots.push_back(node);
             return node->insert(dataList,_allNodes);
