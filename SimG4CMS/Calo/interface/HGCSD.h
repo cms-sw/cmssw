@@ -48,11 +48,12 @@ private:
 
   std::string                   nameX;
 
-  HGCalGeometryMode m_mode;
+  HGCalGeometryMode             m_mode;
   HGCNumberingScheme*           numberingScheme;
   G4int                         mumPDG, mupPDG; 
   double                        eminHit;
   ForwardSubdetector            myFwdSubdet_;
+  double                        slopeMin_;
 };
 
 #endif // HGCSD_h

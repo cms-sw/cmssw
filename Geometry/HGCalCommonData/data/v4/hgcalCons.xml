@@ -5,6 +5,7 @@
   <SpecPar name="HGCalEEReco">
     <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="Slope"      value="[etaMax:slope]"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
@@ -195,6 +196,7 @@
   <SpecPar name="HGCalHESiliconReco">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="Slope"      value="[etaMax:slope]"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
@@ -271,6 +273,7 @@
   <SpecPar name="HGCalHEScintillatorReco">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
+    <Parameter name="Slope"      value="[etaMax:slope]"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
