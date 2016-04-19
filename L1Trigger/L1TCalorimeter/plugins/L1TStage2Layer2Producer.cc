@@ -156,7 +156,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // loop over BX
   for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
-    std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>);
+    std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
     std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>);
     std::auto_ptr< std::vector<CaloCluster> > localClusters (new std::vector<CaloCluster>);
     std::auto_ptr< std::vector<EGamma> > localMPEGammas (new std::vector<EGamma>);
@@ -173,7 +173,20 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for(std::vector<CaloTower>::const_iterator tower = towers->begin(ibx);
 	tower != towers->end(ibx);
 	++tower) {
-      localTowers->push_back(*tower);
+
+      int mpEta = CaloTools::mpEta(tower->hwEta());
+      CaloTower tow(tower->p4(),
+		    tower->etEm(),
+		    tower->etHad(),
+		    tower->hwPt(),
+		    mpEta,
+		    tower->hwPhi(),
+		    tower->hwQual(),
+		    tower->hwEtEm(),
+		    tower->hwEtHad(),
+		    tower->hwEtRatio());
+      
+      localTowers->at(CaloTools::caloTowerHash(tow.hwEta(),tow.hwPhi())) = tow;
     }
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;
@@ -211,7 +224,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for( auto etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) 
       etsums->push_back(ibx, CaloTools::etSumP4Demux(*etsum));
 
-
+  
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;
 
   }

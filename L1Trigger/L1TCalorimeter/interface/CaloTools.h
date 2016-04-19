@@ -83,6 +83,8 @@ namespace l1t {
     static float towerPhiSize(int ieta);
 
     // conversion to other index systems
+    static int mpEta(int ieta);      // convert to internal MP numbering
+    static int caloEta(int ietaMP);  // convert from internal MP to Calo ieta
     static int regionEta(int ieta);  // RCT region
     static int gtEta(int ieta);      // GT eta scale
     static int gtPhi(int ieta, int iphi);      // GT phi scale

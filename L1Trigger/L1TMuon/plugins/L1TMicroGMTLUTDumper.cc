@@ -45,6 +45,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 
 #include <iostream>
 //
@@ -64,7 +65,7 @@ class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
       void dumpLut(MicroGMTLUT*, const std::string&);
 
       // ----------member data ---------------------------
-      std::unique_ptr<L1TMuonGlobalParams> microGMTParams;
+      std::unique_ptr<L1TMuonGlobalParamsHelper> microGMTParamsHelper;
       std::string m_foldername;
 
       std::shared_ptr<MicroGMTRankPtQualLUT> m_rankLUT;
@@ -110,7 +111,7 @@ L1TMicroGMTLUTDumper::L1TMicroGMTLUTDumper(const edm::ParameterSet& iConfig)
   //now do what ever other initialization is needed
   m_foldername = iConfig.getParameter<std::string> ("out_directory");
 
-  microGMTParams = std::unique_ptr<L1TMuonGlobalParams>(new L1TMuonGlobalParams());
+  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper());
 }
 
 
@@ -169,35 +170,35 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
   microGMTParamsRcd.get(microGMTParamsHandle);
 
-  microGMTParams = std::unique_ptr<L1TMuonGlobalParams>(new L1TMuonGlobalParams(*microGMTParamsHandle.product()));
-  if (!microGMTParams) {
+  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*microGMTParamsHandle.product()));
+  if (!microGMTParamsHelper) {
     edm::LogError("L1TMicroGMTLUTDumper") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
 
-  int fwVersion = microGMTParams->fwVersion();
-  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), fwVersion, microGMTParams->sortRankLUTPtFactor(), microGMTParams->sortRankLUTQualFactor());
+  int fwVersion = microGMTParamsHelper->fwVersion();
+  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParamsHelper->sortRankLUTPath(), fwVersion, microGMTParamsHelper->sortRankLUTPtFactor(), microGMTParamsHelper->sortRankLUTQualFactor());
 
-  m_absIsoCheckMemLUT = MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParams->absIsoCheckMemLUTPath(), fwVersion);
-  m_relIsoCheckMemLUT = MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParams->relIsoCheckMemLUTPath(), fwVersion);
-  m_idxSelMemPhiLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemPhiLUTPath(), l1t::MicroGMTConfiguration::PHI, fwVersion);
-  m_idxSelMemEtaLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemEtaLUTPath(), l1t::MicroGMTConfiguration::ETA, fwVersion);
+  m_absIsoCheckMemLUT = MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParamsHelper->absIsoCheckMemLUTPath(), fwVersion);
+  m_relIsoCheckMemLUT = MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParamsHelper->relIsoCheckMemLUTPath(), fwVersion);
+  m_idxSelMemPhiLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemPhiLUTPath(), l1t::MicroGMTConfiguration::PHI, fwVersion);
+  m_idxSelMemEtaLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemEtaLUTPath(), l1t::MicroGMTConfiguration::ETA, fwVersion);
 
-  m_bPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->bPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_oPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->oPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_fPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->fPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_bEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->bEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
-  m_oEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->oEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
-  m_fEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->fEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_bPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_oPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_fPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_bEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_oEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_fEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
 
-  m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), microGMTParams->bOPosMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_pos, fwVersion);
-  m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), microGMTParams->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
-  m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), microGMTParams->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
-  m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), microGMTParams->fONegMatchQualLUTMaxDR(), cancel_t::omtf_emtf_neg, fwVersion);
-  //m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), microGMTParams->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
-  m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), microGMTParams->ovlPosSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_pos, fwVersion);
-  m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), microGMTParams->ovlNegSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_neg, fwVersion);
-  m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), microGMTParams->fwdPosSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_pos, fwVersion);
-  m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), microGMTParams->fwdNegSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_neg, fwVersion);
+  m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->bOPosMatchQualLUTPath(), microGMTParamsHelper->bOPosMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_pos, fwVersion);
+  m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->bONegMatchQualLUTPath(), microGMTParamsHelper->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
+  m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fOPosMatchQualLUTPath(), microGMTParamsHelper->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
+  m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fONegMatchQualLUTPath(), microGMTParamsHelper->fONegMatchQualLUTMaxDR(), cancel_t::omtf_emtf_neg, fwVersion);
+  //m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->brlSingleMatchQualLUTPath(), microGMTParamsHelper->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
+  m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->ovlPosSingleMatchQualLUTPath(), microGMTParamsHelper->ovlPosSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_pos, fwVersion);
+  m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->ovlNegSingleMatchQualLUTPath(), microGMTParamsHelper->ovlNegSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_neg, fwVersion);
+  m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdPosSingleMatchQualLUTPath(), microGMTParamsHelper->fwdPosSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_pos, fwVersion);
+  m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdNegSingleMatchQualLUTPath(), microGMTParamsHelper->fwdNegSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_neg, fwVersion);
 }
 
 //define this as a plug-in
