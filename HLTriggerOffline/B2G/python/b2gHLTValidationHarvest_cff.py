@@ -71,5 +71,7 @@ b2gHLTriggerValidationHarvest = cms.Sequence(
     *b2gSingleElectronHLTValidationHarvest
     *b2gSingleJetHLTValidationHarvest
     *b2gDiJetHLTValidationHarvest
+    *b2gDoubleElectronHLTValidationHarvest
+    *b2gDoubleLeptonEleMuHLTValidationHarvest
     )
 
