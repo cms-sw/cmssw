@@ -41,13 +41,13 @@ namespace l1t {
     void setHasEM(bool hasEM);
     void setIsMerged(bool isMerged);
 
-    short int towerIEta();
-    short int towerIPhi();
-    short int rawEt();
-    short int isoEt();
-    short int nTT();
-    bool hasEM();
-    bool isMerged();
+    short int towerIEta() const;
+    short int towerIPhi() const;
+    short int rawEt() const;
+    short int isoEt() const;
+    short int nTT() const;
+    bool hasEM() const;
+    bool isMerged() const;
 
   private:
 
