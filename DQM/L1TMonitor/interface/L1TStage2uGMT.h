@@ -100,6 +100,10 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonCharge;
 
+  MonitorElement* ugmtMuonPhiBmtf;
+  MonitorElement* ugmtMuonPhiOmtf;
+  MonitorElement* ugmtMuonPhiEmtf;
+
   MonitorElement* ugmtMuonPtvsEta;
   MonitorElement* ugmtMuonPtvsPhi;
   MonitorElement* ugmtMuonPhivsEta;

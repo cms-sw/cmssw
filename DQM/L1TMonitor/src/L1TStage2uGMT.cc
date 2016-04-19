@@ -2,10 +2,10 @@
 
 
 L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
-    : ugmtBMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfSource"))),
-      ugmtOMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("omtfSource"))),
-      ugmtEMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonSource"))),
+    : ugmtBMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"))),
+      ugmtOMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("omtfProducer"))),
+      ugmtEMTFToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfProducer"))),
+      ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
@@ -21,7 +21,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ibooker.setCurrentFolder(monitorDir + "/BMTFInput");
 
   ugmtBMTFBX = ibooker.book1D("ugmtBMTFBX", "uGMT BMTF Input BX", 5, -2.5, 2.5);
-  ugmtBMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
+  ugmtBMTFBX->setAxisTitle("BX (Values #pm2 prescaled by 107)", 1);
 
   ugmtBMTFnMuons = ibooker.book1D("ugmtBMTFnMuons", "uGMT BMTF Input Muon Multiplicity", 37, -0.5, 36.5);
   ugmtBMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
@@ -61,7 +61,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ibooker.setCurrentFolder(monitorDir + "/OMTFInput");
 
   ugmtOMTFBX = ibooker.book1D("ugmtOMTFBX", "uGMT OMTF Input BX", 5, -2.5, 2.5);
-  ugmtOMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
+  ugmtOMTFBX->setAxisTitle("BX (Values #pm2 prescaled by 107)", 1);
 
   ugmtOMTFnMuons = ibooker.book1D("ugmtOMTFnMuons", "uGMT OMTF Input Muon Multiplicity", 37, -0.5, 36.5);
   ugmtOMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
@@ -113,7 +113,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ibooker.setCurrentFolder(monitorDir + "/EMTFInput");
 
   ugmtEMTFBX = ibooker.book1D("ugmtEMTFBX", "uGMT EMTF Input BX", 5, -2.5, 2.5);
-  ugmtEMTFBX->setAxisTitle("BX (Non-zero values prescaled by 107)", 1);
+  ugmtEMTFBX->setAxisTitle("BX (Values #pm2 prescaled by 107)", 1);
 
   ugmtEMTFnMuons = ibooker.book1D("ugmtEMTFnMuons", "uGMT EMTF Input Muon Multiplicity", 37, -0.5, 36.5);
   ugmtEMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
@@ -169,7 +169,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   for (int bin = 1; bin <= 12; ++bin) {
     ugmtBMTFBXvsProcessor->setBinLabel(bin, std::to_string(bin), 1);
   }
-  ugmtBMTFBXvsProcessor->setAxisTitle("BX (Non-zero values prescaled by 107)", 2);
+  ugmtBMTFBXvsProcessor->setAxisTitle("BX (Values #pm2 prescaled by 107)", 2);
 
   ugmtOMTFBXvsProcessor = ibooker.book2D("ugmtOMTFBXvsProcessor", "uGMT OMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
   ugmtOMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
@@ -177,7 +177,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtOMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
     ugmtOMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
   }
-  ugmtOMTFBXvsProcessor->setAxisTitle("BX (Non-zero values prescaled by 107)", 2);
+  ugmtOMTFBXvsProcessor->setAxisTitle("BX (Values #pm2 prescaled by 107)", 2);
 
   ugmtEMTFBXvsProcessor = ibooker.book2D("ugmtEMTFBXvsProcessor", "uGMT EMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
   ugmtEMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
@@ -185,11 +185,11 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtEMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
     ugmtEMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
   }
-  ugmtEMTFBXvsProcessor->setAxisTitle("BX (Non-zero values prescaled by 107)", 2);
+  ugmtEMTFBXvsProcessor->setAxisTitle("BX (Values #pm2 prescaled by 107)", 2);
 
   ugmtBXvsLink = ibooker.book2D("ugmtBXvsLink", "uGMT BX vs Input Links", 36, 35.5, 71.5, 5, -2.5, 2.5);
   ugmtBXvsLink->setAxisTitle("Link", 1);
-  ugmtBXvsLink->setAxisTitle("BX (Non-zero values prescaled by 107)", 2);
+  ugmtBXvsLink->setAxisTitle("BX (Values #pm2 prescaled by 107)", 2);
  
   ugmtMuonBX = ibooker.book1D("ugmtMuonBX", "uGMT Muon BX", 5, -2.5, 2.5);
   ugmtMuonBX->setAxisTitle("BX", 1);
@@ -232,6 +232,15 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtMuonCharge = ibooker.book1D("ugmtMuonCharge", "uGMT Muon Charge", 3, -1.5, 1.5);
   ugmtMuonCharge->setAxisTitle("Charge", 1);
+
+  ugmtMuonPhiBmtf = ibooker.book1D("ugmtMuonPhiBmtf", "uGMT Muon #phi for BMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiBmtf->setAxisTitle("#phi", 1);
+
+  ugmtMuonPhiOmtf = ibooker.book1D("ugmtMuonPhiOmtf", "uGMT Muon #phi for OMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiOmtf->setAxisTitle("#phi", 1);
+
+  ugmtMuonPhiEmtf = ibooker.book1D("ugmtMuonPhiEmtf", "uGMT Muon #phi for EMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiEmtf->setAxisTitle("#phi", 1);
 
   ugmtMuonPtvsEta = ibooker.book2D("ugmtMuonPtvsEta", "uGMT Muon p_{T} vs #eta", 100, -2.5, 2.5, 256, -0.5, 255.5);
   ugmtMuonPtvsEta->setAxisTitle("#eta", 1);
@@ -384,8 +393,11 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
     for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
+
+      int tfMuonIndex = Muon->tfMuonIndex();
+
       ugmtMuonBX->Fill(itBX);
-      ugmtMuonIndex->Fill(Muon->tfMuonIndex());
+      ugmtMuonIndex->Fill(tfMuonIndex);
       ugmtMuonhwPt->Fill(Muon->hwPt());
       ugmtMuonhwEta->Fill(Muon->hwEta());
       ugmtMuonhwPhi->Fill(Muon->hwPhi());
@@ -398,6 +410,14 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       ugmtMuonEta->Fill(Muon->eta());
       ugmtMuonPhi->Fill(Muon->phi());
       ugmtMuonCharge->Fill(Muon->charge());
+
+      if ((tfMuonIndex >= 0 && tfMuonIndex <=17) || (tfMuonIndex >= 90 && tfMuonIndex <=107)) {
+        ugmtMuonPhiEmtf->Fill(Muon->phi());
+      } else if ((tfMuonIndex >= 18 && tfMuonIndex <=35) || (tfMuonIndex >= 72 && tfMuonIndex <=89)) {
+        ugmtMuonPhiOmtf->Fill(Muon->phi());
+      } else {
+        ugmtMuonPhiBmtf->Fill(Muon->phi());
+      }
 
       ugmtMuonPtvsEta->Fill(Muon->eta(), Muon->pt());
       ugmtMuonPtvsPhi->Fill(Muon->phi(), Muon->pt());
