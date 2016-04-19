@@ -74,6 +74,8 @@ class trackerGEM : public edm::EDProducer {
   edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
 
   float ntracks, nmatch, nmatch_ge11, nmatch_ge21;
+  int n_X_MatchFound, n_Y_MatchFound, n_Dir_MatchFound;
+
 };
 
 #endif
