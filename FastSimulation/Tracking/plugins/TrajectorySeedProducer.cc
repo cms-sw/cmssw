@@ -201,7 +201,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
 
-    SeedFinder::SelectorFunction<3> tripletSelector([&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
+    SeedFinder::TripletSelector tripletSelector([&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
     {
         const FastTrackerRecHit * innerHit = hits[0];
         const FastTrackerRecHit * outerHit = hits[1];
@@ -232,7 +232,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
     if(!skipSeedFinderSelector)
     {
-        seedFinder.addHitSelector(tripletSelector);
+        seedFinder.addHitSelector(&tripletSelector);
     }
 
     // loop over the combinations

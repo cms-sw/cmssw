@@ -33,16 +33,11 @@ public:
         public:
             typedef std::function<bool(const std::array<const FastTrackerRecHit *, N>& hits)> Selector;
         private:
-            Selector _selector;
+            const Selector _selector;
         public:
-            SelectorFunction(Selector selector):
+            SelectorFunction(const Selector& selector):
                 _selector(selector)
             {
-            }
-
-            SelectorFunction operator=(Selector selector)
-            {
-                return SelectorFunction(selector);
             }
 
             virtual bool pass(const std::vector<const FastTrackerRecHit *>& hits) const
@@ -63,6 +58,10 @@ public:
                 return N;
             }
     };
+    typedef SelectorFunction<1> SingletSelector;
+    typedef SelectorFunction<2> DoubletSelector;
+    typedef SelectorFunction<3> TripletSelector;
+    typedef SelectorFunction<4> QuadrupletSelector;
 
 
 private:
@@ -77,15 +76,16 @@ public:
     {
     }
 
-    void addHitSelector(AbstractSelectorFunction& abstractSelectorFunction)
+    void addHitSelector(AbstractSelectorFunction* abstractSelectorFunction)
     {
-        const unsigned int N = abstractSelectorFunction.nHits();
+        const unsigned int N = abstractSelectorFunction->nHits();
         if (_selectorFunctionsByHits.size()<N)
         {
+            _selectorFunctionsByHits.resize(N);
             _selectorFunctionsByHits.reserve(N);
         }
         //shift indices by -1 so that _selectorFunctionsByHits[0] tests 1 hit
-        _selectorFunctionsByHits[N-1].emplace_back(&abstractSelectorFunction);
+        _selectorFunctionsByHits[N-1].push_back(abstractSelectorFunction);
     }
 
     std::vector<unsigned int> getSeed(const std::vector<const FastTrackerRecHit *>& trackerRecHits) const
