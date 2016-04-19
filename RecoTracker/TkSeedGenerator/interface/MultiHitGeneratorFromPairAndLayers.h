@@ -33,6 +33,15 @@ public:
                         SeedingLayerSetsHits::SeedingLayerSet pairLayers,
                         std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) = 0;
 
+  virtual void hitTriplets(
+			   const TrackingRegion& region, 
+			   OrderedMultiHits & result,
+			   const edm::EventSetup & es,
+			   const HitDoublets & doublets,
+			   const RecHitsSortedInPhi ** thirdHitMap,
+			   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+			   const int nThirdLayers)=0;
+
   const HitPairGeneratorFromLayerPair& pairGenerator() const { return *thePairGenerator; }
 
   void clear();

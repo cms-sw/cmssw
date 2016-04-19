@@ -171,3 +171,14 @@ void PixelTripletNoTipGenerator::hitTriplets(
   }
   delete [] thirdHitMap;
 }
+void PixelTripletNoTipGenerator::hitTriplets(
+					     const TrackingRegion& region,
+					     OrderedHitTriplets & result,
+					     const edm::EventSetup & es,
+					     const HitDoublets & doublets,
+					     const RecHitsSortedInPhi ** thirdHitMap,
+					     const std::vector<const DetLayer *> & thirdLayerDetLayer,
+					     const int nThirdLayers)
+{
+  throw cms::Exception("Error")<<"PixelTripletNoTipGenerator::hitTriplets is not implemented \n";
+}
