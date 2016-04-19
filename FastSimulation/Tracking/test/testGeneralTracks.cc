@@ -170,7 +170,7 @@ testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     std::cout << "Number of event analysed "
 	      << totalNEvt << std::endl; 
   
-  std::auto_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
   
   edm::Handle<std::vector<SimTrack> > fastSimTracks;
   iEvent.getByLabel("famosSimHits",fastSimTracks);
