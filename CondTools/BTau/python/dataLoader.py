@@ -3,13 +3,13 @@ import ROOT
 try:
     ROOT.BTagEntry
 except AttributeError:
-    ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cc+')
+    ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cpp+')
 
 try:
     ROOT.BTagEntry
 except AttributeError:
     print 'ROOT.BTagEntry is needed! Please copy ' \
-          'BTagCalibrationStandalone.[h|cc] to the working directory. Exit.'
+          'BTagCalibrationStandalone.[h|cpp] to the working directory. Exit.'
     exit(-1)
 
 separate_by_op   = False
