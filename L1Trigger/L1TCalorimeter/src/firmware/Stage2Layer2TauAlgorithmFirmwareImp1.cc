@@ -703,19 +703,20 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         //No iEta dependence in firmware
         secondaryCluster->setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
 
-        // finally compute secondary cluster energy
-        if(secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))
-        {
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        }
-        else
-        {
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
-        }
+        // NOT IN FIRMWARE
+        // // finally compute secondary cluster energy
+        // if(secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))
+        // {
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        // }
+        // else
+        // {
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        // }
 
         // compute cluster energy according to cluster flags
         if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNW);
