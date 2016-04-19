@@ -221,10 +221,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   //get the meta data
   m_triggerMenuDescription = menu->getComment();
   m_triggerMenuDate = menu->getDatetime();
-  m_triggerMenuImplementation =   ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuImplementation =  0; // FIXME: ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
-  m_triggerMenuUUID = ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuUUID = 0; // FIXME:  ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
@@ -515,21 +515,6 @@ template <typename T> std::string l1t::TriggerMenuParser::l1t2string( T data ){
   std::stringstream ss;
   ss << data;
   return ss.str();
-}
-std::string l1t::TriggerMenuParser::l1tDateTime2string( l1t::DateTime date ){
-  std::stringstream ss;
-  ss << std::setfill('0');
-  ss << std::setw(4) << date.year() << "-" << std::setw(2) << date.month() << "-" << std::setw(2) << date.day() << "T";
-  ss << std::setw(2) << date.hours() << ":" << std::setw(2) << date.minutes() << ":" << std::setw(2) << date.seconds();
-  //ss << data;
-  return ss.str();
-}
-int l1t::TriggerMenuParser::l1t2int( l1t::RelativeBx data ){  //l1t::RelativeBx
-  std::stringstream ss;
-  ss << data;
-  int value;
-  ss >> value;
-  return value;
 }
 int l1t::TriggerMenuParser::l1tstr2int( const std::string data ){ 
   std::stringstream ss;

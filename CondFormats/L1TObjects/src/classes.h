@@ -99,7 +99,6 @@ namespace CondFormats_L1TObjects {
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
 
-
     L1TGlobalParameters dummy19i;
     L1TUtmAlgorithm dummy19a;
     L1TUtmBin dummy19b;

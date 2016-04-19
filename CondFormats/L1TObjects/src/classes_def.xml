@@ -42,14 +42,26 @@
     <field name="sparams_" mapping="blob"/>
     <field name="uparams_" mapping="blob"/>
   </class>
+  <class name="std::vector<L1TMuonBarrelParams::Node>"/>
   <class name="L1TMuonBarrelParams">
-    <field name="pnodes_" mapping="blob"/>
+    <field name="pnodes_" mapping="blob"/>    
   </class>
   <class name="L1TMuonBarrelParams::Node">
     <field name="dparams_" mapping="blob"/>
     <field name="iparams_" mapping="blob"/>
     <field name="sparams_" mapping="blob"/>
     <field name="uparams_" mapping="blob"/>
+  </class>
+  <class name="std::vector<L1TMuonBarrelParams::LUT>"/>
+  <class name="L1TMuonBarrelParams::LUTParams::extLUT"/>
+  <class name="std::vector<L1TMuonBarrelParams::LUTParams::extLUT>"/>
+  <class name="L1TMuonBarrelParams::LUTParams">
+    <field name="pta_lut_" mapping="blob"/>
+    <field name="phi_lut_" mapping="blob"/>
+    <field name="pta_threshold_" mapping="blob"/>
+    <field name="qp_lut_" mapping="blob"/>
+    <field name="eta_lut_" mapping="blob"/>
+    <field name="ext_lut_" mapping="blob"/>
   </class>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
@@ -272,16 +284,53 @@
   </class>
   <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
+
+  <class name="std::vector<L1TUtmAlgorithm>"/>
+  <class name="std::map<std::string, L1TUtmAlgorithm>"/>
+  <class name="std::vector<L1TUtmBin>"/>
+  <class name="std::map<std::string, L1TUtmBin>"/>
+  <class name="std::vector<L1TUtmCondition>"/>
+  <class name="std::map<std::string, L1TUtmCondition>"/>
+  <class name="std::vector<L1TUtmCut>"/>
+  <class name="std::map<std::string, L1TUtmCut>"/>
+  <class name="std::vector<L1TUtmCutValue>"/>
+  <class name="std::map<std::string, L1TUtmCutValue>"/>
+  <class name="std::vector<L1TUtmObject>"/>
+  <class name="std::map<std::string, L1TUtmObject>"/>
+  <class name="std::vector<L1TUtmScale>"/>
+  <class name="std::map<std::string, L1TUtmScale>"/>
+  <class name="std::vector<L1TUtmTriggerMenu>"/>
+  <class name="std::map<std::string, L1TUtmTriggerMenu>"/>
+  <class name="L1TUtmAlgorithm">
+    <field name="rpn_vector_" mapping="blob" />
+  </class>
+  <class name="L1TUtmBin">
+  </class>
+  <class name="L1TUtmCondition">
+    <field name="objects_" mapping="blob" />
+    <field name="cuts_" mapping="blob" />
+  </class>
+  <class name="L1TUtmCut">
+  </class>
+  <class name="L1TUtmCutValue">
+  </class>
+  <class name="L1TUtmObject">
+    <field name="cuts_" mapping="blob" />
+  </class>
+  <class name="L1TUtmScale">
+    <field name="bins_" mapping="blob" />
+  </class>
+  <class name="L1TUtmTriggerMenu">
+    <field name="algorithm_map_" mapping="blob" />
+    <field name="condition_map_" mapping="blob" />
+    <field name="scale_map_" mapping="blob" />
+    <field name="external_map_" mapping="blob" />
+    <field name="token_to_condition_" mapping="blob" />
+  </class>    
+
   <class name="L1TGlobalParameters"/>
-  <class name="L1TUtmAlgorithm"/>
-  <class name="L1TUtmBin"/>
-  <class name="L1TUtmCondition"/>
-  <class name="L1TUtmCut"/>
-  <class name="L1TUtmCutValue"/>
-  <class name="L1TUtmObject"/>
-  <class name="L1TUtmScale"/>
-  <class name="L1TUtmTriggerMenu"/>
 </lcgdict>
+
 
 
 
