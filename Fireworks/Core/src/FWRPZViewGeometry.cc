@@ -199,7 +199,6 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             {
                DTChamberId id( iWheel, iStation, iSector );
                unsigned int rawid = id.rawId();
-               printf("makeMuonGeometryRhoZ %d\n", rawid);
                FWGeometry::IdToInfoItr det = m_geom->find( rawid );
                if (det == m_geom->mapEnd()) return container;
                estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
