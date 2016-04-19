@@ -527,10 +527,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	//	extract some info per event
 	int bx = e.bunchCrossing();
 
-	//	tmp
-	bool useD1 = false;
-	//	\tmp
-
 	//	some summaries... per event
 	int numHBHE(0), numHF(0), numCutHBHE(0), numCutHF(0);
 	int numCorrHBHE(0), numCorrHF(0);
@@ -560,8 +556,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			if (_ptype==fOnline)
 			{
 				_cOccupancyData2x3_depthlike.fill(tid);
-				HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(
-					HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
+				HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
 				if (jt!=cemul->end())
 					_cEtCorr2x3_TTSubdet.fill(tid, it->SOI_compressedEt(),
 						jt->SOI_compressedEt());
@@ -577,11 +572,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		int soiFG_d = it->SOI_fineGrain()?1:0;
 		tid.ietaAbs()>=29?numHF++:numHBHE++;
 
-		//	tmp
-		if (tid.depth()==1)
-			useD1 = true;
-		//	\tmp
-	
 		//	 fill w/o a cut
 		_cEtData_TTSubdet.fill(tid, soiEt_d);
 		_cEtData_depthlike.fill(tid, soiEt_d);
@@ -620,8 +610,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		}
 
 		//	FIND the EMULATOR DIGI
-		HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(
-			HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
+		HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
 		if (jt!=cemul->end())
 		{
 			//	if PRESENT!
@@ -782,8 +771,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_cOccupancyEmul2x3_depthlike.fill(tid);
 			continue;
 		}
-		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(
-			HcalTrigTowerDetId(tid.ieta(), tid.iphi(), useD1?1:0)));
+		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(tid));
 		int soiEt = it->SOI_compressedEt();
 
 		//	FILL/INCREMENT w/o a CUT
@@ -824,8 +812,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		}
 
 		//	FIND a data digi
-		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(
-			HcalTrigTowerDetId(tid.ieta(), tid.iphi(), useD1?1:0));
+		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
 		if (jt==cdata->end())
 		{
 			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
