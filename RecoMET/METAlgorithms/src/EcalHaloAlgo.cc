@@ -7,7 +7,9 @@
   [description]: See EcalHaloAlgo.h
   [date]: October 15, 2009
 */
-#define c_cm_per_ns 29.9792458 
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+};
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -206,10 +208,10 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   //These clusters are used as input for the halo pattern finding methods in EcalHaloAlgo and for the CSC-calo matching methods in GlobalHaloAlgo.     
 
   //Et threshold hardcoded for now. Might one to get it from config
-  std::vector<HaloClusterCandidateEB> haloclustercands_EB;
+  std::vector<HaloClusterCandidateECAL> haloclustercands_EB;
   haloclustercands_EB=  GetHaloClusterCandidateEB(TheEBRecHits , TheHBHERecHits, 5);
 
-  std::vector<HaloClusterCandidateEE> haloclustercands_EE;
+  std::vector<HaloClusterCandidateECAL> haloclustercands_EE;
   haloclustercands_EE=  GetHaloClusterCandidateEE(TheEERecHits , TheHBHERecHits, 10);
 
   TheEcalHaloData.setHaloClusterCandidatesEB(haloclustercands_EB);
@@ -221,13 +223,13 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
 
 
-std::vector<HaloClusterCandidateEB> EcalHaloAlgo::GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+std::vector<HaloClusterCandidateECAL> EcalHaloAlgo::GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
 
-  std::vector<HaloClusterCandidateEB> TheHaloClusterCandsEB;
+  std::vector<HaloClusterCandidateECAL> TheHaloClusterCandsEB;
   reco::Vertex::Point vtx(0,0,0);
 
   for(size_t ihit = 0; ihit<ecalrechitcoll->size(); ++ ihit){
-    HaloClusterCandidateEB  clustercand;
+    HaloClusterCandidateECAL  clustercand;
     
     const EcalRecHit & rechit = (*ecalrechitcoll)[ ihit ];
     math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
@@ -337,14 +339,14 @@ std::vector<HaloClusterCandidateEB> EcalHaloAlgo::GetHaloClusterCandidateEB(edm:
 
 
 
-std::vector<HaloClusterCandidateEE> EcalHaloAlgo::GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+std::vector<HaloClusterCandidateECAL> EcalHaloAlgo::GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
 
-  std::vector<HaloClusterCandidateEE> TheHaloClusterCandsEE;
+  std::vector<HaloClusterCandidateECAL> TheHaloClusterCandsEE;
 
   reco::Vertex::Point vtx(0,0,0);
 
   for(size_t ihit = 0; ihit<ecalrechitcoll->size(); ++ ihit){
-    HaloClusterCandidateEE  clustercand;
+    HaloClusterCandidateECAL  clustercand;
     
     const EcalRecHit & rechit = (*ecalrechitcoll)[ ihit ];
     math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
@@ -468,7 +470,7 @@ std::vector<HaloClusterCandidateEE> EcalHaloAlgo::GetHaloClusterCandidateEE(edm:
 
 
 
-bool EcalHaloAlgo::EBClusterShapeandTimeStudy( HaloClusterCandidateEB hcand, bool ishlt){
+bool EcalHaloAlgo::EBClusterShapeandTimeStudy( HaloClusterCandidateECAL hcand, bool ishlt){
   //Conditions on the central strip size in eta.
   //For low size, extra conditions on seed et, isolation and cluster timing 
   //The time condition only targets IT beam halo. 
@@ -491,7 +493,7 @@ bool EcalHaloAlgo::EBClusterShapeandTimeStudy( HaloClusterCandidateEB hcand, boo
 
 
 
-bool EcalHaloAlgo::EEClusterShapeandTimeStudy_OTBH(HaloClusterCandidateEE hcand, bool ishlt){
+bool EcalHaloAlgo::EEClusterShapeandTimeStudy_OTBH(HaloClusterCandidateECAL hcand, bool ishlt){
   //Separate conditions targeting IT and OT beam halos
   //For OT beam halos, just require enough crystals with large T
   if(hcand.getSeedEt()<20)return false;
@@ -506,7 +508,7 @@ bool EcalHaloAlgo::EEClusterShapeandTimeStudy_OTBH(HaloClusterCandidateEE hcand,
   return true;
 }
 
-bool EcalHaloAlgo::EEClusterShapeandTimeStudy_ITBH(HaloClusterCandidateEE hcand, bool ishlt){
+bool EcalHaloAlgo::EEClusterShapeandTimeStudy_ITBH(HaloClusterCandidateECAL hcand, bool ishlt){
   //Separate conditions targeting IT and OT beam halos 
   //For IT beam halos, fakes from collisions are higher => require the cluster size to be small. 
   //Only halos with R>100 cm are considered here.

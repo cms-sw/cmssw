@@ -40,8 +40,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-#include "DataFormats/METReco/interface/HaloClusterCandidateHB.h"
-#include "DataFormats/METReco/interface/HaloClusterCandidateHE.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
+
 
 
 class HcalHaloAlgo{
@@ -73,10 +73,10 @@ class HcalHaloAlgo{
   int GetPhiWedgeNHitsThreshold() { return NHitsThreshold;}
   
 
-  std::vector<reco::HaloClusterCandidateHB> GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ebrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
-  std::vector<reco::HaloClusterCandidateHE> GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& eerechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
-  bool HBClusterShapeandTimeStudy(reco::HaloClusterCandidateHB hcand, bool ishlt);
-  bool HEClusterShapeandTimeStudy(reco::HaloClusterCandidateHE hcand, bool ishlt);
+  std::vector<reco::HaloClusterCandidateHCAL> GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ebrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<reco::HaloClusterCandidateHCAL> GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& eerechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  bool HBClusterShapeandTimeStudy(reco::HaloClusterCandidateHCAL hcand, bool ishlt);
+  bool HEClusterShapeandTimeStudy(reco::HaloClusterCandidateHCAL hcand, bool ishlt);
 
 
 

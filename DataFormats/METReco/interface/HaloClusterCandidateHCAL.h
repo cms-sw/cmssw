@@ -1,5 +1,5 @@
-#ifndef DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHB_H
-#define DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHB_H
+#ifndef DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHCAL_H
+#define DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEHCAL_H
 
 
 
@@ -18,17 +18,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "FWCore/Framework/interface/Event.h"
 
 
 namespace reco {
-class HaloClusterCandidateHB {
+class HaloClusterCandidateHCAL {
 
  public:
-  HaloClusterCandidateHB();
-  ~HaloClusterCandidateHB(){};
+  HaloClusterCandidateHCAL();
+  ~HaloClusterCandidateHCAL(){}
 
   
 
@@ -41,15 +38,19 @@ class HaloClusterCandidateHB {
   double getSeedTime() const {return seed_time;}
   bool getIsHaloFromPattern() const {return ishalofrompattern;}
   bool getIsHaloFromPattern_HLT() const {return ishalofrompattern_hlt;}
-  //Specific to HB:
-  edm::RefVector<HBHERecHitCollection>  getBeamHaloRecHitsCandidates() const {return bhrhcandidates;}
   double getEoverH() const {return eoverh;}
+  double getEtStripPhiSeedPlus1() const {return etstrip_phiseedplus1;}
+  double getEtStripPhiSeedMinus1() const {return etstrip_phiseedminus1;}
+  edm::RefVector<HBHERecHitCollection>  getBeamHaloRecHitsCandidates() const {return bhrhcandidates;}
+  //Specific to HB:
   int getNbTowersInEta() const {return nbtowersineta;}
   double getTimeDiscriminatorITBH() const {return timediscriminatoritbh;}
   double getTimeDiscriminatorOTBH() const {return timediscriminatorotbh;}
-  double getEtStripPhiSeedPlus1() const {return etstrip_phiseedplus1;}
-  double getEtStripPhiSeedMinus1() const {return etstrip_phiseedminus1;}
-
+  //Specific to HE:
+  double getH1overH123() const {return h1overh123;}
+  int getClusterSize() const {return clustersize;}
+  double getTimeDiscriminator() const {return timediscriminator;}
+  
   void setClusterEt(double x){ et=x;}
   void setSeedEt(double x){ seed_et=x;}
   void setSeedEta(double x){ seed_eta=x;}
@@ -59,28 +60,37 @@ class HaloClusterCandidateHB {
   void setSeedTime(double x){ seed_time=x;}
   void setIsHaloFromPattern(bool x) { ishalofrompattern=x;}
   void setIsHaloFromPattern_HLT(bool x) { ishalofrompattern_hlt=x;}
-  //Specific to HB: 
-  void setBeamHaloRecHitsCandidates(edm::RefVector<HBHERecHitCollection>  x) {bhrhcandidates =x;}
   void setEoverH(double x){eoverh=x;}
+  void setEtStripPhiSeedPlus1(double x){etstrip_phiseedplus1=x;}
+  void setEtStripPhiSeedMinus1(double x){etstrip_phiseedminus1=x;}
+  void setBeamHaloRecHitsCandidates(edm::RefVector<HBHERecHitCollection>  x) {bhrhcandidates =x;}
+  //Specific to HB: 
   void setNbTowersInEta(double x){nbtowersineta=x;}
   void setTimeDiscriminatorITBH(double x){ timediscriminatoritbh=x;}
   void setTimeDiscriminatorOTBH(double x){ timediscriminatorotbh=x;}
-  void setEtStripPhiSeedPlus1(double x){etstrip_phiseedplus1=x;}
-  void setEtStripPhiSeedMinus1(double x){etstrip_phiseedminus1=x;}
+  //Specific to HE:
+  void setH1overH123(double x){h1overh123=x;}
+  void setClusterSize(int x){clustersize=x;}
+  void setTimeDiscriminator(double x){ timediscriminator=x;} 
 
  private:
   double et;
   double seed_et, seed_eta, seed_phi, seed_Z, seed_R, seed_time;
   bool ishalofrompattern;
   bool ishalofrompattern_hlt;
-  //Specific to HB:
-  double timediscriminatoritbh, timediscriminatorotbh;
   double eoverh;
-  int nbtowersineta;
   double etstrip_phiseedplus1, etstrip_phiseedminus1;
+  //Specific to HB:
+  int nbtowersineta;
+  double timediscriminatoritbh, timediscriminatorotbh;
+  //Specific to HE:
+  double h1overh123;
+  int clustersize;
+  double timediscriminator;
+
   edm::RefVector<HBHERecHitCollection>  bhrhcandidates;
   
 };
- typedef std::vector<HaloClusterCandidateHB> HaloClusterCandidateHBCollection;
+ typedef std::vector<HaloClusterCandidateHCAL> HaloClusterCandidateHCALCollection;
 }
 #endif

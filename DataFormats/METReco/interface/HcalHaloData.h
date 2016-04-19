@@ -11,8 +11,7 @@
 #include "DataFormats/METReco/interface/PhiWedge.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/METReco/interface/HaloClusterCandidateHB.h"
-#include "DataFormats/METReco/interface/HaloClusterCandidateHE.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 struct HaloTowerStrip {
     std::vector<std::pair<uint8_t, CaloTowerDetId> > cellTowerIds;
@@ -53,20 +52,20 @@ namespace reco {
     const std::vector<HaloTowerStrip>& getProblematicStrips() const {return problematicStripCollection;}
     std::vector<HaloTowerStrip>& getProblematicStrips()  {return problematicStripCollection;}
 
-    const std::vector<HaloClusterCandidateHB>& getHaloClusterCandidatesHB() const {return thehaloclustercands_hb;}
-    std::vector<HaloClusterCandidateHB>& getHaloClusterCandidatesHB(){return thehaloclustercands_hb;}
+    const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB() const {return thehaloclustercands_hb;}
+    std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB(){return thehaloclustercands_hb;}
 
-    const std::vector<HaloClusterCandidateHE>& getHaloClusterCandidatesHE() const {return thehaloclustercands_he;}
-    std::vector<HaloClusterCandidateHE>& getHaloClusterCandidatesHE(){return thehaloclustercands_he;}
+    const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE() const {return thehaloclustercands_he;}
+    std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE(){return thehaloclustercands_he;}
 
-    void setHaloClusterCandidatesHB(std::vector<HaloClusterCandidateHB> x){thehaloclustercands_hb =x;};
-    void setHaloClusterCandidatesHE(std::vector<HaloClusterCandidateHE> x){thehaloclustercands_he =x;};
+    void setHaloClusterCandidatesHB(const std::vector<HaloClusterCandidateHCAL>& x){thehaloclustercands_hb =x;};
+    void setHaloClusterCandidatesHE(const std::vector<HaloClusterCandidateHCAL>& x){thehaloclustercands_he =x;};
 
   private:
     std::vector<PhiWedge> PhiWedgeCollection;
     std::vector<HaloTowerStrip> problematicStripCollection;
-    std::vector<HaloClusterCandidateHB> thehaloclustercands_hb;
-    std::vector<HaloClusterCandidateHE> thehaloclustercands_he;
+    std::vector<HaloClusterCandidateHCAL> thehaloclustercands_hb;
+    std::vector<HaloClusterCandidateHCAL> thehaloclustercands_he;
     
   };
 }

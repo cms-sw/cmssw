@@ -39,8 +39,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
-#include "DataFormats/METReco/interface/HaloClusterCandidateEB.h"
-#include "DataFormats/METReco/interface/HaloClusterCandidateEE.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateECAL.h"
 
 class EcalHaloAlgo
 {
@@ -65,11 +64,11 @@ class EcalHaloAlgo
   void SetPhiWedgeThresholds(float SumE, int nhits) { SumEnergyThreshold = SumE ; NHitsThreshold = nhits ;}
 
 
-  std::vector<reco::HaloClusterCandidateEB> GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
-  std::vector<reco::HaloClusterCandidateEE> GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
-  bool EBClusterShapeandTimeStudy(reco::HaloClusterCandidateEB hcand, bool ishlt);
-  bool EEClusterShapeandTimeStudy_ITBH(reco::HaloClusterCandidateEE hcand, bool ishlt);
-  bool EEClusterShapeandTimeStudy_OTBH(reco::HaloClusterCandidateEE hcand, bool ishlt);
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  bool EBClusterShapeandTimeStudy(reco::HaloClusterCandidateECAL hcand, bool ishlt);
+  bool EEClusterShapeandTimeStudy_ITBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
+  bool EEClusterShapeandTimeStudy_OTBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
 
 
 
