@@ -46,7 +46,7 @@ public:
                                      float discr=0.) const;
 
 protected:
-  std::auto_ptr<BTagCalibrationReaderImpl> pimpl;
+  std::shared_ptr<BTagCalibrationReaderImpl> pimpl;
 };
 
 
