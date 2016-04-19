@@ -205,48 +205,41 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     {
         // criteria for hit pairs
         // based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
-        if(hits.size()==2)
+        if (hits.size()==2)
         {
-            const FastTrackerRecHit * firstHit = hits[0];
-            const FastTrackerRecHit * secondHit = hits[1];
+            const FastTrackerRecHit * innerHit = hits[0];
+            const FastTrackerRecHit * outerHit = hits[1];
 
-            const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
-            const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
+            const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
+            const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
 
-            std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
-            std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
+            std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
+            std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
 
-            const RecHitsSortedInPhi* fhm=new RecHitsSortedInPhi (firstHits, selectedTrackingRegion->origin(), firstLayer);
-            const RecHitsSortedInPhi* shm=new RecHitsSortedInPhi (secondHits, selectedTrackingRegion->origin(), secondLayer);
-            hitDoublets.reset(new HitDoublets(*fhm,*shm));
-            HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,*fhm,*shm,es,0,*hitDoublets);
-            return hitDoublets->size()!=0;
+            //const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
+            //const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
+            const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
+            const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
+
+            HitDoublets result(ihm,ohm);
+            HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
+
+            if(result.size()!=0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-
-        else if((pixelTripletGeneratorPtr||MultiHitGeneratorPtr)&& hits.size()==3 && hitDoublets->size()!=0)
+        else
         {
 
-            const FastTrackerRecHit * thirdHit = hits[2];
-            const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
-            std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
-            std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
-            const RecHitsSortedInPhi* thm=new RecHitsSortedInPhi (thirdHits, selectedTrackingRegion->origin(), thirdLayer);
-            if(pixelTripletGeneratorPtr)
-            {
-                OrderedHitTriplets Tripletresult;
-                pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
-                return Tripletresult.size()!=0;
-            }
-            if(MultiHitGeneratorPtr)
-            {
-                OrderedMultiHits  Tripletresult;
-                MultiHitGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,*hitDoublets,&thm,thirdLayerDetLayer,1);
-                return Tripletresult.size()!=0;
-            }
+            // no criteria for hit combinations that are not pairs
             return true;
         }
 
-        return true;
     };
     
     if(skipSeedFinderSelector)
