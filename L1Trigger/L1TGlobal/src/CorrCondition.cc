@@ -904,24 +904,24 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             if(corrPar.corrCutType & 0x1) {
 		  
 		  unsigned int preShift = precDeltaEtaLUT - corrPar.precEtaCut;
-		  LogDebug("L1TGlobal")    << "    Testing Delta Eta Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minEtaCutValue 
-		                           << "," << corrPar.maxEtaCutValue << "] with precision = " << corrPar.precEtaCut <<"\n"
+		  LogDebug("L1TGlobal")    << "    Testing Delta Eta Cut (" << lutObj0 << "," << lutObj1 << ") [" << (long long)(corrPar.minEtaCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxEtaCutValue*pow(10,preShift)) << "] with precision = " << corrPar.precEtaCut <<"\n"
 					   << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
 					   << "    Precision Shift = " << preShift << "\n"
-					   << "    deltaEta (shift)= " << (int)(deltaEtaLUT/pow(10,preShift)) << "\n"
+					   << "    deltaEta (shift)= " << (deltaEtaLUT/pow(10,preShift+corrPar.precEtaCut)) << "\n"
 					   << "    deltaEtaPhy = " <<  deltaEtaPhy << std::endl; 		      
 		  
-		  if(preShift>0) deltaEtaLUT /= pow(10,preShift);
-		  if( deltaEtaLUT >= corrPar.minEtaCutValue &&
-		      deltaEtaLUT <= corrPar.maxEtaCutValue ) {
+		  //if(preShift>0) deltaEtaLUT /= pow(10,preShift);
+		  if( deltaEtaLUT >= (long long)(corrPar.minEtaCutValue*pow(10,preShift)) &&
+		      deltaEtaLUT <= (long long)(corrPar.maxEtaCutValue*pow(10,preShift)) ) {
 
-		     LogDebug("L1TGlobal") << "    Passed Delta Eta Cut [" << corrPar.minEtaCutValue 
-		                           << "," << corrPar.maxEtaCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Passed Delta Eta Cut [" << (long long)(corrPar.minEtaCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxEtaCutValue*pow(10,preShift)) << "]" << std::endl;		      
 		       		  
 		 } else {
 		    
-		     LogDebug("L1TGlobal")  << "    Failed Delta Eta Cut [" << corrPar.minEtaCutValue 
-		                           << "," << corrPar.maxEtaCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal")  << "    Failed Delta Eta Cut [" << (long long)(corrPar.minEtaCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxEtaCutValue*pow(10,preShift)) << "]" << std::endl;		      
 		     reqResult = false;
 		 }	
 	     }
@@ -930,24 +930,24 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	     if(corrPar.corrCutType & 0x2) {
 	       	
 		  unsigned int preShift = precDeltaPhiLUT - corrPar.precPhiCut;	  
-		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minPhiCutValue 
-		                           << "," << corrPar.maxPhiCutValue << "] with precision = " << corrPar.precPhiCut <<"\n"
+		  LogDebug("L1TGlobal")  << "    Testing Delta Phi Cut (" << lutObj0 << "," << lutObj1 << ") [" << (long long)(corrPar.minPhiCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxPhiCutValue*pow(10,preShift)) << "] with precision = " << corrPar.precPhiCut <<"\n"
 					   << "    deltaPhiLUT = " << deltaPhiLUT  << "\n"
 					   << "    Precision Shift = " << preShift << "\n"
-					   << "    deltaPhi (shift)= " << (int)(deltaPhiLUT/pow(10,preShift)) << "\n"
+					   << "    deltaPhi (shift)= " << (deltaPhiLUT/pow(10,preShift+corrPar.precPhiCut)) << "\n"
 					   << "    deltaPhiPhy = " <<  deltaPhiPhy << std::endl;  		      
 		  
-		  if(preShift>0) deltaPhiLUT /= pow(10,preShift);
-		  if( deltaPhiLUT >= corrPar.minPhiCutValue &&
-		      deltaPhiLUT <= corrPar.maxPhiCutValue ) {
+		  //if(preShift>0) deltaPhiLUT /= pow(10,preShift);
+		  if( deltaPhiLUT >= (long long)(corrPar.minPhiCutValue*pow(10,preShift)) &&
+		      deltaPhiLUT <= (long long)(corrPar.maxPhiCutValue*pow(10,preShift)) ) {
 
-		     LogDebug("L1TGlobal")  << "    Passed Delta Phi Cut [" << corrPar.minPhiCutValue 
-		                           << "," << corrPar.maxPhiCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal")  << "    Passed Delta Phi Cut [" << (long long)(corrPar.minPhiCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxPhiCutValue*pow(10,preShift)) << "]" << std::endl;		      
                     
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Delta Phi Cut [" << corrPar.minPhiCutValue 
-		                           << "," << corrPar.maxPhiCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Failed Delta Phi Cut [" << (long long)(corrPar.minPhiCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxPhiCutValue*pow(10,preShift)) << "]" << std::endl;		      
 		     reqResult = false;
 		 }	
 	     }
@@ -960,26 +960,26 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  double deltaRSqPhy = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
 		  long long deltaRSq = deltaEtaLUT*deltaEtaLUT + deltaPhiLUT*deltaPhiLUT;
 				  
-		  LogDebug("L1TGlobal") << "    Testing Delta R Cut (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minDRCutValue 
-		                           << "," << corrPar.maxDRCutValue << "] with precision = " << corrPar.precDRCut <<"\n"
+		  LogDebug("L1TGlobal") << "    Testing Delta R Cut (" << lutObj0 << "," << lutObj1 << ") [" << (long long)(corrPar.minDRCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxDRCutValue*pow(10,preShift)) << "] with precision = " << corrPar.precDRCut <<"\n"
 					   << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
 					   << "    deltaEtaLUT = " << deltaEtaLUT << "\n"
 					   << "    deltaRSqLUT = " << deltaRSq <<  "\n"
 					   << "    Precision Shift = " << preShift << "\n" 
-					   << "    deltaRSqLUT (shift)= " << (int)(deltaRSq/pow(10,preShift))	<< "\n"				   
+					   << "    deltaRSqLUT (shift)= " << (deltaRSq/pow(10,preShift+corrPar.precDRCut))	<< "\n"				   
 					   << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;		      
 		  
-		  if(preShift>0) deltaRSq /= pow(10,preShift);
-		  if( deltaRSq >= corrPar.minDRCutValue &&
-		      deltaRSq <= corrPar.maxDRCutValue ) {
+		  //if(preShift>0) deltaRSq /= pow(10,preShift);
+		  if( deltaRSq >= (long long)(corrPar.minDRCutValue*pow(10,preShift)) &&
+		      deltaRSq <= (long long)(corrPar.maxDRCutValue*pow(10,preShift)) ) {
 
-		     LogDebug("L1TGlobal") << "    Passed Delta R Cut [" << corrPar.minDRCutValue 
-		                           << "," << corrPar.maxDRCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Passed Delta R Cut [" << (long long)(corrPar.minDRCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxDRCutValue*pow(10,preShift)) << "]" << std::endl;		      
                         
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Delta R Cut [" << corrPar.minDRCutValue 
-		                           << "," << corrPar.maxDRCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Failed Delta R Cut [" << (int)(corrPar.minDRCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxDRCutValue*pow(10,preShift)) << "]" << std::endl;		      
 		     reqResult = false;
 		 }	
 	    }  	 
@@ -1018,31 +1018,31 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  //Note: There is an assumption here that Cos and Cosh have the same precission
 		  unsigned int preShift = precPtLUTObj0  + precPtLUTObj1 + precCosLUT - corrPar.precMassCut;	
 		  
-		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass (" << lutObj0 << "," << lutObj1 << ") [" << corrPar.minMassCutValue 
-		                           << "," << corrPar.maxMassCutValue << "] with precision = " << corrPar.precMassCut <<"\n"
+		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass (" << lutObj0 << "," << lutObj1 << ") [" << (long long)(corrPar.minMassCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxMassCutValue*pow(10,preShift)) << "] with precision = " << corrPar.precMassCut <<"\n"
 					   << "    deltaPhiLUT  = " << deltaPhiLUT << "  cosLUT  = " << cosDeltaPhiLUT << "\n"
 					   << "    deltaEtaLUT  = " << deltaEtaLUT << "  coshLUT = " << coshDeltaEtaLUT << "\n"
 					   << "    etIndex0     = " << etIndex0 << "    pt0LUT      = " << ptObj0 << " PhyEt0 = " << et0Phy  << "\n"
 					   << "    etIndex1     = " << etIndex1 << "    pt1LUT      = " << ptObj1 << " PhyEt1 = " << et1Phy  <<"\n"
 					   << "    massSq/2     = " << massSq <<  "\n" 
 					   << "    Precision Shift = " << preShift << "\n"	
-					   << "    massSq   (shift)= " << (int)(massSq/pow(10,preShift)) << "\n"	      
+					   << "    massSq   (shift)= " << (massSq/pow(10,preShift+corrPar.precMassCut)) << "\n"	      
 					   << "    deltaPhiPhy  = " << deltaPhiPhy << "  cos() = " << cosDeltaPhiPhy << "\n"
 					   << "    deltaEtaPhy  = " << deltaEtaPhy << "  cosh()= " << coshDeltaEtaPhy << "\n"
 					   << "    massSqPhy/2  = " << massSqPhy << "  sqrt(|massSq|) = "<< sqrt(fabs(2.*massSqPhy)) << std::endl; 		      
 		  
-		  if(preShift>0) massSq /= pow(10,preShift);
+		  //if(preShift>0) massSq /= pow(10,preShift);
 		  if(  massSq > 0. &&
-		      massSq >= corrPar.minMassCutValue &&
-		      massSq <= corrPar.maxMassCutValue  ) {
+		      massSq >= (long long)(corrPar.minMassCutValue*pow(10,preShift)) &&
+		      massSq <= (long long)(corrPar.maxMassCutValue*pow(10,preShift))  ) {
 
-		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << corrPar.minMassCutValue 
-		                           << "," << corrPar.maxMassCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << (long long)(corrPar.minMassCutValue*pow(10,preShift))
+		                           << "," << (long long)(corrPar.maxMassCutValue*pow(10,preShift)) << "]" << std::endl;		      
                         
 		 } else {
 		    
-		     LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut [" << corrPar.minMassCutValue 
-		                           << "," << corrPar.maxMassCutValue << "]" << std::endl;		      
+		     LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut [" << (long long)(corrPar.minMassCutValue*pow(10,preShift)) 
+		                           << "," << (long long)(corrPar.maxMassCutValue*pow(10,preShift)) << "]" << std::endl;		      
 		     reqResult = false;
 		 }	
 	    } 
