@@ -21,19 +21,30 @@ RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &conf)
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::Run(int fedId, const FEDRawData &data, SimpleVFATFrameCollection &coll)
+int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll)
 {
   unsigned int size_in_words = data.size() / 8; // bytes -> words
-  return ProcessOptoRxFrame((word *) data.data(), size_in_words, &coll);
+  if (size_in_words < 2)
+  {
+    printf("ERROR in RawDataUnpacker::Run > Data in FED %i too short (size = %u words).\n", fedId, size_in_words);
+    return 1;
+  }
+
+  fedInfoColl.push_back(TotemFEDInfo(fedId));
+
+  return ProcessOptoRxFrame((word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
   unsigned long long foot = buf[frameSize-1];
+
+  fedInfo.setHeader(head);
+  fedInfo.setFooter(foot);
 
   unsigned int BOE = (head >> 60) & 0xF;
   unsigned int H0 = (head >> 0) & 0xF;
@@ -67,7 +78,7 @@ int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, Simpl
     return ProcessOptoRxFrameSerial(buf, frameSize, fc);
 
   if (FOV == 2)
-    return ProcessOptoRxFrameParallel(buf, frameSize, fc);
+    return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
 
   cerr << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Unknown FOV = " << FOV << endl;
   return 0;
@@ -159,17 +170,22 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(word *buf, unsigned int frameSize,
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameParallel(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessOptoRxFrameParallel(word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
   unsigned int OptoRxId = (head >> 8) & 0xFFF;
 
-  // recast data as buffer or 16bit words
-  // NOTE: it would be better to use uint16_t instead of unsigned short, but this requires C++11
-  unsigned short *payload = (unsigned short *) (buf + 1); // skip header
-  payload += 2;                                           // skip orbit counter block
-  unsigned int nWords = (frameSize-2) * 4 - 2;            // strip header, footer and orbit counter block
+  // recast data as buffer or 16bit words, skip header
+  uint16_t *payload = (uint16_t *) (buf + 1);
+
+  // read in OrbitCounter block
+  uint32_t *ocPtr = (uint32_t *) payload;
+  fedInfo.setOrbitCounter(*ocPtr);
+  payload += 2;
+
+  // size in 16bit words, without header, footer and orbit counter block
+  unsigned int nWords = (frameSize-2) * 4 - 2;
 
   // process all VFAT data
   for (unsigned int offset = 0; offset < nWords;)
@@ -183,7 +199,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(word *buf, unsigned int frameSiz
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(unsigned short *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc)
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -292,7 +308,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(unsigned short *buf, unsigned int O
     unsigned int nCl = 0;
     while ( (buf[dataOffset + nCl] >> 12) != 0xF )
     {
-      unsigned short &w = buf[dataOffset + nCl];
+      uint16_t &w = buf[dataOffset + nCl];
       unsigned int clSize = (w >> 8) & 0x7F;
       unsigned int clPos = (w >> 0) & 0xFF;
 

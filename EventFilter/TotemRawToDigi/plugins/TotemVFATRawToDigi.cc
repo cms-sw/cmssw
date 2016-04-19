@@ -21,6 +21,7 @@
 
 #include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
 #include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/TotemReadoutObjects/interface/TotemDAQMapping.h"
@@ -76,6 +77,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   if (subSystem != "RP")
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystem << "." << endl;
 
+  // FED (OptoRx) headers and footers
+  produces< vector<TotemFEDInfo> >(subSystem);
+
   // digi
   if (subSystem == "RP")
     produces< DetSetVector<TotemRPDigi> >(subSystem);
@@ -126,18 +130,20 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
   event.getByToken(fedDataToken, rawData);
 
   // book output products
+  vector<TotemFEDInfo> fedInfo;
   DigiType digi;
   DetSetVector<TotemVFATStatus> conversionStatus;
 
   // raw-data unpacking
   SimpleVFATFrameCollection vfatCollection;
   for (const auto &fedId : fedIds)
-    rawDataUnpacker.Run(fedId, rawData->FEDData(fedId), vfatCollection);
+    rawDataUnpacker.Run(fedId, rawData->FEDData(fedId), fedInfo, vfatCollection);
 
   // raw-to-digi conversion
   rawToDigiConverter.Run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
 
   // commit products to event
+  event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystem);
   event.put(make_unique<DigiType>(digi), subSystem);
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystem);
 }
