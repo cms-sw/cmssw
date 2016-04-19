@@ -3,6 +3,14 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "TMath.h"
 
+using  BVector2D = Basic2DVector<double>;
+using  Vector2D = Basic2DVector<double>::MathVector;
+namespace {
+  const Vector2D one2D=BVector2D(1.0,1.0).v;
+  const Vector2D fivepercent2D=BVector2D(0.05,0.05).v;
+}
+
+
 // to enable debugs
 //#define PFLOW_DEBUG
 
@@ -420,6 +428,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     break;
   }
 
+  
+  auto deltaXY = BVector2D(deltaX,deltaY).v*0.5;
   // Get the rechits
   auto zCorr = zPS/zECAL;
   const std::vector< reco::PFRecHitFraction >&  fracs = clusterECAL.recHitFractions();
@@ -436,12 +446,12 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     const reco::PFRecHit& rechit_cluster = *rh;
     
     //getting rechit corners
-    const auto &  corners = rechit_cluster.getCornersXYZ();
+    auto const & corners = rechit_cluster.getCornersXYZ();
     
-    auto posxyz = rechit_cluster.position() * zCorr;
+    auto posxy = BVector2D(rechit_cluster.position().xy()).v*zCorr;
 #ifdef PFLOW_DEBUG
     if( debug ){
-      std::cout << "Ecal rechit " << posxyz.X() << " "   << posxyz.Y() << std::endl;
+      std::cout << "Ecal rechit " << posxy.x() << " "   << posxy.y() << std::endl;
       std::cout << "PS cluster  " << xPS << " " << yPS << std::endl;
     }
 #endif
@@ -450,16 +460,25 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     double y[5];
     for ( unsigned jc=0; jc<4; ++jc ) {
       // corner position projected onto the preshower
-      auto cornerpos = corners[jc].basicVector() * zCorr;
+      Vector2D cornerpos = BVector2D(corners[jc].basicVector().xy()).v*zCorr;
+      auto dist = (cornerpos-posxy);
+      auto adist = BVector2D(std::abs(dist[0]),std::abs(dist[1])).v; // all this beacuse icc does not support vector extension
       // Inflate the size by the size of the PS strips, and by 5% to include ECAL cracks.
-      x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/std::abs((cornerpos.x()-posxyz.x()))*0.5*deltaX);
-      y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/std::abs((cornerpos.y()-posxyz.y()))*0.5*deltaY);
-      
+      auto xy = cornerpos + (dist * (fivepercent2D +one2D/adist)*deltaXY);
+      /*
+      Vector2D xy(
+		  cornerpos.x() + (cornerpos.x()-posxy.x()) * (0.05 +1.0/std::abs((cornerpos.x()-posxy.x()))*deltaXY.x()),
+		  cornerpos.y() + (cornerpos.y()-posxy.y()) * (0.05 +1.0/std::abs((cornerpos.y()-posxy.y()))*deltaXY.y())
+		  );
+      */
+      x[3-jc] = xy[0];
+      y[3-jc] = xy[1];
+            
 #ifdef PFLOW_DEBUG
       if( debug ){
 	std::cout<<"corners "<<jc
-	    << " " << cornerpos.x() << " " << x[jc] 
-	    << " " << cornerpos.y() << " " << y[jc]
+	    << " " << cornerpos.x() << " " << x[3-jc] 
+	    << " " << cornerpos.y() << " " << y[3-jc]
 	    << std::endl;
       }
 #endif
@@ -485,8 +504,9 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
 #ifdef PFLOW_DEBUG
     if( debug ) std::cout << "Cluster PS and Cluster ECAL LINKED BY RECHIT" << std::endl;
 #endif
-    double dist = computeDist( xECAL/1000.,yECAL/1000.,
-			       xPS/1000.  ,yPS/1000, 
+    constexpr double scale = 1./1000.;
+    double dist = computeDist( xECAL*scale,yECAL*scale,
+			       xPS*scale  ,yPS*scale, 
 			       false);    
     return dist;
   } else { 
