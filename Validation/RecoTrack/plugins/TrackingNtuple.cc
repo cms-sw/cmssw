@@ -396,6 +396,8 @@ private:
   std::vector<short> pix_isBarrel ;
   std::vector<unsigned int> pix_lay      ;
   std::vector<unsigned int> pix_detId    ;
+  std::vector<std::vector<int> > pix_trkIdx;
+  std::vector<std::vector<int> > pix_seeIdx;
   std::vector<std::vector<int> > pix_simTrkIdx;
   std::vector<std::vector<int> > pix_particle ;
   std::vector<std::vector<int> > pix_process  ;
@@ -421,6 +423,8 @@ private:
   std::vector<unsigned int> str_det      ;
   std::vector<unsigned int> str_lay      ;
   std::vector<unsigned int> str_detId    ;
+  std::vector<std::vector<int> > str_trkIdx;
+  std::vector<std::vector<int> > str_seeIdx;
   std::vector<std::vector<int> > str_simTrkIdx;
   std::vector<std::vector<int> > str_particle ;
   std::vector<std::vector<int> > str_process  ;
@@ -447,6 +451,7 @@ private:
   std::vector<unsigned int> glu_detId    ;
   std::vector<int> glu_monoIdx  ;
   std::vector<int> glu_stereoIdx;
+  std::vector<std::vector<int> > glu_seeIdx;
   std::vector<float> glu_x    ;
   std::vector<float> glu_y    ;
   std::vector<float> glu_z    ;
@@ -631,6 +636,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("pix_isBarrel"  , &pix_isBarrel );
     t->Branch("pix_lay"       , &pix_lay      );
     t->Branch("pix_detId"     , &pix_detId    );
+    t->Branch("pix_trkIdx"    , &pix_trkIdx   );
+    if(includeSeeds_) {
+      t->Branch("pix_seeIdx"    , &pix_seeIdx   );
+    }
     t->Branch("pix_simTrkIdx" , &pix_simTrkIdx);
     t->Branch("pix_particle"  , &pix_particle );
     t->Branch("pix_process"   , &pix_process  );
@@ -656,6 +665,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("str_det"       , &str_det      );
     t->Branch("str_lay"       , &str_lay      );
     t->Branch("str_detId"     , &str_detId    );
+    t->Branch("str_trkIdx"    , &str_trkIdx   );
+    if(includeSeeds_) {
+      t->Branch("str_seeIdx"    , &str_seeIdx   );
+    }
     t->Branch("str_simTrkIdx" , &str_simTrkIdx);
     t->Branch("str_particle"  , &str_particle );
     t->Branch("str_process"   , &str_process  );
@@ -682,6 +695,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("glu_detId"     , &glu_detId    );
     t->Branch("glu_monoIdx"   , &glu_monoIdx  );
     t->Branch("glu_stereoIdx" , &glu_stereoIdx);
+    if(includeSeeds_) {
+      t->Branch("glu_seeIdx"    , &glu_seeIdx   );
+    }
     t->Branch("glu_x"         , &glu_x        );
     t->Branch("glu_y"         , &glu_y        );
     t->Branch("glu_z"         , &glu_z        );
@@ -840,6 +856,8 @@ void TrackingNtuple::clearVariables() {
   pix_isBarrel .clear();
   pix_lay      .clear();
   pix_detId    .clear();
+  pix_trkIdx   .clear();
+  pix_seeIdx   .clear();
   pix_simTrkIdx.clear();
   pix_particle .clear();
   pix_process  .clear();
@@ -865,6 +883,8 @@ void TrackingNtuple::clearVariables() {
   str_det      .clear();
   str_lay      .clear();
   str_detId    .clear();
+  str_trkIdx   .clear();
+  str_seeIdx   .clear();
   str_simTrkIdx.clear();
   str_particle .clear();
   str_process  .clear();
@@ -891,6 +911,7 @@ void TrackingNtuple::clearVariables() {
   glu_detId    .clear();
   glu_monoIdx  .clear();
   glu_stereoIdx.clear();
+  glu_seeIdx   .clear();
   glu_x        .clear();
   glu_y        .clear();
   glu_z        .clear();
@@ -1193,6 +1214,8 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_isBarrel .push_back( hitId.subdetId()==1 );
       pix_lay      .push_back( lay );
       pix_detId    .push_back( hitId.rawId() );
+      pix_trkIdx   .emplace_back(); // filled in fillTracks
+      pix_seeIdx   .emplace_back(); // filled in fillSeeds
       pix_simTrkIdx.push_back( simHitData.matchingTp );
       pix_particle .push_back( simHitData.particleType );
       pix_process  .push_back( simHitData.processType );
@@ -1252,6 +1275,8 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_det      .resize(totalStripHits);
   str_lay      .resize(totalStripHits);
   str_detId    .resize(totalStripHits);
+  str_trkIdx   .resize(totalStripHits); // filled in fillTracks
+  str_seeIdx   .resize(totalStripHits); // filled in fillSeeds
   str_simTrkIdx.resize(totalStripHits);
   str_particle .resize(totalStripHits);
   str_process  .resize(totalStripHits);
@@ -1350,6 +1375,7 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
       glu_detId    .push_back( hitId.rawId() );
       glu_monoIdx  .push_back( hit->monoHit().cluster().key() );
       glu_stereoIdx.push_back( hit->stereoHit().cluster().key() );
+      glu_seeIdx   .emplace_back(); // filled in fillSeeds
       glu_x        .push_back( ttrh->globalPosition().x() );
       glu_y        .push_back( ttrh->globalPosition().y() );
       glu_z        .push_back( ttrh->globalPosition().z() );
@@ -1443,6 +1469,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       const float phi = seedFitOk ? seedTrack.phi() : 0;
       const int nHits = seedTrack.numberOfValidHits();
 
+      const auto seedIndex = see_fitok.size();
+
       see_fitok   .push_back(seedFitOk);
 
       see_px      .push_back( seedFitOk ? seedTrack.px() : 0 );
@@ -1487,8 +1515,12 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	if (subid == (int) PixelSubdetector::PixelBarrel || subid == (int) PixelSubdetector::PixelEndcap) {
 	  const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
           const auto& clusterRef = bhit->firstClusterRef();
-          if(includeAllHits_) checkProductID(hitProductIds, clusterRef.id(), "seed");
-          hitIdx.push_back( clusterRef.cluster_pixel().key() );
+          const auto clusterKey = clusterRef.cluster_pixel().key();
+          if(includeAllHits_) {
+            checkProductID(hitProductIds, clusterRef.id(), "seed");
+            pix_seeIdx[clusterKey].push_back(seedIndex);
+          }
+          hitIdx.push_back( clusterKey );
           hitType.push_back( HitPixel );
 	} else {
 	  if (trackerHitRTTI::isMatched(*recHit)) {
@@ -1501,13 +1533,19 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	    int stereoIdx = matchedHit->stereoClusterRef().key();
 
             std::vector<std::pair<int,int> >::const_iterator pos = find( monoStereoClusterList.begin(), monoStereoClusterList.end(), std::make_pair(monoIdx,stereoIdx) );
-            hitIdx.push_back( pos - monoStereoClusterList.begin() );
+            const auto gluedIndex = std::distance(monoStereoClusterList.begin(), pos);
+            if(includeAllHits_) glu_seeIdx[gluedIndex].push_back(seedIndex);
+            hitIdx.push_back( gluedIndex );
             hitType.push_back( HitGlued );
 	  } else {
 	    const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
             const auto& clusterRef = bhit->firstClusterRef();
-            if(includeAllHits_) checkProductID(hitProductIds, clusterRef.id(), "seed");
-            hitIdx.push_back( clusterRef.cluster_strip().key() );
+            const auto clusterKey = clusterRef.cluster_strip().key();
+            if(includeAllHits_) {
+              checkProductID(hitProductIds, clusterRef.id(), "seed");
+              str_seeIdx[clusterKey].push_back(seedIndex);
+            }
+            hitIdx.push_back( clusterKey );
             hitType.push_back( HitStrip );
 	  }
 	}
@@ -1597,7 +1635,8 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
   edm::EDConsumerBase::Labels labels;
   labelsForToken(trackToken_, labels);
   LogTrace("TrackingNtuple") << "NEW TRACK LABEL: " << labels.module;
-  for(const auto& itTrack: tracks) {
+  for(size_t iTrack = 0; iTrack<tracks.size(); ++iTrack) {
+    const auto& itTrack = tracks[iTrack];
     int nSimHits = 0;
     bool isSimMatched = false;
     std::vector<float> sharedFraction;
@@ -1693,7 +1732,11 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         LogTrace("TrackingNtuple") << " id: " << hitId.rawId() << " - globalPos =" << hit->globalPosition()
                                    << " cluster=" << clusterKey
                                    << " eta,phi: " << hit->globalPosition().eta() << "," << hit->globalPosition().phi();
-        if(includeAllHits_) checkProductID(hitProductIds, clusterRef.id(), "track");
+        if(includeAllHits_) {
+          checkProductID(hitProductIds, clusterRef.id(), "track");
+          if(isPixel) pix_trkIdx[clusterKey].push_back(iTrack);
+          else        str_trkIdx[clusterKey].push_back(iTrack);
+        }
 
         hitIdx.push_back(clusterKey);
       } else  {
