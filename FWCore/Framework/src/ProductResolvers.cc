@@ -1,10 +1,13 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "ProductResolvers.h"
+#include "Worker.h"
+#include "UnscheduledAuxiliary.h"
+#include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -126,16 +129,56 @@ namespace edm {
     return nullptr;
   }
 
+  void
+  UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    aux_ = iConfigure.auxiliary();
+    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    assert(worker_ != nullptr);
+    
+  }  
+  
   ProductData const*
   UnscheduledProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
-    if (!skipCurrentProcess) {
-      return resolveProductImpl<true>([&principal,this,sra,mcc]() {
-                                  principal.unscheduledFill(this->moduleLabel(), sra, mcc);},
-                                resolveStatus);
+    if (!skipCurrentProcess and worker_) {
+      return resolveProductImpl<true>(
+        [&principal,this,sra,mcc]() {
+          try {
+            auto const& event = static_cast<EventPrincipal const&>(principal);
+            ParentContext parentContext(mcc);
+            aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+            std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+              aux_->postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+            });
+
+            auto workCall = [this,&event,&parentContext,mcc] () {worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
+                                           event,
+                                           *(aux_->eventSetup()),
+                                           event.streamID(),
+                                           parentContext,
+                                           mcc->getStreamContext());
+            };
+            
+            if (sra) {
+              sra->temporaryUnlock(workCall);
+            } else {
+              workCall();
+            }
+
+          }
+          catch (cms::Exception & ex) {
+            std::ostringstream ost;
+            ost << "Calling produce method for unscheduled module "
+            << worker_->description().moduleName() << "/'"
+            << worker_->description().moduleLabel() << "'";
+            ex.addContext(ost.str());
+            throw;
+          }
+        },
+        resolveStatus);
     }
     resolveStatus = ProductNotFound;
     return nullptr;

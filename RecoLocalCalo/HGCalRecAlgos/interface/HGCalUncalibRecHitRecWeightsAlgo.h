@@ -65,7 +65,9 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         //to get a continuous energy spectrum we must add here the maximum value in fC ever
         //reported by the ADC. Namely: floor(tdcOnset/adcLSB_) * adcLSB_
         // need to increment by one so TDC doesn't overlap with ADC last bin
-	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(sample.data()) * tdcLSB_;
+        // LG (11/04/2016):
+        // offset the TDC upwards to reflect the bin center
+	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + ( double(sample.data()) + 0.5) * tdcLSB_;
 	jitter_    = double(sample.toa()) * toaLSBToNS_;
 	LogDebug("HGCUncalibratedRecHit") << "TDC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
                                           << ' ' << tdcLSB_ << std::endl

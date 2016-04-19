@@ -63,7 +63,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
     query->addToTableList("FWCAENCHANNEL");
     query->addToTableList("DP_NAME2ID");
-    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.id AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   } else if (queryType == "LASTVALUE") {
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE","CHANGE_DATE");
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.ACTUAL_VMON","ACTUAL_VMON");
@@ -71,7 +71,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE");
     query->addToTableList("DCSLASTVALUE_VOLTAGE");
     query->addToTableList("DP_NAME2ID");
-    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.id AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.ID AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   }
 
   coral::AttributeList conditionData;
@@ -111,7 +111,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
   }
   cursor.close();
   if (debug_) std::cout<<"[SiStripCoralIface::"<<__func__<<"] Finished dumping query results, "<< numberRow<<" rows were retrieved from PVSS Cond DB (both Pixel and Strip CAEN supplies)"<<std::endl;
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
 
 // access the channel settings in the status change table
@@ -126,7 +126,7 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
   query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
   query->addToTableList("FWCAENCHANNEL");
   query->addToTableList("DP_NAME2ID");
-  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.id AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
 
   coral::AttributeList conditionData;
   conditionData.extend<coral::TimeStamp>( "tmax" );
@@ -152,7 +152,7 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
     vec_dpname.push_back(id_name);
   }
   cursor.close();
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
 
 void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
@@ -162,7 +162,7 @@ void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::v
   query->addToOutputList("DP_NAME2ID.ID","DPID");
   query->addToTableList("DP_NAME2ID");
 
-  std::string condition = "DP_NAME2ID.dpname like '%easyBoard%' ";
+  std::string condition = "DP_NAME2ID.DPNAME like '%easyBoard%' ";
   query->setCondition( condition, coral::AttributeList() );
 
   query->setMemoryCacheSize( 100 );
@@ -177,5 +177,5 @@ void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::v
     vec_dpname.push_back(id_name);
   }
   cursor.close();
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }

@@ -66,9 +66,10 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = getParameters(fId).pedestal();
   // Temporary disabling of lumi-dependent pedestal to avoid it being too big for TDC evaluations...
-  float value [4] = {0.0f,0.0f,0.0f,0.0f};
+  float value [4] = {value0,value0,value0,value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
+      value[i] = 0.0f;
       while (value [i] <= 0.0f) value [i] = value0 + (float)CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
     }
   }
@@ -94,8 +95,8 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   }
 
   HcalPedestalWidth result (fId.rawId ());
+  float width2 = value*value;
   for (int i = 0; i < 4; i++) {
-    double width2 = value*value;
     for (int j = 0; j < 4; j++) {
       result.setSigma (i, j, 0.0);
     }
@@ -110,7 +111,8 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) { // GeV/f
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
-      value [i] = value0 + (float)CLHEP::RandGauss::shoot (0.0, width.getValue (i)); 
+      value[i] = 0.0f;
+      while (value [i] <= 0.0f) value [i] = value0 + (float)CLHEP::RandGauss::shoot (0.0, width.getValue (i)); 
     }
   }
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);

@@ -27,6 +27,7 @@
   <SpecPar name="HGCalEEReco">
     <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="Slope"      value="[etaMax:slope]"/>
     <Parameter name="GroupingZFine"  value="1"/>
     <Parameter name="GroupingZFine"  value="-1"/>
     <Parameter name="GroupingZFine"  value="-1"/>
@@ -283,6 +284,7 @@
   <SpecPar name="HGCalHESiliconReco">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="Slope"      value="[etaMax:slope]"/>
     <Parameter name="GroupingZFine"  value="1"/>
     <Parameter name="GroupingZFine"  value="-1"/>
     <Parameter name="GroupingZFine"  value="-1"/>

@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -40,7 +39,6 @@ namespace edm {
           aux_(),
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
-          unscheduledHandler_(),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
           thinnedAssociationsHelper_(thinnedAssociationsHelper),
@@ -56,7 +54,6 @@ namespace edm {
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_ = nullptr; // propagate_const<T> has no reset() function
     provRetrieverPtr_->reset();
-    unscheduledHandler_.reset();
     branchListIndexToProcessIndex_.clear();
   }
 
@@ -410,13 +407,10 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
-    unscheduledHandler_ = iHandler;
-  }
-
-  std::shared_ptr<const UnscheduledHandler>
-  EventPrincipal::unscheduledHandler() const {
-     return unscheduledHandler_;
+  EventPrincipal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
+      iResolver->setupUnscheduled(iConfigure);
+    });
   }
 
   EventSelectionIDVector const&
@@ -453,30 +447,4 @@ namespace edm {
     return wrapper->product();
   }
 
-  bool
-  EventPrincipal::unscheduledFill(std::string const& moduleLabel,
-                                  SharedResourcesAcquirer* sra,
-                                  ModuleCallingContext const* mcc) const {
-    if(unscheduledHandler_) {
-      if(mcc == nullptr) {
-        throw Exception(errors::LogicError)
-          << "EventPrincipal::unscheduledFill, Attempting to run unscheduled production\n"
-          << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
-          << "Contact a Framework developer";
-      }
-      preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-        postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      });
-      auto handlerCall = [this,&moduleLabel,&mcc]() {
-        unscheduledHandler_->tryToFill(moduleLabel, *this, mcc);
-      };
-      if (sra) {
-        sra->temporaryUnlock(handlerCall);
-      } else {
-        handlerCall();
-      }
-    }
-    return true;
-  }
 }

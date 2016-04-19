@@ -138,7 +138,11 @@ void HcalFlexiHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeomet
 	cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	cellParams.push_back ( fabs( refPoint.z() ) ) ;
 #ifdef DebugLog
-	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << " " << hid.rawId() << " " << std::hex << hid.rawId() << std::dec << " " << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth() << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
+	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid 
+		  << " " << hid.rawId() << " " << std::hex << hid.rawId() 
+		  << std::dec << " " << hid << " " << refPoint << '/' 
+		  << cellParams [0] << '/' << cellParams [1] << '/' 
+		  << cellParams [2] << std::endl;
 #endif
 	fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			   CaloCellGeometry::getParmPtr(cellParams, 
@@ -158,7 +162,8 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
   std::vector<std::pair<double,double> > gconsHE = hcons.getConstHBHE(1);
   std::vector<double> layerDepths;
 #ifdef DebugLog
-  std::cout << "HcalFlexiHardcodeGeometryLoader:HE with " << gconsHE.size() << " cells" << std::endl;
+  std::cout << "HcalFlexiHardcodeGeometryLoader:HE with " << gconsHE.size()
+	    << " cells" << std::endl;
 #endif
   if (gconsHE.size() > 0) {
     unsigned int istart = 1;
@@ -183,6 +188,12 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
       int    units = int(((dphi*72)/(2*M_PI))+0.5);
       int    fioff = (units == 4) ? 3 : 1;
       nphi        *= units;
+#ifdef DebugLog
+      std::cout << "FlexiGeometryLoader::Ring " << iring << " nphi " << nphi
+		<< " dstart " << depth << " dphi " << dphi << " units "
+		<< units << " fioff " << fioff << " layers "
+		<< etabins[i].layer.size() << std::endl;
+#endif
       for (unsigned int k=0; k<etabins[i].layer.size(); ++k) {
 	int layf = etabins[i].layer[k].first-1;
 	int layl = etabins[i].layer[k].second-1;
@@ -298,7 +309,10 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
 	cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	cellParams.push_back ( fabs( refPoint.z() ) ) ;
 #ifdef DebugLog
-	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << " " << hid.rawId() << " " << std::hex << hid.rawId() << std::dec << " " << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth() << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
+	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << " "
+		  << hid.rawId() << " " << std::hex << hid.rawId() << std::dec
+		  << " " << hid << refPoint << '/' << cellParams [0] << '/' 
+		  << cellParams [1] << '/' << cellParams [2] << std::endl;
 #endif
 	fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			   CaloCellGeometry::getParmPtr(cellParams, 
@@ -339,7 +353,10 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry
       cellParams.push_back ( fabs( refPoint.eta()));
       cellParams.push_back ( fabs( refPoint.z() ) ) ;
 #ifdef DebugLog
-      std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << " " << hid.rawId() << " " << std::hex << hid.rawId() << std::dec << " " << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth() << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
+      std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << " " 
+		<< hid.rawId() << " " << std::hex << hid.rawId() << std::dec 
+		<< " " << hid << " " << refPoint << '/' << cellParams [0] 
+		<< '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 #endif	
       fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			 CaloCellGeometry::getParmPtr(cellParams, 
