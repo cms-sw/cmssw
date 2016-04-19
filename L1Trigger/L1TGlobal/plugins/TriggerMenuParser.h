@@ -32,7 +32,6 @@
 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
-#include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "tmEventSetup/esTriggerMenu.hh"
@@ -293,8 +292,6 @@ private:
     bool insertAlgorithmIntoMap(const GtAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
-    std::string l1tDateTime2string( l1t::DateTime );
-    int l1t2int( l1t::RelativeBx );
     int l1tstr2int( const std::string data );
 
 
