@@ -45,7 +45,7 @@ private:
   std::string sysType_;
   std::vector<std::vector<TmpEntry> > tmpData_;  // first index: jetFlavor
   std::vector<bool> useAbsEta_;                  // first index: jetFlavor
-  std::map<std::string, std::unique_ptr<BTagCalibrationReaderImpl>> otherSysTypeReaders_;
+  std::map<std::string, std::shared_ptr<BTagCalibrationReaderImpl>> otherSysTypeReaders_;
 };
 
 
@@ -64,9 +64,9 @@ BTagCalibrationReader::BTagCalibrationReaderImpl::BTagCalibrationReaderImpl(
             << "Every otherSysType should only be given once. Duplicate: "
             << ost;
     }
-    otherSysTypeReaders_[ost] = std::move(
-      std::unique_ptr<BTagCalibrationReaderImpl>(
-        new BTagCalibrationReaderImpl(op, ost)));
+    otherSysTypeReaders_[ost] = std::auto_ptr<BTagCalibrationReaderImpl>(
+        new BTagCalibrationReaderImpl(op, ost)
+    );
   }
 }
 
@@ -111,7 +111,7 @@ void BTagCalibrationReader::BTagCalibrationReaderImpl::load(
     }
   }
 
-  for (const auto &p : otherSysTypeReaders_) {
+  for (auto & p : otherSysTypeReaders_) {
     p.second->load(c, jf, measurementType);
   }
 }
