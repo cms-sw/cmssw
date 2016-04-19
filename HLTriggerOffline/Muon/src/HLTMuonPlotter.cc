@@ -333,13 +333,21 @@ HLTMuonPlotter::findMatches(
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
     for (it = indicesL1.begin(); it != indicesL1.end(); it++) {
-     if (candsL1[*it].isAvailable()) { //need to check for BX sara
+     if (candsL1[*it].isAvailable()) { 
       double dR = deltaR(cand->eta(), cand->phi(),
                          candsL1[*it]->eta(), candsL1[*it]->phi());
       if (dR < bestDeltaR) {
         bestMatch = *it;
         bestDeltaR = dR;
       }
+      // TrajectoryStateOnSurface propagated;		
+      // float dR = 999., dPhi = 999.;		
+      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 		
+      //                                 dR, dPhi, propagated);		
+      // if (isValid && dR < bestDeltaR) {		
+      //   bestMatch = *it;		
+      //   bestDeltaR = dR;		
+      // }		
      } else {
        LogWarning("HLTMuonPlotter")
 	 << "Ref candsL1[*it]: product not available "
