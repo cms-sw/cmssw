@@ -20,7 +20,7 @@ class PreexistingValidation(GenericValidation):
         self.config = config
         self.filesToCompare = {}
 
-        defaults = {"title": self.name, "jobid": ""}
+        defaults = {"title": self.name, "jobid": "", "subdetector": "BPIX"}
         defaults.update(addDefaults)
         mandatories = ["file", "color", "style"]
         mandatories += addMandatories

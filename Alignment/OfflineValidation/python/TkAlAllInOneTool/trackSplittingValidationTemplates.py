@@ -245,6 +245,7 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 void TkAlTrackSplitPlot()
 {
     //fillmatrix();                                                         //(C)
+    subdetector = ".oO[subdetector]Oo.";
     makePlots(
               ".oO[trackSplitPlotInstantiation]Oo.",
               //misalignment,values,phases,                                 //(A)
