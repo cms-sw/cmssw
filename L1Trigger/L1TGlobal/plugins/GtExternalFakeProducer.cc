@@ -112,10 +112,10 @@ namespace l1t {
     std::auto_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
 
     // Fill in some external conditions for testing
-    if( setBptxAND_ ) extCond_bx.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-    if( setBptxPlus_ ) extCond_bx.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-    if( setBptxMinus_ ) extCond_bx.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-    if( setBptxOR_ ) extCond_bx.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+    if( setBptxAND_ ) extCond_bx.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+    if( setBptxPlus_ ) extCond_bx.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+    if( setBptxMinus_ ) extCond_bx.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+    if( setBptxOR_ ) extCond_bx.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 
     // Fill Externals
     for( int iBx=bxFirst_; iBx<=bxLast_; iBx++ ){
