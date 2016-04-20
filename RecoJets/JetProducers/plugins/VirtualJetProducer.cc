@@ -742,8 +742,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jet.setPileup (0.0);
     }
         
-    std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
-    std::cout << "JetVI " << ijet << ' '<< jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
+   // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+   // std::cout << "JetVI " << ijet << ' '<< jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
 
   }
   // put the jets in the collection
