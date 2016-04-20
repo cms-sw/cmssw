@@ -516,12 +516,11 @@ void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjCo
 vector<reco::CandidatePtr>
 VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstituents)
 {
-  vector<reco::CandidatePtr> result;
+  vector<reco::CandidatePtr> result; result.reserve(fjConstituents.size()/2);
   for (unsigned int i=0;i<fjConstituents.size();i++) {
-    int index = fjConstituents[i].user_index();
+    auto index = fjConstituents[i].user_index();
     if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() ) {
-      reco::CandidatePtr candidate = inputs_[index];
-      result.push_back(candidate);
+      result.emplace_back(inputs_[index]);
     }
   }
   return result;
@@ -675,7 +674,12 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   
   // Distance between jet centers and overlap area -- for disk-based area calculation
   using RIJ = std::pair<double,double>; 
-  std::vector<std::vector<RIJ> >   rij(fjJets_.size());
+  std::vector<RIJ>   rijStorage(fjJets_.size()*(fjJets_.size()/2));
+  RIJ * rij[fjJets_.size()];
+  unsigned int k=0;
+  for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
+     rij[ijet] = &rijStorage[k]; k+=ijet;
+  }
 
   float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
 
@@ -717,8 +721,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       // Here it is assumed that fjJets_ is in decreasing order of pT, 
       // which should happen in FastjetJetProducer::runAlgorithm() 
       jetArea   = M_PI;
-        std::vector<RIJ>&  distance  = rij[ijet];
-        distance.resize(ijet);
+        RIJ *  distance  = rij[ijet];
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
           distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet]))*orParam_;
           distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
