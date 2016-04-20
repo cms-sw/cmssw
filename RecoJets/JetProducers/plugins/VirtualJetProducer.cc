@@ -447,32 +447,32 @@ void VirtualJetProducer::inputTowers( )
   std::vector<edm::Ptr<reco::Candidate> >::const_iterator inBegin = inputs_.begin(),
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
-    reco::CandidatePtr input = *i;
+    auto const & input = **i;
     // std::cout << "CaloTowerVI jets " << input->pt() << " " << input->et() << ' '<< input->energy() << ' ' << (isAnomalousTower(input) ? " bad" : " ok") << std::endl; 
-    if (edm::isNotFinite(input->pt()))           continue;
-    if (input->et()    <inputEtMin_)  continue;
-    if (input->energy()<inputEMin_)   continue;
-    if (isAnomalousTower(input))      continue;
+    if (edm::isNotFinite(input.pt()))           continue;
+    if (input.et()    <inputEtMin_)  continue;
+    if (input.energy()<inputEMin_)   continue;
+    if (isAnomalousTower(*i))      continue;
     // Change by SRR : this is no longer an error nor warning, this can happen with PU mitigation algos.
     // Also switch to something more numerically safe. 
-    if (input->pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
+    if (input.pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
       continue;
     }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
-      const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
-      math::PtEtaPhiMLorentzVector ct(tower->p4(vertex_));
-      fjInputs_.push_back(fastjet::PseudoJet(ct.px(),ct.py(),ct.pz(),ct.energy()));
+      const CaloTower & tower = dynamic_cast<const CaloTower &>(input);
+      math::PtEtaPhiMLorentzVector ct(tower.p4(vertex_));
+      fjInputs_.emplace_back(ct.px(),ct.py(),ct.pz(),ct.energy());
       //std::cout << "tower:" << *tower << '\n';
     }
     else {
       /*
       if(makePFJet(jetTypeE)) {
-	reco::PFCandidate* pfc = (reco::PFCandidate*)input.get();
-	std::cout << "PF cand:" << *pfc << '\n';
+	reco::PFCandidate& pfc = (reco::PFCandidate&)input;
+	std::cout << "PF cand:" << pfc << '\n';
       }
       */
-      fjInputs_.push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
-					     input->energy()));
+      fjInputs_.emplace_back(input.px(),input.py(),input.pz(),
+					     input.energy());
     }
     fjInputs_.back().set_user_index(i - inBegin);
   }
