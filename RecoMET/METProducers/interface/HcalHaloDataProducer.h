@@ -99,7 +99,11 @@ namespace reco
     edm::InputTag IT_HORecHit;
     edm::InputTag IT_HFRecHit;
     edm::InputTag IT_CaloTowers;
+    edm::InputTag IT_EBRecHit;
+    edm::InputTag IT_EERecHit;
 
+    edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
+    edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
