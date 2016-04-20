@@ -14,6 +14,11 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
   //cout << "count 1:  " << h1.GetEntries() << "\n";
   //cout << "count 2:  " << h2.GetEntries() << "\n";
   
+  if(!TString(var).CompareTo("sumEt[0]")) { var = "ETT";}
+  else if(!TString(var).CompareTo("sumEt[1]")) {var = "HTT";}
+  else if(!TString(var).CompareTo("sumEt[2]")) {var = "ETM";}
+  else if(!TString(var).CompareTo("sumEt[3]")) {var = "HTM";}
+
   int fail = 0;
   for (int i=0; i<nbins+2; i++){
     if (h1.GetBinContent(i) != h2.GetBinContent(i)){
@@ -26,6 +31,7 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
     char name[1000];
     sprintf(name,"discrep_%s_%s_%d.pdf",tag,var,count);
     TCanvas c1;
+    h1.GetXaxis()->SetTitle(var);
     h1.Draw("L");
     h2.Draw("epSAME");
     c1.SaveAs(name);
