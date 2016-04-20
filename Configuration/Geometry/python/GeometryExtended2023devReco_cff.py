@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Configuration.Geometry.GeometryExtended2023dev_cff import *
+from Configuration.Geometry.GeometryExtended2023Tilted_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
