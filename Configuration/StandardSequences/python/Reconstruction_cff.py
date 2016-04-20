@@ -46,6 +46,8 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
+_phase2_localreco = cms.Sequence(bunchSpacingProducer*localreco.copy())
+
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
@@ -194,4 +196,5 @@ reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*l
 #
 reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
 
-
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toReplaceWith( localreco, _phase2_localreco )
