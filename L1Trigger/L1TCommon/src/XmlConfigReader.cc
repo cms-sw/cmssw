@@ -311,6 +311,11 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             std::string id = _toString(elem->getAttribute(kAttrId));
             aTrigSystem.disableDaqProc(id);
           }
+          else if (_toString(elem->getTagName()) == "disable")
+          {
+            std::string id = _toString(elem->getAttribute(_toDOMS("id")));
+            aTrigSystem.disableDaqProc(id);
+          }
         }
       }
     }
