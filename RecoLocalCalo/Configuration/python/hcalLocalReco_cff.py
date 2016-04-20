@@ -15,7 +15,7 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 from RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi import *
 from RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi import *
 
-_phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copyAndExclude([hbhereco])
+_phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.replace(hfreco,hfUpgradeReco)
 _phase2_hcalLocalRecoSequence.replace(hbheprereco,hbheUpgradeReco)
 
