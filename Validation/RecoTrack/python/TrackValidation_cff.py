@@ -301,6 +301,28 @@ def _setForEra(module, era, **kwargs):
     else:
         getattr(eras, era).toModify(module, **kwargs)
 
+# Seeding layer sets
+def _getSeedingLayers(seedProducers):
+    import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
+
+    seedingLayersMerged = []
+    for seedName in seedProducers:
+        seedProd = getattr(_iterativeTk_cff, seedName)
+        if not hasattr(seedProd, "OrderedHitsFactoryPSet"):
+            continue
+
+        if hasattr(seedProd, "SeedMergerPSet"):
+            seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
+        else:
+            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+        seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
+        for layerSet in seedingLayers:
+            if layerSet not in seedingLayersMerged:
+                seedingLayersMerged.append(layerSet)
+    return seedingLayersMerged
+for era, postfix in _relevantEras:
+    locals()["_seedingLayerSets"+postfix] = _getSeedingLayers(locals()["_seedProducers"+postfix])
+
 # Validation iterative steps
 _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlgo", sequence="_tracksValidationSelectorsByAlgo", modDict=globals())
 
@@ -394,6 +416,7 @@ for era, postfix in _relevantEras:
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
     ])
+    _setForEra(trackValidator.histoProducerAlgoBlock, era, seedingLayerSets=locals()["_seedingLayerSets"+postfix])
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs

@@ -118,6 +118,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
 
     maxDzpvsigCumulative = cms.double(10),
     nintDzpvsigCumulative = cms.int32(200),
+
+    seedingLayerSets = cms.vstring(),
 )
 
 from Configuration.StandardSequences.Eras import eras
