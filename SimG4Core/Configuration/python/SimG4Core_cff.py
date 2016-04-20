@@ -7,4 +7,4 @@ import FWCore.ParameterSet.Config as cms
 from SimG4Core.Application.g4SimHits_cfi import *
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( g4SimHits, HCalSD.TestNumberingScheme = True)
+eras.phase2_common.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )

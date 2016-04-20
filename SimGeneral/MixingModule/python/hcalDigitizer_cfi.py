@@ -19,19 +19,15 @@ _newFactors = cms.vdouble(
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_hgcal.toModify( hcalDigitizer,
-                            HBHEUpgradeQIE = cms.bool(True),
-                            HFUpgradeQIE = cms.bool(True)
-)
-eras.phase2_hgcal.toModify( hcalDigitizer.HcalReLabel,
-                            RelabelHits=cms.untracked.bool(True)
-)
-eras.phase2_hgcal.toModify( hcalDigitizer.hb,
-                            siPMCells = cms.vint32([1]),
-                            photoelectronsToAnalog = cms.vdouble([10.]*16),
-                            pixels = cms.int32(4500*4*2)
-)
-eras.phase2_hgcal.toModify( hcalDigitizer.he,
-                            samplingFactors = _newFactors,
-                            photoelectronsToAnalog = cms.vdouble([10.]*len(_newFactors)),
-                            pixels = cms.int32(4500*4*2)
+    HBHEUpgradeQIE = cms.bool(True),
+    HFUpgradeQIE = cms.bool(True),
+    HcalReLabel = dict( RelabelHits = cms.untracked.bool(True) ),
+    hb = dict( siPMCells =cms.vint32([1]),
+        photoelectronsToAnalog = cms.vdouble([10.]*16),
+        pixels = cms.int32(4500*4*2)
+    ),
+    he = dict( samplingFactors = _newFactors,
+        photoelectronsToAnalog = cms.vdouble([10.]*len(_newFactors)),
+        pixels = cms.int32(4500*4*2)
+    )
 )
