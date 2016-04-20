@@ -21,11 +21,15 @@ class setting
 		void setProcRole(std::string procRole) { _procRole = procRole; };
 		void setValue(std::string value) {_value = value; };
 		void setId(std::string id) { _id = id; } ;
+		void addTableRow(std::string row);
+		void setTableTypes(std::string types);
+		void setTableColumns(std::string cols);
 		std::string getProcRole() { return _procRole; };
 		std::string getValueAsStr() { return _value; };
 		std::string getType() { return _type; };
 		std::string getId() { return _id; } ;
 		template <class varType> varType getValue();
+		template <class varType> varType getTableValue();
 		template <class varType> std::vector<varType> getVector(std::string delim = ",");
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
@@ -33,7 +37,10 @@ class setting
 		setting& operator=(const setting& aSet);
 	private:
 		std::string _type, _id, _value, _procRole;
-		
+		std::vector<std::vector<std::string> > _tableRows;
+		std::vector<std::string> _tableTypes;
+		std::vector<std::string> _tableColumns;
+
 
 };
 
@@ -64,6 +71,10 @@ template <class varType> varType setting::getValue()
 	return boost::lexical_cast<varType>(_value);
 }
 
+template <class varType> std::vector<varType> setting::getValue(std::string col)
+{
+	
+}
 
 
 
