@@ -679,16 +679,16 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 
   float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
 
+  auto orParam_ = 1./rParam_;
   // fill jets 
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     auto & jet = (*jets)[ijet];
     // get the fastjet jet
     const fastjet::PseudoJet& fjJet = fjJets_[ijet];
     // get the constituents from fastjet
-    std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
+    std::vector<fastjet::PseudoJet> const & fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
     // convert them to CandidatePtr vector
-    std::vector<CandidatePtr> constituents =
-      getConstituents(fjConstituents);
+    std::vector<CandidatePtr> const & constituents = getConstituents(fjConstituents);
 
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate
@@ -717,11 +717,10 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       // Here it is assumed that fjJets_ is in decreasing order of pT, 
       // which should happen in FastjetJetProducer::runAlgorithm() 
       jetArea   = M_PI;
-      if (0!=ijet) {
         std::vector<RIJ>&  distance  = rij[ijet];
         distance.resize(ijet);
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
-          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet])) / rParam_;
+          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet]))*orParam_;
           distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
           jetArea            -=distance[jJet].second;
           for (unsigned kJet = 0; kJet < jJet; ++kJet) {
@@ -729,9 +728,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
                                                                                      distance[jJet].second, distance[kJet].second, rij[jJet][kJet].second);
           } // end loop over harder jets
         } // end loop over harder jets
-      }
-      jetArea  *= rParam_;
-      jetArea  *= rParam_;
+      jetArea  *= (rParam_*rParam_);
     } 
     auto & jet = (*jets)[ijet]; 
     jet.setJetArea (jetArea);
@@ -742,8 +739,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jet.setPileup (0.0);
     }
         
-    // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
-    // std::cout << "JetVI " << ijet << jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
+    std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+    std::cout << "JetVI " << ijet << ' '<< jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
 
   }
   // put the jets in the collection
