@@ -53,7 +53,7 @@ namespace reco {
   namespace helper {
     struct GreaterByPtPseudoJet {
       bool operator()( const fastjet::PseudoJet & t1, const fastjet::PseudoJet & t2 ) const {
-        return t1.perp() > t2.perp();
+        return t1.perp2() > t2.perp2();
       }
     };
 
@@ -669,26 +669,19 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   // produce output jet collection
   
   using namespace reco;
-  
-  std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
-  jets->reserve(fjJets_.size());
+
+  // allocate fjJets_.size() Ts in vector  
+  auto jets = std::make_unique<std::vector<T>>(fjJets_.size());
   
   // Distance between jet centers and overlap area -- for disk-based area calculation
   using RIJ = std::pair<double,double>; 
   std::vector<std::vector<RIJ> >   rij(fjJets_.size());
 
   float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
-  auto etaFromXYZ = [](float x, float y, float z)->float { float t(z/std::sqrt(x*x+y*y)); return vdt::fast_logf(t + std::sqrt(t*t+1.f));};
-  for (auto ijet=0U;ijet<fjJets_.size();++ijet) {
-     float x = fjJets_[ijet].px();
-     float y = fjJets_[ijet].py();
-     float z = fjJets_[ijet].pz();
-     phiJ[ijet] = vdt::fast_atan2(y,x);
-     etaJ[ijet] =etaFromXYZ(x,y,z);
-   } 
+
+  // fill jets 
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
-    // allocate this jet
-    T jet;
+    auto & jet = (*jets)[ijet];
     // get the fastjet jet
     const fastjet::PseudoJet& fjJet = fjJets_[ijet];
     // get the constituents from fastjet
@@ -697,8 +690,26 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     std::vector<CandidatePtr> constituents =
       getConstituents(fjConstituents);
 
+    // write the specifics to the jet (simultaneously sets 4-vector, vertex).
+    // These are overridden functions that will call the appropriate
+    // specific allocator.
+    writeSpecific(jet,
+                  Particle::LorentzVector(fjJet.px(),
+                                          fjJet.py(),
+                                          fjJet.pz(),
+                                          fjJet.E()),
+                  vertex_,
+                  constituents, iSetup);
+    phiJ[ijet] = jet.phi();
+    etaJ[ijet] = jet.eta();
+  }
+
+   // calcuate the jet area
+  for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // calcuate the jet area
     double jetArea=0.0;
+    // get the fastjet jet
+    const auto & fjJet = fjJets_[ijet];
     if ( doAreaFastjet_ && fjJet.has_area() ) {
       jetArea = fjJet.area();
     }
@@ -721,18 +732,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       }
       jetArea  *= rParam_;
       jetArea  *= rParam_;
-    }  
-    // write the specifics to the jet (simultaneously sets 4-vector, vertex).
-    // These are overridden functions that will call the appropriate
-    // specific allocator. 
-    writeSpecific(jet,
-                  Particle::LorentzVector(fjJet.px(),
-                                          fjJet.py(),
-                                          fjJet.pz(),
-                                          fjJet.E()),
-                  vertex_, 
-                  constituents, iSetup);
-
+    } 
+    auto & jet = (*jets)[ijet]; 
     jet.setJetArea (jetArea);
     
     if(doPUOffsetCorr_){
@@ -740,16 +741,13 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     }else{
       jet.setPileup (0.0);
     }
-    
-    
+        
     // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
     // std::cout << "JetVI " << ijet << jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
 
-    // add to the list
-    jets->push_back(jet);        
   }
   // put the jets in the collection
-  iEvent.put(jets,jetCollInstanceName_);
+  iEvent.put(std::move(jets),jetCollInstanceName_);
 }
 
 /// function template to write out the outputs
