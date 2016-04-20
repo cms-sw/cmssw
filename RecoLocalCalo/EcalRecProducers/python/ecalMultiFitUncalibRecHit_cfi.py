@@ -63,3 +63,6 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       chi2ThreshEE_ = cms.double(50.0),
    )                                           
 )
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( ecalMultiFitUncalibRecHit.algoPSet, useLumiInfoRunHeader = cms.bool(False) )
