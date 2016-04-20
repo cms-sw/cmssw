@@ -1,6 +1,12 @@
+import copy
 import collections
 
+import ROOT
+ROOT.gROOT.SetBatch(True)
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+
 from plotting import Subtract, FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+import plotting
 import validation
 from html import PlotPurpose
 
@@ -1118,14 +1124,78 @@ class TrackingTimingTable:
             "Average tracking (w/o convStep) time / event (ms)",
             "Average convStep time / event (ms)",
         ]
+class TimePerTrackPlot:
+    def __init__(self, name, timeHisto, selectedTracks=False):
+        self._name = name
+        self._timeHisto = timeHisto
+        self._selectedTracks = selectedTracks
+
+    def __str__(self):
+        return self._name
+
+    def _getDirectory(self, tfile):
+        for dirName in _trackingFolders():
+            tdir = tfile.Get(dirName)
+            if tdir != None:
+                return tdir
+        return None
+
+    def create(self, tdirectory):
+        timeTh1 = plotting._getOrCreateObject(tdirectory, self._timeHisto)
+        if timeTh1 is None:
+            return None
+
+        # this is bit of a hack, but as long as it is needed only
+        # here, I won't invest in better solution
+        tfile = tdirectory.GetFile()
+        trkDir = self._getDirectory(tfile)
+        if trkDir is None:
+            return None
+
+        iterMap = copy.copy(_collLabelMapHp)
+        del iterMap["generalTracks"] 
+        del iterMap["jetCoreRegionalStep"] # this is expensive per track on purpose
+        if self._selectedTracks:
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, seeds=False)
+        else:
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False)
+        recoAB = AggregateBins("tmp", "num_reco_coll", mapping=iterMap,ignoreMissingBins=True, renameBin=renameBin)
+        h_reco_per_iter = recoAB.create(trkDir)
+        if h_reco_per_iter is None:
+            return None
+        values = {}
+        for i in xrange(1, h_reco_per_iter.GetNbinsX()+1):
+            values[h_reco_per_iter.GetXaxis().GetBinLabel(i)] = h_reco_per_iter.GetBinContent(i)
+
+
+        result = []
+        for i in xrange(1, timeTh1.GetNbinsX()+1):
+            iterName = timeTh1.GetXaxis().GetBinLabel(i)
+            if iterName in values:
+                ntrk = values[iterName]
+                result.append( (iterName,
+                                timeTh1.GetBinContent(i)/ntrk if ntrk > 0 else 0,
+                                timeTh1.GetBinError(i)/ntrk if ntrk > 0 else 0) )
+
+        if len(result) == 0:
+            return None
+
+        res = ROOT.TH1F(self._name, self._name, len(result), 0, len(result))
+        for i, (label, value, error) in enumerate(result):
+            res.GetXaxis().SetBinLabel(i+1, label)
+            res.SetBinContent(i+1, value)
+            res.SetBinError(i+1, error)
+
+        return res
 
 _common = {
     "drawStyle": "P",
     "xbinlabelsize": 10,
     "xbinlabeloption": "d"
 }
+_time_per_iter = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True)
 _timing_summary = PlotGroup("summary", [
-    Plot(AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
+    Plot(_time_per_iter,
          ytitle="Average processing time (ms)", title="Average processing time / event", legendDx=-0.4, **_common),
     Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
@@ -1134,11 +1204,15 @@ _timing_summary = PlotGroup("summary", [
          ytitle="Average processing time (ms)", title="Average processing time / event", **_common),
     Plot(AggregateBins("step_fraction", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(TimePerTrackPlot("iteration_track", _time_per_iter, selectedTracks=False),
+         ytitle="Average time / built track (ms)", title="Average time / built track", **_common),
+    Plot(TimePerTrackPlot("iteration_trackhp", _time_per_iter, selectedTracks=True),
+         ytitle="Average time / selected track (ms)", title="Average time / selected HP track by algoMask", **_common),
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time", title="Average processing time / event (normalized)", drawStyle="HIST", xbinlabelsize=0.03, normalizeToUnitArea=True)
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
 
     ],
-                    legendDy=_legendDy_2rows
 )
 _timing_iterations = PlotGroup("iterations", [
     Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
