@@ -106,6 +106,8 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 
 std::map<std::string, setting> trigSystem::getSettings(const std::string& proccessor)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
 	std::map<std::string, setting> settings;
 	std::vector<setting> vecSettings = _procSettings.at(proccessor);
 	for(auto it=vecSettings.begin(); it!=vecSettings.end(); it++)
@@ -182,6 +184,9 @@ void trigSystem::addMask(const std::string& id, const std::string& procRole)
 
 std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
 	std::map<std::string, mask> masks;
 	std::vector<mask> vecMasks= _procMasks.at(proccessor);
 	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++)
@@ -192,16 +197,43 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 
 bool trigSystem::isMasked(const std::string& proccessor, const std::string& id)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
 	bool isMasked = false;
 	std::vector<mask> vecMasks= _procMasks.at(proccessor);
-	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++) {
-		if (it->getId() == id) {
+	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++) 
+	{
+		if (it->getId() == id) 
+		{
 			isMasked = true;
 			break;
 		}
-        }
+    }
 
 	return isMasked;
+}
+
+void trigSystem::disableDaqProc(const std::string& daqProc)
+{
+	if ( _procRole.find(daqProc) == _procRole.end() && _daqttcProcs.find(daqProc) == _daqttcProcs.end())
+		throw std::runtime_error("Cannot mask daq/processor " + daqProc + "! Not found in the system.");
+
+	if ( _procRole.find(daqProc) != _procRole.end() )
+		_procEnabled[daqProc] = false;
+	else if ( _daqttcProcs.find(daqProc) != _daqttcProcs.end() )
+	{
+		for (auto it = _daqttcProcs[daqProc].begin(); it != _daqttcProcs[daqProc].end(); it++)
+			_procEnabled[*it] = false;
+	}
+}
+
+bool trigSystem::isProcDisabled(const std::string& proccessor)
+{
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
+	return _procEnabled[proccessor];
 }
 
 }
