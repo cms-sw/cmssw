@@ -15,19 +15,12 @@ using namespace std;
 
 SimpleVFATFrameCollection::SimpleVFATFrameCollection()
 {
-#ifdef DEBUG
-  printf(">> SimpleVFATFrameCollection, this = %p\n", this);
-  printf("\tdata = %p, data.size = %u\n", &data, data.size());
-#endif
 }
 
 //----------------------------------------------------------------------------------------------------
 
 SimpleVFATFrameCollection::~SimpleVFATFrameCollection()
 {
-#ifdef DEBUG
-  printf(">> ~SimpleVFATFrameCollection, this = %p\n", this);
-#endif
   data.clear();
 }
 

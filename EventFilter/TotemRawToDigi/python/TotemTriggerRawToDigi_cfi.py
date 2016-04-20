@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TotemTriggerRawToDigi = cms.EDProducer("TotemTriggerRawToDigi",
+totemTriggerRawToDigi = cms.EDProducer("TotemTriggerRawToDigi",
   rawDataTag = cms.InputTag(""),
 
   # IMPORTANT: leave 0 to load the default configuration from

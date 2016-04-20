@@ -15,14 +15,14 @@
 
 //----------------------------------------------------------------------------------------------------
 
-VFATFrame::VFATFrame(unsigned short *_data) :
+VFATFrame::VFATFrame(const VFATFrame::word *_data) :
   presenceFlags(15),  // by default BC, EC, ID and CRC are present
   daqErrorFlags(0)    // by default, no DAQ error
 {
   if (_data)
     setData(_data);
   else
-    memset(data, 0, 12 * sizeof(unsigned short));
+    memset(data, 0, 12 * sizeof(word));
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ std::vector<unsigned char> VFATFrame::getActiveChannels() const
       continue;
 
     // go throug bits
-    unsigned short mask;
+    word mask;
     char offset;
     for (mask = 1 << 15, offset = 15; mask; mask >>= 1, offset--)
     {
@@ -86,7 +86,7 @@ bool VFATFrame::checkCRC() const
     return true;
 
   // compare CRC
-  unsigned short int crc_fin = 0xffff;
+  word crc_fin = 0xffff;
 
   for (int i = 11; i >= 1; i--)
     crc_fin = calculateCRC(crc_fin, data[i]);
@@ -130,11 +130,11 @@ void VFATFrame::Print(bool binary) const
   {
     for (int i = 0; i < 12; i++)
     {
-      const unsigned short &word = data[11 - i];
-      unsigned short mask = (1 << 15);
+      const word &w = data[11 - i];
+      word mask = (1 << 15);
       for (int j = 0; j < 16; j++)
       {
-        if (word & mask)
+        if (w & mask)
           printf("1");
         else
           printf("0");

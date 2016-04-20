@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,14 +24,13 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemTriggerRawToDigi : public edm::one::EDProducer<>
+class TotemTriggerRawToDigi : public edm::stream::EDProducer<>
 {
   public:
     explicit TotemTriggerRawToDigi(const edm::ParameterSet&);
     ~TotemTriggerRawToDigi();
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob();
 
   private:
     unsigned int fedId;
@@ -93,7 +92,8 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 {
   if (size != 20)
   {
-    cerr << "Error in TotemTriggerRawToDigi::ProcessLoneGFrame > " << "Wrong LoneG frame size: " << size << " (shall be 20)." << endl;
+    LogProblem("Totem") << "Error in TotemTriggerRawToDigi::ProcessLoneGFrame > " <<
+      "Wrong LoneG frame size: " << size << " (shall be 20)." << endl;
     return 1;
   }
 
@@ -136,12 +136,6 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 #endif
 
   return 0;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemTriggerRawToDigi::endJob()
-{
 }
 
 //----------------------------------------------------------------------------------------------------

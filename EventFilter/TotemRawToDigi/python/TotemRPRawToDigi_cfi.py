@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from EventFilter.TotemRawToDigi.TotemVFATRawToDigi_cfi import TotemVFATRawToDigi
+from EventFilter.TotemRawToDigi.TotemVFATRawToDigi_cfi import totemVFATRawToDigi
 
-TotemRPRawToDigi = TotemVFATRawToDigi.copy()
-TotemRPRawToDigi.subSystem = "RP"
+totemRPRawToDigi = totemVFATRawToDigi.copy()
+totemRPRawToDigi.subSystem = "RP"

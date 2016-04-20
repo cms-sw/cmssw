@@ -25,9 +25,6 @@ class VFATFrameCollection
     VFATFrameCollection() {}
     virtual ~VFATFrameCollection() {}
 
-    virtual std::string GetClassName() const
-      { return "VFATFrameCollection"; }
-
     /// returns pointer to frame with ID, performs NO duplicity check (if there is precisely one frame with this 12bit ID)
     virtual const VFATFrame* GetFrameByID(unsigned int ID) const = 0;
 

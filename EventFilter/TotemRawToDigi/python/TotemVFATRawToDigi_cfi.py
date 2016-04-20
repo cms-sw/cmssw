@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TotemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
+totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
   rawDataTag = cms.InputTag(""),
 
   # options: "RP"
@@ -29,20 +29,7 @@ TotemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     testID = cms.uint32(2),               # compare the ID from data and mapping
     testECMostFrequent = cms.uint32(2),   # compare frame's EC with the most frequent value in the event
     testBCMostFrequent = cms.uint32(2),   # compare frame's BC with the most frequent value in the event
-    
-    # if non-zero, prints a per-VFAT error summary at the end of the job
-    printErrorSummary = cms.untracked.uint32(1),
-    
-    # if non-zero, prints a summary of frames found in data, but not in the mapping
-    printUnknownFrameSummary = cms.untracked.uint32(0),
 
-    # output labels
-    rpCCProductLabel = cms.untracked.string("rpCCOutput"),
-    rpDataProductLabel = cms.untracked.string("rpDataOutput"),
-    t1DataProductLabel = cms.untracked.string("t1DataOutput"),
-    t2DataProductLabel = cms.untracked.string("t2DataOutput"),
-    conversionStatusLabel = cms.untracked.string("conversionStatus"),
-    
     # the minimal number of frames to search for the most frequent counter value 
     EC_min = cms.untracked.uint32(10),
     BC_min = cms.untracked.uint32(10),
@@ -50,5 +37,11 @@ TotemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     # the most frequent counter value is accepted provided its relative occupancy is higher than this fraction
     EC_fraction = cms.untracked.double(0.6),
     BC_fraction = cms.untracked.double(0.6),
+    
+    # if non-zero, prints a per-VFAT error summary at the end of the job
+    printErrorSummary = cms.untracked.uint32(1),
+    
+    # if non-zero, prints a summary of frames found in data, but not in the mapping
+    printUnknownFrameSummary = cms.untracked.uint32(0),
   )
 )

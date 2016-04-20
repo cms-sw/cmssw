@@ -34,6 +34,23 @@ class CounterChecker
 
     enum CheckerType {BCChecker, ECChecker};
   
+    /**
+     * \param t: CounterChecker::ECCounter or CounterChecker::BCCounter. On that, depends whether
+     * checker will fill wrong EC or BC rogress error.
+     * \param name: name
+     * \param min: minimal required number of frames to search for the most frequent one
+     */
+    CounterChecker(CheckerType _type = CounterChecker::BCChecker, const std::string &_name="",
+      unsigned int _min=0, double _fraction=0., unsigned int _verbosity=0) : type(_type),
+      name(_name), min(_min), fraction(_fraction), verbosity(_verbosity) {}
+
+    /// add new value to map, counter takes value of EC or BC number
+    void Fill(word counter, TotemFramePosition fr);
+
+    /// summarizes and fill the status (wrong EC and BC progress error for some frames)
+    template<typename T>
+    void Analyze(T &status, bool error, std::ostream &es);
+  
   private:
     class Comparer
     {
@@ -63,23 +80,64 @@ class CounterChecker
   
     /// if >= 3, the information about wrong counter for each frame will be shown
     unsigned int verbosity;
-  
-  public:
-    /**
-     * \param t: CounterChecker::ECCounter or CounterChecker::BCCounter. On that, depends whether
-     * checker will fill wrong EC or BC rogress error.
-     * \param name: name
-     * \param min: minimal required number of frames to search for the most frequent one
-     */
-    CounterChecker(CheckerType _type = CounterChecker::BCChecker, const std::string &_name="",
-      unsigned int _min=0, double _fraction=0., unsigned int _verbosity=0) : type(_type),
-      name(_name), min(_min), fraction(_fraction), verbosity(_verbosity) {}
-
-    /// add new value to map, counter takes value of EC or BC number
-    void Fill(word counter, TotemFramePosition fr);
-
-    /// summarizes and fill the status (wrong EC and BC progress error for some frames)
-    void Analyze(std::map<TotemFramePosition, TotemVFATStatus> &status, bool error, std::ostream &es);
 };
+
+//-------------------------------------------------------------------------------------------------
+
+using namespace std;
+
+template<typename T>
+void CounterChecker::Analyze(T &status, bool error, ostream &es) 
+{
+  word mostFrequentCounter = 0;
+  word mostFrequentSize = 0;
+  unsigned int totalFrames = 0;
+
+  // finding the most frequent counter
+  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++)
+  {
+    unsigned int iterSize = iter->second.size();
+    totalFrames += iterSize;
+
+    if (iterSize > mostFrequentSize)
+    {
+      mostFrequentCounter = iter->first;
+      mostFrequentSize = iter->second.size();
+    }
+  }
+
+  if (totalFrames < min)
+  {
+      es << "Too few frames to determine the most frequent " << name << " value.";
+      return;
+  }
+
+  // if there are too few frames with the most frequent value
+  if ((float)mostFrequentSize/(float)totalFrames < fraction)
+  {
+    es << "  The most frequent " << name << " value is doubtful - variance is too high.";
+    return;
+  }
+
+  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++)
+  {
+    if (iter->first != mostFrequentCounter)
+    {
+      for (vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr !=  iter->second.end(); fr++)
+      {
+        if (error)
+        {
+          if (type == ECChecker) 
+            status[*fr].status.setECProgressError();
+          if (type == BCChecker) 
+            status[*fr].status.setBCProgressError();    
+        }
+
+        es << "  Frame at " << *fr << ": " << name << " number " << iter->first
+            << " is different from the most frequent one " << mostFrequentCounter << endl;
+      }
+    }
+  }
+}
 
 #endif
