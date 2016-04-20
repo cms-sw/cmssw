@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+process = cms.Process("L1TStage2EmulatorDQM")
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -23,7 +23,7 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = "L1T2016EMU"
 process.dqmSaver.tag = "L1T2016EMU"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
+process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
@@ -36,7 +36,9 @@ process.dqmEndPath = cms.EndPath(
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
 process.rawToDigiPath = cms.Path(process.RawToDigi)
-process.rawToDigiPath.remove(process.siStripDigis) # don't need it and it takes time
+
+# Remove Unpacker Modules
+process.rawToDigiPath.remove(process.siStripDigis)
 process.rawToDigiPath.remove(process.gtDigis)
 process.rawToDigiPath.remove(process.gtEvmDigis)
 
@@ -48,6 +50,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.hltFatEventFilter = hltHighLevel.clone()
 process.hltFatEventFilter.throw = cms.bool(True)
 process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
+
 # This can be used if HLT filter not available in a run
 process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
         invert = cms.bool(False),
@@ -59,10 +62,12 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 
 process.load("DQM.L1TMonitor.L1TStage2Emulator_cff")
 
-process.l1tEmuMonitorPath = cms.Path(
+process.l1tEmulatorMonitorPath = cms.Path(
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2Emulator
+    process.l1tStage2Unpack  +
+    process.Stage2L1HardwareValidation +
+    process.l1tStage2EmulatorOnlineDQM 
     )
 
 # To get L1 CaloParams
@@ -73,30 +78,17 @@ process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
 #--------------------------------------------------
-# Stage2 Quality Tests
-process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
-process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
+# TODO: Stage2 Emulator Quality Tests
+#process.load("DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff")
+#process.l1tStage2EmulatorMonitorClientPath = cms.Path(process.l1tStage2EmulatorMonitorClient)
 
 #--------------------------------------------------
-# Stage2 Unpacking Path
+# L1T Emulator Online DQM Schedule
 
-process.stage2UnpackPath = cms.Path(
-    process.l1tCaloLayer1Digis +
-    process.caloStage2Digis +
-    process.gmtStage2Digis +
-    process.gtStage2Digis +
-    process.BMTFStage2Digis + 
-    process.emtfStage2Digis
-)
-
-#--------------------------------------------------
-# L1 Trigger DQM Schedule
-
-process.schedule = cms.Schedule(
+process.schedule = cms.Schedule( 
     process.rawToDigiPath,
-    process.stage2UnpackPath,
-    process.l1tEmuMonitorPath,
-    process.l1tStage2MonitorClientPath,
+    process.l1tEmulatorMonitorPath,
+    # process.l1tStage2EmulatorMonitorClientPath,
     process.dqmEndPath
 )
 

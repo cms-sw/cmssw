@@ -34,10 +34,10 @@ namespace l1t {
 	auto payload = block.payload();
 	int errors = 0;
 	
-	//Check the number of 16-bit words                                                                                                                                    
+	//Check the number of 16-bit words
 	if(payload.size() != 4) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
 	
-	//Check that each word is 16 bits                                                                                                                                     
+	//Check that each word is 16 bits
 	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'ME Data Record'"; }
 	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'ME Data Record'"; }
 	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'ME Data Record'"; }
@@ -48,7 +48,7 @@ namespace l1t {
 	uint16_t MEc = payload[2];
 	uint16_t MEd = payload[3];
 
-	//Check Format                                                                                                                                                        
+	//Check Format
 	if(GetHexBits(MEa, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
 	if(GetHexBits(MEb, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
 	if(GetHexBits(MEc, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
@@ -60,6 +60,8 @@ namespace l1t {
 
 
       bool MEBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
+
+	// std::cout << "Inside EMTFBlockME.cc: unpack" << std::endl;
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
@@ -81,39 +83,63 @@ namespace l1t {
 	EMTFOutputCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
 	int iOut = res->size() - 1;
-	if (ME_.Format_Errors() > 0) goto write;
+	std::vector<int> conv_vals_ME;
+	// if (ME_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
 
 	////////////////////////////
 	// Unpack the ME Data Record
 	////////////////////////////
 
-	ME_.set_clct_pattern        ( GetHexBits(MEa,  0,  3) );
-	ME_.set_quality             ( GetHexBits(MEa,  4,  7) );
-	ME_.set_key_wire_group      ( GetHexBits(MEa,  8, 14) );
+	ME_.set_clct_pattern ( GetHexBits(MEa,  0,  3) );
+	ME_.set_quality      ( GetHexBits(MEa,  4,  7) );
+	ME_.set_wire         ( GetHexBits(MEa,  8, 14) );
 
-	ME_.set_clct_key_half_strip ( GetHexBits(MEb,  0,  7) );
-	ME_.set_csc_ID              ( GetHexBits(MEb,  8, 11) );
-	ME_.set_lr                  ( GetHexBits(MEb, 12, 12) );
-	ME_.set_bxe                 ( GetHexBits(MEb, 13, 13) );
-	ME_.set_bc0                 ( GetHexBits(MEb, 14, 14) );
+	ME_.set_strip        ( GetHexBits(MEb,  0,  7) );
+	ME_.set_csc_ID       ( GetHexBits(MEb,  8, 11) );
+	ME_.set_lr           ( GetHexBits(MEb, 12, 12) );
+	ME_.set_bxe          ( GetHexBits(MEb, 13, 13) );
+	ME_.set_bc0          ( GetHexBits(MEb, 14, 14) );
 
-	ME_.set_me_bxn              ( GetHexBits(MEc,  0, 11) );
-	ME_.set_nit                 ( GetHexBits(MEc, 12, 12) );
-	ME_.set_cik                 ( GetHexBits(MEc, 13, 13) );
-	ME_.set_afff                ( GetHexBits(MEc, 14, 14) );
+	ME_.set_me_bxn       ( GetHexBits(MEc,  0, 11) );
+	ME_.set_nit          ( GetHexBits(MEc, 12, 12) );
+	ME_.set_cik          ( GetHexBits(MEc, 13, 13) );
+	ME_.set_afff         ( GetHexBits(MEc, 14, 14) );
 
-	ME_.set_tbin_num            ( GetHexBits(MEd,  0,  2) );
-	ME_.set_vp                  ( GetHexBits(MEd,  3,  3) );
-	ME_.set_station             ( GetHexBits(MEd,  4,  6) );
-	ME_.set_af                  ( GetHexBits(MEd,  7,  7) );
-	ME_.set_epc                 ( GetHexBits(MEd,  8, 11) );
-	ME_.set_sm                  ( GetHexBits(MEd, 12, 12) );
-	ME_.set_se                  ( GetHexBits(MEd, 13, 13) );
-	ME_.set_afef                ( GetHexBits(MEd, 14, 14) );
+	ME_.set_tbin_num     ( GetHexBits(MEd,  0,  2) );
+	ME_.set_vp           ( GetHexBits(MEd,  3,  3) );
+	ME_.set_station      ( GetHexBits(MEd,  4,  6) );
+	ME_.set_af           ( GetHexBits(MEd,  7,  7) );
+	ME_.set_epc          ( GetHexBits(MEd,  8, 11) );
+	ME_.set_sm           ( GetHexBits(MEd, 12, 12) );
+	ME_.set_se           ( GetHexBits(MEd, 13, 13) );
+	ME_.set_afef         ( GetHexBits(MEd, 14, 14) );
 
-	// ME_.set_dataword            ( uint64_t dataword);
+	// ME_.set_dataword     ( uint64_t dataword);
 
-      write:
+	// After 01.04.16
+	// std::cout << "About to convert values station = " << ME_.Station() << ", CSC ID = " 
+	// 	  << ME_.CSC_ID() << ", sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << std::endl;
+	conv_vals_ME = ME_.convert_chamber_ME( ME_.Station(), ME_.CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector() );
+	ME_.set_station   ( conv_vals_ME.at(0) );
+	ME_.set_csc_ID    ( conv_vals_ME.at(1) );
+	ME_.set_sector    ( conv_vals_ME.at(2) );
+	ME_.set_subsector ( conv_vals_ME.at(3) );
+	ME_.set_neighbor  ( conv_vals_ME.at(4) );
+	// std::cout << "Got converted values station = " << ME_.Station() << ", CSC ID = " << ME_.CSC_ID() 
+	// 	  << ", sector = " << ME_.Sector() << ", subsector = " << ME_.Subsector() << ", neighbor = " << ME_.Neighbor() << std::endl;
+
+	ME_.set_ring ( ME_.calc_ring_ME( ME_.Station(), ME_.CSC_ID(), ME_.Strip() ) );
+	// std::cout << "From strip = " << ME_.Strip() << " got ring = " << ME_.Ring() << std::endl;
+
+	if ( (res->at(iOut)).NumME() > 0 )
+	  if (ME_.Station() == (res->at(iOut)).PtrMECollection()->at( (res->at(iOut)).NumME() - 1 ).Station() )
+	    ME_.set_stub_num( (res->at(iOut)).PtrMECollection()->at( (res->at(iOut)).NumME() - 1 ).Stub_num() + 1 );
+	  else ME_.set_stub_num(0);
+	else ME_.set_stub_num(0);
+	if (ME_.Station() < 0) ME_.set_stub_num(-99);
+	      
+
+	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_ME(ME_);
 

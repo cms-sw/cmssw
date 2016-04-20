@@ -1,8 +1,8 @@
-#ifndef DQM_L1TMonitor_L1TStage2BMTF_h
-#define DQM_L1TMonitor_L1TStage2BMTF_h
+#ifndef DQM_L1TMonitor_L1TStage2OMTF_h
+#define DQM_L1TMonitor_L1TStage2OMTF_h
 
 /*
- * \file L1TStage2BMTF.h
+ * \file L1TStage2OMTF.h
  * \Author Esmaeel Eskandari Tadavani
  * \December 2015 
 */
@@ -32,14 +32,14 @@
 
 // class decleration
 
-class  L1TStage2BMTF: public DQMEDAnalyzer {
+class  L1TStage2OMTF: public DQMEDAnalyzer {
 
 public:
 
 // class constructor
-L1TStage2BMTF(const edm::ParameterSet & ps);
+L1TStage2OMTF(const edm::ParameterSet & ps);
 // class destructor
-virtual ~L1TStage2BMTF();
+virtual ~L1TStage2OMTF();
 
 // member functions
 protected:
@@ -52,27 +52,26 @@ protected:
 private:  
 
   std::string monitorDir;
-  edm::InputTag bmtfSource; 
+  edm::InputTag omtfSource; 
   bool verbose ;
-  edm::EDGetToken bmtfToken; 
+  edm::EDGetToken omtfToken; 
   float global_phi;
 
-  MonitorElement* bmtf_hwEta; 
-  MonitorElement* bmtf_hwLocalPhi;
-  MonitorElement* bmtf_hwGlobalPhi;
-  MonitorElement* bmtf_hwPt;  
-  MonitorElement* bmtf_hwQual;
-  MonitorElement* bmtf_proc; 
+  MonitorElement* omtf_hwEta; 
+  MonitorElement* omtf_hwLocalPhi;
+  MonitorElement* omtf_hwPt;  
+  MonitorElement* omtf_hwQual;
+  MonitorElement* omtf_proc; 
+  MonitorElement* omtf_bx; 
 
-  MonitorElement* bmtf_wedge_bx;
-  MonitorElement* bmtf_hwEta_hwLocalPhi;
-  MonitorElement* bmtf_hwPt_hwEta;
-  MonitorElement* bmtf_hwPt_hwLocalPhi;
+  MonitorElement* omtf_hwEta_hwLocalPhi;
+  MonitorElement* omtf_hwPt_hwEta;
+  MonitorElement* omtf_hwPt_hwLocalPhi;
 
-  MonitorElement* bmtf_hwEta_bx;  
-  MonitorElement* bmtf_hwLocalPhi_bx;  
-  MonitorElement* bmtf_hwPt_bx;   
-  MonitorElement* bmtf_hwQual_bx; 
+  MonitorElement* omtf_hwEta_bx;  
+  MonitorElement* omtf_hwLocalPhi_bx;  
+  MonitorElement* omtf_hwPt_bx;   
+  MonitorElement* omtf_hwQual_bx; 
 
 };
 

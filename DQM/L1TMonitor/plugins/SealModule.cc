@@ -39,6 +39,9 @@ DEFINE_FWK_MODULE(L1TStage2uGT);
 #include <DQM/L1TMonitor/interface/L1TStage2BMTF.h>
 DEFINE_FWK_MODULE(L1TStage2BMTF);
 
+#include <DQM/L1TMonitor/interface/L1TStage2OMTF.h>
+DEFINE_FWK_MODULE(L1TStage2OMTF);
+
 #include <DQM/L1TMonitor/interface/L1TStage2EMTF.h>
 DEFINE_FWK_MODULE(L1TStage2EMTF);
 
@@ -60,7 +63,7 @@ DEFINE_FWK_MODULE(L1TCompare);
 #include "DQM/L1TMonitor/interface/BxTiming.h"
 DEFINE_FWK_MODULE(BxTiming);
 
-//Emulator DQM:
+// Emulator DQM
 
 #include "DQM/L1TMonitor/interface/L1TDEMON.h"
 DEFINE_FWK_MODULE(L1TDEMON);
@@ -76,6 +79,9 @@ DEFINE_FWK_MODULE(L1TdeStage2CaloLayer1);
 
 #include "DQM/L1TMonitor/interface/L1TdeCSCTF.h"
 DEFINE_FWK_MODULE(L1TdeCSCTF);
+
+#include <DQM/L1TMonitor/interface/L1TdeStage2EMTF.h>
+DEFINE_FWK_MODULE(L1TdeStage2EMTF);
 
 //#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
 //DEFINE_FWK_MODULE(L1GtHwValidation);
