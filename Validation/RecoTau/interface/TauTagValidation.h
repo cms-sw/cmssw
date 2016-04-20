@@ -134,7 +134,13 @@ private:
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
+  std::map<std::string,  MonitorElement *> nTauVisibleMap;
+  std::map<std::string,  MonitorElement *> massTauVisibleMap;
   std::map<std::string,  MonitorElement *> plotMap_;
+
+  std::map<std::string,  int> tauDeacyCountMap_;
+
+  MonitorElement* nTaus_;
 
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
