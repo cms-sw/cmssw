@@ -14,28 +14,6 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-// Binning specification
-namespace {
-  const unsigned int TPGETABINS = 57;
-  const float TPGETAMIN = -28.5;
-  const float TPGETAMAX = 28.5;
-
-  const unsigned int TPETABINSHCAL = 83;
-  const float TPETAMINHCAL = -41.5;
-  const float TPETAMAXHCAL = 41.5;
-
-  const unsigned int TPGPHIBINS = 72;
-  const float TPGPHIMIN = 0.5;
-  const float TPGPHIMAX = 72.5;
-
-  const unsigned int TPGEtbins = 255;
-  const float TPGEtMIN = 0.0;
-  const float TPGEtMAX = 255.0;
-
-  const unsigned int TPGEtbins1 = 510;
-  const float TPGEtMIN1 = -255.0;
-  const float TPGEtMAX1 = 255.0;
-};
 
 L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet & ps) :
   dataLabel_(ps.getParameter<edm::InputTag>("dataSource")),
