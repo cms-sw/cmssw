@@ -1187,7 +1187,8 @@ class Plot:
             i = h.Integral()
             if i == 0:
                 continue
-            h.Sumw2()
+            if h.GetSumw2().fN <= 0: # to suppress warning
+                h.Sumw2()
             h.Scale(1.0/i)
 
     def draw(self, pad, ratio, ratioFactor, nrows):
