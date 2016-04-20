@@ -61,14 +61,14 @@ l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::s
 	std::stringstream ss;
         ss << "#<header> V1 " << addrWidth << " " << dataWidth << " </header>" << std::endl;
         size_t i = 0;
-	for (; i < vec.size() && i < (size_t)(1<<addrWidth); ++i) {
+	for (unsigned int i=0; i < vec.size() && i < (size_t)(1<<addrWidth); ++i)
 		ss << i << " " << vec[i] << std::endl;
-	}
-        // add padding to 2^addrWidth rows
-        if (padding >= 0 && i < (size_t)(1<<addrWidth)) {
-		for (; i < (size_t)(1<<addrWidth); ++i) {
+
+    // add padding to 2^addrWidth rows
+    if (padding >= 0 && i < (size_t)(1<<addrWidth)) 
+    {
+		for (; i < (size_t)(1<<addrWidth); ++i)
 			ss << i << " " << padding << std::endl;
-		}
 	}
 	
 	l1t::LUT lut;
@@ -86,4 +86,50 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
+void setting::addTableRow(std::string row)
+{
+	if (_type.find("table") != )
+		throw std::runtime_error("Type is not table");
+
+	std::string delim(","); //TODO: should be read dynamically
+	std::vector<std::string> vals;
+	if ( !parse ( std::string(row+delim+" ").c_str(),
+	(
+		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+	), boost::spirit::classic::nothing_p ).full )
+	{ 	
+		throw std::runtime_error ("Wrong value format: " + row);
+	}
+	_tableRows.push_back(vals);
 }
+
+void setting::setTableTypes(std::string types)
+{
+	std::string delim(","); //TODO: should be read dynamically
+	std::vector<std::string> vals;
+	if ( !parse ( std::string(types+delim+" ").c_str(),
+	(
+		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+	), boost::spirit::classic::nothing_p ).full )
+	{ 	
+		throw std::runtime_error ("Wrong value format: " + types);
+	}
+	_tableTypes = vals;
+}
+
+void setting::setTableColumns(std::string cols)
+{
+	std::string delim(","); //TODO: should be read dynamically
+	std::vector<std::string> vals;
+	if ( !parse ( std::string(cols+delim+" ").c_str(),
+	(
+		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+	), boost::spirit::classic::nothing_p ).full )
+	{ 	
+		throw std::runtime_error ("Wrong value format: " + cols);
+	}
+	_tableColumns = vals;
+}
+
+}
+
