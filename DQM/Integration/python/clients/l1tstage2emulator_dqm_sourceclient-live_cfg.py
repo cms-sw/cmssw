@@ -79,8 +79,8 @@ process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
 #--------------------------------------------------
 # TODO: Stage2 Emulator Quality Tests
-#process.load("DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff")
-#process.l1tStage2EmulatorMonitorClientPath = cms.Path(process.l1tStage2EmulatorMonitorClient)
+process.load("DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff")
+process.l1tStage2EmulatorMonitorClientPath = cms.Path(process.l1tStage2EmulatorMonitorClient)
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
@@ -88,7 +88,7 @@ process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 process.schedule = cms.Schedule( 
     process.rawToDigiPath,
     process.l1tEmulatorMonitorPath,
-    # process.l1tStage2EmulatorMonitorClientPath,
+    process.l1tStage2EmulatorMonitorClientPath,
     process.dqmEndPath
 )
 
