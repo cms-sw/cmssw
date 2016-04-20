@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,14 +35,13 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemVFATRawToDigi : public edm::one::EDProducer<>
+class TotemVFATRawToDigi : public edm::stream::EDProducer<>
 {
   public:
     explicit TotemVFATRawToDigi(const edm::ParameterSet&);
     ~TotemVFATRawToDigi();
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob();
 
   private:
     std::string subSystem;
@@ -146,13 +145,6 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystem);
   event.put(make_unique<DigiType>(digi), subSystem);
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystem);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemVFATRawToDigi::endJob()
-{
-  rawToDigiConverter.PrintSummaries();
 }
 
 //----------------------------------------------------------------------------------------------------

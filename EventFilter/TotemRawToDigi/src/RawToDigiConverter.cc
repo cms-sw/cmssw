@@ -10,6 +10,8 @@
 
 #include "EventFilter/TotemRawToDigi/interface/CounterChecker.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -41,68 +43,70 @@ RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
 //----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
-      map<TotemFramePosition, TotemVFATStatus> &status)
+      map<TotemFramePosition, RawToDigiConverter::Record> &records)
 {
-  // map which will contain FramePositions from mapping missing in raw event
-  map<TotemFramePosition, TotemVFATInfo> missingFrames(mapping.VFATMapping);
-
   // EC and BC checks (wrt. the most frequent value), BC checks per subsystem
   CounterChecker ECChecker(CounterChecker::ECChecker, "EC", EC_min, EC_fraction, verbosity);
   CounterChecker BCChecker(CounterChecker::BCChecker, "BC", BC_min, BC_fraction, verbosity);
 
-  // loop over data frames
-  stringstream ees;
+  // initialise structure merging vfat frame data with the mapping
+  for (auto &p : mapping.VFATMapping)
+  {
+    TotemVFATStatus st;
+    st.setMissing(true);
+    records[p.first] = { &p.second, NULL,  st };
+  }
 
+  // associate data frames with records
+  stringstream ees;
   for (VFATFrameCollection::Iterator fr(&input); !fr.IsEnd(); fr.Next())
   {
     stringstream fes;
     bool stopProcessing = false;
     
     // skip data frames not listed in the DAQ mapping
-    auto mappingIter = mapping.VFATMapping.find(fr.Position());
-    if (mappingIter == mapping.VFATMapping.end())
+    auto records_it = records.find(fr.Position());
+    if (records_it == records.end())
     {
       unknownSummary[fr.Position()]++;
       continue;
     }
 
-    // contain information about processed frame
-    TotemVFATStatus &actualStatus = status[fr.Position()];
-
-    // remove from missingFrames
-    auto iter = missingFrames.find(fr.Position());
-    missingFrames.erase(iter);
+    // update record
+    Record &record = records_it->second;
+    record.frame = fr.Data();
+    record.status.setMissing(false);
 
     // check footprint
-    if (testFootprint != tfNoTest && !fr.Data()->checkFootprint())
+    if (testFootprint != tfNoTest && !record.frame->checkFootprint())
     {
       fes << "    invalid footprint\n";
       if ((testFootprint == tfErr))
       {
-        actualStatus.setFootprintError();
+        record.status.setFootprintError();
         stopProcessing = true;
       }
     }
     
     // check CRC
-    if (testCRC != tfNoTest && !fr.Data()->checkCRC())
+    if (testCRC != tfNoTest && !record.frame->checkCRC())
     {
       fes << "    CRC failure\n";
       if (testCRC == tfErr)
       {
-        actualStatus.setCRCError();
+        record.status.setCRCError();
         stopProcessing = true;
       }
     }
 
     // check the id mismatch
-    if (testID != tfNoTest && fr.Data()->isIDPresent() && (fr.Data()->getChipID() & 0xFFF) != (mappingIter->second.hwID & 0xFFF))
+    if (testID != tfNoTest && record.frame->isIDPresent() && (record.frame->getChipID() & 0xFFF) != (record.info->hwID & 0xFFF))
     {
-      fes << "    ID mismatch (data: 0x" << hex << fr.Data()->getChipID()
-        << ", mapping: 0x" << mappingIter->second.hwID  << dec << ", symbId: " << mappingIter->second.symbolicID.symbolicID << ")\n";
+      fes << "    ID mismatch (data: 0x" << hex << record.frame->getChipID()
+        << ", mapping: 0x" << record.info->hwID  << dec << ", symbId: " << record.info->symbolicID.symbolicID << ")\n";
       if (testID == tfErr)
       {
-        actualStatus.setIDMismatch();
+        record.status.setIDMismatch();
         stopProcessing = true;
       }
     }
@@ -133,38 +137,40 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
 
   // analyze EC and BC statistics
   if (testECMostFrequent != tfNoTest)
-    ECChecker.Analyze(status, (testECMostFrequent == tfErr), ees);
+    ECChecker.Analyze(records, (testECMostFrequent == tfErr), ees);
 
   if (testBCMostFrequent != tfNoTest)
-    BCChecker.Analyze(status, (testBCMostFrequent == tfErr), ees);
+    BCChecker.Analyze(records, (testBCMostFrequent == tfErr), ees);
 
-  // save the information about missing frames to conversionStatus
-  for (const auto &it : missingFrames)
+  // add error message for missing frames
+  if (verbosity > 1)
   {
-    TotemVFATStatus &actualStatus = status[it.first];
-    actualStatus.setMissing();
-    if (verbosity > 1) 
-      ees << "Frame for VFAT " << it.first << " is not present in the data.\n";
+    for (const auto &p : records)
+    {
+      if (p.second.status.isMissing())
+        ees << "Frame for VFAT " << p.first << " is not present in the data.\n";
+      
+    }
   }
 
   // print error message
   if (verbosity > 0 && !ees.rdbuf()->str().empty())
   {
     if (verbosity > 1)
-      cerr << "event contains the following problems:\n" << ees.rdbuf() << endl;
+      LogProblem("Totem") << "Error in RawToDigiConverter::RunCommon > " << "event contains the following problems:\n" << ees.rdbuf() << endl;
     else
-      cerr << "event contains problems." << endl;
+      LogProblem("Totem") << "Error in RawToDigiConverter::RunCommon > " << "event contains problems." << endl;
   }
 
   // increase error counters
   if (printErrorSummary)
   {
-    for (const auto &it : status)
+    for (const auto &it : records)
     {
-      if (!it.second.isOK())
+      if (!it.second.status.isOK())
       {
         auto &m = errorSummary[it.first];
-        m[it.second]++;
+        m[it.second.status]++;
       }
     }
   }
@@ -176,58 +182,58 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
   const TotemDAQMapping &mapping, const TotemAnalysisMask &analysisMask,
   DetSetVector<TotemRPDigi> &rpData, DetSetVector<TotemVFATStatus> &finalStatus)
 {
-  // map to link TotemFramePosition to the conversion status
-  map<TotemFramePosition, TotemVFATStatus> status;
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
 
   // common processing - frame validation
-  RunCommon(input, mapping, status);
+  RunCommon(input, mapping, records);
 
   // second loop over data
-  for (VFATFrameCollection::Iterator fr(&input); !fr.IsEnd(); fr.Next())
+  for (auto &p : records)
   {
-    auto mappingIter = mapping.VFATMapping.find(fr.Position());
-    if (mappingIter == mapping.VFATMapping.end())
-      continue;
-  
+    Record &record = p.second;
+
     // check whether the data come from RP VFATs
-    if (mappingIter->second.symbolicID.subSystem != TotemSymbID::RP)
-      throw cms::Exception("RawToDigiConverter::Run") << "VFAT is not from RP. subSystem = " <<
-        mappingIter->second.symbolicID.subSystem << endl;
+    if (record.info->symbolicID.subSystem != TotemSymbID::RP)
+    {
+      LogProblem("Totem") << "Error in RawToDigiConverter::Run > "
+        << "VFAT is not from RP. subSystem = " << record.info->symbolicID.subSystem;
+      continue;
+    }
 
     // silently ignore RP CC VFATs
-    if (mappingIter->second.type != TotemVFATInfo::data)
+    if (record.info->type != TotemVFATInfo::data)
       continue;
 
     // calculate ids
-    unsigned short chipId = mappingIter->second.symbolicID.symbolicID;
+    unsigned short chipId = record.info->symbolicID.symbolicID;
     det_id_type detId = TotemRPDetId::decToRawId(chipId / 10);
     uint8_t chipPosition = chipId % 10;
 
     // update chipPosition in status
-    TotemVFATStatus &actualStatus = status[fr.Position()];
-    actualStatus.setChipPosition(chipPosition);
+    record.status.setChipPosition(chipPosition);
 
     // produce digi only for good frames
-    if (actualStatus.isOK())
+    if (record.status.isOK())
     {
       // find analysis mask (needs a default=no mask, if not in present the mapping)
       TotemVFATAnalysisMask anMa;
       anMa.fullMask = false;
   
-      auto analysisIter = analysisMask.analysisMask.find(mappingIter->second.symbolicID);
+      auto analysisIter = analysisMask.analysisMask.find(record.info->symbolicID);
       if (analysisIter != analysisMask.analysisMask.end())
       {            
         // if there is some information about masked channels - save it into conversionStatus
         anMa = analysisIter->second;
         if (anMa.fullMask)
-          actualStatus.setFullyMaskedOut();
+          record.status.setFullyMaskedOut();
         else
-          actualStatus.setPartiallyMaskedOut();
+          record.status.setPartiallyMaskedOut();
       }
   
       // create the digi
       unsigned short offset = chipPosition * 128;
-      const vector<unsigned char> &activeChannels = fr.Data()->getActiveChannels();
+      const vector<unsigned char> &activeChannels = record.frame->getActiveChannels();
     
       for (auto ch : activeChannels)
       {
@@ -242,7 +248,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 
     // save status
     DetSet<TotemVFATStatus> &statusDetSet = finalStatus.find_or_insert(detId);
-    statusDetSet.push_back(actualStatus);
+    statusDetSet.push_back(record.status);
   }
 }
 
@@ -252,20 +258,20 @@ void RawToDigiConverter::PrintSummaries()
 {
   if (printErrorSummary)
   {
-    cout << "* Error summary (error signature : number of such events)" << endl;
+    LogVerbatim("Totem") << "* Error summary (error signature : number of such events)" << endl;
     for (const auto &vit : errorSummary)
     {
-      cout << vit.first << endl;
+      LogVerbatim("Totem") << vit.first << endl;
 
       for (const auto &it : vit.second)
-        cout << "    " << it.first << " : " << it.second << endl;
+        LogVerbatim("Totem") << "    " << it.first << " : " << it.second << endl;
     }
   }
 
   if (printUnknownFrameSummary)
   {
-    cout << "* Frames found in data, but not in the mapping (frame position : number of events)" << endl;
+    LogVerbatim("Totem") << "* Frames found in data, but not in the mapping (frame position : number of events)" << endl;
     for (const auto &it : unknownSummary)
-      cout << "  " << it.first << " : " << it.second << endl;
+      LogVerbatim("Totem") << "  " << it.first << " : " << it.second << endl;
   }
 }

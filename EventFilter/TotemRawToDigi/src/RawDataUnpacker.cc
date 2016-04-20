@@ -8,6 +8,8 @@
 
 #include "EventFilter/TotemRawToDigi/interface/RawDataUnpacker.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //----------------------------------------------------------------------------------------------------
 
 using namespace std;
@@ -26,18 +28,19 @@ int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo>
   unsigned int size_in_words = data.size() / 8; // bytes -> words
   if (size_in_words < 2)
   {
-    printf("ERROR in RawDataUnpacker::Run > Data in FED %i too short (size = %u words).\n", fedId, size_in_words);
+    LogError("Totem") << "Error in RawDataUnpacker::Run > " <<
+      "Data in FED " << fedId << " too short (size = " << size_in_words << " words).";
     return 1;
   }
 
   fedInfoColl.push_back(TotemFEDInfo(fedId));
 
-  return ProcessOptoRxFrame((word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
+  return ProcessOptoRxFrame((const word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
@@ -61,7 +64,7 @@ int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, Totem
   // check header and footer structure
   if (BOE != 5 || H0 != 0 || EOE != 10 || F0 != 0 || FSize != frameSize)
   {
-    cerr << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong structure of OptoRx header/footer: "
+    LogProblem("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong structure of OptoRx header/footer: "
       << "BOE=" << BOE << ", H0=" << H0 << ", EOE=" << EOE << ", F0=" << F0
       << ", size (OptoRx)=" << FSize << ", size (DATE)=" << frameSize
       << ". OptoRxID=" << OptoRxId << ". Skipping frame." << endl;
@@ -80,13 +83,14 @@ int RawDataUnpacker::ProcessOptoRxFrame(word *buf, unsigned int frameSize, Totem
   if (FOV == 2)
     return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
 
-  cerr << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Unknown FOV = " << FOV << endl;
+  LogProblem("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Unknown FOV = " << FOV << endl;
+
   return 0;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameSerial(word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned int OptoRxId = (buf[0] >> 8) & 0xFFF;
@@ -127,9 +131,8 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(word *buf, unsigned int frameSize,
           sprintf(ss, "\n\tIncompatible GOH IDs in header (%x) and footer (%x).", ((head >> 8) & 0xF),
             ((foot >> 8) & 0xF));
 
-        cerr << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong payload structure (in GOH block row " << r <<
-          " and column " << c
-          << ") in OptoRx frame ID " << OptoRxId << ". GOH block omitted." << ss << endl;
+        LogProblem("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong payload structure (in GOH block row " << r <<
+          " and column " << c << ") in OptoRx frame ID " << OptoRxId << ". GOH block omitted." << ss << endl;
 
         errorCounter++;
         continue;
@@ -170,14 +173,14 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(word *buf, unsigned int frameSize,
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameParallel(word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
   unsigned int OptoRxId = (head >> 8) & 0xFFF;
 
   // recast data as buffer or 16bit words, skip header
-  uint16_t *payload = (uint16_t *) (buf + 1);
+  const uint16_t *payload = (const uint16_t *) (buf + 1);
 
   // read in OrbitCounter block
   uint32_t *ocPtr = (uint32_t *) payload;
@@ -199,7 +202,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(word *buf, unsigned int frameSiz
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc)
+int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc)
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -212,7 +215,8 @@ int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxI
   unsigned int hFlag = (buf[0] >> 8) & 0xFF;
   if (hFlag != vmCluster && hFlag != vmRaw)
   {
-    cerr << "Error in RawDataUnpacker::ProcessVFATDataParallel > " << "Unknown header flag " << hFlag << ". Skipping this word." << endl;
+    LogProblem("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+      << "Unknown header flag " << hFlag << ". Skipping this word." << endl;
     return wordsProcessed;
   }
 
@@ -278,14 +282,16 @@ int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxI
 
   if (tSig != 0xF)
   {
-    cerr << "Error in RawDataUnpacker::ProcessVFATDataParallel > " << "Wrong trailer signature (" << tSig << ") at "
+    LogProblem("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+      << "Wrong trailer signature (" << tSig << ") at "
       << fp << ". This frame will be skipped." << endl;
     skipFrame = true;
   }
 
   if (tErrFlags != 0)
   {
-    cerr << "Error in RawDataUnpacker::ProcessVFATDataParallel > " << "Error flags not zero (" << tErrFlags << ") at "
+    LogProblem("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+      << "Error flags not zero (" << tErrFlags << ") at "
       << fp << ". Channel errors will be suppressed." << endl;
     suppressChannelErrors = true;
   }
@@ -294,7 +300,8 @@ int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxI
 
   if (tSize != wordsProcessed)
   {
-    cerr << "Error in RawDataUnpacker::ProcessVFATDataParallel > " << "Trailer size (" << tSize << ") does not match with words processed ("
+    LogProblem("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+      << "Trailer size (" << tSize << ") does not match with words processed ("
       << wordsProcessed << ") at " << fp << ". This frame will be skipped." << endl;
     skipFrame = true;
   }
@@ -308,7 +315,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxI
     unsigned int nCl = 0;
     while ( (buf[dataOffset + nCl] >> 12) != 0xF )
     {
-      uint16_t &w = buf[dataOffset + nCl];
+      const uint16_t &w = buf[dataOffset + nCl];
       unsigned int clSize = (w >> 8) & 0x7F;
       unsigned int clPos = (w >> 0) & 0xFF;
 
@@ -325,7 +332,8 @@ int RawDataUnpacker::ProcessVFATDataParallel(uint16_t *buf, unsigned int OptoRxI
       if (chMax < 0 || chMax > 127 || chMin < 0 || chMin > 127 || chMin > chMax)
       {
         if (!suppressChannelErrors)
-          cerr << "Error in RawDataUnpacker::ProcessVFATDataParallel > " << "Invalid cluster (pos=" << clPos
+          LogProblem("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+            << "Invalid cluster (pos=" << clPos
             << ", size=" << clSize << ", min=" << chMin << ", max=" << chMax << ") at " << fp
             <<". Skipping this cluster." << endl;
 

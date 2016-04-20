@@ -33,11 +33,6 @@ class SimpleVFATFrameCollection : public VFATFrameCollection
     SimpleVFATFrameCollection();
     ~SimpleVFATFrameCollection();
 
-    virtual std::string GetClassName() const
-    {
-      return "SimpleVFATFrameCollection";
-    }
-
     const VFATFrame* GetFrameByID(unsigned int ID) const;
     const VFATFrame* GetFrameByIndex(TotemFramePosition index) const;
 
@@ -53,13 +48,13 @@ class SimpleVFATFrameCollection : public VFATFrameCollection
 
     void Insert(const TotemFramePosition &index, const VFATFrame &frame)
     {
-      data.insert(std::pair<TotemFramePosition, VFATFrame>(index, frame));
+      data.insert({index, frame});
     }
 
     /// inserts an empty (default) frame to the given position and returns pointer to the frame
     VFATFrame* InsertEmptyFrame(TotemFramePosition index)
     {
-      return &data.insert(std::pair<TotemFramePosition, VFATFrame>(index, VFATFrame())).first->second;
+      return &data.insert({index, VFATFrame()}).first->second;
     }
 
     /// cleans completely the collection

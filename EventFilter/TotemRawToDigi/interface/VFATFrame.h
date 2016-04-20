@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <stdint.h>
 
 /**
  * Representation of VFAT frame plus extra info added by DAQ.
@@ -18,10 +19,10 @@
 class VFATFrame
 {
   public:
-    typedef unsigned short word;
+    typedef uint16_t word;
 
   public:
-    VFATFrame(word* _data = NULL);
+    VFATFrame(const word* _data = NULL);
 
     VFATFrame(const VFATFrame& copy)
     {
