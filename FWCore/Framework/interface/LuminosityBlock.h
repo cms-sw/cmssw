@@ -110,7 +110,7 @@ namespace edm {
 
     template <typename PROD>
     void
-    put(std::unique_ptr<PROD> product) {put<PROD>(product, std::string());}
+    put(std::unique_ptr<PROD> product) {put<PROD>(std::move(product), std::string());}
 
     ///Put a new product with a 'product instance name'
     template <typename PROD>
@@ -177,7 +177,7 @@ namespace edm {
   template <typename PROD>
   void
   LuminosityBlock::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(product.get() == 0) {                // null pointer is illegal
+    if(product.get() == nullptr) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }
