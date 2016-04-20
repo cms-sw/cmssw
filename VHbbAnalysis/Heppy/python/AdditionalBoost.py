@@ -692,12 +692,20 @@ class AdditionalBoost( Analyzer ):
 
             self.handles['ca15elecTagInfos']     = AutoHandle( ("ca15PFJetsCHSsoftPFElectronsTagInfos", "","EX"), "vector<reco::TemplatedSoftLeptonTagInfo<edm::Ptr<reco::Candidate> > >")
 
-            self.handles['ca15ungroomed']     = AutoHandle( ("ca15PFJetsCHS","","EX"), "std::vector<reco::PFJet>")
-            self.handles['ca15trimmed']       = AutoHandle( ("ca15PFTrimmedJetsCHS","","EX"), "std::vector<reco::PFJet>")
-            self.handles['ca15softdrop']      = AutoHandle( ("ca15PFSoftdropJetsCHS","","EX"), "std::vector<reco::PFJet>")
-            self.handles['ca15softdropz2b1']  = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","","EX"), "std::vector<reco::PFJet>")
-            self.handles['ca15pruned']        = AutoHandle( ("ca15PFPrunedJetsCHS","","EX"), "std::vector<reco::BasicJet>")
-            self.handles['ca15prunedsubjets'] = AutoHandle( ("ca15PFPrunedJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15ungroomed']           = AutoHandle( ("ca15PFJetsCHS","","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15trimmed']             = AutoHandle( ("ca15PFTrimmedJetsCHS","","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15pruned']              = AutoHandle( ("ca15PFPrunedJetsCHS","","EX"), "std::vector<reco::BasicJet>")
+            self.handles['ca15softdrop']            = AutoHandle( ("ca15PFSoftdropJetsCHS","","EX"), "std::vector<reco::BasicJet>")
+            self.handles['ca15softdropz2b1']        = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","","EX"), "std::vector<reco::BasicJet>")
+
+            self.handles['ca15subjetfiltered']        = AutoHandle( ("ca15PFSubjetFilterCHS","fat","EX"), "std::vector<reco::BasicJet>")
+
+            self.handles['ca15prunedsubjets']       = AutoHandle( ("ca15PFPrunedJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15softdropsubjets']     = AutoHandle( ("ca15PFSoftdropJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15softdropz2b1subjets'] = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+
+            # we call them subjets, even though they are technically the filterjets in BDRS lingo
+            self.handles['ca15subjetfilteredsubjets']  = AutoHandle( ("ca15PFSubjetFilterCHS","filter","EX"), "std::vector<reco::PFJet>")
 
             self.handles['ca15tau1'] = AutoHandle( ("ca15PFJetsCHSNSubjettiness","tau1","EX"), "edm::ValueMap<float>")
             self.handles['ca15tau2'] = AutoHandle( ("ca15PFJetsCHSNSubjettiness","tau2","EX"), "edm::ValueMap<float>")
@@ -720,6 +728,16 @@ class AdditionalBoost( Analyzer ):
 
             self.handles['ca15prunedsubjetbtag'] = AutoHandle( ("ca15PFPrunedJetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
                                                                "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
+            self.handles['ca15softdropsubjetbtag'] = AutoHandle( ("ca15PFSoftdropJetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
+                                                               "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
+            self.handles['ca15softdropz2b1subjetbtag'] = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
+                                                               "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
+            self.handles['ca15subjetfilteredsubjetbtag'] = AutoHandle( ("ca15PFSubjetFilterCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
+                                                                       "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
 
     def process(self, event):
  
@@ -766,7 +784,7 @@ class AdditionalBoost( Analyzer ):
         # Groomed Uncalibrated Fatjets
         ########
 
-        for fj_name in ['ca15trimmed', 'ca15softdrop', 'ca15pruned']:            
+        for fj_name in ['ca15trimmed', 'ca15softdrop', 'ca15pruned', 'ca15subjetfiltered']:            
                 setattr(event, fj_name, map(PhysicsObject, self.handles[fj_name].product()))
 
 #
@@ -815,7 +833,7 @@ class AdditionalBoost( Analyzer ):
         # Subjets 
         ########
 
-        for fj_name in ['ca15pruned']:
+        for fj_name in ['ca15pruned', 'ca15softdrop', 'ca15softdropz2b1', 'ca15subjetfiltered']:
 
             if self.skip_ca15 and ("ca15" in fj_name):
                 continue

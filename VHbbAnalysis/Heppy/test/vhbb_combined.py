@@ -68,10 +68,31 @@ if not boostana.skip_ca15:
                                                                 10,
                                                                 help="CA, R=1.5, pT > 200 GeV, pruned zcut=0.1, rcut=0.5, n=2")
 
+    treeProducer.collections["ca15subjetfiltered"] = NTupleCollection("FatjetCA15subjetfiltered",
+                                                                        fourVectorType,
+                                                                        10,
+                                                                        help="CA, R=1.5, pT > 200 GeV, BDRS via SubjetFilterJetProducer")
+
     treeProducer.collections["ca15prunedsubjets"] = NTupleCollection("SubjetCA15pruned",
                                                                      subjetType,
                                                                      10,
-                                                                     help="Subjets of AK, R=1.5, pT > 200 GeV, pruned zcut=0.1, rcut=0.5, n=2")
+                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, pruned zcut=0.1, rcut=0.5, n=2")
+
+    treeProducer.collections["ca15softdropsubjets"] = NTupleCollection("SubjetCA15softdrop",
+                                                                     subjetType,
+                                                                     10,
+                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=1, beta=0")
+
+    treeProducer.collections["ca15softdropz2b1subjets"] = NTupleCollection("SubjetCA15softdropz2b1",
+                                                                     subjetType,
+                                                                     10,
+                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=1, beta=0")
+
+
+    treeProducer.collections["ca15subjetfilteredsubjets"] = NTupleCollection("SubjetCA15subjetfilter",
+                                                                             subjetType,
+                                                                             10,
+                                                                             help="Subjets of CA, R=1.5, pT > 200 GeV, BDRS, filterjets")
 
     treeProducer.collections["httCandidates"] = NTupleCollection("httCandidates",
                                                                  httType,
