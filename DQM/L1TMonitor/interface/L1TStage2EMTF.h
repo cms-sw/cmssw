@@ -52,6 +52,7 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfMode;
   MonitorElement* emtfQuality;
   MonitorElement* emtfQualityvsMode;
+  MonitorElement* emtfHQPhi;
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;

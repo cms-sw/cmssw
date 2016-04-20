@@ -123,7 +123,8 @@ namespace l1t {
 
 	SP_.set_phi_GMT_int    ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
 	SP_.set_phi_GMT_global ( SP_.Phi_GMT(), (res->at(iOut)).PtrEventHeader()->Sector() );
-	mu_.setHwPhi           ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
+	SP_.set_phi_GMT_global_rad ( SP_.Phi_GMT(), (res->at(iOut)).PtrEventHeader()->Sector() );
+  mu_.setHwPhi           ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
 	SP_.set_quality        ( GetHexBits(SP1b,  8, 11) ); // After 01.04.16
 	mu_.setHwQual          ( GetHexBits(SP1b,  8, 11) ); // After 01.04.16
 	SP_.set_bc0            ( GetHexBits(SP1b, 12, 12) );
