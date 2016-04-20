@@ -157,13 +157,12 @@ To get profiles, add instead
                    .reduce("MEAN")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                    .saveAll(),
+                   
+For quantities where it makes sense to have per-module plots, you can add a specification like this:
 
-If you want finer-grain histograms than per ladder, try
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
 
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId") 
-                   .save()
-
-The `DetId` grouping in the end ensures module-level plots.
+The `PerModule` parameter (defined in `HistogramManager_cfi.py`, allows the per-module histograms to be turned off by default.
 
 One of the more complicated things is counting things per event, as in e. g. the `NDigis` histograms. The specification for this is
 
