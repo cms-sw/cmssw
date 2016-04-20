@@ -48,14 +48,18 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
   // BXVector::begin(int bx)
   for ( auto iter = dataTowers->begin(0); iter != dataTowers->end(0); ++iter) {
     const auto& tower = *iter;
-    dataTowerSet.emplace(tower.hwEta(), tower.hwPhi(), tower.hwPt() + (tower.hwEtRatio()<<9) + (tower.hwQual()<<12), true);
+    int eta = tower.hwEta();
+    if ( eta == 29 ) eta = 30;
+    if ( eta == -29 ) eta = -30;
+    dataTowerSet.emplace(eta, tower.hwPhi(), tower.hwPt() + (tower.hwEtRatio()<<9) + (tower.hwQual()<<12), true);
     if ( tower.hwPt() > tpFillThreshold_ ) {
-      dataOcc_->Fill(tower.hwEta(), tower.hwPhi());
+      dataOcc_->Fill(eta, tower.hwPhi());
       dataEtDistribution_->Fill(tower.hwPt());
     }
   }
   SimpleTowerSet emulTowerSet;
-  for ( const auto& tower : *emulTowers ) {
+  for ( auto iter = emulTowers->begin(0); iter != emulTowers->end(0); ++iter) {
+    const auto& tower = *iter;
     emulTowerSet.emplace(tower.hwEta(), tower.hwPhi(), tower.hwPt() + (tower.hwEtRatio()<<9) + (tower.hwQual()<<12), false);
     if ( tower.hwPt() > tpFillThreshold_ ) {
       emulOcc_->Fill(tower.hwEta(), tower.hwPhi());
