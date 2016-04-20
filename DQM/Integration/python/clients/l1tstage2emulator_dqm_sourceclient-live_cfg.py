@@ -48,7 +48,7 @@ process.rawToDigiPath.remove(process.gtEvmDigis)
 # Filter fat events
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.hltFatEventFilter = hltHighLevel.clone()
-process.hltFatEventFilter.throw = cms.bool(True)
+process.hltFatEventFilter.throw = cms.bool(False)
 process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
 
 # This can be used if HLT filter not available in a run

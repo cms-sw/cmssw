@@ -42,9 +42,28 @@ process.rawToDigiPath.remove(process.gtEvmDigis)
 #--------------------------------------------------
 # Stage2 Unpacker and DQM Path
 
+# Filter fat events
+from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+process.hltFatEventFilter = hltHighLevel.clone()
+process.hltFatEventFilter.throw = cms.bool(False)
+process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
+
+# This can be used if HLT filter not available in a run
+process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
+        invert = cms.bool(False),
+        period = cms.uint32(107),
+        rawInput = cms.InputTag("rawDataCollector"),
+        fedId = cms.int32(1024)
+        )
+
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
-process.l1tMonitorPath = cms.Path(process.l1tStage2Unpack + process.l1tStage2OnlineDQM)
+process.l1tMonitorPath = cms.Path(
+    process.hltFatEventFilter +
+#    process.selfFatEventFilter +
+    process.l1tStage2Unpack +
+    process.l1tStage2OnlineDQM
+)
 
 # Remove DQM Modules
 #process.l1tStage2online.remove(process.l1tStage2CaloLayer1)
