@@ -21,6 +21,7 @@
 // system include files
 #include <atomic>
 #include <exception>
+#include <memory>
 #include "tbb/task.h"
 
 // user include files
