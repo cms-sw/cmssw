@@ -14,9 +14,8 @@ PerModule = cms.PSet(enabled = cms.bool(True))
 DefaultHisto = cms.PSet(
   # Setting this to False hides all plots of this HistogramManager. It does not even record any data.
   enabled = cms.bool(True),
-  # If False, no histograsm are booked for DetIds where any column is undefined.
-  # This is important to avoid booking lots of unused histograms for SiStrip IDs.
-  bookUndefined = cms.bool(False),
+  # If False, no histograms are booked for DetIds where any column is undefined.
+  bookUndefined = cms.bool(True),
   # where the plots should go.
   topFolderName = cms.string("PixelPhase1"),
 

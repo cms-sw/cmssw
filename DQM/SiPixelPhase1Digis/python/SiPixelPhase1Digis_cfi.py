@@ -74,7 +74,6 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
 
 SiPixelPhase1DigisEvents = DefaultHisto.clone(
   enabled = True, # Event Rate
-  bookUndefined = True, # for now needed, since BX and Lumi are not defined in booking.
   name = "eventrate",
   title = "Rate of Pixel Events",
   xlabel = "Lumisection",
@@ -90,7 +89,6 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
 
 SiPixelPhase1DigisHitmap = DefaultHisto.clone(
   enabled = True, # hitmaps
-  bookUndefined = True,
   name = "hitmap",
   title = "Position of digis on module",
   ylabel = "#digis",
