@@ -515,6 +515,12 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Phi_
     'HLT_Mu7p5_Track7_Upsilon_v2', 
     'HLT_QuadMuon0_Dimuon0_Upsilon_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuPlusX_selector
+streamA_datasetMuPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMuPlusX_selector.l1tResults = cms.InputTag('')
+streamA_datasetMuPlusX_selector.throw      = cms.bool(False)
+streamA_datasetMuPlusX_selector.triggerConditions = cms.vstring('HLT_Mu3_PFJet40_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuonEG_selector
 streamA_datasetMuonEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuonEG_selector.l1tResults = cms.InputTag('')
