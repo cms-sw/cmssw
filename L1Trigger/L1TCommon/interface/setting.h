@@ -12,6 +12,24 @@
 #include <boost/spirit/include/classic_push_back_actor.hpp>
 
 namespace l1t{
+
+class tableRow
+{
+	public:
+		tableRow() {};
+		tableRow(const std::vector<std::string>& row) { _row = row;} ;
+		void setRowTypes(const std::vector<std::string>& types) { _types = types; };
+		void setRowColumns(const std::vector<std::string>& columns) { _columns = columns; };
+		~tableRow() {};
+		std::vector<std::string> getRow () { return _row; };
+		template <class varType> varType getRowValue(const std::string& col);
+	private:
+		std::vector<std::string> _row;
+		std::vector<std::string> _types;
+		std::vector<std::string> _columns;
+};
+
+
 	
 class setting
 {
@@ -29,15 +47,16 @@ class setting
 		std::string getType() { return _type; };
 		std::string getId() { return _id; } ;
 		template <class varType> varType getValue();
-		template <class varType> varType getTableValue();
 		template <class varType> std::vector<varType> getVector(std::string delim = ",");
+		std::vector<std::vector<std::string> > getTableRows();
+		
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
 
 		setting& operator=(const setting& aSet);
 	private:
 		std::string _type, _id, _value, _procRole;
-		std::vector<std::vector<std::string> > _tableRows;
+		std::vector<tableRow> _tableRows;
 		std::vector<std::string> _tableTypes;
 		std::vector<std::string> _tableColumns;
 
@@ -71,9 +90,19 @@ template <class varType> varType setting::getValue()
 	return boost::lexical_cast<varType>(_value);
 }
 
-template <class varType> std::vector<varType> setting::getValue(std::string col)
+template <class varType> varType tableRow::getRowValue(const std::string& col)
 {
-	
+	bool found(false);
+	for (unsigned int i = 0; i < _columns.size(); i++)
+	{
+		if (_columns.at(i).find(col) != std::string::npos)
+		{
+			found = true;
+			return boost::lexical_cast<varType>(_row.at(i));
+		}
+	}
+	if (!found)
+		throw std::runtime_error ("Column " + col + "not found.");
 }
 
 
