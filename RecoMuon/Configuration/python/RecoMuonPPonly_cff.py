@@ -84,6 +84,7 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
+from Configuration.StandardSequences.Eras import eras
 _enableGEMMeasurement = dict( EnableGEMMeasurement = cms.bool(True) )
 eras.run3_GEM.toModify( standAloneMuons, STATrajBuilderParameters = dict(
     FilterParameters = _enableGEMMeasurement, 
@@ -103,6 +104,4 @@ eras.phase2_muon.toModify( refittedStandAloneMuons, STATrajBuilderParameters = d
 from RecoMuon.MuonIdentification.me0MuonReco_cff import me0MuonReco
 _phase2_muonGlobalReco = muonGlobalReco.copy()
 _phase2_muonGlobalReco += me0MuonReco
-
-from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
