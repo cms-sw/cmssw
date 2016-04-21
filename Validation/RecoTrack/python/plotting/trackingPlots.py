@@ -57,20 +57,22 @@ def _makeEffFakeDupPlots(postfix, quantity, unit="", common={}, effopts={}, fake
         Plot(FakeDuplicate("fakeduprate_vs_"+p, assoc="num_assoc(recoToSim)_"+p, dup="num_duplicate_"+p, reco="num_reco_"+p, title="fake+duplicates vs "+q), **fakeargs)
     ]
 
-def _makeFakeDupPileupPlots(postfix, quantity, unit="", xquantity="", common={}):
+def _makeFakeDupPileupPlots(postfix, quantity, unit="", xquantity="", xtitle=None, common={}):
     p = postfix
     q = quantity
-    if xquantity != "":
-        xq = xquantity
-    else:
-        xq = q
-        if unit != "":
-            xq += " (" + unit + ")"
+    if xtitle is None:
+        if xquantity != "":
+            xq = xquantity
+        else:
+            xq = q
+            if unit != "":
+                xq += " (" + unit + ")"
+        xtitle="track "+xq
 
     return [
-        Plot("fakerate_vs_"+p   , xtitle="track "+xq, ytitle="fakerate vs "+q       , ymax=_maxFake, **common),
-        Plot("duplicatesRate_"+p, xtitle="track "+xq, ytitle="duplicates rate vs "+q, ymax=_maxFake, **common),
-        Plot("pileuprate_"+p    , xtitle="track "+xq, ytitle="pileup rate vs "+q    , ymax=_maxFake, **common),
+        Plot("fakerate_vs_"+p   , xtitle=xtitle, ytitle="fakerate vs "+q       , ymax=_maxFake, **common),
+        Plot("duplicatesRate_"+p, xtitle=xtitle, ytitle="duplicates rate vs "+q, ymax=_maxFake, **common),
+        Plot("pileuprate_"+p    , xtitle=xtitle, ytitle="pileup rate vs "+q    , ymax=_maxFake, **common),
     ]
 
 def _makeDistPlots(postfix, quantity, common={}):
@@ -152,9 +154,11 @@ _dupandfake4 = PlotGroup("dupandfake4",
                          _makeFakeDupPileupPlots("pu"     , "PU"      , xquantity="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                          ncols=3, legendDy=_legendDy_4rows
 )
+_seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xinlabeloption="d", adjustMarginRight=0.1)
 _dupandfake5 = PlotGroup("dupandfake5",
-                         _makeFakeDupPileupPlots("chi2", "#chi^{2}"),
-                         ncols=3, legendDy=_legendDy_1row
+                         _makeFakeDupPileupPlots("chi2", "#chi^{2}") +
+                         _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common),
+                         ncols=3, legendDy=_legendDy_2rows_3cols
 )
 
 
@@ -311,8 +315,9 @@ _extDist4 = PlotGroup("dist4",
                       ncols=4
 )
 _extDist5 = PlotGroup("dist5",
-                      _makeDistPlots("chi2", "#chi^{2}"),
-                      ncols=4, legendDy=_legendDy_1row
+                      _makeDistPlots("chi2", "#chi^{2}") +
+                      _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
+                      ncols=4, legendDy=_legendDy_2rows_3cols
 )
 
 ########################################
@@ -817,6 +822,7 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake2,
     _dupandfake3,
     _dupandfake4,
+    _dupandfake5,
     _hitsAndPt,
 ]
 _extendedPlots = [
