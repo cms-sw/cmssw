@@ -410,10 +410,15 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag)
 {
+    static std::string booked_dir = "";
+
     edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
                                              << tag << std::endl;
 
-    dbe->setCurrentFolder(dqm_dir);
+    if ( strcmp(booked_dir.c_str(),dqm_dir)!=0 ) {
+        booked_dir = dqm_dir;
+        dbe->setCurrentFolder(dqm_dir);
+    }
 
     std::string stag(tag);
     if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
@@ -452,13 +457,17 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 	if(AlgoMode != "PCL" or m_harvestingMode) {
             const char * dqm_dir = "AlCaReco/SiStripGainsHarvesting/";
             this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
-            //if (m_harvestingMode) this->bookDQMHistos( dqm_dir, dqm_tag_[Harvest].c_str() );
-            //else this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
         } else {
+            //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
+            if (!isBFieldConsistentWithMode(iSetup)) {
+                string prevMode = m_calibrationMode;
+                swapBFieldMode();
+                edm::LogInfo("SiStripGainFromCalibTree") << "Switching calibration mode for endorsing BField status: "
+                                                         << prevMode << " ==> " << m_calibrationMode << std::endl;
+            }
             std::string dqm_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
             int elem = statCollectionFromMode(m_calibrationMode.c_str());
             this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[elem].c_str() );
-            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[( (elem%2)? elem-1: elem+1 )].c_str() );
         }
 
 
