@@ -136,7 +136,11 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
   // raw-data unpacking
   SimpleVFATFrameCollection vfatCollection;
   for (const auto &fedId : fedIds)
-    rawDataUnpacker.Run(fedId, rawData->FEDData(fedId), fedInfo, vfatCollection);
+  {
+    const FEDRawData &data = rawData->FEDData(fedId);
+    if (data.size() > 0)
+      rawDataUnpacker.Run(fedId, data, fedInfo, vfatCollection);
+  }
 
   // raw-to-digi conversion
   rawToDigiConverter.Run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);

@@ -57,11 +57,16 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     records[p.first] = { &p.second, NULL,  st };
   }
 
-  // associate data frames with records
+  // event error message buffer
   stringstream ees;
+
+  // associate data frames with records
   for (VFATFrameCollection::Iterator fr(&input); !fr.IsEnd(); fr.Next())
   {
+    // frame error message buffer
     stringstream fes;
+
+    bool problemsPresent = false;
     bool stopProcessing = false;
     
     // skip data frames not listed in the DAQ mapping
@@ -80,7 +85,11 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     // check footprint
     if (testFootprint != tfNoTest && !record.frame->checkFootprint())
     {
-      fes << "    invalid footprint\n";
+      problemsPresent = true;
+  
+      if (verbosity > 0)
+        fes << "    invalid footprint\n";
+
       if ((testFootprint == tfErr))
       {
         record.status.setFootprintError();
@@ -91,7 +100,11 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     // check CRC
     if (testCRC != tfNoTest && !record.frame->checkCRC())
     {
-      fes << "    CRC failure\n";
+      problemsPresent = true;
+
+      if (verbosity > 0)
+        fes << "    CRC failure\n";
+
       if (testCRC == tfErr)
       {
         record.status.setCRCError();
@@ -102,8 +115,12 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     // check the id mismatch
     if (testID != tfNoTest && record.frame->isIDPresent() && (record.frame->getChipID() & 0xFFF) != (record.info->hwID & 0xFFF))
     {
-      fes << "    ID mismatch (data: 0x" << hex << record.frame->getChipID()
-        << ", mapping: 0x" << record.info->hwID  << dec << ", symbId: " << record.info->symbolicID.symbolicID << ")\n";
+      problemsPresent = true;
+
+      if (verbosity > 0)
+        fes << "    ID mismatch (data: 0x" << hex << record.frame->getChipID()
+          << ", mapping: 0x" << record.info->hwID  << dec << ", symbId: " << record.info->symbolicID.symbolicID << ")\n";
+
       if (testID == tfErr)
       {
         record.status.setIDMismatch();
@@ -112,7 +129,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     }
 
     // if there were errors, put the information to ees buffer
-    if (verbosity > 0 && !fes.rdbuf()->str().empty())
+    if (verbosity > 0 && problemsPresent)
     {
       string message = (stopProcessing) ? "(and will be dropped)" : "(but will be used though)";
       if (verbosity > 2)
@@ -148,8 +165,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     for (const auto &p : records)
     {
       if (p.second.status.isMissing())
-        ees << "Frame for VFAT " << p.first << " is not present in the data.\n";
-      
+        ees << "Frame for VFAT " << p.first << " is not present in the data.\n"; 
     }
   }
 

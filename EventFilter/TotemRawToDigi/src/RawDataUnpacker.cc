@@ -28,7 +28,7 @@ int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo>
   unsigned int size_in_words = data.size() / 8; // bytes -> words
   if (size_in_words < 2)
   {
-    LogError("Totem") << "Error in RawDataUnpacker::Run > " <<
+    LogProblem("Totem") << "Error in RawDataUnpacker::Run > " <<
       "Data in FED " << fedId << " too short (size = " << size_in_words << " words).";
     return 1;
   }
