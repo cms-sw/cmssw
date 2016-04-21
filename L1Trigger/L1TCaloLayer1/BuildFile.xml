@@ -5,8 +5,12 @@
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="CondFormats/L1TObjects"/>
+<use name="CalibFormats/CaloTPG"/>
+<use name="L1Trigger/L1TCalorimeter"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DataFormats/L1TCalorimeter"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/Records"/>
 <export>
   <lib   name="1"/>
 </export>
