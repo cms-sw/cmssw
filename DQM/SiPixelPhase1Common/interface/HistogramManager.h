@@ -94,6 +94,12 @@ private:
   int range_nbins;
   double range_min;
   double range_max;
+
+  // These are actually more like local variables, and they might be shadowed
+  // by locals now and then. The point is to avoid reallocating the heap buffer
+  // of the Values on every call.
+  GeometryInterface::Values significantvalues;
+  GeometryInterface::Values new_vals;
 };
 
 
