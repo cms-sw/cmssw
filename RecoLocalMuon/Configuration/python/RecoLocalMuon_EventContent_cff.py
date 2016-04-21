@@ -29,16 +29,10 @@ RecoLocalMuonAOD = cms.PSet(
         'keep *_rpcRecHits_*_*')
 )
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_gemRecHits_*_*'] )
-eras.run3_GEM.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_gemRecHits_*_*'] )
-eras.run3_GEM.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_gemRecHits_*_*'] )
+def _updateOutput( era, outputPSets, commands):
+   for o in outputPSets:
+      era.toModify( o, outputCommands = o.outputCommands + commands )
 
-eras.phase2_muon.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_me0RecHits_*_*'] )
-eras.phase2_muon.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_me0RecHits_*_*'] )
-eras.phase2_muon.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_me0RecHits_*_*'] )
-
-eras.phase2_muon.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_me0Segments_*_*'] )
-eras.phase2_muon.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_me0Segments_*_*'] )
-eras.phase2_muon.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_me0Segments_*_*'] )
-
-
+_outputs = [RecoLocalMuonFEVT, RecoLocalMuonRECO, RecoLocalMuonAOD]
+_updateOutput( eras.run3_GEM, _outputs, ['keep *_gemRecHits_*_*'] )
+_updateOutput(eras.phase2_muon, _outputs, ['keep *_me0RecHits_*_*', 'keep *_me0Segments_*_*'])
