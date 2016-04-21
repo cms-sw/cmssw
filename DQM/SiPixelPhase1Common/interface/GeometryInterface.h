@@ -97,7 +97,7 @@ class GeometryInterface {
       for (ID id: col) {
 	if (id == 0) break; // all set columns failed
 	assert(ID(extractors.size()) > id || !"extractors vector too small!");
-	auto ex = extractors.at(id);
+	auto& ex = extractors[id];
 	if (!ex) { // we have never heard about this. This is a typo for sure.
 	  edm::LogError("GeometryInterface") << "Undefined column used: " << unintern(id) << ". Check your spelling.\n";
 	} else {
