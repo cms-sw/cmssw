@@ -84,29 +84,25 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
-_run3_standAloneMuons = standAloneMuons.clone()
-_run3_standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-_run3_standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+_enableGEMMeasurement = dict( EnableGEMMeasurement = cms.bool(True) )
+eras.run3_GEM.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement, 
+    BWFilterParameters = _enableGEMMeasurement ) )
+eras.run3_GEM.toModify( refittedStandAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement,
+    BWFilterParameters = _enableGEMMeasurement ) )
 
-_run3_refittedStandAloneMuons = refittedStandAloneMuons.clone()
-_run3_refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-_run3_refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
-
-_phase2_standAloneMuons = _run3_standAloneMuons.clone()
-_phase2_standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-_phase2_standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
-
-_phase2_refittedStandAloneMuons = _run3_refittedStandAloneMuons.clone()
-_phase2_refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-_phase2_refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+_enableME0Measurement = dict( EnableME0Measurement = cms.bool(True) )
+eras.phase2_muon.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )
+eras.phase2_muon.toModify( refittedStandAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )
 
 from RecoMuon.MuonIdentification.me0MuonReco_cff import me0MuonReco
 _phase2_muonGlobalReco = muonGlobalReco.copy()
 _phase2_muonGlobalReco += me0MuonReco
 
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( standAloneMuons, _run3_standAloneMuons )
-eras.run3_GEM.toReplaceWith( refittedStandAloneMuons, _run3_refittedStandAloneMuons )
-eras.phase2_muon.toReplaceWith( standAloneMuons, _phase2_standAloneMuons )
-eras.phase2_muon.toReplaceWith( refittedStandAloneMuons, _phase2_refittedStandAloneMuons )
 eras.phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
