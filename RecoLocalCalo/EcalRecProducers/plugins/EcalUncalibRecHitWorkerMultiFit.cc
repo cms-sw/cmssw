@@ -26,9 +26,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   EcalUncalibRecHitWorkerBaseClass(ps,c),
   noisecorEBg12(SampleMatrix::Zero()), noisecorEEg12(SampleMatrix::Zero()),
   noisecorEBg6(SampleMatrix::Zero()), noisecorEEg6(SampleMatrix::Zero()),
-  noisecorEBg1(SampleMatrix::Zero()), noisecorEEg1(SampleMatrix::Zero()),
-  fullpulseEB(FullSampleVector::Zero()),fullpulseEE(FullSampleVector::Zero()),
-  fullpulsecovEB(FullSampleMatrix::Zero()),fullpulsecovEE(FullSampleMatrix::Zero()) {
+  noisecorEBg1(SampleMatrix::Zero()), noisecorEEg1(SampleMatrix::Zero())
+{
 
   // get the BX for the pulses to be activated
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
@@ -55,8 +54,12 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
 
   // algorithm to be used for timing
-  timealgo_ = ps.getParameter<std::string>("timealgo");
-  
+  auto const & timeAlgoName = ps.getParameter<std::string>("timealgo");
+  if(timeAlgoName=="RatioMethod") timealgo_=ratioMethod;
+  else if(timeAlgoName=="WeightsMethod") timealgo_=weightsMethod;
+  else if(timeAlgoName!="None")
+   edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
+
   // ratio method parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
   EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 
@@ -124,6 +127,19 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the time correction methods
         es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+
+        int nnoise = noisecovariances->EBG12SamplesCorrelation.size();
+        for (int i=0; i<nnoise; ++i) {
+          for (int j=0; j<nnoise; ++j) {
+            int vidx = std::abs(j-i);
+            noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
+            noisecorEEg12(i,j) = noisecovariances->EEG12SamplesCorrelation[vidx];
+            noisecorEBg6(i,j)  = noisecovariances->EBG6SamplesCorrelation[vidx];
+            noisecorEEg6(i,j)  = noisecovariances->EEG6SamplesCorrelation[vidx];
+            noisecorEBg1(i,j)  = noisecovariances->EBG1SamplesCorrelation[vidx];
+            noisecorEEg1(i,j)  = noisecovariances->EEG1SamplesCorrelation[vidx];
+          }
+	}
 }
 
 void
@@ -190,9 +206,10 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
     return 0;
   }
 
+  // FIXME? what about a binary search?
   int myBin = -1;
   for (int bin = 0; bin < (int) amplitudeBins.size(); bin++) {
-    if (ampli > amplitudeBins.at(bin)) {
+    if (ampli > amplitudeBins[bin]) {
       myBin = bin;
     } else {
       break;
@@ -200,23 +217,20 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
   }
 
   if (myBin == -1) {
-    theCorrection = shiftBins.at(0);
+    theCorrection = shiftBins[0];
   } else if (myBin == ((int)(amplitudeBins.size() - 1))) {
-    theCorrection = shiftBins.at(myBin);
-  } else if (-1 < myBin && myBin < ((int) amplitudeBins.size() - 1)) {
-    // interpolate linearly between two assingned points
-    theCorrection = (shiftBins.at(myBin + 1) - shiftBins.at(myBin));
-    theCorrection *= (((double) ampli) - amplitudeBins.at(myBin)) /
-                     (amplitudeBins.at(myBin + 1) - amplitudeBins.at(myBin));
-    theCorrection += shiftBins.at(myBin);
+    theCorrection = shiftBins[myBin];
   } else {
-    edm::LogError("EcalRecHitError")
-        << "Assigning time correction impossible. Setting it to 0 ";
-    theCorrection = 0.;
+    // interpolate linearly between two assingned points
+    theCorrection = (shiftBins[myBin + 1] - shiftBins[myBin]);
+    theCorrection *= (((double) ampli) - amplitudeBins[myBin]) /
+                     (amplitudeBins[myBin + 1] - amplitudeBins[myBin]);
+    theCorrection += shiftBins[myBin];
   }
 
   // convert ns into clocks
-  return theCorrection / 25.;
+  constexpr double inv25 = 1./25.;
+  return theCorrection * inv25;
 }
 
 
@@ -262,40 +276,19 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 		offsetTime = offtime->getEBValue();
         }
 
-        pedVec[0] = aped->mean_x12;
-        pedVec[1] = aped->mean_x6;
-        pedVec[2] = aped->mean_x1;
-        pedRMSVec[0] = aped->rms_x12;
-        pedRMSVec[1] = aped->rms_x6;
-        pedRMSVec[2] = aped->rms_x1;
-        gainRatios[0] = 1.;
-        gainRatios[1] = aGain->gain12Over6();
-        gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
+        double pedVec[3] = { aped->mean_x12, aped->mean_x6, aped->mean_x1 };
+        double pedRMSVec[3] = { aped->rms_x12, aped->rms_x6, aped->rms_x1};
+        double gainRatios[3] = { 1., aGain->gain12Over6(), aGain->gain6Over1()*aGain->gain12Over6()};
 
-        int nnoise = noisecovariances->EBG12SamplesCorrelation.size();
-        for (int i=0; i<nnoise; ++i) {
-          for (int j=0; j<nnoise; ++j) {
-            int vidx = std::abs(j-i);
-            noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
-            noisecorEEg12(i,j) = noisecovariances->EEG12SamplesCorrelation[vidx];
-            noisecorEBg6(i,j)  = noisecovariances->EBG6SamplesCorrelation[vidx];
-            noisecorEEg6(i,j)  = noisecovariances->EEG6SamplesCorrelation[vidx];
-            noisecorEBg1(i,j)  = noisecovariances->EBG1SamplesCorrelation[vidx];
-            noisecorEEg1(i,j)  = noisecovariances->EEG1SamplesCorrelation[vidx];        
-          }
-        }
-        
-        for (int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) {
-          fullpulseEB(i+7) = aPulse->pdfval[i];
-          fullpulseEE(i+7) = aPulse->pdfval[i];
-        }
-
-        for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
-          int i = k/EcalPulseShape::TEMPLATESAMPLES;
-          int j = k%EcalPulseShape::TEMPLATESAMPLES;
-          fullpulsecovEB(i+7,j+7) = aPulseCov->covval[i][j];
-          fullpulsecovEE(i+7,j+7) = aPulseCov->covval[i][j];
-        }
+        FullSampleVector fullpulse(FullSampleVector::Zero());
+        FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
+        for (int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i)
+          fullpulse(i+7) = aPulse->pdfval[i];
+    
+        for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES;i++)
+        for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES;j++)
+          fullpulsecov(i+7,j+7) = aPulseCov->covval[i][j];
+       
         
 	// compute the right bin of the pulse shape using time calibration constants
 	EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
@@ -317,22 +310,10 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 	       // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
                uncalibRecHit.setChi2(0);
         } else if ( leadingSample >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
-               double pedestal = 0.;
-               double gainratio = 1.;
                int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
-
-               if (gainId==0 || gainId==3) {
-                 pedestal = aped->mean_x1;
-                 gainratio = aGain->gain6Over1()*aGain->gain12Over6();
-               }
-               else if (gainId==1) {
-                 pedestal = aped->mean_x12;
-                 gainratio = 1.;
-               }
-               else if (gainId==2) {
-                 pedestal = aped->mean_x6;
-                 gainratio = aGain->gain12Over6();
-               }
+               if (gainId==0) gainId=3;
+               auto pedestal = pedVec[gainId-1];
+               auto gainratio = gainRatios[gainId-1];
                double amplitude = ((double)(((EcalDataFrame)(*itdg)).sample(5).adc()) - pedestal) * gainratio;
                uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), amplitude, 0, 0, 0);
                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
@@ -341,23 +322,22 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         } else {
                 // multifit
                 bool barrel = detid.subdetId()==EcalBarrel;
-                int gain = 12;
+                int gain = 2;
                 if (((EcalDataFrame)(*itdg)).hasSwitchToGain6()) {
-                  gain = 6;
-                }
-                if (((EcalDataFrame)(*itdg)).hasSwitchToGain1()) {
                   gain = 1;
                 }
+                if (((EcalDataFrame)(*itdg)).hasSwitchToGain1()) {
+                  gain = 0;
+                }
                 const SampleMatrix &noisecormat = noisecor(barrel,gain);
-                const FullSampleVector &fullpulse = barrel ? fullpulseEB : fullpulseEE;
-                const FullSampleMatrix &fullpulsecov = barrel ? fullpulsecovEB : fullpulsecovEE;
                                 
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
                 // === time computation ===
-                if(timealgo_.compare("RatioMethod")==0) {
+                if(timealgo_==ratioMethod) {
                   // ratio method
-                  float const clockToNsConstant = 25.;
+                  constexpr float clockToNsConstant = 25.;
+                  constexpr float invClockToNs = 1/clockToNsConstant;
                   if (detid.subdetId()==EcalEndcap) {
                     ratioMethod_endcap_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
                     ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
@@ -367,7 +347,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                                                 timeCorrBias_->EETimeCorrAmplitudeBins, timeCorrBias_->EETimeCorrShiftBins);
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
-                    uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
+                    uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_*invClockToNs,2)) );
                     
                     // consider flagging as kOutOfTime only if above noise
                     if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEE_){
@@ -391,7 +371,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                       float nterm         = EEtimeNconst_*sigmaped/uncalibRecHit.amplitude();
                       float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
                       if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
-                           ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
+                           ( correctedTime < -sigmat*outOfTimeThreshM) ) 
                         {  uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime ); }
                     }
 
@@ -429,12 +409,12 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                       float nterm         = EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();
                       float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
                       if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
-                           ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
+                           ( correctedTime < -sigmat*outOfTimeThreshM )) 
                         {   uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );  }
                     }
 
                   }
-                } else if(timealgo_.compare("WeightsMethod")==0) {
+                } else if(timealgo_==weightsMethod) {
                   //  weights method on the PU subtracted pulse shape
                   std::vector<double> amplitudes;
                   for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
@@ -466,16 +446,9 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                   }
                   uncalibRecHit.setJitter( timerh );
                   uncalibRecHit.setJitterError( 0. ); // not computed with weights
-                }  else if(timealgo_.compare("None")==0) {
+                }  else { // no time method;
                   uncalibRecHit.setJitter( 0. );
                   uncalibRecHit.setJitterError( 0. );                  
-                } else {
-                  edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm called " 
-                                                          << timealgo_
-                                                          << "\n  setting jitter to 0. and jitter uncertainty to 10000. ";
-                  
-                  uncalibRecHit.setJitter( 0. );
-                  uncalibRecHit.setJitterError( 10000. );
                 }
         }
 
@@ -520,7 +493,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         return true;
 }
 
-
+/*
 const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int gain) const {
   if (barrel) {
     if (gain==6) {
@@ -548,6 +521,7 @@ const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int g
   return noisecorEBg12;
   
 }
+*/
 
 edm::ParameterSetDescription 
 EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
