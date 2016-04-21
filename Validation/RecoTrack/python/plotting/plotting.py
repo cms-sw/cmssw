@@ -959,6 +959,8 @@ class Plot:
         xbinlabels   -- List of x axis bin labels (if given, default None)
         xbinlabelsize -- Size of x axis bin labels (default None)
         xbinlabeloption -- Option string for x axis bin labels (default None)
+        removeEmptyBins -- Bool for removing empty bins, but only if histogram has bin labels (default False)
+        printBins    -- Bool for printing bin values, but only if histogram has bin labels (default False)
         drawStyle    -- If "hist", draw as line instead of points (default None)
         drawCommand  -- Deliver this to Draw() (default: None for same as drawStyle)
         lineWidth    -- If drawStyle=="hist", the width of line (default 2)
@@ -1017,6 +1019,8 @@ class Plot:
         _set("xbinlabels", None)
         _set("xbinlabelsize", None)
         _set("xbinlabeloption", None)
+        _set("removeEmptyBins", False)
+        _set("printBins", False)
 
         _set("drawStyle", "EP")
         _set("drawCommand", None)
@@ -1244,9 +1248,10 @@ class Plot:
 
         # Extract x bin labels, make sure that only bins with same
         # label are compared with each other
+        histosHaveBinLabels = len(histos[0].GetXaxis().GetBinLabel(1)) > 0
         xbinlabels = self._xbinlabels
         if xbinlabels is None:
-            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
+            if histosHaveBinLabels:
                 xbinlabels = [histos[0].GetXaxis().GetBinLabel(i) for i in xrange(1, histos[0].GetNbinsX()+1)]
                 # Merge bin labels with difflib
                 for h in histos[1:]:
@@ -1283,6 +1288,65 @@ class Plot:
                     histos_new.append(h_new)
                 self._tmp_histos = histos_new # need to keep these in memory too ...
                 histos = histos_new
+
+        # Remove empty bins, but only if histograms have bin labels
+        if self._removeEmptyBins and histosHaveBinLabels:
+            # at this point, all histograms have been "equalized" by their x binning and labels
+            # therefore remove bins which are empty in all histograms
+            binsToRemove = set()
+            for b in xrange(1, histos[0].GetNbinsX()+1):
+                binEmpty = True
+                for h in histos:
+                    if h.GetBinContent(b) > 0:
+                        binEmpty = False
+                        break
+                if binEmpty:
+                    binsToRemove.add(b)
+
+            if len(binsToRemove) > 0:
+                # filter xbinlabels
+                xbinlab_new = []
+                for i in xrange(len(xbinlabels)):
+                    if (i+1) not in binsToRemove:
+                        xbinlab_new.append(xbinlabels[i])
+                xbinlabels = xbinlab_new
+
+                # filter histogram bins
+                histos_new = []
+                for h in histos:
+                    values = []
+                    for b in xrange(1, h.GetNbinsX()+1):
+                        if b not in binsToRemove:
+                            values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
+
+                    if len(values) > 0:
+                        h_new = h.Clone(h.GetName()+"_empty")
+                        h_new.SetBins(len(values), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(values))
+                        for b, (l, v, e) in enumerate(values):
+                            h_new.GetXaxis().SetBinLabel(b+1, l)
+                            h_new.SetBinContent(b+1, v)
+                            h_new.SetBinError(b+1, e)
+
+                        histos_new.append(h_new)
+
+                self._tmp_histos = histos_new # need to keep these in memory too ...
+                histos = histos_new
+                if len(histos) == 0:
+                    if verbose:
+                        print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
+                    return
+
+        if self._printBins and histosHaveBinLabels:
+            print "####################"
+            print self._name
+            width = max([len(l) for l in xbinlabels])
+            tmp = "%%-%ds " % width
+            for b in xrange(1, histos[0].GetNbinsX()+1):
+                s = tmp % xbinlabels[b-1]
+                for h in histos:
+                    s += "%.3f " % h.GetBinContent(b)
+                print s
+            print
 
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
