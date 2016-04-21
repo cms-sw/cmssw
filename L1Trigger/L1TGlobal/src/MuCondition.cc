@@ -30,7 +30,7 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -45,8 +45,8 @@ l1t::MuCondition::MuCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::MuCondition::MuCondition(const GtCondition* muonTemplate,
-        const GtBoard* ptrGTL, const int nrL1Mu,
+l1t::MuCondition::MuCondition(const GlobalCondition* muonTemplate,
+        const GlobalBoard* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
     ConditionEvaluation(),
     m_gtMuonTemplate(static_cast<const MuonTemplate*>(muonTemplate)),
@@ -101,7 +101,7 @@ void l1t::MuCondition::setGtMuonTemplate(const MuonTemplate* muonTempl) {
 }
 
 ///   set the pointer to GTL
-void l1t::MuCondition::setGtGTL(const GtBoard* ptrGTL) {
+void l1t::MuCondition::setGtGTL(const GlobalBoard* ptrGTL) {
 
     m_gtGTL = ptrGTL;
 

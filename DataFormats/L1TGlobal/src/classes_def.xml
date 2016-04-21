@@ -21,15 +21,15 @@
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
   <class name="std::vector<GlobalExtBlk>"/>
 
-  <class name="L1TGtObjectMapRecord" ClassVersion="10">
-   <version ClassVersion="10" checksum="2808522020"/>
+  <class name="GlobalObjectMapRecord" ClassVersion="10">
+   <version ClassVersion="10" checksum="1219328086"/>
   </class>
-  <class name="edm::Wrapper<L1TGtObjectMapRecord>"/>
+  <class name="edm::Wrapper<GlobalObjectMapRecord>"/>
 
-  <class name="L1TGtObjectMap" ClassVersion="10">
-   <version ClassVersion="10" checksum="2989798521"/>
+  <class name="GlobalObjectMap" ClassVersion="10">
+   <version ClassVersion="10" checksum="1899280385"/>
   </class>
-  <class name="edm::Wrapper<L1TGtObjectMap>"/>
+  <class name="edm::Wrapper<GlobalObjectMap>"/>
 </lcgdict>
 
 

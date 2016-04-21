@@ -2,9 +2,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 
 
 
@@ -19,11 +19,11 @@ namespace DataFormats_L1TGlobal {
     std::vector<GlobalAlgBlk> v_uGtAlgBx;
     std::vector<GlobalExtBlk> v_uGtExtBx;
     
-    L1TGtObjectMap  uGtObjectMap;
-    edm::Wrapper<L1TGtObjectMap> w_uGtObjectMap;
+    GlobalObjectMap  uGtObjectMap;
+    edm::Wrapper<GlobalObjectMap> w_uGtObjectMap;
 
-    L1TGtObjectMapRecord  uGtObjectMapRecord;
-    edm::Wrapper<L1TGtObjectMapRecord> w_uGtObjectMapRecord;    
+    GlobalObjectMapRecord  uGtObjectMapRecord;
+    edm::Wrapper<GlobalObjectMapRecord> w_uGtObjectMapRecord;    
     
   };
 }

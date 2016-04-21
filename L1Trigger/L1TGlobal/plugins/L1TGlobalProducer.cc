@@ -45,7 +45,7 @@
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 
@@ -185,12 +185,12 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
 
     if( m_produceL1GtObjectMapRecord ) {
-      produces<L1TGtObjectMapRecord>(); 
+      produces<GlobalObjectMapRecord>(); 
     }
 
 
     // create new uGt Board
-    m_uGtBrd = new GtBoard();
+    m_uGtBrd = new GlobalBoard();
     m_uGtBrd->setVerbosity(m_verbosity);
 
     // initialize cached IDs
@@ -664,9 +664,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // Produce the Output Records for the GT
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
-    // * produce the L1TGtObjectMapRecord  
-    std::auto_ptr<L1TGtObjectMapRecord> gtObjectMapRecord(
-        new L1TGtObjectMapRecord() );
+    // * produce the GlobalObjectMapRecord  
+    std::auto_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
+        new GlobalObjectMapRecord() );
 
 
     // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
@@ -810,10 +810,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         myCoutStream.str("");
         myCoutStream.clear();
 
-        const std::vector<L1TGtObjectMap> objMapVec =  
+        const std::vector<GlobalObjectMap> objMapVec =  
             gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<L1TGtObjectMap>::const_iterator
+        for (std::vector<GlobalObjectMap>::const_iterator
                 it = objMapVec.begin(); it != objMapVec.end(); ++it) {
 
             (*it).print(myCoutStream);
