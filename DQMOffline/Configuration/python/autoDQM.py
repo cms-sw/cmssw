@@ -48,4 +48,3 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'PostDQMOffline',
                           'dqmHarvesting']
             }
-
