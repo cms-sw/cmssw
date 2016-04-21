@@ -3,7 +3,7 @@
 upgradeKeys=['2017',
              '2017PU',
 	     '2023',   
-	     '2023dev', 
+	     '2023tilted', 
 	     '2023sim',
 	     '2023LReco',
 	     '2023Reco'
@@ -12,7 +12,7 @@ upgradeKeys=['2017',
 
 upgradeGeoms={ '2017' : 'Extended2017',
                '2023' : 'Extended2023',   
-               '2023dev' : 'Extended2023dev', 
+               '2023tilted' : 'Extended2023tilted', 
                '2023sim' : 'Extended2023sim',
                '2023LReco': 'Extended2023LReco',
                '2023Reco' : 'Extended2023Reco'
@@ -20,23 +20,23 @@ upgradeGeoms={ '2017' : 'Extended2017',
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
 	     '2023' :  'auto:run2_mc',
-	     '2023dev' :  'auto:run2_mc',
+	     '2023tilted' :  'auto:run2_mc',
 	     '2023sim' : 'auto:run2_mc',
 	     '2023LReco': 'auto:run2_mc',
 	     '2023Reco' : 'auto:run2_mc'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
  		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
- 		 '2023dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023dev',
+ 		 '2023tilted' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
  		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
  		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
  		 '2023Reco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Reco'
 		 
                  }
 upgradeEras={ '2017' : 'Run2_2017',
-	      '2023sim' : 'Run2_25ns',
-	      '2023dev' : 'Run2_25ns',
-	      '2023LReco' : 'Run2_25ns'
+	      '2023sim' : 'Phase2',
+	      '2023tilted' : 'Phase2',
+	      '2023LReco' : 'Phase2'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
@@ -105,7 +105,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023dev':['GenSimFull','DigiFulllocalreco'],#dev scenario
+		   '2023tilted':['GenSimFull','DigiFulllocalreco'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFulllocalreco'],#local reco scneario
 		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
