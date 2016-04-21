@@ -34,72 +34,43 @@
 // forward declarations
 
 // constructor(s)
-L1TGlobalParamsESProducer::L1TGlobalParamsESProducer(
-    const edm::ParameterSet& parSet) {
-
+L1TGlobalParamsESProducer::L1TGlobalParamsESProducer(const edm::ParameterSet& parSet) : 
+  data_(new L1TGlobalParameters())						     
+{
     // tell the framework what data is being produced
     setWhatProduced(
-        this, &L1TGlobalParamsESProducer::produceGtStableParameters);
+        this, &L1TGlobalParamsESProducer::produce);
 
-    // now do what ever other initialization is needed
+    // set the number of bx in event
+    data_.setGtTotalBxInEvent(parSet.getParameter<int>("NumberBxInEvent"));
 
+    // set the number of physics trigger algorithms
+    data_.setGtNumberPhysTriggers(parSet.getParameter<unsigned int>("NumberPhysTriggers"));
 
-    // bx in event
-    m_totalBxInEvent = parSet.getParameter<int>("NumberBxInEvent");
-  
-    // trigger decision
-
-    // number of physics trigger algorithms
-    m_numberPhysTriggers
-        = parSet.getParameter<unsigned int>("NumberPhysTriggers");
-
-    // trigger objects
-
-    // muons
-    m_numberL1Mu = parSet.getParameter<unsigned int>("NumberL1Mu");
-
-    // e/gamma and isolated e/gamma objects
-    m_numberL1EG = parSet.getParameter<unsigned int>("NumberL1EG");
-
-    //  jets
-    m_numberL1Jet = parSet.getParameter<unsigned int>("NumberL1Jet");
+    // set the number of L1 muons received by GT
+    data_.setGtNumberL1Mu(parSet.getParameter<unsigned int>("NumberL1Mu"));
     
-    //  tau
-    m_numberL1Tau = parSet.getParameter<unsigned int>("NumberL1Tau");
+    //  set the number of L1 e/gamma objects received by GT
+    data_.setGtNumberL1EG(parSet.getParameter<unsigned int>("NumberL1EG"));
+       
+    // set the number of L1 central jets received by GT
+    data_.setGtNumberL1Jet(parSet.getParameter<unsigned int>("NumberL1Jet"));
+        
+    // set the number of L1 tau jets received by GT
+    data_.setGtNumberL1Tau(parSet.getParameter<unsigned int>("NumberL1Tau"));
+       
+    // hardware stuff
+    
+    // set the number of condition chips in GTL
+    data_.setGtNumberChips(parSet.getParameter<unsigned int>("NumberChips"));
+    
+    // set the number of pins on the GTL condition chips
+    data_.setGtPinsOnChip(parSet.getParameter<unsigned int>("PinsOnChip"));
+    
+    // set the correspondence "condition chip - GTL algorithm word"
+    // in the hardware
+    data_.setGtOrderOfChip(parSet.getParameter<std::vector<int> >("OrderOfChip"));
 
-
-    // hardware
-
-    // number of maximum chips defined in the xml file
-    m_numberChips
-        = parSet.getParameter<unsigned int>("NumberChips");
-
-    // number of pins on the GTL condition chips
-    m_pinsOnChip
-        = parSet.getParameter<unsigned int>("PinsOnChip");
-
-    // correspondence "condition chip - GTL algorithm word" in the hardware
-    // e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    m_orderOfChip
-        = parSet.getParameter<std::vector<int> >("OrderOfChip");
-
-/*
-    // number of PSB boards in GT
-    m_numberPsbBoards = parSet.getParameter<int>("NumberPsbBoards");
-
-    /// number of bits for eta of calorimeter objects
-    m_ifCaloEtaNumberBits
-        = parSet.getParameter<unsigned int>("IfCaloEtaNumberBits");
-
-    /// number of bits for eta of calorimeter objects
-    m_ifMuEtaNumberBits = parSet.getParameter<unsigned int>("IfMuEtaNumberBits");
-
-    // GT DAQ record organized in words of WordLength bits
-    m_wordLength = parSet.getParameter<int>("WordLength");
-
-    // one unit in the word is UnitLength bits
-    m_unitLength = parSet.getParameter<int>("UnitLength");
-*/
 }
 
 // destructor
@@ -113,60 +84,12 @@ L1TGlobalParamsESProducer::~L1TGlobalParamsESProducer() {
 
 // method called to produce the data
 boost::shared_ptr<L1TGlobalParameters> 
-    L1TGlobalParamsESProducer::produceGtStableParameters(
+    L1TGlobalParamsESProducer::produce(
         const L1TGlobalParametersRcd& iRecord) {
 
     boost::shared_ptr<L1TGlobalParameters> pL1uGtStableParameters =
-        boost::shared_ptr<L1TGlobalParameters>(new L1TGlobalParameters());
+        boost::shared_ptr<L1TGlobalParameters>(data_.getWriteInstance());
 
-    // set the number of bx in event
-    pL1uGtStableParameters->setGtTotalBxInEvent(m_totalBxInEvent);
-
-    // set the number of physics trigger algorithms
-    pL1uGtStableParameters->setGtNumberPhysTriggers(m_numberPhysTriggers);
-
-    // set the number of L1 muons received by GT
-    pL1uGtStableParameters->setGtNumberL1Mu(m_numberL1Mu);
-    
-    //  set the number of L1 e/gamma objects received by GT
-    pL1uGtStableParameters->setGtNumberL1EG(m_numberL1EG);
-       
-    // set the number of L1 central jets received by GT
-    pL1uGtStableParameters->setGtNumberL1Jet(m_numberL1Jet);
-        
-    // set the number of L1 tau jets received by GT
-    pL1uGtStableParameters->setGtNumberL1Tau(m_numberL1Tau);
-    
-   
-    // hardware stuff
-    
-    // set the number of condition chips in GTL
-    pL1uGtStableParameters->setGtNumberChips(m_numberChips);
-    
-    // set the number of pins on the GTL condition chips
-    pL1uGtStableParameters->setGtPinsOnChip(m_pinsOnChip);
-    
-    // set the correspondence "condition chip - GTL algorithm word"
-    // in the hardware
-    pL1uGtStableParameters->setGtOrderOfChip(m_orderOfChip);
-/*    
-    // set the number of PSB boards in GT
-    pL1uGtStableParameters->setGtNumberPsbBoards(m_numberPsbBoards);
-    
-    //   set the number of bits for eta of calorimeter objects
-    pL1uGtStableParameters->setGtIfCaloEtaNumberBits(m_ifCaloEtaNumberBits);
-    
-    //   set the number of bits for eta of muon objects
-    pL1uGtStableParameters->setGtIfMuEtaNumberBits(m_ifMuEtaNumberBits);
-    
-    // set WordLength
-    pL1uGtStableParameters->setGtWordLength(m_wordLength);
-    
-    // set one UnitLength
-    pL1uGtStableParameters->setGtUnitLength(m_unitLength);
-*/    
-    //
-    //
     return pL1uGtStableParameters;
 
 }
