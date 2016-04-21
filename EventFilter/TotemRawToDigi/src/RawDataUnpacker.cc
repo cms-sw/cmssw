@@ -183,7 +183,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
   const uint16_t *payload = (const uint16_t *) (buf + 1);
 
   // read in OrbitCounter block
-  uint32_t *ocPtr = (uint32_t *) payload;
+  const uint32_t *ocPtr = (const uint32_t *) payload;
   fedInfo.setOrbitCounter(*ocPtr);
   payload += 2;
 

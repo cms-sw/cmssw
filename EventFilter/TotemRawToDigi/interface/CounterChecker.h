@@ -84,10 +84,8 @@ class CounterChecker
 
 //-------------------------------------------------------------------------------------------------
 
-using namespace std;
-
 template<typename T>
-void CounterChecker::Analyze(T &status, bool error, ostream &es) 
+void CounterChecker::Analyze(T &status, bool error, std::ostream &es) 
 {
   word mostFrequentCounter = 0;
   word mostFrequentSize = 0;
@@ -127,7 +125,7 @@ void CounterChecker::Analyze(T &status, bool error, ostream &es)
   {
     if (iter->first != mostFrequentCounter)
     {
-      for (vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr !=  iter->second.end(); fr++)
+      for (std::vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr !=  iter->second.end(); fr++)
       {
         if (error)
         {
@@ -139,7 +137,7 @@ void CounterChecker::Analyze(T &status, bool error, ostream &es)
 
         if (verbosity > 0)
           es << "  Frame at " << *fr << ": " << name << " number " << iter->first
-            << " is different from the most frequent one " << mostFrequentCounter << endl;
+            << " is different from the most frequent one " << mostFrequentCounter << std::endl;
       }
     }
   }
