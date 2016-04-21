@@ -81,10 +81,14 @@ class GEMDetId :public DetId {
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }
 
-
   /// Return the corresponding ChamberId
   GEMDetId chamberId() const {
     return GEMDetId(id_ & chamberIdMask_);
+  }
+
+  /// Return the corresponding superChamberId
+  GEMDetId superChamberId() const {
+    return GEMDetId(id_ & superChamberIdMask_);
   }
 
   static const int minRegionId=     -1;
@@ -134,6 +138,8 @@ class GEMDetId :public DetId {
  
   static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
 
+  static const uint32_t superChamberIdMask_ = chamberIdMask_ + ~(LayerMask_<<LayerStartBit_);
+  
  private:
   void init(int region, 
 	    int ring,

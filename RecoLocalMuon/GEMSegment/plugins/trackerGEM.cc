@@ -182,6 +182,7 @@ void trackerGEM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   iSetup.get<MuonGeometryRecord>().get(gemGeom);
   ntracks = 0; nmatch = 0; nmatch_ge11 = 0; nmatch_ge21 = 0;
+  n_X_MatchFound = 0; n_Y_MatchFound = 0; n_Dir_MatchFound = 0;
 
 }
 void trackerGEM::endJob()
@@ -190,6 +191,10 @@ void trackerGEM::endJob()
   std::cout << "eff      = "<< nmatch/ntracks <<std::endl;
   std::cout << "eff ge11 = "<< nmatch_ge11/ntracks <<std::endl;
   std::cout << "eff ge21 = "<< nmatch_ge21/ntracks <<std::endl;
+  std::cout << "n_X_MatchFound    = "<< n_X_MatchFound <<std::endl;
+  std::cout << "n_Y_MatchFound    = "<< n_Y_MatchFound <<std::endl;
+  std::cout << "n_Dir_MatchFound  = "<< n_Dir_MatchFound <<std::endl;
+  
 }
 
 reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, const GEMSegmentCollection& gemSegments, int station, const SteppingHelixPropagator* shPropagator)
@@ -306,22 +311,22 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
 
     Double_t sigmax = sqrt(C[3][3]+thisSegment->localPositionError().xx() );      
     Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
-/*
-    std::cout <<"=================trackerGEM==================" << std::endl;
-    std::cout <<"station = "<< id.station() << std::endl
-              <<"chamber = "<< id.chamber() << std::endl
-              <<"roll = "<< id.roll() << std::endl
-    << "track r3 global : (" << r3FinalReco_glob.x() << ", " << r3FinalReco_glob.y() << ", " << r3FinalReco_glob.z() << ")" << std::endl
-    << "track p3 global : (" << p3FinalReco_glob.x() << ", " << p3FinalReco_glob.y() << ", " << p3FinalReco_glob.z() << ")" << std::endl
-    << "track r3 local : (" << r3FinalReco.x() << ", " << r3FinalReco.y() << ", " << r3FinalReco.z() << ")" << std::endl
-    << "track p3 local : (" << p3FinalReco.x() << ", " << p3FinalReco.y() << ", " << p3FinalReco.z() << ")" << std::endl
-    << "hit r3 global : (" << SegPos.x() << ", " << SegPos.y() << ", " << SegPos.z() << ")" << std::endl
-    << "hit p3 global : (" << SegDir.x() << ", " << SegDir.y() << ", " << SegDir.z() << ")" << std::endl
-    << "hit r3 local : (" << thisPosition.x() << ", " << thisPosition.y() << ", " << thisPosition.z() << ")" << std::endl
-    << "hit p3 local : (" << thisDirection.x() << ", " << thisDirection.y() << ", " << thisDirection.z() << ")" << std::endl
-    << "sigmax2 = " << C[3][3] << ", " << thisSegment->localPositionError().xx() << std::endl
-    << "sigmay2 = " << C[4][4] << ", " << thisSegment->localPositionError().yy() << std::endl;
-*/
+
+    edm::LogVerbatim("trackerGEM") <<"=================trackerGEM==================" << "\n";
+    edm::LogVerbatim("trackerGEM") <<"station = "<< id.station() << "\n"
+				   <<"chamber = "<< id.chamber() << "\n"
+				   <<"roll = "<< id.roll() << "\n"
+				   << "track r3 global : (" << r3FinalReco_glob.x() << ", " << r3FinalReco_glob.y() << ", " << r3FinalReco_glob.z() << ")" << "\n"
+				   << "track p3 global : (" << p3FinalReco_glob.x() << ", " << p3FinalReco_glob.y() << ", " << p3FinalReco_glob.z() << ")" << "\n"
+				   << "track r3 local : (" << r3FinalReco.x() << ", " << r3FinalReco.y() << ", " << r3FinalReco.z() << ")" << "\n"
+				   << "track p3 local : (" << p3FinalReco.x() << ", " << p3FinalReco.y() << ", " << p3FinalReco.z() << ")" << "\n"
+				   << "hit r3 global : (" << SegPos.x() << ", " << SegPos.y() << ", " << SegPos.z() << ")" << "\n"
+				   << "hit p3 global : (" << SegDir.x() << ", " << SegDir.y() << ", " << SegDir.z() << ")" << "\n"
+				   << "hit r3 local : (" << thisPosition.x() << ", " << thisPosition.y() << ", " << thisPosition.z() << ")" << "\n"
+				   << "hit p3 local : (" << thisDirection.x() << ", " << thisDirection.y() << ", " << thisDirection.z() << ")" << "\n"
+				   << "sigmax2 = " << C[3][3] << ", " << thisSegment->localPositionError().xx() << "\n"
+				   << "sigmay2 = " << C[4][4] << ", " << thisSegment->localPositionError().yy() << "\n";
+
 
     bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
     
@@ -341,7 +346,11 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
     //-M_PI/2;
     //if (segLocalPhi < 0) segLocalPhi += M_PI;
     
-    if (std::abs(reco::deltaPhi(p3FinalReco.phi(),segLocalPhi))  < maxDiffPhiDirection_) Dir_MatchFound = true;
+    if (p3FinalReco.unit().dot(thisDirection) > 0.9) Dir_MatchFound = true;
+
+    if (X_MatchFound) n_X_MatchFound++;
+    if (Y_MatchFound) n_Y_MatchFound++;
+    if (Dir_MatchFound) n_Dir_MatchFound++;
     //std::cout << "deltaPhi = " << std::abs(reco::deltaPhi(p3FinalReco.phi(),segLocalPhi)) << std::endl;
     //std::cout << "=============> X : " << X_MatchFound << ", Y : " << Y_MatchFound << ", Phi : " << Dir_MatchFound << std::endl;
 

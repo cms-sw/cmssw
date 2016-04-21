@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 gemSegments = cms.EDProducer("GEMSegmentProducer",
     gemRecHitLabel = cms.InputTag("gemRecHits"),
-    algo_name = cms.string("GEMSegAlgoPV"),                             
+    algo_name = cms.string("GEMSegAlgo"),
     algo_pset = cms.PSet(
         GEMDebug = cms.untracked.bool(True),
         minHitsPerSegment = cms.uint32(2),

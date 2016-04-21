@@ -63,7 +63,8 @@ public:
 
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   ME0SegFit( std::map<uint32_t, const ME0EtaPartition*> me0etapartmap, ME0SetOfHits hits) : 
-  me0etapartmap_( me0etapartmap ), hits_( hits ), scaleXError_( 1.0 ), refid_(me0etapartmap_.begin()->first ), fitdone_( false ) 
+  me0etapartmap_( me0etapartmap ), hits_( hits ), uslope_(.0), vslope_(.0),
+    chi2_(.0), ndof_(0), scaleXError_( 1.0 ), refid_(me0etapartmap_.begin()->first), fitdone_( false )    
     {
       // --- LogDebug info about reading of ME0 Eta Partition map ------------------------------------------
       edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::ctor] cached the me0etapartmap";

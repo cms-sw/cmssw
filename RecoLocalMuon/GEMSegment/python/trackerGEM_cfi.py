@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 trackerGEM = cms.EDProducer("trackerGEM",
-    maxPullXGE11 = cms.double (2.0),
+    maxPullXGE11 = cms.double (1.0),
     maxDiffXGE11 = cms.double (1.5),
     maxPullYGE11 = cms.double (2.0),
     maxDiffYGE11 = cms.double (10.0),

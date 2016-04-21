@@ -39,7 +39,7 @@ class GEMGeometryBuilderFromDDD
   typedef ReferenceCountingPointer<BoundPlane> RCPBoundPlane;
   
   RCPBoundPlane boundPlane(const DDFilteredView& fv,
-			   Bounds* bounds) const ;
+			   Bounds* bounds, bool isOddChamber) const ;
   
   GEMSuperChamber* buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const;
 
