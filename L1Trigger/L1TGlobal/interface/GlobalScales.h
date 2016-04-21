@@ -2,7 +2,7 @@
 #define L1TGlobalScales_h
 
 /**
- * \class L1TGlobalScales
+ * \class GlobalScales
  *
  *
  * Description: Accessor Class for uGT Result
@@ -22,16 +22,16 @@
 
 namespace l1t {
 
-class L1TGlobalScales
+class GlobalScales
 {
 
 public:
 
     // constructors
-  L1TGlobalScales();
+  GlobalScales();
 
     // destructor
-    virtual ~L1TGlobalScales();
+    virtual ~GlobalScales();
 
 public:
 

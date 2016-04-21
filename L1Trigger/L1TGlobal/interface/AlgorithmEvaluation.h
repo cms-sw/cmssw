@@ -18,7 +18,7 @@
  */
 
 //   for L1GtLogicParser
-#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
 
 // system include files
 #include <iostream>
@@ -34,7 +34,7 @@
 // if hash map is used
 
 #include <ext/hash_map>
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 
 //   how to hash std::string, using a "template specialization"
 // DMP Comment out for not to prevent conflicts
@@ -57,12 +57,12 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
 
 //
 
 // forward declarations
-class GtAlgorithm;
+class GlobalAlgorithm;
 
 namespace l1t {
 
@@ -72,15 +72,15 @@ class ConditionEvaluation;
 class AlgorithmEvaluation {
 
 public:
-    typedef GtLogicParser::TokenRPN TokenRPN;
+    typedef GlobalLogicParser::TokenRPN TokenRPN;
     typedef std::vector<TokenRPN> RpnVector;
-    typedef GtLogicParser::OperandToken OperandToken;
+    typedef GlobalLogicParser::OperandToken OperandToken;
 
     /// constructor
     //  AlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    explicit AlgorithmEvaluation(const GtAlgorithm&);
+    explicit AlgorithmEvaluation(const GlobalAlgorithm&);
 
     /// copy constructor
     // AlgorithmEvaluation(AlgorithmEvaluation&);
@@ -115,7 +115,7 @@ public:
         return m_algoCombinationVector;
     }
 
-    inline std::vector<GtLogicParser::OperandToken>& operandTokenVector() {
+    inline std::vector<GlobalLogicParser::OperandToken>& operandTokenVector() {
         return m_operandTokenVector;
     }
 

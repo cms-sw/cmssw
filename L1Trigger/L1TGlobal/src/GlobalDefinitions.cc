@@ -12,7 +12,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalDefinitions.h"
 
 // system include files
 #include <cstring>

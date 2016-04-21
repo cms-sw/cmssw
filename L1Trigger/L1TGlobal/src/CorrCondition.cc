@@ -32,11 +32,11 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -49,10 +49,10 @@ l1t::CorrCondition::CorrCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::CorrCondition::CorrCondition(const GtCondition* corrTemplate, 
-                                  const GtCondition* cond0Condition,
-				  const GtCondition* cond1Condition,
-				  const GtBoard* ptrGTB
+l1t::CorrCondition::CorrCondition(const GlobalCondition* corrTemplate, 
+                                  const GlobalCondition* cond0Condition,
+				  const GlobalCondition* cond1Condition,
+				  const GlobalBoard* ptrGTB
         ) :
     ConditionEvaluation(),
     m_gtCorrelationTemplate(static_cast<const CorrelationTemplate*>(corrTemplate)),
@@ -105,15 +105,15 @@ void l1t::CorrCondition::setGtCorrelationTemplate(const CorrelationTemplate* cal
 
 }
 
-///   set the pointer to uGT GtBoard
-void l1t::CorrCondition::setuGtB(const GtBoard* ptrGTB) {
+///   set the pointer to uGT GlobalBoard
+void l1t::CorrCondition::setuGtB(const GlobalBoard* ptrGTB) {
 
     m_uGtB = ptrGTB;
 
 }
 
 
-void l1t::CorrCondition::setScales(const L1TGlobalScales* sc) 
+void l1t::CorrCondition::setScales(const GlobalScales* sc) 
 {
     m_gtScales = sc;
 }
@@ -138,7 +138,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     // number of objects in condition (it is 2, no need to retrieve from
     // condition template) and their type
     int nObjInCond = 2;
-    std::vector<L1TGtObject> cndObjTypeVec(nObjInCond);
+    std::vector<GlobalObject> cndObjTypeVec(nObjInCond);
 
     // evaluate first the two sub-conditions (Type1s)
 
@@ -358,12 +358,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Determine the number of phi bins to get cutoff at pi
     int phiBound = 0;
     if(cond0Categ == CondMuon || cond1Categ == CondMuon) {
-        L1TGlobalScales::ScaleParameters par = m_gtScales->getMUScales();
+        GlobalScales::ScaleParameters par = m_gtScales->getMUScales();
         //phiBound = par.phiBins.size()/2;
 	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     } else {
         //Assumes all calorimeter objects are on same phi scale
-        L1TGlobalScales::ScaleParameters par = m_gtScales->getEGScales();
+        GlobalScales::ScaleParameters par = m_gtScales->getEGScales();
         //phiBound = par.phiBins.size()/2;
 	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     }	

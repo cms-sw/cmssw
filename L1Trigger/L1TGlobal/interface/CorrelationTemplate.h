@@ -27,13 +27,13 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
-#include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalDefinitions.h"
 // forward declarations
 
 // class declaration
-class CorrelationTemplate : public GtCondition
+class CorrelationTemplate : public GlobalCondition
 {
 
 public:

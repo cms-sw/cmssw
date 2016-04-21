@@ -11,7 +11,7 @@ StableParametersRcdSource = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-StableParameters = cms.ESProducer("StableParametersTrivialProducer",
+StableParameters = cms.ESProducer("L1TGlobalParamsESProducer",
 
  
     # bx in event

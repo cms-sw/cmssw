@@ -28,7 +28,7 @@
 //   base class
 
 //
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
