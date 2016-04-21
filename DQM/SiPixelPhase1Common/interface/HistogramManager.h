@@ -98,7 +98,10 @@ private:
   // These are actually more like local variables, and they might be shadowed
   // by locals now and then. The point is to avoid reallocating the heap buffer
   // of the Values on every call.
-  GeometryInterface::Values significantvalues;
+  // iq/significantvalues are also used to cache the last set of columns 
+  // per-spec, to avoid unnecessary extractions.
+  GeometryInterface::InterestingQuantities iq;
+  std::vector<GeometryInterface::Values> significantvalues;
   GeometryInterface::Values new_vals;
 };
 

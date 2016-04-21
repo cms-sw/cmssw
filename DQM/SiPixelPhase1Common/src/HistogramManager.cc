@@ -43,6 +43,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
 void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
   tables.push_back(Table());
+  significantvalues.push_back(GeometryInterface::Values());
 }
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
@@ -115,18 +116,28 @@ void HistogramManager::executeStep1Spec(double x, double y,
 
 void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
   if (!enabled) return;
-  auto iq = GeometryInterface::InterestingQuantities{
-              sourceModule, sourceEvent, col, row
-	    };							    
+  bool cached = true;
+  if (   col != this->iq.col 
+      || row != this->iq.row 
+      || sourceModule != this->iq.sourceModule 
+      || sourceEvent  != this->iq.sourceEvent 
+     ) {
+    cached = false;
+    iq = GeometryInterface::InterestingQuantities{
+      sourceModule, sourceEvent, col, row
+    };							    
+  }
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
-    // PERF: we could recycle the last Values if iq has not changed (This is common)
-    // row/col is a bit harder then (only pass if needed, for perf reasons)
-    // Caching has to happen per-spec, of course.
-    significantvalues.clear();
-    geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
-    executeStep1Spec(x, y, significantvalues, s, t, SummationStep::STAGE1); 
+    // Try cached colums from last fill(). 
+    // We could be smarter on row/col and only check if they appear in the spec
+    // but that just asks for bugs.
+    if (!cached) { 
+      significantvalues[i].clear();
+      geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues[i]);
+    }
+    executeStep1Spec(x, y, significantvalues[i], s, t, SummationStep::STAGE1); 
   }
 }
 void HistogramManager::fill(double x, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
