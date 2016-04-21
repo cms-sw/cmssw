@@ -43,7 +43,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
@@ -98,9 +98,9 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(bunchSpacingProducer*localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
-reconstruction_trackingOnly = cms.Sequence(bunchSpacingProducer*localreco*globalreco_tracking)
+reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -193,5 +193,3 @@ reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*l
 # modules instead of sequences
 #
 reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
-
-
