@@ -241,6 +241,11 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
         hcalOccEtDiscrepancy_->Fill(ieta, iphi);
         hcalTPRawEtDiffNoMatch_->Fill(recdTp.SOI_compressedEt()-sentTp.SOI_compressedEt());
         updateMismatch(event, 2);
+
+        // Handle HCal discrepancy debug
+        if ( sentTp.SOI_compressedEt() == 0 ) hcalOccRecdNotSent_->Fill(ieta, iphi);
+        else if ( recdTp.SOI_compressedEt() == 0 ) hcalOccSentNotRecd_->Fill(ieta, iphi);
+        else hcalOccNoMatch_->Fill(ieta, iphi);
       }
       if ( sentTp.SOI_fineGrain() != recdTp.SOI_fineGrain() ) {
         // Handle fine grain discrepancies
@@ -421,6 +426,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   hcalTPRawEtSentAndRecd_    = bookEt("hcalTPRawEtMatch", "HCal Raw Et FULL MATCH");
   hcalTPRawEtSent_           = bookEt("hcalTPRawEtSent", "HCal Raw Et uHTR Readout");
 
+  ibooker.setCurrentFolder(histFolder_+"/HCalDetail/uHTRDebug");
+  hcalOccSentNotRecd_        = bookHcalOccupancy("hcalOccSentNotRecd", "HCal TP Occupancy sent by uHTR, zero at Layer1");
+  hcalOccRecdNotSent_        = bookHcalOccupancy("hcalOccRecdNotSent", "HCal TP Occupancy received by Layer1, zero at uHTR");
+  hcalOccNoMatch_            = bookHcalOccupancy("hcalOccNoMatch", "HCal TP Occupancy for uHTR and Layer1 nonzero, not matching");
 
   ibooker.setCurrentFolder(histFolder_+"/MismatchDetail");
 

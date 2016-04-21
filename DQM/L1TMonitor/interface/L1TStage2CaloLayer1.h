@@ -123,6 +123,10 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *hcalTPRawEtSentAndRecd_;
     MonitorElement *hcalTPRawEtSent_;
 
+    MonitorElement *hcalOccSentNotRecd_;
+    MonitorElement *hcalOccRecdNotSent_;
+    MonitorElement *hcalOccNoMatch_;
+
     MonitorElement *last20Mismatches_;
     std::array<std::pair<std::string, int>, 20> last20MismatchArray_;
     size_t lastMismatchIndex_{0};
