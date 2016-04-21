@@ -60,7 +60,7 @@ class Eras (object):
         # Scenarios further afield.
         # Phase2 is everything for the 2023 (2026?) detector that works so far in this release.
         # include phase 1 stuff until phase 2 tracking is fully defined....
-        self.Phase2 = cms.ModifierChain( self.phase1Pixel, self.trackingPhase1, self.phase2_common, self.phase2_tracker, self.phase2_hgcal, self.phase2_muon )
+        self.Phase2 = cms.ModifierChain( self.phase2_common, self.phase2_tracker, self.phase2_hgcal, self.phase2_muon )
         # Phase2dev is everything for the 2023 (2026?) detector that is still in development.
         self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgcal, self.phase2dev_muon )
 

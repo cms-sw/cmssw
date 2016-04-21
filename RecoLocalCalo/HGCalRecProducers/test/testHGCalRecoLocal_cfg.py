@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2,eras.phase1Pixel,eras.trackingPhase1)
+process = cms.Process("testHGCalRecoLocal",eras.Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -11,8 +11,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023DevReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
+process.load('Configuration.Geometry.GeometryExtended2023LRecoReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023LReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -125,4 +125,5 @@ for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 # customisation of the process.
-
+from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise
+process=customise(process)
