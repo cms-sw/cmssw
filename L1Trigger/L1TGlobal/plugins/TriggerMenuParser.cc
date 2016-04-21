@@ -193,7 +193,47 @@ void l1t::TriggerMenuParser::setGtAlgorithmAliasMap(const AlgorithmMap& algoMap)
 
 
 
+std::map<std::string, unsigned int> l1t::TriggerMenuParser::getExternalSignals(const L1TUtmTriggerMenu* utmMenu) {
 
+   using namespace tmeventsetup;
+   const esTriggerMenu* menu = reinterpret_cast<const esTriggerMenu*> (utmMenu);
+   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
+
+  std::map<std::string, unsigned int> extBitMap;
+  
+  //loop over the algorithms
+  for (std::map<std::string, esCondition>::const_iterator cit = condMap.begin();
+       cit != condMap.end(); cit++)
+  {
+      const esCondition& condition = cit->second;
+      if(condition.getType() == esConditionType::Externals ) {
+      
+             // Get object for External conditions
+             const std::vector<esObject>& objects = condition.getObjects();
+             for (size_t jj = 0; jj < objects.size(); jj++) {   
+
+                 const esObject object = objects.at(jj);
+                 if(object.getType() == esObjectType::EXT) {
+              
+                   unsigned int channelID = object.getExternalChannelId();
+		   std::string  name = object.getExternalSignalName();
+		   
+		   if (extBitMap.count(name) == 0) extBitMap.insert(std::map<std::string, unsigned int>::value_type(name,channelID));
+                }
+             }   
+         
+      }
+        
+  }   
+/*   
+  for (std::map<std::string, unsigned int>::const_iterator cit = extBitMap.begin();
+       cit != extBitMap.end(); cit++) {
+       std::cout << " Ext Map:  Name " << cit->first << " Bit " << cit->second << std::endl;
+  } 
+*/
+  return  extBitMap;
+  
+}
 
 // parse def.xml file
 void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) {
