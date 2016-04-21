@@ -382,11 +382,18 @@ void Pythia6Service::setPYUPDAParams(bool afterPyinit)
 
 void Pythia6Service::setSLHAFromHeader( const std::vector<std::string> &lines )
 {
-
 	std::set<std::string> blocks;
 	unsigned int model = 0, subModel = 0;
+        bool useboost = true;
+        std::string fnamest;
+        const char* fname;
 
-	const char *fname = boost::filesystem::unique_path().c_str();
+        if(useboost) {
+          fnamest = std::string(boost::filesystem::unique_path().string());
+          fname = fnamest.c_str();
+        } else {
+          fname = std::tmpnam(NULL);
+        }
 	std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
 	std::string block;
 	for(std::vector<std::string>::const_iterator iter = lines.begin();
