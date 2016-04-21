@@ -191,14 +191,14 @@ public:
     return (data >> 16);
   }
 
-  uint32_t getSummaryIndex(bool negativeEta) {
-    uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4;
-    if(negativeEta) index++;
+  uint32_t getSummaryIndex(bool negativeEta, uint32_t region) {
+    uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4 + (region / 2);
+    if(negativeEta) index += 4;
     return index;
   }
 
   uint32_t getRegionSummary(bool negativeEta, uint32_t region) {
-    uint32_t index = getSummaryIndex(negativeEta);
+    uint32_t index = getSummaryIndex(negativeEta, region);
     const uint32_t data = myDataPtr[index];
     return (data >> (16 * (region % 2)));
   }
@@ -232,21 +232,33 @@ public:
 
   bool isLinkMisaligned(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000100) != 0);
+    }
     return ((linkStatus & 0x00001000) != 0);
   }
 
   bool isLinkInError(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000200) != 0);
+    }
     return ((linkStatus & 0x00002000) != 0);
   }
 
   bool isLinkDown(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000400) != 0);
+    }
     return ((linkStatus & 0x00004000) != 0);
   }
 
   bool isLinkMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000800) != 0);
+    }
     return ((linkStatus & 0x00008000) != 0);
   }
 
