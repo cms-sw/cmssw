@@ -62,6 +62,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+
 namespace CondFormats_L1TObjects {
   struct dictionary {
     
@@ -99,7 +101,7 @@ namespace CondFormats_L1TObjects {
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
 
-    L1TGlobalParameters dummy19i;
+
     L1TUtmAlgorithm dummy19a;
     L1TUtmBin dummy19b;
     L1TUtmCondition dummy19c;
@@ -108,6 +110,10 @@ namespace CondFormats_L1TObjects {
     L1TUtmObject dummy19f;
     L1TUtmScale dummy19g;
     L1TUtmTriggerMenu dummy19h;
+
+    L1TGlobalPrescalesVetos dummy20;
+
+    L1TGlobalParameters dummy21;
 
   };
 }

@@ -135,6 +135,7 @@ int main()
     testSerialization<L1TUtmObject>();
     testSerialization<L1TUtmScale>();
     testSerialization<L1TUtmTriggerMenu>();
+    testSerialization<L1TGlobalPrescalesVetos>();
 
 
     return 0;
