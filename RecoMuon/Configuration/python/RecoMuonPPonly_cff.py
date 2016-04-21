@@ -84,23 +84,29 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
-def _modifyRecoMuonPPonlyForRun3( object ):
-    object.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-    object.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+_run3_standAloneMuons = standAloneMuons.clone()
+_run3_standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+_run3_standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
 
-def _modifyRecoMuonPPonlyForPhase2( object ):
-    object.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-    object.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+_run3_refittedStandAloneMuons = refittedStandAloneMuons.clone()
+_run3_refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+_run3_refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+
+_phase2_standAloneMuons = _run3_standAloneMuons.clone()
+_phase2_standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+_phase2_standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+
+_phase2_refittedStandAloneMuons = _run3_refittedStandAloneMuons.clone()
+_phase2_refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+_phase2_refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+
+from RecoMuon.MuonIdentification.me0MuonReco_cff import me0MuonReco
+_phase2_muonGlobalReco = muonGlobalReco.copy()
+_phase2_muonGlobalReco += me0MuonReco
 
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForRun3 )
-eras.run3_GEM.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForRun3 )
-eras.phase2_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
-eras.phase2_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
-
-def _modifyRecoMuonPPonlyForPhase2_addME0Muon( theProcess ):
-    theProcess.load("RecoMuon.MuonIdentification.me0MuonReco_cff")
-    theProcess.muonGlobalReco += theProcess.me0MuonReco
-
-modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
-    
+eras.run3_GEM.toReplaceWith( standAloneMuons, _run3_standAloneMuons )
+eras.run3_GEM.toReplaceWith( refittedStandAloneMuons, _run3_refittedStandAloneMuons )
+eras.phase2_muon.toReplaceWith( standAloneMuons, _phase2_standAloneMuons )
+eras.phase2_muon.toReplaceWith( refittedStandAloneMuons, _phase2_refittedStandAloneMuons )
+eras.phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
