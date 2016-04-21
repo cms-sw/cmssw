@@ -90,8 +90,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       
       //Make the vector of seeds that we're going to use.
       //One of the few places position is used, needed for ET calculation.    
-      const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
-      GlobalPoint position = this_cell->getPosition();
+      const CaloCellGeometry & this_cell = *(*geometry).getGeometry(it->id());
+      GlobalPoint position = this_cell.getPosition();
       
       
       // Require that RecHit is within clustering region in case
@@ -100,7 +100,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       if (regional) {
 	std::vector<EcalEtaPhiRegion>::const_iterator region;
 	for (region=regions.begin(); region!=regions.end(); region++) {
-	  if (region->inRegion(position)) {
+	  if (region->inRegion(this_cell.etaPos(),this_cell.phiPos())) {
 	    withinRegion =  true;
 	    break;
 	  }
@@ -110,7 +110,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       if (!regional || withinRegion) {
 
 	//Must pass seed threshold
-	float ET = it->energy() * sin(position.theta());
+	float ET = it->energy() * position.basicVector().unit().perp();
 
 	LogTrace("EcalClusters") << "Seed crystal: " ;
 
