@@ -163,6 +163,7 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     candidate.setHwPhi(phiValue);
     
     candidate.setHwSign(myCand.getCharge()<0 ? 1:0  );
+    candidate.setHwSignValid(1);
  
     unsigned int quality = checkHitPatternValidity(myCand.getHits()) ? 0 | (1 << 2) | (1 << 3) 
                                                                      : 0 | (1 << 2);

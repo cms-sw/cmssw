@@ -50,7 +50,8 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
 
   unsigned int nGPs = myOmtfConfig->nGoldenPatterns();
   unsigned int address = 0;
-  unsigned int iEta, iPt, iCharge;
+  unsigned int iEta, iPt;
+  int iCharge;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
     address = iGP;
     iEta = etaLUT->data(address);
