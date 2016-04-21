@@ -27,19 +27,15 @@
 
 #include <boost/cstdint.hpp>
 
-// user include files
-
-// Upgrade Board
-#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -51,7 +47,6 @@ class L1GtTriggerMask;
 class TriggerMenu;
 
 // class declaration
-
 
 class L1TGlobalProducer : public edm::EDProducer
 {
@@ -65,18 +60,12 @@ public:
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-    // return pointer to uGt GlobalBoard  QUESTION: Is this used anywhere?
-    //inline const GlobalBoard* gtBrd() const
-    //{
-    //    return m_uGtBrd;
-    //}    
-
 private:
 
     /// cached stuff
 
     /// stable parameters
-    const L1TGlobalParameters* m_l1GtStablePar;
+    const l1t::GlobalParamsHelper* m_l1GtStablePar;
     unsigned long long m_l1GtParCacheID;
 
     // trigger menu
@@ -104,7 +93,6 @@ private:
 
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
-
 
     ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
