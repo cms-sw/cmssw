@@ -35,6 +35,10 @@ HLT_Mu27_v*						# JIRA: CMSHLT-153
 HLT_TkMu27_v*						# JIRA: CMSHLT-153
 HLT_IsoMu20_v*						# JIRA: CMSHLT-240, mod. CMSHLT-272, CMSHLT-335
 HLT_IsoTkMu20_v*					# JIRA: CMSHLT-240, mod. CMSHLT-272, CMSHLT-335
+#HLT_IsoMu22_eta2p1_v*					# JIRA: CMSHLT-760
+#HLT_IsoTkMu22_eta2p1_v*					# JIRA: CMSHLT-760
+HLT_IsoMu24_v*						# JIRA: CMSHLT-760
+HLT_IsoTkMu24_v*					# JIRA: CMSHLT-760
 HLT_IsoMu27_v*						# JIRA: CMSHLT-153, mod. CMSHLT-240, CMSHLT-272, CMSHLT-335
 HLT_IsoTkMu27_v*					# JIRA: CMSHLT-153, mod. CMSHLT-240, CMSHLT-272, CMSHLT-335
 
@@ -436,10 +440,10 @@ HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*			# JIRA: CMSHLT-213 (only for 7e33), 
 HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-213 (only for 7e33), mod CMSHLT-331
 HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-213 (only for 7e33), mod CMSHLT-331
 
-#HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-732
-#HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-732
-#HLT_DoubleEle37Ele27_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-732
-#HLT_Ele17_CaloIdL_GsfTrkIdVL_v*					# JIRA: CMSHLT-732
+HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-732
+HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-732
+HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-732
+HLT_Ele17_CaloIdL_GsfTrkIdVL_v*					# JIRA: CMSHLT-732
 
 HLT_Mu8_v*							# JIRA: CMSHLT-293, CMSHLT-534
 HLT_Mu17_v*							# JIRA: CMSHLT-293
@@ -548,10 +552,10 @@ HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity135ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity160ForEndOfFill_v*			# JIRA: CMSHLT-486
 
-#HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity130_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity150_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity130_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity150_v*				# JIRA: CMSHLT-716
 
 HLT_HISinglePhoton10_v*						# JIRA: CMSHLT-493, CMSHLT-748
 HLT_HISinglePhoton15_v*						# JIRA: CMSHLT-493, CMSHLT-748
