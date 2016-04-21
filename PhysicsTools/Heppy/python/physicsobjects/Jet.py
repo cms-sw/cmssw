@@ -34,6 +34,7 @@ _btagWPs = {
     "CMVAL": ("pfCombinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
     "CMVAM": ("pfCombinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
     "CMVAT": ("pfCombinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
+    "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
 
 }
 
@@ -89,7 +90,9 @@ class Jet(PhysicsObject):
         return self.jetID("POG_PFID_Loose")
 
     def puMva(self, label="pileupJetId:fullDiscriminant"):
-        return self.userFloat(label)
+        if self.hasUserFloat(label):
+            return self.userFloat(label)
+        return -99
 
     def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''

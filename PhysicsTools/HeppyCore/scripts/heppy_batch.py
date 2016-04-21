@@ -99,18 +99,30 @@ do
    echo $ff
    export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
    source $VO_CMS_SW_DIR/cmsset_default.sh
-   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
-   /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
-   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
-   /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
-   echo $idx
-   if [ $? -ne 0 ]; then
-      echo "ERROR: remote copy failed for file $ff"
-   else
+   for try in `seq 1 3`; do
+      echo "Stageout try $try"
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
+      if [ $? -ne 0 ]; then
+         echo "ERROR: remote copy failed for file $ff"
+         continue
+      fi
       echo "remote copy succeeded"
+      remsize=$(/afs/cern.ch/project/eos/installation/pro/bin/eos.select find --size {srm}/${{ff}}_{idx}.root | cut -d= -f3) 
+      locsize=$(cat `pwd`/$f | wc -c)
+      ok=$(($remsize==$locsize))
+      if [ $ok -ne 1 ]; then
+         echo "Problem with copy (file sizes don't match), will retry in 30s"
+         sleep 30
+         continue
+      fi
+      echo "everything ok"
       rm $f
       echo root://eoscms.cern.ch/{srm}/${{ff}}_{idx}.root > $f.url
-   fi
+      break
+   done
 done
 cp -r Loop/* $LS_SUBCWD
 if [ $? -ne 0 ]; then
@@ -159,27 +171,32 @@ def batchScriptPSI( index, jobDir, remoteDir=''):
 
    if remoteDir=='':
        cpCmd="""echo 'sending the job directory back'
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $SUBMISIONDIR"""
    elif remoteDir.startswith("/pnfs/psi.ch"):
        cpCmd="""echo 'sending root files to remote dir'
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/dcap/ # Fabio's workaround to fix gfal-tools
-for f in Loop/treeProducerSusyFullHad/*.root
+for f in Loop/mt2*.root
 do
-echo $f
-ff=`basename $f | cut -d . -f 1`
-echo $ff
-gfal-mkdir {srm}
-echo "gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$file.root {srm}/${{ff}}_{idx}.root"
-gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$ff.root {srm}/${{ff}}_{idx}.root
+   ff=`basename $f | cut -d . -f 1`
+   #d=`echo $f | cut -d / -f 2`
+   gfal-mkdir {srm}
+   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
+   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
+   if [ $? -ne 0 ]; then
+      echo "ERROR: remote copy failed for file $ff"
+   else
+      echo "remote copy succeeded"
+      rm Loop/$ff.root
+   fi
 done
-rm Loop/treeProducerSusyFullHad/*.root
-echo 'sending the logs back'
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $SUBMISIONDIR""".format(idx=index, srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
    else:
-       print "remote directory not supported yet: ", remoteDir
-       print 'path must start with "/pnfs/psi.ch"'
-       sys.exit(1)
-
+      print "remote directory not supported yet: ", remoteDir
+      print 'path must start with "/pnfs/psi.ch"'
+      sys.exit(1)
+      
 
    script = """#!/bin/bash
 shopt expand_aliases
