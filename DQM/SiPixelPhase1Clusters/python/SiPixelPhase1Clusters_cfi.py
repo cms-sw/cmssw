@@ -60,7 +60,6 @@ SiPixelPhase1ClustersNClusters = DefaultHisto.clone(
 )
 
 SiPixelPhase1ClustersEventrate = DefaultHisto.clone(
-  bookUndefined = True,
   name = "bigfpixclustereventrate",
   title = "Number of Events with > 180 FPIX clusters",
   xlabel = "Lumisection",
@@ -73,6 +72,7 @@ SiPixelPhase1ClustersEventrate = DefaultHisto.clone(
 )
 
 SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
+  bookUndefined = False,
   name = "clusterposition",
   title = "Cluster Positions",
   range_min = -30, range_max = 30, range_nbins = 200,
@@ -91,12 +91,13 @@ SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
   xlabel = "Global X", ylabel = "Global Y",
   dimensions = 2,
   specs = cms.VPSet(
-    Specification().groupBy("PXForward/PXDisk")
+    Specification().groupBy("PXForward|PXBarrel/PXDisk|")
                    .save()
   )
 )
 
 SiPixelPhase1ClustersSizeVsEta = DefaultHisto.clone(
+  bookUndefined = False, # Barrel only
   name = "sizeyvseta",
   title = "Cluster Size along Beamline vs. Cluster position \eta",
   xlabel = "Cluster \eta",

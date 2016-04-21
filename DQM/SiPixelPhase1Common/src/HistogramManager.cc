@@ -184,6 +184,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
       if (!bookUndefined) {
 	// skip if any column is UNDEFINED
+        // This could be more precise and ignore columns that are dropped in step1.
 	bool ok = true;
 	for (auto e : significantvalues.values) 
 	  if (e.second == GeometryInterface::UNDEFINED) ok = false;
@@ -243,7 +244,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    break;}
 	  case SummationStep::GROUPBY: {
 	    assert(dimensions == 0 || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
-	    assert(!bookUndefined || !"bookUndefined and per-event harevsting are incopatible for now.");
 	    dimensions = 1;
 	    GeometryInterface::Values new_vals;
 	    for (auto c : step.columns) new_vals.put(significantvalues.get(c));
