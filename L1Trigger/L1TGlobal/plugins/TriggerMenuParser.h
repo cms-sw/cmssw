@@ -221,6 +221,9 @@ public:
 	    
     void parseCondFormats(const L1TUtmTriggerMenu* utmMenu);	    
 
+
+    std::map<std::string, unsigned int> getExternalSignals(const L1TUtmTriggerMenu* utmMenu); 
+
 public:
 
     /// get / set the XML parser creation date, author, description for menu interface, menu
