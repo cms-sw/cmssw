@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
@@ -33,7 +32,6 @@
 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
-#include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "tmEventSetup/esTriggerMenu.hh"
@@ -42,11 +40,10 @@
 #include "tmEventSetup/esObject.hh"
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
-//#include "tmGrammar/Algorithm.hh"
 
 // forward declarations
 class GtCondition;
-class L1GtAlgorithm;
+class GtAlgorithm;
 
 namespace l1t {
 
@@ -120,11 +117,11 @@ public:
     void setGtTriggerMenuName(const std::string&);
 
     //
-    inline const std::string& gtTriggerMenuImplementation() const {
+    inline const unsigned long gtTriggerMenuImplementation() const {
         return m_triggerMenuImplementation;
     }
 
-    void setGtTriggerMenuImplementation(const std::string&);
+    void setGtTriggerMenuImplementation(const unsigned long&);
 
     /// menu associated scale key
     inline const std::string& gtScaleDbKey() const {
@@ -247,6 +244,12 @@ public:
 
     //
 
+    inline const int gtTriggerMenuUUID() const {
+        return m_triggerMenuUUID;
+    }
+
+    void setGtTriggerMenuUUID(const int);
+
     inline const std::string& gtTriggerMenuDate() const {
         return m_triggerMenuDate;
     }
@@ -286,11 +289,9 @@ private:
     bool insertConditionIntoMap(GtCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
-    bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
+    bool insertAlgorithmIntoMap(const GtAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
-    std::string l1tDateTime2string( l1t::DateTime );
-    int l1t2int( l1t::RelativeBx );
     int l1tstr2int( const std::string data );
 
 
@@ -347,6 +348,29 @@ private:
     bool parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
             unsigned int chipNr = 0 );
 
+    // Parse LUT for Cal Mu Eta
+    void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+
+    // Parse LUT for Cal Mu Phi
+    void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+    // Parse LUT for Cal Mu Pt
+    void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, unsigned int prec);
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
+
 
 private:
 
@@ -394,7 +418,8 @@ private:
     /// menu names
     std::string m_triggerMenuInterface;
     std::string m_triggerMenuName;
-    std::string m_triggerMenuImplementation;
+    unsigned long m_triggerMenuImplementation;
+    unsigned long m_triggerMenuUUID;
 
     /// menu associated scale key
     std::string m_scaleDbKey;

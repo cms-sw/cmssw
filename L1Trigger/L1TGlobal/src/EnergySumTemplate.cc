@@ -26,7 +26,6 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
@@ -117,6 +116,10 @@ void EnergySumTemplate::print(std::ostream& myCout) const
             << std::hex << m_objectParameter[i].phiRange0Word
             << std::endl;
         } else if (m_condType == l1t::TypeHTM) {
+            myCout << "    phi               = "
+            << std::hex << m_objectParameter[i].phiRange0Word
+            << std::endl;
+        } else if (m_condType == l1t::TypeETM2) {
             myCout << "    phi               = "
             << std::hex << m_objectParameter[i].phiRange0Word
             << std::endl;

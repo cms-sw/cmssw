@@ -1,8 +1,23 @@
-//L1TGlobalProducer - Emulate L1T uGT
-//Author: Brian Winer  Ohio State
+#ifndef L1TGlobalProducer_h
+#define L1TGlobalProducer_h
 
-#ifndef L1TGLOBALPRODUCER_H
-#define L1TGLOBALPRODUCER_H
+/**
+ * \class L1TGlobalProducer
+ *
+ *
+ * Description: L1 Global Trigger producer.
+ *
+ * Implementation:
+ *    <TODO: enter implementation details>
+ *
+ * \author: Brian Winer  Ohio State
+ *
+ * $Date$
+ * $Revision$
+ *
+ * The CMSSW implementation based on Legacy System Code
+ *
+ */
 
 // system include files
 #include <string>
@@ -26,7 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class GlobalStableParameters;
+class L1TGlobalParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
@@ -38,7 +53,7 @@ class TriggerMenu;
 // class declaration
 
 
-  class L1TGlobalProducer : public edm::EDProducer
+class L1TGlobalProducer : public edm::EDProducer
 {
 
 public:
@@ -47,20 +62,22 @@ public:
     ~L1TGlobalProducer();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
+
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
     // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
-    //inline const l1t::GtBoard* gtBrd() const
+    //inline const GtBoard* gtBrd() const
     //{
     //    return m_uGtBrd;
-    //}     
+    //}    
 
 private:
 
     /// cached stuff
 
     /// stable parameters
-    const GlobalStableParameters* m_l1GtStablePar;
-    unsigned long long m_l1GtStableParCacheID;
+    const L1TGlobalParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtParCacheID;
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
@@ -81,17 +98,13 @@ private:
     int m_nrL1Jet;
 
 //  *** ??? Do we still need this?
-    int m_nrL1JetCounts;
+//    int m_nrL1JetCounts;
 
     // ... the rest of the objects are global
 
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
 
-
-    /// parameters
-    const L1GtParameters* m_l1GtPar;
-    unsigned long long m_l1GtParCacheID;
 
     ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
@@ -137,9 +150,9 @@ private:
 private:
 
 /*
-    GtProducerPSB* m_gtPSB;
-    GtProducerGTL* m_gtGTL;
-    GtProducerFDL* m_gtFDL;
+    L1TGlobalProducerPSB* m_gtPSB;
+    L1TGlobalProducerGTL* m_gtGTL;
+    L1TGlobalProducerFDL* m_gtFDL;
 */
     l1t::GtBoard* m_uGtBrd;
 
@@ -209,4 +222,4 @@ private:
 };
 
 
-#endif /*GtProducer_h*/
+#endif /*L1TGlobalProducer_h*/

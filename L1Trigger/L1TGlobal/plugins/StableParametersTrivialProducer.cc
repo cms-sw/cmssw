@@ -29,7 +29,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
 
 // forward declarations
 
@@ -43,19 +43,15 @@ StableParametersTrivialProducer::StableParametersTrivialProducer(
 
     // now do what ever other initialization is needed
 
+
+    // bx in event
+    m_totalBxInEvent = parSet.getParameter<int>("NumberBxInEvent");
+  
     // trigger decision
 
     // number of physics trigger algorithms
     m_numberPhysTriggers
         = parSet.getParameter<unsigned int>("NumberPhysTriggers");
-
-    // additional number of physics trigger algorithms
-    m_numberPhysTriggersExtended
-        = parSet.getParameter<unsigned int>("NumberPhysTriggersExtended");
-
-    // number of technical triggers
-    m_numberTechnicalTriggers
-        = parSet.getParameter<unsigned int>("NumberTechnicalTriggers");
 
     // trigger objects
 
@@ -63,32 +59,31 @@ StableParametersTrivialProducer::StableParametersTrivialProducer(
     m_numberL1Mu = parSet.getParameter<unsigned int>("NumberL1Mu");
 
     // e/gamma and isolated e/gamma objects
-    m_numberL1NoIsoEG = parSet.getParameter<unsigned int>("NumberL1NoIsoEG");
-    m_numberL1IsoEG = parSet.getParameter<unsigned int>("NumberL1IsoEG");
+    m_numberL1EG = parSet.getParameter<unsigned int>("NumberL1EG");
 
-    // central, forward and tau jets
-    m_numberL1CenJet = parSet.getParameter<unsigned int>("NumberL1CenJet");
-    m_numberL1ForJet = parSet.getParameter<unsigned int>("NumberL1ForJet");
-    m_numberL1TauJet = parSet.getParameter<unsigned int>("NumberL1TauJet");
+    //  jets
+    m_numberL1Jet = parSet.getParameter<unsigned int>("NumberL1Jet");
+    
+    //  tau
+    m_numberL1Tau = parSet.getParameter<unsigned int>("NumberL1Tau");
 
-    // jet counts
-    m_numberL1JetCounts = parSet.getParameter<unsigned int>("NumberL1JetCounts");
 
     // hardware
 
     // number of maximum chips defined in the xml file
-    m_numberConditionChips
-        = parSet.getParameter<unsigned int>("NumberConditionChips");
+    m_numberChips
+        = parSet.getParameter<unsigned int>("NumberChips");
 
     // number of pins on the GTL condition chips
-    m_pinsOnConditionChip
-        = parSet.getParameter<unsigned int>("PinsOnConditionChip");
+    m_pinsOnChip
+        = parSet.getParameter<unsigned int>("PinsOnChip");
 
     // correspondence "condition chip - GTL algorithm word" in the hardware
     // e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    m_orderConditionChip
-        = parSet.getParameter<std::vector<int> >("OrderConditionChip");
+    m_orderOfChip
+        = parSet.getParameter<std::vector<int> >("OrderOfChip");
 
+/*
     // number of PSB boards in GT
     m_numberPsbBoards = parSet.getParameter<int>("NumberPsbBoards");
 
@@ -104,7 +99,7 @@ StableParametersTrivialProducer::StableParametersTrivialProducer(
 
     // one unit in the word is UnitLength bits
     m_unitLength = parSet.getParameter<int>("UnitLength");
-
+*/
 }
 
 // destructor
@@ -117,55 +112,44 @@ StableParametersTrivialProducer::~StableParametersTrivialProducer() {
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<GlobalStableParameters> 
+boost::shared_ptr<L1TGlobalParameters> 
     StableParametersTrivialProducer::produceGtStableParameters(
-        const L1TGlobalStableParametersRcd& iRecord) {
+        const L1TGlobalParametersRcd& iRecord) {
 
-    boost::shared_ptr<GlobalStableParameters> pL1uGtStableParameters =
-        boost::shared_ptr<GlobalStableParameters>(new GlobalStableParameters());
+    boost::shared_ptr<L1TGlobalParameters> pL1uGtStableParameters =
+        boost::shared_ptr<L1TGlobalParameters>(new L1TGlobalParameters());
+
+    // set the number of bx in event
+    pL1uGtStableParameters->setGtTotalBxInEvent(m_totalBxInEvent);
 
     // set the number of physics trigger algorithms
     pL1uGtStableParameters->setGtNumberPhysTriggers(m_numberPhysTriggers);
-
-    // set the additional number of physics trigger algorithms
-    pL1uGtStableParameters->setGtNumberPhysTriggersExtended(m_numberPhysTriggersExtended);
-
-    // set the number of technical triggers
-    pL1uGtStableParameters->setGtNumberTechnicalTriggers(m_numberTechnicalTriggers);
 
     // set the number of L1 muons received by GT
     pL1uGtStableParameters->setGtNumberL1Mu(m_numberL1Mu);
     
     //  set the number of L1 e/gamma objects received by GT
-    pL1uGtStableParameters->setGtNumberL1NoIsoEG(m_numberL1NoIsoEG);
-    
-    //  set the number of L1 isolated e/gamma objects received by GT
-    pL1uGtStableParameters->setGtNumberL1IsoEG(m_numberL1IsoEG);
-    
+    pL1uGtStableParameters->setGtNumberL1EG(m_numberL1EG);
+       
     // set the number of L1 central jets received by GT
-    pL1uGtStableParameters->setGtNumberL1CenJet(m_numberL1CenJet);
-    
-    // set the number of L1 forward jets received by GT
-    pL1uGtStableParameters->setGtNumberL1ForJet(m_numberL1ForJet);
-    
+    pL1uGtStableParameters->setGtNumberL1Jet(m_numberL1Jet);
+        
     // set the number of L1 tau jets received by GT
-    pL1uGtStableParameters->setGtNumberL1TauJet(m_numberL1TauJet);
+    pL1uGtStableParameters->setGtNumberL1Tau(m_numberL1Tau);
     
-    // set the number of L1 jet counts received by GT
-    pL1uGtStableParameters->setGtNumberL1JetCounts(m_numberL1JetCounts);
-    
+   
     // hardware stuff
     
     // set the number of condition chips in GTL
-    pL1uGtStableParameters->setGtNumberConditionChips(m_numberConditionChips);
+    pL1uGtStableParameters->setGtNumberChips(m_numberChips);
     
     // set the number of pins on the GTL condition chips
-    pL1uGtStableParameters->setGtPinsOnConditionChip(m_pinsOnConditionChip);
+    pL1uGtStableParameters->setGtPinsOnChip(m_pinsOnChip);
     
     // set the correspondence "condition chip - GTL algorithm word"
     // in the hardware
-    pL1uGtStableParameters->setGtOrderConditionChip(m_orderConditionChip);
-    
+    pL1uGtStableParameters->setGtOrderOfChip(m_orderOfChip);
+/*    
     // set the number of PSB boards in GT
     pL1uGtStableParameters->setGtNumberPsbBoards(m_numberPsbBoards);
     
@@ -180,7 +164,7 @@ boost::shared_ptr<GlobalStableParameters>
     
     // set one UnitLength
     pL1uGtStableParameters->setGtUnitLength(m_unitLength);
-    
+*/    
     //
     //
     return pL1uGtStableParameters;

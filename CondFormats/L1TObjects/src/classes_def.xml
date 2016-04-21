@@ -284,6 +284,7 @@
   </class>
   <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
+
   <class name="std::vector<L1TUtmAlgorithm>"/>
   <class name="std::map<std::string, L1TUtmAlgorithm>"/>
   <class name="std::vector<L1TUtmBin>"/>
@@ -326,5 +327,10 @@
     <field name="external_map_" mapping="blob" />
     <field name="token_to_condition_" mapping="blob" />
   </class>    
+
+  <class name="L1TGlobalParameters"/>
 </lcgdict>
+
+
+
 

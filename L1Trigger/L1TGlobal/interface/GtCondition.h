@@ -24,12 +24,12 @@
 #include <iostream>
 
 // user include files
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
-//#include "L1Trigger/L1TGlobal/interface/L1GtObject.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGtObject.h"
 #include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
 
 // forward declarations
+
+using namespace l1t;
 
 // class declaration
 class GtCondition
@@ -87,12 +87,12 @@ public:
     }
 
     /// get / set the trigger object type(s) in the condition
-    inline const std::vector<L1GtObject>& objectType() const
+    inline const std::vector<L1TGtObject>& objectType() const
     {
         return m_objectType;
     }
 
-    inline void setObjectType(const std::vector<L1GtObject>& objType)
+    inline void setObjectType(const std::vector<L1TGtObject>& objType)
     {
         m_objectType = objType;
     }
@@ -162,7 +162,7 @@ protected:
     l1t::GtConditionType m_condType;
 
     /// the trigger object type(s)
-    std::vector<L1GtObject> m_objectType;
+    std::vector<L1TGtObject> m_objectType;
 
     /// the operator used for the condition (>=, =): true for >=
     bool m_condGEq;

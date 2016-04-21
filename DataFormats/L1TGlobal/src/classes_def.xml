@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="GlobalAlgBlk" ClassVersion="13">
+  <class name="GlobalAlgBlk" ClassVersion="15">
+   <version ClassVersion="15" checksum="1900541189"/>
+   <version ClassVersion="14" checksum="1972925232"/>
    <version ClassVersion="13" checksum="2460401123"/>
    <version ClassVersion="12" checksum="2404151857"/>
    <version ClassVersion="11" checksum="2460401123"/>
@@ -17,6 +19,16 @@
   <class name="GlobalExtBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
 
+  <class name="L1TGtObjectMapRecord" ClassVersion="10">
+   <version ClassVersion="10" checksum="2808522020"/>
+  </class>
+  <class name="edm::Wrapper<L1TGtObjectMapRecord>"/>
+
+  <class name="L1TGtObjectMap" ClassVersion="10">
+   <version ClassVersion="10" checksum="2989798521"/>
+  </class>
+  <class name="edm::Wrapper<L1TGtObjectMap>"/>
 </lcgdict>
+
 
 

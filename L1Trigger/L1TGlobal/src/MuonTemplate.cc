@@ -26,7 +26,6 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
@@ -57,7 +56,7 @@ MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType&
         m_objectParameter.reserve(nObjects);
 
         m_objectType.reserve(nObjects);
-        m_objectType.assign(nObjects, Mu);
+        m_objectType.assign(nObjects, gtMu);
     }
 
 }

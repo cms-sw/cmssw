@@ -26,8 +26,6 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 #include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -147,24 +145,32 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     l1t::EtSum::EtSumType type;
     bool MissingEnergy = false;
     switch( (m_gtEnergySumTemplate->objectType())[0] ){
-    case ETM:
+    case gtETM:
       type = l1t::EtSum::EtSumType::kMissingEt;
       MissingEnergy = true;
       break;
-    case ETT:
+    case gtETT:
       type = l1t::EtSum::EtSumType::kTotalEt;
       MissingEnergy = false;
       break;
-    case HTM:
+    case gtHTM:
       type = l1t::EtSum::EtSumType::kMissingHt;
       MissingEnergy = true;
       break;
-    case HTT:
+    case gtHTT:
       type = l1t::EtSum::EtSumType::kTotalHt;
       MissingEnergy = false;
       break;
+    case gtETM2:
+      type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+      MissingEnergy = true;
+      break;      
+    case gtMinBias:
+      type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+      MissingEnergy = false;
+      break;      
     default:
-      edm::LogError("l1t|Global")
+      edm::LogError("L1TGlobal")
 	<< "\n  Error: "
 	<< "Unmatched object type from template to EtSumType, (m_gtEnergySumTemplate->objectType())[0] = "
 	<< (m_gtEnergySumTemplate->objectType())[0]
@@ -203,7 +209,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
     // check energy threshold
     if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
-      LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
         return false;
     }
 
@@ -214,7 +220,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     if( MissingEnergy ){
       // check phi
       if( !checkRangePhi(candPhi, objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
-	LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
+	LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
 	return false;
       }
     }
