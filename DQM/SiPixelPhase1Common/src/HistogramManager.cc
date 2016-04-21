@@ -44,14 +44,18 @@ void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
   tables.push_back(Table());
   significantvalues.push_back(GeometryInterface::Values());
+  fastpath.push_back(nullptr);
 }
 
 // note that this will be pretty hot. Ideally it should be malloc-free.
+// if fastpath is non-null, it is use instead of looking up the map entry,
+// else it will be set to the map entry for the next lookup.
 void HistogramManager::executeStep1Spec(double x, double y,
                                         GeometryInterface::Values& significantvalues, 
                                         SummationSpecification& s, 
 					Table& t,
-					SummationStep::Stage stage) {
+					SummationStep::Stage stage,
+                                        AbstractHistogram*& fastpath) {
  int dimensions = this->dimensions;
   for (unsigned int i = 0; i < s.steps.size(); i++) {
     auto& step = s.steps[i];
@@ -64,8 +68,9 @@ void HistogramManager::executeStep1Spec(double x, double y,
 	x = 0.0; y = 0.0;
 	dimensions = 0;
 	if (s.steps.at(i+1).stage == SummationStep::STAGE1_2) {
-	  auto& ctr = t[significantvalues];
-	  ctr.count++;
+          if (!fastpath) 
+	     fastpath = &t[significantvalues]; // PERF: [] might be bad.
+	  fastpath->count++;
 	  return; // no more filling to be done
 	}
 	break;}
@@ -85,7 +90,9 @@ void HistogramManager::executeStep1Spec(double x, double y,
 	assert(stage == SummationStep::STAGE1_2 
 	       || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
 	dimensions = 1;
-	x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
+	//x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
+        x = (double) fastpath->count; // we expect to get that from the per event harvesting.
+        fastpath = nullptr; // we change significantvalues, so this becomes invalid.
         t[significantvalues].count = 0;
         new_vals.clear();
 	for (auto c : step.columns) new_vals.put(significantvalues.get(c));
@@ -98,19 +105,22 @@ void HistogramManager::executeStep1Spec(double x, double y,
       }
     }
   }
-  auto histo = t.find(significantvalues); // avoid modification
-  if (histo == t.end() || (!histo->second.th1 && !histo->second.me)) {
-    // No histogram was booked.
-    assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
-    // else, ignore the sample.
-    return;
+  if (!fastpath) {
+    auto histo = t.find(significantvalues); // avoid modification
+    if (histo == t.end() || (!histo->second.th1 && !histo->second.me)) {
+      // No histogram was booked.
+      assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
+      // else, ignore the sample.
+      return;
+    }
+    fastpath = &(histo->second);
   }
   if (dimensions == 0) {
-    histo->second.fill(0);
+    fastpath->fill(0);
   } else if (dimensions == 1)
-    histo->second.fill(x);
+    fastpath->fill(x);
   else /* dimensions == 2 */ {
-    histo->second.fill(x, y);
+    fastpath->fill(x, y);
   }
 }
 
@@ -121,6 +131,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
       || row != this->iq.row 
       || sourceModule != this->iq.sourceModule 
       || sourceEvent  != this->iq.sourceEvent 
+      || sourceModule == DetId(0) // Hack for eventrate-like things, since the sourceEvent ptr might not change.
      ) {
     cached = false;
     iq = GeometryInterface::InterestingQuantities{
@@ -136,8 +147,9 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
     if (!cached) { 
       significantvalues[i].clear();
       geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues[i]);
+      fastpath[i] = nullptr;
     }
-    executeStep1Spec(x, y, significantvalues[i], s, t, SummationStep::STAGE1); 
+    executeStep1Spec(x, y, significantvalues[i], s, t, SummationStep::STAGE1, fastpath[i]); 
   }
 }
 void HistogramManager::fill(double x, DetId sourceModule, const edm::Event *sourceEvent, int col, int row) {
@@ -160,8 +172,10 @@ void HistogramManager::executePerEventHarvesting() {
       // There are two types of entries: counters and histograms. We only want ctrs here.
       // TODO: not fully correct, if we have e.g. EXTEND/COUNT/GROUPBY. 
       if (e.first.values.size() == s.steps[0].columns.size()) {
-	GeometryInterface::Values significantvalues(e.first); // PERF: avoid alloc here.
-	executeStep1Spec(0.0, 0.0, significantvalues, s, t, SummationStep::STAGE1_2);
+        // this is actually useless, since we will use the fast path. But better for consistence.
+        significantvalues[i].values = e.first.values; 
+        auto fastpath = &e.second;
+	executeStep1Spec(0.0, 0.0, significantvalues[i], s, t, SummationStep::STAGE1_2, fastpath);
       }
     }
   }
