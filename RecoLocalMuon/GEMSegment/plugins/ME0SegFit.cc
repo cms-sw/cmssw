@@ -343,7 +343,8 @@ ME0SegFit::SMatrixSym12 ME0SegFit::weightMatrix() {
   int row = 0;
   
   for (ME0SetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    
+    if (row > 11) break; // temp due to max size of matrix
+
     const ME0RecHit& hit = (**it);
 
 // Note scaleXError allows rescaling the x error if necessary
@@ -373,6 +374,7 @@ ME0SegFit::SMatrix12by4 ME0SegFit::derivativeMatrix() {
   int row = 0;
   
   for( ME0SetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
+    if (row > 11) break; // temp due to max size of matrix
     
     const ME0RecHit& hit = (**it);
     ME0DetId d = ME0DetId(hit.rawId());
