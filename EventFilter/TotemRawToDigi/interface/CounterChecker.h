@@ -78,7 +78,7 @@ class CounterChecker
     /// specified fraction of the full sample
     double fraction;
   
-    /// if >= 3, the information about wrong counter for each frame will be shown
+    /// level of verbosity
     unsigned int verbosity;
 };
 
@@ -108,14 +108,18 @@ void CounterChecker::Analyze(T &status, bool error, ostream &es)
 
   if (totalFrames < min)
   {
+    if (verbosity > 0)
       es << "Too few frames to determine the most frequent " << name << " value.";
-      return;
+
+    return;
   }
 
   // if there are too few frames with the most frequent value
   if ((float)mostFrequentSize/(float)totalFrames < fraction)
   {
-    es << "  The most frequent " << name << " value is doubtful - variance is too high.";
+    if (verbosity > 0)
+      es << "  The most frequent " << name << " value is doubtful - variance is too high.";
+
     return;
   }
 
@@ -133,7 +137,8 @@ void CounterChecker::Analyze(T &status, bool error, ostream &es)
             status[*fr].status.setBCProgressError();    
         }
 
-        es << "  Frame at " << *fr << ": " << name << " number " << iter->first
+        if (verbosity > 0)
+          es << "  Frame at " << *fr << ": " << name << " number " << iter->first
             << " is different from the most frequent one " << mostFrequentCounter << endl;
       }
     }

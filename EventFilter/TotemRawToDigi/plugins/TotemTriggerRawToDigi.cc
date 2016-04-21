@@ -80,7 +80,8 @@ void TotemTriggerRawToDigi::produce(edm::Event& event, const edm::EventSetup &es
   const FEDRawData &data = rawData->FEDData(fedId);
   uint64_t *buf = (uint64_t *) data.data();
   unsigned int sizeInWords = data.size() / 8; // bytes -> words
-  ProcessLoneGFrame(buf + 2, sizeInWords - 4, totemTriggerCounters);
+  if (data.size() > 0)
+    ProcessLoneGFrame(buf + 2, sizeInWords - 4, totemTriggerCounters);
 
   // commit products to event
   event.put(make_unique<TotemTriggerCounters>(totemTriggerCounters));

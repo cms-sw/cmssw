@@ -25,18 +25,18 @@ process.load('CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi')
 process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
 
 # in the emulated data the trigger block contains non-sense
-#process.load("EventFilter.TotemRawToDigi.TotemTriggerRawToDigi_cfi")
-#process.TotemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-#process.TotemTriggerRawToDigi.fedId = 577
+#process.load("EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi")
+#process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+#process.totemTriggerRawToDigi.fedId = 577
 
-process.load('EventFilter.TotemRawToDigi.TotemRPRawToDigi_cfi')
-process.TotemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-process.TotemRPRawToDigi.fedIds = cms.vuint32(578, 579, 580) # in the emulated data one OptoRx was not functional
-process.TotemRPRawToDigi.RawToDigi.printErrorSummary = 1
-process.TotemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
+process.load('EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi')
+process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+process.totemRPRawToDigi.fedIds = cms.vuint32(578, 579, 580) # in the emulated data one OptoRx was not functional
+process.totemRPRawToDigi.RawToDigi.printErrorSummary = 1
+process.totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
 # execution configuration
 process.p = cms.Path(
-    #process.TotemTriggerRawToDigi *
-    process.TotemRPRawToDigi
+    #process.totemTriggerRawToDigi *
+    process.totemRPRawToDigi
 )
