@@ -435,7 +435,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
         edm::ESHandle< L1TGlobalParameters > l1GtStablePar;
         evSetup.get< L1TGlobalParametersRcd >().get( l1GtStablePar );
-        m_l1GtStablePar = l1GtStablePar.product();
+	const L1TGlobalParameters * es = l1GtStablePar.product();
+	m_l1GtStablePar = GlobalParamsHelper::readFromEventSetup(es);
+	
 
         // number of bx
 	m_totalBxInEvent = m_l1GtStablePar->gtTotalBxInEvent();
