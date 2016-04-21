@@ -16,7 +16,7 @@ workflows = Matrix()
 numWFStart=10000
 numWFSkip=200
 #2017 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU)
-numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0] 
+numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0]
 numWFIB.extend([10821.0,10824.0,10825.0,10826.0]) #2023sim scenario
 for i,key in enumerate(upgradeKeys):
     numWF=numWFStart+i*numWFSkip
