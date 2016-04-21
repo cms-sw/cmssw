@@ -6,67 +6,63 @@
 import FWCore.ParameterSet.Config as cms
 
 StableParametersRcdSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1TGlobalStableParametersRcd'),
+    recordName = cms.string('L1TGlobalParametersRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
 
-StableParameters = cms.ESProducer("StableParametersTrivialProducer",
+StableParameters = cms.ESProducer("L1TGlobalParamsESProducer",
+
+ 
+    # bx in event
+    NumberBxInEvent = cms.int32(5),
 
     # trigger decision
     
     # number of physics trigger algorithms
     NumberPhysTriggers = cms.uint32(512),
 
-    # additional number of physics trigger algorithms
-    NumberPhysTriggersExtended = cms.uint32(64),
-
-    # number of technical triggers
-    NumberTechnicalTriggers = cms.uint32(64),
 
     # trigger objects
 
     # muons
-    NumberL1Mu = cms.uint32(4),
+    NumberL1Mu = cms.uint32(12),
     
     # e/gamma and isolated e/gamma objects
-    NumberL1IsoEG = cms.uint32(4),
-    NumberL1NoIsoEG = cms.uint32(4),
+    NumberL1EG = cms.uint32(12),
 
-    # central, forward and tau jets
-    NumberL1CenJet = cms.uint32(4),
-    NumberL1ForJet = cms.uint32(4),
-    NumberL1TauJet = cms.uint32(4),
+    #  jets
+    NumberL1Jet = cms.uint32(12),
 
-    # jet counts
-    NumberL1JetCounts = cms.uint32(12),
+    # taus
+    NumberL1Tau = cms.uint32(8),
 
     # hardware
 
     # number of maximum chips defined in the xml file
-    NumberConditionChips = cms.uint32(1),
+    NumberChips = cms.uint32(1),
 
     # number of pins on the GTL condition chips
-    PinsOnConditionChip = cms.uint32(512),
+    PinsOnChip = cms.uint32(512),
 
     # correspondence "condition chip - GTL algorithm word" in the hardware
     # e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    OrderConditionChip = cms.vint32(1),
+    OrderOfChip = cms.vint32(1),
 
     # number of PSB boards in GT
-    NumberPsbBoards = cms.int32(7),
+    #NumberPsbBoards = cms.int32(7),
 
     # number of bits for eta of calorimeter objects
-    IfCaloEtaNumberBits = cms.uint32(4),
+    #IfCaloEtaNumberBits = cms.uint32(4),
     
     # number of bits for eta of muon objects
-    IfMuEtaNumberBits = cms.uint32(6),
+    #IfMuEtaNumberBits = cms.uint32(6),
     
     # GT DAQ record organized in words of WordLength bits
-    WordLength = cms.int32(64),
+    #WordLength = cms.int32(64),
 
     # one unit in the word is UnitLength bits
-    UnitLength = cms.int32(8)
+    #UnitLength = cms.int32(8)
 )
 
 

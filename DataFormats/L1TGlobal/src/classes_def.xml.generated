@@ -1,0 +1,36 @@
+<lcgdict>
+  <class name="GlobalAlgBlk" ClassVersion="15">
+   <version ClassVersion="15" checksum="1900541189"/>
+   <version ClassVersion="14" checksum="1972925232"/>
+   <version ClassVersion="13" checksum="2460401123"/>
+   <version ClassVersion="12" checksum="2404151857"/>
+   <version ClassVersion="11" checksum="2460401123"/>
+   <version ClassVersion="10" checksum="2404151857"/>
+  </class>
+  <class name="GlobalAlgBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
+
+  <class name="GlobalExtBlk" ClassVersion="13">
+   <version ClassVersion="13" checksum="3765126275"/>
+   <version ClassVersion="12" checksum="3371214087"/>
+   <version ClassVersion="11" checksum="3765126275"/>
+   <version ClassVersion="10" checksum="3371214087"/>
+  </class>
+  <class name="GlobalExtBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
+
+  <class name="GlobalObjectMapRecord" ClassVersion="11">
+   <version ClassVersion="11" checksum="1219328086"/>
+   <version ClassVersion="10" checksum="2808522020"/>
+  </class>
+  <class name="edm::Wrapper<GlobalObjectMapRecord>"/>
+
+  <class name="GlobalObjectMap" ClassVersion="11">
+   <version ClassVersion="11" checksum="1899280385"/>
+   <version ClassVersion="10" checksum="2989798521"/>
+  </class>
+  <class name="edm::Wrapper<GlobalObjectMap>"/>
+</lcgdict>
+
+
+

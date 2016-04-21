@@ -97,7 +97,7 @@ process.HLTL1UnpackerSequence = cms.Sequence(
 # BEGIN HLT SEED SEQUENCE FOR STAGE 2
 #
 process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG10" ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
     L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),

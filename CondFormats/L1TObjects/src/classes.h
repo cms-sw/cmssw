@@ -52,6 +52,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmCondition.h"
@@ -60,6 +61,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
@@ -107,6 +110,10 @@ namespace CondFormats_L1TObjects {
     L1TUtmObject dummy19f;
     L1TUtmScale dummy19g;
     L1TUtmTriggerMenu dummy19h;
+
+    L1TGlobalPrescalesVetos dummy20;
+
+    L1TGlobalParameters dummy21;
 
   };
 }
