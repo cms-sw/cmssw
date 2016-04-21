@@ -73,7 +73,8 @@ private:
                         GeometryInterface::Values& significantvalues, 
 			SummationSpecification& s, 
 			Table& t,
-			SummationStep::Stage stage);
+			SummationStep::Stage stage,
+                        AbstractHistogram*& fastpath);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
   void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
@@ -103,6 +104,8 @@ private:
   GeometryInterface::InterestingQuantities iq;
   std::vector<GeometryInterface::Values> significantvalues;
   GeometryInterface::Values new_vals;
+  // Direct links to the Histogram if the caching above succeeds.
+  std::vector<AbstractHistogram*> fastpath;
 };
 
 
