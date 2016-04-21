@@ -769,10 +769,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_vflags[fDigiSize]._state = flag::fGOOD;
 			if (utilities::isFEDHF(eid))
 			{
-				if (_xUni.get(eid)>0)
-					_vflags[fUni]._state = flag::fBAD;
-				else
-					_vflags[fUni]._state = flag::fGOOD;
+				if (_runkeyVal==0 || _runkeyVal==4)
+				{
+					//	only for pp or hi
+					if (_xUni.get(eid)>0)
+						_vflags[fUni]._state = flag::fBAD;
+					else
+						_vflags[fUni]._state = flag::fGOOD;
+				}
 				if (_xNChs.get(eid)!=(_xNChsNominal.get(eid)*_evsPerLS))
 					_vflags[fNChsHF]._state = flag::fBAD;
 				else

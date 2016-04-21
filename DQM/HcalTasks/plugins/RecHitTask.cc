@@ -720,7 +720,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		}
 
 		//	FED is @cDAQ
-		if (utilities::isFEDHF(eid))
+		if (utilities::isFEDHF(eid) && (_runkeyVal==0 || _runkeyVal==4))
 		{
 			if (_xUni.get(eid)>0)
 				_vflags[fUni]._state = flag::fBAD;
