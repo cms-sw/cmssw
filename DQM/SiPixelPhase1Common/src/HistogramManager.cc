@@ -86,7 +86,7 @@ void HistogramManager::executeStep1Spec(double x, double y,
 	dimensions = 1;
 	x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
         t[significantvalues].count = 0;
-	GeometryInterface::Values new_vals; // PERF: static or member
+        new_vals.clear();
 	for (auto c : step.columns) new_vals.put(significantvalues.get(c));
 	significantvalues.values.swap(new_vals.values);
 	break;}
@@ -124,7 +124,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
     // PERF: we could recycle the last Values if iq has not changed (This is common)
     // row/col is a bit harder then (only pass if needed, for perf reasons)
     // Caching has to happen per-spec, of course.
-    GeometryInterface::Values significantvalues; // PERF move this to a member 
+    significantvalues.clear();
     geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
     executeStep1Spec(x, y, significantvalues, s, t, SummationStep::STAGE1); 
   }
