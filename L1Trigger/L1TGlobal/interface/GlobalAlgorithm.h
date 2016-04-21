@@ -2,7 +2,7 @@
 #define L1Trigger_L1TGlobal_GtAlgorithm_h
 
 /**
- * \class GtAlgorithm
+ * \class GlobalAlgorithm
  *
  *
  * Description: L1 GT algorithm.
@@ -24,31 +24,31 @@
 #include <iosfwd>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
 
 // forward declarations
 
 // class declaration
-class GtAlgorithm
+class GlobalAlgorithm
 {
 
 public:
 
     /// constructor(s)
     ///   empty
-    GtAlgorithm();
+    GlobalAlgorithm();
 
     ///   name only
-    GtAlgorithm(const std::string& algoNameValue);
+    GlobalAlgorithm(const std::string& algoNameValue);
 
     ///   name and logical expression
-    GtAlgorithm(const std::string&, const std::string&);
+    GlobalAlgorithm(const std::string&, const std::string&);
 
     ///   name, logical expression and bit number
-    GtAlgorithm(const std::string&, const std::string&, const int);
+    GlobalAlgorithm(const std::string&, const std::string&, const int);
 
     /// destructor
-    virtual ~GtAlgorithm();
+    virtual ~GlobalAlgorithm();
 
 public:
 
@@ -86,7 +86,7 @@ public:
     }
 
     /// return the RPN vector
-    inline const std::vector<GtLogicParser::TokenRPN>& algoRpnVector() const {
+    inline const std::vector<GlobalLogicParser::TokenRPN>& algoRpnVector() const {
         return m_algoRpnVector;
     }
 
@@ -129,7 +129,7 @@ public:
     virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const GtAlgorithm&);
+    friend std::ostream& operator<<(std::ostream&, const GlobalAlgorithm&);
 
 
 private:
@@ -144,7 +144,7 @@ private:
     std::string m_algoLogicalExpression;
 
     /// algorithm RPN vector
-    std::vector<GtLogicParser::TokenRPN> m_algoRpnVector;
+    std::vector<GlobalLogicParser::TokenRPN> m_algoRpnVector;
 
     /// bit number (determined by output pin, chip number, chip order)
     /// the result for the algorithm is found at m_algoBitNumber position in

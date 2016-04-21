@@ -1,5 +1,5 @@
 /**
- * \class StableParametersTrivialProducer
+ * \class L1TGlobalParamsESProducer
  * 
  * 
  * Description: ESProducer for L1 GT parameters.  
@@ -11,7 +11,7 @@
  */
 
 // this class header
-#include "StableParametersTrivialProducer.h"
+#include "L1TGlobalParamsESProducer.h"
 
 // system include files
 #include <memory>
@@ -34,12 +34,12 @@
 // forward declarations
 
 // constructor(s)
-StableParametersTrivialProducer::StableParametersTrivialProducer(
+L1TGlobalParamsESProducer::L1TGlobalParamsESProducer(
     const edm::ParameterSet& parSet) {
 
     // tell the framework what data is being produced
     setWhatProduced(
-        this, &StableParametersTrivialProducer::produceGtStableParameters);
+        this, &L1TGlobalParamsESProducer::produceGtStableParameters);
 
     // now do what ever other initialization is needed
 
@@ -103,7 +103,7 @@ StableParametersTrivialProducer::StableParametersTrivialProducer(
 }
 
 // destructor
-StableParametersTrivialProducer::~StableParametersTrivialProducer() {
+L1TGlobalParamsESProducer::~L1TGlobalParamsESProducer() {
 
     // empty
 
@@ -113,7 +113,7 @@ StableParametersTrivialProducer::~StableParametersTrivialProducer() {
 
 // method called to produce the data
 boost::shared_ptr<L1TGlobalParameters> 
-    StableParametersTrivialProducer::produceGtStableParameters(
+    L1TGlobalParamsESProducer::produceGtStableParameters(
         const L1TGlobalParametersRcd& iRecord) {
 
     boost::shared_ptr<L1TGlobalParameters> pL1uGtStableParameters =
@@ -171,4 +171,4 @@ boost::shared_ptr<L1TGlobalParameters>
 
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(StableParametersTrivialProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TGlobalParamsESProducer);

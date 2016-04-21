@@ -1,5 +1,5 @@
 ///
-/// \class l1t::GtExtCondLegacyToStage2
+/// \class l1t::L1TExtCondLegacyToStage2
 ///
 /// Description: Fill uGT external condition (stage2) with legacy information from data
 ///
@@ -45,10 +45,10 @@ namespace l1t {
   // class declaration
   //
 
-  class GtExtCondLegacyToStage2 : public global::EDProducer<> {
+  class L1TExtCondLegacyToStage2 : public global::EDProducer<> {
   public:
-    explicit GtExtCondLegacyToStage2(const ParameterSet&);
-    ~GtExtCondLegacyToStage2();
+    explicit L1TExtCondLegacyToStage2(const ParameterSet&);
+    ~L1TExtCondLegacyToStage2();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -73,7 +73,7 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  GtExtCondLegacyToStage2::GtExtCondLegacyToStage2(const ParameterSet& iConfig) :
+  L1TExtCondLegacyToStage2::L1TExtCondLegacyToStage2(const ParameterSet& iConfig) :
     bxFirst_ (iConfig.getParameter<int>("bxFirst")),
     bxLast_ (iConfig.getParameter<int>("bxLast")),
     gtReadoutRecordToken (consumes <L1GlobalTriggerReadoutRecord> (iConfig.getParameter<edm::InputTag>("LegacyGtReadoutRecord")))
@@ -84,7 +84,7 @@ namespace l1t {
   }
 
 
-  GtExtCondLegacyToStage2::~GtExtCondLegacyToStage2()
+  L1TExtCondLegacyToStage2::~L1TExtCondLegacyToStage2()
   {
   }
 
@@ -96,10 +96,10 @@ namespace l1t {
 
   // ------------ method called to produce the data ------------
   void
-  GtExtCondLegacyToStage2::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
+  L1TExtCondLegacyToStage2::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
   {
 
-    LogDebug("GtExtCondLegacyToStage2") << "GtExtCondLegacyToStage2::produce function called...\n";
+    LogDebug("L1TExtCondLegacyToStage2") << "L1TExtCondLegacyToStage2::produce function called...\n";
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByToken(gtReadoutRecordToken, gtReadoutRecord);
@@ -242,7 +242,7 @@ namespace l1t {
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
   void
-  GtExtCondLegacyToStage2::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  L1TExtCondLegacyToStage2::fillDescriptions(ConfigurationDescriptions& descriptions) {
     // l1GtExtCondLegacyToStage2
     edm::ParameterSetDescription desc;
     desc.add<int>("bxFirst", -2);
@@ -254,4 +254,4 @@ namespace l1t {
 } // namespace
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::GtExtCondLegacyToStage2);
+DEFINE_FWK_MODULE(l1t::L1TExtCondLegacyToStage2);

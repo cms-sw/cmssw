@@ -1,5 +1,5 @@
 /**
- * \class L1TGtObjectMapRecord
+ * \class GlobalObjectMapRecord
  * 
  * 
  * Description: see header file.  
@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
 
 // system include files
 
@@ -29,10 +29,10 @@
 // methods
 
 /// return the object map for the algorithm algoNameVal
-const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
+const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
     const std::string& algoNameVal) const {
 
-    for (std::vector<L1TGtObjectMap>::const_iterator 
+    for (std::vector<GlobalObjectMap>::const_iterator 
         itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
 
         if (itObj->algoName() == algoNameVal) {
@@ -43,7 +43,7 @@ const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
     }
 
     // no algoName found, return zero pointer!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
         << "\n\n  ERROR: The requested algorithm name = " << algoNameVal
         << "\n  does not exists in the trigger menu."
         << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
@@ -53,10 +53,10 @@ const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
 }
     
 /// return the object map for the algorithm with bit number const int algoBitNumberVal
-const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
+const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
     const int algoBitNumberVal) const {
  
-    for (std::vector<L1TGtObjectMap>::const_iterator 
+    for (std::vector<GlobalObjectMap>::const_iterator 
         itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
 
         if (itObj->algoBitNumber() == algoBitNumberVal) {
@@ -67,7 +67,7 @@ const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
     }
 
     // no algoBitNumberVal found, return zero pointer!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
         << "\n\n  ERROR: The requested algorithm with bit number = " << algoBitNumberVal
         << "\n  does not exists in the trigger menu."
         << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
@@ -78,11 +78,11 @@ const L1TGtObjectMap* L1TGtObjectMapRecord::getObjectMap(
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm algoNameVal
-const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
+const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<L1TGtObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
         if ( itObj->algoName() == algoNameVal ) {
@@ -93,7 +93,7 @@ const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
     }
 
     // no (algoName, condName) found, return zero pointer!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
     << "\n\n  ERROR: The requested \n    (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
     << ") \n  does not exists in the trigger menu."
@@ -106,11 +106,11 @@ const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm with bit number algoBitNumberVal
-const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
+const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<L1TGtObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
         if ( itObj->algoBitNumber() == algoBitNumberVal ) {
@@ -119,7 +119,7 @@ const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
     }
 
     // no (algoBitNumber, condName) found, return zero pointer!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
     << "\n\n  ERROR: The requested \n    (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
     << ") \n  does not exists in the trigger menu."
@@ -132,11 +132,11 @@ const CombinationsInCond* L1TGtObjectMapRecord::getCombinationsInCond(
 
 // return the result for the condition condNameVal
 // from algorithm with name algoNameVal
-bool L1TGtObjectMapRecord::getConditionResult(
+bool GlobalObjectMapRecord::getConditionResult(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<L1TGtObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
         if ( itObj->algoName() == algoNameVal ) {
@@ -145,7 +145,7 @@ bool L1TGtObjectMapRecord::getConditionResult(
     }
 
     // no (algoName, condName) found, return false!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
     << "\n\n  ERROR: The requested \n    (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
     << ") \n  does not exists in the trigger menu."
@@ -158,11 +158,11 @@ bool L1TGtObjectMapRecord::getConditionResult(
 
 // return the result for the condition condNameVal
 // from algorithm with bit number algoBitNumberVal
-bool L1TGtObjectMapRecord::getConditionResult(
+bool GlobalObjectMapRecord::getConditionResult(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<L1TGtObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
         if ( itObj->algoBitNumber() == algoBitNumberVal ) {
@@ -171,7 +171,7 @@ bool L1TGtObjectMapRecord::getConditionResult(
     }
 
     // no (algoBitNumber, condName) found, return false!
-    edm::LogError("L1TGtObjectMapRecord")
+    edm::LogError("GlobalObjectMapRecord")
     << "\n\n  ERROR: The requested \n    (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
     << ") \n  does not exists in the trigger menu."

@@ -1,5 +1,5 @@
 /**
- * \class L1TGtObjectMap
+ * \class GlobalObjectMap
  * 
  * 
  * Description: see header file.  
@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 
 // system include files
 #include <iostream>
@@ -34,7 +34,7 @@
 // methods
 
 // return all the combinations passing the requirements imposed in condition condNameVal
-const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(
+const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(
     const std::string& condNameVal) const {
 
     for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
@@ -46,7 +46,7 @@ const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(
     }
 
     // return a null address - should not arrive here
-    edm::LogError("L1TGtObjectMap")
+    edm::LogError("GlobalObjectMap")
         << "\n\n  ERROR: The requested condition with tokenName = " << condNameVal
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
@@ -56,7 +56,7 @@ const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(
 }
 
 /// return all the combinations passing the requirements imposed in condition condNumberVal
-const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(const int condNumberVal) const {
+const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const int condNumberVal) const {
 
     for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
 
@@ -67,7 +67,7 @@ const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(const int condNu
     }
 
     // return a null address - should not arrive here
-    edm::LogError("L1TGtObjectMap")
+    edm::LogError("GlobalObjectMap")
         << "\n\n  ERROR: The requested condition with tokenNumber = " << condNumberVal
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
@@ -76,7 +76,7 @@ const CombinationsInCond* L1TGtObjectMap::getCombinationsInCond(const int condNu
 
 }
 // return the result for the condition condNameVal
-const bool L1TGtObjectMap::getConditionResult(const std::string& condNameVal) const {
+const bool GlobalObjectMap::getConditionResult(const std::string& condNameVal) const {
 
     for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
 
@@ -86,7 +86,7 @@ const bool L1TGtObjectMap::getConditionResult(const std::string& condNameVal) co
     }
 
     // return false - should not arrive here
-    edm::LogError("L1TGtObjectMap")
+    edm::LogError("GlobalObjectMap")
         << "\n\n  ERROR: The requested condition with name = " << condNameVal
         << "\n  does not exists in the operand token vector."
         << "\n  Returning false for getConditionResult\n\n" << std::endl;
@@ -95,7 +95,7 @@ const bool L1TGtObjectMap::getConditionResult(const std::string& condNameVal) co
 }
 
 
-void L1TGtObjectMap::reset()
+void GlobalObjectMap::reset()
 {
 
     // name of the algorithm
@@ -115,10 +115,10 @@ void L1TGtObjectMap::reset()
 
 }
 
-void L1TGtObjectMap::print(std::ostream& myCout) const
+void GlobalObjectMap::print(std::ostream& myCout) const
 {
 
-    myCout << "L1TGtObjectMap: print " << std::endl;
+    myCout << "GlobalObjectMap: print " << std::endl;
 
     myCout << "  Algorithm name: " << m_algoName << std::endl;
     myCout << "    Bit number: " << m_algoBitNumber << std::endl;

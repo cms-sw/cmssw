@@ -32,7 +32,7 @@
 //   default
 
 CorrelationTemplate::CorrelationTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondCorrelation;
@@ -55,7 +55,7 @@ CorrelationTemplate::CorrelationTemplate()
 
 //   from condition name
 CorrelationTemplate::CorrelationTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondCorrelation;
@@ -84,7 +84,7 @@ CorrelationTemplate::CorrelationTemplate(const std::string& cName,
         const l1t::GtConditionCategory& cond1Cat,
         const int cond0Index,
         const int cond1index) :
-    GtCondition(cName),
+    GlobalCondition(cName),
             m_cond0Category(cond0Cat),
             m_cond1Category(cond1Cat),
             m_cond0Index(cond0Index),
@@ -106,7 +106,7 @@ CorrelationTemplate::CorrelationTemplate(const std::string& cName,
 
 // copy constructor
 CorrelationTemplate::CorrelationTemplate(const CorrelationTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -162,7 +162,7 @@ void CorrelationTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  CorrelationTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     myCout << "\n  First sub-condition category:  " << m_cond0Category <<  std::endl;
     myCout <<   "  Second sub-condition category: " << m_cond1Category <<  std::endl;

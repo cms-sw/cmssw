@@ -1,5 +1,5 @@
 ///
-/// \class l1t::GtExternalFakeProducer
+/// \class l1t::L1TExtCondProducer
 ///
 /// Description: Fill uGT external condition to allow testing stage 2 algos, e.g. Bptx
 ///
@@ -42,10 +42,10 @@ namespace l1t {
   // class declaration
   //
 
-  class GtExternalFakeProducer : public global::EDProducer<> {
+  class L1TExtCondProducer : public global::EDProducer<> {
   public:
-    explicit GtExternalFakeProducer(const ParameterSet&);
-    ~GtExternalFakeProducer();
+    explicit L1TExtCondProducer(const ParameterSet&);
+    ~L1TExtCondProducer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -72,7 +72,7 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  GtExternalFakeProducer::GtExternalFakeProducer(const ParameterSet& iConfig) :
+  L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig) :
     bxFirst_ (iConfig.getParameter<int>("bxFirst")),
     bxLast_ (iConfig.getParameter<int>("bxLast")),
     setBptxAND_ (iConfig.getParameter<bool>("setBptxAND")),
@@ -88,7 +88,7 @@ namespace l1t {
   }
 
 
-  GtExternalFakeProducer::~GtExternalFakeProducer()
+  L1TExtCondProducer::~L1TExtCondProducer()
   {
   }
 
@@ -100,10 +100,10 @@ namespace l1t {
 
   // ------------ method called to produce the data ------------
   void
-  GtExternalFakeProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
+  L1TExtCondProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
   {
 
-    LogDebug("GtExternalFakeProducer") << "GtExternalFakeProducer::produce function called...\n";
+    LogDebug("L1TExtCondProducer") << "L1TExtCondProducer::produce function called...\n";
 
     // Setup vectors
     GlobalExtBlk extCond_bx;
@@ -129,7 +129,7 @@ namespace l1t {
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
   void
-  GtExternalFakeProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  L1TExtCondProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     // simGtExtFakeProd
     edm::ParameterSetDescription desc;
     desc.add<bool>("setBptxMinus", true);
@@ -144,4 +144,4 @@ namespace l1t {
 } // namespace
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::GtExternalFakeProducer);
+DEFINE_FWK_MODULE(l1t::L1TExtCondProducer);

@@ -1,5 +1,5 @@
 /**
- * \class GtLogicParser
+ * \class GlobalLogicParser
  *
  *
  * Description: see header file.
@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
 
 // system include files
 #include <stack>
@@ -34,7 +34,7 @@
 // constructor(s)
 
 //   default constructor
-GtLogicParser::GtLogicParser() {
+GlobalLogicParser::GlobalLogicParser() {
 
     // empty, default C++ initialization for string and vector are enough
 }
@@ -43,7 +43,7 @@ GtLogicParser::GtLogicParser() {
 //   from the RPN vector and the operand token vector
 //   no checks for consistency, empty logical and numerical expressions
 //   requires special care when used
-GtLogicParser::GtLogicParser(const RpnVector& rpnVec,
+GlobalLogicParser::GlobalLogicParser(const RpnVector& rpnVec,
         const std::vector<OperandToken>& opTokenVector)
 {
     m_rpnVector = rpnVec;
@@ -54,7 +54,7 @@ GtLogicParser::GtLogicParser(const RpnVector& rpnVec,
 
 //   from a constant logical expression
 //   numerical expression will be empty
-GtLogicParser::GtLogicParser(const std::string& logicalExpressionVal)
+GlobalLogicParser::GlobalLogicParser(const std::string& logicalExpressionVal)
 {
 
     // checks also for syntactic correctness of the logical expression
@@ -72,7 +72,7 @@ GtLogicParser::GtLogicParser(const std::string& logicalExpressionVal)
 
 //   from a non-constant logical expression - add/remove spaces if needed
 //   numerical expression will be empty
-GtLogicParser::GtLogicParser(std::string& logicalExpressionVal)
+GlobalLogicParser::GlobalLogicParser(std::string& logicalExpressionVal)
 {
 
     // checks also for syntactic correctness of the logical expression
@@ -106,7 +106,7 @@ GtLogicParser::GtLogicParser(std::string& logicalExpressionVal)
 }
 
 //   from a logical and a numerical expression
-GtLogicParser::GtLogicParser(const std::string logicalExpressionVal,
+GlobalLogicParser::GlobalLogicParser(const std::string logicalExpressionVal,
     const std::string numericalExpressionVal) {
     // checks also for correctness
 
@@ -131,7 +131,7 @@ GtLogicParser::GtLogicParser(const std::string logicalExpressionVal,
 
 //   from a logical and a numerical expression
 //   no checks for correctness - use it only after the correctness was tested
-GtLogicParser::GtLogicParser(const std::string& logicalExpressionVal,
+GlobalLogicParser::GlobalLogicParser(const std::string& logicalExpressionVal,
     const std::string& numericalExpressionVal, const bool dummy) {
 
     clearRpnVector();
@@ -149,7 +149,7 @@ GtLogicParser::GtLogicParser(const std::string& logicalExpressionVal,
 
 
 // destructor
-GtLogicParser::~GtLogicParser()
+GlobalLogicParser::~GlobalLogicParser()
 {
     // empty now
 }
@@ -157,7 +157,7 @@ GtLogicParser::~GtLogicParser()
 // public methods
 
 // check a logical expression for correctness - add/remove spaces if needed
-bool GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
+bool GlobalLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
 
     // add spaces around brackets
     std::string logicalExpressionBS;
@@ -193,7 +193,7 @@ bool GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
  *
  */
 
-bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
+bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 {
 
     //LogDebug("L1TGlobal")
@@ -421,7 +421,7 @@ bool GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
 
 // clear rpn vector
-void GtLogicParser::clearRpnVector()
+void GlobalLogicParser::clearRpnVector()
 {
 
     m_rpnVector.clear();
@@ -431,7 +431,7 @@ void GtLogicParser::clearRpnVector()
 
 // build from the RPN vector the operand token vector
 // dummy tokenNumber and token result
-void GtLogicParser::buildOperandTokenVector()
+void GlobalLogicParser::buildOperandTokenVector()
 {
 
     //LogTrace("L1TGlobal")
@@ -493,7 +493,7 @@ void GtLogicParser::buildOperandTokenVector()
 
 
 // return the position index of the operand in the logical expression
-int GtLogicParser::operandIndex(const std::string& operandNameVal) const
+int GlobalLogicParser::operandIndex(const std::string& operandNameVal) const
 {
 
     int result = -1;
@@ -565,7 +565,7 @@ int GtLogicParser::operandIndex(const std::string& operandNameVal) const
 }
 
 // return the name of the (iOperand)th operand in the logical expression
-std::string GtLogicParser::operandName(const int iOperand) const
+std::string GlobalLogicParser::operandName(const int iOperand) const
 {
 
     std::string result;
@@ -639,7 +639,7 @@ std::string GtLogicParser::operandName(const int iOperand) const
 
 // return the result for an operand with name operandNameVal
 // in the logical expression using the operand token vector
-bool GtLogicParser::operandResult(const std::string& operandNameVal) const {
+bool GlobalLogicParser::operandResult(const std::string& operandNameVal) const {
 
     for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
 
@@ -660,7 +660,7 @@ bool GtLogicParser::operandResult(const std::string& operandNameVal) const {
 
 // return the result for an operand with tokenNumberVal
 // using the operand token vector
-bool GtLogicParser::operandResult(const int tokenNumberVal) const {
+bool GlobalLogicParser::operandResult(const int tokenNumberVal) const {
 
     for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
 
@@ -682,7 +682,7 @@ bool GtLogicParser::operandResult(const int tokenNumberVal) const {
 
 // return the result for the logical expression
 // require a proper operand token vector
-const bool GtLogicParser::expressionResult() const
+const bool GlobalLogicParser::expressionResult() const
 {
 
     //LogTrace("L1TGlobal")
@@ -766,7 +766,7 @@ const bool GtLogicParser::expressionResult() const
 
 // return the result for an operand with name operandNameVal
 // in the logical expression using a numerical expression
-bool GtLogicParser::operandResultNumExp(const std::string& operandNameVal) const
+bool GlobalLogicParser::operandResultNumExp(const std::string& operandNameVal) const
 {
 
     bool result = false;
@@ -782,7 +782,7 @@ bool GtLogicParser::operandResultNumExp(const std::string& operandNameVal) const
 
 // return the result for an operand with index iOperand
 // in the logical expression using a numerical expression
-bool GtLogicParser::operandResultNumExp(const int iOperand) const
+bool GlobalLogicParser::operandResultNumExp(const int iOperand) const
 {
 
     bool result = false;
@@ -880,7 +880,7 @@ bool GtLogicParser::operandResultNumExp(const int iOperand) const
 
 // build from the RPN vector the operand token vector
 // using a numerical expression
-void GtLogicParser::buildOperandTokenVectorNumExp()
+void GlobalLogicParser::buildOperandTokenVectorNumExp()
 {
 
     //LogTrace("L1TGlobal")
@@ -943,7 +943,7 @@ void GtLogicParser::buildOperandTokenVectorNumExp()
 
 
 // return the result for the logical expression
-const bool GtLogicParser::expressionResultNumExp() const
+const bool GlobalLogicParser::expressionResultNumExp() const
 {
 
     //LogTrace("L1TGlobal")
@@ -1030,7 +1030,7 @@ const bool GtLogicParser::expressionResultNumExp() const
 // a logical expression composed with int numbers using
 // a (string, int)  map
 
-void GtLogicParser::convertNameToIntLogicalExpression(
+void GlobalLogicParser::convertNameToIntLogicalExpression(
     const std::map<std::string, int>& nameToIntMap)
 {
 
@@ -1130,7 +1130,7 @@ void GtLogicParser::convertNameToIntLogicalExpression(
 // convert a logical expression composed with integer numbers to
 // a logical expression composed with names using a map (int, string)
 
-void GtLogicParser::convertIntToNameLogicalExpression(
+void GlobalLogicParser::convertIntToNameLogicalExpression(
         const std::map<int, std::string>& intToNameMap) {
 
     if (m_logicalExpression.empty()) {
@@ -1224,8 +1224,8 @@ void GtLogicParser::convertIntToNameLogicalExpression(
 
 // return the list of operand tokens for the logical expression
 // which are to be used as seeds
-std::vector<GtLogicParser::OperandToken>
-    GtLogicParser::expressionSeedsOperandList() {
+std::vector<GlobalLogicParser::OperandToken>
+    GlobalLogicParser::expressionSeedsOperandList() {
 
     //LogDebug("L1TGlobal")
     //<< "\nGtLogicParser::expressionSeedsOperandList - "
@@ -1487,7 +1487,7 @@ std::vector<GtLogicParser::OperandToken>
  *
  */
 
-GtLogicParser::OperationType GtLogicParser::getOperation(
+GlobalLogicParser::OperationType GlobalLogicParser::getOperation(
     const std::string& tokenString,
     OperationType lastOperation, TokenRPN& rpnToken) const
 {
@@ -1535,7 +1535,7 @@ GtLogicParser::OperationType GtLogicParser::getOperation(
  *
  */
 
-const GtLogicParser::OperationRule* GtLogicParser::getRuleFromType(OperationType oType)
+const GlobalLogicParser::OperationRule* GlobalLogicParser::getRuleFromType(OperationType oType)
 {
 
 
@@ -1556,7 +1556,7 @@ const GtLogicParser::OperationRule* GtLogicParser::getRuleFromType(OperationType
 
 
 // add spaces before and after parentheses - make separation easier
-void GtLogicParser::addBracketSpaces(const std::string& srcExpression,
+void GlobalLogicParser::addBracketSpaces(const std::string& srcExpression,
         std::string& dstExpression) {
 
     static const std::string brackets = "()"; // the brackets to be found
@@ -1584,7 +1584,7 @@ void GtLogicParser::addBracketSpaces(const std::string& srcExpression,
 
 
 // set the logical expression - check for correctness the input string
-bool GtLogicParser::setLogicalExpression(const std::string& logicalExpressionVal)
+bool GlobalLogicParser::setLogicalExpression(const std::string& logicalExpressionVal)
 {
 
     // add spaces around brackets
@@ -1615,7 +1615,7 @@ bool GtLogicParser::setLogicalExpression(const std::string& logicalExpressionVal
 // set the numerical expression (the logical expression with each operand
 // replaced with the value) from a string
 // check also for correctness the input string
-bool GtLogicParser::setNumericalExpression(const std::string& numericalExpressionVal)
+bool GlobalLogicParser::setNumericalExpression(const std::string& numericalExpressionVal)
 {
 
     // add spaces around brackets
@@ -1646,7 +1646,7 @@ bool GtLogicParser::setNumericalExpression(const std::string& numericalExpressio
 // 1st column: operation string
 // 2nd column: operation type
 // 3rd column: forbiddenLastOperation (what operation the operator/operand must not follow)
-const struct GtLogicParser::OperationRule GtLogicParser::m_operationRules[] =
+const struct GlobalLogicParser::OperationRule GlobalLogicParser::m_operationRules[] =
     {
         { "AND",  OP_AND,           OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },
         { "OR",   OP_OR,            OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },

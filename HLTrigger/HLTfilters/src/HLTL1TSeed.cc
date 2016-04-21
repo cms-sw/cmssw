@@ -8,10 +8,10 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGtObject.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalObject.h"
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -37,7 +37,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
   m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
   m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1ObjectMapInputTag")),
-  m_l1GtObjectMapToken(consumes<L1TGtObjectMapRecord>(m_l1GtObjectMapTag)),
+  m_l1GtObjectMapToken(consumes<GlobalObjectMapRecord>(m_l1GtObjectMapTag)),
   m_l1GlobalTag(parSet.getParameter<edm::InputTag> ("L1GlobalInputTag")),
   m_l1GlobalToken(consumes<GlobalAlgBlkBxCollection>(m_l1GlobalTag)),
   m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("L1MuonInputTag")), // FIX WHEN UNPACKERS ADDED
@@ -67,7 +67,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   else if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
     // check also the logical expression - add/remove spaces if needed
-    m_l1AlgoLogicParser = GtLogicParser(m_l1SeedsLogicalExpression);
+    m_l1AlgoLogicParser = GlobalLogicParser(m_l1SeedsLogicalExpression);
 
     // list of required algorithms for seeding
     // dummy values for tokenNumber and tokenResult
@@ -350,13 +350,13 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // get handle to object maps from emulator (one object map per algorithm)
-    edm::Handle<L1TGtObjectMapRecord> gtObjectMapRecord;
+    edm::Handle<GlobalObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (!gtObjectMapRecord.isValid()) {
 
         edm::LogWarning("HLTL1TSeed")
-        << " Warning: L1TGtObjectMapRecord with input tag "
+        << " Warning: GlobalObjectMapRecord with input tag "
         << m_l1GtObjectMapTag
         << " requested in configuration, but not found in the event." << std::endl;
 
@@ -365,7 +365,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     if (m_isDebugEnabled) {
 
-      const std::vector<L1TGtObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
+      const std::vector<GlobalObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
 
       LogTrace("HLTL1TSeed") 
       << "\nHLTL1Seed"  
@@ -428,7 +428,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     // Update/Reset m_l1AlgoLogicParser by reseting token result 
     // /////////////////////////////////////////////////////////
-    std::vector<GtLogicParser::OperandToken>& algOpTokenVector =
+    std::vector<GlobalLogicParser::OperandToken>& algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
@@ -445,12 +445,12 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         std::string algoName = (algOpTokenVector[i]).tokenName;
 
-        const L1TGtObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
+        const GlobalObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
 
         if(objMap == 0) {
 
           throw cms::Exception("FailModule") << "\nAlgorithm " << algoName 
-            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1TGtObjectMap\n" 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any GlobalObjectMap\n" 
             << "Please check if algorithm " << algoName << " is present in the L1 menu\n" << std::endl;
 
         }
@@ -481,7 +481,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     /// Loop over the list of required algorithms for seeding
     /// /////////////////////////////////////////////////////
 
-    for (std::vector<GtLogicParser::OperandToken>::const_iterator
+    for (std::vector<GlobalLogicParser::OperandToken>::const_iterator
             itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
       
       std::string algoSeedName = (*itSeed).tokenName;
@@ -489,14 +489,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       LogTrace("HLTL1TSeed") 
       << "\n ----------------  algo seed name = " << algoSeedName << endl;
 
-      const L1TGtObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
+      const GlobalObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
 
       if(objMap == 0) {
 
           // Should not get here
           //
           throw cms::Exception("FailModule") << "\nAlgorithm " << algoSeedName 
-            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any L1TGtObjectMap\n" 
+            << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any GlobalObjectMap\n" 
             << "Please check if algorithm " << algoSeedName << " is present in the L1 menu\n" << std::endl;
 
       }
@@ -519,7 +519,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       /// ////////////////////////////////////////////////////////////////////////////////
       if(!algoSeedResult) continue; 
 
-      const std::vector<GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
+      const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
       const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
       const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
 
@@ -531,7 +531,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (opTokenVecObjMap.size() != condObjTypeVec.size() ) {
           edm::LogWarning("HLTL1TSeed")
-          << "\nWarning: L1TGtObjectMapRecord with input tag "
+          << "\nWarning: GlobalObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
           << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
     
@@ -540,7 +540,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       if (opTokenVecObjMap.size() != condCombinations.size()) {
           edm::LogWarning("HLTL1TSeed")
-          << "\nWarning: L1TGtObjectMapRecord with input tag "
+          << "\nWarning: GlobalObjectMapRecord with input tag "
           << m_l1GtObjectMapTag
           << "\nhas object map for bit number " << algoSeedBitNumber << " which contains different size vectors of operand tokens and of condition object combinations!"  << std::endl;
     
@@ -551,7 +551,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       //
       for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
 
-        std::vector<l1t::L1TGtObject> condObjType = condObjTypeVec[condNumber];
+        std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[condNumber];
 
         for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
 
@@ -588,7 +588,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
                 // get object type and push indices on the list
                 //
-                const l1t::L1TGtObject objTypeVal = condObjType.at(iType);
+                const l1t::GlobalObject objTypeVal = condObjType.at(iType);
 
                 LogTrace("HLTL1TSeed")
                 << "\tAdd object of type " << objTypeVal << " and index " << (*itObject) << " to the seed list."

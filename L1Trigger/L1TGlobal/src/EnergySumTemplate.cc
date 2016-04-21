@@ -31,7 +31,7 @@
 
 // constructors
 EnergySumTemplate::EnergySumTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondEnergySum;
@@ -39,7 +39,7 @@ EnergySumTemplate::EnergySumTemplate()
 }
 
 EnergySumTemplate::EnergySumTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondEnergySum;
@@ -47,7 +47,7 @@ EnergySumTemplate::EnergySumTemplate(const std::string& cName)
 }
 
 EnergySumTemplate::EnergySumTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondEnergySum, cType)
+        : GlobalCondition(cName, l1t::CondEnergySum, cType)
 {
 
     m_condCategory = l1t::CondEnergySum;
@@ -64,7 +64,7 @@ EnergySumTemplate::EnergySumTemplate(const std::string& cName, const l1t::GtCond
 
 // copy constructor
 EnergySumTemplate::EnergySumTemplate(const EnergySumTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -98,7 +98,7 @@ void EnergySumTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  EnergySumTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     int nObjects = nrObjects();
 

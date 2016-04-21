@@ -21,15 +21,15 @@
 #include <map>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
-#include "L1Trigger/L1TGlobal/interface/GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalAlgorithm.h"
 
 /// map containing the conditions
 namespace l1t {
-typedef std::map<std::string, GtCondition*> ConditionMap;
+typedef std::map<std::string, GlobalCondition*> ConditionMap;
 
 /// map containing the algorithms
-typedef std::map<std::string, GtAlgorithm> AlgorithmMap;
+typedef std::map<std::string, GlobalAlgorithm> AlgorithmMap;
 
 /// iterators through map containing the conditions
 typedef ConditionMap::const_iterator CItCond;

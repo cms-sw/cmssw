@@ -1,5 +1,5 @@
 /**
- * \class L1TGtObject
+ * \class GlobalObject
  *
  *
  * Description: define an enumeration of L1 GT objects.
@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/L1TGtObject.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalObject.h"
 
 // system include files
 #include <cstring>
@@ -24,7 +24,7 @@
 using namespace l1t;
 
 
-l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
+l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
 
      
     
@@ -41,10 +41,10 @@ l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
 	    {"MinBias", gtMinBias},
             {"External", gtExternal},
             {"ObjNull", ObjNull},
-            {0, (L1TGtObject) - 1}
+            {0, (GlobalObject) - 1}
     };
 
-    l1t::L1TGtObject value = (L1TGtObject) - 1;
+    l1t::GlobalObject value = (GlobalObject) - 1;
 
     bool found = false;
     for (int i = 0; l1TGtObjectStringToEnumMap[i].label && (!found); ++i)
@@ -53,24 +53,24 @@ l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string& label) {
             value = l1TGtObjectStringToEnumMap[i].value;
         }
 
-    // in case of unrecognized L1TGtObject, returns Mu
+    // in case of unrecognized GlobalObject, returns Mu
     // and write a warning (to not throw an exception)
     if (!found) {
         edm::LogInfo("L1TGlobal") << "\n  '" << label
-                << "' is not a recognized L1TGtObject. \n  Return ObjNull.";
+                << "' is not a recognized GlobalObject. \n  Return ObjNull.";
 
         value = ObjNull;
     }
 
     if (value == ObjNull) {
         edm::LogInfo("L1TGlobal")
-                << "\n  ObjNull means no valid L1TGtObject defined!";
+                << "\n  ObjNull means no valid GlobalObject defined!";
     }
 
     return value;
 }
 
-std::string l1t::l1TGtObjectEnumToString(const L1TGtObject& gtObject) {
+std::string l1t::l1TGtObjectEnumToString(const GlobalObject& gtObject) {
 
     std::string gtObjectString;
 
@@ -134,14 +134,14 @@ std::string l1t::l1TGtObjectEnumToString(const L1TGtObject& gtObject) {
         case ObjNull: {
             gtObjectString = "ObjNull";
             edm::LogInfo("L1TGlobal")
-                    << "\n  ObjNull means no valid L1TGtObject defined!";
+                    << "\n  ObjNull means no valid GlobalObject defined!";
         }
             break;
 
         default: {
             edm::LogInfo("L1TGlobal") << "\n  '" << gtObject
-                    << "' is not a recognized L1TGtObject. "
-                    << "\n  Return ObjNull, which means no valid L1TGtObject defined!";
+                    << "' is not a recognized GlobalObject. "
+                    << "\n  Return ObjNull, which means no valid GlobalObject defined!";
 
             gtObjectString = "ObjNull";
 

@@ -2,7 +2,7 @@
 #define L1TGlobal_GtLogicParser_h
 
 /**
- * \class GtLogicParser
+ * \class GlobalLogicParser
  *
  *
  * Description: parses a logical expression, with predefined operators.
@@ -28,7 +28,7 @@
 // forward declarations
 
 // class declaration
-class GtLogicParser
+class GlobalLogicParser
 {
 
 public:
@@ -64,33 +64,33 @@ public:
     /// constructor(s)
 
     ///   default constructor
-    GtLogicParser();
+    GlobalLogicParser();
 
     ///   from the RPN vector and the operand token vector
     ///   no checks for consistency, empty logical and numerical expressions
     ///   requires special care when used
-    GtLogicParser(const RpnVector&, const std::vector<OperandToken>&);
+    GlobalLogicParser(const RpnVector&, const std::vector<OperandToken>&);
 
     ///   from a constant logical expression
     ///   numerical expression will be empty
-    GtLogicParser(const std::string& logicalExpressionVal);
+    GlobalLogicParser(const std::string& logicalExpressionVal);
 
     //   from a non-constant logical expression - add/remove spaces if needed
     //   numerical expression will be empty
-    GtLogicParser(std::string& logicalExpressionVal);
+    GlobalLogicParser(std::string& logicalExpressionVal);
 
     ///   from a logical and a numerical expression
-    GtLogicParser(const std::string logicalExpressionVal,
+    GlobalLogicParser(const std::string logicalExpressionVal,
                     const std::string numericalExpressionVal);
 
     ///   from a logical and a numerical expression
     ///   no checks for correctness - use it only after the correctness was tested
-    GtLogicParser(const std::string& logicalExpressionVal,
+    GlobalLogicParser(const std::string& logicalExpressionVal,
                     const std::string& numericalExpressionVal,
                     const bool dummy);
 
     /// destructor
-    virtual ~GtLogicParser();
+    virtual ~GlobalLogicParser();
 
 public:
 
@@ -171,7 +171,7 @@ public:
 
     /// return the list of operand tokens for the logical expression
     /// which are to be used as seeds
-    std::vector<GtLogicParser::OperandToken> expressionSeedsOperandList();
+    std::vector<GlobalLogicParser::OperandToken> expressionSeedsOperandList();
 
 
 protected:

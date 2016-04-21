@@ -2,7 +2,7 @@
 #define L1Trigger_L1TGlobal_L1TGtObject_h
 
 /**
- * \class L1TGtObject
+ * \class GlobalObject
  *
  *
  * Description: define an enumeration of L1 GT objects.
@@ -27,7 +27,7 @@ namespace l1t {
 
 /// L1 GT objects
 ///    ObjNull catch all errors
-enum L1TGtObject
+enum GlobalObject
 {
     gtMu,
     gtEG,
@@ -43,15 +43,15 @@ enum L1TGtObject
     ObjNull
 };
 
-/// the string to enum and enum to string conversions for L1TGtObject
+/// the string to enum and enum to string conversions for GlobalObject
 
 struct L1TGtObjectStringToEnum {
     const char* label;
-    L1TGtObject value;
+    GlobalObject value;
 };
 
-l1t::L1TGtObject l1TGtObjectStringToEnum(const std::string&);
-std::string l1TGtObjectEnumToString(const L1TGtObject&);
+l1t::GlobalObject l1TGtObjectStringToEnum(const std::string&);
+std::string l1TGtObjectEnumToString(const GlobalObject&);
 
 }
 

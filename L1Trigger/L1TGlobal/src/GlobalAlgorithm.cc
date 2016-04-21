@@ -1,5 +1,5 @@
 /**
- * \class GtAlgorithm
+ * \class GlobalAlgorithm
  *
  *
  * Description: L1 GT algorithm.
@@ -15,7 +15,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalAlgorithm.h"
 
 // system include files
 #include <iostream>
@@ -27,7 +27,7 @@
 
 // constructor(s)
 //   default
-GtAlgorithm::GtAlgorithm()
+GlobalAlgorithm::GlobalAlgorithm()
 {
     // default values for private members not set
     // the other private members are C++ initialized
@@ -37,7 +37,7 @@ GtAlgorithm::GtAlgorithm()
 }
 
 //   name only
-GtAlgorithm::GtAlgorithm(const std::string& algoNameValue) :
+GlobalAlgorithm::GlobalAlgorithm(const std::string& algoNameValue) :
     m_algoName(algoNameValue) {
 
     // default values for private members not set
@@ -48,11 +48,11 @@ GtAlgorithm::GtAlgorithm(const std::string& algoNameValue) :
 }
 
 //   name and logical expression
-GtAlgorithm::GtAlgorithm(
+GlobalAlgorithm::GlobalAlgorithm(
         const std::string& algoNameValue, const std::string& algoLogicalExpressionValue) :
     m_algoName(algoNameValue), m_algoLogicalExpression(algoLogicalExpressionValue) {
 
-    GtLogicParser logicParser(m_algoLogicalExpression);
+    GlobalLogicParser logicParser(m_algoLogicalExpression);
     m_algoRpnVector = logicParser.rpnVector();
 
     // default values for private members not set
@@ -61,14 +61,14 @@ GtAlgorithm::GtAlgorithm(
 }
 
 //   name, logical expression and bit number
-GtAlgorithm::GtAlgorithm(
+GlobalAlgorithm::GlobalAlgorithm(
         const std::string& algoNameValue, const std::string& algoLogicalExpressionValue,
         const int algoBitNumberValue) :
     m_algoName(algoNameValue), m_algoLogicalExpression(algoLogicalExpressionValue),
             m_algoBitNumber(algoBitNumberValue)
 
 {
-    GtLogicParser logicParser(m_algoLogicalExpression);
+    GlobalLogicParser logicParser(m_algoLogicalExpression);
     m_algoRpnVector = logicParser.rpnVector();
 
     // default values for private members not set
@@ -77,7 +77,7 @@ GtAlgorithm::GtAlgorithm(
 }
 
 // destructor
-GtAlgorithm::~GtAlgorithm()
+GlobalAlgorithm::~GlobalAlgorithm()
 {
     // empty
 }
@@ -85,7 +85,7 @@ GtAlgorithm::~GtAlgorithm()
 // public methods
 
 // get the condition chip number the algorithm is located on
-const int GtAlgorithm::algoChipNumber(const int numberConditionChips,
+const int GlobalAlgorithm::algoChipNumber(const int numberConditionChips,
                                     const int pinsOnConditionChip,
                                     const std::vector<int>& orderConditionChip) const
 {
@@ -101,7 +101,7 @@ const int GtAlgorithm::algoChipNumber(const int numberConditionChips,
 }
 
 // get the output pin on the condition chip for the algorithm
-const int GtAlgorithm::algoOutputPin(const int numberConditionChips,
+const int GlobalAlgorithm::algoOutputPin(const int numberConditionChips,
                                        const int pinsOnConditionChip,
                                        const std::vector<int>& orderConditionChip) const
 {
@@ -116,7 +116,7 @@ const int GtAlgorithm::algoOutputPin(const int numberConditionChips,
 
 
 // print algorithm
-void GtAlgorithm::print(std::ostream& myCout) const {
+void GlobalAlgorithm::print(std::ostream& myCout) const {
 
     myCout << std::endl;
 
@@ -163,7 +163,7 @@ void GtAlgorithm::print(std::ostream& myCout) const {
 }
 
 // output stream operator
-std::ostream& operator<<(std::ostream& os, const GtAlgorithm& result)
+std::ostream& operator<<(std::ostream& os, const GlobalAlgorithm& result)
 {
     result.print(os);
     return os;

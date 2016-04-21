@@ -2,10 +2,10 @@
 #define L1GlobalTrigger_L1TGtObjectMapFwd_h
 
 /**
- * \class L1TGtObjectMap
+ * \class GlobalObjectMap
  * 
  * 
- * Description: group typedefs used by L1TGtObjectMap.  
+ * Description: group typedefs used by GlobalObjectMap.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
@@ -19,7 +19,7 @@
 #include <vector>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/L1TGtObject.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalObject.h"
 
 // forward declarations
 
@@ -31,7 +31,7 @@ typedef std::vector<int> SingleCombInCond;
 /// all the object combinations evaluated to true in the condition
 typedef std::vector<SingleCombInCond> CombinationsInCond;
 
-typedef std::vector<l1t::L1TGtObject> ObjectTypeInCond;
+typedef std::vector<l1t::GlobalObject> ObjectTypeInCond;
 //typedef std::vector<int> ObjectTypeInCond;
 
 #endif /* L1GlobalTrigger_L1TGtObjectMapFwd_h */

@@ -28,7 +28,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -44,7 +44,7 @@ l1t::CaloCondition::CaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::CaloCondition::CaloCondition(const GtCondition* caloTemplate, const GtBoard* ptrGTB,
+l1t::CaloCondition::CaloCondition(const GlobalCondition* caloTemplate, const GlobalBoard* ptrGTB,
         const int nrL1EG,
         const int nrL1Jet,
         const int nrL1Tau,
@@ -125,8 +125,8 @@ void l1t::CaloCondition::setGtCaloTemplate(const CaloTemplate* caloTempl) {
 
 }
 
-///   set the pointer to uGT GtBoard
-void l1t::CaloCondition::setuGtB(const GtBoard* ptrGTB) {
+///   set the pointer to uGT GlobalBoard
+void l1t::CaloCondition::setuGtB(const GlobalBoard* ptrGTB) {
 
     m_uGtB = ptrGTB;
 

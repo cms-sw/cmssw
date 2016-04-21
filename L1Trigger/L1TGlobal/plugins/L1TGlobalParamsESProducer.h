@@ -2,7 +2,7 @@
 #define L1Trigger_L1TGlobal_StableParametersTrivialProducer_h
 
 /**
- * \class StableParametersTrivialProducer
+ * \class L1TGlobalParamsESProducer
  * 
  * 
  * Description: ESProducer for L1 GT parameters.  
@@ -36,16 +36,16 @@
 // forward declarations
 
 // class declaration
-class StableParametersTrivialProducer : public edm::ESProducer
+class L1TGlobalParamsESProducer : public edm::ESProducer
 {
 
 public:
 
     /// constructor
-    StableParametersTrivialProducer(const edm::ParameterSet&);
+    L1TGlobalParamsESProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~StableParametersTrivialProducer();
+    ~L1TGlobalParamsESProducer();
 
     /// public methods
 

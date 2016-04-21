@@ -2,7 +2,7 @@
 #define GtBoard_h
 
 /**
- * \class GtBoard
+ * \class GlobalBoard
  *
  *
  * Description: Global Trigger Logic board.
@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
@@ -28,7 +28,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -49,16 +49,16 @@ class L1MuTriggerScales;
 
 namespace l1t {
 
-class GtBoard
+class GlobalBoard
 {
 
 public:
 
     // constructors
-    GtBoard();
+    GlobalBoard();
 
     // destructor
-    virtual ~GtBoard();
+    virtual ~GlobalBoard();
 
 public:
 
@@ -91,7 +91,7 @@ public:
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord, //GTO
+        const int iBxInEvent, std::auto_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,

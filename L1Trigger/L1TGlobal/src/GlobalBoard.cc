@@ -1,5 +1,5 @@
 /**
- * \class GtBoard
+ * \class GlobalBoard
  *
  *
  * Description: Global Trigger Logic board, see header file for details.
@@ -16,22 +16,22 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 // system include files
 #include <ext/hash_map>
 
 // user include files
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
-#include "L1Trigger/L1TGlobal/interface/GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 
 
@@ -55,7 +55,7 @@
 // forward declarations
 
 // constructor
-l1t::GtBoard::GtBoard() :
+l1t::GlobalBoard::GlobalBoard() :
     m_candL1Mu( new BXVector<const l1t::Muon*>),
     m_candL1EG( new BXVector<const l1t::L1Candidate*>),
     m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
@@ -80,7 +80,7 @@ l1t::GtBoard::GtBoard() :
     // Counter for number of events board sees
     m_boardEventCount=0;
     
-    // Need to expand use with more than one uGt GtBoard for now assume 1
+    // Need to expand use with more than one uGt GlobalBoard for now assume 1
     m_uGtBoardNumber = 0;
     m_uGtFinalBoard = true;
    
@@ -88,7 +88,7 @@ l1t::GtBoard::GtBoard() :
 }
 
 // destructor
-l1t::GtBoard::~GtBoard() {
+l1t::GlobalBoard::~GlobalBoard() {
 
     //reset();  //why would we need a reset?
     delete m_candL1Mu;
@@ -103,19 +103,19 @@ l1t::GtBoard::~GtBoard() {
 }
 
 // operations
-void l1t::GtBoard::setBxFirst(int bx){
+void l1t::GlobalBoard::setBxFirst(int bx){
 
   m_bxFirst_ = bx;
 
 }
 
-void l1t::GtBoard::setBxLast(int bx){
+void l1t::GlobalBoard::setBxLast(int bx){
 
   m_bxLast_ = bx;
 
 }
 
-void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet,
+void l1t::GlobalBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet,
 			   int bxFirst, int bxLast) {
 
   setBxFirst(bxFirst);
@@ -138,7 +138,7 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
 
 
 // receive data from Calorimeter
-void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	const edm::EDGetTokenT<BXVector<l1t::EGamma>>& egInputToken,
 	const edm::EDGetTokenT<BXVector<l1t::Tau>>& tauInputToken,
 	const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
@@ -312,13 +312,13 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
 
 // receive data from Global Muon Trigger
-void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
     const edm::EDGetTokenT<BXVector<l1t::Muon> >& muInputToken, const bool receiveMu,
     const int nrL1Mu) {
 
     if (m_verbosity) {
         LogDebug("L1TGlobal")
-                << "\n**** GtBoard receiving muon data = "
+                << "\n**** GlobalBoard receiving muon data = "
 	  //<< "\n     from input tag " << muInputTag << "\n"
                 << std::endl;
     }
@@ -361,13 +361,13 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
 }
 
 // receive data from Global External Conditions
-void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveExternalData(edm::Event& iEvent,
     const edm::EDGetTokenT<BXVector<GlobalExtBlk> >& extInputToken, const bool receiveExt
     ) {
 
     if (m_verbosity) {
         LogDebug("L1TGlobal")
-                << "\n**** GtBoard receiving external data = "
+                << "\n**** GlobalBoard receiving external data = "
 	  //<< "\n     from input tag " << muInputTag << "\n"
                 << std::endl;
     }
@@ -409,11 +409,11 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
 
 
 // run GTL
-void l1t::GtBoard::runGTL(
+void l1t::GlobalBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord,  
+        std::auto_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,  
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
@@ -422,7 +422,7 @@ void l1t::GtBoard::runGTL(
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
-    const L1TGlobalScales& gtScales = m_l1GtMenu->gtScales();
+    const GlobalScales& gtScales = m_l1GtMenu->gtScales();
     const std::string scaleSetName = gtScales.getScalesName();
     LogDebug("L1TGlobal") << " L1 Menu Scales -- Set Name: " << scaleSetName << std::endl;
 
@@ -585,8 +585,8 @@ void l1t::GtBoard::runGTL(
 		    const int cond0Ind = corrTemplate->cond0Index();
 		    const int cond1Ind = corrTemplate->cond1Index();
 
-		    const GtCondition* cond0Condition = 0;
-		    const GtCondition* cond1Condition = 0;
+		    const GlobalCondition* cond0Condition = 0;
+		    const GlobalCondition* cond1Condition = 0;
 
 		    // maximum number of objects received for evaluation of l1t::Type1s condition
 		    int cond0NrL1Objects = 0;
@@ -673,7 +673,7 @@ void l1t::GtBoard::runGTL(
     // loop over algorithm map
     /// DMP Start debugging here
     // empty vector for object maps - filled during loop
-    std::vector<L1TGtObjectMap> objMapVec;
+    std::vector<GlobalObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
@@ -732,7 +732,7 @@ void l1t::GtBoard::runGTL(
 	  }
 
 	  // set object map 
-	  L1TGtObjectMap objMap;
+	  GlobalObjectMap objMap;
 	  
 	  objMap.setAlgoName(itAlgo->first);
 	  objMap.setAlgoBitNumber(algBitNumber);
@@ -781,7 +781,7 @@ void l1t::GtBoard::runGTL(
 
 
 // run GTL
-void l1t::GtBoard::runFDL(edm::Event& iEvent, 
+void l1t::GlobalBoard::runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
         const int totalBxInEvent,
         const unsigned int numberPhysTriggers,
@@ -794,7 +794,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
     if (m_verbosity) {
         LogDebug("L1TGlobal")
-                << "\n**** GtBoard apply Final Decision Logic "
+                << "\n**** GlobalBoard apply Final Decision Logic "
                 << std::endl;
 
     }
@@ -915,7 +915,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 }
 
 // Fill DAQ Record
-void l1t::GtBoard::fillAlgRecord(int iBxInEvent, 
+void l1t::GlobalBoard::fillAlgRecord(int iBxInEvent, 
 				    std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
                                     int prescaleSet,
 				    int menuUUID,
@@ -925,7 +925,7 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
 
     if (m_verbosity) {
         LogDebug("L1TGlobal")
-                << "\n**** GtBoard fill DAQ Records for bx= " << iBxInEvent
+                << "\n**** GlobalBoard fill DAQ Records for bx= " << iBxInEvent
                 << std::endl;
 
     }
@@ -947,7 +947,7 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
 
 
 // clear GTL
-void l1t::GtBoard::reset() {
+void l1t::GlobalBoard::reset() {
 
   resetMu();
   resetCalo();
@@ -963,7 +963,7 @@ void l1t::GtBoard::reset() {
 }
 
 // clear muon
-void l1t::GtBoard::resetMu() {
+void l1t::GlobalBoard::resetMu() {
 
   m_candL1Mu->clear();
   m_candL1Mu->setBXRange( m_bxFirst_, m_bxLast_ );
@@ -971,7 +971,7 @@ void l1t::GtBoard::resetMu() {
 }
 
 // clear calo
-void l1t::GtBoard::resetCalo() {
+void l1t::GlobalBoard::resetCalo() {
 
   m_candL1EG->clear();
   m_candL1Tau->clear();
@@ -985,7 +985,7 @@ void l1t::GtBoard::resetCalo() {
 
 }
 
-void l1t::GtBoard::resetExternal() {
+void l1t::GlobalBoard::resetExternal() {
 
   m_candL1External->clear();
   m_candL1External->setBXRange( m_bxFirst_, m_bxLast_ );
@@ -994,7 +994,7 @@ void l1t::GtBoard::resetExternal() {
 
 
 // print Global Muon Trigger data received 
-void l1t::GtBoard::printGmtData(const int iBxInEvent) const {
+void l1t::GlobalBoard::printGmtData(const int iBxInEvent) const {
 
     LogTrace("L1TGlobal")
             << "\nl1t::L1GlobalTrigger: uGMT data received for BxInEvent = "

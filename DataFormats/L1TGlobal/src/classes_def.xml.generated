@@ -19,13 +19,15 @@
   <class name="GlobalExtBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
 
-  <class name="GlobalObjectMapRecord" ClassVersion="10">
-   <version ClassVersion="10" checksum="1219328086"/>
+  <class name="GlobalObjectMapRecord" ClassVersion="11">
+   <version ClassVersion="11" checksum="1219328086"/>
+   <version ClassVersion="10" checksum="2808522020"/>
   </class>
   <class name="edm::Wrapper<GlobalObjectMapRecord>"/>
 
-  <class name="GlobalObjectMap" ClassVersion="10">
-   <version ClassVersion="10" checksum="1899280385"/>
+  <class name="GlobalObjectMap" ClassVersion="11">
+   <version ClassVersion="11" checksum="1899280385"/>
+   <version ClassVersion="10" checksum="2989798521"/>
   </class>
   <class name="edm::Wrapper<GlobalObjectMap>"/>
 </lcgdict>

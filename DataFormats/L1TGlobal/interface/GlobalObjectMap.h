@@ -2,7 +2,7 @@
 #define L1GlobalTrigger_L1TGtObjectMap_h
 
 /**
- * \class L1TGtObjectMap
+ * \class GlobalObjectMap
  * 
  * 
  * Description: map trigger objects to an algorithm and the conditions therein.  
@@ -22,23 +22,23 @@
 #include <iosfwd>
 
 // user include files
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 
-#include "L1Trigger/L1TGlobal/interface/GtLogicParser.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
 
 // forward declarations
 
 // class declaration
-class L1TGtObjectMap
+class GlobalObjectMap
 {
 
 public:
 
     /// constructor(s)
-  L1TGtObjectMap(){}
+  GlobalObjectMap(){}
 
     /// destructor
-  ~L1TGtObjectMap(){}
+  ~GlobalObjectMap(){}
 
 public:
 
@@ -89,14 +89,14 @@ public:
 
     /// get / set the vector of operand tokens
     /// return a constant reference to the vector of operand tokens
-    inline const std::vector<GtLogicParser::OperandToken>& operandTokenVector() const {
+    inline const std::vector<GlobalLogicParser::OperandToken>& operandTokenVector() const {
         return m_operandTokenVector;
     }
     
-    void setOperandTokenVector(const std::vector<GtLogicParser::OperandToken>& operandTokenVectorValue) {
+    void setOperandTokenVector(const std::vector<GlobalLogicParser::OperandToken>& operandTokenVectorValue) {
         m_operandTokenVector = operandTokenVectorValue;
     }
-    void swapOperandTokenVector(std::vector<GtLogicParser::OperandToken>& operandTokenVectorValue) {
+    void swapOperandTokenVector(std::vector<GlobalLogicParser::OperandToken>& operandTokenVectorValue) {
       m_operandTokenVector.swap(operandTokenVectorValue);
     }
 
@@ -145,7 +145,7 @@ private:
 
     /// vector of operand tokens for an algorithm 
     /// (condition name, condition index, condition result)
-    std::vector<GtLogicParser::OperandToken> m_operandTokenVector;
+    std::vector<GlobalLogicParser::OperandToken> m_operandTokenVector;
     
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;

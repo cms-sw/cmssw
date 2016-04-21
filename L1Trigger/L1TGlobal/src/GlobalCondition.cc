@@ -1,5 +1,5 @@
 /**
- * \class GtCondition
+ * \class GlobalCondition
  *
  *
  * Description: base class for L1 Global Trigger object templates (condition).
@@ -15,7 +15,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // system include files
 
@@ -26,7 +26,7 @@
 
 // constructor
 //    empty
-GtCondition::GtCondition()
+GlobalCondition::GlobalCondition()
 {
 
   m_condCategory = l1t::CondNull;
@@ -38,7 +38,7 @@ GtCondition::GtCondition()
 }
 
 //    constructor from condition name
-GtCondition::GtCondition(const std::string& cName)
+GlobalCondition::GlobalCondition(const std::string& cName)
 {
     m_condName = cName;
 
@@ -50,7 +50,7 @@ GtCondition::GtCondition(const std::string& cName)
 }
 
 //   constructor from condition name, category and type
-GtCondition::GtCondition(const std::string& cName,
+GlobalCondition::GlobalCondition(const std::string& cName,
                              const l1t::GtConditionCategory& cCategory,
                              const l1t::GtConditionType& cType)
 {
@@ -66,13 +66,13 @@ GtCondition::GtCondition(const std::string& cName,
 
 
 
-GtCondition::~GtCondition()
+GlobalCondition::~GlobalCondition()
 {
     // empty
 }
 
 // get number of trigger objects
-const int GtCondition::nrObjects() const
+const int GlobalCondition::nrObjects() const
 {
 
     switch (m_condType) {
@@ -126,7 +126,7 @@ const int GtCondition::nrObjects() const
 
 // get logic flag for conditions, same type of trigger objects,
 // and with spatial correlations
-const bool GtCondition::wsc() const
+const bool GlobalCondition::wsc() const
 {
 
     if (m_condType == l1t::Type2wsc) {
@@ -138,7 +138,7 @@ const bool GtCondition::wsc() const
 
 // get logic flag for conditions, different type of trigger objects,
 // and with spatial correlations
-const bool GtCondition::corr() const
+const bool GlobalCondition::corr() const
 {
 
     if (m_condType == l1t::Type2cor) {
@@ -149,7 +149,7 @@ const bool GtCondition::corr() const
 }
 
 // print condition
-void GtCondition::print(std::ostream& myCout) const
+void GlobalCondition::print(std::ostream& myCout) const
 {
 
     myCout << "\n  Condition name:     " << m_condName << std::endl;
@@ -363,7 +363,7 @@ void GtCondition::print(std::ostream& myCout) const
 }
 
 // output stream operator
-std::ostream& operator<<(std::ostream& os, const GtCondition& result)
+std::ostream& operator<<(std::ostream& os, const GlobalCondition& result)
 {
     result.print(os);
     return os;

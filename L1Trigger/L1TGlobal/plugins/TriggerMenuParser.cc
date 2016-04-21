@@ -27,7 +27,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -395,7 +395,7 @@ void l1t::TriggerMenuParser::clearMaps() {
 
 // insertConditionIntoMap - safe insert of condition into condition map.
 // if the condition name already exists, do not insert it and return false
-bool l1t::TriggerMenuParser::insertConditionIntoMap(GtCondition& cond, const int chipNr) {
+bool l1t::TriggerMenuParser::insertConditionIntoMap(GlobalCondition& cond, const int chipNr) {
 
     std::string cName = cond.condName();
     LogTrace("TriggerMenuParser")
@@ -419,7 +419,7 @@ bool l1t::TriggerMenuParser::insertConditionIntoMap(GtCondition& cond, const int
 }
 
 // insert an algorithm into algorithm map
-bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GtAlgorithm& alg) {
+bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GlobalAlgorithm& alg) {
 
     std::string algName = alg.algoName();
     std::string algAlias = alg.algoAlias();
@@ -537,14 +537,14 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     using namespace tmeventsetup;
  
 //  Setup ScaleParameter to hold information from parsing
-    L1TGlobalScales::ScaleParameters muScales; 
-    L1TGlobalScales::ScaleParameters egScales; 
-    L1TGlobalScales::ScaleParameters tauScales;
-    L1TGlobalScales::ScaleParameters jetScales;
-    L1TGlobalScales::ScaleParameters ettScales;
-    L1TGlobalScales::ScaleParameters etmScales;
-    L1TGlobalScales::ScaleParameters httScales;
-    L1TGlobalScales::ScaleParameters htmScales; 
+    GlobalScales::ScaleParameters muScales; 
+    GlobalScales::ScaleParameters egScales; 
+    GlobalScales::ScaleParameters tauScales;
+    GlobalScales::ScaleParameters jetScales;
+    GlobalScales::ScaleParameters ettScales;
+    GlobalScales::ScaleParameters etmScales;
+    GlobalScales::ScaleParameters httScales;
+    GlobalScales::ScaleParameters htmScales; 
  
  
 // Start by parsing the Scale Map
@@ -553,7 +553,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   {
      const esScale& scale = cit->second;
  
-    L1TGlobalScales::ScaleParameters *scaleParam;
+    GlobalScales::ScaleParameters *scaleParam;
     if      (scale.getObjectType() == esObjectType::Muon)   scaleParam = &muScales;
     else if (scale.getObjectType() == esObjectType::Egamma) scaleParam = &egScales;
     else if (scale.getObjectType() == esObjectType::Tau)    scaleParam = &tauScales;
@@ -1083,7 +1083,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 
 
     // object types - all muons
-    std::vector<L1TGtObject> objType(nrObj, gtMu);
+    std::vector<GlobalObject> objType(nrObj, gtMu);
 
 
 
@@ -1304,7 +1304,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 
 
     // object types - all muons
-    std::vector<L1TGtObject> objType(nrObj, gtMu);
+    std::vector<GlobalObject> objType(nrObj, gtMu);
 
     // now create a new CondMuonition
     MuonTemplate muonCond(name);
@@ -1382,7 +1382,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
     // determine object type type
     // BLW TO DO:  Can this object type wait and be done later in the parsing. Or done differently completely..
-    L1TGtObject caloObjType;
+    GlobalObject caloObjType;
     int nrObj = -1;
 
     if (condCalo.getType() == esConditionType::SingleEgamma) {
@@ -1616,7 +1616,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
 
     // object types - all same caloObjType
-    std::vector<L1TGtObject> objType(nrObj, caloObjType);
+    std::vector<GlobalObject> objType(nrObj, caloObjType);
 
 
     
@@ -1709,7 +1709,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
     // determine object type type
     // BLW TO DO:  Can this object type wait and be done later in the parsing. Or done differently completely..
-    L1TGtObject caloObjType;
+    GlobalObject caloObjType;
     int nrObj = 1;
     type = "1_s";
     GtConditionType cType = l1t::Type1s;
@@ -1875,7 +1875,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
 
     // object types - all same caloObjType
-    std::vector<L1TGtObject> objType(nrObj, caloObjType);
+    std::vector<GlobalObject> objType(nrObj, caloObjType);
 
 
     
@@ -1960,31 +1960,31 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 
 
     // determine object type type
-    L1TGtObject energySumObjType;
+    GlobalObject energySumObjType;
     GtConditionType cType;
 
     if( condEnergySum.getType() == esConditionType::MissingEt ){
-      energySumObjType = L1TGtObject::gtETM;
+      energySumObjType = GlobalObject::gtETM;
       cType = TypeETM;
     }
     else if( condEnergySum.getType() == esConditionType::TotalEt ){
-      energySumObjType = L1TGtObject::gtETT;
+      energySumObjType = GlobalObject::gtETT;
       cType = TypeETT;
     }
     else if( condEnergySum.getType() == esConditionType::TotalHt ){
-      energySumObjType = L1TGtObject::gtHTT;
+      energySumObjType = GlobalObject::gtHTT;
       cType = TypeHTT;
     }
     else if( condEnergySum.getType() == esConditionType::MissingHt ){
-      energySumObjType = L1TGtObject::gtHTM;
+      energySumObjType = GlobalObject::gtHTM;
       cType = TypeHTM;
     }
 /*    else if( condEnergySum.getType() == esConditionType::MissingEt2 ){
-      energySumObjType = L1TGtObject::gtETM2;
+      energySumObjType = GlobalObject::gtETM2;
       cType = TypeETM2;
     }
     else if( condEnergySum.getType() == esConditionType::MinBias ){
-      energySumObjType = L1TGtObject::gtMinBias;
+      energySumObjType = GlobalObject::gtMinBias;
       cType = TypeMinBias;
     }  */      
     else {
@@ -2095,7 +2095,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
     } //end loop over objects
     
     // object types - all same energySumObjType
-    std::vector<L1TGtObject> objType(nrObj, energySumObjType);
+    std::vector<GlobalObject> objType(nrObj, energySumObjType);
 
     // now create a new energySum condition
 
@@ -2180,19 +2180,19 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
 
     // determine object type type
-    L1TGtObject energySumObjType;
+    GlobalObject energySumObjType;
     GtConditionType cType;
 
     if( corrESum->getType()== esObjectType::ETM ){
-      energySumObjType = L1TGtObject::gtETM;
+      energySumObjType = GlobalObject::gtETM;
       cType = TypeETM;
     }
     else if( corrESum->getType()== esObjectType::HTM ){
-      energySumObjType = L1TGtObject::gtHTM;
+      energySumObjType = GlobalObject::gtHTM;
       cType = TypeHTM;
     }
 /*    else if( corrESum->getType()== esObjectType::ETM2 ){
-      energySumObjType = L1TGtObject::gtETM2;
+      energySumObjType = GlobalObject::gtETM2;
       cType = TypeETM2;
     } */
     else {
@@ -2297,7 +2297,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
     
     // object types - all same energySumObjType
-    std::vector<L1TGtObject> objType(nrObj, energySumObjType);
+    std::vector<GlobalObject> objType(nrObj, energySumObjType);
 
     // now create a new energySum condition
 
@@ -2488,7 +2488,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 
     // object types and greater equal flag - filled in the loop
     int intGEq[nrObj] = { -1, -1 };
-    std::vector<L1TGtObject> objType(nrObj);   //BLW do we want to define these as a different type?
+    std::vector<GlobalObject> objType(nrObj);   //BLW do we want to define these as a different type?
     std::vector<GtConditionCategory> condCateg(nrObj);   //BLW do we want to change these categories
 
     // correlation flag and index in the cor*vector
@@ -2656,15 +2656,15 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
           switch(object.getType()) {
 	     case esObjectType::ETM: { 
-	      objType[jj] = L1TGtObject::gtETM;
+	      objType[jj] = GlobalObject::gtETM;
 	     }
 	        break;
 	     case esObjectType::HTM: { 
-	      objType[jj] = L1TGtObject::gtHTM;
+	      objType[jj] = GlobalObject::gtHTM;
 	     }
 	        break;
 /*	     case esObjectType::ETM2: { 
-	      objType[jj] = L1TGtObject::gtETM2;
+	      objType[jj] = GlobalObject::gtETM2;
 	     }
 	        break; */		
 	      default: {
@@ -2797,7 +2797,7 @@ bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm
 			    << std::endl;
 
     // create a new algorithm and insert it into algorithm map
-    GtAlgorithm alg(algName, logExpression, bitNumber);
+    GlobalAlgorithm alg(algName, logExpression, bitNumber);
     alg.setAlgoChipNumber(static_cast<int>(chipNr));
     alg.setAlgoAlias(algAlias);
 

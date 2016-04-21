@@ -2,7 +2,7 @@
 #define L1GlobalTrigger_L1TGtObjectMapRecord_h
 
 /**
- * \class L1TGtObjectMapRecord
+ * \class GlobalObjectMapRecord
  * 
  * 
  * Description: map trigger objects to algorithms and conditions.  
@@ -20,34 +20,34 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
-#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 
 // forward declarations
 
 // class declaration
-class L1TGtObjectMapRecord
+class GlobalObjectMapRecord
 {
 
 public:
 
     /// constructor(s)
-  L1TGtObjectMapRecord() {}
+  GlobalObjectMapRecord() {}
 
   /// destructor
-  ~L1TGtObjectMapRecord() {}
+  ~GlobalObjectMapRecord() {}
 
-  void swap(L1TGtObjectMapRecord & rh) {
+  void swap(GlobalObjectMapRecord & rh) {
     m_gtObjectMap.swap(rh.m_gtObjectMap);
   }
 
 public:
 
     /// return the object map for the algorithm algoNameVal
-    const L1TGtObjectMap* getObjectMap(const std::string& algoNameVal) const;
+    const GlobalObjectMap* getObjectMap(const std::string& algoNameVal) const;
     
     /// return the object map for the algorithm with bit number const int algoBitNumberVal
-    const L1TGtObjectMap* getObjectMap(const int algoBitNumberVal) const;
+    const GlobalObjectMap* getObjectMap(const int algoBitNumberVal) const;
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with name algoNameVal
@@ -70,17 +70,17 @@ public:
 public:
 
     /// get / set the vector of object maps
-    inline const std::vector<L1TGtObjectMap>& gtObjectMap() const
+    inline const std::vector<GlobalObjectMap>& gtObjectMap() const
     {
         return m_gtObjectMap;
     }
 
-    inline void setGtObjectMap(const std::vector<L1TGtObjectMap>& gtObjectMapValue)
+    inline void setGtObjectMap(const std::vector<GlobalObjectMap>& gtObjectMapValue)
     {
         m_gtObjectMap = gtObjectMapValue;
     }
 
-   inline void swapGtObjectMap(std::vector<L1TGtObjectMap>& gtObjectMapValue)
+   inline void swapGtObjectMap(std::vector<GlobalObjectMap>& gtObjectMapValue)
     {
       m_gtObjectMap.swap(gtObjectMapValue);
     }
@@ -88,11 +88,11 @@ public:
 
 private:
 
-    std::vector<L1TGtObjectMap> m_gtObjectMap;
+    std::vector<GlobalObjectMap> m_gtObjectMap;
 
 };
 
-inline void swap( L1TGtObjectMapRecord & lh,  L1TGtObjectMapRecord& rh) {
+inline void swap( GlobalObjectMapRecord & lh,  GlobalObjectMapRecord& rh) {
   lh.swap(rh);
 }
 

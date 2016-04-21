@@ -30,7 +30,7 @@
 // user include files
 
 // Upgrade Board
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -65,8 +65,8 @@ public:
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-    // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
-    //inline const GtBoard* gtBrd() const
+    // return pointer to uGt GlobalBoard  QUESTION: Is this used anywhere?
+    //inline const GlobalBoard* gtBrd() const
     //{
     //    return m_uGtBrd;
     //}    
@@ -154,7 +154,7 @@ private:
     L1TGlobalProducerGTL* m_gtGTL;
     L1TGlobalProducerFDL* m_gtFDL;
 */
-    l1t::GtBoard* m_uGtBrd;
+    l1t::GlobalBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;

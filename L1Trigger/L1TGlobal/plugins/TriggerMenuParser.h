@@ -30,7 +30,7 @@
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
@@ -42,8 +42,8 @@
 #include "tmEventSetup/esScale.hh"
 
 // forward declarations
-class GtCondition;
-class GtAlgorithm;
+class GlobalCondition;
+class GlobalAlgorithm;
 
 namespace l1t {
 
@@ -129,7 +129,7 @@ public:
     }
 
     /// menu associated scales
-    inline const L1TGlobalScales& gtScales() const {
+    inline const GlobalScales& gtScales() const {
         return m_gtScales;
     }
 
@@ -286,10 +286,10 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(GtCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(GlobalCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
-    bool insertAlgorithmIntoMap(const GtAlgorithm& alg);
+    bool insertAlgorithmIntoMap(const GlobalAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
     int l1tstr2int( const std::string data );
@@ -443,7 +443,7 @@ private:
     AlgorithmMap m_algorithmAliasMap;
 
     // class containing the scales from the L1 Menu XML
-    L1TGlobalScales m_gtScales;
+    GlobalScales m_gtScales;
 
 };
 
