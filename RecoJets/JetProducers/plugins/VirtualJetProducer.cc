@@ -444,7 +444,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
 void VirtualJetProducer::inputTowers( )
 {
-  std::vector<edm::Ptr<reco::Candidate> >::const_iterator inBegin = inputs_.begin(),
+  auto inBegin = inputs_.begin(),
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
     auto const & input = **i;
@@ -454,13 +454,13 @@ void VirtualJetProducer::inputTowers( )
     if (input.energy()<inputEMin_)   continue;
     if (isAnomalousTower(*i))      continue;
     // Change by SRR : this is no longer an error nor warning, this can happen with PU mitigation algos.
-    // Also switch to something more numerically safe. 
+    // Also switch to something more numerically safe. (VI: 10^-42GeV????)
     if (input.pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
       continue;
     }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
       const CaloTower & tower = dynamic_cast<const CaloTower &>(input);
-      math::PtEtaPhiMLorentzVector ct(tower.p4(vertex_));
+      auto const &  ct = tower.p4(vertex_);  // very expensive as computed in eta/phi
       fjInputs_.emplace_back(ct.px(),ct.py(),ct.pz(),ct.energy());
       //std::cout << "tower:" << *tower << '\n';
     }
