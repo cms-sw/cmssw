@@ -88,7 +88,7 @@ setting& setting::operator=(const setting& aSet)
 
 void setting::addTableRow(std::string row)
 {
-	if (_type.find("table") != )
+	if (_type.find("table") == std::string::npos)
 		throw std::runtime_error("Type is not table");
 
 	std::string delim(","); //TODO: should be read dynamically
@@ -100,7 +100,10 @@ void setting::addTableRow(std::string row)
 	{ 	
 		throw std::runtime_error ("Wrong value format: " + row);
 	}
-	_tableRows.push_back(vals);
+	tableRow tempRow(vals);
+	tempRow.setRowTypes(_tableTypes);
+	tempRow.setRowColumns(_tableColumns);
+	_tableRows.push_back(tempRow);
 }
 
 void setting::setTableTypes(std::string types)
@@ -129,6 +132,15 @@ void setting::setTableColumns(std::string cols)
 		throw std::runtime_error ("Wrong value format: " + cols);
 	}
 	_tableColumns = vals;
+}
+
+std::vector<std::vector<std::string> > setting::getTableRows()
+{
+	std::vector<std::vector<std::string> > tempTable;
+	for(auto it = _tableRows.begin(); it != _tableRows.end(); it++)
+		tempTable.push_back(it->getRow());
+
+	return tempTable;
 }
 
 }
