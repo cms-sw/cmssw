@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "DQM/TotemRP/interface/CorrelationPlotsSelector.h"
+#include "DQM/Totem/interface/CorrelationPlotsSelector.h"
 
 #include <QString>
 #include <QStringList>
