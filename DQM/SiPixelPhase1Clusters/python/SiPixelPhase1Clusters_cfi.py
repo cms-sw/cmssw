@@ -94,7 +94,7 @@ SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
   dimensions = 2,
   specs = cms.VPSet(
     Specification().groupBy("PXForward|PXBarrel/PXDisk|")
-                   .save()
+                   .save(),
   )
 )
 

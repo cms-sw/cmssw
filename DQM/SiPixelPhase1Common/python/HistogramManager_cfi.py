@@ -3,7 +3,24 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification, parent
 
 SiPixelPhase1Geometry = cms.PSet(
-  # No options atm.
+  # Blades are numbered from 1 to n_inner_ring_blades for the inner ring, and 
+  # from n_inner_ring_blades+1 to <max_blade> for the outer ring
+  n_inner_ring_blades = cms.int32(22), 
+
+  # module geometry. The phase1 detector has only one sort, so this is easy.
+  # the values are assumed to be 0-based, unlike most others.
+  module_rows = cms.int32(160),
+  module_cols = cms.int32(416),
+  roc_rows = cms.int32(80),
+  roc_cols = cms.int32(52),
+  n_rocs = cms.int32(16), # two-row geometry is assumed
+
+  # "time geometry" parameters
+  max_lumisection = cms.int32(100),
+  max_bunchcrossing = cms.int32(3600)
+
+  # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
+  # there are lots of geometry assuptions in the code.
 )
 
 # the wrapping here is necessary to switch 'enabled' later.

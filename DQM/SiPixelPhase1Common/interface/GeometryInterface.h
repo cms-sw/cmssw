@@ -159,7 +159,7 @@ class GeometryInterface {
   void loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
   void loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
   
-  const edm::ParameterSet& iConfig;
+  const edm::ParameterSet iConfig;
 
   bool is_loaded = false;
 
