@@ -7,7 +7,8 @@ l1JetRecoTree = cms.EDAnalyzer("L1JetRecoTreeProducer",
   jetptThreshold          = cms.double(30),
   jetetaMax               = cms.double(3.),
   pfMetToken              = cms.untracked.InputTag("pfMetT1"),
-  caloMetToken            = cms.untracked.InputTag("caloMet")
+  caloMetToken            = cms.untracked.InputTag("caloMet"),
+  caloMetBEToken          = cms.untracked.InputTag("caloMetBE")
 )
 
 

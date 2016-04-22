@@ -70,6 +70,7 @@ private:
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr); 
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
   void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
+  void doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE);
 
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
 
@@ -95,6 +96,7 @@ private:
 
   edm::EDGetTokenT<reco::PFMETCollection>     pfMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>   caloMetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection>   caloMetBEToken_;
 
   
   // debug stuff
@@ -109,6 +111,7 @@ private:
   bool pfMetMissing_;
   bool pfJetCorrMissing_;
   bool caloMetMissing_;
+  bool caloMetBEMissing_;
 
 };
 
@@ -117,7 +120,8 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   pfJetsMissing_(false),
   pfMetMissing_(false),
   pfJetCorrMissing_(false),
-  caloMetMissing_(false)
+  caloMetMissing_(false),
+  caloMetBEMissing_(false)
 {
   
   //  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
@@ -127,6 +131,7 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
 
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMet")));
   caloMetToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetToken",edm::InputTag("caloMet")));
+  caloMetBEToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetBEToken",edm::InputTag("caloMetBE")));
 
   jetptThreshold_ = iConfig.getParameter<double>      ("jetptThreshold");
   jetetaMax_       = iConfig.getParameter<double>      ("jetetaMax");
@@ -181,6 +186,8 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::CaloMETCollection> caloMet;
   iEvent.getByToken(caloMetToken_, caloMet);
 
+  edm::Handle<reco::CaloMETCollection> caloMetBE;
+  iEvent.getByToken(caloMetBEToken_, caloMetBE;
 
   if (pfJets.isValid()) {
 
@@ -222,6 +229,16 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   else {
     if (!caloMetMissing_) {edm::LogWarning("MissingProduct") << "CaloMet not found. Branch will not be filled" << std::endl;}
     caloMetMissing_ = true;
+  }
+
+  if (caloMetBE.isValid()) {
+
+    doCaloMetBE(caloMet);
+
+  }
+  else {
+    if (!caloMetBEMissing_) {edm::LogWarning("MissingProduct") << "CaloMetBE not found. Branch will not be filled" << std::endl;}
+    caloMetBEMissing_ = true;
   }
 
   tree_->Fill();
@@ -390,6 +407,18 @@ L1JetRecoTreeProducer::doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet) {
   met_data->caloMetPhi  = theMet.phi();
   met_data->caloSumEt   = theMet.sumEt();
   
+}
+
+void
+L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE) {
+
+  const reco::CaloMETCollection *metCol = caloMetBE.product();
+  const reco::CaloMET theMet = metCol->front();
+
+  met_data->caloMetBE    = theMet.et();
+  met_data->caloMetPhiBE = theMet.phi();
+  met_data->caloSumEtBE  = theMet.sumEt();
+
 }
 
 bool
