@@ -5,6 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 
 class TAMuonSegmentMatch {
  public:
@@ -23,5 +24,6 @@ class TAMuonSegmentMatch {
    bool   hasPhi;
    DTRecSegment4DRef  dtSegmentRef;
    CSCSegmentRef      cscSegmentRef;
+   GEMSegmentRef gemSegmentRef;
 };
 #endif
