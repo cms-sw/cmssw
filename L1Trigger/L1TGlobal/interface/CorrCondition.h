@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_CorrCondition_h
-#define GlobalTrigger_CorrCondition_h
+#ifndef L1Trigger_L1TGlobal_CorrCondition_h
+#define L1Trigger_L1TGlobal_CorrCondition_h
 
 /**
  * \class CorrCondition
@@ -22,16 +22,17 @@
 // user include files
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class CorrelationTemplate;
 
 namespace l1t {
 
 class L1Candidate;
 
-class GtBoard;
+class GlobalBoard;
 
 // class declaration
 class CorrCondition : public ConditionEvaluation
@@ -44,10 +45,10 @@ public:
     CorrCondition();
 
     ///     from base template condition (from event setup usually)
-    CorrCondition(const GtCondition*,
-                  const GtCondition*,
-		  const GtCondition*, 
-                  const GtBoard*
+    CorrCondition(const GlobalCondition*,
+                  const GlobalCondition*,
+		  const GlobalCondition*, 
+                  const GlobalBoard*
 
             );
 
@@ -77,13 +78,14 @@ public:
 
     void setGtCorrelationTemplate(const CorrelationTemplate*);
 
-    ///   get / set the pointer to uGt GtBoard
-    inline const GtBoard* getuGtB() const {
+    ///   get / set the pointer to uGt GlobalBoard
+    inline const GlobalBoard* getuGtB() const {
         return m_uGtB;
     }
 
-    void setuGtB(const GtBoard*);
-
+    void setuGtB(const GlobalBoard*);
+    
+    void setScales(const GlobalScales*);  
 
 /*   //BLW Comment out for now
     ///   get / set the number of bits for eta of calorimeter objects
@@ -120,13 +122,13 @@ private:
 
 
     // pointer to subconditions
-    const GtCondition* m_gtCond0;
-    const GtCondition* m_gtCond1;
+    const GlobalCondition* m_gtCond0;
+    const GlobalCondition* m_gtCond1;
 
-    /// pointer to uGt GtBoard, to be able to get the trigger objects
-    const GtBoard* m_uGtB;
+    /// pointer to uGt GlobalBoard, to be able to get the trigger objects
+    const GlobalBoard* m_uGtB;
     
-    
+    const GlobalScales* m_gtScales;
 
 
 /*   //BLW comment out for now

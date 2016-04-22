@@ -5,3 +5,4 @@
 <export>
   <lib   name="1"/>
 </export>
+<flags CXXFLAGS="-g -D=EDM_ML_DEBUG"/>
