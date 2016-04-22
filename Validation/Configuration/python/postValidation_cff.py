@@ -82,7 +82,10 @@ _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors
 _run3_postValidation += MuonGEMDigisPostProcessors
 _run3_postValidation += MuonGEMRecHitsPostProcessors
-_run3_postValidation += hgcalPostProcessor
+
+_phase2_postValidation = _run3_postValidation.copy()
+_phase2_postValidation += hgcalPostProcessor
 
 from Configuration.StandardSequences.Eras import eras
 eras.run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
+eras.phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
