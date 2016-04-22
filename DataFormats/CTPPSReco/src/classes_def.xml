@@ -1,0 +1,34 @@
+<lcgdict>
+  <class name="TotemRPCluster" ClassVersion="2">
+    <version ClassVersion="2" checksum="386147628"/>
+  </class>
+  <class name="edm::DetSet<TotemRPCluster>"/>
+  <class name="std::vector<TotemRPCluster>"/>
+  <class name="std::vector<edm::DetSet<TotemRPCluster> >"/>
+  <class name="edm::DetSetVector<TotemRPCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPCluster> >"/>
+
+  <class name="TotemRPRecHit" ClassVersion="2">
+    <version ClassVersion="2" checksum="916894760"/>
+  </class>
+  <class name="edm::DetSet<TotemRPRecHit>"/>
+  <class name="edm::DetSetVector<TotemRPRecHit>"/>
+  <class name="std::vector<edm::DetSet<TotemRPRecHit> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPRecHit> >"/>
+  <class name="std::vector<TotemRPRecHit>"/>
+  <class name="std::vector<const TotemRPRecHit*>"/>
+
+  <class name="TotemRPUVPattern" ClassVersion="2">
+    <version ClassVersion="2" checksum="3530058029"/>
+  </class>
+  <class name="edm::DetSetVector<TotemRPUVPattern>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPUVPattern>>"/>
+
+  <class name="TotemRPLocalTrack" ClassVersion="2">
+    <version ClassVersion="2" checksum="3328119645"/>
+  </class>
+  <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
+  <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+</lcgdict>
