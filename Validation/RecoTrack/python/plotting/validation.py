@@ -690,6 +690,12 @@ class Validation:
         if len(fileList) == 0:
             return []
 
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
+
         # Move plots to new directory
         print "Moving plots and %s to %s" % (valname, newdir)
         if not os.path.exists(newdir):
@@ -748,6 +754,15 @@ class Validation:
 
         fullValFile.Close()
         fastValFile.Close()
+
+        if len(fileList) == 0:
+            return []
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
         
         # Move plots to new directory
         print "Moving plots to %s" % (newdir)
@@ -799,6 +814,15 @@ class Validation:
 
         newValFile.Close()
         refValFile.Close()
+
+        if len(fileList) == 0:
+            return []
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
 
         # Move plots to new directory
         print "Moving plots to %s" % (resdir)
@@ -857,6 +881,16 @@ def _copyDir(src, dst):
             obj = key.ReadObj()
             obj.Write()
             obj.Delete()
+
+def _findDuplicates(lst):
+    found = set()
+    found2 = set()
+    for x in lst:
+        if x in found:
+            found2.add(x)
+        else:
+            found.add(x)
+    return list(found2)
 
 class SimpleSample:
     def __init__(self, label, name, pileup=True):
@@ -941,6 +975,12 @@ class SimpleValidation:
 
         if len(fileList) == 0:
             return fileList
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):
