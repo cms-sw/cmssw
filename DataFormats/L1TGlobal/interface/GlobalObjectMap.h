@@ -24,7 +24,7 @@
 // user include files
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 
-#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 // forward declarations
 
@@ -38,7 +38,7 @@ public:
   GlobalObjectMap(){}
 
     /// destructor
-  ~GlobalObjectMap(){}
+  //~GlobalObjectMap(){}
 
 public:
 

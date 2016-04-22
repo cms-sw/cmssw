@@ -1,19 +1,5 @@
-#ifndef L1Trigger_L1TGlobal_L1TGtObject_h
-#define L1Trigger_L1TGlobal_L1TGtObject_h
-
-/**
- * \class GlobalObject
- *
- *
- * Description: define an enumeration of L1 GT objects.
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
- *
- *
- */
+#ifndef DataFormats_L1TGlobal_GlobalObject_h
+#define DataFormats_L1TGlobal_GlobalObject_h
 
 // system include files
 #include <string>
@@ -55,4 +41,4 @@ std::string l1TGtObjectEnumToString(const GlobalObject&);
 
 }
 
-#endif /*L1Trigger_L1TGlobal_L1TGtObject_h*/
+#endif

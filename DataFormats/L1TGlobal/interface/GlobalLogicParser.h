@@ -1,19 +1,5 @@
-#ifndef L1TGlobal_GtLogicParser_h
-#define L1TGlobal_GtLogicParser_h
-
-/**
- * \class GlobalLogicParser
- *
- *
- * Description: parses a logical expression, with predefined operators.
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
- *
- *
- */
+#ifndef L1TGlobal_GlobalLogicParser_h
+#define L1TGlobal_GlobalLogicParser_h
 
 // system include files
 #include <string>

@@ -24,7 +24,7 @@
 #include <iostream>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GlobalObject.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalDefinitions.h"
 
 // forward declarations

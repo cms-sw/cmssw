@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GlobalObject.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 
 // system include files
 #include <cstring>
