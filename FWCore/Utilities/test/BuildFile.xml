@@ -22,6 +22,8 @@
   </bin>
   <bin   file="typedefs_t.cpp">
   </bin>
+  <bin   file="ThreadSafeAddOnlyContainer_t.cpp">
+  </bin>
 </environment>
 <bin   file="HRTime_t.cpp">
   <use   name="cppunit"/>
