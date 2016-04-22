@@ -38,7 +38,7 @@ muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+cscloca
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 
 from RecoLocalMuon.GEMRecHit.gemRecHits_cfi import gemRecHits
-from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import me0LocalReco
+from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *
 
 _run3_muonlocalreco = muonlocalreco.copy()
 _run3_muonlocalreco += gemRecHits
