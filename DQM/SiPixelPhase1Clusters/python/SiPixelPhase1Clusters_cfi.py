@@ -75,7 +75,8 @@ SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
   bookUndefined = False,
   name = "clusterposition",
   title = "Cluster Positions",
-  range_min = -30, range_max = 30, range_nbins = 200,
+  range_min   =  -30, range_max   =  30, range_nbins   = 200,
+  range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
   specs = cms.VPSet(
@@ -87,8 +88,9 @@ SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
 SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
   name = "clusterposition",
   title = "Cluster Positions",
-  range_min = -20, range_max = 20, range_nbins = 200,
   xlabel = "Global X", ylabel = "Global Y",
+  range_min   = -20, range_max   = 20, range_nbins   = 200,
+  range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
   dimensions = 2,
   specs = cms.VPSet(
     Specification().groupBy("PXForward|PXBarrel/PXDisk|")
@@ -99,10 +101,11 @@ SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
 SiPixelPhase1ClustersSizeVsEta = DefaultHisto.clone(
   bookUndefined = False, # Barrel only
   name = "sizeyvseta",
-  title = "Cluster Size along Beamline vs. Cluster position \eta",
-  xlabel = "Cluster \eta",
+  title = "Cluster Size along Beamline vs. Cluster position #eta",
+  xlabel = "Cluster #eta",
   ylabel = "length [pixels]",
-  range_min = -20, range_max = 20, range_nbins = 40,
+  range_min = -3.2, range_max  = 3.2, range_nbins   = 40,
+  range_y_min =  0, range_y_max = 40, range_y_nbins = 40,
   dimensions = 2,
   specs = cms.VPSet(
     Specification().groupBy("PXBarrel").save()
