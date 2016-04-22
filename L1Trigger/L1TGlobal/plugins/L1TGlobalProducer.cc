@@ -1,22 +1,6 @@
-/**
- * \class L1TGlobalProducer
- *
- *
- * Description: see header file.
- *
- *   Based off legacy code written by Vasile Mihai Ghete - HEPHY Vienna
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author:   Brian Winer - Ohio State
- *
- * $Date$
- * $Revision$
- *
- */
+// L1TGlobalProducer.cc
+//author:   Brian Winer - Ohio State
 
-// this class header
 #include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
 
 // system include files
@@ -40,8 +24,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h" 
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -429,34 +413,52 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtParCacheID =
-            evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
+            evSetup.get<L1TGlobalStableParametersRcd>().cacheIdentifier();
 
     if (m_l1GtParCacheID != l1GtParCacheID) {
 
-        edm::ESHandle< L1TGlobalParameters > l1GtStablePar;
-        evSetup.get< L1TGlobalParametersRcd >().get( l1GtStablePar );
-	const L1TGlobalParameters * es = l1GtStablePar.product();
-	m_l1GtStablePar = GlobalParamsHelper::readFromEventSetup(es);
-	
+        edm::ESHandle< GlobalStableParameters > l1GtStablePar;
+        evSetup.get< L1TGlobalStableParametersRcd >().get( l1GtStablePar );
+        m_l1GtStablePar = l1GtStablePar.product();
 
+	// -bx in event
+	//  NumberBxInEvent = cms.int32(5),
+	// -number of physics trigger algorithms
+	//  NumberPhysTriggers = cms.uint32(512),
+	// -muons
+	//  NumberL1Mu = cms.uint32(12),
+	// -e/gamma and isolated e/gamma objects
+	//  NumberL1EG = cms.uint32(12),
+	// -jets
+	//  NumberL1Jet = cms.uint32(12),
+	// -taus
+	//  NumberL1Tau = cms.uint32(8),
+	// -number of maximum chips defined in the xml file
+	//  NumberChips = cms.uint32(1),
+	// -number of pins on the GTL condition chips
+	//  PinsOnChip = cms.uint32(512),
+	// -correspondence "condition chip - GTL algorithm word" in the hardware
+	//  e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
+	//  OrderOfChip = cms.vint32(1),
+
+	// FIXME:
         // number of bx
-	m_totalBxInEvent = m_l1GtStablePar->gtTotalBxInEvent();
+	m_totalBxInEvent = 5;
 
         // number of physics triggers
-        m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
+        m_numberPhysTriggers = 512;
 
         // number of objects of each type
-        m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
+        m_nrL1Mu = 12;
 
-	
-	//. EG	
-        m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1EG());
+	// EG	
+        m_nrL1EG = 12;
 
 	// jets
-        m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1Jet());
+        m_nrL1Jet = 12;
 
 	// taus
-        m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1Tau());
+        m_nrL1Tau= 8;
 
 
         // Initialize Board
@@ -483,17 +485,23 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	// Instantiate Parser
         TriggerMenuParser gtParser = TriggerMenuParser();   
 
+	// FIXME:
+	//gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberChips());
+	//gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnChip());
+	//gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderOfChip());
+	//gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
 
-	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberChips());
-	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnChip());
-	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderOfChip());
-	gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
+	gtParser.setGtNumberConditionChips(1);
+	gtParser.setGtPinsOnConditionChip(512);
+	std::vector<int> tmp = {1};
+	gtParser.setGtOrderConditionChip(tmp);
+	gtParser.setGtNumberPhysTriggers(512);
         
 	//Parse menu into emulator classes
 	gtParser.parseCondFormats(utml1GtMenu); 
         
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberChips(),
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), 1, //FIXME:  m_l1GtStablePar->gtNumberChips(),
                         gtParser.vecMuonTemplate(),
                         gtParser.vecCaloTemplate(),
                         gtParser.vecEnergySumTemplate(),
