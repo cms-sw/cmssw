@@ -15,7 +15,8 @@ from PhysicsTools.HeppyCore.utils.deltar import *
 from PhysicsTools.Heppy.physicsutils.genutils import *
 
 
-from ROOT import heppy
+from ROOT import heppy, TLorentzVector
+import math
 cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
 class LeptonAnalyzer( Analyzer ):
@@ -104,6 +105,7 @@ class LeptonAnalyzer( Analyzer ):
             
 
         self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
+        self.doDirectionalIsolation = self.doMiniIsolation and getattr(cfg_ana, 'doDirectionalIsolation', False)
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
@@ -189,7 +191,9 @@ class LeptonAnalyzer( Analyzer ):
                     self.IsolationComputer.addVetos(lep.physObj)
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
-        
+                if self.doDirectionalIsolation:
+                    for cs in xrange(2,7): self.attachDirectionalIsolation(lep,0.1*cs)
+
         if self.doIsoAnnulus:
             for lep in event.inclusiveLeptons:
                 self.attachIsoAnnulus04(lep)
@@ -518,6 +522,22 @@ class LeptonAnalyzer( Analyzer ):
             mu.ScanAbsIsoNeutral02 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.2, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.2, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
             mu.ScanAbsIsoNeutral03 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.3, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.3, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
             mu.ScanAbsIsoNeutral04 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.4, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+
+    def attachDirectionalIsolation(self, mu, conesize=0.3):
+
+        what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
+        vetoreg = {"mu":0.0001,"eleB":0,"eleE":0.015}[what]
+
+        if what=="mu":
+            setattr(mu,('isoSumRawP4Charged%s'%str(conesize)).replace('.',''),self.IsolationComputer.chargedP4Iso(mu.physObj, conesize, vetoreg, 0.0))
+        else:
+            setattr(mu,('isoSumRawP4Charged%s'%str(conesize)).replace('.',''),self.IsolationComputer.chargedP4Iso(mu.physObj, conesize, vetoreg, 0.0, self.IsolationComputer.selfVetoNone))
+
+        if what=="mu":
+            setattr(mu,('isoSumRawP4Neutral%s'%str(conesize)).replace('.',''),self.IsolationComputer.neutralP4IsoRaw(mu.physObj, conesize,  0.01, 0.5))
+        else:
+            vetoreg = {"eleB":0.0,"eleE":0.08}[what]
+            setattr(mu,('isoSumRawP4Neutral%s'%str(conesize)).replace('.',''),self.IsolationComputer.photonP4IsoRaw(mu.physObj, conesize, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadP4IsoRaw(mu.physObj, conesize, 0.0, 0.0, self.IsolationComputer.selfVetoNone))
 
 
     def matchLeptons(self, event):
