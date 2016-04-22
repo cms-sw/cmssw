@@ -185,13 +185,20 @@ void HistogramManager::executePerEventHarvesting() {
 }
 
 std::string HistogramManager::makePath(GeometryInterface::Values const& significantvalues) {
-  // TODO: maybe more magic here for p/m, I/O, etc. 
+  // non-number output names (_pO etc.) are hardwired here.
   std::ostringstream dir("");
   for (auto e : significantvalues.values) {
     std::string name = geometryInterface.pretty(e.first);
     std::string value = "_" + std::to_string(e.second);
     if (e.second == 0) value = ""; // hide Barrel_0 etc.
     if (name == "") continue; // nameless dummy column is dropped
+    if (name == "PXDisk" && e.second > 0) // +/- sign for disk num
+      value = "_+" + std::to_string(e.second); 
+    // pretty (legacy?) names for Shells and HalfCylinders
+    std::map<int, std::string> shellname{ {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"} };
+    if (name == "HalfCylinder" || name == "Shell") value = shellname[e.second];
+    if (e.second == GeometryInterface::UNDEFINED) value = "_UNDEFINED";
+
     dir << name << value << "/";
   }
   return top_folder_name + "/" + dir.str();
@@ -486,7 +493,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
 					nbins[new_vals], 0, nbins[new_vals],
 					th1->GetYaxis()->GetNbins(), 0, th1->GetYaxis()->GetNbins());
       }
-      std::cout << "title " << new_histo.th1->GetTitle()<< "\n";
+      //std::cout << "title " << new_histo.th1->GetTitle()<< "\n";
       new_histo.count = 1; // used as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
     } 
 
