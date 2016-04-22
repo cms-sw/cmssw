@@ -24,10 +24,13 @@ DefaultHisto = cms.PSet(
   title = cms.string("Histogram of Something"),
   xlabel = cms.string("something"),
   ylabel = cms.string("count"),
+  dimensions = cms.int32(1),
   range_min = cms.double(0),
   range_max = cms.double(100), 
   range_nbins = cms.int32(100),
-  dimensions = cms.int32(1),
+  range_y_min = cms.double(0),
+  range_y_max = cms.double(100), 
+  range_y_nbins = cms.int32(100),
 
   # This grouping should be used as a default (explicitly in the Plugin config). It should be era-dependent.
   # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.

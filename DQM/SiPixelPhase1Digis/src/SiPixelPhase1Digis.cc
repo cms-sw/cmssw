@@ -42,7 +42,7 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
     histo[DEBUG].fill(geometryInterface.extract(geometryInterface.intern("PXLadder"), DetId(it->detId())), DetId(it->detId()));
   }
   histo[EVENT].fill(DetId(0), &iEvent);
-  histo[NDIGIS    ].executePerEventHarvesting(); // TODO: move to Base?
+  histo[NDIGIS    ].executePerEventHarvesting();
   histo[NDIGIS_FED].executePerEventHarvesting(); 
 }
 

@@ -95,6 +95,10 @@ private:
   int range_nbins;
   double range_min;
   double range_max;
+  int range_y_nbins;
+  double range_y_min;
+  double range_y_max;
+
 
   // These are actually more like local variables, and they might be shadowed
   // by locals now and then. The point is to avoid reallocating the heap buffer

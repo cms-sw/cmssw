@@ -29,7 +29,10 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
   dimensions(iconfig.getParameter<int>("dimensions")),
   range_nbins(iconfig.getParameter<int>("range_nbins")),
   range_min(iconfig.getParameter<double>("range_min")),
-  range_max(iconfig.getParameter<double>("range_max"))
+  range_max(iconfig.getParameter<double>("range_max")),
+  range_y_nbins(iconfig.getParameter<int>("range_y_nbins")),
+  range_y_min(iconfig.getParameter<double>("range_y_min")),
+  range_y_max(iconfig.getParameter<double>("range_y_max"))
 { 
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
   for (auto spec : spec_configs) {
@@ -222,9 +225,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
       std::string ylabel = this->ylabel;
       int range_x_nbins = this->range_nbins;
       double range_x_min = this->range_min, range_x_max = this->range_max;
-	// TODO: proper 2D range.
-      int range_y_nbins = this->range_nbins;
-      double range_y_min = this->range_min, range_y_max = this->range_max;
+      int range_y_nbins = this->range_y_nbins;
+      double range_y_min = this->range_y_min, range_y_max = this->range_y_max;
       for (SummationStep step : s.steps) {
 	if (step.stage == SummationStep::STAGE1 || step.stage == SummationStep::STAGE1_2) {
 	  switch(step.type) {
