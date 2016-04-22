@@ -7,8 +7,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 
-using namespace l1t;
-
 
 namespace DataFormats_L1TGlobal {
   struct dictionary {
@@ -33,8 +31,8 @@ namespace DataFormats_L1TGlobal {
     GlobalObjectMapRecord                        dummy3a;
     edm::Wrapper<GlobalObjectMapRecord>          dummy3b; 
 
-    std::vector<GlobalObject>                    dummy4a;
-    std::vector<std::vector<GlobalObject> >      dummy4b;
+    std::vector<l1t::GlobalObject>               dummy4a;
+    std::vector<std::vector<l1t::GlobalObject> > dummy4b;
 
     GlobalLogicParser::OperandToken              dummy5a;
     std::vector<GlobalLogicParser::OperandToken> dummy5b;
