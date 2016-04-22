@@ -187,7 +187,7 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(caloMetToken_, caloMet);
 
   edm::Handle<reco::CaloMETCollection> caloMetBE;
-  iEvent.getByToken(caloMetBEToken_, caloMetBE;
+  iEvent.getByToken(caloMetBEToken_, caloMetBE);
 
   if (pfJets.isValid()) {
 
