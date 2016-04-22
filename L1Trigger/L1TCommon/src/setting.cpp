@@ -4,7 +4,7 @@
 
 namespace l1t{
 	
-setting::setting(std::string type, std::string id, std::string value, std::string procRole) : 
+setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole) : 
 _type(type),
 _id(id),
 _value(value),
@@ -86,10 +86,10 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
-void setting::addTableRow(std::string row)
+void setting::addTableRow(const std::string& row)
 {
 	if (_type.find("table") == std::string::npos)
-		throw std::runtime_error("Type is not table");
+		throw std::runtime_error("You cannot add a table row in type: " + _type + ". Type is not table.");
 
 	std::string delim(","); //TODO: should be read dynamically
 	std::vector<std::string> vals;
@@ -106,8 +106,10 @@ void setting::addTableRow(std::string row)
 	_tableRows.push_back(tempRow);
 }
 
-void setting::setTableTypes(std::string types)
-{
+void setting::setTableTypes(const std::string& types)
+{	
+	if (_type.find("table") == std::string::npos)
+		throw std::runtime_error("You cannot set table types in type: " + _type + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
 	std::vector<std::string> vals;
 	if ( !parse ( std::string(types+delim+" ").c_str(),
@@ -120,8 +122,10 @@ void setting::setTableTypes(std::string types)
 	_tableTypes = vals;
 }
 
-void setting::setTableColumns(std::string cols)
+void setting::setTableColumns(const std::string& cols)
 {
+	if (_type.find("table") == std::string::npos)
+		throw std::runtime_error("You cannot set table columns in type: " + _type + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
 	std::vector<std::string> vals;
 	if ( !parse ( std::string(cols+delim+" ").c_str(),
