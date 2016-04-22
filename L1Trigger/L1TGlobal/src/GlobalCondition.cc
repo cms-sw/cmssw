@@ -1,5 +1,5 @@
 /**
- * \class GtCondition
+ * \class GlobalCondition
  *
  *
  * Description: base class for L1 Global Trigger object templates (condition).
@@ -15,7 +15,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // system include files
 
@@ -23,9 +23,10 @@
 
 // forward declarations
 
+
 // constructor
 //    empty
-GtCondition::GtCondition()
+GlobalCondition::GlobalCondition()
 {
 
   m_condCategory = l1t::CondNull;
@@ -37,7 +38,7 @@ GtCondition::GtCondition()
 }
 
 //    constructor from condition name
-GtCondition::GtCondition(const std::string& cName)
+GlobalCondition::GlobalCondition(const std::string& cName)
 {
     m_condName = cName;
 
@@ -49,7 +50,7 @@ GtCondition::GtCondition(const std::string& cName)
 }
 
 //   constructor from condition name, category and type
-GtCondition::GtCondition(const std::string& cName,
+GlobalCondition::GlobalCondition(const std::string& cName,
                              const l1t::GtConditionCategory& cCategory,
                              const l1t::GtConditionType& cType)
 {
@@ -65,21 +66,19 @@ GtCondition::GtCondition(const std::string& cName,
 
 
 
-GtCondition::~GtCondition()
+GlobalCondition::~GlobalCondition()
 {
     // empty
 }
 
 // get number of trigger objects
-const int GtCondition::nrObjects() const
+const int GlobalCondition::nrObjects() const
 {
 
     switch (m_condType) {
 
         case l1t::TypeNull:
-        case TypeExternal:
-        case TypeCastor:
-        case TypeBptx: {
+        case l1t::TypeExternal: {
                 return 0;
             }
 
@@ -106,13 +105,12 @@ const int GtCondition::nrObjects() const
             }
 
             break;
-        case TypeETT:
-        case TypeETM:
-        case TypeHTT:
-        case TypeHTM:
-        case TypeJetCounts:
-        case TypeHfBitCounts:
-        case TypeHfRingEtSums: {
+        case l1t::TypeETT:
+        case l1t::TypeETM:
+        case l1t::TypeHTT:
+        case l1t::TypeHTM:
+	case l1t::TypeETM2:
+	case l1t::TypeMinBias: {
                 return 1;
             }
 
@@ -128,7 +126,7 @@ const int GtCondition::nrObjects() const
 
 // get logic flag for conditions, same type of trigger objects,
 // and with spatial correlations
-const bool GtCondition::wsc() const
+const bool GlobalCondition::wsc() const
 {
 
     if (m_condType == l1t::Type2wsc) {
@@ -140,7 +138,7 @@ const bool GtCondition::wsc() const
 
 // get logic flag for conditions, different type of trigger objects,
 // and with spatial correlations
-const bool GtCondition::corr() const
+const bool GlobalCondition::corr() const
 {
 
     if (m_condType == l1t::Type2cor) {
@@ -151,7 +149,7 @@ const bool GtCondition::corr() const
 }
 
 // print condition
-void GtCondition::print(std::ostream& myCout) const
+void GlobalCondition::print(std::ostream& myCout) const
 {
 
     myCout << "\n  Condition name:     " << m_condName << std::endl;
@@ -174,42 +172,17 @@ void GtCondition::print(std::ostream& myCout) const
             }
 
             break;
-        case CondEnergySum: {
+        case l1t::CondEnergySum: {
                 myCout << "  Condition category: " << "CondEnergySum"  << std::endl;
             }
 
             break;
-        case CondJetCounts: {
-                myCout << "  Condition category: " << "CondJetCounts"  << std::endl;
-            }
-
-            break;
         case l1t::CondCorrelation: {
-                myCout << "  Condition category: " << "l1t::CondCorrelation"  << std::endl;
+                myCout << "  Condition category: " << "CondCorrelation"  << std::endl;
             }
 
-            break;
-        case CondCastor: {
-                myCout << "  Condition category: " << "CondCastor"  << std::endl;
-            }
-
-            break;
-        case CondHfBitCounts: {
-                myCout << "  Condition category: " << "CondHfBitCounts"  << std::endl;
-            }
-
-            break;
-        case CondHfRingEtSums: {
-                myCout << "  Condition category: " << "CondHfRingEtSums"  << std::endl;
-            }
-
-            break;
-        case CondBptx: {
-                myCout << "  Condition category: " << "CondBptx"  << std::endl;
-            }
-
-            break;
-        case CondExternal: {
+            break;	    
+        case l1t::CondExternal: {
                 myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }
 
@@ -262,52 +235,35 @@ void GtCondition::print(std::ostream& myCout) const
             }
 
             break;
-        case TypeETM: {
+        case l1t::TypeETM: {
                 myCout << "  Condition type:     " << "TypeETM"  << std::endl;
             }
 
             break;
-        case TypeETT: {
+        case l1t::TypeETT: {
                 myCout << "  Condition type:     " << "TypeETT"  << std::endl;
             }
 
             break;
-        case TypeHTT: {
+        case l1t::TypeHTT: {
                 myCout << "  Condition type:     " << "TypeHTT"  << std::endl;
             }
 
             break;
-        case TypeHTM: {
+        case l1t::TypeHTM: {
                 myCout << "  Condition type:     " << "TypeHTM"  << std::endl;
             }
 
-            break;
-        case TypeJetCounts: {
-                myCout << "  Condition type:     " << "TypeJetCounts"  << std::endl;
+        case l1t::TypeETM2: {
+                myCout << "  Condition type:     " << "TypeETM2"  << std::endl;
+            }
+
+        case l1t::TypeMinBias: {
+                myCout << "  Condition type:     " << "TypeMinBias"  << std::endl;
             }
 
             break;
-        case TypeCastor: {
-                myCout << "  Condition type:     " << "TypeCastor"  << std::endl;
-            }
-
-            break;
-        case TypeHfBitCounts: {
-                myCout << "  Condition type:     " << "TypeHfBitCounts"  << std::endl;
-            }
-
-            break;
-        case TypeHfRingEtSums: {
-                myCout << "  Condition type:     " << "TypeHfRingEtSums"  << std::endl;
-            }
-
-            break;
-        case TypeBptx: {
-                myCout << "  Condition type:     " << "TypeBptx"  << std::endl;
-            }
-
-            break;
-        case TypeExternal: {
+        case l1t::TypeExternal: {
                 myCout << "  Condition type:     " << "TypeExternal"  << std::endl;
             }
 
@@ -326,78 +282,60 @@ void GtCondition::print(std::ostream& myCout) const
     for (unsigned int i = 0; i < m_objectType.size(); ++i) {
 
         switch (m_objectType[i]) {
-            case Mu: {
+            case l1t::gtMu: {
                     myCout << " Mu ";
                 }
 
                 break;
-            case NoIsoEG: {
-                    myCout << " NoIsoEG ";
+            case l1t::gtEG: {
+                    myCout << " EG ";
                 }
 
                 break;
-            case IsoEG: {
-                    myCout << " IsoEG ";
+
+            case l1t::gtJet: {
+                    myCout << " Jet ";
                 }
 
                 break;
-            case CenJet: {
-                    myCout << " CenJet ";
+
+            case l1t::gtTau: {
+                    myCout << " Tau ";
                 }
 
                 break;
-            case ForJet: {
-                    myCout << " ForJet ";
-                }
-
-                break;
-            case TauJet: {
-                    myCout << " TauJet ";
-                }
-
-                break;
-            case ETM: {
+            case l1t::gtETM: {
                     myCout << " ETM ";
                 }
 
                 break;
-            case ETT: {
+            case l1t::gtETT: {
                     myCout << " ETT ";
                 }
 
                 break;
-            case HTT: {
+            case l1t::gtHTT: {
                     myCout << " HTT ";
                 }
 
                 break;
-            case HTM: {
+            case l1t::gtHTM: {
                     myCout << " HTM ";
                 }
 
                 break;
-            case JetCounts: {
-                    myCout << " JetCounts ";
-                }
 
-                break;
-            case HfBitCounts: {
-                    myCout << " HfBitCounts ";
+            case l1t::gtETM2: {
+                    myCout << " ETM2 ";
                 }
+		
+            case l1t::gtMinBias: {
+                    myCout << " MinBias ";
+                }		
 
-                break;
-            case HfRingEtSums: {
-                    myCout << " HfRingEtSums ";
-                }
 
-                break;
-            case BPTX: {
-                    myCout << " BPTX ";
-                }
-
-                break;
-            case GtExternal: {
-                    myCout << " GtExternal ";
+            case l1t::gtExternal: {
+                    myCout << " External ";
                 }
 
                 break;
@@ -425,7 +363,7 @@ void GtCondition::print(std::ostream& myCout) const
 }
 
 // output stream operator
-std::ostream& operator<<(std::ostream& os, const GtCondition& result)
+std::ostream& operator<<(std::ostream& os, const GlobalCondition& result)
 {
     result.print(os);
     return os;

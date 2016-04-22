@@ -224,8 +224,7 @@ void BXVector<T>::set( int bx, unsigned i , const T & object)
      //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{
-     data_.erase(data_.begin() + itrs_[indexFromBX(bx)]+i);
-     data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + i,object);
+     data_.at(itrs_[indexFromBX(bx)]+i) = object;
   }
 }
 

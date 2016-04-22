@@ -157,7 +157,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	 (m_decisionsInitial[algBit]).first  = algName;
 	 (m_decisionsInitial[algBit]).second = decisionInitial;
 
-	 bool decisionPrescaled = algBlk->getAlgoDecisionPreScaled(algBit);
+	 bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit); 
 	 (m_decisionsPrescaled[algBit]).first  = algName;
 	 (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
 

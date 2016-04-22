@@ -118,7 +118,8 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
     //    absCaloEta = 30-39, 1 < absCaloPhi <= 72 (every second value)
     for(uint32_t iPhi = iPhiStart; iPhi < iPhiStart + 2; iPhi++) { // For artificial splitting in half
       UCTTower* tower = towers[iEta*nPhi + iPhi];
-      if(!tower->setHFData(hcalFB, hcalET / 2)) return false;
+      // We divide by 2 in output section, after LUT
+      if(!tower->setHFData(hcalFB, hcalET)) return false;
     }
   }
   else if(absCaloEta == 40 || absCaloEta == 41) {
@@ -126,7 +127,8 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
     //    absCaloEta = 40,41, 1 < absCaloPhi <= 72 (every fourth value)
     for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // For artificial splitting in quarter
       UCTTower* tower = towers[iEta * nPhi + iPhi];
-      if(!tower->setHFData(hcalFB, hcalET / 4)) return false;
+      // We divide by 4 in output section, after LUT
+      if(!tower->setHFData(hcalFB, hcalET)) return false;
     }
   }
   else {
