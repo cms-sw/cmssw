@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -174,6 +175,7 @@ for tracks in selectedTracks :
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
     TrackingDQMSourceTier0 += locals()[label]
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
@@ -194,6 +196,7 @@ for tracks in selectedTracks :
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
     TrackingDQMSourceTier0Common += locals()[label]
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSourceTier0Common.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
@@ -215,6 +218,7 @@ for tracks in selectedTracks :
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
     TrackingDQMSourceTier0MinBias += locals()[label]
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourceTier0MinBias.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'

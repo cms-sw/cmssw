@@ -35,6 +35,18 @@ _algos = [
     "muonSeededStepOutIn",
     "duplicateMerge",
 ]
+_algos_trackingLowPU = [
+    "generalTracks",
+    "initialStep",
+    "lowPtTripletStep",
+    "pixelPairStep",
+    "detachedTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+]
 _algos_trackingPhase1 = [
     "generalTracks",
     "initialStep",
@@ -87,6 +99,18 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "muonSeededSeedsOutIn"]
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
+_seedProducers_trackingLowPU = [
+    "initialStepSeeds",
+    "lowPtTripletStepSeeds",
+    "pixelPairStepSeeds",
+    "detachedTripletStepSeeds",
+    "mixedTripletStepSeedsA",
+    "mixedTripletStepSeedsB",
+    "pixelLessStepSeeds",
+    "tobTecStepSeeds",
+    "muonSeededSeedsInOut",
+    "muonSeededSeedsOutIn",
+]
 _seedProducers_trackingPhase1 = [
     "initialStepSeedsPreSplitting",
     "initialStepSeeds",
@@ -138,6 +162,17 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
 
+_trackProducers_trackingLowPU = [
+    "initialStepTracks",
+    "lowPtTripletStepTracks",
+    "pixelPairStepTracks",
+    "detachedTripletStepTracks",
+    "mixedTripletStepTracks",
+    "pixelLessStepTracks",
+    "tobTecStepTracks",
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutIn",
+]
 _trackProducers_trackingPhase1 = [
     "initialStepTracksPreSplitting",
     "initialStepTracks",
@@ -255,6 +290,7 @@ def _eraPostfix(era):
     return (era, "_"+era)
 _relevantEras = [
     _eraPostfix(""),
+    _eraPostfix("trackingLowPU"),
     _eraPostfix("trackingPhase1"),
     _eraPostfix("trackingPhase1PU70"),
 ]
