@@ -106,6 +106,7 @@ class LeptonAnalyzer( Analyzer ):
 
         self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
         self.doDirectionalIsolation = self.doMiniIsolation and getattr(cfg_ana, 'doDirectionalIsolation', False)
+        self.doMuonPlusSoftTrkPairs = self.doMiniIsolation and getattr(cfg_ana, 'doMuonPlusSoftTrkPairs', False)
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
@@ -189,10 +190,23 @@ class LeptonAnalyzer( Analyzer ):
             if self.miniIsolationVetoLeptons == "inclusive":
                 for lep in event.inclusiveLeptons: 
                     self.IsolationComputer.addVetos(lep.physObj)
+            event.LeptonTrackMuPairs = []
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
                 if self.doDirectionalIsolation:
                     for cs in xrange(2,7): self.attachDirectionalIsolation(lep,0.1*cs)
+                if self.doMuonPlusSoftTrkPairs:
+                    self.pairedIsoChargedCandidatesMuHyp = []
+                    for pairedCand in self.IsolationComputer.findPairIsoTrack(lep.physObj, 999, 0.0, 4.0, 1.5, 5.0):
+                        _lep_p4 = lep.p4()
+                        _pc_p4 = pairedCand.p4()
+                        lep_p4 = TLorentzVector(_lep_p4.Px(),_lep_p4.Py(),_lep_p4.Pz(),_lep_p4.E())
+                        pc_p4 = TLorentzVector()
+                        pc_p4.SetPtEtaPhiM(_pc_p4.Pt(),_pc_p4.Eta(),_pc_p4.Phi(),0.105)
+                        self.pairedIsoChargedCandidatesMuHyp.append((pairedCand,(lep_p4+pc_p4).M()))
+                    self.pairedIsoChargedCandidatesMuHyp.sort(key = lambda x : x[1], reverse = True)
+                    event.LeptonTrackMuPairs.extend([(lep,x[0],x[1]) for x in self.pairedIsoChargedCandidatesMuHyp])
+                    event.LeptonTrackMuPairs.sort(key = lambda x : x[2], reverse = True)
 
         if self.doIsoAnnulus:
             for lep in event.inclusiveLeptons:
@@ -725,6 +739,8 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     miniIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
                                      # Choose None to just use the individual object's PU correction
     miniIsolationVetoLeptons = None, # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
+    doDirectionalIsolation = False, # calculate directional isolation with leptons (works only with doMiniIsolation)
+    doMuonPlusSoftTrkPairs = False, # search for mu + track pairs in the event (works only with doMiniIsolation)
     # Activity Annulus
     doIsoAnnulus = False, # off by default since it requires access to all PFCandidates 
     # do MC matching 
