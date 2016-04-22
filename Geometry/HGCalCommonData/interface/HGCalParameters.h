@@ -95,8 +95,10 @@ public:
   std::vector<double>      waferPosY_;
   std::vector<double>      cellFineX_;
   std::vector<double>      cellFineY_;
+  std::vector<bool>        cellFineHalf_;
   std::vector<double>      cellCoarseX_;
   std::vector<double>      cellCoarseY_;
+  std::vector<bool>        cellCoarseHalf_;
   std::vector<int>         layerGroupM_;
   std::vector<int>         layerGroupO_;
   std::vector<double>      boundR_;
