@@ -329,13 +329,11 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	//	std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<"\n";
 	//}
 	
-	if(station != 1)
-		sub = 1;
-		
-	//std::cout<<"proper FR[0] = "<<FRLUT[endcap-1][sector-1][station-1][sub-1][Id-1]<<"\n";
-	
-	if(station != 1)
-		sub = 0;
+	/* if(station != 1) */
+	/* 	sub = 1; */
+	/* std::cout<<"proper FR[0] = "<<FRLUT[endcap-1][sector-1][station-1][sub-1][Id-1]<<"\n"; */
+	/* if(station != 1) */
+	/* 	sub = 0; */
 
 	
 	ConvertedHit Hit;

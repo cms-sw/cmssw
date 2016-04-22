@@ -197,9 +197,12 @@ float getNLBdPhi(float dPhi, int bits, int max=512)
 int getNLBdPhiBin(float dPhi, int bits, int max=512)
 {
   int dPhiBin_= (1<<bits)-1; 
-  //float sign_ = 1;
-  //if (dPhi<0)
-  //  sign_ = -1;
+  
+  // Unused variable
+  /* float sign_ = 1; */
+  /* if (dPhi<0) */
+  /*   sign_ = -1; */
+
   dPhi = fabs(dPhi);
   
   if (max==256)
@@ -1030,18 +1033,21 @@ float CalculatePt(L1TMuon::InternalTrack track , const edm::EventSetup& es){///a
        
       }///add this bobby
         
-			switch(s-7){
-      case 1: mode |= 1;break;
-      case 2: mode |= 2;break;
-      case 3: mode |= 4;break;
-      case 4: mode |= 8;break;
-      default: mode |= 0;
-			}
-			x++;
+      x++;
 		}
 	}
 	
-	if(verbose) std::cout<<"\nMode = "<<mode<<std::endl; 
+	mode_inv = 0;
+	if(mode & 1)
+		mode_inv |= 8;
+	if(mode & 2)
+		mode_inv |= 4;
+	if(mode & 4)
+		mode_inv |= 2;
+	if(mode & 8)
+		mode_inv |= 1;
+
+	if(verbose) std::cout << "\n Mode = " << mode << ", inverted mode = " << mode_inv << std::endl; 
 	
 	//////////////////////////////////////////////////
 	//// Calculate Delta Phi and Eta Combinations ////
