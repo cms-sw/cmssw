@@ -31,6 +31,7 @@ RecoLocalMuonAOD = cms.PSet(
 
 def _modifyRecoLocalMuonEventContentForPhase2( object ):
     object.outputCommands.append('keep *_gemRecHits_*_*')
+    object.outputCommands.append('keep *_gemSegments_*_*')
     object.outputCommands.append('keep *_me0RecHits_*_*')
     object.outputCommands.append('keep *_me0Segments_*_*')
 
@@ -38,3 +39,6 @@ from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForPhase2 )
+eras.phase2dev_muon.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForPhase2 )
