@@ -35,13 +35,13 @@ class setting
 {
 	public:
 		setting() {};
-		setting(std::string type, std::string id, std::string value, std::string procRole);
-		void setProcRole(std::string procRole) { _procRole = procRole; };
-		void setValue(std::string value) {_value = value; };
-		void setId(std::string id) { _id = id; } ;
-		void addTableRow(std::string row);
-		void setTableTypes(std::string types);
-		void setTableColumns(std::string cols);
+		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
+		void setProcRole(const std::string& procRole) { _procRole = procRole; };
+		void setValue(const std::string& value) {_value = value; };
+		void setId(const std::string& id) { _id = id; } ;
+		void addTableRow(const std::string& row);
+		void setTableTypes(const std::string& types);
+		void setTableColumns(const std::string& cols);
 		std::string getProcRole() { return _procRole; };
 		std::string getValueAsStr() { return _value; };
 		std::string getType() { return _type; };
