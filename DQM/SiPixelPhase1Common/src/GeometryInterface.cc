@@ -233,7 +233,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // Use hardcoded logic here.
   // This contains a lot more assumptions about general geometry than the rest
   // of the code, but it might work for Phase0 as well.
-  Value innerring = 22; //TODO: Hardcoded number here.
+  Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
   Value outerring = max_value[intern("PXBlade")] - innerring;
   auto& pxblade  = extractors[intern("PXBlade")];
   addExtractor(intern("PXRing"), 
@@ -253,10 +253,12 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       auto ec = pxendcap(iq);
       if (ec == UNDEFINED) return UNDEFINED;
       auto blade = pxblade(iq);
-      auto inring  = blade > innerring ? blade - innerring : blade;
+      // blade 1 and 56 are at 3 o'clock. This is a mess.
+      auto inring  = blade > innerring ? (innerring+outerring+1) - blade : blade;
       auto perring = blade > innerring ? outerring : innerring;
+      // inring is now 1-based, 1 at 3 o'clock, upto perring.
       int frac = (int) ((inring-1) / float(perring) * 4); // floor semantics here
-      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half TODO: with 22 this is not well defined.
+      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half
       if (frac == 1 || frac == 2) return 10*ec + 2; // outer half
       assert(!"HalfCylinder logic problem");
       return UNDEFINED;
@@ -270,7 +272,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       auto ladder = pxladder(iq);
       auto module = pxmodule(iq);
       int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
-      Value dir = module <= (maxmodule/2) ? 1 : 2;  // minus/plus TODO: or other way round?
+      Value dir = module <= (maxmodule/2) ? 1 : 2;  // minus/plus 
       if (frac == 0 || frac == 3) return 10*dir + 1; // inner half
       if (frac == 1 || frac == 2) return 10*dir + 2; // outer half
       assert(!"Shell logic problem");
@@ -301,7 +303,7 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->luminosityBlock());
     },
-    1, 5000
+    1, iConfig.getParameter<int>("max_lumisection")
   );
   addExtractor(intern("LumiDecade"),
     [] (InterestingQuantities const& iq) {
@@ -315,7 +317,7 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
       if(!iq.sourceEvent) return UNDEFINED;
       return Value(iq.sourceEvent->bunchCrossing());
     },
-    1, 3600 // TODO: put actual max. BX
+    1, iConfig.getParameter<int>("max_bunchcrossing")
   );
 }
 
@@ -325,46 +327,50 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     [] (InterestingQuantities const& iq) {
       return Value(iq.row);
     },
-    0, 159
+    0, iConfig.getParameter<int>("module_rows") - 1
   );
   addExtractor(intern("col"),
     [] (InterestingQuantities const& iq) {
       return Value(iq.col);
     },
-    0, 415 
+    0, iConfig.getParameter<int>("module_cols") - 1 
   );
 
-  // TODO: ROC dimensions could be configurable
+  int   n_rocs     = iConfig.getParameter<int>("n_rocs");
+  float roc_cols   = iConfig.getParameter<int>("roc_cols");
+  float roc_rows   = iConfig.getParameter<int>("roc_rows");
+  auto  pxmodule   = extractors[intern("PXBModule")];
+  Value max_module =  max_value[intern("PXBModule")];
+  auto  pxpanel    = extractors[intern("PXPanel")];
+  Value max_panel  = max_value[intern("PXPanel")];
   addExtractor(intern("ROC"),
-    [] (InterestingQuantities const& iq) {
-      int fedrow = int(iq.row / 80.0f);
-      int fedcol = int(iq.col / 52.0f);
+    [n_rocs, roc_cols, roc_rows] (InterestingQuantities const& iq) {
+      int fedrow = int(iq.row / roc_rows);
+      int fedcol = int(iq.col / roc_cols);
       if (fedrow == 0) return Value(fedcol);
-      if (fedrow == 1) return Value(15 - fedcol);
+      if (fedrow == 1) return Value(n_rocs - 1 - fedcol);
       return UNDEFINED;
     },
-    0, 15
+    0, n_rocs - 1
   );
 
   // arbitrary per-ladder numbering (for inefficiencies)
-  auto pxmodule = extractors[intern("PXBModule")];
-  auto pxpanel  = extractors[intern("PXPanel")];
-  auto roc      = extractors[intern("ROC")];
+  auto roc = extractors[intern("ROC")];
   addExtractor(intern("ROCinLadder"),
-    [pxmodule, roc] (InterestingQuantities const& iq) {
+    [pxmodule, roc, n_rocs] (InterestingQuantities const& iq) {
       auto mod = pxmodule(iq);
       if (mod == UNDEFINED) return UNDEFINED;
-      return Value(roc(iq) + 16 * (mod-1));
+      return Value(roc(iq) + n_rocs * (mod-1));
     },
-    0, 127
+    0, (max_module * n_rocs) - 1
   );
   addExtractor(intern("ROCinBlade"),
-    [pxmodule, pxpanel, roc] (InterestingQuantities const& iq) {
+    [pxmodule, pxpanel, roc, n_rocs] (InterestingQuantities const& iq) {
       auto mod = pxpanel(iq);
       if (mod == UNDEFINED) return UNDEFINED;
-      return Value(roc(iq) + 16 * (mod-1));
+      return Value(roc(iq) + n_rocs * (mod-1));
     },
-    0, 31
+    0, (max_panel * n_rocs) - 1
   );
 
   addExtractor(intern("DetId"),
