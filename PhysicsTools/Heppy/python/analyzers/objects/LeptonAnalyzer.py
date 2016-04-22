@@ -441,8 +441,12 @@ class LeptonAnalyzer( Analyzer ):
         what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
         if what == "mu":
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
+            mu.miniAbsIsoChargedFix03 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
+            mu.miniAbsIsoChargedFix04 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
         else:
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
+            mu.miniAbsIsoChargedFix03 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
+            mu.miniAbsIsoChargedFix04 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
 
         if self.miniIsolationPUCorr == None: puCorr = self.cfg_ana.mu_isoCorr if what=="mu" else self.cfg_ana.ele_isoCorr
         else: puCorr = self.miniIsolationPUCorr
@@ -475,8 +479,37 @@ class LeptonAnalyzer( Analyzer ):
             elif puCorr != 'raw':
                 raise RuntimeError("Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested).")
 
+        if what == "mu":
+            mu.miniAbsIsoNeutralFix03 = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.3, 0.01, 0.5);
+            mu.miniAbsIsoNeutralFix04 = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.4, 0.01, 0.5);
+        else:
+            mu.miniAbsIsoPhoFix03  = self.IsolationComputer.photonAbsIsoRaw(    mu.physObj, 0.3, 0.08 if what == "eleE" else 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.miniAbsIsoNHadFix03 = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.3, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.miniAbsIsoNeutralFix03 = mu.miniAbsIsoPhoFix03 + mu.miniAbsIsoNHadFix03
+            mu.miniAbsIsoPhoFix04  = self.IsolationComputer.photonAbsIsoRaw(    mu.physObj, 0.4, 0.08 if what == "eleE" else 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.miniAbsIsoNHadFix04 = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.miniAbsIsoNeutralFix04 = mu.miniAbsIsoPhoFix04 + mu.miniAbsIsoNHadFix04
+        if puCorr == "rhoArea":
+            mu.miniAbsIsoNeutralFix03 = max(0.0, mu.miniAbsIsoNeutralFix03 - mu.rho * mu.EffectiveArea03)
+            mu.miniAbsIsoNeutralFix04 = max(0.0, mu.miniAbsIsoNeutralFix04 - mu.rho * mu.EffectiveArea03 * 16./9.)
+        elif puCorr == "deltaBeta":
+            if what == "mu":
+                mu.miniAbsIsoPUFix03 = self.IsolationComputer.puAbsIso(mu.physObj, 0.3, 0.01, 0.5);
+                mu.miniAbsIsoPUFix04 = self.IsolationComputer.puAbsIso(mu.physObj, 0.4, 0.01, 0.5);
+            else:
+                mu.miniAbsIsoPUFix03 = self.IsolationComputer.puAbsIso(mu.physObj, 0.3, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
+                mu.miniAbsIsoPUFix04 = self.IsolationComputer.puAbsIso(mu.physObj, 0.4, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
+            mu.miniAbsIsoNeutralFix03 = max(0.0, mu.miniAbsIsoNeutralFix03 - 0.5*mu.miniAbsIsoPUFix03)
+            mu.miniAbsIsoNeutralFix04 = max(0.0, mu.miniAbsIsoNeutralFix04 - 0.5*mu.miniAbsIsoPUFix04)
+        elif puCorr != 'raw':
+            raise RuntimeError, "Unsupported isolationCorr name for Fix03/04 '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
+
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
+        mu.miniAbsIsoFix03 = mu.miniAbsIsoChargedFix03 + mu.miniAbsIsoNeutralFix03
+        mu.miniRelIsoFix03 = mu.miniAbsIsoFix03/mu.pt()
+        mu.miniAbsIsoFix04 = mu.miniAbsIsoChargedFix04 + mu.miniAbsIsoNeutralFix04
+        mu.miniRelIsoFix04 = mu.miniAbsIsoFix04/mu.pt()
 
 
     def attachIsoAnnulus04(self, mu):  # annulus isolation with outer cone of 0.4 and delta beta PU correction
