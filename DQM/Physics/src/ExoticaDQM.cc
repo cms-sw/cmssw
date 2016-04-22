@@ -105,11 +105,10 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   TriggerToken_ = consumes<TriggerResults>(     
       ps.getParameter<edm::InputTag>("TriggerResults"));
   HltPaths_ = ps.getParameter<vector<string> >("HltPaths");
-
+  // 
   VertexToken_ = consumes<reco::VertexCollection>(
       ps.getParameter<InputTag>("vertexCollection"));
   //
-//   ElectronToken_      = consumes<pat::Electron>(
   ElectronToken_      = consumes<reco::GsfElectronCollection>(
       ps.getParameter<InputTag>("electronCollection"));
   //
@@ -129,8 +128,10 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //
   PFMETToken_         = consumes<reco::PFMETCollection>(
       ps.getParameter<InputTag>("pfMETCollection"));
+  //   
   ecalBarrelRecHitToken_ = consumes<EBRecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalBarrelRecHit", InputTag("reducedEcalRecHitsEB")));
+  //   
   ecalEndcapRecHitToken_ = consumes<EERecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
   //
@@ -182,14 +183,12 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   dispFermion_pt_cut_  = ps.getParameter<double>("dispFermion_pt_cut");
 }
 
-
 //
 // -- Destructor
 //
 ExoticaDQM::~ExoticaDQM(){
   edm::LogInfo("ExoticaDQM") <<  " Deleting ExoticaDQM " << "\n" ;
 }
-
 
 //
 //  -- Book histograms
@@ -346,67 +345,48 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // objects
 
-//   std::cout << "###############\n";  
   //Trigger
   bool ValidTriggers = iEvent.getByToken(TriggerToken_, TriggerResults_);
-//   std::cout << "ValidTriggers -> " << ValidTriggers << "\n";  
   if (!ValidTriggers) return;
 
   // Vertices
   bool ValidVertices = iEvent.getByToken(VertexToken_, VertexCollection_);
-//   std::cout << "ValidVertices -> " << ValidVertices << "\n";  
   if (!ValidVertices) return;
 
   // Electrons
   bool ValidGedGsfElectron = iEvent.getByToken(ElectronToken_, ElectronCollection_);
-//   std::cout << "ValidGedGsfElectron -> " << ValidGedGsfElectron << "\n";  
   if(!ValidGedGsfElectron) return;
 
   // Muons
   bool ValidPFMuon = iEvent.getByToken(MuonToken_, MuonCollection_);
-//   std::cout << "ValidPFMuon -> " << ValidPFMuon << "\n";  
   if(!ValidPFMuon) return;
 
   // Jets
   bool ValidPFJet = iEvent.getByToken(PFJetToken_, pfJetCollection_);
   pfjets = *pfJetCollection_;
-//   std::cout << "ValidPFJet -> " << ValidPFJet << "\n";  
   if(!ValidPFJet) return;
-
-  // MET
-  //bool ValidCaloMET = iEvent.getByToken(CaloMETToken_, caloMETCollection_);
-  //if(!ValidCaloMET) return;
 
   // PFMETs
   bool ValidPFMET = iEvent.getByToken(PFMETToken_, pfMETCollection_);
-//   std::cout << "ValidPFMET -> " << ValidPFMET << "\n";  
   if(!ValidPFMET) return;
 
   // Photons
   bool ValidCaloPhoton = iEvent.getByToken(PhotonToken_, PhotonCollection_);
-//   std::cout << "ValidCaloPhoton -> " << ValidCaloPhoton << "\n";  
   if(!ValidCaloPhoton) return;
 
   // Tracks
   bool ValidTracks = iEvent.getByToken(TrackToken_, TrackCollection_);
-//   std::cout << "ValidTracks -> " << ValidTracks << "\n";  
   if (!ValidTracks) return;
 
   // Special collections for displaced particles
   iEvent.getByToken(MuonDispToken_, MuonDispCollection_);
-//   bool ValidMuonDisp = iEvent.getByToken(MuonDispToken_, MuonDispCollection_);
-//   std::cout << "ValidMuonDisp -> " << ValidMuonDisp << "\n";  
   
   iEvent.getByToken(MuonDispSAToken_, MuonDispSACollection_);
-//   bool ValidMuonDispSA = iEvent.getByToken(MuonDispSAToken_, MuonDispSACollection_);
-//   std::cout << "ValidMuonDispSA -> " << ValidMuonDispSA << "\n";  
 
   // MC truth
   bool ValidGenParticles = iEvent.getByToken(GenParticleToken_, GenCollection_);
-//   std::cout << "ValidGenParticles -> " << ValidGenParticles << "\n";  
 
   bool ValidJetCorrector = iEvent.getByToken( JetCorrectorToken_, JetCorrector_ );
-//   std::cout << "ValidJetCorrector -> " << ValidJetCorrector << "\n";  
 
   //Trigger
   
@@ -418,22 +398,12 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if (TriggerResults_.product()->accept(i_Trig)) {           
       for (int n = 0; n < N_GoodTriggerPaths; n++) {
 	if (trigName.triggerName(i_Trig).find(HltPaths_[n])!=std::string::npos){
-	  //printf("Triggers fired? %i %s \n",i_Trig, trigName.triggerName(i_Trig).data());
 	  triggered_event = true;
 	}
       }
     }
   }
   if (triggered_event == false) return;
-
-  // if (triggered_event == false) {
-  //   printf("NO TRIGGER!!!!! \n");
-  //   for (int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig) {
-  //     if (TriggerResults_.product()->accept(i_Trig)) {           
-  // 	printf("Triggers fired? %i %s \n",i_Trig, trigName.triggerName(i_Trig).data());
-  //     }
-  //   }
-  // }
   
   for(int i=0; i<2; i++){
     //Jets
@@ -554,8 +524,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     double dEtaIn = fabs(electron_->deltaEtaSuperClusterTrackAtVtx());
     double dPhiIn = fabs(electron_->deltaPhiSuperClusterTrackAtVtx());
     double HoverE = electron_->hadronicOverEm();
-    // double depth1Iso = electron_->dr03EcalRecHitSumEt()+electron_->dr03HcalDepth1TowerSumEt();
-    // double hoDensity = (*rhoHandle);
     int missingHits = electron_->gsfTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
     double dxy = electron_->gsfTrack()->dxy(primaryVertex_->position());
     double tkIso = electron_->dr03TkSumPt();
@@ -636,7 +604,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (photon_->pt() > dielectron_Electron1_pt_cut_) diphoton_countPhoton_ ++;
    }
   }
-  //#######################################################
+  
+  //
   // Analyze
   //
 
@@ -651,10 +620,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   analyzeMonoMuons(iEvent);
   analyzeMonoElectrons(iEvent);
 
-  //
-  //analyzeMultiJetsTrigger(iEvent);
-  //analyzeLongLivedTrigger(iEvent);
-
   // Displaced Fermion Searches (requires MC truth)
   if (ValidGenParticles) {
     analyzeDisplacedLeptons(iEvent, iSetup);
@@ -662,180 +627,128 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
 }
+
 void ExoticaDQM::analyzeDisplacedLeptons(const Event & iEvent, const edm::EventSetup& iSetup){
 
   //=== This is designed to run on MC events in which a pair of long-lived stop quarks each decay to a displaced lepton + displaced b jet.
-
-  // Initialisation
 
   const unsigned int stop1 = 1000006; // PDG identifier of top squark1
   const unsigned int stop2 = 2000006; // PDG identifier of top squark2
   const float deltaRcut = 0.01; // Cone size for matching reco to true leptons.
   const float invPtcut = 0.1; // Cut in 1/Pt consistency for matching reco tracks to genParticles.
  
-  //--- Measure the efficiency to reconstruct leptons from long-lived stop quark decay.
-
   for (const reco::GenParticle& gen : *GenCollection_){
     unsigned int idPdg = abs(gen.pdgId());
-    // Find electrons/muons from long-lived stop decay.
     if (idPdg == stop1 || idPdg == stop2) {
       unsigned int nDau = gen.numberOfDaughters();
       for (unsigned int i = 0; i < nDau; i++) {
         const reco::GenParticle* dau = (const reco::GenParticle*) gen.daughter(i);
-    // Only measure efficiency using leptons passing pt & eta cuts. (The pt cut is almost irrelevant, since leptons from stop decay are hard).
         if (fabs(dau->eta()) < dispFermion_eta_cut_ && dau->pt() > dispFermion_pt_cut_) { 
-      unsigned int pdgIdDau = abs(dau->pdgId());
-
-      if (pdgIdDau == 11 || pdgIdDau == 13) { // electron or muon from stop decay
-
-            // Get transverse decay length of stop quark.
-        float lxy = dau->vertex().rho();
-
-        // Get momentum vector of daughter genParticle trajectory extrapolated to beam-line.
-        GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, dau);
-
-        if (pdgIdDau == 11) { // electron from stop decay
-
-          // Find matching reco track if any.
-          bool recoedTrk = false;
-          for(const reco::Track&  trk : *TrackCollection_){
-        if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) {
-          //cout<<"MATCH ELEC TRK "<<dau->pt()<<" "<<trk.pt()<<" "<<reco::deltaR(genP, trk)<<endl;
-          recoedTrk = true;
+          unsigned int pdgIdDau = abs(dau->pdgId());
+          if (pdgIdDau == 11 || pdgIdDau == 13) {
+            float lxy = dau->vertex().rho();
+            GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, dau);
+            if (pdgIdDau == 11) {
+              bool recoedTrk = false;
+              for(const reco::Track&  trk : *TrackCollection_){
+                if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
+              }
+              dispElec_track_effi_lxy->Fill(lxy, recoedTrk);
+              bool recoedE = false;
+              for(const reco::GsfElectron&  eReco : *ElectronCollection_){
+                if (reco::deltaR(genP, eReco) < deltaRcut && fabs(1/dau->pt() - 1/eReco.pt()) < invPtcut) recoedE = true;
+              }
+              dispElec_elec_effi_lxy->Fill(lxy, recoedE);
+            } 
+            else if (pdgIdDau == 13) { 
+              bool recoedTrk = false;
+              for(const reco::Track&  trk : *TrackCollection_){
+                if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
+              }
+              dispMuon_track_effi_lxy->Fill(lxy, recoedTrk);
+              bool recoedMu = false;
+              for(const reco::Muon&  muReco : *MuonCollection_){
+                if (reco::deltaR(genP, muReco) < deltaRcut && fabs(1/dau->pt() - 1/muReco.pt()) < invPtcut) recoedMu = true;
+              }
+              dispMuon_muon_effi_lxy->Fill(lxy, recoedMu);
+              bool recoedMuDisp = false;
+              for(const reco::Track&  muDispReco : *MuonDispCollection_){
+                if (reco::deltaR(genP, muDispReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispReco.pt()) < invPtcut) recoedMuDisp = true;
+              }
+              dispMuon_muonDisp_effi_lxy->Fill(lxy, recoedMuDisp);
+              bool recoedMuDispSA = false;
+              for(const reco::Track&  muDispSAReco : *MuonDispSACollection_){
+                if (reco::deltaR(genP, muDispSAReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispSAReco.pt()) < invPtcut) recoedMuDispSA = true;
+              }
+              dispMuon_muonDispSA_effi_lxy->Fill(lxy, recoedMuDispSA);
+            }
+          }
         }
-          }
-          dispElec_track_effi_lxy->Fill(lxy, recoedTrk);
-
-          // Find matching reco electron if any.
-          bool recoedE = false;
-          for(const reco::GsfElectron&  eReco : *ElectronCollection_){
-        if (reco::deltaR(genP, eReco) < deltaRcut && fabs(1/dau->pt() - 1/eReco.pt()) < invPtcut) recoedE = true;
-          }
-          dispElec_elec_effi_lxy->Fill(lxy, recoedE);
-
-        } else if (pdgIdDau == 13) { // muon from stop decay
-
-          // Find matching reco track if any.
-          bool recoedTrk = false;
-          for(const reco::Track&  trk : *TrackCollection_){
-        if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) {
-          //cout<<"MATCH MUON TRK "<<dau->pt()<<" "<<trk.pt()<<" "<<reco::deltaR(genP, trk)<<endl;
-          recoedTrk = true;
-        }
-          }
-          dispMuon_track_effi_lxy->Fill(lxy, recoedTrk);
-
-          // Find matching reco muon, if any, in normal global muon collection. 
-          bool recoedMu = false;
-          for(const reco::Muon&  muReco : *MuonCollection_){
-        if (reco::deltaR(genP, muReco) < deltaRcut && fabs(1/dau->pt() - 1/muReco.pt()) < invPtcut) recoedMu = true;
-          }
-          dispMuon_muon_effi_lxy->Fill(lxy, recoedMu);
-
-          // Find matching reco muon, if any, in displaced global muon collection. 
-          bool recoedMuDisp = false;
-          for(const reco::Track&  muDispReco : *MuonDispCollection_){
-        if (reco::deltaR(genP, muDispReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispReco.pt()) < invPtcut) recoedMuDisp = true;
-          }
-          dispMuon_muonDisp_effi_lxy->Fill(lxy, recoedMuDisp);
-
-          // Find matching reco muon, if any, in displaced SA muon collection. 
-          bool recoedMuDispSA = false;
-          for(const reco::Track&  muDispSAReco : *MuonDispSACollection_){
-        if (reco::deltaR(genP, muDispSAReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispSAReco.pt()) < invPtcut) recoedMuDispSA = true;
-          }
-          dispMuon_muonDispSA_effi_lxy->Fill(lxy, recoedMuDispSA);
-        }
-      }
-    }
       }
     }
   }
 }
+
 void ExoticaDQM::analyzeDisplacedJets(const Event & iEvent, const edm::EventSetup& iSetup){
 
   //=== This is designed to run on MC events in which a pair of long-lived stop quarks each decay to a displaced lepton + displaced b jet.
 
-  // Initialisation
-
-  // Define function to identify R-hadrons containing stop quarks from PDG particle code.
-  // N.B. Jets originate not just from stop quark, but also from its partner SM quark inside the R hadron.
   auto isRhadron = [](unsigned int pdgId){return (pdgId/100) == 10006 || (pdgId/1000) == 1006;};
 
   const float deltaRcut = 0.01; // Cone size for matching reco tracks to genParticles.
   const float invPtcut = 0.1; // Cut in 1/Pt consistency for matching reco tracks to genParticles.
  
-  //--- Measure the efficiency to reconstruct tracks in jet(s) from long-lived stop quark decay.
-
   for (const reco::GenParticle& gen : *GenCollection_){
     unsigned int idPdg = abs(gen.pdgId());
-    // Only measure efficiency using charged e, mu pi, K, p
     if (idPdg == 11 || idPdg == 13 || idPdg == 211 || idPdg == 321 || idPdg == 2212) {
-      // Only measure efficiency using leptons passing pt & eta cuts. (The pt cut is almost irrelevant, since leptons from stop decay are hard).
       if (fabs(gen.eta()) < dispFermion_eta_cut_ && gen.pt() > dispFermion_pt_cut_) { 
-
-    // Check if this particle came (maybe indirectly) from an R hadron decay.
-    const reco::GenParticle* genMoth = &gen;
+        const reco::GenParticle* genMoth = &gen;
         const reco::GenParticle* genRhadron = nullptr;
         bool foundParton = false;
-    while (genMoth->numberOfMothers() > 0) {
+        while (genMoth->numberOfMothers() > 0) {
           genMoth = (const reco::GenParticle*) genMoth->mother(0);
-      unsigned int idPdgMoth = abs(genMoth->pdgId()); 
-      // Check that the R-hadron decayed via a quark/gluon before yielding genParticle "gen".
-      // This ensures that gen is from the jet, and not a lepton produced directly from the stop quark decay.
-      if ( (idPdgMoth >= 1 && idPdgMoth <= 6) || idPdgMoth == 21) foundParton = true;
-      // Note if ancestor was R hadron
-      if (isRhadron( idPdgMoth )) {
-        genRhadron = genMoth;
-        break;
+          unsigned int idPdgMoth = abs(genMoth->pdgId()); 
+          if ( (idPdgMoth >= 1 && idPdgMoth <= 6) || idPdgMoth == 21) foundParton = true;
+          if (isRhadron( idPdgMoth )) {
+            genRhadron = genMoth;
+            break;
           }
-    }
-
-    if (foundParton && genRhadron != nullptr) { // This GenParticle came (maybe indirectly) from an R hadron decay.
-
-      // Get transverse decay length of R hadron.
-      float lxy = genRhadron->daughter(0)->vertex().rho();
-
-      // Get momentum vector of genParticle trajectory extrapolated to beam-line.
-      GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, &gen);
-
-      // Find matching reco track if any.
-      bool recoedTrk = false;
-      for(const reco::Track&  trk : *TrackCollection_){
-        if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/gen.pt() - 1/trk.pt()) < invPtcut) {
-          //cout<<"MATCH TRK "<<gen.pt()<<" "<<trk.pt()<<" "<<reco::deltaR(gen, trk)<<endl;
-          recoedTrk = true;
         }
-      }
-      dispJet_track_effi_lxy->Fill(lxy, recoedTrk);
-    }
+        if (foundParton && genRhadron != nullptr) {
+          float lxy = genRhadron->daughter(0)->vertex().rho();
+          GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, &gen);
+          bool recoedTrk = false;
+          for(const reco::Track&  trk : *TrackCollection_){
+            if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/gen.pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
+          }
+          dispJet_track_effi_lxy->Fill(lxy, recoedTrk);
+        }
       }
     }
   }
 }
+
 GlobalVector ExoticaDQM::getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen ) {
-  //=== Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest
-  //=== approach to the beam-line.
+
+  //=== Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line.
   
-  // Get the magnetic field
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  // Make FreeTrajectoryState of this gen particle
   FreeTrajectoryState fts(GlobalPoint(gen->vx(),gen->vy(),gen->vz()),
                           GlobalVector(gen->px(),gen->py(),gen->pz()),
                           gen->charge(),
                           theMagField.product());
 
-  // Get trajectory closest to beam line
   TSCBLBuilderNoMaterial tscblBuilder;
-  const BeamSpot beamspot; // Simple beam-spot at (0,0,0). Good enough.
+  const BeamSpot beamspot;
   TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(fts, beamspot);
 
   GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
   
   return p;  
 }
+
 void ExoticaDQM::analyzeDiJets(const Event & iEvent){
   for (unsigned int icoll = 0; icoll < DiJetPFJetCollection_.size(); ++icoll) {
     dijet_countPFJet_=0;
@@ -846,14 +759,11 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
       PFJetPx[i]   = 0.; PFJetPy[i] = 0.;   PFJetPt[i] = 0.;   PFJetEta[i] = 0.; PFJetPhi[i] = 0.;
       PFJetNHEF[i] = 0.; PFJetCHEF[i] = 0.; PFJetNEMF[i] = 0.; PFJetCEMF[i] = 0.;
     }
-    //const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
     PFJetCollection::const_iterator DiJetpfjet_ = DiJetpfjets.begin();
     for(; DiJetpfjet_ != DiJetpfjets.end(); ++DiJetpfjet_){
-      //double scale = pfcorrector->correction(*pfjet_,iEvent, iSetup);
-      //if (icoll == 0.) continue; // info already saved
       double scale = 1.;
       if(scale*DiJetpfjet_->pt()>PFJetPt[0]){
-	PFJetPt[1]   = PFJetPt[0];
+        PFJetPt[1]   = PFJetPt[0];
     	PFJetPx[1]   = PFJetPx[0];
      	PFJetPy[1]   = PFJetPy[0];
      	PFJetEta[1]  = PFJetEta[0];
@@ -864,7 +774,6 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
      	PFJetCHEF[1] = PFJetCHEF[0];
      	PFJetNEMF[1] = PFJetNEMF[0];
      	PFJetCEMF[1] = PFJetCEMF[0];
-	//
      	PFJetPt[0]   = scale*DiJetpfjet_->pt();
      	PFJetPx[0]   = scale*DiJetpfjet_->px();
      	PFJetPy[0]   = scale*DiJetpfjet_->py();
@@ -914,6 +823,7 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
     }
   }
 }
+
 void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
   if(MuonPt[0] > dimuon_Muon1_pt_cut_ && MuonPt[1]> dimuon_Muon2_pt_cut_ && MuonCharge[0]*MuonCharge[1] == -1){
     dimuon_Muon_pt->Fill(MuonPt[0]);
@@ -931,6 +841,7 @@ void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
     dimuon_MuonMulti->Fill(dimuon_countMuon_);
   }
 }
+
 void ExoticaDQM::analyzeDiElectrons(const Event & iEvent){
   if(ElectronPt[0] > dielectron_Electron1_pt_cut_ && ElectronPt[1]> dielectron_Electron2_pt_cut_ && ElectronCharge[0]*ElectronCharge[1] == -1.){
     dielectron_Electron_pt->Fill(ElectronPt[0]);
@@ -948,6 +859,7 @@ void ExoticaDQM::analyzeDiElectrons(const Event & iEvent){
     dielectron_ElectronMulti->Fill(dielectron_countElectron_);
   }
 }
+
 void ExoticaDQM::analyzeDiPhotons(const Event & iEvent){
   if(PhotonPt[0] > diphoton_Photon1_pt_cut_ && PhotonPt[1]> diphoton_Photon2_pt_cut_ ){
     diphoton_Photon_energy->Fill(PhotonEnergy[0]);
@@ -997,6 +909,7 @@ void ExoticaDQM::analyzeDiPhotons(const Event & iEvent){
     diphoton_PhotonMulti->Fill(diphoton_countPhoton_);
   }
 }
+
 void ExoticaDQM::analyzeMonoJets(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -1015,6 +928,7 @@ void ExoticaDQM::analyzeMonoJets(const Event & iEvent){
     monojet_PFJetMulti->Fill(monojet_countPFJet_);
   }
 }
+
 void ExoticaDQM::analyzeMonoMuons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -1031,6 +945,7 @@ void ExoticaDQM::analyzeMonoMuons(const Event & iEvent){
     monomuon_MuonMulti->Fill(monomuon_countMuon_);
   }
 }
+
 void ExoticaDQM::analyzeMonoElectrons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -1047,6 +962,7 @@ void ExoticaDQM::analyzeMonoElectrons(const Event & iEvent){
     monoelectron_ElectronMulti->Fill(monoelectron_countElectron_);
   }
 }
+
 void ExoticaDQM::analyzeMonoPhotons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();

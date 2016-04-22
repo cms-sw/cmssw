@@ -118,8 +118,7 @@ protected:
   virtual void analyzeDisplacedLeptons(edm::Event const& e, const edm::EventSetup& s);
   virtual void analyzeDisplacedJets(edm::Event const& e, const edm::EventSetup& s);
 
-  // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest
-  // approach to the beam-line.
+  // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line
   virtual GlobalVector getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen );
 
 private:
