@@ -28,19 +28,17 @@ RecoLocalMuonAOD = cms.PSet(
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
 )
-
-def _modifyRecoLocalMuonEventContentForRun3( object ):
-    object.outputCommands.append('keep *_gemRecHits_*_*')
-
-def _modifyRecoLocalMuonEventContentForPhase2( object ):
-    object.outputCommands.append('keep *_me0RecHits_*_*')
-    object.outputCommands.append('keep *_me0Segments_*_*')
-
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForRun3 )
-eras.run3_GEM.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForRun3 )
-eras.run3_GEM.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForRun3 )
+eras.run3_GEM.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_gemRecHits_*_*'] )
+eras.run3_GEM.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_gemRecHits_*_*'] )
+eras.run3_GEM.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_gemRecHits_*_*'] )
 
-eras.phase2_muon.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForPhase2 )
-eras.phase2_muon.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForPhase2 )
-eras.phase2_muon.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForPhase2 )
+eras.phase2_muon.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_me0RecHits_*_*'] )
+eras.phase2_muon.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_me0RecHits_*_*'] )
+eras.phase2_muon.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_me0RecHits_*_*'] )
+
+eras.phase2_muon.toModify( RecoLocalMuonFEVT, outputCommands = RecoLocalMuonFEVT.outputCommands + ['keep *_me0Segments_*_*'] )
+eras.phase2_muon.toModify( RecoLocalMuonRECO, outputCommands = RecoLocalMuonRECO.outputCommands + ['keep *_me0Segments_*_*'] )
+eras.phase2_muon.toModify( RecoLocalMuonAOD, outputCommands = RecoLocalMuonAOD.outputCommands + ['keep *_me0Segments_*_*'] )
+
+

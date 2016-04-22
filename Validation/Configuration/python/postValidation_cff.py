@@ -73,15 +73,16 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
-def _modifyPostValidationForRun3( theProcess ):
-    theProcess.load('Validation.MuonGEMHits.PostProcessor_cff')
-    theProcess.load('Validation.MuonGEMDigis.PostProcessor_cff')
-    theProcess.load('Validation.MuonGEMRecHits.PostProcessor_cff')
-    theProcess.load('Validation.HGCalValidation.HGCalPostProcessor_cff')
-    theProcess.postValidation += theProcess.MuonGEMHitsPostProcessors
-    theProcess.postValidation += theProcess.MuonGEMDigisPostProcessors
-    theProcess.postValidation += theProcess.MuonGEMRecHitsPostProcessors
-    theProcess.postValidation += theProcess.hgcalPostProcessor
+from Validation.MuonGEMHits.PostProcessor_cff import *
+from Validation.MuonGEMDigis.PostProcessor_cff import *
+from Validation.MuonGEMRecHits.PostProcessor_cff import *
+from Validation.HGCalValidation.HGCalPostProcessor_cff import *
+
+_run3_postValidation = postValidation.copy()
+_run3_postValidation += MuonGEMHitsPostProcessors
+_run3_postValidation += MuonGEMDigisPostProcessors
+_run3_postValidation += MuonGEMRecHitsPostProcessors
+_run3_postValidation += hgcalPostProcessor
 
 from Configuration.StandardSequences.Eras import eras
-modifyConfigurationStandardSequencesPostValidationForRun3_ = eras.run3_GEM.makeProcessModifier( _modifyPostValidationForRun3 )
+eras.run3_GEM.toReplaceWith( postValidation, _run3_postValidation )

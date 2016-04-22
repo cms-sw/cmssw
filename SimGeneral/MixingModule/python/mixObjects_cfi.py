@@ -222,11 +222,18 @@ mixPCFHepMCProducts = cms.PSet(
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
 
 from Configuration.StandardSequences.Eras import eras
+eras.run3_GEM.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
 eras.phase2_muon.toModify( theMixObjects,
-    mixSH = dict( 
-        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits"), cms.InputTag("g4SimHits","MuonME0Hits") ],
-        subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits', 'MuonME0Hits' ],
-        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits', 'MuonME0Hits' ]
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonME0Hits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'MuonME0Hits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
 eras.phase2_hgcal.toModify( theMixObjects,
@@ -237,5 +244,5 @@ eras.phase2_hgcal.toModify( theMixObjects,
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
                                                   hgchebackDigitizer.hitCollection.value(),
                                                   hgchefrontDigitizer.hitCollection.value() ]
-    ) 
+    )
 )

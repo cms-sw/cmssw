@@ -120,14 +120,15 @@ globalPrevalidationTrackingOnly = cms.Sequence(
 )
 globalValidationTrackingOnly = cms.Sequence()
 
-def _modifyGlobalValidationForRun3( theProcess ):
-    theProcess.load('Validation.Configuration.gemSimValid_cff')
-    theProcess.globalValidation += theProcess.gemSimValid
+from Validation.Configuration.gemSimValid_cff import gemSimValid
+from Validation.Configuration.me0SimValid_cff import me0SimValid
 
-def _modifyGlobalValidationForPhase2( theProcess ):
-    theProcess.load('Validation.Configuration.me0SimValid_cff')
-    theProcess.globalValidation += theProcess.me0SimValid
+_run3_globalValidation = globalValidation.copy()
+_run3_globalValidation += gemSimValid
+
+_phase2_globalValidation = _run3_globalValidation.copy()
+_phase2_globalValidation += me0SimValid
 
 from Configuration.StandardSequences.Eras import eras
-modifyConfigurationStandardSequencesGlobalValidationForRun3_ = eras.run3_GEM.makeProcessModifier( _modifyGlobalValidationForRun3 )
-modifyConfigurationStandardSequencesGlobalValidationForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyGlobalValidationForPhase2 )
+eras.run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
+eras.phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
