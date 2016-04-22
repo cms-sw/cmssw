@@ -295,10 +295,19 @@ void DQMStore::IBooker::tagContents(const std::string &path, unsigned int myTag)
 }
 
 //IGetter methods
+void DQMStore::IGetter::getAllContents_(std::function<void(MonitorElement *)> f,
+                               const std::string &path,
+				                       uint32_t runNumber /* = 0 */,
+				                       uint32_t lumi      /* = 0 */) const {
+
+  return owner_->getAllContents_(f, path, runNumber, lumi);
+}
+
 std::vector<MonitorElement*>
 DQMStore::IGetter::getAllContents(const std::string &path,
 				  uint32_t runNumber /* = 0 */,
-				  uint32_t lumi      /* = 0 */) {
+				  uint32_t lumi      /* = 0 */) const {
+
   return owner_->getAllContents(path, runNumber, lumi);
 }
 
@@ -1990,10 +1999,10 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
 
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
-std::vector<MonitorElement*>
-DQMStore::getAllContents(const std::string &path,
-                         uint32_t runNumber /* = 0 */,
-                         uint32_t lumi /* = 0 */) const
+void DQMStore::getAllContents_(std::function<void(MonitorElement *)> callback,
+                               const std::string &path,
+                               uint32_t runNumber /* = 0 */,
+                               uint32_t lumi /* = 0 */) const
 {
   std::string clean;
   const std::string *cleaned = 0;
@@ -2001,7 +2010,6 @@ DQMStore::getAllContents(const std::string &path,
   MonitorElement proto(cleaned, std::string(), runNumber);
   proto.setLumi(lumi);
 
-  std::vector<MonitorElement *> result;
   MEMap::const_iterator e = data_.end();
   MEMap::const_iterator i = data_.lower_bound(proto);
   for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
@@ -2021,7 +2029,7 @@ DQMStore::getAllContents(const std::string &path,
       assert(i->data_.streamId == 0);
       assert(i->data_.moduleId == 0);
     }
-    result.push_back(const_cast<MonitorElement *>(&*i));
+    callback(const_cast<MonitorElement *>(&*i));
   }
 
   if (enableMultiThread_)
@@ -2030,10 +2038,20 @@ DQMStore::getAllContents(const std::string &path,
       i = data_.begin();
       for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
         if (i->data_.run != 0 || i->data_.streamId != 0 || i->data_.moduleId != 0) break;
-        result.push_back(const_cast<MonitorElement *>(&*i));
+        callback(const_cast<MonitorElement *>(&*i));
       }
     }
+}
 
+// 'wrapper' version of getAllContents
+std::vector<MonitorElement*>
+DQMStore::getAllContents(const std::string &path,
+                                  uint32_t runNumber /* = 0 */,
+                                  uint32_t lumi /* = 0 */) const
+{
+  std::vector<MonitorElement *> result;
+  getAllContents_([&result](MonitorElement *m){ result.push_back(m); },
+                  path, runNumber, lumi);
   return result;
 }
 
