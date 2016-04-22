@@ -16,10 +16,10 @@ void trigSystem::configureSystem(const std::string& l1HltKey, const std::string&
 {
         std::cout << "L1_HLT_key: " << l1HltKey << ", subsystem name: " << subSysName << std::endl;
         // TODO: get _sysId from JSON
-	_sysId = "ugmt";
+	//_sysId = "ugmt";
         // TODO: get processors and roles from JSON
         // loop to add all roles and processors found in the JSON
-	addProcRole("processors", "ugmt_processor");
+	//addProcRole("processors", "ugmt_processor");
 
         // TODO: get subsystem key and subsystem RS key from DB using l1HltKey
         // TODO: get clobs from subsystem keys
@@ -49,6 +49,9 @@ void trigSystem::addProcRole(const std::string& role, const std::string& process
 	_procRole[processor] = role;
 
 	_roleProcs[role].push_back(processor);
+
+	_procEnabled[processor] = true;
+
 }
 
 void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
@@ -228,7 +231,7 @@ void trigSystem::disableDaqProc(const std::string& daqProc)
 	}
 }
 
-bool trigSystem::isProcDisabled(const std::string& proccessor)
+bool trigSystem::isProcEnabled(const std::string& proccessor)
 {
 	if (!_isConfigured)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
