@@ -26,7 +26,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 

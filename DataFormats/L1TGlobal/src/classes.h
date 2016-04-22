@@ -5,7 +5,9 @@
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 
+using namespace l1t;
 
 
 namespace DataFormats_L1TGlobal {
@@ -18,9 +20,27 @@ namespace DataFormats_L1TGlobal {
     edm::Wrapper<GlobalExtBlkBxCollection>    w_uGtExtBxColl;
     std::vector<GlobalAlgBlk> v_uGtAlgBx;
     std::vector<GlobalExtBlk> v_uGtExtBx;
+    GlobalAlgBlkBxCollection                     dummy1a;
+    GlobalExtBlkBxCollection                     dummy1b;    
+    edm::Wrapper<GlobalAlgBlkBxCollection>       dummy1c;
+    edm::Wrapper<GlobalExtBlkBxCollection>       dummy1d;
     
-    GlobalObjectMap  uGtObjectMap;
-    edm::Wrapper<GlobalObjectMap> w_uGtObjectMap;
+    GlobalObjectMap                              dummy2a;
+    edm::Wrapper<GlobalObjectMap>                dummy2b;
+    std::vector<GlobalObjectMap>                 dummy2c;
+    edm::Wrapper<std::vector<GlobalObjectMap> >  dummy2d;
+
+    GlobalObjectMapRecord                        dummy3a;
+    edm::Wrapper<GlobalObjectMapRecord>          dummy3b; 
+
+    std::vector<GlobalObject>                    dummy4a;
+    std::vector<std::vector<GlobalObject> >      dummy4b;
+
+    GlobalLogicParser::OperandToken              dummy5a;
+    std::vector<GlobalLogicParser::OperandToken> dummy5b;
+
+    GlobalLogicParser::TokenRPN                  dummy6a;
+    std::vector<GlobalLogicParser::TokenRPN>     dummy6b;
 
     GlobalObjectMapRecord  uGtObjectMapRecord;
     edm::Wrapper<GlobalObjectMapRecord> w_uGtObjectMapRecord;    

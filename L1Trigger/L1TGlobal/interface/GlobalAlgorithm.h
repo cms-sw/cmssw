@@ -24,7 +24,7 @@
 #include <iosfwd>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 // forward declarations
 
