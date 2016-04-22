@@ -138,6 +138,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
+
   std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, hbhehits,ecalebhits,ecaleehits,TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent, iSetup) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);

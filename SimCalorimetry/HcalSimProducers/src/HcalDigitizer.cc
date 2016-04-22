@@ -94,6 +94,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHOResponse(0),   
   theHOSiPMResponse(0),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
+  theHFQIE10Response(new CaloHitResponse(theParameterMap, theShapes)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
   theHBHEAmplifier(0),
   theHFAmplifier(0),
@@ -258,6 +259,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
 
   theHFResponse->setHitFilter(&theHFHitFilter);
+  theHFQIE10Response->setHitFilter(&theHFHitFilter);
   theZDCResponse->setHitFilter(&theZDCHitFilter);
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
@@ -272,7 +274,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
 
   if (doHFQIE10 || doHFQIE8) { //QIE8 and QIE10 can coexist in HF
-    if(doHFQIE10) theHFQIE10Digitizer = new QIE10Digitizer(theHFResponse, theHFQIE10ElectronicsSim, doEmpty);
+    if(doHFQIE10) theHFQIE10Digitizer = new QIE10Digitizer(theHFQIE10Response, theHFQIE10ElectronicsSim, doEmpty);
 	if(doHFQIE8) theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
   }
   else if (doHFUpgrade) {
@@ -349,6 +351,7 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHOResponse;
   delete theHOSiPMResponse;
   delete theHFResponse;
+  delete theHFQIE10Response;
   delete theZDCResponse;
   delete theHBHEElectronicsSim;
   delete theHFElectronicsSim;
@@ -664,6 +667,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHOResponse) theHOResponse->setGeometry(theGeometry);
   if(theHOSiPMResponse) theHOSiPMResponse->setGeometry(theGeometry);
   theHFResponse->setGeometry(theGeometry);
+  theHFQIE10Response->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
   if(theRelabeller) theRelabeller->setGeometry(theGeometry,theRecNumber);
 

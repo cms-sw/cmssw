@@ -38,6 +38,8 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateECAL.h"
 
 class EcalHaloAlgo
 {
@@ -48,7 +50,7 @@ class EcalHaloAlgo
   ~EcalHaloAlgo(){}
   
   // Run algorithm
-  reco::EcalHaloData Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<reco::PhotonCollection>& ThePhotons,  edm::Handle<reco::SuperClusterCollection>& TheSuperClusters,edm::Handle<EBRecHitCollection>& TheEBRecHits, edm::Handle<EERecHitCollection>& TheEERecHits, edm::Handle<ESRecHitCollection>& TheESRecHits);
+  reco::EcalHaloData Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<reco::PhotonCollection>& ThePhotons,  edm::Handle<reco::SuperClusterCollection>& TheSuperClusters,edm::Handle<EBRecHitCollection>& TheEBRecHits, edm::Handle<EERecHitCollection>& TheEERecHits, edm::Handle<ESRecHitCollection>& TheESRecHits, edm::Handle<HBHERecHitCollection>& TheHBHERecHits,const edm::EventSetup& TheSetup);
   // Set Roundness cuts
   void SetRoundnessCut( float r = 100.){ RoundnessCut=r; }                                       
   // Set Angle cuts
@@ -60,7 +62,16 @@ class EcalHaloAlgo
   void SetPhiWedgeEnergyThreshold( float SumE ){ SumEnergyThreshold = SumE ;}
   void SetPhiWedgeNHitsThreshold( int nhits ) { NHitsThreshold = nhits ; }
   void SetPhiWedgeThresholds(float SumE, int nhits) { SumEnergyThreshold = SumE ; NHitsThreshold = nhits ;}
-  
+
+
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  bool EBClusterShapeandTimeStudy(reco::HaloClusterCandidateECAL hcand, bool ishlt);
+  bool EEClusterShapeandTimeStudy_ITBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
+  bool EEClusterShapeandTimeStudy_OTBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
+
+
+
   // Get Roundness cut
   float GetRoundnessCut(){return RoundnessCut ;}
   // Get Angle cut
@@ -91,6 +102,10 @@ class EcalHaloAlgo
   // Phi Wedge Thresholds
   float SumEnergyThreshold;
   int NHitsThreshold;
+
+  const CaloGeometry *geo;
+  math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
+
 };
 
 

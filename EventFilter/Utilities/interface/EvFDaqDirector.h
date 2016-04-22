@@ -204,6 +204,7 @@ namespace evf{
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
       std::string stopFilePath_;
+      unsigned int stop_ls_override_ = 0;
 
       std::shared_ptr<Json::Value> transferSystemJson_;
   };
