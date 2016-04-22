@@ -36,7 +36,7 @@ public:
   MuonNumberingInitialization( const edm::ParameterSet& );
   ~MuonNumberingInitialization();
 
-  typedef std::auto_ptr<MuonDDDConstants> ReturnType;
+  typedef std::unique_ptr<MuonDDDConstants> ReturnType;
 
   ReturnType produce( const MuonNumberingRecord& );
 

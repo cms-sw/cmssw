@@ -38,7 +38,7 @@ public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
   ~HGCalNumberingInitialization();
 
-  typedef std::auto_ptr<HGCalDDDConstants> ReturnType;
+  typedef std::unique_ptr<HGCalDDDConstants> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

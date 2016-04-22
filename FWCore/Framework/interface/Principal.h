@@ -47,7 +47,6 @@ namespace edm {
   class EDConsumerBase;
   class SharedResourcesAcquirer;
   class InputProductResolver;
-  class UnscheduledProductResolver;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -201,6 +200,14 @@ namespace edm {
 
     void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase>  edp) const;
     
+    //F must take an argument of type ProductResolverBase*
+    template <typename F>
+    void applyToResolvers( F iFunc) {
+      for(auto& resolver: productResolvers_) {
+        iFunc(resolver.get());
+      }
+    }
+    
   private:
 
     // Make my DelayedReader get the EDProduct for a ProductResolver.
@@ -213,13 +220,6 @@ namespace edm {
     void readFromSource(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
       readFromSource_(phb, mcc);
     }
-
-    //This function is only meant to be called by UnscheduledProductResolver
-    friend class UnscheduledProductResolver;
-    virtual bool unscheduledFill(std::string const& moduleLabel,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const = 0;
-    
 
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);

@@ -27,7 +27,7 @@ class SiStripGainESProducerTemplate : public edm::ESProducer {
   SiStripGainESProducerTemplate(const edm::ParameterSet&);
   ~SiStripGainESProducerTemplate(){};
   
-  std::auto_ptr<SiStripGain> produce(const TDependentRecord&);
+  std::unique_ptr<SiStripGain> produce(const TDependentRecord&);
 
  private:
 
@@ -73,9 +73,9 @@ SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStripGainESProdu
 }
 
 template<typename TDependentRecord, typename TInputRecord>
-std::auto_ptr<SiStripGain> SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::produce(const TDependentRecord& iRecord)
+std::unique_ptr<SiStripGain> SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::produce(const TDependentRecord& iRecord)
 {
-  std::auto_ptr<SiStripGain> ptr(SiStripGainNormalizationFunction(iRecord));
+  std::unique_ptr<SiStripGain> ptr(SiStripGainNormalizationFunction(iRecord));
   return ptr;
 }
 

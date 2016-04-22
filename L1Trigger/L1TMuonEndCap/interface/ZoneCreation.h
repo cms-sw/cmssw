@@ -16,20 +16,17 @@ ZonesOutput zonemaker(std::vector<ConvertedHit> ConvHits){
 	std::vector<PhiMemoryImage> zones (4,image0);
 	
 
-		for(std::vector<ConvertedHit>::iterator h = ConvHits.begin();h != ConvHits.end();h++){																																																														 
+	for(std::vector<ConvertedHit>::iterator h = ConvHits.begin();h != ConvHits.end();h++){											
 		
-			for(int zone = 0;zone<4;zone++){
-			
-				for(std::vector<int>::iterator in_this_zone = h->ZoneContribution().begin();in_this_zone != h->ZoneContribution().end();in_this_zone++){
-		
-					if(zone == *in_this_zone)
-						zones[zone].SetBit(h->Station(),(h->Zhit()+1));
-				}	
-			}
-			
-			//if(verbose) std::cout<<"\n\nst: "<<h->Station()<<" - wire: "<<h->Wire()<<" - strip: "<<h->Strip()<<" - zzhit = "<<h->Zhit()<<" ";
-			
-		}
+	  std::vector<int> zc=h->ZoneContribution();
+
+	  for(std::vector<int>::iterator in_this_zone = zc.begin();in_this_zone != zc.end();in_this_zone++){
+	    for(int zone = 0;zone<4;zone++){
+	      if(zone == *in_this_zone)
+		zones[zone].SetBit(h->Station(),(h->Zhit()+1));
+	    }	
+	  }
+	}
 		
 	ZonesOutput output;
 	output.zone = zones;

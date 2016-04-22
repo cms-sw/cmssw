@@ -27,6 +27,8 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class Principal;
+  class UnscheduledAuxiliary;
+  class Worker;
   
   class DataManagingProductResolver : public ProductResolverBase {
   public:
@@ -127,7 +129,11 @@ namespace edm {
   class UnscheduledProductResolver : public ProducedProductResolver {
     public:
       explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd) :
-       ProducedProductResolver(bd,ProductStatus::ResolveNotRun) {}
+       ProducedProductResolver(bd,ProductStatus::ResolveNotRun),
+       aux_(nullptr){}
+    
+      virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
+
     private:
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                  Principal const& principal,
@@ -135,6 +141,9 @@ namespace edm {
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
+    
+      UnscheduledAuxiliary const* aux_;
+      Worker* worker_;
   };
 
   class AliasProductResolver : public ProductResolverBase {

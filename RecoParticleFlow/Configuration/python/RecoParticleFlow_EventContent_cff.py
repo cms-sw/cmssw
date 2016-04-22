@@ -133,3 +133,18 @@ RecoParticleFlowAOD = cms.PSet(
     'keep *_particleFlowTmpPtrs_*_*'
         )
 )
+
+def _modifyPFEventContentForHGCalRECO( obj ):
+    obj.outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*')
+
+def _modifyPFEventContentForHGCalFEVT( obj ):
+    obj.outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL__*')
+    obj.outputCommands.append('keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*')
+
+
+# mods for HGCAL
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, func=_modifyPFEventContentForHGCalFEVT)
+eras.phase2_hgcal.toModify( RecoParticleFlowRECO, func=_modifyPFEventContentForHGCalRECO )
+eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  func=_modifyPFEventContentForHGCalRECO )
+

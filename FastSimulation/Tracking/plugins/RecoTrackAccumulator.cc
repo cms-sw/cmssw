@@ -26,9 +26,9 @@ RecoTrackAccumulator::~RecoTrackAccumulator() {
   
 void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
     
-  newTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
-  newHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-  newTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+  newTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
+  newHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+  newTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
   
   // this is needed to get the ProductId of the TrackExtra and TrackingRecHit and Track collections
   rNewTracks=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackCollection>(outputLabel);
@@ -48,9 +48,9 @@ void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventS
 
 void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& iSetup) {
   
-  e.put( newTracks_, outputLabel );
-  e.put( newHits_, outputLabel );
-  e.put( newTrackExtras_, outputLabel );
+  e.put(std::move(newTracks_), outputLabel );
+  e.put(std::move(newHits_), outputLabel );
+  e.put(std::move(newTrackExtras_), outputLabel );
 }
 
 

@@ -103,6 +103,9 @@ void TrackAnalyzer::initHistos()
   zPointOfClosestApproachVsPhi = nullptr;
   algorithm = nullptr;
   oriAlgo = nullptr;
+  stoppingSource = nullptr;
+  stoppingSourceVSeta = nullptr;
+  stoppingSourceVSphi = nullptr;
     // TESTING
   TESTDistanceOfClosestApproachToBS = nullptr;
   TESTDistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -236,6 +239,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
   }
 }
 
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
   
     // parameters from the configuration
@@ -508,6 +512,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
       algorithm->setAxisTitle("Tracking algorithm",1);
       algorithm->setAxisTitle("Number of Tracks",2);
+
       histname = "originalAlgorithm_";
       oriAlgo = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
       oriAlgo->setAxisTitle("Tracking algorithm",1);
@@ -517,6 +522,31 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	algorithm->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
         oriAlgo->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
       }
+
+      // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
+      std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+
+      histname = "stoppingSource_";
+      stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSource->setAxisTitle("stopping reason",1);
+      stoppingSource->setAxisTitle("Number of Tracks",2);
+      
+      histname = "stoppingSourceVSeta_";
+      stoppingSourceVSeta = ibooker.book2D(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSeta->setAxisTitle("track #eta",1);
+      stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+      
+      histname = "stoppingSourceVSphi_";
+      stoppingSourceVSphi = ibooker.book2D(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSphi->setAxisTitle("track #phi",1);
+      stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+
+      for (size_t ibin=0; ibin<StopReasonName.size(); ibin++) {
+	stoppingSource->setBinLabel(ibin+1,StopReasonName[ibin],1);
+	stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName[ibin],2);
+	stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName[ibin],2);
+      }
+
     }
 
 }
@@ -940,6 +970,13 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // algorithm
     algorithm->Fill(static_cast<double>(track.algo()));
     oriAlgo->Fill(static_cast<double>(track.originalAlgo()));
+
+    // stopping source
+    int max = stoppingSource->getNbinsX();
+    double stop = track.stopReason() > max ? double(max-1) : static_cast<double>(track.stopReason());
+    stoppingSource->Fill(stop);
+    stoppingSourceVSeta->Fill(track.eta(),stop);
+    stoppingSourceVSphi->Fill(track.phi(),stop);
   }
 
   if ( doLumiAnalysis_ ) {

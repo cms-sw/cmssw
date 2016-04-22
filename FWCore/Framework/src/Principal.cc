@@ -799,13 +799,13 @@ namespace edm {
 
   WrapperBase const*
   Principal::getIt(ProductID const&) const {
-    assert(nullptr);
+    assert(false);
     return nullptr;
   }
 
   WrapperBase const*
   Principal::getThinnedProduct(ProductID const&, unsigned int&) const {
-    assert(nullptr);
+    assert(false);
     return nullptr;
   }
 
@@ -813,7 +813,7 @@ namespace edm {
   Principal::getThinnedProducts(ProductID const&,
                                   std::vector<WrapperBase const*>&,
                                   std::vector<unsigned int>&) const {
-    assert(nullptr);
+    assert(false);
   }
 
   void

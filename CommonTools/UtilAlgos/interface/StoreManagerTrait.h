@@ -28,7 +28,7 @@ namespace helper {
   
   template<typename T>
   struct IteratorToObjectConverter<edm::OwnVector<T> > {
-    typedef std::auto_ptr<T> value_type;
+    typedef std::unique_ptr<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
       return value_type( (*i)->clone() );
@@ -78,15 +78,15 @@ namespace helper {
       using namespace std;
       for( I i = begin; i != end; ++ i ) {
 	typename ClonePolicy::value_type v = ClonePolicy::convert( i );
-        selected_->push_back( v );
+        selected_->push_back( std::move(v) );
       }
     }
     edm::OrphanHandle<collection> put( edm::Event & evt ) {
-      return evt.put( selected_ );
+      return evt.put( std::move(selected_) );
     }
     size_t size() const { return selected_->size(); }
   private:
-    std::auto_ptr<collection> selected_;
+    std::unique_ptr<collection> selected_;
   };
 
   template<typename OutputCollection, typename EdmFilter>

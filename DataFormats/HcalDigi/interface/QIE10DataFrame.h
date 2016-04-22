@@ -66,11 +66,8 @@ public:
   /// was this a mark-and-pass ZS event?
   static const int MASK_MARKPASS = 0x100;
   bool zsMarkAndPass() const {return m_data[0]&MASK_MARKPASS; }
-  /// other ZS functions (TODO: real implementation)
-  bool zsUnsuppressed() const { return false; }
-  uint32_t zsCrossingMask() const { return 0; }
   /// set ZS params
-  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0);
+  void setZSInfo(bool markAndPass);
   /// get the sample
   inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data,i*WORDS_PER_SAMPLE+HEADER_WORDS); }
   /// set the sample contents

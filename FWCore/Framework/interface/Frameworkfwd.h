@@ -40,7 +40,6 @@ namespace edm {
   class RunPrincipal;
   class Schedule;
   class TypeID;
-  class UnscheduledHandler;
   class ViewBase;
 
   struct EventSummary;

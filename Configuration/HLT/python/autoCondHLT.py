@@ -18,10 +18,10 @@ l1tMenuLabel = ""
 l1Menus= {
     'Fake' : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
     'Fake1': ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
-    'FULL' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v4_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-24 10:00:00.000"] ), ),
-    'GRun' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v4_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-24 10:00:00.000"] ), ),
+    'FULL' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v5_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-04-15 10:00:00.000"] ), ),
+    'GRun' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v5_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-04-15 10:00:00.000"] ), ),
     'HIon' : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
-    'PIon' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v4_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-24 10:00:00.000"] ), ),
+    'PIon' : ( ','.join( [ 'L1Menu_Collisions2016_dev_v5_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-04-15 10:00:00.000"] ), ),
     'PRef' : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
 }
 
@@ -64,21 +64,5 @@ def autoCondHLT(autoCond):
            autoCond[key] = ( autoCond[val[0]] )
         else:
            autoCond[key] = ( autoCond[val[0]],) + val[1]
-
-    payLoad = ('pfscecal_EBCorrection_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EBCorrection_online,2016-02-17 21:00:00.000',)
-    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-    payLoad = ('pfscecal_EECorrection_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EECorrection_online,2016-02-17 21:00:00.000',)
-    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-    payLoad = ('pfscecal_EBUncertainty_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EBUncertainty_online,2016-02-17 21:00:00.000',)
-    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
-
-    payLoad = ('pfscecal_EEUncertainty_online_v0,GBRDWrapperRcd,frontier://FrontierProd/CMS_CONDITIONS,pfscecal_EEUncertainty_online,2016-02-17 21:00:00.000',)
-    autoCond['run2_data_GRun'] = autoCond['run2_data_GRun'] + payLoad
-    autoCond['run2_data_PIon'] = autoCond['run2_data_PIon'] + payLoad
 
     return autoCond

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIMDIGI',eras.Run2_25ns)
+process = cms.Process('SIMDIGI',eras.Phase2,eras.phase1Pixel,eras.trackingPhase1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

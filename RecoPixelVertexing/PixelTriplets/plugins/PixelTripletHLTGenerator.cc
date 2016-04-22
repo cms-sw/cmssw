@@ -286,12 +286,16 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	if (crossingRange.empty())  continue;
 	
 	float ir = 1.f/hits.rv(KDdata);
+        // limit error to 90 degree
+        constexpr float maxPhiErr = 0.5*M_PI;
 	float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+        phiErr = std::min(maxPhiErr, phiErr);
         bool nook=true;
 	for (int icharge=-1; icharge <=1; icharge+=2) {
 	  Range rangeRPhi = predictionRPhi(hits.rv(KDdata), icharge);
+          if(rangeRPhi.first>rangeRPhi.second) continue; // range is empty
 	  correction.correctRPhiRange(rangeRPhi);
-	  if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr)) {
+	  if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr,maxPhiErr)) {
 	    // insert here check with comparitor
 	    OrderedHitTriplet hittriplet( doublets.hit(ip,HitDoublets::inner), doublets.hit(ip,HitDoublets::outer), hits.theHits[KDdata].hit());
 	    if (!theComparitor  || theComparitor->compatible(hittriplet,region) ) {

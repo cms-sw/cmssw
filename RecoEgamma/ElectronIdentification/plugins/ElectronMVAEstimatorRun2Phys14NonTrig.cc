@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Phys14NonTrig.h"
+#include "RecoEgamma/ElectronIdentification/plugins/ElectronMVAEstimatorRun2Phys14NonTrig.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -349,3 +349,6 @@ void ElectronMVAEstimatorRun2Phys14NonTrig::constrainMVAVariables(AllVariables& 
     vars.kfchi2 = 10.;
 }
 
+DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
+		  ElectronMVAEstimatorRun2Phys14NonTrig,
+		  "ElectronMVAEstimatorRun2Phys14NonTrig");

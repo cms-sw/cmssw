@@ -111,5 +111,34 @@ class ESDetId : public DetId {
 
 std::ostream& operator<<(std::ostream&,const ESDetId& id);
 
+inline
+ESDetId::ESDetId( const DetId& gen ) : DetId(gen) 
+{
+#ifdef EDM_ML_DEBUG
+   if( !gen.null() &&
+       ( gen.det()	!= Ecal          ||
+         gen.subdetId() != EcalPreshower    ) )
+   {
+      throw cms::Exception("InvalidDetId");
+   }
+#endif
+}
+
+inline
+ESDetId&
+ESDetId::operator=( const DetId& gen )
+{
+#ifdef EDM_ML_DEBUG
+   if (!gen.null() &&
+       ( gen.det()      != Ecal          ||                              
+         gen.subdetId() != EcalPreshower    ) )
+   {
+      throw cms::Exception("InvalidDetId");
+   }
+#endif
+   id_=gen.rawId();
+   return *this;
+}
+
 
 #endif

@@ -17,8 +17,6 @@
 #include <memory>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
 // user include files
 //   base class
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -117,12 +115,11 @@ StableParametersTrivialProducer::~StableParametersTrivialProducer() {
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<GlobalStableParameters> 
+std::shared_ptr<GlobalStableParameters> 
     StableParametersTrivialProducer::produceGtStableParameters(
         const L1TGlobalStableParametersRcd& iRecord) {
 
-    boost::shared_ptr<GlobalStableParameters> pL1uGtStableParameters =
-        boost::shared_ptr<GlobalStableParameters>(new GlobalStableParameters());
+    auto pL1uGtStableParameters = std::make_shared<GlobalStableParameters>();
 
     // set the number of physics trigger algorithms
     pL1uGtStableParameters->setGtNumberPhysTriggers(m_numberPhysTriggers);

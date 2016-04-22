@@ -31,12 +31,12 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
       
       //convert total energy in GeV to charge (fC)
       //double totalEn=rawEn*1e6*keV2fC_;
-      double totalCharge=rawCharge;
+      float totalCharge=rawCharge;
       
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
-      totalCharge += std::max( CLHEP::RandGaussQ::shoot(engine,0,noise_fC_) , 0. );
-      if(totalCharge<0) totalCharge=0;
+      totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0,noise_fC_) , 0.f );
+      if(totalCharge<0.f) totalCharge=0.f;
       
       chargeColl[i]= totalCharge;
     }

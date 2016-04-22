@@ -1,14 +1,10 @@
 #ifndef SimG4Core_RunManager_H
 #define SimG4Core_RunManager_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -20,6 +16,14 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <memory>
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+  class HepMCProduct;
+}
 
 namespace CLHEP {
   class HepJamesRandom;
@@ -59,7 +63,7 @@ class RunManager
 {
 public:
 
-  RunManager(edm::ParameterSet const & p);
+  RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& i);
   ~RunManager();
   void initG4(const edm::EventSetup & es);
   void initializeUserActions();
@@ -102,7 +106,8 @@ private:
   G4RunManagerKernel * m_kernel;
     
   Generator * m_generator;
-  std::string m_InTag ;
+  edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
+  edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     
   bool m_nonBeam;
   std::auto_ptr<PhysicsList> m_physicsList;
@@ -118,8 +123,6 @@ private:
   G4SimEvent * m_simEvent;
   RunAction * m_userRunAction;
   SimRunInterface * m_runInterface;
-
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
   std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
@@ -156,8 +159,6 @@ private:
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
     
-  edm::InputTag m_theLHCTlinkTag;
-
   std::string m_FieldFile;
   std::string m_WriteFile;
   std::string m_RegionFile;

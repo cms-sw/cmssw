@@ -39,7 +39,7 @@ public:
   FastTimeNumberingInitialization(const edm::ParameterSet&);
   ~FastTimeNumberingInitialization();
 
-  typedef std::auto_ptr<FastTimeDDDConstants> ReturnType;
+  typedef std::unique_ptr<FastTimeDDDConstants> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

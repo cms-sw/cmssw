@@ -129,10 +129,10 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        int emul_er = emulTower->hwEtRatio();
        int emul_fb = emulTower->hwQual();
        bool success = true;
-       if(test_iEta == emul_iEta && test_iPhi == emul_iPhi && test_et > 5) {
+       if(test_iEta == emul_iEta && test_iPhi == emul_iPhi) {
 	 if(test_et != emul_et) {success = false;}
-	 //if(test_er != emul_er) {success = false;}
-	 //if(test_fb != emul_fb) {success = false;}
+	 if(test_er != emul_er) {success = false;}
+	 if(test_fb != emul_fb) {success = false;}
 	 if(!success) {
 	   if(test_et != emul_et) {if(verbose) std::cout << "ET ";}
 	   if(test_er != emul_er) {if(verbose) std::cout << "ER ";}
@@ -153,7 +153,7 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 towerCount++;
 	 if(test_et > 0) nonZeroTowerCount++;
        }
-       if(!success && test_et == emul_et && test_iPhi == emul_iPhi && test_et > 3) {
+       if(!success && test_et == emul_et && test_iPhi == emul_iPhi) {
 	   if(verbose) std::cout << "Incidental match for ("
 				 << test_iEta << ", "
 				 << test_iPhi << ") : ("

@@ -25,7 +25,7 @@ public:
   CaloTowerHardcodeGeometryEP(const edm::ParameterSet&);
   ~CaloTowerHardcodeGeometryEP();
 
-  typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
   ReturnType produce(const CaloTowerGeometryRecord&);
 

@@ -75,12 +75,12 @@ using namespace edm;
     std::string  rechitProducer = "siStripMatchedRecHits";
 
     if(doStrip_) {
-      e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
-      e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
-      e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
+      e.getByToken(matchedRecHitToken, rechitsmatched);
+      e.getByToken(rphiRecHitToken, rechitsrphi);
+      e.getByToken(stereoRecHitToken, rechitsstereo);
     }
     if(doPixel_) {
-      e.getByLabel("siPixelRecHits",pixelrechits);
+      e.getByToken(siPixelRecHitsToken,pixelrechits);
     }
     if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
 
@@ -241,7 +241,11 @@ TestAssociator::TestAssociator(edm::ParameterSet const& conf) :
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ) {
   cout << " Constructor " << endl;
- 
+  
+  matchedRecHitToken=consumes<edmNew::DetSetVector<SiStripMatchedRecHit2D> >(conf.getParameter<edm::InputTag>("matchedRecHit"));
+  rphiRecHitToken=consumes<edmNew::DetSetVector<SiStripRecHit2D> >(conf.getParameter<edm::InputTag>("rphiRecHit"));
+  stereoRecHitToken=consumes<edmNew::DetSetVector<SiStripRecHit2D> >(conf.getParameter<edm::InputTag>("stereoRecHit"));
+  siPixelRecHitsToken=consumes<edmNew::DetSetVector<SiPixelRecHit> >(conf.getParameter<edm::InputTag>("siPixelRecHits"));
 }
 
   TestAssociator::~TestAssociator() 

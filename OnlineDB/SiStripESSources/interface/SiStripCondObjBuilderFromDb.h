@@ -29,6 +29,7 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
+#include <typeinfo>
 
 class SiStripFecCabling;
 class SiStripDetCabling;
@@ -76,6 +77,7 @@ class SiStripCondObjBuilderFromDb {
   				
 
   bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
+  std::string getConfigString(const std::type_info& typeInfo);
 
   SiStripFedCabling*  getFedCabling() {checkUpdate(); return fed_cabling_;}
   SiStripPedestals *  getPedestals()  {checkUpdate(); return pedestals_;}  
@@ -166,6 +168,5 @@ class SiStripCondObjBuilderFromDb {
   trackercon v_trackercon;
 
  };
-
 #endif // OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 

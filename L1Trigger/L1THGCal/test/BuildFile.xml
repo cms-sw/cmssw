@@ -1,0 +1,21 @@
+<!--<use   name="FWCore/Framework"/>-->
+<!--<use   name="FWCore/ParameterSet"/>-->
+<!--<use   name="FWCore/Utilities"/>-->
+<!--<use   name="DataFormats/ForwardDetId"/>-->
+
+<use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="L1Trigger/L1THGCal"/>
+<use   name="Geometry/Records"/>
+<use   name="CommonTools/UtilAlgos"/>
+
+<library name="testL1TriggerL1THGCal"  file="HGCalTriggerGeomTester.cc,HGCalTriggerBestChoiceTester.cc">
+<flags   EDM_PLUGIN="1"/>
+</library>
+
+
+
+<bin name="TestBestChoiceCodec" file="unittest_bestchoicecodec.cc,testRunner.cc">
+  <!--<use   name="DataFormats/L1THGCal"/>-->
+  <use   name="cppunit"/>
+</bin>

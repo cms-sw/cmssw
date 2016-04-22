@@ -133,19 +133,16 @@ namespace edm {
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
     template <typename D> void push_back(D* const& d);
-    template <typename D> void push_back(std::auto_ptr<D> d);
     template <typename D> void push_back(std::unique_ptr<D> d);
     void push_back(T const& valueToCopy);
 
     template <typename D> void set(size_t i, D*& d);
     template <typename D> void set(size_t i, D* const & d);
-    template <typename D> void set(size_t i, std::auto_ptr<D> d);
     template <typename D> void set(size_t i, std::unique_ptr<D> d);
     void set(size_t i, T const& valueToCopy);
 
     template <typename D> void insert(const_iterator i, D*& d);
     template <typename D> void insert(const_iterator i, D* const & d);
-    template <typename D> void insert(const_iterator i, std::auto_ptr<D> d);
     template <typename D> void insert(const_iterator i, std::unique_ptr<D> d);
     void insert(const_iterator i, T const& valueToCopy);
 
@@ -311,12 +308,6 @@ namespace edm {
 
   template<typename T, typename P>
   template<typename D>
-  inline void OwnVector<T, P>::push_back(std::auto_ptr<D> d) {
-    data_.push_back(d.release());
-  }
-
-  template<typename T, typename P>
-  template<typename D>
   inline void OwnVector<T, P>::push_back(std::unique_ptr<D> d) {
     data_.push_back(d.release());
   }
@@ -347,14 +338,6 @@ namespace edm {
 
   template<typename T, typename P>
   template<typename D>
-  inline void OwnVector<T, P>::set(size_t i, std::auto_ptr<D> d) {
-    if (d.get() == data_[i]) return; 
-    delete data_[i];
-    data_[i] = d.release();
-  }
-
-  template<typename T, typename P>
-  template<typename D>
   inline void OwnVector<T, P>::set(size_t i, std::unique_ptr<D> d) {
     if (d.get() == data_[i]) return; 
     delete data_[i];
@@ -380,12 +363,6 @@ namespace edm {
   template<typename D>
   inline void OwnVector<T, P>::insert(const_iterator it, D* const& d) {
     data_.insert(it.base_iter(), d);
-  }
-
-  template<typename T, typename P>
-  template<typename D>
-  inline void OwnVector<T, P>::insert(const_iterator it, std::auto_ptr<D> d) {
-    data_.insert(it.base_iter(), d.release());
   }
 
   template<typename T, typename P>

@@ -32,7 +32,8 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            #'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
-                                           'keep ZDCRecHitsSorted_*_*_*',
+                                           'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                           'keep ZDCRecHitsSorted_zdcreco_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
                                            #'keep HcalUnpackerReport_*_*_*'
@@ -55,4 +56,19 @@ RecoLocalCaloAOD = cms.PSet(
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
+
+def _modifyRecoLocalCaloEventContentForHGCalRECO( obj ):
+    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
+
+def _modifyRecoLocalCaloEventContentForHGCalFEVT( obj ):
+    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
+    obj.outputCommands.append('keep *_HGCalUncalibRecHit_*_*')
+
+
+# mods for HGCAL
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, func=_modifyRecoLocalCaloEventContentForHGCalFEVT)
+eras.phase2_hgcal.toModify( RecoLocalCaloRECO, func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+# don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
+#eras.phase2_hgcal.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalCaloEventContentForHGCalRECO )
 

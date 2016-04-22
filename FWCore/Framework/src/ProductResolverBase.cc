@@ -44,4 +44,7 @@ namespace edm {
     os << std::string("ProductResolver for product with ID: ")
        << productID();
   }
+  
+  void
+  ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
 }

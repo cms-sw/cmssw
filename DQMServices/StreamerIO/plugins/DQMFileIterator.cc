@@ -13,16 +13,19 @@
 #include <iterator>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace dqmservices {
 
 DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
+    const std::string& run_path,
     const std::string& filename, int lumiNumber, int datafn_position) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
   LumiEntry lumi;
   lumi.filename = filename;
+  lumi.run_path = run_path;
 
   lumi.n_events_processed = std::next(pt.get_child("data").begin(), 0)
                                 ->second.get_value<std::size_t>();
@@ -40,15 +43,29 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
   return lumi;
 }
 
+std::string DQMFileIterator::LumiEntry::get_data_path() const {
+  if (boost::starts_with(datafn, "/")) return datafn;
+
+  boost::filesystem::path p(run_path);
+  p /= datafn;
+  return p.string();
+}
+
+std::string DQMFileIterator::LumiEntry::get_json_path() const {
+  return filename;
+}
+
 // Contents of Eor json file are ignored for the moment.
 // This function will not be called.
 DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
+    const std::string& run_path,
     const std::string& filename) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
   EorEntry eor;
   eor.filename = filename;
+  eor.run_path = run_path;
 
   // We rely on n_events to be the first item on the array...
   eor.n_events = std::next(pt.get_child("data").begin(), 1)
@@ -79,7 +96,14 @@ DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset) : state_(EOR) {
 DQMFileIterator::~DQMFileIterator() {}
 
 void DQMFileIterator::reset() {
-  runPath_ = str(boost::format("%s/run%06d") % runInputDir_ % runNumber_);
+  runPath_.clear();
+
+  std::vector<std::string> tokens;
+  boost::split(tokens, runInputDir_, boost::is_any_of(":"));
+
+  for (auto token: tokens) {
+    runPath_.push_back(boost::str(boost::format("%s/run%06d") % token % runNumber_));
+  }
 
   eor_.loaded = false;
   state_ = State::OPEN;
@@ -162,12 +186,17 @@ void DQMFileIterator::monUpdateLumi(const LumiEntry& lumi) {
   mon_->outputUpdate(doc);
 }
 
-std::string DQMFileIterator::make_path(const std::string& fn) {
-  if (boost::starts_with(fn, "/")) return fn;
+std::time_t DQMFileIterator::mtimeHash() const {
+  std::time_t mtime_now = 0;
+  
+  for (auto path : runPath_) {
+    if (!boost::filesystem::exists(path))
+      continue;
 
-  boost::filesystem::path p(runPath_);
-  p /= fn;
-  return p.string();
+    mtime_now = mtime_now ^ boost::filesystem::last_write_time(path);
+  }
+
+  return mtime_now;
 }
 
 void DQMFileIterator::collect(bool ignoreTimers) {
@@ -184,7 +213,7 @@ void DQMFileIterator::collect(bool ignoreTimers) {
   }
 
   // check if directory changed
-  std::time_t mtime_now = boost::filesystem::last_write_time(runPath_);
+  std::time_t mtime_now = mtimeHash();
 
   if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) &&
       (mtime_now == runPathMTime_)) {
@@ -202,62 +231,70 @@ void DQMFileIterator::collect(bool ignoreTimers) {
 
   std::string fn_eor;
 
-  directory_iterator dend;
-  for (directory_iterator di(runPath_); di != dend; ++di) {
-    const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
+  for (auto runPath : runPath_) {
+    if (!boost::filesystem::exists(runPath)) {
+      logFileAction("Directory does not exist: ", runPath);
 
-    const std::string filename = di->path().filename().string();
-    const std::string fn = di->path().string();
-
-    if (filesSeen_.find(filename) != filesSeen_.end()) {
       continue;
     }
 
-    boost::smatch result;
-    if (boost::regex_match(filename, result, fn_re)) {
-      unsigned int run = std::stoi(result[1]);
-      unsigned int lumi = std::stoi(result[2]);
-      std::string label = result[3];
+    directory_iterator dend;
+    for (directory_iterator di(runPath); di != dend; ++di) {
+      const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
 
-      filesSeen_.insert(filename);
+      const std::string filename = di->path().filename().string();
+      const std::string fn = di->path().string();
 
-      if (run != runNumber_) continue;
-
-      // check if this is EoR
-      // for various reasons we have to load it after all other files
-      if ((lumi == 0) && (label == "EoR") && (!eor_.loaded)) {
-        fn_eor = fn;
+      if (filesSeen_.find(filename) != filesSeen_.end()) {
         continue;
       }
 
-      // check if lumi is loaded
-      if (lumiSeen_.find(lumi) != lumiSeen_.end()) {
-        continue;  // already loaded
-      }
+      boost::smatch result;
+      if (boost::regex_match(filename, result, fn_re)) {
+        unsigned int run = std::stoi(result[1]);
+        unsigned int lumi = std::stoi(result[2]);
+        std::string label = result[3];
 
-      // check if this belongs to us
-      if (label != streamLabel_) {
-        std::string msg("Found and skipped json file (stream label mismatch, ");
-        msg += label + " [files] != " + streamLabel_ + " [config]";
-        msg += "): ";
-        logFileAction(msg, fn);
-        continue;
-      }
+        filesSeen_.insert(fn);
 
-      try {
-        LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, datafnPosition_);
-        lumiSeen_.emplace(lumi, lumi_jsn);
-        logFileAction("Found and loaded json file: ", fn);
+        if (run != runNumber_) continue;
 
-        monUpdateLumi(lumi_jsn);
-      } catch (const std::exception& e) {
-        // don't reset the mtime, keep it waiting
-        filesSeen_.erase(filename);
+        // check if this is EoR
+        // for various reasons we have to load it after all other files
+        if ((lumi == 0) && (label == "EoR") && (!eor_.loaded)) {
+          fn_eor = fn;
+          continue;
+        }
 
-        std::string msg("Found, tried to load the json, but failed (");
-        msg += e.what();
-        msg += "): ";
-        logFileAction(msg, fn);
+        // check if lumi is loaded
+        if (lumiSeen_.find(lumi) != lumiSeen_.end()) {
+          continue;  // already loaded
+        }
+
+        // check if this belongs to us
+        if (label != streamLabel_) {
+          std::string msg("Found and skipped json file (stream label mismatch, ");
+          msg += label + " [files] != " + streamLabel_ + " [config]";
+          msg += "): ";
+          logFileAction(msg, fn);
+          continue;
+        }
+
+        try {
+          LumiEntry lumi_jsn = LumiEntry::load_json(runPath, fn, lumi, datafnPosition_);
+          lumiSeen_.emplace(lumi, lumi_jsn);
+          logFileAction("Found and loaded json file: ", fn);
+
+          monUpdateLumi(lumi_jsn);
+        } catch (const std::exception& e) {
+          // don't reset the mtime, keep it waiting
+          filesSeen_.erase(filename);
+
+          std::string msg("Found, tried to load the json, but failed (");
+          msg += e.what();
+          msg += "): ";
+          logFileAction(msg, fn);
+        }
       }
     }
   }
