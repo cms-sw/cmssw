@@ -22,6 +22,7 @@ namespace ecaldqm
   private:
     void setParams(edm::ParameterSet const&) override;
 
+    bool doPulseMaxCheck_;
     int pulseMaxPosition_;
     int nSamples_;
   };
