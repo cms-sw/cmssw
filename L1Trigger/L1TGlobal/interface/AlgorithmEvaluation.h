@@ -18,7 +18,7 @@
  */
 
 //   for L1GtLogicParser
-#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 // system include files
 #include <iostream>
@@ -57,7 +57,7 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 //
 
