@@ -1,25 +1,9 @@
 #ifndef L1TGlobalProducer_h
 #define L1TGlobalProducer_h
 
-/**
- * \class L1TGlobalProducer
- *
- *
- * Description: L1 Global Trigger producer.
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author: Brian Winer  Ohio State
- *
- * $Date$
- * $Revision$
- *
- * The CMSSW implementation based on Legacy System Code
- *
- */
+// Emulator for L1T Global
+// author: Brian Winer  Ohio State
 
-// system include files
 #include <string>
 #include <vector>
 #include<iostream>
@@ -35,7 +19,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
-#include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
+#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -65,32 +49,27 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const l1t::GlobalParamsHelper* m_l1GtStablePar;
+    const GlobalStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtParCacheID;
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
-    /// number of physics triggers
+    // number of physics triggers
     unsigned int m_numberPhysTriggers;
 
-    /// number of DAQ partitions
+    // number of DAQ partitions
     unsigned int m_numberDaqPartitions;
 
-    /// number of objects of each type
-    ///    { Mu, NoIsoEG, IsoEG, Jet, Tau, ETM, ETT, HTT, JetCounts };
+    // number of objects of each type
     int m_nrL1Mu;
     int m_nrL1EG;
     int m_nrL1Tau;    
 
     int m_nrL1Jet;
 
-//  *** ??? Do we still need this?
-//    int m_nrL1JetCounts;
-
     // ... the rest of the objects are global
-
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
 
@@ -106,7 +85,6 @@ private:
     /// board maps - cache only the record
     const L1GtBoardMaps* m_l1GtBM;
     unsigned long long m_l1GtBMCacheID;
-
 
     /// prescale factors
     const L1GtPrescaleFactors* m_l1GtPfAlgo;
@@ -137,11 +115,6 @@ private:
 
 private:
 
-/*
-    L1TGlobalProducerPSB* m_gtPSB;
-    L1TGlobalProducerGTL* m_gtGTL;
-    L1TGlobalProducerFDL* m_gtFDL;
-*/
     l1t::GlobalBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
