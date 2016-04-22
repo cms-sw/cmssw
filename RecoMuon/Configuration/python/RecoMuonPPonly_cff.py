@@ -101,7 +101,7 @@ eras.phase2_muon.toModify( refittedStandAloneMuons, STATrajBuilderParameters = d
     FilterParameters = _enableME0Measurement,
     BWFilterParameters = _enableME0Measurement ) )
 
-from RecoMuon.MuonIdentification.me0MuonReco_cff import me0MuonReco
+from RecoMuon.MuonIdentification.me0MuonReco_cff import *
 _phase2_muonGlobalReco = muonGlobalReco.copy()
 _phase2_muonGlobalReco += me0MuonReco
 eras.phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
