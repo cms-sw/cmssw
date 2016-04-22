@@ -662,6 +662,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
 
     TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
     ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
+
  
     if (TkHistoMap_On_ ) {
       uint32_t thedetid=ttrh->rawId();
@@ -851,7 +852,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   //  es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
   //  const TransientTrackBuilder* transientTrackBuilder = builder.product();
   
-  numTracks = trackCollectionHandle->size();    
+  //numTracks = trackCollectionHandle->size();    
   reco::TrackCollection trackCollection = *trackCollectionHandle;
   for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end(); 
        track!=etrack; ++track) {
@@ -861,6 +862,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
      
     for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd();
 	 hit!=ehit; ++hit) {
+
       if (TkHistoMap_On_ ) {
         uint32_t thedetid=(*hit)->rawId();
         if ( SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) { //TIB/TID + TOB + TEC only
