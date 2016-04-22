@@ -1,5 +1,5 @@
 ///
-/// \class l1t::L1TExtCondLegacyToStage2
+/// \class l1t::GtExtCondLegacyToStage2
 ///
 /// Description: Fill uGT external condition (stage2) with legacy information from data
 ///
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,10 +23,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "L1Trigger/L1TGlobal/plugins/TriggerMenuParser.h"
 
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
@@ -41,22 +37,23 @@
 
 using namespace std;
 using namespace edm;
-using namespace l1t;
 
+
+namespace l1t {
 
   //
   // class declaration
   //
 
-  class L1TExtCondLegacyToStage2 : public stream::EDProducer<> {
+  class GtExtCondLegacyToStage2 : public global::EDProducer<> {
   public:
-    explicit L1TExtCondLegacyToStage2(const ParameterSet&);
-    ~L1TExtCondLegacyToStage2();
+    explicit GtExtCondLegacyToStage2(const ParameterSet&);
+    ~GtExtCondLegacyToStage2();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
     // ----------member data ---------------------------
     //unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
@@ -71,14 +68,12 @@ using namespace l1t;
     // Readout Record token
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtReadoutRecordToken;
 
-    unsigned long long m_l1GtMenuCacheID;
-    std::map<std::string, unsigned int> m_extBitMap;
   };
 
   //
   // constructors and destructor
   //
-  L1TExtCondLegacyToStage2::L1TExtCondLegacyToStage2(const ParameterSet& iConfig) :
+  GtExtCondLegacyToStage2::GtExtCondLegacyToStage2(const ParameterSet& iConfig) :
     bxFirst_ (iConfig.getParameter<int>("bxFirst")),
     bxLast_ (iConfig.getParameter<int>("bxLast")),
     gtReadoutRecordToken (consumes <L1GlobalTriggerReadoutRecord> (iConfig.getParameter<edm::InputTag>("LegacyGtReadoutRecord")))
@@ -86,11 +81,10 @@ using namespace l1t;
     // register what you produce
     produces<GlobalExtBlkBxCollection>();
 
-    m_l1GtMenuCacheID = 0ULL;
   }
 
 
-  L1TExtCondLegacyToStage2::~L1TExtCondLegacyToStage2()
+  GtExtCondLegacyToStage2::~GtExtCondLegacyToStage2()
   {
   }
 
@@ -102,39 +96,10 @@ using namespace l1t;
 
   // ------------ method called to produce the data ------------
   void
-  L1TExtCondLegacyToStage2::produce(Event& iEvent, const EventSetup& iSetup)
+  GtExtCondLegacyToStage2::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
   {
 
-    LogDebug("L1TExtCondLegacyToStage2") << "L1TExtCondLegacyToStage2::produce function called...\n";
-
-    // get / update the trigger menu from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
-    
-    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-
-        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-        iSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
-        
-	// Instantiate Parser
-        TriggerMenuParser gtParser = TriggerMenuParser();   
-
-	std::map<std::string, unsigned int> extBitMap = gtParser.getExternalSignals(utml1GtMenu);
-	
-	m_l1GtMenuCacheID = l1GtMenuCacheID;
-	m_extBitMap = extBitMap;
-    }
-
-    bool foundBptxAND = ( m_extBitMap.find("BPTX_plus_AND_minus.v0")!=m_extBitMap.end() );
-    bool foundBptxPlus = ( m_extBitMap.find("BPTX_plus.v0")!=m_extBitMap.end() );
-    bool foundBptxMinus = ( m_extBitMap.find("BPTX_minus.v0")!=m_extBitMap.end() );
-    bool foundBptxOR = ( m_extBitMap.find("BPTX_plus_OR_minus.v0")!=m_extBitMap.end() );
-
-    unsigned int bitBptxAND = m_extBitMap["BPTX_plus_AND_minus.v0"];
-    unsigned int bitBptxPlus = m_extBitMap["BPTX_plus.v0"];
-    unsigned int bitBptxMinus = m_extBitMap["BPTX_minus.v0"];
-    unsigned int bitBptxOR = m_extBitMap["BPTX_plus_OR_minus.v0"];
+    LogDebug("GtExtCondLegacyToStage2") << "GtExtCondLegacyToStage2::produce function called...\n";
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByToken(gtReadoutRecordToken, gtReadoutRecord);
@@ -164,67 +129,67 @@ using namespace l1t;
       // //
 
       for( int ibx = 0; ibx < 5; ibx++ ){
+
 	int useBx = ibx - 2;
 	if( useBx<bxFirst_ || useBx>bxLast_ ) continue;
 
 	//std::cout << "  BX = " << ibx - 2 << std::endl;
-
+	
 	// L1 technical
 	const TechnicalTriggerWord& gtTTWord = gtReadoutRecord->technicalTriggerWord(useBx);
 	int tbitNumber = 0;
 	TechnicalTriggerWord::const_iterator GTtbitItr;
-	bool passBptxAND = false;
-	bool passBptxPlus = false;
-	bool passBptxMinus = false;
-	bool passBptxOR = false;
+
+        std::vector<bool> pass_externs(4, false); //BptxAND, BptxPlus, BptxMinus, BptxOR
+
 	for(GTtbitItr = gtTTWord.begin(); GTtbitItr != gtTTWord.end(); GTtbitItr++) {
+
 	  int pass_l1t_tech = 0;
+
 	  if (*GTtbitItr) pass_l1t_tech = 1;
 
 	  if( pass_l1t_tech==1 ){
-	    if( tbitNumber==0 ) passBptxAND = true;
-	    else if( tbitNumber==1 ) passBptxPlus = true;
-	    else if( tbitNumber==2 ) passBptxMinus = true;
-	    else if( tbitNumber==3 ) passBptxOR = true;
+
+           pass_externs[tbitNumber] = true;
+
 	  }
 
 	  tbitNumber++;
+
+          if(tbitNumber>3) break;
 	}
 
 	if( useBx==-2 ){
-	  if( passBptxAND && foundBptxAND ) extCond_bx_m2.setExternalDecision(bitBptxAND,true);
-	  if( passBptxPlus && foundBptxPlus ) extCond_bx_m2.setExternalDecision(bitBptxPlus,true);
-	  if( passBptxMinus && foundBptxMinus ) extCond_bx_m2.setExternalDecision(bitBptxMinus,true);
-	  if( passBptxOR && foundBptxOR ) extCond_bx_m2.setExternalDecision(bitBptxOR,true);
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_m2.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==-1 ){
-	  if( passBptxAND && foundBptxAND ) extCond_bx_m1.setExternalDecision(bitBptxAND,true);
-	  if( passBptxPlus && foundBptxPlus ) extCond_bx_m1.setExternalDecision(bitBptxPlus,true);
-	  if( passBptxMinus && foundBptxMinus ) extCond_bx_m1.setExternalDecision(bitBptxMinus,true);
-	  if( passBptxOR && foundBptxOR ) extCond_bx_m1.setExternalDecision(bitBptxOR,true);
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_m1.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==0 ){
-	  if( passBptxAND && foundBptxAND ) extCond_bx_0.setExternalDecision(bitBptxAND,true);
-	  if( passBptxPlus && foundBptxPlus ) extCond_bx_0.setExternalDecision(bitBptxPlus,true);
-	  if( passBptxMinus && foundBptxMinus ) extCond_bx_0.setExternalDecision(bitBptxMinus,true);
-	  if( passBptxOR && foundBptxOR ) extCond_bx_0.setExternalDecision(bitBptxOR,true);
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_0.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==1 ){
-	  if( passBptxAND && foundBptxAND ) extCond_bx_p1.setExternalDecision(bitBptxAND,true);
-	  if( passBptxPlus && foundBptxPlus ) extCond_bx_p1.setExternalDecision(bitBptxPlus,true);
-	  if( passBptxMinus && foundBptxMinus ) extCond_bx_p1.setExternalDecision(bitBptxMinus,true);
-	  if( passBptxOR && foundBptxOR ) extCond_bx_p1.setExternalDecision(bitBptxOR,true);
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_p1.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
 	else if( useBx==2 ){
-	  if( passBptxAND && foundBptxAND ) extCond_bx_p2.setExternalDecision(bitBptxAND,true);
-	  if( passBptxPlus && foundBptxPlus ) extCond_bx_p2.setExternalDecision(bitBptxPlus,true);
-	  if( passBptxMinus && foundBptxMinus ) extCond_bx_p2.setExternalDecision(bitBptxMinus,true);
-	  if( passBptxOR && foundBptxOR ) extCond_bx_p2.setExternalDecision(bitBptxOR,true);
+
+         for (unsigned int i=0;i<4;i++) extCond_bx_p2.setExternalDecision(8+i,pass_externs[tbitNumber]);
+
 	}
       }
     }
     else {
+
       LogWarning("MissingProduct") << "Input L1GlobalTriggerReadoutRecord collection not found\n";
+
     }
 
     //outputs
@@ -244,7 +209,7 @@ using namespace l1t;
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
   void
-  L1TExtCondLegacyToStage2::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  GtExtCondLegacyToStage2::fillDescriptions(ConfigurationDescriptions& descriptions) {
     // l1GtExtCondLegacyToStage2
     edm::ParameterSetDescription desc;
     desc.add<int>("bxFirst", -2);
@@ -253,7 +218,7 @@ using namespace l1t;
     descriptions.add("l1GtExtCondLegacyToStage2", desc);
   }
 
-
+} // namespace
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TExtCondLegacyToStage2);
+DEFINE_FWK_MODULE(l1t::GtExtCondLegacyToStage2);

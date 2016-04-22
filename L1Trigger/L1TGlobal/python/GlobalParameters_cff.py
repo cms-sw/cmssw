@@ -5,13 +5,13 @@
 #
 import FWCore.ParameterSet.Config as cms
 
-StableParametersRcdSource = cms.ESSource("EmptyESSource",
+GlobalParametersRcdSource = cms.ESSource("EmptyESSource",
     recordName = cms.string('L1TGlobalParametersRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
 
-StableParameters = cms.ESProducer("L1TGlobalParamsESProducer",
+GlobalParameters = cms.ESProducer("L1TGlobalParamsESProducer",
 
  
     # bx in event
