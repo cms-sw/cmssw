@@ -132,7 +132,7 @@ namespace edm
     //added for selecting/filtering gen events, in the case of hadronizer+externalDecayer
       
     bool passEvtGenSelector = false;
-    std::auto_ptr<HepMC::GenEvent> event(0);
+    std::auto_ptr<HepMC::GenEvent> event(nullptr);
    
     while(!passEvtGenSelector)
       {
@@ -186,18 +186,18 @@ namespace edm
     //
     // tutto bene - finally, form up EDM products !
     //
-    std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
+    std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
     if (!genEventInfo.get())
       { 
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
 	genEventInfo.reset(new GenEventInfoProduct(event.get()));
       }
       
-    ev.put(genEventInfo);
+    ev.put(std::move(genEventInfo));
    
-    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event.release() );
-    ev.put(bare_product, "unsmeared");
+    ev.put(std::move(bare_product), "unsmeared");
     nEventsInLumiBlock_ ++;
     return true;
   }
@@ -215,8 +215,8 @@ namespace edm
     
     if ( decayer_ ) decayer_->statistics();
     
-    std::auto_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
-    r.put(griproduct);
+    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
+    r.put(std::move(griproduct));
   }
 
   template <class HAD, class DEC>
@@ -261,8 +261,8 @@ namespace edm
 	 << hadronizer_.classname()
 	 << " for internal parton generation\n";
          
-    std::auto_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
-    lumi.put(genLumiInfoHeader);
+    std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
+    lumi.put(std::move(genLumiInfoHeader));
 
   }
 
@@ -297,11 +297,11 @@ namespace edm
     temp.setAcceptedBr(0,-1,-1);
     GenLumiProcess.push_back(temp);
 
-    std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo( GenLumiProcess );
         
-    lumi.put(genLumiInfo);
+    lumi.put(std::move(genLumiInfo));
 
     nEventsInLumiBlock_ = 0;
 
