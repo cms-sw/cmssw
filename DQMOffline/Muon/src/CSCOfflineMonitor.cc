@@ -348,10 +348,19 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
 	  hSGlobalTheta = ibooker.book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
 	  hSGlobalPhi   = ibooker.book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
+          hSTimeDiff  = ibooker.book1D("hSTimeDiff", "Anode Minus Cathode Segment Time  [ns]",50,-50,50);
+          hSTimeAnode  = ibooker.book1D("hSTimeAnode", "Anode Only Segment Time  [ns]",200,-200,200);
 	  hSTimeCathode  = ibooker.book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
 	  hSTimeCombined = ibooker.book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
+          hSTimeDiffSerial  = ibooker.book2D("hSTimeDiffSerial", "Anode Minus Cathode Segment Time  [ns]",601,-0.5,600.5,200,-50,50);
+          hSTimeAnodeSerial  = ibooker.book2D("hSTimeAnodeSerial", "Anode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
+          hSTimeCathodeSerial  = ibooker.book2D("hSTimeCathodeSerial", "Cathode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
+          hSTimeCombinedSerial = ibooker.book2D("hSTimeCombinedSerial", "Segment Time (anode+cathode times) [ns]",601,-0.5,600.5,200,-200,200);
+
+
 	  hSTimeVsZ	  = ibooker.book2D("hSTimeVsZ","Segment Time vs. Z; [ns] vs. [cm]",200,-1200,1200,200,-200,200);
 	  hSTimeVsTOF = ibooker.book2D("hSTimeVsTOF","Segment Time vs. Distance from IP; [ns] vs. [cm]",180,500,1400, 200,-200,200);
+
 
 	  // resolution
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Resolution");
@@ -954,8 +963,14 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	hSChiSqProb[tIndex-1]->Fill(chisqProb);
 	hSGlobalTheta->Fill(globTheta);
 	hSGlobalPhi->Fill(globPhi);
+	hSTimeDiff->Fill(timeAnode-timeCathode);
+        hSTimeAnode->Fill(timeAnode);
 	hSTimeCathode->Fill(timeCathode);
 	hSTimeCombined->Fill(timeCombined);
+        hSTimeDiffSerial->Fill(chamberSerial(id),timeAnode-timeCathode);
+        hSTimeAnodeSerial->Fill(chamberSerial(id),timeAnode);
+        hSTimeCathodeSerial->Fill(chamberSerial(id),timeCathode);
+        hSTimeCombinedSerial->Fill(chamberSerial(id),timeCombined);
 	hSTimeVsZ->Fill(globZ, timeCombined);
 	hSTimeVsTOF->Fill(globTOF, timeCombined);
 
