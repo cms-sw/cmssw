@@ -1,7 +1,0 @@
-<library file="*.cc" name="DQMTotemRPPlugins">
-	<flags EDM_PLUGIN="1"/>
-	<use name="DQM/TotemRP"/>
-	<use name="FWCore/MessageLogger"/>
-	<use name="FWCore/Framework"/>
-	<use name="DQMServices/Core"/>
-</library>
