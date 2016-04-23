@@ -130,38 +130,6 @@ def customise_Digi(process):
 
 # DQM steps change
 def customise_DQM(process,pileup):
-    # FIXME
-    #
-    # These should be added back once somebody checks that they work,
-    # and those that do not, get fixed
-    #
-    # The customizations are done here instead of in the central files
-    # with era because they are temporary
-
-    # Tracking DQM needs to be migrated for phase1
-    process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
-    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
-
-    # Pixel DQM needs to be updated for phase1
-    process.DQMOfflinePreDPG.remove(process.siPixelOfflineDQM_source)
-
-    # Doesn't work because TriggerResults::HLT is missing
-    process.muonAnalyzer.remove(process.muonRecoOneHLT)
-
-    # Excessive printouts because 2017 doesn't have HLT yet
-    process.SiStripDQMTier0.remove(process.MonitorTrackResiduals)
-    process.SiStripDQMTier0MinBias.remove(process.MonitorTrackResiduals)
-    process.jetMETDQMOfflineSource.remove(process.jetDQMAnalyzerSequence)
-    process.jetMETDQMOfflineSource.remove(process.METDQMAnalyzerSequence)
-    process.dqmPhysics.remove(process.ewkMuDQM)
-    process.dqmPhysics.remove(process.ewkElecDQM)
-    process.dqmPhysics.remove(process.ewkMuLumiMonitorDQM)
-    process.DQMOfflinePrePOG.remove(process.pfTauRunDQMValidation)
-
-    # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
-    process.DQMOffline.remove(process.HLTMonitoring)
-    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
-
     # Ok, this customization does not work currently at all
     # Need to be fixed before the tracking DQM can be enabled
     return process
@@ -190,31 +158,6 @@ def customise_DQM(process,pileup):
     return process
 
 def customise_Validation(process):
-    # FIXME
-    #
-    # For starters, include only tracking validation
-    # The rest should be added back once somebody checks that they
-    # work, and those that do not, get fixed
-    #
-    # The customizations are done here instead of in the central files
-    # with era because they are temporary
-    # With era, would modify process.globalValidation
-
-    # Pixel validation needs to be migrated to phase1
-    process.trackingRecHitsValid.remove(process.PixelTrackingRecHitsValid)
-
-    # Excessive printouts because 2017 doesn't have HLT yet
-    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealData)
-    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealElectronsData)
-    process.globalValidation.remove(process.TauValNumeratorAndDenominatorRealMuonsData)
-    process.validation.remove(process.TauValNumeratorAndDenominatorRealData)
-    process.validation.remove(process.TauValNumeratorAndDenominatorRealElectronsData)
-    process.validation.remove(process.TauValNumeratorAndDenominatorRealMuonsData)
-
-    # No HLT yet for 2017, so no need to run the validation
-    process.hltassociation = cms.Sequence()
-    process.hltvalidation = cms.Sequence()
-
     # these were migrated in #12359
     if eras.phase1Pixel.isChosen():
         return process
@@ -250,29 +193,6 @@ def customise_Validation_Trackingonly(process):
     return process
 
 def customise_harvesting(process):
-    # FIXME
-    #
-    # These should be added back once they get fixed
-    #
-    # The customizations are done here instead of in the central files
-    # with era because they are temporary
-
-    # Tracking DQM needs to be migrated for phase1
-    process.DQMHarvestTracking.remove(process.TrackingOfflineDQMClient)
-
-    # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
-    process.DQMOffline_SecondStep.remove(process.HLTMonitoringClient)
-    process.DQMOffline_SecondStep_PrePOG.remove(process.hltOfflineDQMClient)
-    process.hltpostvalidation = cms.Sequence()
-    process.crt_dqmoffline.remove(process.dqmOfflineTriggerCert)
-
-    # Excessive printouts because 2017 doesn't have HLT yet
-    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealData)
-    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealElectronsData)
-    process.DQMOffline_SecondStep_PrePOG.remove(process.efficienciesRealMuonsData)
-    process.DQMOffline_SecondStep_PrePOG.remove(process.normalizePlotsRealMuonsData)
-    process.postValidation.remove(process.runTauEff)
-
     # these were migrated in #12440
     if eras.phase1Pixel.isChosen():
         return process

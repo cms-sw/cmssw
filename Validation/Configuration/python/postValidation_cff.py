@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -35,6 +36,9 @@ postValidation = cms.Sequence(
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
 )
+eras.phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
+    runTauEff # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors
