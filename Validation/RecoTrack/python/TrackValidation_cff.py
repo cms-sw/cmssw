@@ -318,17 +318,17 @@ def _sequenceForEachEra(function, args, names, sequence, modDict, plainArgs=[], 
         modDict[sequence+postfix] = ret[1]
 
     # The sequence of the first era will be the default one
-    defaultSequenceName = sequence+_relevantEras[0][0]
+    defaultSequenceName = sequence+_eras[0][0]
     defaultSequence = modDict[defaultSequenceName]
     modDict[defaultSequenceName[1:]] = defaultSequence # remove leading underscore
 
     # Optionally modify sequences before applying the era
     if modifySequence is not None:
-        for eraName, postfix in _relevantEras:
+        for eraName, postfix in _eras:
             modifySequence(modDict[sequence+postfix])
 
     # Apply eras
-    for eraName, postfix in _relevantEras[1:]:
+    for eraName, postfix in _eras[1:]:
         getattr(eras, eraName).toReplaceWith(defaultSequence, modDict[sequence+postfix])
 def _setForEra(module, era, **kwargs):
     if era == "":
