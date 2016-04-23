@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from DQMOffline.Muon.muonRecoOneHLT_cfi import *
 from DQMOffline.Muon.muonEfficiencyAnalyzer_cfi import *
@@ -22,6 +23,9 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             TightMuonEfficiencyAnalyzer*
                             muonPFsequence*
                             muonRecoOneHLT)
+eras.phase1Pixel.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
+    muonRecoOneHLT # Doesn't work because TriggerResults::HLT is missing (because HLT not yet being part of 2017 workflow)
+]))
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonSeedsAnalyzer*
