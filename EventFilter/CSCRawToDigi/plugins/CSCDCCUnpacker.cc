@@ -1105,7 +1105,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_h2_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_bxn=0;
         }
 
       //ALCT Trailer 1
