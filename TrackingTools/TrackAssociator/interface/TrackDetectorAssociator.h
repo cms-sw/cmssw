@@ -46,9 +46,6 @@
 
 #include "FWCore/Utilities/interface/Visibility.h"
 
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
-
 class TrackDetectorAssociator {
  public:
    TrackDetectorAssociator();
@@ -198,7 +195,6 @@ class TrackDetectorAssociator {
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
-   edm::ESHandle<GEMGeometry> gemGeom;
    
    edm::ESWatcher<IdealMagneticFieldRecord>     theMagneticFeildWatcher_;
 };
