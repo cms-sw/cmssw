@@ -55,6 +55,8 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
@@ -150,6 +152,9 @@ void TrackDetectorAssociator::init( const edm::EventSetup& iSetup )
       defProp_ = prop;
       setPropagator(defProp_);
    }
+
+   // access the GEM geometry
+   iSetup.get<MuonGeometryRecord>().get(gemGeom);
 
    iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_);
    iSetup.get<DetIdAssociatorRecord>().get("HcalDetIdAssociator", hcalDetIdAssociator_);
@@ -722,7 +727,44 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
 	 sigmaX = distanceX/sqrt(localError.xx());
-         sigmaY = distanceY/sqrt(localError.yy());	 
+         sigmaY = distanceY/sqrt(localError.yy());
+
+	 // if(detId->subdetId() == 3) {
+	 //    RPCDetId Rsid = RPCDetId(detId->rawId());
+	 //    std::cout<< Rsid <<std::endl;
+	 //    std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	 //  }
+	 // if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	 //   if(gemChamber) {
+	 // if(detId->subdetId() == 4) {
+	 //   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	 //   // std::cout<< Rsid <<std::endl;
+	   
+	 //   // gem width and length are interchanged - need to fix
+	 //   //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	 //   const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet);
+	 //   //int nEtaPartitions = gemChamber->nEtaPartitions(); // FIXME temp fix for chambersize
+	 //   //distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();//*nEtaPartitions; // FIXME temp fix for chambersize
+	 //   sigmaX = distanceX/sqrt(localError.xx());
+	 //   sigmaY = distanceY/sqrt(localError.yy());
+	 //   // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	 //   // GEMDetId Rsid = GEMDetId(detId->rawId());
+	 //   // std::cout<< Rsid <<std::endl;
+	 //   //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	 //   // auto& rolls(gemChamber->etaPartitions());
+	 //   // for (auto roll : rolls){
+	 //   //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+	 //   //   auto& parameters(roll->specs()->parameters());
+	 //   //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
+	 //   //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
+	 //   //   double height(parameters[2]);       height       = 2*height;
+	 //   //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
+	      
+	 //   //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
+	 //   // }
+	 //   // }
+	 // }
+	 
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
@@ -803,7 +845,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
          }
 	     }
      }
-     // GEM Chamber	   
+     // GEM Chamber
      else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
        if (gemSegments.isValid()){
 	 // Get the range for the corresponding segments
