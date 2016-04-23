@@ -794,12 +794,12 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
     // now apply calibration factor: corrPt = rawPt * (corr[LUT] + 0.5)
     // where corr[LUT] is an integer mapped to the range [0, 2]
     int rawPt = hwPt;
-    if (rawPt > 255) rawPt = 255; // 8 bit
+    if (rawPt > 8191) rawPt = 8191; // 13 bits for uncalibrated E
     
     int corrXrawPt = corr*rawPt; // 17 bits
     int calibPt = (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
     // saturation FIXME: to be done in demux?
-    if (calibPt > 511) calibPt = 511; // 9 bit in output
+    if (calibPt > 4095) calibPt = 4095; // 12 bit in output
     
     //cout << "  --> hwPt = " << hwPt << " , calibPt = " << calibPt << endl;
 
@@ -816,7 +816,7 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     // int etaBits = 6  --> 64
     // int etBits  = 13 --> 8192
     // int nTTBits = 10 --> 1024
-    if (Et >= 255) Et = 255;
+    if (Et >= 255) Et = 255; // 8 bit for the input of compression LUT 
     if (aeta >= 31) aeta = 31;
     if (nrTowers >= 1023) nrTowers = 1023;
 
