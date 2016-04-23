@@ -225,6 +225,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
