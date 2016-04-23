@@ -39,6 +39,3 @@ from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForPhase2 )
 eras.phase2_muon.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoLocalMuonFEVT, func=_modifyRecoLocalMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoLocalMuonRECO, func=_modifyRecoLocalMuonEventContentForPhase2 )
-eras.phase2dev_muon.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalMuonEventContentForPhase2 )

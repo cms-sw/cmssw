@@ -104,9 +104,5 @@ class TrackAssociatorParameters {
    edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
-
-   double maxPullXGE11_, maxDiffXGE11_, maxPullYGE11_, maxDiffYGE11_,
-    maxPullXGE21_, maxDiffXGE21_, maxPullYGE21_, maxDiffYGE21_,
-    maxDiffPhiDirection_;
 };
 #endif

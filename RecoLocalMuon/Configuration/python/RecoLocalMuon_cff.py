@@ -45,4 +45,3 @@ def _modifyRecoLocalMuonForPhase2( theProcess ):
 
 from Configuration.StandardSequences.Eras import eras
 modifyConfigurationStandardSequencesRecoLocalMuonForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoLocalMuonForPhase2 )
-modifyConfigurationStandardSequencesRecoLocalMuonForPhase2Dev_ = eras.phase2dev_muon.makeProcessModifier( _modifyRecoLocalMuonForPhase2 )
