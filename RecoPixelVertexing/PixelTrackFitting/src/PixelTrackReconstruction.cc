@@ -146,5 +146,11 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   // skip ovelrapped tracks
-  if (theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
+  
+  if (theCleaner) {
+    if (theCleaner->fast)
+       theCleaner->cleanTracks(tracks,tTopo);
+    else
+      tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
+  }
 }
