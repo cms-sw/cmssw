@@ -16,11 +16,16 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
 #include <TFile.h>
+#include <TCanvas.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TGraphAsymmErrors.h>
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,7 +44,7 @@ void usage(std::ostream & out) {
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
                [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
+               [-r|--root-output] OUTPUT_FILE.ROOT [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
@@ -67,6 +72,10 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
   -j|--json-output OUTPUT_FILE.JSON\n\
       produce comparison results in a JSON format and store it to the specified file\n\
       default filename: 'hltDiff_output.json'\n\
+\n\
+  -r|--root-output OUTPUT_FILE.ROOT\n\
+      produce comparison results as ROOT histograms and store them to the specified ROOT file\n\
+      default filename: 'hltDiff_output.root'\n\
 \n\
   -f|--file-check\n\
       check existence of every old and new file before running the comparison\n\
@@ -784,6 +793,7 @@ public:
   }
 
   void write() {
+    if (out_file_name.length() < 1) return;
     out_file.open(out_file_name, std::ofstream::out);
     out_file << '{'; // line open
     out_file << configuration.serialise(1) << ',';
@@ -800,6 +810,278 @@ public:
   }
 };
 size_t JsonOutputProducer::tab_spaces = 0;
+
+
+class RootOutputProducer
+{
+private:
+  std::string out_file_name;
+  TFile* out_file;
+  const JsonOutputProducer& json;
+  std::map<std::string, TH1*> m_histo;
+  std::map<std::string, TGraphAsymmErrors*> m_graph;
+  std::map<std::string, TCanvas*> m_canvas;
+
+  struct Pair {
+    double v;
+    double e;
+
+    Pair(double _v, double _e) : v(_v), e(_e) {};
+    Pair(int _v, int _e) : v(_v), e(_e) {};
+  };
+
+  struct GenericSummary {
+    const JsonOutputProducer& json;
+    int id;
+    std::string name;
+    std::vector<int> v_gained;
+    std::vector<int> v_lost;
+    std::vector<int> v_changed;
+
+    GenericSummary(int _id, const JsonOutputProducer& _json, const std::vector<std::string>& _names) :
+      json(_json),
+      id(_id) {
+        name = _names.at(id);
+    }
+
+    int addEntry(const JsonOutputProducer::JsonTriggerEventState& _state, bool storeTriggerId = false) {
+      int objectId = _state.tr;
+      if (_state.o.s == State::Pass && _state.n.s == State::Fail) {
+        if (!storeTriggerId) objectId = _state.n.l;
+        v_lost.push_back(objectId);
+      } else 
+      if (_state.o.s == State::Fail && _state.n.s == State::Pass) {
+        if (!storeTriggerId) objectId = _state.o.l;
+        v_gained.push_back(objectId);
+      } else
+      if (_state.o.s == State::Fail && _state.n.s == State::Fail) {
+        if (!storeTriggerId) objectId = _state.o.l;
+        v_changed.push_back(objectId);
+      }
+
+      return objectId;
+    }
+
+    Pair gained() const {
+      return Pair( double(v_gained.size()), sqrt( double(v_gained.size()) ) );
+    }
+
+    Pair lost() const {
+      return Pair( double(v_lost.size()), sqrt( double(v_lost.size()) ) );
+    }
+
+    Pair changed() const {
+      return Pair( double(v_changed.size()), sqrt( double(v_changed.size()) ) );
+    }
+  };
+  
+  struct TriggerSummary : GenericSummary {
+    int accepted_o;
+    int accepted_n;
+    std::map<int, GenericSummary> m_modules;
+
+    TriggerSummary(int _id, const JsonOutputProducer& _json) :
+      GenericSummary(_id, _json, _json.vars.trigger), 
+      accepted_o(_json.vars.trigger_passed_count.at(id).first), 
+      accepted_n(_json.vars.trigger_passed_count.at(id).second) {}
+
+    void addEntry(const JsonOutputProducer::JsonTriggerEventState& _state, const std::vector<std::string>& _moduleNames) {
+      int moduleLabelId = GenericSummary::addEntry(_state, false);
+      // Updating number of events affected by the particular module
+      if (m_modules.count(moduleLabelId) == 0) 
+        m_modules.emplace(moduleLabelId, GenericSummary(moduleLabelId, json, _moduleNames));
+      m_modules.at(moduleLabelId).addEntry(_state, true);
+    }
+
+    Pair gained(int type =0) const {
+      Pair gained( GenericSummary::gained() );
+      if (type == 0) return gained;  // Absolute number of affected events
+      double all( accepted_n );
+      Pair fraction = Pair( gained.v / (all+1e-10), sqrt(all) / (all+1e-10) );
+      if (type == 1) return fraction;  // Relative number of affected events with respect to all accepted
+      if (type == 2) return Pair(std::max(0.0, fraction.v - fraction.e), 0.0);  // Smallest value given the uncertainty
+      return Pair( fraction.v / (fraction.e + 1e-10), 0.0 );  // Significance of the effect as N std. deviations
+    }
+
+    Pair lost(int type =0) const {
+      Pair lost( GenericSummary::lost() );
+      if (type == 0) return lost;
+      double all( accepted_o );
+      Pair fraction = Pair( lost.v / (all+1e-10), sqrt(all) / (all+1e-10) );
+      if (type == 1) return fraction;
+      if (type == 2) return Pair(std::max(0.0, fraction.v - fraction.e), 0.0);  // Smallest value given the uncertainty
+      return Pair( fraction.v / (fraction.e + 1e-10), 0.0 );
+    }
+
+    Pair changed(int type =0) const {
+      Pair changed( GenericSummary::changed() );
+      if (type == 0) return changed;
+      double all( json.configuration.events - accepted_o );
+      Pair fraction = Pair( changed.v / (all+1e-10), sqrt(all) / (all+1e-10) );
+      if (type == 1) return fraction;
+      if (type == 2) return Pair(std::max(0.0, fraction.v - fraction.e), 0.0);  // Smallest value given the uncertainty
+      return Pair( fraction.v / (fraction.e + 1e-10), 0.0 );
+    }
+  };
+
+  void buildHistograms() {
+    printf("Building histograms...\n");
+    // Initialising the summary objects for trigger/module
+    const int nTriggers( json.vars.trigger.size() );
+    const int nModules( json.vars.label.size() );
+    std::vector<TriggerSummary> triggerSummary;
+    std::vector<GenericSummary> moduleSummary;
+    for (int i=0; i<nTriggers; ++i) triggerSummary.push_back( TriggerSummary(i, json) );
+    for (int i=0; i<nModules; ++i) moduleSummary.push_back( GenericSummary(i, json, json.vars.label) );
+
+    // Loop over each affected trigger in each event and add it to the trigger/module summary objects
+    for (const JsonOutputProducer::JsonEvent& event : json.events) {
+      for (const JsonOutputProducer::JsonTriggerEventState& state : event.triggerStates) {
+        const int triggerId = state.tr;
+        triggerSummary.at(triggerId).addEntry(state, json.vars.label);
+        const int moduleId = state.o.s == State::Fail ? state.o.l : state.n.l;
+        moduleSummary.at(moduleId).addEntry(state, true);
+      }
+    }
+    // Building histograms out of the summary objects
+    printf("Triggers: %d (%d)  Modules: %d (%d)\n", nTriggers, (int)triggerSummary.size(), nModules, (int)moduleSummary.size());
+    for (const TriggerSummary& trig : triggerSummary) {
+      printf("  %d : %s  nModules: %d  accepted: %d -> %d  gained: %.f  lost: %.f  changed: %.f\n", trig.id, trig.name.c_str(), (int)trig.m_modules.size(), trig.accepted_o, trig.accepted_n, trig.gained().v, trig.lost().v, trig.changed().v);
+    }
+
+    //########################################### Trigger summary: 1 bin per trigger
+    std::string name = "trigger_accepted";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events accepted^{OLD}", nTriggers, 0, nTriggers));
+    name = "trigger_gained";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nTriggers, 0, nTriggers));
+    name = "trigger_lost";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nTriggers, 0, nTriggers));
+    name = "trigger_changed";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nTriggers, 0, nTriggers));
+    name = "trigger_gained_frac";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{gained}{accepted}", nTriggers, 0, nTriggers));
+    name = "trigger_lost_frac";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{lost}{accepted}", nTriggers, 0, nTriggers));
+    name = "trigger_changed_frac";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers, 0, nTriggers));
+    name = "trigger";
+    m_graph.emplace(name, new TGraphAsymmErrors(nTriggers));
+
+    // Filling the per-trigger bins
+    for (const TriggerSummary& trig : triggerSummary) {
+      int bin = trig.id + 1;
+      m_histo.at("trigger_accepted")->SetBinContent(bin, trig.accepted_o);
+      m_histo.at("trigger_gained")->SetBinContent(bin, trig.gained().v);
+      m_histo.at("trigger_lost")->SetBinContent(bin, -trig.lost().v);
+      m_histo.at("trigger_changed")->SetBinContent(bin, trig.changed().v);
+      m_histo.at("trigger_gained_frac")->SetBinContent(bin, trig.gained(1).v);
+      m_histo.at("trigger_lost_frac")->SetBinContent(bin, -trig.lost(1).v);
+      m_histo.at("trigger_changed_frac")->SetBinContent(bin, trig.changed(1).v);
+      
+      m_histo.at("trigger_accepted")->SetBinError(bin, sqrt(trig.accepted_o));
+      m_histo.at("trigger_gained")->SetBinError(bin, trig.gained().e);
+      m_histo.at("trigger_lost")->SetBinError(bin, trig.lost().e);
+      m_histo.at("trigger_changed")->SetBinError(bin, trig.changed().e);
+      m_histo.at("trigger_gained_frac")->SetBinError(bin, trig.gained(1).e);
+      m_histo.at("trigger_lost_frac")->SetBinError(bin, trig.lost(1).e);
+      m_histo.at("trigger_changed_frac")->SetBinError(bin, trig.changed(1).e);
+
+      bin -= 1;  // Bin numbering starts from 0 for TGraph
+      m_graph.at("trigger")->SetPoint(bin, double(trig.id)+0.5, 0);
+      m_graph.at("trigger")->SetPointEYhigh(bin, trig.gained(2).v);
+      m_graph.at("trigger")->SetPointEYlow(bin, trig.lost(2).v);
+      if (bin == 0) {
+        m_graph.at("trigger")->GetYaxis()->SetTitle("#frac{gained}{lost} [#sigma^{accepted}]");
+        m_graph.at("trigger")->SetTitle("");
+      }
+
+      // Skipping triggers that are not affected
+      if (trig.m_modules.size() == 0) continue;
+
+      // Creating a hisotgram with modules overview for the trigger
+      name = "module_changed_"+trig.name;
+      m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", trig.m_modules.size(), 0, trig.m_modules.size()));
+      name = "module_"+trig.name;
+      m_graph.emplace(name, new TGraphAsymmErrors());
+      // Filling the per-module bins
+      int binMod = 0;
+      printf("%s  nBins: %d\n", trig.name.c_str(), (int)trig.m_modules.size());
+      // Filling modules that caused internal changes in the trigger
+      for (const auto& idModule : trig.m_modules) {
+        const GenericSummary& mod = idModule.second;
+        if (mod.changed().v < 1) continue;
+        binMod++;
+        m_histo.at("module_changed_"+trig.name)->SetBinContent(binMod, mod.changed().v);
+        m_histo.at("module_changed_"+trig.name)->GetXaxis()->SetBinLabel(binMod, mod.name.c_str());
+      }
+      // Filling modules that caused gains or losses for the trigger
+      binMod = 0;
+      std::vector<std::string> binLabels;
+      for (const auto& idModule : trig.m_modules) {
+        const GenericSummary& mod = idModule.second;
+        if (mod.gained().v < 1 && mod.lost().v < 1) continue;
+        binLabels.push_back(mod.name);
+        m_graph.at("module_"+trig.name)->SetPoint(binMod, double(binMod)+0.5, 0);
+        m_graph.at("module_"+trig.name)->SetPointEYhigh(binMod, mod.gained().v);
+        m_graph.at("module_"+trig.name)->SetPointEYlow(binMod, mod.lost().v);
+        binMod++;
+        if (binMod == 1) {
+          m_graph.at("module_"+trig.name)->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
+        }
+      }
+      // Setting axis labels
+      m_graph.at("module_"+trig.name)->GetXaxis()->Set(binMod, 0, binMod);
+      for (int binId=0; binId<binMod; ++binId) {
+        printf("\tbin: %d name: %s\n", binId+1, binLabels.at(binId).c_str());
+        m_graph.at("module_"+trig.name)->GetXaxis()->SetBinLabel(binId+1, binLabels.at(binId).c_str());
+      }
+      m_graph.at("module_"+trig.name)->GetXaxis()->CenterLabels();
+    }
+    // Setting bin labels to the corresponding trigger names
+    for (const auto& nameHisto : m_histo) {
+      if (nameHisto.first.find("trigger") == std::string::npos) continue;
+      const std::vector<std::string>& binLabels = json.vars.trigger;
+      TAxis* xAxis = nameHisto.second->GetXaxis();
+      printf("Setting labels to %d bins of histo: %s\n", nameHisto.second->GetNbinsX(), nameHisto.first.c_str());
+      for (int bin=0; bin<nameHisto.second->GetNbinsX(); ++bin) {
+        xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
+      }
+    }
+    for (const auto& nameGraph : m_graph) {
+      if (nameGraph.first.find("trigger") == std::string::npos) continue;
+      const std::vector<std::string>& binLabels = json.vars.trigger;
+      TAxis* xAxis = nameGraph.second->GetXaxis();
+      printf("Setting labels to %d bins of graph: %s\n", nameGraph.second->GetN(), nameGraph.first.c_str());
+      for (int bin=0; bin<nameGraph.second->GetN(); ++bin) {
+        xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
+      }
+      xAxis->CenterLabels();
+    }
+
+  }
+
+public:
+  bool isActive;
+
+  RootOutputProducer(std::string _file_name, const JsonOutputProducer& _json):
+    out_file_name(_file_name),
+    json(_json) {
+    isActive = out_file_name.length() > 0;
+    buildHistograms();
+  }
+
+  void write() {
+    if (out_file_name.length() < 1) return;
+    out_file = new TFile(out_file_name.c_str(), "RECREATE");
+    for (const auto& nameHisto : m_histo) {
+      nameHisto.second->Write(nameHisto.first.c_str());
+    }
+    for (const auto& nameGraph : m_graph) {
+      nameGraph.second->Write(nameGraph.first.c_str());
+    }
+    out_file->Close();
+  }
+};
 
 
 bool check_file(std::string const & file) {
@@ -822,7 +1104,7 @@ bool check_files(std::vector<std::string> const & files) {
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
              unsigned int max_events, bool ignore_prescales, std::string const & json_out,
-             bool file_check, unsigned int verbose, bool debug) {
+             std::string const & root_out, bool file_check, unsigned int verbose, bool debug) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
@@ -839,8 +1121,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   else
     return;
 
-  // creating the structure holding data for JSON output
+  // creating the structure holding data for JSON and ROOT output
   JsonOutputProducer json(json_out);
+  if (root_out.length() > 0) json.isActive = true;
 
   if (json.isActive) {
     json.configuration.prescales = ignore_prescales;
@@ -1079,14 +1362,18 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
   }
 
-  // writing the JSON output to file
-  if (json.isActive) json.write();
+  // writing per event data to the output files
+  if (json.isActive) {
+    json.write();   // to JSON file for interactive visualisation
+    RootOutputProducer root(root_out, json);
+    root.write();   // to ROOT file for fast validation with static plots
+  }
 }
 
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "dfo:O:n:N:m:pj::v::h";
+  const char optstring[] = "dfo:O:n:N:m:pj::r::v::h";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "file-check",   no_argument,        nullptr, 'f' },
@@ -1097,6 +1384,7 @@ int main(int argc, char ** argv) {
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
     option{ "json-output",  optional_argument,  nullptr, 'j' },
+    option{ "root-output",  optional_argument,  nullptr, 'r' },
     option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
@@ -1109,6 +1397,7 @@ int main(int argc, char ** argv) {
   unsigned int              max_events = 1e9;
   bool                      ignore_prescales = true;
   std::string               json_out("");
+  std::string               root_out("");
   bool                      file_check = false;
   bool                      debug = false;
   unsigned int              verbose = 0;
@@ -1173,6 +1462,18 @@ int main(int argc, char ** argv) {
         }
         break;
 
+      case 'r':
+        if (optarg) {
+          root_out = optarg;
+        } else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+          // workaround for a bug in getopt which doesn't allow space before optional arguments
+          const char *tmp_optarg = argv[optind++];
+          root_out = tmp_optarg;
+        } else {
+          root_out = "hltDiff_output.root";
+        }
+        break;
+
       case 'v':
         verbose = 1;
       	if (optarg) {
@@ -1205,7 +1506,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, file_check, verbose, debug);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, root_out, file_check, verbose, debug);
 
   return 0;
 }
