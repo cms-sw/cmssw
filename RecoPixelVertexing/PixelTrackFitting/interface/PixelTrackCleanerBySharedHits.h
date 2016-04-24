@@ -14,15 +14,17 @@
 
 class TrackerTopology;
 
-class PixelTrackCleanerBySharedHits : public PixelTrackCleaner {
+class PixelTrackCleanerBySharedHits final : public PixelTrackCleaner {
 
 public:
   PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg);
 
-  virtual ~PixelTrackCleanerBySharedHits();
+ ~PixelTrackCleanerBySharedHits();
 
-  typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
-  virtual TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits, const TrackerTopology *tTopo);
+  using TrackWithTTRHs = pixeltrackfitting::TrackWithTTRHs;
+  using TracksWithTTRHs = pixeltrackfitting::TracksWithTTRHs;
+  void cleanTracks(TracksWithTTRHs & tracksWithRecHits,
+                                        const TrackerTopology *tTopo) const override;
 
 
 };
