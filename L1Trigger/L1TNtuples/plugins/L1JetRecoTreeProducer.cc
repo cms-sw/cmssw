@@ -233,7 +233,7 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   if (caloMetBE.isValid()) {
 
-    doCaloMetBE(caloMet);
+    doCaloMetBE(caloMetBE);
 
   }
   else {
