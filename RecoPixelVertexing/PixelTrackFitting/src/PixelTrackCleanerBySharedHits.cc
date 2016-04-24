@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include <boost/function_output_iterator.hpp>
 
 using namespace std;
 using namespace reco;
@@ -15,6 +16,14 @@ PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::Paramet
 PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 {}
 
+namespace {
+  inline
+  bool recHitsLess(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2) {
+    if (recHit1->geographicalId() < recHit2->geographicalId()) return true;
+    if (recHit1->geographicalId() == recHit2->geographicalId()) return recHit1 < recHit2;
+    return false;
+  }
+}
 
 void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
                                         const TrackerTopology *tTopo) const 
@@ -32,21 +41,35 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
     if (!track1) continue;
 
     auto const & recHits1 = trackHitPairs[iTrack1].second;
+    auto f1 = recHits1.data();
     auto s1 = recHits1.size();
+    auto e1 = f1+s1;
+    /*
+    {
+      auto f2 = recHits1.data();
+      auto s2 = recHits1.size();
+      auto e2 = f2+s1;
+      auto commonRecHits = 0U;
+      std::set_intersection(f1,e1,f2,e2,
+                            boost::make_function_output_iterator([&](const TrackingRecHit *) {++commonRecHits;}),recHitsLess);
+      assert(commonRecHits==s2);
+    }
+    */
+
+    // for (auto iRecHit1 = 1U; iRecHit1 < s1; ++iRecHit1) assert(recHitsLess(recHits1[iRecHit1-1],recHits1[iRecHit1]));
+
     for (auto iTrack2 = iTrack1 + 1U; iTrack2 < size; iTrack2++)
     {
       auto track2 = trackHitPairs[iTrack2].first;
       if (!track2) continue;
       auto const & recHits2 = trackHitPairs[iTrack2].second;
+      auto f2 = recHits2.data();
       auto s2 = recHits2.size();
-      auto f2=0U;
+      auto e2 = f2+s2;
       auto commonRecHits = 0U;
-      for (auto iRecHit1 = 0U; iRecHit1 < s1; ++iRecHit1) {
-        for (auto iRecHit2 = f2; iRecHit2 < s2; ++iRecHit2) {
-          if (recHits1[iRecHit1] == recHits2[iRecHit2]) { ++commonRecHits; f2=iRecHit2+1; break;} // if a hit is common, no other can be the same!
-        }
-	if (commonRecHits > 1) break;
-      }
+      std::set_intersection(f1,e1,f2,e2,
+                            boost::make_function_output_iterator([&](const TrackingRecHit *) {++commonRecHits;}),
+                            recHitsLess);
       
       if (commonRecHits > 1) {
 	if (track1->pt() > track2->pt()) kill(iTrack2);
