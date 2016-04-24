@@ -25,8 +25,9 @@ echo geometry = ${geometry}
 set condlabel = `(echo $geometry | sed '{s/Geometry//g}' | sed '{s/2015//g}')`
 echo ${condlabel} " geometry label from db"
 
-mkdir workArea
-cd workArea
+set workArea = `(echo $geometry)`
+mkdir ${workArea}
+cd ${workArea}
 set myDir=`pwd`
 echo $myDir
 
