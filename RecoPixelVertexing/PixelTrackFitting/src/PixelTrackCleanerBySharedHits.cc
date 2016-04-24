@@ -41,10 +41,10 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
       auto const & recHits2 = trackHitPairs[iTrack2].second;
 
       auto commonRecHits = 0U;
-      for (auto iRecHit1 = 0U; s1; iRecHit1++) {
+      for (auto iRecHit1 = 0U; iRecHit1 < s1; ++iRecHit1) {
         auto s2 = recHits2.size();
-        for (auto iRecHit2 = 0U; iRecHit2 < s2; iRecHit2++) {
-          if (recHits1[iRecHit1] == recHits2[iRecHit2]) { commonRecHits++; break;} // if a hit is common, no other can be the same!
+        for (auto iRecHit2 = 0U; iRecHit2 < s2; ++iRecHit2) {
+          if (recHits1[iRecHit1] == recHits2[iRecHit2]) { ++commonRecHits; break;} // if a hit is common, no other can be the same!
         }
 	if (commonRecHits > 1) break;
       }
@@ -58,7 +58,7 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
       if(useQuadrupletAlgo_) {
         if(commonRecHits >= 1) {
           if     (recHits1.size() > recHits2.size()) kill(iTrack2);
-          else if(recHits1.size() < recHits2.size()) kill(iTrack1);
+          else if(recHits1.size() < recHits2.size()) { kill(iTrack1); break;}
           else if(recHits1.size() == 3) { if(cleanTrack()) break; } // same number of hits
           else if(commonRecHits > 1) { if(cleanTrack()) break; }// same number of hits, size != 3 (i.e. == 4)
         }
