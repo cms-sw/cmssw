@@ -174,16 +174,41 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
   std::vector<ID> geomquantities;
 
-  for (std::pair<std::string, TrackerTopology::BitMask> e : trackerTopologyHandle->namedPartitions()) {
-    auto mask = e.second;
+  // directly access the internal data structure of TrackerTopology
+  auto pbVals_ = trackerTopologyHandle->getPBVals();
+  auto pfVals_ = trackerTopologyHandle->getPFVals();
+  
+  // Represents a bitmask that is only valid in some subdetector. 
+  struct BitMask {
+    uint32_t startBit_;
+    uint32_t mask_;
+    int32_t  subdet;
+    Value operator()(InterestingQuantities const& iq) {
+      if (iq.sourceModule.subdetId() == subdet) 
+        return ((iq.sourceModule.rawId()>>startBit_) & mask_); 
+      else 
+        return UNDEFINED;
+    };
+  };
+
+  std::map<std::string, BitMask> namedPartitions{
+    {"PXBarrel" , {                      0,                   0, PixelSubdetector::PixelBarrel }},
+    {"PXForward", {                      0,                   0, PixelSubdetector::PixelEndcap }},
+    {"PXEndcap" , {pfVals_.sideStartBit_  , pfVals_.sideMask_  , PixelSubdetector::PixelEndcap }},
+
+    {"PXLayer"  , {pbVals_.layerStartBit_ , pbVals_.layerMask_ , PixelSubdetector::PixelBarrel }},
+    {"PXLadder" , {pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel }},
+    {"PXBModule", {pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel }},
+
+    {"PXBlade"  , {pfVals_.bladeStartBit_ , pfVals_.bladeMask_ , PixelSubdetector::PixelEndcap }},
+    {"PXDisk"   , {pfVals_.diskStartBit_  , pfVals_.diskMask_  , PixelSubdetector::PixelEndcap }},
+    {"PXPanel"  , {pfVals_.panelStartBit_ , pfVals_.panelMask_ , PixelSubdetector::PixelEndcap }},
+    {"PXFModule", {pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap }},
+  };
+
+  for (std::pair<std::string, BitMask> e : namedPartitions) {
     geomquantities.push_back(intern(e.first));
-    addExtractor(intern(e.first),
-      [mask] (InterestingQuantities const& iq) {
-	if(!mask.valid(iq.sourceModule)) return UNDEFINED;
-	return Value(mask.apply(iq.sourceModule));
-      },
-      UNDEFINED, 0
-    );
+    addExtractor(intern(e.first), e.second, UNDEFINED, 0);
   }
 
   // Redefine the disk numbering to use the sign
@@ -279,15 +304,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       return UNDEFINED;
     }, 0, 0 // N/A
   );
-  
-  addExtractor(intern("PXForward"),
-    [pxendcap] (InterestingQuantities const& iq) {
-      if (pxendcap(iq) == UNDEFINED) return UNDEFINED;
-      else return 0;
-    },
-    0, 0
-  );
-
+ 
   addExtractor(intern(""), // A dummy column. Not much special handling required.
     [] (InterestingQuantities const& iq) { return 0; },
     0, 0
