@@ -111,6 +111,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 
   produces<std::vector<reco::CaloJet> >(); 
   produces<std::vector<reco::CaloJet> >("PUjets"); 
+  produces<std::vector<float> >(); 
 }
 
 
@@ -144,6 +145,7 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
   using namespace edm;
   std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
   std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
+  std::auto_ptr<std::vector<float> > pOut_sumPt(new std::vector<float> );
   
    //get tracks
   Handle<std::vector<reco::Track> > tracks;
@@ -171,49 +173,52 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
       const reco::Vertex* pv = &*primaryVertex->begin();
       //loop on jets
       for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++ ) {
-	
-	math::XYZVector jetMomentum = itJet->momentum();
-	GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
-	
-	math::XYZVector trMomentum;
-	
-	//loop on tracks
-	if(fabs(itJet->eta())>m_mineta_fwjets)
-	  {
-	    if((m_fwjets) && (itJet->et()>m_minet_fwjets))
-	      pOut->push_back(*itJet);// fill forward jet as signal jet
-	  }
-	else 
-	  {
-	    std::vector<reco::Track>::const_iterator itTrack = tracks->begin();
-	    for (unsigned int i=0; i<tsize; ++i) {
-	      float deltaR2=reco::deltaR2(itJet->eta(),itJet->phi(), teta[i],tphi[i]);
-	      if(deltaR2<0.25) {
-		reco::TransientTrack transientTrack = builder->build(*itTrack);
-		float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
-		    
-		//select the tracks compabible with the jet
-		if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
-		  {
-		    trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
-		  }
-	      }
-	      itTrack++;
-	    }
-	    //if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
-	    if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
-	      {
-		pOut->push_back(*itJet);        // fill it as signal jet
-	      }
-	    else//else it is a PUjet
-	      {
-		pOut_PUjets->push_back(*itJet); // fill it as PUjets
-	      }
-	  }
+    
+    math::XYZVector jetMomentum = itJet->momentum();
+    GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
+    
+    math::XYZVector trMomentum;
+    float sumPt = -1
+    
+    if(fabs(itJet->eta())>m_mineta_fwjets)
+      {
+        if((m_fwjets) && (itJet->et()>m_minet_fwjets))
+          pOut->push_back(*itJet);// fill forward jet as signal jet
+      }
+    else 
+      {
+    //loop on tracks
+        std::vector<reco::Track>::const_iterator itTrack = tracks->begin();
+        for (unsigned int i=0; i<tsize; ++i) {
+          float deltaR2=reco::deltaR2(itJet->eta(),itJet->phi(), teta[i],tphi[i]);
+          if(deltaR2<0.25) {
+        reco::TransientTrack transientTrack = builder->build(*itTrack);
+        float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
+            
+        //select the tracks compabible with the jet
+        if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
+          {
+            trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
+          }
+          }
+          itTrack++;
+        }
+        //if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
+        if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
+          {
+        pOut->push_back(*itJet);        // fill it as signal jet
+          }
+        else//else it is a PUjet
+          {
+        pOut_PUjets->push_back(*itJet); // fill it as PUjets
+          }
+      }
+      pOut_sumPt->push_back(trMomentum.rho() ); // fill it as PUjets
       }
     }
   iEvent.put(pOut);
   iEvent.put(pOut_PUjets,"PUjets");
+  iEvent.put(pOut_sumPt);
   
 }
 
