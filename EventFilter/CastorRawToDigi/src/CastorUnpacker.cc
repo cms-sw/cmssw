@@ -220,17 +220,12 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
     /// work through the samples
-    currFiberChan=0x3F; // invalid fiber+channel...
-    ncurr=0;
-    valid=false;
     
     for (qie_work=qie_begin; qie_work!=qie_end; ) {
       if (qie_work->raw()==0xFFFF) {
 	qie_work++;
 	continue; // filler word
       }
-      // always at the beginning ...
-      currFiberChan=qie_work->fiberAndChan();
 
       // lookup the right channel
       CastorElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
