@@ -93,8 +93,10 @@ void HistogramManager::executeStep1Spec(double x, double y,
 	assert(stage == SummationStep::STAGE1_2 
 	       || !"Only COUNT/GROUPBY with per-event harvesting allowed in step1");
 	dimensions = 1;
-	//x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
-        x = (double) fastpath->count; // we expect to get that from the per event harvesting.
+        if (!fastpath) 
+          x = (double) t[significantvalues].count; // PERF: redundant lookup, caller has it.
+        else
+          x = (double) fastpath->count; // we expect to get that from the per event harvesting.
         fastpath = nullptr; // we change significantvalues, so this becomes invalid.
         t[significantvalues].count = 0;
         new_vals.clear();
