@@ -5,19 +5,41 @@
 #include <iomanip>
 #include <ostream>
 #include <iostream>
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   // TODO: set this in a common include file.
   // see DataFormats/Phase2TrackerCommon/interface/Constants.h
 
-  static const int MAX_FE_PER_FED = 16;
+  // -------------------- FED ids --------------------
+
+  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::MINSiStripFEDID);
+  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::MAXSiStripFEDID);
+  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::MAXFEDID);
+  static const uint16_t NUMBER_OF_FEDS = static_cast<uint16_t>( FED_ID_MAX - FED_ID_MIN + 1 );
+
+  // Assumptions for phase 2
+
+  static const int MAX_FE_PER_FED = 72;
   static const int MAX_CBC_PER_FE = 16;
   static const int STRIPS_PER_CBC = 254;
+  static const int PS_ROWS = 120;
+  static const int PS_COLS = 32;
   static const int STRIPS_PADDING = 2;
   static const int TRIGGER_SIZE = 0; 
+	// size = 32 for testbeam
+	// static const int TRIGGER_SIZE = 32;
+  static const int P_CLUSTER_SIZE_BITS = 18;
+  static const int S_CLUSTER_SIZE_BITS = 15;
+  static const int CBC_STATUS_SIZE_DEBUG = 10;
+  static const int CBC_STATUS_SIZE_ERROR = 2;
+
+  // definition
 
   static const uint8_t INVALID=0xFF;
+
+  // utils
 
   inline void printNibbleValue(uint8_t value, std::ostream& os)
   { 
@@ -135,6 +157,28 @@ namespace sistrip {
     CBC_ERROR  = 2
   };
 
+  // module types
+  enum DET_TYPE
+  {
+      UNUSED = -1,
+      DET_Son2S = 0,
+      DET_SonPS = 1,
+      DET_PonPS = 2
+  };
+
+  enum MOD_TYPE
+  {
+      MOD_2S = 0,
+      MOD_PS = 1
+  };
+
+  enum STACK_LAYER
+  {
+      LAYER_UNUSED = -1,
+      LAYER_INNER  = 0,
+      LAYER_OUTER  = 1
+  };
+
   //to make enums printable
   std::ostream& operator<<(std::ostream& os, const READ_MODE& value);
   inline std::ostream& operator<<(std::ostream& os, const READ_MODE& value)
@@ -161,7 +205,7 @@ namespace sistrip {
 
 
 
-  //enum values to parse tracker header
+  // tracker header masks
   enum trackerHeader_m { VERSION_M       = 0xF000000000000000,
                          HEADER_FORMAT_M = 0x0C00000000000000,
                          EVENT_TYPE_M    = 0x03C0000000000000,
@@ -170,16 +214,25 @@ namespace sistrip {
                          CBC_NUMBER_M    = 0xFFFF000000000000 
                        };
 
+  // position of first bit
   enum trackerHeader_s { VERSION_S       = 60,
                          HEADER_FORMAT_S = 58,
                          EVENT_TYPE_S    = 54,
-                         GLIB_STATUS_S   = 16,
-                         FRONTEND_STAT_S = 0,
-                         CBC_NUMBER_S    = 48
+                         GLIB_STATUS_S   = 24,
+                         CBC_NUMBER_S    = 8,
+                         FRONTEND_STAT_S = 0
                        };
 
+  // number of bits (replaces mask)
+  enum trackerheader_l { VERSION_L       = 4,
+                         HEADER_FORMAT_L = 2,
+                         EVENT_TYPE_L    = 4,
+                         GLIB_STATUS_L   = 30,
+                         CBC_NUMBER_L    = 16,
+                         FRONTEND_STAT_L = 0
+                       };
 
-  // get 64 bits word from data with given offset
+  // get 64 bits word from data with given offset : only use if at beginning of 64 bits word 
   inline uint64_t read64(int offset, const uint8_t* buffer)
   {
     return *reinterpret_cast<const uint64_t*>(buffer+offset);
@@ -188,12 +241,155 @@ namespace sistrip {
   // extract data from a 64 bits word using mask and shift
   inline uint64_t extract64(trackerHeader_m mask,trackerHeader_s shift, uint64_t data)
   {  
-    // cout <<"IN  "<< hex<< " " <<setfill('0') << setw(16) << data  << "\n" ; 
     data = (data & mask) >> shift;
     return data;
   }
 
-} // end of sistrip namespace
+  // read n bits starting at bit m (lsb to msb)
+  inline uint64_t read_n_at_m(const uint8_t* buffer, int size, int pos_bit)
+  {
+    // 1) determine which 64 bit word to read
+    int iword = pos_bit/64;
+    uint64_t data = *(uint64_t*)(buffer+(iword*8));
+    data >>= pos_bit % 64;
+
+    // 2) determine if you need to read another
+    int end_bit = pos_bit % 64 + size;
+    if(end_bit > 64) {
+        data |=  *(uint64_t*)(buffer+((iword+1)*8)) << (64 - (pos_bit%64));
+    }
+    
+    // 3) mask according to expected size
+    if(size < 64) { data &= (uint64_t)((1LL<<size)-1); }
+    return data;
+  }
+
+  // read n bits starting at bit m (msb to lsb)
+  inline uint64_t read_n_at_m_l2r(const uint8_t* buffer, int size, int pos_bit)
+  {
+    int iword = pos_bit/64;
+    uint64_t data = *(uint64_t*)(buffer+(iword*8));
+    int left_bit = (pos_bit^(0x3F)) + 1;
+    if (pos_bit%64 + size <= 64)
+    {
+      data >>= (left_bit - size) % 64;
+    }
+    else
+    {
+      data <<= (size - left_bit%64);
+      data  |= *(uint64_t*)(buffer+((iword+1)*8)) >> (128 - size + left_bit%64);
+    }
+    if(size < 64) { data  &= (uint64_t)((1LL<<size)-1); }
+    return data;
+  }
+
+
+  // writes data at a certain bit position. 
+  // data should be a 64 bit word, with relevant data at the beginning 
+  inline void write_n_at_m(uint8_t* buffer, int size, int pos_bit, uint64_t data)
+  {
+    // remove additional data
+    if(size<64)
+    {
+      data &= ((1LL<<size)-1);
+    }
+    int iword = pos_bit/64;
+    int end_bit = pos_bit % 64 + size;
+    uint64_t curr_data = *(uint64_t*)(buffer+(iword*8));
+    // mask to keep all bits that should not be replaced
+    uint64_t mask = ~(((1LL<<size)-1)<<pos_bit);
+    if(size == 64)
+    {
+      mask = (1LL<<(pos_bit%64))-1;
+    }
+    curr_data &= mask;
+    // add data
+    curr_data |= (data<<(pos_bit%64));
+    memcpy(buffer+(iword*8),&curr_data, 8);
+    if ( end_bit > 64 )
+    {
+      // there are more bits to write
+      mask = ~((1LL<<(end_bit-64))-1);
+      uint64_t data_supp = *(uint64_t*)(buffer+((iword+1)*8));
+      data_supp &= mask;
+      // data_supp |= (data>>(end_bit-64));
+      data_supp |= (data>>(64-pos_bit));
+      memcpy(buffer+((iword+1)*8),&data_supp, 8);
+    }
+  }
+
+  // same but write in reverse order (msb to lsb)
+  inline void write_n_at_m_l2r(uint8_t* buffer, int size, int pos_bit, uint64_t data)
+  {
+    if(size<64)
+    {
+      data &= ((1LL<<size)-1);
+    }
+    int left_bit  = (pos_bit^(0x3F)) + 1;
+    int right_bit = 0;
+    uint64_t mask = 0;
+    int iword = pos_bit/64;
+    uint64_t curr_data = *(uint64_t*)(buffer+(iword*8));
+    if (pos_bit%64 + size <= 64)
+    {
+      right_bit = left_bit - size;
+      mask = (size==64) ? 0LL : ~(((1LL<<size)-1)<<right_bit);
+      curr_data &= mask;
+      curr_data |= (data << right_bit);
+      memcpy(buffer+(iword*8),&curr_data, 8);
+    }
+    else
+    {
+      right_bit = left_bit + 128 - size ;
+      mask = ~((1LL<<(left_bit%64))-1);
+      curr_data &= mask;
+      curr_data |= (data >> (size - left_bit%64));
+      memcpy(buffer+(iword*8),&curr_data, 8);
+      int rsize = size - left_bit%64;
+      write_n_at_m_l2r(buffer,rsize,(iword+1)*64,data&((1LL<<rsize)-1));
+    }
+  }
+
+
+  inline void write_n_at_m(std::vector<uint64_t>& buffer, int size, int pos_bit, uint64_t data, bool l2r = true)
+  {
+    int iword  = pos_bit/64;
+    // extend vector if necessary
+    if(pos_bit + size > (int)(buffer.size())*64)
+    {
+      int toadd = (pos_bit + size + 64 - 1)/64 - buffer.size();
+      buffer.insert(buffer.end(),toadd,(uint64_t)0x00);
+    }
+    uint64_t temp[] = {buffer[iword], 0x00};
+    if(pos_bit%64 + size > 64)
+    {
+      temp[1] = buffer[iword+1];
+    }
+    uint8_t* tt = (uint8_t*)(temp);
+    if(l2r)
+    {
+      write_n_at_m_l2r(tt,size,pos_bit%64,data);
+    }
+    else
+    {
+      write_n_at_m(tt,size,pos_bit%64,data);
+    }
+    buffer[iword] = *(uint64_t*)(tt);
+    if(pos_bit%64 + size > 64)
+    {
+      buffer[iword+1] = *(uint64_t*)(tt+8);
+    }
+  }
+
+  inline void vec_to_array(std::vector<uint64_t> vec,uint8_t* arr)
+  {
+    std::vector<uint64_t>::iterator it;
+    for (it=vec.begin(); it!=vec.end(); it++)
+    {
+      memcpy(arr+8*(it-vec.begin()),&*it,8);
+    }
+  }
+} // end of Phase2Tracker namespace
 
 #endif // } end def utils
 

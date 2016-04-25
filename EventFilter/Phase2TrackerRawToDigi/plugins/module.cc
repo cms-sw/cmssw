@@ -1,10 +1,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerDigiProducer.h"
-#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerDigi_CondData_producer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerCommissioningDigiProducer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerHeaderProducer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerDigiToRawProducer.h"
 
-typedef sistrip::Phase2TrackerDigiProducer Phase2TrackerDigiProducer;
-typedef sistrip::Phase2TrackerDigi_CondData_producer Phase2TrackerDigi_CondData_producer;
+typedef Phase2Tracker::Phase2TrackerDigiProducer Phase2TrackerDigiProducer;
+typedef Phase2Tracker::Phase2TrackerCommissioningDigiProducer Phase2TrackerCommissioningDigiProducer;
+typedef Phase2Tracker::Phase2TrackerHeaderProducer Phase2TrackerHeaderProducer;
+typedef Phase2Tracker::Phase2TrackerDigiToRawProducer Phase2TrackerDigiToRawProducer;
 
 DEFINE_FWK_MODULE(Phase2TrackerDigiProducer);
-DEFINE_FWK_MODULE(Phase2TrackerDigi_CondData_producer);
+DEFINE_FWK_MODULE(Phase2TrackerCommissioningDigiProducer);
+DEFINE_FWK_MODULE(Phase2TrackerHeaderProducer);
+DEFINE_FWK_MODULE(Phase2TrackerDigiToRawProducer);
