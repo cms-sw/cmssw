@@ -1,0 +1,58 @@
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsStripDVsEta:Track Eta:No of hits in SiStrip (Double-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsStripSVsEta:Track Eta:No of hits in SiStrip (Single-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTECDVsEta:Track Eta:No of hits in TEC (Double-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTECSVsEta:Track Eta:No of hits in TEC (Single-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTIBDVsEta:Track Eta:No of hits in TIB (Double-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTIBSVsEta:Track Eta:No of hits in TIB (Single-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTIDDVsEta:Track Eta:No of hits in TID (Double-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTIDSVsEta:Track Eta:No of hits in TID (Single-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTOBDVsEta:Track Eta:No of hits in TOB (Double-sided) per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nHitsTOBSVsEta:Track Eta:No of hits in TOB (Single-sided) per Track:l:lin
+#####LostHits#####
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsVsCosTheta:Track cos(Theta):No of lost hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsVsEta:Track Eta:No of lost hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsVsPhi:Track Phi:No of lost hits per Track:l:lin
+#DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsVspT:Track pT:No of lost hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixBVsEta:Track Eta:No of lost hits in Pixel Barrel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixEVsEta:Track Eta:No of lost hits in Pixel Endcap per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixVsEta:Track Eta:No of lost hits in Pixel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsStripVsEta:Track Eta:No of lost hits in SiStrip per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTIBVsEta:Track Eta:No of lost hits in TIB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTOBVsEta:Track Eta:No of lost hits in TOB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTIDVsEta:Track Eta:No of lost hits in TID per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTECVsEta:Track Eta:No of lost hits in TEC per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixBVsPhi:Track Phi:No of lost hits in Pixel Barrel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixEVsPhi:Track Phi:No of lost hits in Pixel Endcap per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsPixVsPhi:Track Phi:No of lost hits in Pixel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsStripVsPhi:Track Phi:No of lost hits in SiStrip per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTIBVsPhi:Track Phi:No of lost hits in TIB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTOBVsPhi:Track Phi:No of lost hits in TOB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTIDVsPhi:Track Phi:No of lost hits in TID per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitsTECVsPhi:Track Phi:No of lost hits in TEC per Track:l:lin
+#####ValidHits######
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixBVsEta:Track Eta:No of valid hits in Pixel Barrel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixEVsEta:Track Eta:No of valid hits in Pixel Endcap per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixVsEta:Track Eta:No of valid hits in Pixel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsStripVsEta:Track Eta:No of valid hits in SiStrip per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTIBVsEta:Track Eta:No of valid hits in TIB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTOBVsEta:Track Eta:No of valid hits in TOB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTIDVsEta:Track Eta:No of valid hits in TID per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTECVsEta:Track Eta:No of valid hits in TEC per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixBVsPhi:Track Phi:No of valid hits in Pixel Barrel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixEVsPhi:Track Phi:No of valid hits in Pixel Endcap per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsPixVsPhi:Track Phi:No of valid hits in Pixel per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsStripVsPhi:Track Phi:No of valid hits in SiStrip per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTIBVsPhi:Track Phi:No of valid hits in TIB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTOBVsPhi:Track Phi:No of valid hits in TOB per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTIDVsPhi:Track Phi:No of valid hits in TID per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsTECVsPhi:Track Phi:No of valid hits in TEC per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsVsCosTheta:Track cos(Theta):No of valid hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsVsEta:Track Eta:No of valid hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsVsPhi:Track Phi:No of valid hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsVsnVtx:No. of vertex:No of valid hits per Track:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:nValidHitsVspT:Track pT:No of valid hits per Track:l:lin
+#####DCA & SIP plot#####
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:DistanceOfClosestApproachToPVVsPhi:Track phi:Distance of Closest Approach to PV:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:xPointOfClosestApproachVsZ0wrtPV:Z0 of PV:x Point of Closest Approach to PV:l:lin
+DQMData/Run 172802/StandaloneTrackMonitor/Run summary/highPurityTracks/:yPointOfClosestApproachVsZ0wrtPV:Z0 of PV:y Point of Closest Approach to PV:l:lin
+
