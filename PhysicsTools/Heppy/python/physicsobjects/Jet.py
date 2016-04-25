@@ -34,6 +34,7 @@ _btagWPs = {
     "CMVAL": ("pfCombinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
     "CMVAM": ("pfCombinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
     "CMVAT": ("pfCombinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
+    "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
 
 }
 
@@ -79,14 +80,19 @@ class Jet(PhysicsObject):
         if name == "VBFHBB_PFID_Loose":  return (npr>1 and phf<0.99 and nhf<0.99);
         if name == "VBFHBB_PFID_Medium": return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.99 and muf<0.99 and chf>0 and chm>0) or eta>2.4);
         if name == "VBFHBB_PFID_Tight":  return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.70 and muf<0.70 and chf>0 and chm>0) or eta>2.4);
-        raise RuntimeError("jetID '%s' not supported" % name)
+        if name == "PAG_monoID_Loose":    return (eta<3.0 and chf>0.05 and nhf<0.7 and phf<0.8);
+        if name == "PAG_monoID_Tight":    return (eta<3.0 and chf>0.2 and nhf<0.7 and phf<0.7);
+
+        raise RuntimeError, "jetID '%s' not supported" % name
 
     def looseJetId(self):
         '''PF Jet ID (loose operation point) [method provided for convenience only]'''
         return self.jetID("POG_PFID_Loose")
 
     def puMva(self, label="pileupJetId:fullDiscriminant"):
-        return self.userFloat(label)
+        if self.hasUserFloat(label):
+            return self.userFloat(label)
+        return -99
 
     def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''

@@ -22,8 +22,6 @@
 // class declaration
 //
 
-using namespace std;
-using namespace reco;
 class PhotonIsoProducer : public edm::EDFilter {
       public:
          explicit PhotonIsoProducer(const edm::ParameterSet&);
@@ -90,7 +88,6 @@ PhotonIsoProducer::~PhotonIsoProducer()
 
 // ------------ method called on each new Event  ------------
 bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	using namespace edm;
 
         std::auto_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>() );
 	edm::ValueMap<double>::Filler chFiller(*chIsoMap);
@@ -101,17 +98,17 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::auto_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>() );
 	edm::ValueMap<double>::Filler nhFiller(*nhIsoMap);
 
-	Handle<reco::VertexCollection>  vertexCollection;
+	edm::Handle<reco::VertexCollection>  vertexCollection;
 	iEvent.getByToken(vertexToken_, vertexCollection);
 
-	Handle<reco::PhotonCollection> phoCollection;
+	edm::Handle<reco::PhotonCollection> phoCollection;
 	iEvent.getByToken(photonToken_, phoCollection);
 	const reco::PhotonCollection *recoPho = phoCollection.product();
 
 	// All PF Candidate for alternate isolation
-	Handle<reco::PFCandidateCollection> pfCandidatesH;
+	edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
 	iEvent.getByToken(particleFlowToken_, pfCandidatesH);
-	const  PFCandidateCollection thePfColl = *(pfCandidatesH.product());
+	const  reco::PFCandidateCollection thePfColl = *(pfCandidatesH.product());
 
         std::vector<double> chIsoValues;
 	std::vector<double> phIsoValues;
@@ -121,7 +118,7 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
         nhIsoValues.reserve(phoCollection->size());
 
 	unsigned int ivtx = 0;
-	VertexRef myVtxRef(vertexCollection, ivtx);
+	reco::VertexRef myVtxRef(vertexCollection, ivtx);
 
 
         for (reco::PhotonCollection::const_iterator aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {

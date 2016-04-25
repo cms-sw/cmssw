@@ -44,9 +44,7 @@
 // class decleration
 //
 
-using namespace edm;
-using namespace reco;
-using namespace std;
+
 class ElectronIsoAnalyzer : public edm::EDAnalyzer {
    public:
       explicit ElectronIsoAnalyzer(const edm::ParameterSet&);
@@ -59,7 +57,7 @@ class ElectronIsoAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
 
 
-  ParameterSet conf_;
+  edm::ParameterSet conf_;
 
 
   unsigned int ev;
@@ -175,9 +173,9 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-  Handle<GsfElectronCollection> theEGammaCollection;
+  edm::Handle<reco::GsfElectronCollection> theEGammaCollection;
   iEvent.getByToken(tokenGsfElectrons_,theEGammaCollection);
-  const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
+  const reco::GsfElectronCollection theEGamma = *(theEGammaCollection.product());
 
   // rho for isolation
   edm::Handle<double> rhoIso_h;
@@ -207,9 +205,9 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     float eff_area_phnh = ElectronEffectiveArea::GetElectronEffectiveArea(effAreaGammaPlusNeutralHad_, abseta, effAreaTarget_);
 
-    double myRho = max<double>(0.,rhoIso);
+    double myRho = std::max<double>(0.,rhoIso);
 
-    float myPfIsoPuCorr = charged + max<float>(0.f, (photon+neutral) - eff_area_phnh*myRho);
+    float myPfIsoPuCorr = charged + std::max<float>(0.f, (photon+neutral) - eff_area_phnh*myRho);
 
 
     if(verbose_) {
@@ -230,7 +228,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       neutralBarrel_->Fill(neutral/myElectronRef->pt());
       sumBarrel_->Fill((charged+photon+neutral)/myElectronRef->pt());
       sumCorrBarrel_->Fill(myPfIsoPuCorr/myElectronRef->pt());
-      missHitsBarrel_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
+      missHitsBarrel_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
 
     } else {
       chargedEndcaps_ ->Fill(charged/myElectronRef->pt());
@@ -238,7 +236,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       neutralEndcaps_->Fill(neutral/myElectronRef->pt());
       sumEndcaps_->Fill((charged+photon+neutral)/myElectronRef->pt());
       sumCorrEndcaps_->Fill(myPfIsoPuCorr/myElectronRef->pt());
-      missHitsEndcap_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
+      missHitsEndcap_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
     }
   }
 
@@ -254,7 +252,7 @@ ElectronIsoAnalyzer::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 ElectronIsoAnalyzer::endJob() {
-  cout << " endJob:: #events " << ev << endl;
+  std::cout << " endJob:: #events " << ev << std::endl;
 }
 
 //define this as a plug-in

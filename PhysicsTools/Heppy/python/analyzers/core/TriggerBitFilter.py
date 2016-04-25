@@ -26,13 +26,21 @@ class TriggerBitFilter( Analyzer ):
 
     def beginLoop(self, setup):
         super(TriggerBitFilter,self).beginLoop(setup)
+        self.counters.addCounter('events')
+        self.count = self.counters.counter('events')
+        self.count.register('all events')
+        self.count.register('pass trigger')
+        self.count.register('pass veto')
 
     def process(self, event):
         if self.autoAccept: return True
         self.readCollections( event.input )
+        self.count.inc('all events')
         if not self.mainFilter.check(event.input.object(), self.handles['TriggerResults'].product()):
             return False
+        self.count.inc('pass trigger')
         if self.vetoFilter != None and self.vetoFilter.check(event.input.object(), self.handles['TriggerResults'].product()):
             return False
+        self.count.inc('pass veto')
         return True
 

@@ -22,8 +22,13 @@ class MuScleFitCorr:
             corr.applyPtCorrection(p4, mu.charge())
         ## convert to the proper C++ class (but preserve the mass!)
         return ROOT.reco.Muon.PolarLorentzVector( p4.Pt(), p4.Eta(), p4.Phi(), mu.mass() )
+
     def correct(self, mu, run):
         mu.setP4( self.corrected_p4(mu, run) )
+
+    def correct_all(self, mus, run):
+        for mu in mus:
+            mu.setP4( self.corrected_p4(mu, run) )
 
 if __name__ == '__main__':
     muscle = MuScleFitCorr(True, True)
