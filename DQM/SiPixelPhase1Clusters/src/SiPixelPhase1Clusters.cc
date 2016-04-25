@@ -61,7 +61,6 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
   if (nforward > 180) 
     histo[EVENTRATE].fill(DetId(0), &iEvent);
-  nforward = 0;
   histo[NCLUSTERS].executePerEventHarvesting();
 }
 

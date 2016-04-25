@@ -8,7 +8,6 @@
 
 #include <vector>
 #include <string>
-#include <map>
 
 //knower of all things tracker geometry
 //flexible replacement for PXBDetId and friends
@@ -590,7 +589,6 @@ class TrackerTopology {
   TIBValues tibVals_;
   TIDValues tidVals_;
   TECValues tecVals_;
- 
 
 };
 
