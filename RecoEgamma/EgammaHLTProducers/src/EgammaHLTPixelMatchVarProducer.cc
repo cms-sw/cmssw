@@ -126,10 +126,10 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
 
   if(!recoEcalCandHandle.isValid() || !pixelSeedsHandle.isValid()) return;
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhi1BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhi2BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dzBestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> s2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhi1BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhi2BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dzBestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> s2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
   
   for(unsigned int candNr = 0; candNr<recoEcalCandHandle->size(); candNr++) {
     
@@ -160,11 +160,11 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
     
   }
 
-  iEvent.put(s2Map,"s2");
+  iEvent.put(std::move(s2Map),"s2");
   if(productsToWrite_>=1){
-    iEvent.put(dPhi1BestS2Map,"dPhi1BestS2");
-    iEvent.put(dPhi2BestS2Map,"dPhi2BestS2");
-    iEvent.put(dzBestS2Map,"dzBestS2");
+    iEvent.put(std::move(dPhi1BestS2Map),"dPhi1BestS2");
+    iEvent.put(std::move(dPhi2BestS2Map),"dPhi2BestS2");
+    iEvent.put(std::move(dzBestS2Map),"dzBestS2");
   }
 }
 

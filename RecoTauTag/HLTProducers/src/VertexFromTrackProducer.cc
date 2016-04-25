@@ -58,7 +58,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
 {
   using namespace edm;
 
-  std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
+  std::unique_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
 
   math::XYZPoint vertexPoint;
@@ -203,7 +203,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
 
   
   *result = vColl;
-  iEvent.put(result);
+  iEvent.put(std::move(result));
   
 }
 

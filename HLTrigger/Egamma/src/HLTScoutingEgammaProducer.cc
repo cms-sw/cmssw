@@ -147,8 +147,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, 
     }
 
     // Produce electrons and photons
-    std::auto_ptr<ScoutingElectronCollection> outElectrons(new ScoutingElectronCollection());
-    std::auto_ptr<ScoutingPhotonCollection> outPhotons(new ScoutingPhotonCollection());
+    std::unique_ptr<ScoutingElectronCollection> outElectrons(new ScoutingElectronCollection());
+    std::unique_ptr<ScoutingPhotonCollection> outPhotons(new ScoutingPhotonCollection());
     int index = 0;
     for (auto &candidate : *EgammaCandidateCollection) {
         reco::RecoEcalCandidateRef candidateRef = getRef(EgammaCandidateCollection, index);
@@ -200,8 +200,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, 
     }
 
     // Put output
-    iEvent.put(outElectrons);
-    iEvent.put(outPhotons);
+    iEvent.put(std::move(outElectrons));
+    iEvent.put(std::move(outPhotons));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
