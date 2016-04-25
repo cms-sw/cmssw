@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
+    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection 
@@ -113,6 +113,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 
     HWW = cms.PSet( 
         hltPathsToCheck = cms.vstring(
+              # Single lepton paths
+              "HLT_Ele25_eta2p1_WPTight_Gsf_v",
+              "HLT_Ele25_WPTight_Gsf_v",
+              "HLT_Ele25_eta2p1_WPLoose_Gsf_v",
+              "HLT_Ele35_WPLoose_Gsf_v",
+              "HLT_Ele27_eta2p1_WPTight_Gsf_v",
+              "HLT_Ele27_WPTight_Gsf_v",
+              "HLT_Ele27_eta2p1_WPLoose_Gsf_v",
+              "HLT_Ele45_WPLoose_Gsf_v",
+              "HLT_IsoMu20_eta2p1_v",
+              "HLT_IsoMu22_v",
+              
               #dileptons for Hww and Hzz
               "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
@@ -161,7 +173,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2),
         PFMET_recCut = cms.untracked.string("pt > 20."), 
-        ),        
+        ),   
+    MuonJet = cms.PSet( 
+        hltPathsToCheck = cms.vstring(            
+            "HLT_Mu3_PFJet40_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        # -- Analysis specific cuts
+        Mu_genCut     = cms.string("pt > 0 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
+        Mu_recCut     = cms.string("pt > 0 && abs(eta) < 2.4 && isGlobalMuon"),
+        minCandidates = cms.uint32(2),
+        ),  
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
@@ -198,9 +221,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
      HiggsDalitz = cms.PSet(
         hltPathsToCheck = cms.vstring(
             "HLT_Mu17_Photon22_CaloIdL_L1ISO_v",
-            "HLT_Mu17_Photon30_CaloIdL_L1ISO_v",
-            "HLT_Mu12_Photon25_CaloIdL_v",
             "HLT_Mu12_Photon25_CaloIdL_L1ISO_v",
+            "HLT_Mu17_Photon30_CaloIdL_L1ISO_v",
+            "HLT_Mu17_Photon35_CaloIdL_L1ISO_v",
+            "HLT_Mu12_Photon25_CaloIdL_v",
             "HLT_Mu12_Photon25_CaloIdL_L1OR_v"
         ),
         recMuonLabel  = cms.string("muons"),
