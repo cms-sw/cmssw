@@ -19,10 +19,32 @@ PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 namespace {
   inline
   bool recHitsLess(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2) {
-    if (recHit1->geographicalId() < recHit2->geographicalId()) return true;
-    if (recHit1->geographicalId() == recHit2->geographicalId()) return recHit1 < recHit2;
-    return false;
+    return recHit1->geographicalId() < recHit2->geographicalId();
   }
+  inline 
+  bool recHitsEqu(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2) {
+    return recHit1 ==recHit2;
+  }
+
+template<class InputIt1, class InputIt2, class Compare, class Equal>
+unsigned int count_intersection(InputIt1 first1, InputIt1 last1,
+                               InputIt2 first2, InputIt2 last2,
+                               Compare comp, Equal equ)
+{    
+    unsigned int n=0;
+    while (first1 != last1 && first2 != last2) {
+        if (comp(*first1, *first2)) {
+            ++first1;
+        } else {
+            if (!comp(*first2, *first1)) {
+                if (equ(*first1++,*first2)) ++n;
+            }
+            ++first2;
+        }
+    }
+    return n;
+}
+
 }
 
 void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
@@ -49,9 +71,8 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
       auto f2 = recHits1.data();
       auto s2 = recHits1.size();
       auto e2 = f2+s1;
-      auto commonRecHits = 0U;
-      std::set_intersection(f1,e1,f2,e2,
-                            boost::make_function_output_iterator([&](const TrackingRecHit *) {++commonRecHits;}),recHitsLess);
+      auto commonRecHits = 
+      count_intersection(f1,e1,f2,e2,recHitsLess,recHitsEqu);
       assert(commonRecHits==s2);
     }
     */
@@ -66,10 +87,8 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
       auto f2 = recHits2.data();
       auto s2 = recHits2.size();
       auto e2 = f2+s2;
-      auto commonRecHits = 0U;
-      std::set_intersection(f1,e1,f2,e2,
-                            boost::make_function_output_iterator([&](const TrackingRecHit *) {++commonRecHits;}),
-                            recHitsLess);
+      auto commonRecHits =    
+        count_intersection(f1,e1,f2,e2,recHitsLess,recHitsEqu);
       
       if (commonRecHits > 1) {
 	if (track1->pt() > track2->pt()) kill(iTrack2);
