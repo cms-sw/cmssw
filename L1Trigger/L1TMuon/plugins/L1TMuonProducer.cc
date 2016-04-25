@@ -224,6 +224,12 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       bxMin = std::max(bxMin, emtfMuons->getFirstBX());
       bxMax = std::min(bxMax, emtfMuons->getLastBX());
     }
+    if (bxMin > 0) {
+      bxMin = 0;
+    }
+    if (bxMax < 0){
+      bxMax = 0;
+    }
     if (bxMin > -1000) {
       m_bxMin = bxMin;
     } else {
