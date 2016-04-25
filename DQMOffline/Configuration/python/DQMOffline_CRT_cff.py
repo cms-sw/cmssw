@@ -28,5 +28,6 @@ crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                egammaDataCertificationTask *
                                dqmOfflineTriggerCert )
 eras.phase1Pixel.toReplaceWith(crt_dqmoffline, crt_dqmoffline.copyAndExclude([ # FIXME
-    dqmOfflineTriggerCert # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+    dqmOfflineTriggerCert, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+    sipixelCertification # segfaults with pixel harvesting plots missing
 ]))
