@@ -4367,10 +4367,10 @@ Decay anti-B*0
 #1.0000    anti-B0 gamma                       VSP_PWAVE;
 Enddecay
 Decay B_s*0
-1.0000    B_s0  gamma                      VSP_PWAVE;
+#1.0000    B_s0  gamma                      VSP_PWAVE;
 Enddecay
 Decay anti-B_s*0
-1.0000    anti-B_s0 gamma                       VSP_PWAVE;
+#1.0000    anti-B_s0 gamma                       VSP_PWAVE;
 Enddecay
 #
 # B_s decays.
@@ -8257,7 +8257,7 @@ Decay B_c-
 0.00004    anti-D0    e-      anti-nu_e         PHOTOS  PHSP;
 0.00018    anti-D*0   e-      anti-nu_e         PHOTOS  PHSP;
 0.04030    anti-B_s0  e-      anti-nu_e         PHOTOS  PHSP;
-0.05060    anti-B_s*0 e-      anti-nu_e         PHOTOS  PHSP;
+#0.05060    anti-B_s*0 e-      anti-nu_e         PHOTOS  PHSP;
 0.00340    anti-B0    e-      anti-nu_e         PHOTOS  PHSP;
 #0.00580    anti-B*0   e-      anti-nu_e         PHOTOS  PHSP;
 #
@@ -8268,7 +8268,7 @@ Decay B_c-
 0.00004    anti-D0    mu-     anti-nu_mu        PHOTOS  PHSP;
 0.00018    anti-D*0   mu-     anti-nu_mu        PHOTOS  PHSP;
 0.04030    anti-B_s0  mu-     anti-nu_mu        PHOTOS  PHSP;
-0.05060    anti-B_s*0 mu-     anti-nu_mu        PHOTOS  PHSP;
+#0.05060    anti-B_s*0 mu-     anti-nu_mu        PHOTOS  PHSP;
 0.00340    anti-B0    mu-     anti-nu_mu        PHOTOS  PHSP;
 #0.00580    anti-B*0   mu-     anti-nu_mu        PHOTOS  PHSP;
   #
