@@ -294,6 +294,16 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
 	fillShapeAndPlacement( current, sc );
       }
     }
+    // add in chambers
+    for(auto ch : gemGeom->chambers())
+    { 
+      if( ch )
+      {
+	unsigned int rawid = ch->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, ch );
+      }
+    }    
     // add in etaPartitions - gem rechits are based on etaPartitions
     for(auto roll : gemGeom->etaPartitions())
     { 
