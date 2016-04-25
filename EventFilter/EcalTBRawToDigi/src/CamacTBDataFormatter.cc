@@ -326,8 +326,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a& 0x000000ff);
   LogDebug("CamacTBDataFormatter") << "number of words used in multi stop TDC words: "<< b;
   
-  int numberTDCwords = b;
-  numberTDCwords = 16;
+  int numberTDCwords = 16;
   bool multiStopTDCIsGood = true;
   for (int tdc=0; tdc< numberTDCwords ; tdc++)
     {
@@ -380,8 +379,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // skip 10 reserved words
   wordCounter += 10;
   bool ADCIsGood = true;
-//  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // NOT read out
   b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1);

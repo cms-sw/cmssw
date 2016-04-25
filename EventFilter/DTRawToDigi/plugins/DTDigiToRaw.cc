@@ -173,7 +173,7 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
    
   
    
-   NWords += 6;
+
 
    words.push_back(0);
    words.push_back(0);   
