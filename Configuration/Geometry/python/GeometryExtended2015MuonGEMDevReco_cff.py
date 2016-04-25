@@ -6,4 +6,4 @@ from Configuration.Geometry.GeometryRecoDB_cff import *
 
 from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *
-#from Geometry.RPCGeometryBuilder.rpcGeometry_cfi import *
+from Geometry.RPCGeometryBuilder.rpcGeometry_cfi import *
