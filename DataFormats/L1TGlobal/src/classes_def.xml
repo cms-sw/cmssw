@@ -7,6 +7,7 @@
   </class>
   <class name="GlobalAlgBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
+  <class name="std::vector<GlobalAlgBlk>"/>
 
   <class name="GlobalExtBlk" ClassVersion="13">
    <version ClassVersion="13" checksum="3765126275"/>
@@ -16,6 +17,7 @@
   </class>
   <class name="GlobalExtBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
+  <class name="std::vector<GlobalExtBlk>"/>
 
 </lcgdict>
 
