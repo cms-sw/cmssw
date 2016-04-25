@@ -23,6 +23,11 @@ options.register ('runNumber',
                                     VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                                     VarParsing.VarParsing.varType.int,          # string, int, or float
                                     "run number")
+options.register ('detIdInfoFile',
+                                    "",
+                                    VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                                    VarParsing.VarParsing.varType.string,          # string, int, or float
+                                    "File to store information by det_id")
 
 options.parseArguments()
 
@@ -97,6 +102,7 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
       InputFileName            = cms.untracked.string(options.dqmFile),
        OutputFileName           = cms.untracked.string("/tmp/testRunNum.root"), 
        CreateTkMap              = cms.untracked.bool(True),
+       CreateTkInfoFile         = cms.untracked.bool(True),
        TkmapParameters          = cms.untracked.PSet(
           loadFedCabling    = cms.untracked.bool(True),
           trackerdatPath    = cms.untracked.string('CommonTools/TrackerMap/data/'),
@@ -125,9 +131,12 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     )
 )
 
-# Services needed for TkHistoMap
+# Services needed for TkHistoMap / DetIdInfoFile
 process.TkDetMap = cms.Service("TkDetMap")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.TFileService = cms.Service('TFileService',
+  fileName = cms.string(options.detIdInfoFile)
+)
 
 # Configuration of the SiStripQuality object for the map of bad channels
 

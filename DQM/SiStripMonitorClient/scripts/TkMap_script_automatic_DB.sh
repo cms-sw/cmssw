@@ -112,6 +112,7 @@ do
     rm -f *.log
     rm -f *.txt
     rm -f *.html
+    rm -f *.root
 
 # Determine the GlobalTag name used to process the data and the DQM
 
@@ -136,7 +137,9 @@ do
 
     echo " Creating the TrackerMap.... "
 
-    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
+    detIdInfoFileName=`echo "file://TkDetIdInfo_Run${Run_numb}_${thisDataset}.root"`
+
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName detIdInfoFile=${detIdInfoFileName}  # update GlobalTag
 
 # rename bad module list file
 
@@ -213,6 +216,10 @@ do
 #    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 
+    ssh cctrack@vocms061 "mkdir -p /data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest} 2> /dev/null"
+    scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
+    rm *.root
+
     ssh cctrack@vocms061 "mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
     scp -r * cctrack@vocms061:/data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset
 
