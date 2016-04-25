@@ -858,13 +858,10 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
     return 0;
   }
     
-  // double depth_correction = 0.;
   switch ( layer ) { 
   case PFLayer::HF_EM:
-    // depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
   case PFLayer::HF_HAD:
   {
-    //  depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
     auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
     assert(zp);
     thisCell = zp->forPF();

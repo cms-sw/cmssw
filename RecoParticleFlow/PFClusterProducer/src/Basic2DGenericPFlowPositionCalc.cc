@@ -84,7 +84,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       double res2 = 1.e-4;
       int cell_layer = (int)refhit.layer();
       res2 =  isBarrel(cell_layer) ? 1./_timeResolutionCalcBarrel->timeResolution2(rh_rawenergy) :
-        res2 = 1./_timeResolutionCalcEndcap->timeResolution2(rh_rawenergy);
+                                     1./_timeResolutionCalcEndcap->timeResolution2(rh_rawenergy);
       cl_time += rh_fraction*refhit.time()*res2;
       cl_timeweight += rh_fraction*res2;
     }
