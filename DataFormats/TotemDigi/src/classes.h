@@ -11,9 +11,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
-
 #include "DataFormats/TotemDigi/interface/TotemTriggerCounters.h"
 #include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
 
 #include <vector>
 
@@ -39,5 +39,9 @@ namespace {
 
     std::bitset<8> dummy50;
     edm::Wrapper< std::bitset<8> > dummy51;
+
+    TotemFEDInfo fi;
+    std::vector<TotemFEDInfo> v_fi;
+    edm::Wrapper<std::vector<TotemFEDInfo>> w_v_fi;
   }
 }

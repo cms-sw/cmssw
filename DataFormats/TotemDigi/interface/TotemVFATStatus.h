@@ -47,17 +47,19 @@ class TotemVFATStatus
     /// Some channels from VFAT ale masked out, but not all
     inline bool isPartiallyMaskedOut() const { return status[7]; }
 
-    /// None channels are masked out
+    /// No channels are masked out
     inline bool isNotMasked() const { return !(status[6] || status[7]); }
 
+    inline uint8_t getChipPosition() const { return chipPosition; }
     inline void setChipPosition(uint8_t _cp) { chipPosition = _cp; }
     
-    inline void setMissing() { status[0]=true; }
-    inline void setIDMismatch() { status[1]=true; }
-    inline void setFootprintError() { status[2]=true; }
-    inline void setCRCError() { status[3]=true; }
-    inline void setECProgressError() { status[4]=true; }
-    inline void setBCProgressError() { status[5] = true; }
+    inline void setMissing(bool val = true) { status[0] = val; }
+    inline void setIDMismatch(bool val = true) { status[1] = val; }
+    inline void setFootprintError(bool val = true) { status[2] = val; }
+    inline void setCRCError(bool val = true) { status[3] = val; }
+    inline void setECProgressError(bool val = true) { status[4] = val; }
+    inline void setBCProgressError(bool val = true) { status[5] = val; }
+
     inline void setFullyMaskedOut() { status[6]=true; }
     inline void setPartiallyMaskedOut() { status[7]=true; }
     inline void setNotMasked() { status[6]=status[7]=false; }

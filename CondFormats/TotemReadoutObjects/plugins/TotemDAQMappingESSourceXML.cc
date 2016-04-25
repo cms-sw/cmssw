@@ -219,11 +219,8 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& 
 
 string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn)
 {
-  char *cmsswPath = getenv("CMSSW_BASE");
-  if (cmsswPath && fn[0] != '/' && fn[0] != '.')
-    return string(cmsswPath) + string("/src/") + fn;
-  else
-    return fn;
+  FileInPath fip(fn);
+  return fip.fullPath();
 }
 
 //----------------------------------------------------------------------------------------------------
