@@ -57,7 +57,7 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 	  LocalPoint pos = iData.localPosition();
 	  LocalVector dir = iData.localDirection();   
 	  LocalVector unit = dir.unit();
-    
+	  
 	  double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
 	  double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
 	  double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
@@ -70,7 +70,7 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 					      static_cast<float>(localPosition[1] + vIn.y()),
 					      static_cast<float>(localPosition[2] + vIn.z()) 
 	  };
-      
+	  
 	  float localSegmentOuterPoint[3] = { static_cast<float>(localPosition[0] + vOut.x()),
 					      static_cast<float>(localPosition[1] + vOut.y()),
 					      static_cast<float>(localPosition[2] + vOut.z()) 
@@ -80,20 +80,9 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 	  float globalSegmentOuterPoint[3];
 
 	  geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
-	  // cannot see segments when no bending
-	  if ( dir.x() == 0){
-	    TEvePointSet* pointSet = new TEvePointSet;
-	    pointSet->SetMarkerSize(0.5);
-	    pointSet->SetMarkerColor(1);
-	    setupAddElement( pointSet, &oItemHolder );
-	    pointSet->AddElement( shape );	    
-	    pointSet->SetNextPoint(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2]);
-	  }
-	  else {
-	    segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-	  }
-	        
+	  
+	  segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	        
 	}
     }
 }
