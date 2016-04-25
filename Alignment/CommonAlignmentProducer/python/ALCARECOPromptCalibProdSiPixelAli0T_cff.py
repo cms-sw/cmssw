@@ -103,7 +103,7 @@ SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
-      process.BrokenLinesBzeroTrajectoryFactory # For 0T collisions
+      BrokenLinesBzeroTrajectoryFactory # For 0T collisions
       )
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MomentumEstimate = 5 #for 0T Collisions
 
