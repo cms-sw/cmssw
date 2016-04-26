@@ -196,8 +196,8 @@ int l1t::CaloTools::mpEta(int ieta) {
 // convert from internal MP ieta to calo ieta
 int l1t::CaloTools::caloEta(int mpEta) {
 
-  if (mpEta>kHFBegin) return mpEta+1;
-  else if (mpEta<-1*kHFBegin) return mpEta-1;
+  if (mpEta>=kHFBegin) return mpEta+1;
+  else if (mpEta<=-1*kHFBegin) return mpEta-1;
   else return mpEta;
 
 }
