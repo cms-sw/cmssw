@@ -396,16 +396,19 @@ def initialize(**kwargs):
             jetAlgo = "CambridgeAachen"
             subjet_label = "SubJets"
             fatjet_label = ""
+            initial_jet = "ca15PFJetsCHS"
         elif fatjet_name == "ca15PFSubjetFilterCHS":
             delta_r = 1.5
             jetAlgo = "CambridgeAachen"            
             subjet_label = "filter"
-            fatjet_label = "fat"
+            fatjet_label = "filtercomp"
+            initial_jet = "ca15PFJetsCHS"
         elif fatjet_name == "looseOptRHTT":
             delta_r = 1.5
             jetAlgo = "CambridgeAachen"
             subjet_label = "SubJets"
             fatjet_label = ""
+            initial_jet = "ca15PFJetsCHS"
         else:
             print "Invalid fatjet for subjet b-tagging: ", fatjet_name
             sys.exit()
@@ -437,13 +440,14 @@ def initialize(**kwargs):
                    extSVCollection               = cms.InputTag('slimmedSecondaryVertices'),
                    trackIPTagInfos               = cms.InputTag(impact_info_name),                
                 ))
+
         getattr(process, isv_info_name).useSVClustering = cms.bool(True)
         getattr(process, isv_info_name).rParam = cms.double(delta_r)
         getattr(process, isv_info_name).extSVDeltaRToJet = cms.double(delta_r)
         getattr(process, isv_info_name).trackSelection.jetDeltaRMax = cms.double(delta_r)
         getattr(process, isv_info_name).vertexCuts.maxDeltaRToJetAxis = cms.double(delta_r)
         getattr(process, isv_info_name).jetAlgorithm = cms.string(jetAlgo)
-        getattr(process, isv_info_name).fatJets  =  cms.InputTag(fatjet_name.replace("looseOptRHTT","ca15PFJetsCHS"), fatjet_label)
+        getattr(process, isv_info_name).fatJets  =  cms.InputTag(initial_jet)
         getattr(process, isv_info_name).groomedFatJets  =  cms.InputTag(fatjet_name, fatjet_label)
 
         # CSV V2 COMPUTER
