@@ -38,34 +38,42 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   bool verbose;
 
   MonitorElement* ugmtBMTFBX;
+  MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
   MonitorElement* ugmtBMTFhwEta;
   MonitorElement* ugmtBMTFhwPhi;
   MonitorElement* ugmtBMTFglbPhi;
+  MonitorElement* ugmtBMTFProcvshwPhi;
   MonitorElement* ugmtBMTFhwSign;
   MonitorElement* ugmtBMTFhwSignValid;
   MonitorElement* ugmtBMTFhwQual;
   MonitorElement* ugmtBMTFlink;
 
   MonitorElement* ugmtOMTFBX;
+  MonitorElement* ugmtOMTFnMuons;
   MonitorElement* ugmtOMTFhwPt;
   MonitorElement* ugmtOMTFhwEta;
   MonitorElement* ugmtOMTFhwPhiPos;
   MonitorElement* ugmtOMTFhwPhiNeg;
   MonitorElement* ugmtOMTFglbPhiPos;
   MonitorElement* ugmtOMTFglbPhiNeg;
+  MonitorElement* ugmtOMTFProcvshwPhiPos;
+  MonitorElement* ugmtOMTFProcvshwPhiNeg;
   MonitorElement* ugmtOMTFhwSign;
   MonitorElement* ugmtOMTFhwSignValid;
   MonitorElement* ugmtOMTFhwQual;
   MonitorElement* ugmtOMTFlink;
 
   MonitorElement* ugmtEMTFBX;
+  MonitorElement* ugmtEMTFnMuons;
   MonitorElement* ugmtEMTFhwPt;
   MonitorElement* ugmtEMTFhwEta;
   MonitorElement* ugmtEMTFhwPhiPos;
   MonitorElement* ugmtEMTFhwPhiNeg;
   MonitorElement* ugmtEMTFglbPhiPos;
   MonitorElement* ugmtEMTFglbPhiNeg;
+  MonitorElement* ugmtEMTFProcvshwPhiPos;
+  MonitorElement* ugmtEMTFProcvshwPhiNeg;
   MonitorElement* ugmtEMTFhwSign;
   MonitorElement* ugmtEMTFhwSignValid;
   MonitorElement* ugmtEMTFhwQual;
@@ -77,6 +85,7 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtBXvsLink;
 
   MonitorElement* ugmtMuonBX;
+  MonitorElement* ugmtnMuons;
   MonitorElement* ugmtMuonIndex;
   MonitorElement* ugmtMuonhwPt;
   MonitorElement* ugmtMuonhwEta;
@@ -91,10 +100,15 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonCharge;
 
+  MonitorElement* ugmtMuonPhiBmtf;
+  MonitorElement* ugmtMuonPhiOmtf;
+  MonitorElement* ugmtMuonPhiEmtf;
+
   MonitorElement* ugmtMuonPtvsEta;
   MonitorElement* ugmtMuonPtvsPhi;
   MonitorElement* ugmtMuonPhivsEta;
 
+  MonitorElement* ugmtMuonBXvsLink;
   MonitorElement* ugmtMuonBXvshwPt;
   MonitorElement* ugmtMuonBXvshwEta;
   MonitorElement* ugmtMuonBXvshwPhi;

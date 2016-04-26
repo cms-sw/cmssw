@@ -89,6 +89,8 @@ namespace l1t {
 
       bool HeadersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
+	// std::cout << "Inside EMTFBlockHeaders.cc: unpack" << std::endl;
+	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
@@ -181,7 +183,6 @@ namespace l1t {
 	
 	EventHeader_.set_l1a     ( GetHexBits(HD1a,  0, 11, HD1b,  0, 11) );
 	EventHeader_.set_l1a_bxn ( GetHexBits(HD1d,  0, 11) );
-	EventHeader_.set_sp_ts   ( GetHexBits(HD2b,  8, 11) );
 	EventHeader_.set_endcap  ( GetHexBits(HD2b, 11, 11) ? -1 : 1 ); 
 	EventHeader_.set_sector  ( GetHexBits(HD2b,  8, 10) + 1 );      
 	EventHeader_.set_sp_ersv ( GetHexBits(HD2b,  5,  7) );

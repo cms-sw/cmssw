@@ -1,0 +1,38 @@
+<TESTSCONFIGURATION>
+
+  <QTEST name="Layer1MismatchThreshold">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="warning">0.</PARAM>
+      <PARAM name="error">1.</PARAM>
+      <PARAM name="ymin">0.0</PARAM>
+      <PARAM name="ymax">150.0</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
+  </QTEST>
+
+  <QTEST name="Layer1LinkErrorThreshold">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="warning">0.</PARAM>
+      <PARAM name="error">1.</PARAM>
+      <PARAM name="ymin">0.0</PARAM>
+      <PARAM name="ymax">100.0</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
+  </QTEST>
+
+
+  <LINK name="*L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumi*">
+      <TestName activate="true">Layer1MismatchThreshold</TestName>
+  </LINK>
+
+  <LINK name="*L1TStage2CaloLayer1/maxEvtMismatchByLumi">
+      <TestName activate="true">Layer1MismatchThreshold</TestName>
+  </LINK>
+
+  <LINK name="*L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumi*">
+      <TestName activate="true">Layer1LinkErrorThreshold</TestName>
+  </LINK>
+
+  <LINK name="*L1TStage2CaloLayer1/maxEvtLinkErrorsByLumi">
+      <TestName activate="true">Layer1LinkErrorThreshold</TestName>
+  </LINK>
+
+</TESTSCONFIGURATION>
