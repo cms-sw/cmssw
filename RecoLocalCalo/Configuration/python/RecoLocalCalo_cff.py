@@ -43,6 +43,7 @@ def _modifyRecoLocalCaloConfigurationReconstructorsForPhase2CommonHF( obj ):
 
 def _modifyRecoLocalCaloConfigurationReconstructorsForPhase2CommonZDC( obj ):
     obj.digiLabel = cms.InputTag('simHcalUnsuppressedDigis')
+    obj.digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis')
 
 def _modifyRecoLocalCaloConfigurationProcessForPhase2Common( theProcess ):
     theProcess.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")

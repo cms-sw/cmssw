@@ -71,7 +71,7 @@ workflows[133]=['',['RSGrav','DIGI','RECO']]
 workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECODR1','ALCAPROMPT','ALCAHARVD']]
 
 ### HighStats HLT Physics 2015D ###
-workflows[134.99901] = ['',['RunHLTPhy2015DHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[134.99901] = ['',['RunHLTPhy2015DHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
 
 ## 13 TeV Run2 fullSim noPU
 workflows[139901] = ['', ['ZMM_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
@@ -83,9 +83,9 @@ workflows[13992502]=['',['TTbar_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARV
 
 
 ## 2015HighLumi run High stats
-workflows[134.99601] = ['',['RunJetHT2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
-workflows[134.99602] = ['',['RunZeroBias2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
-workflows[134.99603] = ['',['RunSingleMu2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+workflows[134.99601] = ['',['RunJetHT2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.99602] = ['',['RunZeroBias2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.99603] = ['',['RunSingleMu2015HLHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
 
 
 
