@@ -40,6 +40,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 //
@@ -241,12 +242,31 @@ MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplicity(
 
 }
 
+template <>
+int
+MultiplicityProducer<edmNew::DetSetVector<Phase2TrackerCluster1D> >::detSetMultiplicity(edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator det) const {
+
+  int mult = 0;
+
+  for(edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator clus=det->begin();clus!=det->end();++clus) {
+
+    mult += clus->size();
+
+  }
+
+  return mult;
+
+}
+
+
 //define this as a plug-in
 typedef MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> > SiStripClusterMultiplicityProducer;
 typedef MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> > SiPixelClusterMultiplicityProducer;
 typedef MultiplicityProducer<edm::DetSetVector<SiStripDigi> > SiStripDigiMultiplicityProducer;
+typedef MultiplicityProducer<edmNew::DetSetVector<Phase2TrackerCluster1D> > SiPhase2TrackerCluster1DMultiplicityProducer;
 
 
 DEFINE_FWK_MODULE(SiStripClusterMultiplicityProducer);
 DEFINE_FWK_MODULE(SiPixelClusterMultiplicityProducer);
 DEFINE_FWK_MODULE(SiStripDigiMultiplicityProducer);
+DEFINE_FWK_MODULE(SiPhase2TrackerCluster1DMultiplicityProducer);

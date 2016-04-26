@@ -14,7 +14,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWithGroups {
+class Phase2OTBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups {
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
@@ -39,6 +39,7 @@ class Phase2OTBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricS
   // DetLayer interface
   virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -75,8 +76,6 @@ class Phase2OTBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricS
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
-
 
  private:
   std::vector<const GeometricSearchDet*> theComps;

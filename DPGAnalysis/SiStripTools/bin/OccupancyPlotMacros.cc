@@ -9,6 +9,7 @@
 #include "TH1D.h"
 #include "TList.h"
 #include "TBox.h"
+#include "TPolyLine.h"
 #include "TFrame.h"
 #include "TStyle.h"
 #include "TCanvas.h"
@@ -133,8 +134,17 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
 
     TProfile* averadius = (TProfile*)gDirectory->Get("averadius"); 
     TProfile* avez = (TProfile*)gDirectory->Get("avez"); 
+    TProfile* corner1r = (TProfile*)gDirectory->Get("corner1r");
+    TProfile* corner1z = (TProfile*)gDirectory->Get("corner1z");
+    TProfile* corner2r = (TProfile*)gDirectory->Get("corner2r");
+    TProfile* corner2z = (TProfile*)gDirectory->Get("corner2z");
+    TProfile* corner3r = (TProfile*)gDirectory->Get("corner3r");
+    TProfile* corner3z = (TProfile*)gDirectory->Get("corner3z");
+    TProfile* corner4r = (TProfile*)gDirectory->Get("corner4r");
+    TProfile* corner4z = (TProfile*)gDirectory->Get("corner4z");
 
     std::cout << "pointers " << aveoccu << " " << avemult << " " << nchannels << " " << averadius << " " << avez << std::endl;
+    std::cout << "pointers " <<  corner1r << " " << corner1z << " " << corner2r << " " << corner2z << " " << corner3r << " " << corner3z << " " << corner4r << " " << corner4z << " " << std::endl;
 
     if(aveoccu && avemult && nchannels && averadius && avez) {
 
@@ -226,8 +236,8 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
       scale = &logarithm;
 
       
-      drawMap("multmap",havemult,averadius,avez,mmin,mmax,size,scale,color);
-      drawMap("occumap",haveoccu,averadius,avez,min,max,size,scale,color,"channel occupancy");
+      drawMap("multmap",havemult,averadius,avez,mmin,mmax,size,scale,color,"",corner1r,corner1z,corner2r,corner2z,corner3r,corner3z,corner4r,corner4z);
+      drawMap("occumap",haveoccu,averadius,avez,min,max,size,scale,color,"channel occupancy",corner1r,corner1z,corner2r,corner2z,corner3r,corner3z,corner4r,corner4z);
     }
 
 
@@ -251,7 +261,7 @@ float combinedOccupancy(TFile* ff, const char* module, const int lowerbin, const
     double sumerrsq=0;
     
     for(int i=lowerbin; i<upperbin+1; ++i) {
-      std::cout << "processing bin " << i << " " << aveoccu->GetBinContent(i) << "+/-" << aveoccu->GetBinError(i) <<  std::endl;
+      //std::cout << "processing bin " << i << " " << aveoccu->GetBinContent(i) << "+/-" << aveoccu->GetBinError(i) <<  std::endl;
       sumoccu += aveoccu->GetBinContent(i);
       sumnchannels += nchannels->GetBinContent(i);
       sumerrsq += aveoccu->GetBinError(i)*aveoccu->GetBinError(i);
@@ -367,17 +377,34 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
   TProfile* aveontrkmult=0;
   TProfile* averadius =0;
   TProfile* avez =0;
+  TProfile* corner1r =0;
+  TProfile* corner1z =0;
+  TProfile* corner2r =0;
+  TProfile* corner2z =0;
+  TProfile* corner3r =0;
+  TProfile* corner3z =0;
+  TProfile* corner4r =0;
+  TProfile* corner4z =0;
 
   if(ff->cd(module)) {
     avemult= (TProfile*)gDirectory->Get("avemult");
     averadius = (TProfile*)gDirectory->Get("averadius"); 
     avez = (TProfile*)gDirectory->Get("avez"); 
+    corner1r = (TProfile*)gDirectory->Get("corner1r"); 
+    corner1z = (TProfile*)gDirectory->Get("corner1z"); 
+    corner2r = (TProfile*)gDirectory->Get("corner2r"); 
+    corner2z = (TProfile*)gDirectory->Get("corner2z"); 
+    corner3r = (TProfile*)gDirectory->Get("corner3r"); 
+    corner3z = (TProfile*)gDirectory->Get("corner3z"); 
+    corner4r = (TProfile*)gDirectory->Get("corner4r"); 
+    corner4z = (TProfile*)gDirectory->Get("corner4z"); 
   }
   if(ff->cd(ontrkmod)) aveontrkmult= (TProfile*)gDirectory->Get("avemult");
 
   std::cout << "pointers " <<  avemult << " " << aveontrkmult << " " << averadius << " " << avez << std::endl;
+  std::cout << "pointers " <<  corner1r << " " << corner1z << " " << corner2r << " " << corner2z << " " << corner3r << " " << corner3z << " " << corner4r << " " << corner4z << " " << std::endl;
 
-  if( averadius && avez && avemult && aveontrkmult) {
+  if( averadius && avez && avemult && aveontrkmult ) {
 
     TH1D* havemult = avemult->ProjectionX("havemult");
     TH1D* haveontrkmult = aveontrkmult->ProjectionX("haveontrkmult");
@@ -412,12 +439,13 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
       float (*scale)(float);
       scale = &linear;
 
-      drawMap("ontrkmultmap",haveontrkmult,averadius,avez,mmin,mmax,size,scale,color);
+      drawMap("ontrkmultmap",haveontrkmult,averadius,avez,mmin,mmax,size,scale,color,"",corner1r,corner1z,corner2r,corner2z,corner3r,corner3z,corner4r,corner4z);
   }	  
 }
 
-TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, const TProfile* avez,const float mmin, const float mmax, 
-		 std::pair<float,float>(*size)(int), float(*scale)(float), const int color, const char* ptitle) {
+TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, const TProfile* avez, const float mmin, const float mmax, 
+		 std::pair<float,float>(*size)(int), float(*scale)(float), const int color, const char* ptitle, 
+                 const TProfile* corner1r, const TProfile* corner1z, const TProfile* corner2r, const TProfile* corner2z, const TProfile* corner3r, const TProfile* corner3z, const TProfile* corner4r, const TProfile* corner4z) {
 
   if(color == 1) {
     // A not-so-great color version
@@ -454,7 +482,7 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
   }
 
   int ncol = gStyle->GetNumberOfColors();
-  std::cout << "Number of colors "  << ncol << std::endl;
+  //std::cout << "Number of colors "  << ncol << std::endl;
   // Loop on bins and creation of boxes
       
   TList modulesmult;
@@ -470,11 +498,15 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
       dz=(*size)(i).first;
       dr=(*size)(i).second;
 
+
       if(dz<0 && dr<0) continue;
       
       {
-	TBox* modmult = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz,averadius->GetBinContent(i)+dr);
-	modmult->SetFillStyle(1001);
+        Double_t z[4] = {corner1z->GetBinContent(i),corner2z->GetBinContent(i),corner3z->GetBinContent(i),corner4z->GetBinContent(i)};
+        Double_t r[4] = {corner1r->GetBinContent(i),corner2r->GetBinContent(i),corner3r->GetBinContent(i),corner4r->GetBinContent(i)};
+        TPolyLine *modmult = new TPolyLine(4,z,r);
+	//TBox* modmult = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz+zavedz->GetBinContent(i),averadius->GetBinContent(i)+dr);
+	//modmult->SetLineStyle(1001);
 	if(color < 0) {
 	  modmult->SetFillColor(kBlack);
 	}
@@ -482,8 +514,9 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
 	  int icol=int(ncol*(scale(hval->GetBinContent(i))-scale(mmin))/(scale(mmax)-scale(mmin)));
 	  if(icol < 0) icol=0;
 	  if(icol > (ncol-1)) icol=(ncol-1);
-	  std::cout << i << " " << icol << " " << hval->GetBinContent(i) << std::endl; 
+	  //std::cout << i << " " << icol << " " << hval->GetBinContent(i) << std::endl; 
 	  modmult->SetFillColor(gStyle->GetColorPalette(icol));
+	  modmult->SetLineColor(gStyle->GetColorPalette(icol));
 	}
 	modulesmult.Add(modmult);
       }
@@ -591,7 +624,7 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
   fr2->UseCurrentStyle();
   fr2->Draw();
   raxis->Draw(); zaxis->Draw();
-  std::cout << modulesmult.GetSize() << std::endl;
+  //std::cout << modulesmult.GetSize() << std::endl;
   etalines.Draw();
   etalabels.Draw();
   if(color>=0) mpalette.Draw();
@@ -630,7 +663,7 @@ void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffs
       TText* modtext = new TText(x,y,modstring);
       modtext->SetTextAngle(atan(y/x)*180/3.14159);
       modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kRed);
-      std::cout << mod << " " << x << " " << y << std::endl;
+      //std::cout << mod << " " << x << " " << y << std::endl;
       //      modbox->Draw();
       modtext->Draw();
     }
@@ -643,7 +676,7 @@ void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffs
       TText* modtext = new TText(x,y,modstring);
       modtext->SetTextAngle(atan(y/x)*180/3.14159);
       modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kBlue);
-      std::cout << mod << " " << x << " " << y << " " << atan(y/x) << std::endl;
+      //std::cout << mod << " " << x << " " << y << " " << atan(y/x) << std::endl;
       //      modbox->Draw();
       modtext->Draw();
     }
@@ -660,7 +693,7 @@ void PlotTrackerXsect(TFile* ff, const char* module) {
     TProfile* averadius = (TProfile*)gDirectory->Get("averadius"); 
     TProfile* avez = (TProfile*)gDirectory->Get("avez"); 
 
-    std::cout << "pointers " << averadius << " " << avez << std::endl;
+    //std::cout << "pointers " << averadius << " " << avez << std::endl;
 
     if(averadius && avez) {
 
