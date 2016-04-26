@@ -391,7 +391,9 @@ int getEtaInt(float eta, int bits=5)
   int shift = 5 - bits;
   int etaInt = (fabs(eta) - 0.9)*(32.0/(1.6))-0.5;
   etaInt = (etaInt>>shift);
-  //eta_ = 0.9 + (etaInt + 0.5)*(1.6/32.0);
+  if(etaInt > 31){etaInt = 31;}
+  
+  /* eta_ = 0.9 + (etaInt + 0.5)*(1.6/32.0); */
   return (etaInt);
 }
 
@@ -874,18 +876,44 @@ void makeLUT()//
 
         float BDTPt1 = fabs(getPt(i));
 
-        if (BDTPt1>140.0) BDTPt1 = 139.9999;
+        if (BDTPt1>200.0) BDTPt1 = 200.0;
                             
-        //int index=0;
-        for (int pts=0; pts<31; pts++)
-          {
-            if (ptscale[pts]<=BDTPt1 && ptscale[pts+1]>BDTPt1)
-              {
-                BDTPt1 = ptscale[pts];
-                //index = pts;
-                break;
-              }
-          }
+    
+
+        float pt = BDTPt1;
+        // https://github.com/cms-l1t-offline/cmssw/blob/l1t-muon-dev-CMSSW_8_0_0_pre1/L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h#L71-L74
+        // Line 71
+        int iPt = pt*1.4*2 + 1;
+        if(iPt > 511)
+          iPt = 511;
+        if(iPt < 0)
+          iPt = 0;
+		
+		
+		FourWords[i%4] = iPt;
+		
+		if(i%4 == 3){
+			
+			
+			uint64_t FullWord = 0;
+			
+			//std::cout<<"\nsize of long long = "<<sizeof(long long)<<"\n";
+			
+			//std::cout<<"FourWords 0-3 = "<<(FourWords[0]&511)<<","<<(FourWords[1]&511)<<","<<(FourWords[2]&511)<<","<<(FourWords[3]&511)<<"\n";
+			
+			//std::cout<<"FullWord = "<<FullWord<<"\n";
+			FullWord |= (FourWords[3] &  511) << (32+9);
+			//std::cout<<"FourWords[3] << 32+9 = "<<((FourWords[3] &  511) << 32+9)<<" and FullWord = "<<FullWord<<"\n";
+			FullWord |= (FourWords[2] &  511) << 32;
+			//std::cout<<"FourWords[2] << 32+9 = "<<((FourWords[2] &  511) << 32)<<" and FullWord = "<<FullWord<<"\n";
+			FullWord |= (FourWords[1] &  511) << 9;
+			//std::cout<<"FourWords[1] << 32+9 = "<<((FourWords[1] &  511) << 9)<<" and FullWord = "<<FullWord<<"\n";
+			FullWord |= (FourWords[0] &  511);
+			//std::cout<<"FourWords[0] << 32+9 = "<<(FourWords[0] &  511) <<" and FullWord = "<<FullWord<<"\n";
+			
+			PtLUT.write(reinterpret_cast<char*>(&FullWord), sizeof(uint64_t));
+		}
+		
         
         //file << index << endl;
         //file2 << std::setw(20) <<  i << std::setw(20) << mode << std::setw(20) << getPt(i) << endl;
