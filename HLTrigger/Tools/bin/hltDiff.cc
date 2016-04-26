@@ -925,14 +925,15 @@ private:
   };
 
   void buildHistograms() {
-    printf("Building histograms...\n");
     // Initialising the summary objects for trigger/module
     const int nTriggers( json.vars.trigger.size() );
     const int nModules( json.vars.label.size() );
     std::vector<TriggerSummary> triggerSummary;
     std::vector<GenericSummary> moduleSummary;
-    for (int i=0; i<nTriggers; ++i) triggerSummary.push_back( TriggerSummary(i, json) );
-    for (int i=0; i<nModules; ++i) moduleSummary.push_back( GenericSummary(i, json, json.vars.label) );
+    for (int i=0; i<nTriggers; ++i) 
+      triggerSummary.push_back( TriggerSummary(i, json) );
+    for (int i=0; i<nModules; ++i) 
+      moduleSummary.push_back( GenericSummary(i, json, json.vars.label) );
 
     // Loop over each affected trigger in each event and add it to the trigger/module summary objects
     for (const JsonOutputProducer::JsonEvent& event : json.events) {
@@ -943,13 +944,7 @@ private:
         moduleSummary.at(moduleId).addEntry(state, true);
       }
     }
-    // Building histograms out of the summary objects
-    printf("Triggers: %d (%d)  Modules: %d (%d)\n", nTriggers, (int)triggerSummary.size(), nModules, (int)moduleSummary.size());
-    for (const TriggerSummary& trig : triggerSummary) {
-      printf("  %d : %s  nModules: %d  accepted: %d -> %d  gained: %.f  lost: %.f  changed: %.f\n", trig.id, trig.name.c_str(), (int)trig.m_modules.size(), trig.accepted_o, trig.accepted_n, trig.gained().v, trig.lost().v, trig.changed().v);
-    }
-
-    //########################################### Trigger summary: 1 bin per trigger
+    // Building histograms/graphs out of the summary objects
     std::string name = "trigger_accepted";
     m_histo.emplace(name, new TH1F(name.c_str(), ";;Events accepted^{OLD}", nTriggers, 0, nTriggers));
     name = "trigger_gained";
@@ -993,49 +988,53 @@ private:
       if (bin == 0) {
         m_graph.at("trigger")->GetYaxis()->SetTitle("#frac{gained}{lost} [#sigma^{accepted}]");
         m_graph.at("trigger")->SetTitle("");
+        m_graph.at("trigger")->SetMarkerStyle(7);
       }
 
       // Skipping triggers that are not affected
       if (trig.m_modules.size() == 0) continue;
 
       // Creating a hisotgram with modules overview for the trigger
-      name = "module_changed_"+trig.name;
-      m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", trig.m_modules.size(), 0, trig.m_modules.size()));
-      name = "module_"+trig.name;
-      m_graph.emplace(name, new TGraphAsymmErrors());
       // Filling the per-module bins
       int binMod = 0;
       printf("%s  nBins: %d\n", trig.name.c_str(), (int)trig.m_modules.size());
       // Filling modules that caused internal changes in the trigger
+      name = "module_changed_"+trig.name;
       for (const auto& idModule : trig.m_modules) {
         const GenericSummary& mod = idModule.second;
-        if (mod.changed().v < 1) continue;
+        if (mod.changed().v < 1.0) continue;
+        // Creating the histogram for this trigger if it doesn't exist yet
+        if (m_histo.count(name) == 0) m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", trig.m_modules.size(), 0, trig.m_modules.size()));
         binMod++;
-        m_histo.at("module_changed_"+trig.name)->SetBinContent(binMod, mod.changed().v);
-        m_histo.at("module_changed_"+trig.name)->GetXaxis()->SetBinLabel(binMod, mod.name.c_str());
+        m_histo.at(name)->SetBinContent(binMod, mod.changed().v);
+        m_histo.at(name)->GetXaxis()->SetBinLabel(binMod, mod.name.c_str());
       }
       // Filling modules that caused gains or losses for the trigger
+      name = "module_"+trig.name;
       binMod = 0;
       std::vector<std::string> binLabels;
       for (const auto& idModule : trig.m_modules) {
         const GenericSummary& mod = idModule.second;
-        if (mod.gained().v < 1 && mod.lost().v < 1) continue;
+        if (mod.gained().v < 1.0 && mod.lost().v < 1.0) continue;
+        // Creating the graph for this trigger if it doesn't exist yet
+        if (m_graph.count(name) == 0) m_graph.emplace(name, new TGraphAsymmErrors());
         binLabels.push_back(mod.name);
-        m_graph.at("module_"+trig.name)->SetPoint(binMod, double(binMod)+0.5, 0);
-        m_graph.at("module_"+trig.name)->SetPointEYhigh(binMod, mod.gained().v);
-        m_graph.at("module_"+trig.name)->SetPointEYlow(binMod, mod.lost().v);
+        m_graph.at(name)->SetPoint(binMod, double(binMod)+0.5, 0);
+        m_graph.at(name)->SetPointEYhigh(binMod, mod.gained().v);
+        m_graph.at(name)->SetPointEYlow(binMod, mod.lost().v);
         binMod++;
         if (binMod == 1) {
-          m_graph.at("module_"+trig.name)->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
+          m_graph.at(name)->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
+          m_graph.at(name)->SetMarkerStyle(7);
         }
       }
-      // Setting axis labels
-      m_graph.at("module_"+trig.name)->GetXaxis()->Set(binMod, 0, binMod);
-      for (int binId=0; binId<binMod; ++binId) {
-        printf("\tbin: %d name: %s\n", binId+1, binLabels.at(binId).c_str());
-        m_graph.at("module_"+trig.name)->GetXaxis()->SetBinLabel(binId+1, binLabels.at(binId).c_str());
+      if (m_graph.count(name) > 0) {
+        // Setting axis labels
+        m_graph.at(name)->GetXaxis()->Set(binMod, 0, binMod);
+        for (int binId=0; binId<binMod; ++binId) 
+          m_graph.at(name)->GetXaxis()->SetBinLabel(binId+1, binLabels.at(binId).c_str());
+        m_graph.at(name)->GetXaxis()->CenterLabels();
       }
-      m_graph.at("module_"+trig.name)->GetXaxis()->CenterLabels();
     }
     // Setting bin labels to the corresponding trigger names
     for (const auto& nameHisto : m_histo) {
@@ -1043,18 +1042,15 @@ private:
       const std::vector<std::string>& binLabels = json.vars.trigger;
       TAxis* xAxis = nameHisto.second->GetXaxis();
       printf("Setting labels to %d bins of histo: %s\n", nameHisto.second->GetNbinsX(), nameHisto.first.c_str());
-      for (int bin=0; bin<nameHisto.second->GetNbinsX(); ++bin) {
+      for (int bin=0; bin<nameHisto.second->GetNbinsX(); ++bin)
         xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
-      }
     }
     for (const auto& nameGraph : m_graph) {
       if (nameGraph.first.find("trigger") == std::string::npos) continue;
       const std::vector<std::string>& binLabels = json.vars.trigger;
       TAxis* xAxis = nameGraph.second->GetXaxis();
-      printf("Setting labels to %d bins of graph: %s\n", nameGraph.second->GetN(), nameGraph.first.c_str());
-      for (int bin=0; bin<nameGraph.second->GetN(); ++bin) {
+      for (int bin=0; bin<nameGraph.second->GetN(); ++bin)
         xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
-      }
       xAxis->CenterLabels();
     }
 
@@ -1073,12 +1069,10 @@ public:
   void write() {
     if (out_file_name.length() < 1) return;
     out_file = new TFile(out_file_name.c_str(), "RECREATE");
-    for (const auto& nameHisto : m_histo) {
+    for (const auto& nameHisto : m_histo)
       nameHisto.second->Write(nameHisto.first.c_str());
-    }
-    for (const auto& nameGraph : m_graph) {
+    for (const auto& nameGraph : m_graph)
       nameGraph.second->Write(nameGraph.first.c_str());
-    }
     out_file->Close();
   }
 };
