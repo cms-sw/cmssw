@@ -23,13 +23,13 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
 
 // forward declarations
 
 class GlobalExtBlk;
 typedef BXVector<GlobalExtBlk> GlobalExtBlkBxCollection;
-
+  
 // class interface
 
 class GlobalExtBlk
@@ -44,7 +44,8 @@ public:
 
 
 public:
-
+    const static unsigned int maxExternalConditions = 256;
+    
     /// Set decision bits
     void setExternalDecision(unsigned int bit, bool val);
 
