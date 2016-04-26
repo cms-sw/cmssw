@@ -549,14 +549,14 @@ steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--beamspot'    : 'Realistic8TeVCollision',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                           step1Defaults])
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,DIGI2RAW,HLT:@relval25ns,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
                            '--beamspot'    : 'Realistic50ns13TeVCollision',
@@ -623,7 +623,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
 
 ### Fastsim: template to produce signal and overlay it with premixed minbias events
 FS_PREMIXUP15_PU25_OVERLAY = merge([
-        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
          "--datamix" : "PreMix",
          "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
          "--customise":"SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
@@ -777,12 +777,21 @@ steps['WToLNutaurhonu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCU
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu_cff',step1HadronizerDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 
-# normal fullSim workflows wrapping ext-gen workflows
+# normal fullSim workflows using gridpack LHE generator
 # LHE step
 steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=merge([{'--relval':'29000,100'},step1LHENormal,steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']])
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
+steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
+steps['VBFHToBB_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
+
 
 # GEN-SIM step
 steps['GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt'] = merge([step1GENNormal,steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']])
+steps['GENSIM_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)])
+steps['GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToZZ4nu_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
+steps['GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToBB_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
+
+
 
 
 #Sherpa
@@ -963,10 +972,15 @@ hltKey25ns='relval25ns'
 menuR2_25ns = autoHLT[hltKey25ns]
 steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
 
+hltKey2016='relval2016'
+menuR2_2016 = autoHLT[hltKey2016]
+steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
+
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
-steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
-steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
+steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns',},dataReco])
+steps['RECODR2_2016']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_2016',},dataReco])
 
 
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
@@ -1085,6 +1099,7 @@ steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:
 
 steps['RECODR2_25nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_25ns']])
 steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']])
+steps['RECODR2_2016reHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_2016']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2AlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
@@ -1273,8 +1288,7 @@ steps['HARVESTDR1']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
 steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTDR1'] ])
-steps['HARVESTDR2_50nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
-steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
+steps['HARVESTDR2'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
