@@ -1,19 +1,9 @@
 #ifndef L1GtConfigProducers_StableParametersTrivialProducer_h
 #define L1GtConfigProducers_StableParametersTrivialProducer_h
 
-/**
- * \class StableParametersTrivialProducer
- * 
- * 
- * Description: ESProducer for L1 GT parameters.  
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- *
- */
+// This ES Producer is deprecated.
+// It will be replaced by L1TGlobalParamsESProducer
+
 
 // system include files
 #include <memory>
