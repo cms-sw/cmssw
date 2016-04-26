@@ -11,7 +11,7 @@ SUSY_HLT_HT_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT800_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleMu33NoFiltersNoVtx_v'),
   TriggerFilter = cms.InputTag('hltDoubleMu8Mass8L3Filtered','','HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -26,7 +26,7 @@ SUSY_HLT_HT250_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT800_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleMu33NoFiltersNoVtx_v'),
   TriggerFilter = cms.InputTag('hltDoubleMu8Mass8L3Filtered','','HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
