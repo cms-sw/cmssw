@@ -34,7 +34,7 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
 GEMGeometryESModule::~GEMGeometryESModule(){}
 
 
-boost::shared_ptr<GEMGeometry>
+std::shared_ptr<GEMGeometry>
 GEMGeometryESModule::produce(const MuonGeometryRecord & record) 
 {
   if(useDDD){
@@ -43,12 +43,12 @@ GEMGeometryESModule::produce(const MuonGeometryRecord & record)
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     GEMGeometryBuilderFromDDD builder;
-    return boost::shared_ptr<GEMGeometry>(builder.build(&(*cpv), *mdc));
+    return std::shared_ptr<GEMGeometry>(builder.build(&(*cpv), *mdc));
   }else{
     edm::ESHandle<RecoIdealGeometry> riggem;
     record.getRecord<GEMRecoGeometryRcd>().get(riggem);
     GEMGeometryBuilderFromCondDB builder;
-    return boost::shared_ptr<GEMGeometry>(builder.build(*riggem));
+    return std::shared_ptr<GEMGeometry>(builder.build(*riggem));
   }
 }
 

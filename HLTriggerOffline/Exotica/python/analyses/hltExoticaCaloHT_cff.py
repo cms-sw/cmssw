@@ -7,6 +7,8 @@ CaloHTPSet = cms.PSet(
         "HLT_ECALHT800_v",     # Run2 7e33
         "HLT_Photon90_CaloIdL_PFHT600_v" # 50ns backup menu
         "HLT_HT650_v",           
+        "HLT_HT410to430_v",        # 2016 menu
+        "HLT_HT430to450_v",        # 2016 menu
         "HLT_HT450to470_v",        # HT Parking
         "HLT_HT470to500_v",        # HT Parking
         "HLT_HT500to550_v",        # HT Parking

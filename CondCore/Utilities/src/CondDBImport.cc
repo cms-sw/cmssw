@@ -15,21 +15,22 @@
 #include "CondFormats.h"
 
 //
+#include <memory>
 #include <sstream>
 
 namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string,boost::shared_ptr<void> > fetchIfExists( const cond::Hash& payloadId, Session& session, bool& exists ){
-      boost::shared_ptr<void> payloadPtr;
+    std::pair<std::string,std::shared_ptr<void> > fetchIfExists( const cond::Hash& payloadId, Session& session, bool& exists ){
+      std::shared_ptr<void> payloadPtr;
       cond::Binary data;
       cond::Binary streamerInfo;
       std::string payloadTypeName;
       exists = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( exists ) {
 	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr );
-      } else return std::make_pair( std::string(""), boost::shared_ptr<void>() );
+      } else return std::make_pair( std::string(""), std::shared_ptr<void>() );
     }
 
     cond::Hash import( Session& source, const cond::Hash& sourcePayloadId, const std::string& inputTypeName, const void* inputPtr, Session& destination ){
@@ -225,6 +226,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1TUtmObject )
       IMPORT_PAYLOAD_CASE( L1TUtmScale )
       IMPORT_PAYLOAD_CASE( L1TUtmTriggerMenu )
+      IMPORT_PAYLOAD_CASE( L1TGlobalParameters )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
       IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
@@ -304,6 +306,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+      IMPORT_PAYLOAD_CASE( L1TGlobalPrescalesVetos )
       if( inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){
 	match = true;
 	const PhysicsTools::Calibration::Histogram3D<double,double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram3D<double,double,double,double>*>( inputPtr ); 

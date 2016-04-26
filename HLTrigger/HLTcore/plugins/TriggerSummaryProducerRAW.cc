@@ -79,7 +79,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
    LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
-   auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
+   unique_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
      const string& label    (fobs[ifob].provenance()->moduleLabel());
      const string& instance (fobs[ifob].provenance()->productInstanceName());
@@ -130,7 +130,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
    }
 
    // place product in Event
-   OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(product);
+   OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(std::move(product));
    LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
 
    return;

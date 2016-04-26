@@ -16,6 +16,9 @@ _pixelPairStepClustersBase = _trackClusterRemover.clone(
 pixelPairStepClusters = _pixelPairStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('lowPtTripletStep',"QualityMasks"),
 )
+eras.trackingLowPU.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
+    overrideTrkQuals                         = "lowPtTripletStepSelector:QualityMasks",
+))
 eras.trackingPhase1PU70.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
     trajectories                             = "mixedTripletStepTracks",
     oldClusterRemovalInfo                    = "mixedTripletStepClusters",
@@ -69,6 +72,12 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache'),
     )
+eras.trackingLowPU.toModify(pixelPairStepSeeds,
+    RegionFactoryPSet = dict(RegionPSet = dict(
+        VertexCollection = 'pixelVertices',
+        useMultipleScattering = False
+    ))
+)
 eras.trackingPhase1PU70.toModify(pixelPairStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
@@ -84,12 +93,13 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 _pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.1,
-    maxCCCLostHits = 2,
-    )
+)
 pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     seedPairPenalty =0,
+    maxCCCLostHits = 2,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
+eras.trackingLowPU.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase)
 eras.trackingPhase1PU70.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.801,
@@ -114,6 +124,9 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
     pTChargeCutThreshold = cms.double(15.)
 )
+eras.trackingLowPU.toModify(pixelPairStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
+)
 eras.trackingPhase1PU70.toModify(pixelPairStepChi2Est,
     MaxChi2 = 16.0,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
@@ -129,6 +142,7 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
+eras.trackingLowPU.toModify(pixelPairStepTrajectoryBuilder, maxCand = 2)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -166,10 +180,31 @@ pixelPairStep.src = 'pixelPairStepTracks'
 pixelPairStep.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
-# For Phase1PU70
+# For LowPU and Phase1PU70
+import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src = 'pixelPairStepTracks',
+    src='pixelPairStepTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('MVASelectorIter2'),
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'pixelPairStepLoose',
+        ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'pixelPairStepTight',
+            preFilterName = 'pixelPairStepLoose',
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'pixelPairStepTight',
+        ),
+    ),
+    vertices = cms.InputTag("pixelVertices")#end of vpset
+) #end of clone
+eras.trackingPhase1PU70.toModify(pixelPairStepSelector,
+    useAnyMVA = None,
+    GBRForestLabel = None,
     trackSelectors = [
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelPairStepLoose',
@@ -221,6 +256,7 @@ PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepTrackCandidates*
                          pixelPairStepTracks*
                          pixelPairStep)
-_PixelPairStep_Phase1PU70 = PixelPairStep.copy()
-_PixelPairStep_Phase1PU70.replace(pixelPairStep, pixelPairStepSelector)
-eras.trackingPhase1PU70.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1PU70)
+_PixelPairStep_LowPU_Phase1PU70 = PixelPairStep.copy()
+_PixelPairStep_LowPU_Phase1PU70.replace(pixelPairStep, pixelPairStepSelector)
+eras.trackingLowPU.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase1PU70)

@@ -6,7 +6,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"

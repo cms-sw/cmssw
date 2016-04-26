@@ -59,7 +59,7 @@ namespace reco {
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate &, const std::string& s="" );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( std::auto_ptr<Candidate>, const std::string& s="" );
+    void addDaughter( std::unique_ptr<Candidate>, const std::string& s="" );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     // clear roles

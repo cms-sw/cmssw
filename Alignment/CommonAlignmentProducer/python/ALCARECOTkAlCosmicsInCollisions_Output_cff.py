@@ -16,7 +16,9 @@ OutALCARECOTkAlCosmicsInCollisions_noDrop = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
-        'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+        #'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+        'keep SiPixelCluster*_siPixelClusters_*_*', # for cosmics keep original clusters
+        'keep SiStripCluster*_siStripClusters_*_*', # for cosmics keep original clusters
         'keep recoMuons_muons1Leg_*_*') # save muons as timing info is needed for BP corrections in deconvolution
 )
 

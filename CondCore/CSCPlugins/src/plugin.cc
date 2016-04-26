@@ -58,10 +58,11 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
+#include <memory>
 
 
 namespace cond {
-  template <> boost::shared_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
+  template <> std::shared_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
 										   const Binary& payloadData,
 										   const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( CSCReadoutMapping ); abstract
@@ -69,7 +70,7 @@ namespace cond {
     // here we come if none of the deserializations above match the payload type:
     throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
   }
-  template <> boost::shared_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
+  template <> std::shared_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
 													   const Binary& payloadData,
 													   const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( CSCReadoutMappingForSliceTest ); abstract

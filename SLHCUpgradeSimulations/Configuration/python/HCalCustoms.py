@@ -21,8 +21,8 @@ def customise_HcalPhase0(process):
 
     return process
 
-def customise_HcalPhase1(process):
-    #common stuff
+#common stuff
+def load_HcalHardcode(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(
                 'GainWidths',
@@ -43,13 +43,44 @@ def customise_HcalPhase1(process):
                 'PFCorrs',
                 'ElectronicsMap',
                 'CholeskyMatrices',
-                'CovarianceMatrices'
+                'CovarianceMatrices',
+                'FlagHFDigiTimeParams',
                 )
 
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
-    process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+                
+    return process
 
+#intermediate customization ("Phase 0.5": HCAL 2017, HE and HF upgrades)
+def customise_HcalPhase0p5(process):
+    process=load_HcalHardcode(process)
+    
+    #for now, use HE run1 conditions - SiPM/QIE11 not ready
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
+    
+    # to get reco to run
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
+        process.hbheprereco.setNoiseFlags = cms.bool(False)
+        process.horeco.digiLabel = cms.InputTag("simHcalDigis")
+        process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
+        process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+        process.hcalnoise.digiCollName = cms.string('simHcalDigis')
+    
+    return process
+    
+def customise_HcalPhase1(process):
+    process=load_HcalHardcode(process)
+
+    process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+    process.es_hardcode.useHBUpgrade = cms.bool(True)
+    process.es_hardcode.useHEUpgrade = cms.bool(True)
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
@@ -177,7 +208,7 @@ def customise_Reco(process):
 
     process.horeco.digiLabel = "simHcalDigis"
     process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
+    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HFUpgradeDigiCollection")
 
     process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalnoise.digiCollName=cms.string('simHcalDigis')

@@ -135,6 +135,9 @@ private:
     edm::InputTag m_l1EtSumTag;
     edm::EDGetTokenT<l1t::EtSumBxCollection>   m_l1EtSumToken;
 
+    /// flag to pass if L1TGlobal accept
+    bool m_l1GlobalDecision;
+
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;
 };

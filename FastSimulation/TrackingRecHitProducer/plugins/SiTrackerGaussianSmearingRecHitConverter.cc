@@ -634,14 +634,14 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 			     error.yy()+lape.yy() );
 
       // insert rechit in rechit collection
-      std::auto_ptr<FastSingleTrackerRecHit> recHit (new FastSingleTrackerRecHit(position, error, 
-										 *geometry->idToDetUnit(det),
-										 subdet > 2 
-										 ? fastTrackerRecHitType::siStrip2D
-										 : fastTrackerRecHitType::siPixel));
+      auto recHit = std::make_unique<FastSingleTrackerRecHit>(position, error, 
+								*geometry->idToDetUnit(det),
+								subdet > 2 
+								? fastTrackerRecHitType::siStrip2D
+								: fastTrackerRecHitType::siPixel);
       recHit->addSimTrackId(simHit.trackId());
-      recHit->setId(simHitCounter);
-      output_recHits->push_back(recHit);
+      recHit->setId(output_recHits->size());
+      output_recHits->push_back(std::move(recHit));
 				
 
       // update map simHit->recHit

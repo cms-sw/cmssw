@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H
 # define GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H
 
-# include "boost/shared_ptr.hpp"
+# include <memory>
 
 # include "FWCore/Framework/interface/ESProducer.h"
 # include "FWCore/Framework/interface/ESHandle.h"
@@ -26,7 +26,7 @@ public:
   FWRecoGeometryESProducer( const edm::ParameterSet& );
   virtual ~FWRecoGeometryESProducer( void );
   
-  boost::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
+  std::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
 
 private:
   FWRecoGeometryESProducer( const FWRecoGeometryESProducer& );
@@ -53,7 +53,7 @@ private:
   edm::ESHandle<CaloGeometry>                m_caloGeom;
   std::vector<edm::ESHandle<HGCalGeometry> > m_hgcalGeoms;
   const TrackerGeometry*                     m_trackerGeom;
-  boost::shared_ptr<FWRecoGeometry>          m_fwGeometry;
+  std::shared_ptr<FWRecoGeometry>          m_fwGeometry;
   
   unsigned int m_current;
   bool m_tracker;

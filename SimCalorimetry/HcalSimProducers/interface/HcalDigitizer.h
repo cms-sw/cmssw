@@ -96,6 +96,7 @@ private:
   CaloHitResponse * theHOResponse;
   CaloHitResponse * theHOSiPMResponse;
   CaloHitResponse * theHFResponse;
+  CaloHitResponse * theHFQIE10Response;
   CaloHitResponse * theZDCResponse;
 
   // we need separate amplifiers (and electronicssims)

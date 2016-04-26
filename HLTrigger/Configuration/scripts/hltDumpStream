@@ -99,10 +99,10 @@ class SearchNewSmartPrescale(SearchModuleByType):
 
 # extract the L1 seed for a given path
 def getL1Seed(path):
-  searchSeed = SearchModuleByType('HLTLevel1GTSeed')
+  searchSeed = SearchModuleByType('HLTL1TSeed')
   path.visit(searchSeed)
   if searchSeed.found:
-    return [ (seed.L1SeedsLogicalExpression.value(), seed.L1TechTriggerSeeding.value()) for seed in searchSeed.found ]
+    return [ seed.L1SeedsLogicalExpression.value() for seed in searchSeed.found ]
   else:
     return [ ]
 
@@ -113,20 +113,9 @@ def getL1SeedDescription(path):
   if len(seeds) == 0:
     seedDesc = '(none)'
   elif len(seeds) == 1:
-    if seeds[0][1]:
-      desc = 'technical bits: ' + seeds[0][0]
-    else:
-      desc = seeds[0][0]
-    seedDesc = desc
+    seedDesc = seeds[0]
   else:
-    entries = []
-    for seed in seeds:
-      if seed[1]:
-        desc = 'technical bits: ' + seed[0]
-      else:
-        desc = seed[0]
-      entries.append(desc)
-    seedDesc = '(' + ') AND ('.join(entries) + ')'
+    seedDesc = '(' + ') AND ('.join(seeds) + ')'
 
   return seedDesc
 

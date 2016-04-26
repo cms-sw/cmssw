@@ -185,6 +185,10 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
 
   writeDcc_ = ps.getUntrackedParameter<bool>("writeDCC",false);
   filename_  = ps.getUntrackedParameter<string>("filename","dump.bin");
+
+  fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
+  l1AcceptBunchCrossingCollectionToken_ = consumes<L1AcceptBunchCrossingCollection>(l1AcceptBunchCrossingCollectionTag_);
+
   if(writeDcc_){
     dumpFile_.open(filename_.c_str());
     if(dumpFile_.bad()){
@@ -222,7 +226,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   gettimeofday(&start, 0);
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel(fedRawDataCollectionTag_, rawdata);
+  event.getByToken(fedRawDataCollectionToken_, rawdata);
 
   if(dump_ || l1aHistory_) cout << "\n======================================================================\n"
                                 << toNth(iEvent_)
@@ -233,7 +237,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   
   if(l1aHistory_){
     edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
-    event.getByLabel(l1AcceptBunchCrossingCollectionTag_, l1aHist);
+    event.getByToken(l1AcceptBunchCrossingCollectionToken_, l1aHist);
     if(!l1aHist.isValid()) {
       cout << "L1A history not found.\n";
     } else if (l1aHist->size() == 0) {

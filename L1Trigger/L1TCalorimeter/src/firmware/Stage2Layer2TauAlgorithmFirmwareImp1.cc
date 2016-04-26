@@ -49,7 +49,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
 void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::CaloCluster>& clusters,
                                                         const std::vector<l1t::CaloTower>& towers,
                                                         std::vector<l1t::Tau>& taus)
-{
+{  
     // navigator
     l1t::CaloStage2Nav caloNav; 
   
@@ -137,6 +137,13 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 isolBit = (hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress)) ? 1 : 0);
                 tau.setHwIso(isolBit);
 
+                // development vars
+                tau.setIsMerged(false);
+                tau.setRawEt((short int) mainCluster.hwPt());
+                tau.setHasEM(mainCluster.hwPtEm() > 0);
+                tau.setIsoEt((short int) hwIsoEnergy);
+                tau.setNTT((short int) nrTowers);
+
                 //cout << "** DEBUG: eta: " << mainCluster.hwEta() << " et: " << tauHwFootprint << " nTT: " << nrTowers << endl;
                 //cout << "    ---> isoThr: " << params_->tauIsolationLUT()->data(LUTaddress) << " | isoEnergy: " << hwIsoEnergy << endl;
                 //cout << "    ---> isolBit: " << isolBit << endl;
@@ -150,11 +157,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 double seedPhi     = CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi());
                 double seedPhiSize = CaloTools::towerPhiSize(mainCluster.hwEta());
                 if(mainCluster.fgEta()==0)      eta = seedEta; // center
-                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
-                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.251; // center + 1/4
+                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.251; // center - 1/4
                 if(mainCluster.fgPhi()==0)      phi = seedPhi; // center
-                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
-                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.251; // center + 1/4
+                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.251; // center - 1/4
 
                 // Set 4-vector
                 math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
@@ -413,6 +420,14 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 isolBit = (hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress)) ? 1 : 0);
                 tau.setHwIso(isolBit);
 
+                // development vars
+                tau.setIsMerged(true);
+                tau.setRawEt((short int) (mainCluster.hwPt() + secondaryCluster->hwPt()));
+                tau.setHasEM(mainCluster.hwPtEm() > 0);
+                tau.setIsoEt((short int) hwIsoEnergy);
+                tau.setNTT((short int) nrTowers);
+
+
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
                 double eta = 0.;
@@ -422,11 +437,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 double seedPhi     = CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi());
                 double seedPhiSize = CaloTools::towerPhiSize(mainCluster.hwEta());
                 if(mainCluster.fgEta()==0)      eta = seedEta; // center
-                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
-                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.251; // center + 1/4
+                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.251; // center - 1/4
                 if(mainCluster.fgPhi()==0)      phi = seedPhi; // center
-                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
-                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.251; // center + 1/4
+                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.251; // center - 1/4
 
                 // Set 4-vector
                 math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
@@ -783,7 +798,7 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
     int corrXrawPt = corr*rawPt; // 17 bits
     int calibPt = (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
     // saturation FIXME: to be done in demux?
-    if (calibPt > 255) calibPt = 255;
+    if (calibPt > 511) calibPt = 511; // 9 bit in output
     
     //cout << "  --> hwPt = " << hwPt << " , calibPt = " << calibPt << endl;
 

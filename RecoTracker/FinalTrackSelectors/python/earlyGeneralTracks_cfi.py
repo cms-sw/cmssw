@@ -22,6 +22,26 @@ earlyGeneralTracks.inputClassifiers =["initialStep",
                                       "pixelLessStep",
                                       "tobTecStep"
                                       ]
+eras.trackingLowPU.toModify(earlyGeneralTracks,
+    trackProducers = [
+        'initialStepTracks',
+        'lowPtTripletStepTracks',
+        'pixelPairStepTracks',
+        'detachedTripletStepTracks',
+        'mixedTripletStepTracks',
+        'pixelLessStepTracks',
+        'tobTecStepTracks'
+    ],
+    inputClassifiers = [
+        "initialStepSelector",
+        "lowPtTripletStepSelector",
+        "pixelPairStepSelector",
+        "detachedTripletStep",
+        "mixedTripletStep",
+        "pixelLessStepSelector",
+        "tobTecStep"
+    ]
+)
 eras.trackingPhase1.toModify(
     earlyGeneralTracks,
     trackProducers = [

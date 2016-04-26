@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
+#include "UnscheduledConfigurator.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +18,10 @@ namespace edm {
     workerReg_(areg),
     actionTable_(&actions),
     allWorkers_(),
-    unscheduled_(new UnscheduledCallProducer) {
+    unscheduled_(*areg),
+    lastSetupEventPrincipal_(nullptr)
+  {
+
   } // WorkerManager::WorkerManager
 
   WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
@@ -26,7 +30,9 @@ namespace edm {
   workerReg_(areg,modReg),
   actionTable_(&actions),
   allWorkers_(),
-  unscheduled_(new UnscheduledCallProducer) {
+  unscheduled_(*areg),
+  lastSetupEventPrincipal_(nullptr)
+  {
   } // WorkerManager::WorkerManager
 
   Worker* WorkerManager::getWorker(ParameterSet& pset,
@@ -53,7 +59,7 @@ namespace edm {
       Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
       assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
       unscheduledLabels.insert(label);
-      unscheduled_->addWorker(newWorker);
+      unscheduled_.addWorker(newWorker);
       //add to list so it gets reset each new event
       addToAllWorkers(newWorker);
     } else {
@@ -132,9 +138,12 @@ namespace edm {
 
   void
   WorkerManager::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
-    // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled());
+    unscheduled_.setEventSetup(es);
+    if(&ep != lastSetupEventPrincipal_) {
+      UnscheduledConfigurator config( unscheduled_.begin(), unscheduled_.end(), &(unscheduled_.auxiliary()));
+      ep.setupUnscheduled(config);
+      lastSetupEventPrincipal_ = &ep;
+    }
   }
   
 }

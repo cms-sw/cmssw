@@ -638,4 +638,80 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
   }
 };
 
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+class PFRecHitQTestThresholdInThicknessNormalizedMIPs : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestThresholdInThicknessNormalizedMIPs() :
+    geometryInstance_(""),
+    recHitEnergy_keV_(0.),
+    threshold_(0.),
+    mip_(0.),
+    recHitEnergyMultiplier_(0.) {
+    }
+
+  PFRecHitQTestThresholdInThicknessNormalizedMIPs(const edm::ParameterSet& iConfig) :
+    PFRecHitQTestBase(iConfig),
+    geometryInstance_(iConfig.getParameter<std::string>("geometryInstance")),
+    recHitEnergy_keV_(iConfig.getParameter<bool>("recHitEnergyIs_keV")),
+    threshold_(iConfig.getParameter<double>("thresholdInMIPs")),
+    mip_(iConfig.getParameter<double>("mipValueInkeV")),
+    recHitEnergyMultiplier_(iConfig.getParameter<double>("recHitEnergyMultiplier")) { 
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+      edm::ESHandle<HGCalGeometry> geoHandle;
+      iSetup.get<IdealGeometryRecord>().get(geometryInstance_,geoHandle);
+      ddd_ = &(geoHandle->topology().dddConstants());
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      const double newE = ( recHitEnergy_keV_ ? 
+			    1.0e-6*rh.energy()*recHitEnergyMultiplier_ :
+			    rh.energy()*recHitEnergyMultiplier_ );
+      const int wafer = HGCalDetId(rh.detid()).wafer();
+      const float mult  = (float) ddd_->waferTypeL(wafer); // 1 for 100um, 2 for 200um, 3 for 300um
+      hit.setEnergy(newE);      
+      return pass(hit,mult);
+    }
+
+ protected:
+    const std::string geometryInstance_;
+    const bool recHitEnergy_keV_;
+    const double threshold_,mip_,recHitEnergyMultiplier_;    
+    const HGCalDDDConstants*  ddd_;
+
+    bool pass(const reco::PFRecHit& hit, const float mult) {
+      const double hitValueInMIPs = 1e6*hit.energy()/(mult*mip_);
+      return hitValueInMIPs > threshold_;
+    }
+};
+
 #endif

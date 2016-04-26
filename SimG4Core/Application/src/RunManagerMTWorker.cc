@@ -55,7 +55,6 @@
 #include <thread>
 #include <sstream>
 
-
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
   static std::atomic<int> thread_counter{ 0 };
@@ -176,7 +175,7 @@ void RunManagerMTWorker::initializeTLS() {
   createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers, thisID);
 }
 
-void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
+void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
   // I guess everything initialized here should be in thread_local storage
   initializeTLS();
 
@@ -376,7 +375,9 @@ void RunManagerMTWorker::terminateRun() {
   }
 }
 
-void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
+void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, 
+                                 RunManagerMT& runManagerMaster) {
+  //void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
   // The initialization and begin/end run is a bit convoluted due to
   // - Geant4 deals per-thread
   // - OscarMTProducer deals per-stream

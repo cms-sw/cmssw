@@ -31,7 +31,7 @@ ConversionTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<TrackCollection> newTracks;
   iEvent.getByToken(newTracksToken,newTracks);
 
-  auto_ptr<ConversionTrackCollection> output(new ConversionTrackCollection);
+  unique_ptr<ConversionTrackCollection> output(new ConversionTrackCollection);
   
   for(const ConversionTrack &  conversion : *(conversionTracks.product())){
     size_t trackIndex = conversion.trackRef().key();
@@ -43,7 +43,7 @@ ConversionTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     output->back().setIsArbitratedMergedEcalGeneral(conversion.isArbitratedMergedEcalGeneral());
   }
 
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 
 }
 

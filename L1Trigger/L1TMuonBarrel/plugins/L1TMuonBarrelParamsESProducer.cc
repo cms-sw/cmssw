@@ -10,7 +10,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -39,7 +38,7 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
       int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );
       //void print(std::vector<LUT>& , std::vector<int>& ) const;
       int getPtLutThreshold(int ,std::vector<int>& ) const;
-      typedef boost::shared_ptr<L1TMuonBarrelParams> ReturnType;
+      typedef std::shared_ptr<L1TMuonBarrelParams> ReturnType;
 
       ReturnType produce(const L1TMuonBarrelParamsRcd&);
    private:
@@ -102,8 +101,8 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 
 
 ///Read Pt assignment Luts
-    std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
-    std::vector<int> pta_threshold(6); pta_threshold.reserve(9);
+    std::vector<LUT> pta_lut; pta_lut.reserve(19);
+    std::vector<int> pta_threshold(10); 
     if ( load_pt(pta_lut,pta_threshold, PT_Assignment_nbits_Phi, AssLUTpath) != 0 ) {
       cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
@@ -111,7 +110,7 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
    m_params.setpta_threshold(pta_threshold);
 
 ///Read Phi assignment Luts
-    std::vector<LUT> phi_lut(0); phi_lut.reserve(2);
+    std::vector<LUT> phi_lut; phi_lut.reserve(2);
     if ( load_phi(phi_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB, AssLUTpath) != 0 ) {
       cout << "Can not open files to load phi-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
@@ -504,10 +503,8 @@ L1TMuonBarrelParamsESProducer::ReturnType
 L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonBarrelParams> pBMTFParams;
 
-   pBMTFParams = boost::shared_ptr<L1TMuonBarrelParams>(new L1TMuonBarrelParams(m_params));
-   return pBMTFParams;
+   return std::make_shared<L1TMuonBarrelParams>(m_params);
 }
 
 //define this as a plug-in

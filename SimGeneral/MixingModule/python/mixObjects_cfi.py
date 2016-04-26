@@ -218,3 +218,24 @@ mixPCFHepMCProducts = cms.PSet(
     input = cms.VInputTag(cms.InputTag("CFWriter","generator")),
     type = cms.string('HepMCProductPCrossingFrame')
 )
+
+def _modifyMixSimHitsForPhase2( object ):
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
+    object.mixSH.subdets.append('MuonGEMHits')
+    object.mixSH.crossingFrames.append('MuonGEMHits')
+
+    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
+    object.mixSH.subdets.append('MuonME0Hits')
+    object.mixSH.crossingFrames.append('MuonME0Hits')
+
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()) )
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) )
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) )
+    object.mixCH.subdets.append( hgceeDigitizer.hitCollection.value() )
+    object.mixCH.subdets.append( hgchebackDigitizer.hitCollection.value() )
+    object.mixCH.subdets.append( hgchefrontDigitizer.hitCollection.value() )    
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
+

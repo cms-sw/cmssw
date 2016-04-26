@@ -81,9 +81,9 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    Handle<ValueMap<PreIdRef> > iIdMap;
    iEvent.getByToken(idMapToken,iIdMap);
 
-  auto_ptr<ElectronSeedCollection> oSeeds(new ElectronSeedCollection);
-  auto_ptr<PreIdCollection> oIds(new PreIdCollection);
-  auto_ptr<ValueMap<PreIdRef> > oIdMap(new ValueMap<PreIdRef>);
+  unique_ptr<ElectronSeedCollection> oSeeds(new ElectronSeedCollection);
+  unique_ptr<PreIdCollection> oIds(new PreIdCollection);
+  unique_ptr<ValueMap<PreIdRef> > oIdMap(new ValueMap<PreIdRef>);
 
    ValueMap<PreIdRef>::Filler mapFiller(*oIdMap);
    
@@ -99,8 +99,8 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      oIds->back().setTrack(newTrackRef);
    }
 
-   iEvent.put(oSeeds,preidgsfLabel);
-   const edm::OrphanHandle<reco::PreIdCollection> preIdProd = iEvent.put(oIds,preidLabel);
+   iEvent.put(std::move(oSeeds),preidgsfLabel);
+   const edm::OrphanHandle<reco::PreIdCollection> preIdProd = iEvent.put(std::move(oIds),preidLabel);
 
    vector<PreIdRef> values;
    for(unsigned int t = 0;t<newTracks->size();++t){
@@ -115,7 +115,7 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    mapFiller.insert(newTracks,values.begin(),values.end());
    mapFiller.fill();
 
-   iEvent.put(oIdMap,preidLabel);
+   iEvent.put(std::move(oIdMap),preidLabel);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

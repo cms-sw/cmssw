@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
     MuonInputTag = cms.InputTag("simGmtStage2Digis"),
-    ExtInputTag = cms.InputTag("none"),
+    ExtInputTag = cms.InputTag("simGtExtFakeStage2Digis"),
     EGammaInputTag = cms.InputTag("simCaloStage2Digis"),
     TauInputTag = cms.InputTag("simCaloStage2Digis"),
     JetInputTag = cms.InputTag("simCaloStage2Digis"),

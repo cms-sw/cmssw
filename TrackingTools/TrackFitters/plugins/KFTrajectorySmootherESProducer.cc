@@ -16,7 +16,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 namespace {
@@ -25,7 +25,7 @@ namespace {
   public:
     KFTrajectorySmootherESProducer(const edm::ParameterSet & p);
     ~KFTrajectorySmootherESProducer(); 
-    boost::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
+    std::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -54,7 +54,7 @@ namespace {
   
   KFTrajectorySmootherESProducer::~KFTrajectorySmootherESProducer() {}
   
-  boost::shared_ptr<TrajectorySmoother> 
+  std::shared_ptr<TrajectorySmoother> 
     KFTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
     
     std::string pname = pset_.getParameter<std::string>("Propagator");
@@ -75,12 +75,12 @@ namespace {
     iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
     iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
     
-    return boost::shared_ptr<TrajectorySmoother>(new KFTrajectorySmoother(prop.product(),
-									  upd.product(),
-									  est.product(),
-									  rescaleFactor,
-									  minHits,
-									  geo.product() ));
+    return std::make_shared<KFTrajectorySmoother>(prop.product(),
+						  upd.product(),
+						  est.product(),
+						  rescaleFactor,
+						  minHits,
+						  geo.product());
     
   }
 }

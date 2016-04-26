@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 # RAW content 
 L1TriggerRAW = cms.PSet(
@@ -93,3 +94,20 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep LumiSummary_lumiProducer_*_*')
 )
 
+
+def _appendStage2Digis(obj):
+    l1Stage2Digis = [
+        'keep *_gtStage2Digis__*', 
+        'keep *_gmtStage2Digis_Muon_*',
+        'keep *_caloStage2Digis_Jet_*',
+        'keep *_caloStage2Digis_Tau_*',
+        'keep *_caloStage2Digis_EGamma_*',
+        'keep *_caloStage2Digis_EtSum_*',
+        ]
+    obj.outputCommands += l1Stage2Digis
+
+# adding them to all places where we had l1extraParticles
+eras.stage2L1Trigger.toModify(L1TriggerRAWDEBUG, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
+eras.stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)

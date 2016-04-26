@@ -438,6 +438,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         m_emulateBxInEvent = m_totalBxInEvent;
     }
 
+    if (m_emulateBxInEvent < 1) m_emulateBxInEvent=1;
+    if (m_L1DataBxInEvent < 1) m_L1DataBxInEvent=1;
+
     int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
     int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
 

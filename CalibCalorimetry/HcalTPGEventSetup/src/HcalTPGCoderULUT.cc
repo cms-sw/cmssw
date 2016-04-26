@@ -20,7 +20,6 @@
 // system include files
 #include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 
@@ -43,7 +42,7 @@ public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
   ~HcalTPGCoderULUT();
      
-  typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
+  typedef std::shared_ptr<HcalTPGCoder> ReturnType;
   void dbRecordCallback(const HcalDbRecord&);
 
   ReturnType produce(const HcalTPGRecord&);

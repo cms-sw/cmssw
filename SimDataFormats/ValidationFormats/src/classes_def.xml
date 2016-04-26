@@ -176,8 +176,8 @@
   <class name="std::vector<MaterialAccountingTrack>"/>
   <class name="edm::Wrapper<std::vector<MaterialAccountingTrack> >"/>
 
-  <class name="PHGCalValidInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="3282014028"/>
+  <class name="PHGCalValidInfo" ClassVersion="12">
+   <version ClassVersion="12" checksum="3840504732"/>
   </class>
   <class name="edm::Wrapper<PHGCalValidInfo>"/>
 </lcgdict>

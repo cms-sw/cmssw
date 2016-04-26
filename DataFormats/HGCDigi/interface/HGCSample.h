@@ -33,10 +33,10 @@ public:
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
   void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
   { 
-    setThreshold(thr);
-    setMode(mode);
-    setToA(toa);
-    setData(data);
+    value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
+               ( (uint32_t)mode & kModeMask   ) << kModeShift   |
+               ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
+               ( (uint32_t)data & kDataMask   ) << kDataShift     );    
   }  
   void print(std::ostream &out=std::cout)
   {
@@ -65,9 +65,10 @@ private:
   void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
     //clear required bits
-    value_ &= ~((word & mask) << pos); 
+    const uint32_t masked_word = (word & mask) << pos;
+    value_ &= ~(masked_word); 
     //now set the new value
-    value_ |= ((word & mask) << pos);
+    value_ |= (masked_word);
   }
 
   // a 32-bit word

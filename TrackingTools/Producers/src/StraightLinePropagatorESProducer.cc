@@ -21,7 +21,7 @@ StraightLinePropagatorESProducer::StraightLinePropagatorESProducer(const edm::Pa
 
 StraightLinePropagatorESProducer::~StraightLinePropagatorESProducer() {}
 
-boost::shared_ptr<Propagator> 
+std::shared_ptr<Propagator> 
 StraightLinePropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -37,7 +37,7 @@ StraightLinePropagatorESProducer::produce(const TrackingComponentsRecord & iReco
     if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
     if (pdir == "alongMomentum") dir = alongMomentum;
     if (pdir == "anyDirection") dir = anyDirection;
-  _propagator  = boost::shared_ptr<Propagator>(new StraightLinePropagator(&(*magfield),dir));
+  _propagator = std::make_shared<StraightLinePropagator>(&(*magfield),dir);
   return _propagator;
 }
 

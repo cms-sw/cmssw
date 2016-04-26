@@ -1362,7 +1362,7 @@ namespace edm {
         
         streamSchedules_[0]->modulesInPath(path,moduleNames);
         std::string lastModuleName;
-        unsigned int lastModuleIndex;
+        unsigned int lastModuleIndex = 0;
         for(auto const& name: moduleNames) {
           auto found = alreadySeenNames.insert(name);
           if(found.second) {

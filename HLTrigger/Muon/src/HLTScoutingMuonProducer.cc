@@ -87,7 +87,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     }
 
     // Produce muons
-    std::auto_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
+    std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
     int index = 0;
     for (auto &muon : *ChargedCandidateCollection) {
         reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
@@ -116,7 +116,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     }
 
     // Put output
-    iEvent.put(outMuons);
+    iEvent.put(std::move(outMuons));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -3,6 +3,7 @@
 #include "CondFormats/Common/interface/BasicPayload.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/PayloadReader.h"
+#include <memory>
 #include <sstream>
 
 namespace {
@@ -32,7 +33,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Run","data0");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<cond::BasicPayload> obj = reader.fetch<cond::BasicPayload>( iov.payloadId );
+	std::shared_ptr<cond::BasicPayload> obj = reader.fetch<cond::BasicPayload>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>(iov.since),boost::lexical_cast<std::string>(obj->m_data0 ));
       }
       return jprint.print();
@@ -64,7 +65,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Run","data1");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<cond::BasicPayload> obj = reader.fetch<cond::BasicPayload>( iov.payloadId );
+	std::shared_ptr<cond::BasicPayload> obj = reader.fetch<cond::BasicPayload>( iov.payloadId );
         jprint.append(boost::lexical_cast<std::string>(iov.since),boost::lexical_cast<std::string>(obj->m_data1 ));
       }
       return jprint.print();

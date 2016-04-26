@@ -41,7 +41,7 @@ namespace {
 }
 
 constexpr double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
-constexpr double nSigmaPhi = 3.;
+constexpr float nSigmaPhi = 3.;
 constexpr float fnSigmaRZ = nSigmaRZ;
 
 
@@ -329,8 +329,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	correction.correctRPhiRange(rangeRPhi);
 
 	float ir = 1.f/p3_r;
-	float phiErr = nSigmaPhi *  hits.drphi[KDdata]*ir;
-	if (!checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr))
+        // limit error to 90 degree
+        constexpr float maxPhiErr = 0.5*M_PI;
+        float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+        phiErr = std::min(maxPhiErr, phiErr);
+	if (!checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr, maxPhiErr))
 	  continue;
 	
 	Basic2DVector<double> thc(p3.x(), p3.y());

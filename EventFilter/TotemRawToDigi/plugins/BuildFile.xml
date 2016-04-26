@@ -1,0 +1,15 @@
+<library file="*.cc" name="EventFilterTotemRawToDigiPlugins">
+	<flags EDM_PLUGIN="1"/>
+
+	<use name="FWCore/Framework"/>
+	
+	<use name="DataFormats/FEDRawData"/>
+	<use name="DataFormats/Common"/>
+	
+	<use name="DataFormats/TotemDigi"/>
+	
+	<use name="CondFormats/DataRecord"/>
+	<use name="CondFormats/TotemReadoutObjects"/>
+	
+	<use name="EventFilter/TotemRawToDigi"/>
+</library>

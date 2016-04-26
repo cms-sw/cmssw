@@ -28,6 +28,6 @@ public:
 
 	SiPixelGenErrorDBObjectESProducer(const edm::ParameterSet& iConfig);
   ~SiPixelGenErrorDBObjectESProducer();
-	boost::shared_ptr<SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectESProducerRcd &);
+	std::shared_ptr<SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectESProducerRcd &);
  };
 #endif

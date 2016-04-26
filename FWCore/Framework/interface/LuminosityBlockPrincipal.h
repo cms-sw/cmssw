@@ -29,7 +29,6 @@ namespace edm {
   class ModuleCallingContext;
   class ProcessHistoryRegistry;
   class RunPrincipal;
-  class UnscheduledHandler;
 
   class LuminosityBlockPrincipal : public Principal {
   public:
@@ -95,8 +94,6 @@ namespace edm {
       return aux_->mergeAuxiliary(aux);
     }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
-
     void put(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp) const;
@@ -109,10 +106,6 @@ namespace edm {
   private:
 
     virtual bool isComplete_() const override {return complete_;}
-
-    virtual bool unscheduledFill(std::string const&,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const*) const override {return false;}
 
     virtual unsigned int transitionIndex_() const override;
 

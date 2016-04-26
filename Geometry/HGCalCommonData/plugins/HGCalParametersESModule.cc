@@ -8,7 +8,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 //#define DeugLog
 
@@ -17,7 +17,7 @@ public:
   HGCalParametersESModule( const edm::ParameterSet & );
   ~HGCalParametersESModule( void );
   
-  typedef boost::shared_ptr<HGCalParameters> ReturnType;
+  typedef std::shared_ptr<HGCalParameters> ReturnType;
   
   ReturnType produce( const IdealGeometryRecord&);
 
