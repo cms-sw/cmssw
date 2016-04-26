@@ -65,7 +65,6 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
 eras.phase1Pixel.toReplaceWith(DQMOfflinePrePOG, DQMOfflinePrePOG.copyAndExclude([ # FIXME
-    TrackingDQMSourceTier0,  # Tracking DQM needs to be migrated for phase1
     triggerOfflineDQMSource, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     pfTauRunDQMValidation,   # Excessive printouts because 2017 doesn't have HLT yet
 ]))
@@ -128,9 +127,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
 DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
                                    pvMonitor
                                  )
-eras.phase1Pixel.toReplaceWith(DQMOfflineTracking, DQMOfflineTracking.copyAndExclude([ # FIXME
-    TrackingDQMSourceTier0Common # Tracking DQM needs to be migrated for phase1
-]))
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
