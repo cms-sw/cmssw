@@ -128,7 +128,7 @@ steps['RunJet2012D']={'INPUT':InputInfo(dataSet='/JetHT/Run2012D-v1/RAW',label='
 # the previous  /SingleMu/Run2012D-ZMu-15Apr2014-v1/RAW-RECO is deprecated in DAS
 steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-15Apr2014-v1/RAW-RECO',label='zMu2012D',location='STD',run=Run2012Dsk)}
 # the previous /SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER is deprecated in DAS
-steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-22Jan2013-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
+steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-22Jan2013-v1/USER',label='wEl2012D',location='STD',run=Run2012D)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-22Jan2013-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
 #### run2 2015B ####
@@ -289,9 +289,9 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_8_1_0_pre2-80X_mcRun2_asymptotic_v10_gs810pre2-v1',     # 3 - 13 TeV samples with GEN-SIM from 810_p2; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_8_1_0_pre2-PU25ns_80X_mcRun2_asymptotic_v10_gs810pre2-v1',  # 5 - fullSim PU 25ns premix for 810pre2 + Gen-Sim_810pre2
-    'CMSSW_8_1_0_pre2-PU50ns_80X_mcRun2_startup_v10_gs810pre2-v1',     # 6 - fullSim PU 50ns premix for 810pre2 + Gen-Sim_810pre2
-    'CMSSW_8_1_0_pre2-80X_mcRun2_asymptotic_v10_FastSim-v1',    # 7 - fastSim MinBias for mixing for 810pre2 
+    'CMSSW_8_1_0_pre3-PU25ns_80X_mcRun2_asymptotic_v12-v1',     # 5 - fullSim PU 25ns premix for 810pre3
+    'CMSSW_8_1_0_pre3-PU50ns_80X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix for 810pre3
+    'CMSSW_8_1_0_pre3-80X_mcRun2_asymptotic_v12_FastSim-v1',    # 7 - fastSim MinBias for mixing for 810pre3 
     'CMSSW_8_1_0_pre2-PU25ns_80X_mcRun2_asymptotic_v10_FastSim-v1',# 8 - fastSim premixed MinBias for 810pre2
     'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
