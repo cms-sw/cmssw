@@ -11,9 +11,11 @@ namespace {
   struct dictionary {
     l1t::MuonCaloSumBxCollection caloSum;
     edm::Wrapper<l1t::MuonCaloSumBxCollection> caloSumWrap;
+    std::vector<l1t::MuonCaloSum> vCaloSum;
 
     l1t::RegionalMuonCandBxCollection regCand;
     edm::Wrapper<l1t::RegionalMuonCandBxCollection> regCandWrap;
+    std::vector<l1t::RegionalMuonCand> vRegCand;
    
     l1t::EMTFOutputCollection emtfOutput;
     edm::Wrapper<l1t::EMTFOutputCollection> emtfOutputWrap;
