@@ -54,7 +54,7 @@ void HLTJetL1TMatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetu
   edm::Handle<TCollection> jets;
   iEvent.getByToken(m_theJetToken, jets);
 
-  std::auto_ptr<TCollection> result (new TCollection);
+  std::unique_ptr<TCollection> result (new TCollection);
 
 
   edm::Handle<l1t::JetBxCollection> l1Jets;
@@ -81,7 +81,7 @@ void HLTJetL1TMatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetu
     edm::LogWarning("MissingProduct") << "L1Upgrade l1Jets bx collection not found." << std::endl;
   }
 
-  iEvent.put( result);
+  iEvent.put(std::move(result));
 
 }
 

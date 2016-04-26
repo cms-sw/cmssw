@@ -177,7 +177,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
-  std::auto_ptr<const CaloSubdetectorTopology> topology;
+  std::unique_ptr<const CaloSubdetectorTopology> topology;
 
   //edm::ESHandle<EcalChannelStatus> chStatus;
   //es.get<EcalChannelStatusRcd>().get(chStatus);
@@ -290,10 +290,10 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLevel, true, regions);
   
-  // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
+  std::unique_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
-  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p, 
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(std::move(basicclusters_p),
                                                                        basicclusterCollection_);
   if (!(bccHandle.isValid())) {
     return;
@@ -307,9 +307,9 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
 
-  std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+  std::unique_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
   superclusters_p->assign(superClusters.begin(), superClusters.end());
-  evt.put(superclusters_p, superclusterCollection_);
+  evt.put(std::move(superclusters_p), superclusterCollection_);
 
 
   nEvt_++;

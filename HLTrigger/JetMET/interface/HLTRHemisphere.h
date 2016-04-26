@@ -47,7 +47,7 @@ class HLTRHemisphere : public edm::stream::EDFilter<> {
       int max_NJ_;             // don't calculate R if event has more than NJ jets
       bool accNJJets_;         // accept or reject events with high NJ
 
-      void ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, const std::vector<math::XYZTLorentzVector>& JETS, std::vector<math::XYZTLorentzVector> *extraJets=0);
+      void ComputeHemispheres(std::unique_ptr<std::vector<math::XYZTLorentzVector> >& hlist, const std::vector<math::XYZTLorentzVector>& JETS, std::vector<math::XYZTLorentzVector> *extraJets=0);
 };
 
 #endif //HLTRHemisphere_h

@@ -179,11 +179,11 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
   }
 
   // harvest the errors, but only if the filter will accept the event
-  std::auto_ptr<std::vector<edm::ErrorSummaryEntry> > errors(new std::vector<edm::ErrorSummaryEntry>());
+  std::unique_ptr<std::vector<edm::ErrorSummaryEntry> > errors(new std::vector<edm::ErrorSummaryEntry>());
   if (accept) {
     errors->swap(errorSummary);
   }
-  event.put(errors);
+  event.put(std::move(errors));
 
   return accept;
 }
