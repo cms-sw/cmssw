@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.AlCa.autoCond import autoCond
 
 process = cms.Process("TrackerParametersTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
