@@ -210,17 +210,32 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
     std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
-    stoppingSource = ibooker.book1D(histname+CatagoryName, histname+CatagoryName,StopReasonName.size(), 0., double(StopReasonName.size()));
+    stoppingSource = ibooker.book1D(histname+CatagoryName,
+                                    histname+CatagoryName,
+                                    StopReasonName.size(),
+                                    0., double(StopReasonName.size()));
     stoppingSource->setAxisTitle("stopping reason",1);
     stoppingSource->setAxisTitle("Number of Tracks",2);
     
     histname = "StoppingSourceVSeta_"+seedProducer.label() + "_";
-    stoppingSourceVSeta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName,EtaBin, EtaMin, EtaMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+    stoppingSourceVSeta = ibooker.book2D(histname+CatagoryName,
+                                         histname+CatagoryName,
+                                         EtaBin,
+                                         EtaMin,
+                                         EtaMax,
+                                         StopReasonName.size(),
+                                         0., double(StopReasonName.size()));
     stoppingSourceVSeta->setAxisTitle("track #eta",1);
     stoppingSourceVSeta->setAxisTitle("stopping reason",2);
     
     histname = "StoppingSourceVSphi_"+seedProducer.label() + "_";
-    stoppingSourceVSphi = ibooker.book2D(histname+CatagoryName, histname+CatagoryName,PhiBin, PhiMax, PhiMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+    stoppingSourceVSphi = ibooker.book2D(histname+CatagoryName,
+                                         histname+CatagoryName,
+                                         PhiBin,
+                                         PhiMin,
+                                         PhiMax,
+                                         StopReasonName.size(),
+                                         0., double(StopReasonName.size()));
     stoppingSourceVSphi->setAxisTitle("track #phi",1);
     stoppingSourceVSphi->setAxisTitle("stopping reason",2);
     
