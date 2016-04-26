@@ -46,6 +46,8 @@ def L1TEventSetupForHF1x1TPs(process):
         authenticationMethod = cms.untracked.uint32(0)
         )
     process.es_prefer_es_pool_hf1x1 = cms.ESPrefer("PoolDBESSource", "es_pool_hf1x1")    
+    process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
+    process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
     return process
 
 def L1TReEmulFromRAW2015(process):
