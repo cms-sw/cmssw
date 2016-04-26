@@ -386,7 +386,8 @@ void Pythia6Service::setSLHAFromHeader( const std::vector<std::string> &lines )
 	std::set<std::string> blocks;
 	unsigned int model = 0, subModel = 0;
 
-	const char *fname = boost::filesystem::unique_path().c_str();
+        std::string fnamest = boost::filesystem::unique_path().string();
+        const char *fname = fnamest.c_str();
 	std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
 	std::string block;
 	for(std::vector<std::string>::const_iterator iter = lines.begin();
