@@ -31,10 +31,6 @@
   <Constant name="mg_ring" value="3*[level]"/>
   <Constant name="mg_sector" value="4*[level]"/>
   <Constant name="mg_roll" value="5*[level]"/>
-  <Constant name="m0_region" value="[me_region]"/>
-  <Constant name="m0_sector" value="3*[level]"/>
-  <Constant name="m0_layer" value="4*[level]"/>
-  <Constant name="m0_roll" value="5*[level]"/>
  </ConstantsSection>
  <SpecParSection label="muonregionnumbering" eval="true">
   <SpecPar name="MuonCommonNumbering">
@@ -70,28 +66,11 @@
    <Parameter name="mg_ring"       value="[mg_ring]"/>
    <Parameter name="mg_sector"     value="[mg_sector]"/>
    <Parameter name="mg_roll"       value="[mg_roll]"/>
-   <Parameter name="m0_region"     value="[m0_region]"/>
-   <Parameter name="m0_layer"      value="[m0_layer]"/>
-   <Parameter name="m0_sector"     value="[m0_sector]"/>
-   <Parameter name="m0_roll"       value="[m0_roll]"/>
   </SpecPar>
-<!--  <SpecPar name="MuonEndcap">
-   <PartSelector path="//GEMBox"/>
-  </SpecPar>
- --> 
  </SpecParSection>
  <SpecParSection label="muonendcapnumbering" eval="true">
   <SpecPar name="MuonEndcapStation1">
-   <PartSelector path="//GEMBox"/>
-  </SpecPar>
-  <SpecPar name="MuonEndcapStation2">
-   <PartSelector path="//GEMBox"/>
-  </SpecPar>
-  <SpecPar name="MuonEndcapStation3">
-   <PartSelector path="//GEMBox"/>
-  </SpecPar>
-  <SpecPar name="MuonEndcapStation4">
-   <PartSelector path="//GEMBox"/>
+   <PartSelector path="//GEMBox.*"/>
   </SpecPar>
  </SpecParSection>
  <SpecParSection label="muonGEMnumbering" eval="true">
@@ -100,9 +79,6 @@
    <PartSelector path="//GEMBox11S"/>
    <PartSelector path="//GEMBox11L"/>
    <PartSelector path="//GEMBox11S"/>
-   <PartSelector path="//GEMBox11L"/>
-  </SpecPar>
-  <SpecPar name="MuonGEMEndcap2">
    <PartSelector path="//GEMBox11L"/>
   </SpecPar>
   <SpecPar name="MuonGEMSector">
