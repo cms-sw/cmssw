@@ -10,8 +10,6 @@
 #include <vector>
 
 
-
-
 class RPCOccupancyTest:public RPCClient {
 public:
 
@@ -36,10 +34,15 @@ private:
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
- 
+
+  float totalActive_, totalStrips_;
+   
   int numberOfDisks_, numberOfRings_;
  
   float rpcevents_;
+
+  MonitorElement * Active_Fraction; // Fraction of channels with data
+  MonitorElement * Active_Dead;
 
   MonitorElement * AsyMeWheel[5];      //Left Right Asymetry 
   MonitorElement * NormOccupWheel[5];
