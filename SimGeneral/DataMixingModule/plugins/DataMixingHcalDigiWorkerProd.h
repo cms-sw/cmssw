@@ -26,6 +26,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSignalGenerator.h"
 #include "SimGeneral/DataMixingModule/plugins/HcalNoiseStorage.h"
@@ -67,30 +68,29 @@ namespace edm
       // data specifiers
 
       // Hcal
-      //      edm::InputTag HBHEdigiCollectionSig_; // secondary name given to collection of digis
-      // edm::InputTag HOdigiCollectionSig_  ; // secondary name given to collection of digis
-      //edm::InputTag HFdigiCollectionSig_  ; // secondary name given to collection of digis
-      //edm::InputTag ZDCdigiCollectionSig_ ; // secondary name given to collection of digis
       edm::InputTag HBHEPileInputTag_; // InputTag for Pileup Digis collection  
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
+      edm::InputTag QIE10PileInputTag_ ; // InputTag for Pileup Digis collection
       std::string HBHEDigiCollectionDM_; // secondary name to be given to collection of digis
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to collection of digis
+      std::string QIE10DigiCollectionDM_ ; // secondary name to be given to collection of digis
 
       edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
       edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
-  
+      edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
 
       HcalDigiProducer* myHcalDigitizer_;
       HBHESignalGenerator theHBHESignalGenerator;
       HOSignalGenerator theHOSignalGenerator;
       HFSignalGenerator theHFSignalGenerator;
       ZDCSignalGenerator theZDCSignalGenerator;
+      QIE10SignalGenerator theQIE10SignalGenerator;
 
       std::string label_;
 

@@ -10,6 +10,8 @@ public:
   typedef HcalUpgradeDigiCollection DigiCollection;
   typedef HcalUpgradeDataFrame Digi;
   typedef HcalElectronicsSim ElectronicsSim;
+  static constexpr double PreMixFactor = 10.0;
+  static const unsigned PreMixBits = 126;
 };
 
 #endif

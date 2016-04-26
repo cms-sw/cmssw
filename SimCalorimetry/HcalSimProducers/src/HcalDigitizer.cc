@@ -100,6 +100,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHFAmplifier(0),
   theHOAmplifier(0),
   theZDCAmplifier(0),
+  theHFQIE10Amplifier(0),
   theIonFeedback(0),
   theCoderFactory(0),
   theUpgradeCoderFactory(0),
@@ -176,13 +177,16 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHBHEAmplifier->setHBtuningParameter(HBtp);
   theHBHEAmplifier->setHEtuningParameter(HEtp);
   theHFAmplifier->setHFtuningParameter(HFtp);
+  theHFQIE10Amplifier->setHFtuningParameter(HFtp);
   theHOAmplifier->setHOtuningParameter(HOtp);
   theHBHEAmplifier->setUseOldHB(useOldNoiseHB);
   theHBHEAmplifier->setUseOldHE(useOldNoiseHE);
   theHFAmplifier->setUseOldHF(useOldNoiseHF);
+  theHFQIE10Amplifier->setUseOldHF(useOldNoiseHF);
   theHOAmplifier->setUseOldHO(useOldNoiseHO);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
@@ -196,7 +200,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory, PreMix1);
   theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory, PreMix1);
   theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1);
-  theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1); //should this use a different coder factory?
+  theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFQIE10Amplifier, theUpgradeCoderFactory, PreMix1); //should this use a different coder factory?
 
 //  std::cout << "HcalDigitizer: theUpgradeElectronicsSim created" <<  std::endl; 
 
@@ -340,6 +344,7 @@ HcalDigitizer::~HcalDigitizer() {
   if(theHODigitizer)           delete theHODigitizer;
   if(theHOSiPMDigitizer)       delete theHOSiPMDigitizer;
   if(theHFDigitizer)           delete theHFDigitizer;
+  if(theHFQIE10Digitizer)      delete theHFQIE10Digitizer;
   delete theZDCDigitizer;
   if(theHBHEUpgradeDigitizer)  delete theHBHEUpgradeDigitizer;
   if(theHFUpgradeDigitizer)    delete theHFUpgradeDigitizer;
@@ -357,10 +362,12 @@ HcalDigitizer::~HcalDigitizer() {
   delete theZDCElectronicsSim;
   delete theUpgradeHBHEElectronicsSim;
   delete theUpgradeHFElectronicsSim;
+  delete theHFQIE10ElectronicsSim;
   delete theHBHEAmplifier;
   delete theHFAmplifier;
   delete theHOAmplifier;
   delete theZDCAmplifier;
+  delete theHFQIE10Amplifier;
   delete theCoderFactory;
   delete theUpgradeCoderFactory;
   delete theHitCorrection;
@@ -381,8 +388,14 @@ void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
   noiseGenerator->setElectronicsSim(theHFElectronicsSim);
   if(theHFDigitizer) theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setNoiseSignalGenerator(noiseGenerator);
-  if(theHFQIE10Digitizer) theHFQIE10Digitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void HcalDigitizer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  noiseGenerator->setParameterMap(theParameterMap);
+  noiseGenerator->setElectronicsSim(theHFQIE10ElectronicsSim);
+  if(theHFQIE10Digitizer) theHFQIE10Digitizer->setNoiseSignalGenerator(noiseGenerator);
+  theHFQIE10Amplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
@@ -408,6 +421,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
   theZDCAmplifier->setDbService(conditions.product());
+  theHFQIE10Amplifier->setDbService(conditions.product());
   theUpgradeHBHEElectronicsSim->setDbService(conditions.product());
   theUpgradeHFElectronicsSim->setDbService(conditions.product());
   theHFQIE10ElectronicsSim->setDbService(conditions.product());

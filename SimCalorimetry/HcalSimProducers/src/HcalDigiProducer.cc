@@ -75,7 +75,10 @@ HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGene
   theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
 }
 
-
+void
+HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE10NoiseSignalGenerator(noiseGenerator);
+}
 
 CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
   unsigned int index = streamID.value();

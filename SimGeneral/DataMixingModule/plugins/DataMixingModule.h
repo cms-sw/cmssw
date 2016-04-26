@@ -103,6 +103,7 @@ namespace edm {
       std::string HODigiCollectionDM_  ; // secondary name to be given to HO collection of hits
       std::string HFDigiCollectionDM_  ; // secondary name to be given to HF collection of hits
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to ZDC collection of hits
+      std::string QIE10DigiCollectionDM_ ; // secondary name to be given to QIE10 collection of hits
 
       // Muons
       // output:
@@ -144,10 +145,12 @@ namespace edm {
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
+      edm::InputTag QIE10PileInputTag_ ; // InputTag for Pileup Digis collection
       edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
       edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+      edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
       edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
       edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
       edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;

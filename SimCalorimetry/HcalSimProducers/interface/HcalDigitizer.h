@@ -61,6 +61,7 @@ public:
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
@@ -81,11 +82,11 @@ private:
   void darkening(std::vector<PCaloHit>& hcalHits);
   
   /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits>   HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits>   HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits>  ZDCDigitizer;
-  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
+  typedef CaloTDigitizer<HBHEDigitizerTraits,CaloTDigitizerQIE8Run> HBHEDigitizer;
+  typedef CaloTDigitizer<HODigitizerTraits,CaloTDigitizerQIE8Run>   HODigitizer;
+  typedef CaloTDigitizer<HFDigitizerTraits,CaloTDigitizerQIE8Run>   HFDigitizer;
+  typedef CaloTDigitizer<ZDCDigitizerTraits,CaloTDigitizerQIE8Run>  ZDCDigitizer;
+  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits,CaloTDigitizerQIE8Run> UpgradeDigitizer;
   typedef CaloTDigitizer<HcalQIE10DigitizerTraits,CaloTDigitizerQIE10Run> QIE10Digitizer;
 
   HcalSimParameterMap * theParameterMap;
@@ -105,6 +106,7 @@ private:
   HcalAmplifier * theHFAmplifier;
   HcalAmplifier * theHOAmplifier;
   HcalAmplifier * theZDCAmplifier;
+  HcalAmplifier * theHFQIE10Amplifier;
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
