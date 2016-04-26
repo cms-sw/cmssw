@@ -251,9 +251,10 @@ public:
   }
 
   void print() {
-    LOG_ERROR << "CTP7 Payload Header:" << endl;
-    LOG_ERROR << "No BX per L1A = " << dec << nBXPerL1A() << endl;
-    LOG_ERROR << "Calo BX ID    = " << dec << caloLinkBXID() << endl;
+    using namespace std;
+    LogError("UCTCTP7RawData") << "CTP7 Payload Header:" << endl;
+    LogError("UCTCTP7RawData") << "No BX per L1A = " << dec << nBXPerL1A() << endl;
+    LogError("UCTCTP7RawData") << "Calo BX ID    = " << dec << caloLinkBXID() << endl;
     CaloType cType = EBEE;
     bool negativeEta = false;
     bool first = true;
@@ -265,9 +266,9 @@ public:
 	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) LOG_ERROR << "EcalET FG    LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "EcalET FG    LinkStatus" << endl;
 	    first = false;
-	    LOG_ERROR << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << getFB(cType, negativeEta, cEta, iPhi) << "    "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -281,9 +282,9 @@ public:
 	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) LOG_ERROR << "HcalET Feature LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "HcalET Feature LinkStatus" << endl;
 	    first = false;
-	    LOG_ERROR << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << getFB(cType, negativeEta, cEta, iPhi) << "   "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -298,9 +299,9 @@ public:
 	  if(iPhi == 1 && cEta == 40) cEta = 41;
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) LOG_ERROR << "HF-ET    Feature LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "HF-ET    Feature LinkStatus" << endl;
 	    first = false;
-	    LOG_ERROR << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << dec << setfill(' ') << setw(2) << getHFFeatureBits(negativeEta, cEta, iPhi) << "   "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -310,9 +311,9 @@ public:
       }
       first = true;
       for(uint32_t region = 0; region < 7; region++) {
-	if(first) LOG_ERROR << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
+	if(first) LogError("UCTCTP7RawData") << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
 	first = false;
-	LOG_ERROR << dec << setfill(' ') << setw(6) << region
+	LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << region
 	     << "  " << hex << showbase << internal << setfill('0') << setw(6) << getRegionET(negativeEta, region) << dec
 	     << "        " << getRegionEGVeto(negativeEta, region)
 	     << "        " << getRegionTauVeto(negativeEta, region)

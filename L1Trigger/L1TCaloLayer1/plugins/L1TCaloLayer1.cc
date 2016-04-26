@@ -50,6 +50,7 @@
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
 using namespace l1t;
+using namespace l1tcalo;
 
 //
 // class declaration
