@@ -153,22 +153,31 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele15_IsoVVVL_PFHT350_v2', 
     'HLT_Ele15_IsoVVVL_PFHT600_v3', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v2', 
-    'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v3', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_v3', 
-    'HLT_Ele22_eta2p1_WPTight_Gsf_v3', 
     'HLT_Ele23_WPLoose_Gsf_WHbbBoost_v2', 
     'HLT_Ele23_WPLoose_Gsf_v3', 
+    'HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v1', 
+    'HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1', 
+    'HLT_Ele24_eta2p1_WPLoose_Gsf_v1', 
+    'HLT_Ele25_WPTight_Gsf_v1', 
+    'HLT_Ele25_eta2p1_WPLoose_Gsf_v1', 
+    'HLT_Ele25_eta2p1_WPTight_Gsf_v1', 
     'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v2', 
     'HLT_Ele27_WPLoose_Gsf_v1', 
+    'HLT_Ele27_WPTight_Gsf_v1', 
+    'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau32_Trk1_eta2p1_Reg_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v2', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v3', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v2', 
-    'HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v3', 
+    'HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_v2', 
     'HLT_Ele27_eta2p1_WPTight_Gsf_v2', 
+    'HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v1', 
     'HLT_Ele32_eta2p1_WPTight_Gsf_v2', 
     'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_v1', 
+    'HLT_Ele35_WPLoose_Gsf_v1', 
     'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v3', 
+    'HLT_Ele45_WPLoose_Gsf_v1', 
     'HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet140_v1', 
     'HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v1')
 
@@ -423,10 +432,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTau_selector.l1tResults = cms.InputTag('')
 streamA_datasetTau_selector.throw      = cms.bool(False)
-streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v2', 
+streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau32_Trk1_eta2p1_Reg_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v2', 
     'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v4', 
+    'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET110_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v1', 
+    'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_v3')
 
 
@@ -485,6 +497,7 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_Mu20_Mu10_v1', 
     'HLT_Mu27_TkMu8_v2', 
     'HLT_Mu30_TkMu11_v2', 
+    'HLT_Mu3_PFJet40_v1', 
     'HLT_Mu40_TkMu11_v2', 
     'HLT_Mu8_TrkIsoVVL_v3', 
     'HLT_Mu8_v3', 
@@ -514,12 +527,6 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Phi_
     'HLT_Mu7p5_Track3p5_Upsilon_v2', 
     'HLT_Mu7p5_Track7_Upsilon_v2', 
     'HLT_QuadMuon0_Dimuon0_Upsilon_v2')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuPlusX_selector
-streamA_datasetMuPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMuPlusX_selector.l1tResults = cms.InputTag('')
-streamA_datasetMuPlusX_selector.throw      = cms.bool(False)
-streamA_datasetMuPlusX_selector.triggerConditions = cms.vstring('HLT_Mu3_PFJet40_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuonEG_selector
 streamA_datasetMuonEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -553,17 +560,19 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleMuon_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMuon_selector.throw      = cms.bool(False)
-streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIsoMu17_eta2p1_v3', 
+streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIsoMu17_eta2p1_noDzCut_v1', 
+    'HLT_DoubleIsoMu17_eta2p1_v3', 
     'HLT_IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_v1', 
     'HLT_IsoMu16_eta2p1_MET30_v1', 
     'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v4', 
     'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v4', 
-    'HLT_IsoMu17_eta2p1_MediumIsoPFTau35_Trk1_eta2p1_Reg_v3', 
-    'HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v5', 
-    'HLT_IsoMu17_eta2p1_v3', 
     'HLT_IsoMu18_v2', 
-    'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v3', 
+    'HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_v1', 
+    'HLT_IsoMu19_eta2p1_LooseIsoPFTau20_v1', 
+    'HLT_IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v1', 
     'HLT_IsoMu20_v3', 
+    'HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v1', 
+    'HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v1', 
     'HLT_IsoMu22_v2', 
     'HLT_IsoMu24_v1', 
     'HLT_IsoMu27_v3', 
