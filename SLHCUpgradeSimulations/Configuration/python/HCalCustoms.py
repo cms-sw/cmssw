@@ -70,6 +70,7 @@ def customise_HcalPhase0p5(process):
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
         process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+        process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
     
     return process
