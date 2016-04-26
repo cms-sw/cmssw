@@ -93,7 +93,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(doMuonCorrection_) iEvent.getByToken( m_theMuonToken,muons );
 
    // The output Collection
-   std::auto_ptr<vector<math::XYZTLorentzVector> > Hemispheres(new vector<math::XYZTLorentzVector> );
+   std::unique_ptr<vector<math::XYZTLorentzVector> > Hemispheres(new vector<math::XYZTLorentzVector> );
 
    // look at all objects, check cuts and add to filter object
    int n(0);
@@ -106,7 +106,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
   if(n>max_NJ_ && max_NJ_!=-1){
-    iEvent.put(Hemispheres);
+    iEvent.put(std::move(Hemispheres));
     return accNJJets_; // too many jets, accept for timing
   }
 
@@ -119,7 +119,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(muonIt = muons->begin(); muonIt!=muons->end(); muonIt++,index++){ 
       if(std::abs(muonIt->eta()) > muonEta_ || muonIt->pt() < min_Jet_Pt_) continue; // skip muons out of eta range or too low pT
       if(nPassMu >= 2){ // if we have already accepted two muons, accept the event
-	iEvent.put(Hemispheres); // too many muons, accept for timing      
+	iEvent.put(std::move(Hemispheres)); // too many muons, accept for timing      
 	return true;
       }
       muonIndex[nPassMu++] = index;    
@@ -151,12 +151,12 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // 0 muon: 2 hemispheres (2)
   // 1 muon: 2 hemisheress + leadMuP4 + 2 hemispheres (5)
   // 2 muon: 2 hemispheres + leadMuP4 + 2 hemispheres + 2ndMuP4 + 4 Hemispheres (10)
-  iEvent.put(Hemispheres);
+  iEvent.put(std::move(Hemispheres));
   return true;
 }
 
 void
-HLTRHemisphere::ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, const std::vector<math::XYZTLorentzVector>& JETS,
+HLTRHemisphere::ComputeHemispheres(std::unique_ptr<std::vector<math::XYZTLorentzVector> >& hlist, const std::vector<math::XYZTLorentzVector>& JETS,
 				   std::vector<math::XYZTLorentzVector>* extraJets){
   using namespace math;
   using namespace reco;

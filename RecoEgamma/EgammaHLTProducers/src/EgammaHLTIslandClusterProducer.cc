@@ -293,14 +293,14 @@ void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const e
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, true, regions);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  std::unique_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (ecalPart == IslandClusterAlgo::barrel) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }
