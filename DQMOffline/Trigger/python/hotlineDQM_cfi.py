@@ -74,8 +74,8 @@ hotlineDQM_MET = cms.EDAnalyzer('HotlineDQM',
      triggerResults = cms.InputTag('TriggerResults','','HLT'),
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
-     triggerPath = cms.string('HLT_MET250_v'),
-     triggerFilter = cms.InputTag('hltMET250', '', 'HLT'),
+     triggerPath = cms.string('HLT_MET600_v'),
+     triggerFilter = cms.InputTag('hltMETClean590', '', 'HLT'),
 
      useMet = cms.bool(True)
 )
@@ -90,8 +90,8 @@ hotlineDQM_MET_Tight = cms.EDAnalyzer('HotlineDQM',
      triggerResults = cms.InputTag('TriggerResults','','HLT'),
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
-     triggerPath = cms.string('HLT_MET300_v'),
-     triggerFilter = cms.InputTag('hltMET300', '', 'HLT'),
+     triggerPath = cms.string('HLT_MET700_v'),
+     triggerFilter = cms.InputTag('hltMETClean690', '', 'HLT'),
 
      useMet = cms.bool(True)
 )
@@ -106,8 +106,8 @@ hotlineDQM_PFMET = cms.EDAnalyzer('HotlineDQM',
      triggerResults = cms.InputTag('TriggerResults','','HLT'),
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
-     triggerPath = cms.string('HLT_PFMET300_JetIdCleaned_v'),
-     triggerFilter = cms.InputTag('hltPFMET300Filter', '', 'HLT'),
+     triggerPath = cms.string('HLT_PFMET500_v'),
+     triggerFilter = cms.InputTag('hltPFMET500Filter', '', 'HLT'),
 
      usePFMet = cms.bool(True)
 )
@@ -122,8 +122,8 @@ hotlineDQM_PFMET_Tight = cms.EDAnalyzer('HotlineDQM',
      triggerResults = cms.InputTag('TriggerResults','','HLT'),
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
-     triggerPath = cms.string('HLT_PFMET400_JetIdCleaned_v'),
-     triggerFilter = cms.InputTag('hltPFMET400Filter', '', 'HLT'),
+     triggerPath = cms.string('HLT_PFMET600_v'),
+     triggerFilter = cms.InputTag('hltPFMET600Filter', '', 'HLT'),
 
      usePFMet = cms.bool(True)
 )
