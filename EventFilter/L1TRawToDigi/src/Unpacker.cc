@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -11,7 +13,7 @@ namespace l1t {
    void
    getBXRange(int nbx, int& first, int& last)
    {
-      last = floor(nbx / 2.);
+      last = std::floor(nbx / 2.);
       first = std::min(0, -last + (1 - nbx % 2));
    }
 

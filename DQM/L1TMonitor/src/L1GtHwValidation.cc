@@ -2494,6 +2494,3 @@ bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
     return false;
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE( L1GtHwValidation);

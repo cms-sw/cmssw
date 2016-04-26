@@ -36,6 +36,8 @@ namespace l1t {
       static unsigned getTwosComp(const int signedInt, const int width);
 
       static int calcGlobalPhi(int locPhi, tftype t, int proc);
+
+      static int setOutputMuonQuality(int muQual, tftype type, int haloBit);
   };
 }
 #endif /* defined (__l1microgmtconfiguration_h) */

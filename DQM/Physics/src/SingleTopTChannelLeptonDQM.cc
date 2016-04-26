@@ -623,8 +623,8 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
   // loop jet collection
   std::vector<reco::Jet> correctedJets;
-  unsigned int mult = 0, multBEff = 0, multBPur = 0, multNoBPur = 0,
-               multBVtx = 0, multBCombVtx = 0;
+  unsigned int mult = 0, 
+               multBCombVtx = 0,multNoBCombVtx = 0;
 
   edm::Handle<edm::View<reco::Jet>> jets;
   if (!event.getByToken(jets_, jets)) return;
@@ -684,7 +684,34 @@ void MonitorEnsemble::fill(const edm::Event& event,
     if (includeBTag_) {
       // fill b-discriminators
       edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
-      if ((*btagCombVtx)[jetRef] > btagCombVtxWP_) ++multBCombVtx;
+      if ((*btagCombVtx)[jetRef] > btagCombVtxWP_){
+
+       if (multBCombVtx == 0) {
+          TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+          bJetDiscVal.push_back((*btagCombVtx)[jetRef]);
+
+        } else if (multBCombVtx == 1) {
+          bJetDiscVal.push_back((*btagCombVtx)[jetRef]);
+          if (bJetDiscVal[1] > bJetDiscVal[0]) TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+        }
+        ++multBCombVtx;
+      } else {
+        if (multNoBCombVtx == 0) {
+          UnTaggedJetCand = monitorJet;
+          NobJetDiscVal.push_back((*btagCombVtx)[jetRef]);
+
+        } else if (multNoBCombVtx == 1) {
+          NobJetDiscVal.push_back((*btagCombVtx)[jetRef]);
+          if (NobJetDiscVal[1] < NobJetDiscVal[0]) UnTaggedJetCand = monitorJet;
+        }
+
+        ++multNoBCombVtx;
+      }
+
+
+
 
       if (mult == 1) {
         fill("jet1BDiscCombVtx_", (*btagCombVtx)[jetRef]);
@@ -716,7 +743,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     }
   }
 
-  if (multNoBPur == 1 && multBPur == 1) {
+  if (multNoBCombVtx == 1 && multBCombVtx == 1) {
 
     fill("TaggedJetPtEta_", TaggedJetCand.pt(), TaggedJetCand.eta());
     fill("UnTaggedJetPtEta_", UnTaggedJetCand.pt(), UnTaggedJetCand.eta());
@@ -728,9 +755,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   }
 
   fill("jetMult_", mult);
-  fill("jetMultBEff_", multBEff);
-  fill("jetMultBPur_", multBPur);
-  fill("jetMultBVtx_", multBVtx);
+  fill("jetmultBCombVtx_", multBCombVtx);
   fill("jetMultBCombVtx_", multBCombVtx);
 
   /*
@@ -804,7 +829,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
       ++logged_;
     }
   }
-  if (multBPur != 0 && mMultIso == 1) {
+  if (multBCombVtx != 0 && mMultIso == 1) {
 
     double mtW = eventKinematics.tmassWBoson(&mu, mET, TaggedJetCand);
     fill("MTWm_", mtW);
@@ -812,7 +837,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     fill("mMTT_", MTT);
   }
 
-  if (multBPur != 0 && eMultIso == 1) {
+  if (multBCombVtx != 0 && eMultIso == 1) {
     double mtW = eventKinematics.tmassWBoson(&e, mET, TaggedJetCand);
     fill("MTWe_", mtW);
     double MTT = eventKinematics.tmassTopQuark(&e, mET, TaggedJetCand);

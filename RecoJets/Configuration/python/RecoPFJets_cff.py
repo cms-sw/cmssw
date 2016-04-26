@@ -21,6 +21,7 @@ from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCH
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+from RecoJets.JetProducers.ak8PFJetsPuppi_cfi import ak8PFJetsPuppi
 from RecoJets.JetProducers.ak4PFJetsSK_cfi import ak4PFJetsSK
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
@@ -40,6 +41,7 @@ ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
 ak8PFJets.doAreaFastjet = True
+ak8PFJetsPuppi.doAreaFastjet = True
 ak4PFJetsSK.doAreaFastjet = True
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
@@ -139,6 +141,11 @@ ak8PFJetsCHSSoftDrop = ak5PFJetsCHSSoftDrop.clone(
     jetPtMin = 100.0,
     R0 = 0.8
     )
+
+ak8PFJetsPuppiSoftDrop = ak8PFJetsCHSSoftDrop.clone(
+    src = cms.InputTag("puppi")
+    )
+
 
 
 ca8PFJetsCHS = ak8PFJetsCHS.clone(

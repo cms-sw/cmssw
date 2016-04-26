@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake/V3 (CMSSW_8_0_0_pre6_HLT1)
+# /dev/CMSSW_8_0_0/Fake/V13 (CMSSW_8_0_4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V3')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V13')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -146,6 +146,24 @@ fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
+fragment.hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
+    PrintVerbosity = cms.untracked.int32( 10 ),
+    UseL1GlobalTriggerRecord = cms.bool( False ),
+    PrintOutput = cms.untracked.int32( 3 ),
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+)
+fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
+    ReferenceRate = cms.untracked.double( 100.0 ),
+    serviceBy = cms.untracked.string( "never" ),
+    resetBy = cms.untracked.string( "never" ),
+    reportBy = cms.untracked.string( "job" ),
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtDigis + fragment.hltGctDigis + fragment.hltL1GtObjectMap + fragment.hltL1extraParticles )
 fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
@@ -156,10 +174,11 @@ fragment.HLTriggerFirstPath = cms.Path( fragment.hltGetConditions + fragment.hlt
 fragment.HLT_Physics_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePhysics + fragment.HLTEndSequence )
 fragment.HLT_Random_v1 = cms.Path( fragment.hltRandomEventsFilter + fragment.hltGtDigis + fragment.hltPreRandom + fragment.HLTEndSequence )
 fragment.HLT_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1ZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
-fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtDigis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW )
+fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtDigis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
+fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtDigis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1GtTrigReport + fragment.hltTrigReport )
 
 
-fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v1, fragment.HLT_Random_v1, fragment.HLT_ZeroBias_v1, fragment.HLTriggerFinalPath ))
+fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v1, fragment.HLT_Random_v1, fragment.HLT_ZeroBias_v1, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
 # dummyfy hltGetConditions in cff's

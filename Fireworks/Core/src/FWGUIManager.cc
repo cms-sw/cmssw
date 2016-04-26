@@ -1396,6 +1396,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
+   gEve->EnableRedraw();
    // disable first docked view
    checkSubviewAreaIconState(0);
 

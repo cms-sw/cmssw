@@ -565,7 +565,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 	   _set.eta_max[i] >= row->ieta &&
 	   _set.phi_min[i] <= row->iphi &&
 	   _set.phi_max[i] >= row->iphi &&
-	   _coder.HTvalid(row->ieta, row->iphi) ){
+	   _coder.HTvalid(row->ieta, row->iphi, row->idepth / 10) ){
 	lut_index=i;
       }
     }
@@ -878,7 +878,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    const int tp_version = row->idepth / 10;
+    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, tp_version) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
 	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
