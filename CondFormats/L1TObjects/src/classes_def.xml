@@ -10,8 +10,7 @@
     <field name="sparams_" mapping="blob"/>  
     <field name="uparams_" mapping="blob"/>  
   </class>
-  
-  
+    
   <class name="l1t::LUT">
     <field name="data_" mapping="blob"/>  
   </class>
@@ -326,5 +325,22 @@
     <field name="external_map_" mapping="blob" />
     <field name="token_to_condition_" mapping="blob" />
   </class>    
+
+  <class name="L1TGlobalParameters">
+   <field name="m_orderOfChip" mapping="blob" />
+   <field name="m_exp_ints" mapping="blob" />
+   <field name="m_exp_doubles" mapping="blob" />
+  </class>
+
+  <class name="L1TGlobalPrescalesVetos">
+   <field name="prescale_table_" mapping="blob" />
+   <field name="bxmask_map_" mapping="blob" />
+   <field name="veto_" mapping="blob" />
+   <field name="exp_ints_" mapping="blob" />
+   <field name="exp_doubles_" mapping="blob" />
+  </class>
+
+
+
 </lcgdict>
 
