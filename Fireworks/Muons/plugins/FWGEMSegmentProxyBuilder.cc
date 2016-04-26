@@ -1,12 +1,10 @@
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 #include "TGeoArb8.h"
-#include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
@@ -14,37 +12,49 @@
 class FWGEMSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<GEMSegment>
 {
 public:
-  FWGEMSegmentProxyBuilder( void ) {}
-  virtual ~FWGEMSegmentProxyBuilder( void ) {}
+  FWGEMSegmentProxyBuilder() {}
+  virtual ~FWGEMSegmentProxyBuilder() {}
   
+  virtual bool haveSingleProduct() const { return false; }
+
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWGEMSegmentProxyBuilder( const FWGEMSegmentProxyBuilder& );   
-  const FWGEMSegmentProxyBuilder& operator=( const FWGEMSegmentProxyBuilder& );
-
-  void build( const GEMSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+  FWGEMSegmentProxyBuilder(const FWGEMSegmentProxyBuilder&);
+  const FWGEMSegmentProxyBuilder& operator=(const FWGEMSegmentProxyBuilder&); 
+ 
+  using FWSimpleProxyBuilderTemplate<GEMSegment>::buildViewType;
+  virtual void buildViewType(const GEMSegment& iData, 
+                             unsigned int iIndex, 
+                             TEveElement& oItemHolder, 
+                             FWViewType::EType type, 
+                             const FWViewContext*);
 };
 
+
 void
-FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
-				 unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
+FWGEMSegmentProxyBuilder::buildViewType(const GEMSegment& iData,
+					unsigned int iIndex, 
+					TEveElement& oItemHolder, 
+					FWViewType::EType type,
+					const FWViewContext*)
 {
+
   const FWGeometry *geom = item()->getGeom();
   unsigned int rawid = iData.gemDetId().rawId();
   
-  if( ! geom->contains( rawid ))
-    {
-      fwLog(fwlog::kError) << "failed to get geometry of GEM chamber with rawid: " 
-			   << rawid << std::endl;
-      return;
-    }
+  if( !geom->contains( rawid )){
+    fwLog(fwlog::kError) << "failed to get geometry of GEM chamber with rawid: " 
+			 << rawid << std::endl;
+    return;
+  }
   
   TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth( 3 );
   setupAddElement( segmentSet, &oItemHolder );
-
+  segmentSet->SetMarkerColor(item()->defaultDisplayProperties().color());
+  segmentSet->SetMarkerSize(0.5);
   TEveGeoShape* shape = geom->getEveShape( rawid );
   if( shape )
     {    
@@ -80,13 +90,18 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 	  float globalSegmentOuterPoint[3];
 
 	  geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
+
+	  if (type == FWViewType::kRhoPhi && dir.x() == 0 && dir.y() == 0){
+	    segmentSet->AddMarker( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
+	  }
+	  else 
+	    segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
 	  
-	  segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	        
 	}
     }
+  
 }
 
-REGISTER_FWPROXYBUILDER( FWGEMSegmentProxyBuilder, GEMSegment, "GEM-segments", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-
-
+REGISTER_FWPROXYBUILDER( FWGEMSegmentProxyBuilder, GEMSegment, "GEM Segment", 
+                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
