@@ -88,7 +88,9 @@ for tracks in selectedTracks :
 import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
-for step in selectedIterTrackingStep :
+# Create first modules for all possible iterations, select later which
+# ones to actually use based on era
+for step in seedInputTag.iterkeys():
     label = 'TrackSeedMon'+str(step)
     locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
@@ -172,10 +174,16 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0 += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += locals()[label]
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+for era in ["", "trackingLowPU", "trackingPhase1", "trackingPhase1PU70"]:
+    postfix = "_"+era if era != "" else era
+    _seq = cms.Sequence()
+    for step in locals()["selectedIterTrackingStep"+postfix]:
+        _seq += locals()["TrackSeedMon"+step]
+    if era == "":
+        locals()["TrackSeedMonSequence"] = _seq
+    else:
+        getattr(eras, era).toReplaceWith(TrackSeedMonSequence, _seq)
+TrackingDQMSourceTier0 += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
@@ -193,10 +201,7 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0Common += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0Common += locals()[label]
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSourceTier0Common.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+TrackingDQMSourceTier0Common += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
@@ -215,10 +220,7 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
     TrackingDQMSourceTier0MinBias += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0MinBias += locals()[label]
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourceTier0MinBias.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+TrackingDQMSourceTier0MinBias += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'

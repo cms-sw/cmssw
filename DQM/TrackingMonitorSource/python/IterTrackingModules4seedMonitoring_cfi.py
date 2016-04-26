@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-selectedIterTrackingStep = []
-
 seedInputTag      = {}
 trackCandInputTag = {}
 trackSeedSizeBin  = {}
@@ -20,6 +18,24 @@ clusterLabel     ['initialStep'] = cms.vstring('Pix')
 clusterBin       ['initialStep'] = cms.int32(100)
 clusterMax       ['initialStep'] = cms.double(20000)
 
+seedInputTag     ['highPtTripletStep'] = cms.InputTag("highPtTripletStepSeeds")
+trackCandInputTag['highPtTripletStep'] = cms.InputTag("highPtTripletStepTrackCandidates")
+trackSeedSizeBin ['highPtTripletStep'] = cms.int32(100)
+trackSeedSizeMin ['highPtTripletStep'] = cms.double(0)
+trackSeedSizeMax ['highPtTripletStep'] = cms.double(30000)
+clusterLabel     ['highPtTripletStep'] = cms.vstring('Pix')
+clusterBin       ['highPtTripletStep'] = cms.int32(100)
+clusterMax       ['highPtTripletStep'] = cms.double(20000)
+
+seedInputTag     ['lowPtQuadStep'] = cms.InputTag("lowPtQuadStepSeeds")
+trackCandInputTag['lowPtQuadStep'] = cms.InputTag("lowPtQuadStepTrackCandidates")
+trackSeedSizeBin ['lowPtQuadStep'] = cms.int32(100)
+trackSeedSizeMin ['lowPtQuadStep'] = cms.double(0)
+trackSeedSizeMax ['lowPtQuadStep'] = cms.double(30000)
+clusterLabel     ['lowPtQuadStep'] = cms.vstring('Pix')
+clusterBin       ['lowPtQuadStep'] = cms.int32(100)
+clusterMax       ['lowPtQuadStep'] = cms.double(20000)
+
 seedInputTag     ['lowPtTripletStep'] = cms.InputTag("lowPtTripletStepSeeds")
 trackCandInputTag['lowPtTripletStep'] = cms.InputTag("lowPtTripletStepTrackCandidates")
 trackSeedSizeBin ['lowPtTripletStep'] = cms.int32(100)
@@ -37,6 +53,15 @@ trackSeedSizeMax ['pixelPairStep'] = cms.double(100000)
 clusterLabel     ['pixelPairStep'] = cms.vstring('Pix')
 clusterBin       ['pixelPairStep'] = cms.int32(100)
 clusterMax       ['pixelPairStep'] = cms.double(20000)
+
+seedInputTag     ['detachedQuadStep'] = cms.InputTag("detachedQuadStepSeeds")
+trackCandInputTag['detachedQuadStep'] = cms.InputTag("detachedQuadStepTrackCandidates")
+trackSeedSizeBin ['detachedQuadStep'] = cms.int32(100)
+trackSeedSizeMin ['detachedQuadStep'] = cms.double(0)
+trackSeedSizeMax ['detachedQuadStep'] = cms.double(30000)
+clusterLabel     ['detachedQuadStep'] = cms.vstring('Pix')
+clusterBin       ['detachedQuadStep'] = cms.int32(100)
+clusterMax       ['detachedQuadStep'] = cms.double(20000)
 
 seedInputTag     ['detachedTripletStep'] = cms.InputTag("detachedTripletStepSeeds")
 trackCandInputTag['detachedTripletStep'] = cms.InputTag("detachedTripletStepTrackCandidates")
@@ -110,14 +135,53 @@ clusterLabel     ['jetCoreRegionalStep'] = cms.vstring('Tot')
 clusterBin       ['jetCoreRegionalStep'] = cms.int32(500)
 clusterMax       ['jetCoreRegionalStep'] = cms.double(100000)
 
-selectedIterTrackingStep.extend( ['initialStep']  )
-selectedIterTrackingStep.extend( ['lowPtTripletStep']  )
-selectedIterTrackingStep.extend( ['pixelPairStep']  )
-selectedIterTrackingStep.extend( ['detachedTripletStep']  )
-selectedIterTrackingStep.extend( ['mixedTripletStep']  )
-selectedIterTrackingStep.extend( ['pixelLessStep']  )
-selectedIterTrackingStep.extend( ['tobTecStep']  )
-selectedIterTrackingStep.extend( ['jetCoreRegionalStep'] )
-selectedIterTrackingStep.extend( ['muonSeededStepInOut']  )
-selectedIterTrackingStep.extend( ['muonSeededStepOutIn'] )
-#selectedIterTrackingStep.extend( ['muonSeededStepOutInDisplaced'] )
+selectedIterTrackingStep = [
+    'initialStep',
+    'lowPtTripletStep',
+    'pixelPairStep',
+    'detachedTripletStep',
+    'mixedTripletStep',
+    'pixelLessStep',
+    'tobTecStep',
+    'jetCoreRegionalStep',
+    'muonSeededStepInOut',
+    'muonSeededStepOutIn',
+#    'muonSeededStepOutInDisplaced'
+]
+selectedIterTrackingStep_trackingLowPU = [
+    "initialStep",
+    "lowPtTripletStep",
+    "pixelPairStep",
+    "detachedTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+]
+selectedIterTrackingStep_trackingPhase1 = [
+    "initialStep",
+    "highPtTripletStep",
+    "detachedQuadStep",
+#    "detachedTripletStep",
+    "lowPtQuadStep",
+    "lowPtTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "jetCoreRegionalStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+]
+selectedIterTrackingStep_trackingPhase1PU70 = [
+    "initialStep",
+    "highPtTripletStep",
+    "lowPtQuadStep",
+    "lowPtTripletStep",
+    "detachedQuadStep",
+    "mixedTripletStep",
+    "pixelPairStep",
+    "tobTecStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+]
