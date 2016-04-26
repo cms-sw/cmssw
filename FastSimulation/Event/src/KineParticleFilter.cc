@@ -1,5 +1,5 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
-
+#include "FastSimulation/Particle/interface/RawParticle.h"
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -7,7 +7,6 @@
 #include <iterator>
 
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
-  : BaseRawParticleFilter() 
 {
 
   // Set the kinematic cuts
@@ -54,12 +53,12 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
 
 }
 
-bool KineParticleFilter::isOKForMe(const RawParticle* p) const
+bool KineParticleFilter::accept(const RawParticle & particle) const
 {
 
   // Do not consider quarks, gluons, Z, W, strings, diquarks
   // ... and supesymmetric particles
-  int pId = abs(p->pid());
+  int pId = abs(particle.pid());
 
   // Vertices are coming with pId = 0
   if ( pId != 0 ) { 
@@ -76,7 +75,7 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     if ( !particleCut ) return false;
 
     // Keep protons with energy in excess of 5 TeV
-    bool protonTaggers =  (pId == 2212 && p->E() >= EMax) ;
+    bool protonTaggers =  (pId == 2212 && particle.E() >= EMax) ;
     if ( protonTaggers ) return true;
 
     std::set<int>::iterator is = forbiddenPdgCodes.find(pId);
@@ -85,32 +84,32 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   //  bool kineCut = pId == 0;
   // Cut on kinematic properties
     // Cut on the energy of all particles
-    bool eneCut = p->E() >= EMin;
+    bool eneCut = particle.E() >= EMin;
     if (!eneCut) return false;
 
     // Cut on the transverse momentum of charged particles
-    bool pTCut = p->charge()==0 || p->Perp2()>=pTMin;
+    bool pTCut = particle.charge()==0 || particle.Perp2()>=pTMin;
     if (!pTCut) return false;
 
     // Cut on eta if the origin vertex is close to the beam
-    //    bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
-    bool etaCut = (p->vertex()-mainVertex).Perp2()>25. || p->cos2Theta()<= cos2Max;
+    //    bool etaCut = (particle.vertex()-mainVertex).perp()>5. || fabs(particle.eta())<=etaMax;
+    bool etaCut = (particle.vertex()-mainVertex).Perp2()>25. || particle.cos2Theta()<= cos2Max;
 
     /*
     if ( etaCut != etaCut2 ) 
       cout << "WANRNING ! etaCut != etaCut2 " 
 	   << etaCut << " " 
 	   << etaCut2 << " "
-	   << (p->eta()) << " " << etaMax << " " 
-	   << p->vect().cos2Theta() << " " << cos2Max << endl; 
+	   << (particle.eta()) << " " << etaMax << " " 
+	   << particle.vect().cos2Theta() << " " << cos2Max << endl; 
     */
     if (!etaCut) return false;
 
     // Cut on the origin vertex position (prior to the ECAL for all 
     // particles, except for muons  ! Just modified: Muons included as well !
-    double radius2 = p->R2();
-    double zed = fabs(p->Z());
-    double cos2Tet = p->cos2ThetaV();
+    double radius2 = particle.R2();
+    double zed = fabs(particle.Z());
+    double cos2Tet = particle.cos2ThetaV();
     // Ecal entrance
     bool ecalAcc = ( (radius2<129.01*129.01 && zed<317.01) ||
 		     (cos2Tet>cos2PreshMin && cos2Tet<cos2PreshMax 
@@ -120,9 +119,9 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
 
   } else { 
     // Cut for vertices
-    double radius2 = p->Perp2();
-    double zed = fabs(p->Pz());
-    double cos2Tet = p->cos2Theta();
+    double radius2 = particle.Perp2();
+    double zed = fabs(particle.Pz());
+    double cos2Tet = particle.cos2Theta();
 
     // Vertices must be before the Ecal entrance
     bool ecalAcc = ( (radius2<129.01*129.01 && zed<317.01) ||

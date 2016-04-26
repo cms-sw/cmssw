@@ -20,10 +20,9 @@ public:
 
   bool accept(const RawParticle& p) const;
 
-  bool accept(const RawParticle* p) const;
 
   /// Add a BaseRawParticleFilter to be run after executing this one.
-  void addFilter(BaseRawParticleFilter* f);
+    //void addFilter(BaseRawParticleFilter* f);
 
 protected:
 
