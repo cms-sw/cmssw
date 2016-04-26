@@ -11,22 +11,10 @@ dEdxHitMonCommon = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxHitAnalyzer.clone()
 from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
 # Clone for ZeroBias ####
 dEdxMonMB = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxAnalyzer.clone()
-dEdxMonMB.dEdxParameters.andOr         = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
-dEdxMonMB.dEdxParameters.dbLabel       = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
-dEdxMonMB.dEdxParameters.andOrHlt      = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
-dEdxMonMB.dEdxParameters.hltInputTag   = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
-dEdxMonMB.dEdxParameters.hltPaths      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths
-dEdxMonMB.dEdxParameters.hltDBKey      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
-dEdxMonMB.dEdxParameters.errorReplyHlt = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
+dEdxMonMB.dEdxParameters.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTdb
 
 dEdxHitMonMB = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxHitAnalyzer.clone()
-dEdxHitMonMB.dEdxParameters.andOr         = genericTriggerEventFlag4fullTrackerAndHLTdb.andOr
-dEdxHitMonMB.dEdxParameters.dbLabel       = genericTriggerEventFlag4fullTrackerAndHLTdb.dbLabel
-dEdxHitMonMB.dEdxParameters.andOrHlt      = genericTriggerEventFlag4fullTrackerAndHLTdb.andOrHlt
-dEdxHitMonMB.dEdxParameters.hltInputTag   = genericTriggerEventFlag4fullTrackerAndHLTdb.hltInputTag
-dEdxHitMonMB.dEdxParameters.hltPaths      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltPaths
-dEdxHitMonMB.dEdxParameters.hltDBKey      = genericTriggerEventFlag4fullTrackerAndHLTdb.hltDBKey
-dEdxHitMonMB.dEdxParameters.errorReplyHlt = genericTriggerEventFlag4fullTrackerAndHLTdb.errorReplyHlt
+dEdxHitMonMB.dEdxParameters.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTdb
 
 # Clone for SingleMu ####
 dEdxMonMU = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxAnalyzer.clone()

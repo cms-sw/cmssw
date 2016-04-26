@@ -28,11 +28,18 @@ process.maxEvents = cms.untracked.PSet(
 import CondCore.DBCommon.CondDBSetup_cfi
 process.dbInput = cms.ESSource( "PoolDBESSource"
 , CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup
-, connect = cms.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM.db' )
-, toGet   = cms.VPSet(
+#, connect = cms.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM.db' )
+#, toGet   = cms.VPSet(
+#    cms.PSet(
+#      record = cms.string( 'AlCaRecoTriggerBitsRcd' )
+#    , tag    = cms.string( 'AlCaRecoTriggerBits_SiStripDQM_v2_express' )
+#    )
+#  )
+, connect  = cms.string( 'sqlite_file:AlCaRecoTriggerBits_TrackerDQM.db' )
+, toGet    = cms.VPSet(
     cms.PSet(
       record = cms.string( 'AlCaRecoTriggerBitsRcd' )
-    , tag    = cms.string( 'AlCaRecoTriggerBits_SiStripDQM_v2_test' )
+    , tag    = cms.string( 'AlCaRecoTriggerBits_TrackerDQM_v1' )
     )
   )
 )

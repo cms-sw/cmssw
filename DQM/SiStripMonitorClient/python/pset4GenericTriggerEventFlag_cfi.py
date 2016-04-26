@@ -8,6 +8,7 @@ genericTriggerEventFlag4HLTdb = cms.PSet(
    hltPaths      = cms.vstring(""), #cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
    hltDBKey      = cms.string("SiStrip_HLT"),
    errorReplyHlt = cms.bool( False ),
+   verbosityLevel = cms.uint32(1)
 )
 
 genericTriggerEventFlag4L1bd = cms.PSet(
@@ -18,5 +19,6 @@ genericTriggerEventFlag4L1bd = cms.PSet(
 #   errorReplyL1  = cms.bool( True ),
    errorReplyL1  = cms.bool( False ),
    l1DBKey       = cms.string("SiStrip_L1"),
-   l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
+   l1BeforeMask  = cms.bool( True ), # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
+   verbosityLevel = cms.uint32(1)
 )

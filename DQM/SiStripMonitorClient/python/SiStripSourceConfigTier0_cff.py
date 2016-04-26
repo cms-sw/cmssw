@@ -79,26 +79,14 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.andOr         = genericTriggerEventFlag4HLTdb.andOr
-SiStripMonitorTrackMB.dbLabel       = genericTriggerEventFlag4HLTdb.dbLabel
-SiStripMonitorTrackMB.hltInputTag   = genericTriggerEventFlag4HLTdb.hltInputTag
-SiStripMonitorTrackMB.hltPaths      = genericTriggerEventFlag4HLTdb.hltPaths 
-SiStripMonitorTrackMB.hltDBKey      = genericTriggerEventFlag4HLTdb.hltDBKey
-SiStripMonitorTrackMB.errorReplyHlt = genericTriggerEventFlag4HLTdb.errorReplyHlt
-SiStripMonitorTrackMB.andOrHlt      = genericTriggerEventFlag4HLTdb.andOrHlt
+SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.Tracks          = 'generalTracks'
 MonitorTrackResiduals.Mod_On          = False
-MonitorTrackResiduals.andOr           = genericTriggerEventFlag4HLTdb.andOr
-MonitorTrackResiduals.dbLabel         = genericTriggerEventFlag4HLTdb.dbLabel
-MonitorTrackResiduals.hltInputTag     = genericTriggerEventFlag4HLTdb.hltInputTag
-MonitorTrackResiduals.hltPaths        = genericTriggerEventFlag4HLTdb.hltPaths
-MonitorTrackResiduals.hltDBKey        = genericTriggerEventFlag4HLTdb.hltDBKey
-MonitorTrackResiduals.errorReplyHlt   = genericTriggerEventFlag4HLTdb.errorReplyHlt
-MonitorTrackResiduals.andOrHlt        = genericTriggerEventFlag4HLTdb.andOrHlt
+MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 # DQM Services
 dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",

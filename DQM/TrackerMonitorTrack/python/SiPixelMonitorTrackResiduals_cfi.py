@@ -6,6 +6,7 @@ SiPixelMonitorTrackResiduals = cms.EDAnalyzer("SiPixelMonitorTrackResiduals",
     # should histogramms on module level be booked and filled?
     Mod_On = cms.bool(False),
     OutputFileName = cms.string('test_monitortracks.root'),
+    genericTriggerEventPSet = cms.PSet(),                                              
     # bining and range for absolute and normalized residual histogramms
     TH1ResModules = cms.PSet(
         xmin = cms.double(-0.05),   # native unit in CMS is [cm], so these are 500um

@@ -15,6 +15,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     RawDigiLabel    = cms.string('VirginRaw'),
     
     Cluster_src = cms.InputTag('siStripClusters'),
+
+    genericTriggerEventPSet = cms.PSet(),
     
     ModulesToBeExcluded = cms.vuint32(),
     
