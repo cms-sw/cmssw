@@ -25,8 +25,7 @@ upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
 	     '2023LReco': 'auto:run2_mc',
 	     '2023Reco' : 'auto:run2_mc'
              }
-upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
- 		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
+upgradeCustoms={ '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
  		 '2023tilted' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
  		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
  		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
