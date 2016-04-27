@@ -403,6 +403,7 @@ L1TGlobalProducer::~L1TGlobalProducer()
 void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
+
     int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
     int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;		   
 

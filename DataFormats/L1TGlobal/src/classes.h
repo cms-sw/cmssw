@@ -7,17 +7,9 @@
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 
-
 namespace DataFormats_L1TGlobal {
   struct dictionary {
 
-    GlobalAlgBlkBxCollection    uGtAlgBxColl;
-    GlobalExtBlkBxCollection    uGtExtBxColl;    
-
-    edm::Wrapper<GlobalAlgBlkBxCollection>    w_uGtAlgBxColl;
-    edm::Wrapper<GlobalExtBlkBxCollection>    w_uGtExtBxColl;
-    std::vector<GlobalAlgBlk> v_uGtAlgBx;
-    std::vector<GlobalExtBlk> v_uGtExtBx;
     GlobalAlgBlkBxCollection                     dummy1a;
     GlobalExtBlkBxCollection                     dummy1b;    
     edm::Wrapper<GlobalAlgBlkBxCollection>       dummy1c;
@@ -40,8 +32,10 @@ namespace DataFormats_L1TGlobal {
     GlobalLogicParser::TokenRPN                  dummy6a;
     std::vector<GlobalLogicParser::TokenRPN>     dummy6b;
 
-    GlobalObjectMapRecord  uGtObjectMapRecord;
-    edm::Wrapper<GlobalObjectMapRecord> w_uGtObjectMapRecord;    
-    
+    edm::Wrapper<GlobalAlgBlkBxCollection>    w_uGtAlgBxColl;
+    edm::Wrapper<GlobalExtBlkBxCollection>    w_uGtExtBxColl;
+
+    std::vector<GlobalAlgBlk> v_uGtAlgBx;
+    std::vector<GlobalExtBlk> v_uGtExtBx;
   };
 }
