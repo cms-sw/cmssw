@@ -1,7 +1,5 @@
 <lcgdict>
-  <class name="GlobalAlgBlk" ClassVersion="15">
-   <version ClassVersion="15" checksum="1900541189"/>
-   <version ClassVersion="14" checksum="1972925232"/>
+  <class name="GlobalAlgBlk" ClassVersion="13">
    <version ClassVersion="13" checksum="2460401123"/>
    <version ClassVersion="12" checksum="2404151857"/>
    <version ClassVersion="11" checksum="2460401123"/>
