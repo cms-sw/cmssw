@@ -449,3 +449,16 @@ void XmlConfigReader::pruneString(std::string& str)
   }
 }
 
+void XmlConfigReader::pruneString(std::string& str)
+{
+  std::size_t alphanumBegin = str.find_first_not_of("\n ");
+  std::size_t alphanumEnd = str.find_last_not_of("\n ");
+  if (alphanumBegin != std::string::npos) {
+    if (alphanumEnd != std::string::npos) {
+      str = str.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
+    } else {
+      str = str.substr(alphanumBegin);
+    }
+  }
+}
+

@@ -18,7 +18,8 @@ class trigSystem
 		~trigSystem();
 		void configureSystem(const std::string& l1HltKey, const std::string& subSysName);
 		void setHwInfo(/*JSONConfigReader*/);
-		void addProcRole(const std::string& role, const std::string& processor);
+		void addProcRole(const std::string& processor, const std::string& role);
+		void addProcCrate(const std::string& processor, const std::string& crate);
 		void addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
 		void addSettingTable(const std::vector<std::string>& types,  const std::vector<std::string>& rows);
 		void addMask(const std::string& id, const std::string& procRole);
