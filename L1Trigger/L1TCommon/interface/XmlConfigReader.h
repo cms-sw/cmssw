@@ -7,6 +7,7 @@
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/dom/DOM.hpp"
+#include "xercesc/framework/MemBufInputSource.hpp"
 
 namespace XERCES_CPP_NAMESPACE {
 
@@ -41,8 +42,10 @@ class XmlConfigReader {
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
-  void readDOMFromFile(const std::string& fName);
+  void readDOMFromString(const std::string& str, xercesc::DOMDocument*& doc);
+  void readDOMFromString(const std::string& str);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
+  void readDOMFromFile(const std::string& fName);
   void readHwDescription(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
