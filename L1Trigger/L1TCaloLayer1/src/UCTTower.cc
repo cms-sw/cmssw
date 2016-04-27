@@ -110,7 +110,7 @@ bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
   if(hET > etInputMax) {
-    std::cerr << "UCTTower::setData - hcalET too high " << hET << "; Pegged to etInputMax" << std::endl;
+    LOG_ERROR << "UCTTower::setData - hcalET too high " << hET << "; Pegged to etInputMax" << std::endl;
     hcalET = etInputMax;
   }
   if(hFB > 0x3F) {
@@ -127,11 +127,11 @@ bool UCTTower::setHFData(uint32_t fbIn, uint32_t etIn) {
   hcalET = etIn; // We reuse HCAL place as HF
   hcalFB = fbIn;
   if(etIn > etInputMax) {
-    std::cerr << "UCTTower::setData - HF ET too high " << etIn << "; Pegged to etInputMax" << std::endl;
+    LOG_ERROR << "UCTTower::setData - HF ET too high " << etIn << "; Pegged to etInputMax" << std::endl;
     hcalET = etInputMax;
   }
   if(fbIn > 0x3) {
-    std::cerr << "UCTTower::setData - too many HF FeatureBits " << std::hex << fbIn
+    LOG_ERROR << "UCTTower::setData - too many HF FeatureBits " << std::hex << fbIn
 	      << "; Used only bottom 2 bits" << std::endl;
     hcalFB &= 0x3;
   }
