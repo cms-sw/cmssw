@@ -4,6 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 class PHGCalParameters {
 
@@ -68,7 +69,8 @@ public:
   int                      nCells_;
   int                      nSectors_;
   int                      mode_;
-
+  std::vector< std::unordered_map<uint32_t, uint32_t> > copiesInLayers_;
+  
   COND_SERIALIZABLE;
 };
 
