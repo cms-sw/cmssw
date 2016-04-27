@@ -34,11 +34,15 @@ XmlConfigReader::XmlConfigReader() :
   kTagParam(      XMLString::transcode("param")),
   kTagMask(       XMLString::transcode("mask")),
   kTagDisable(    XMLString::transcode("disable")),
+  kTagTypes(      XMLString::transcode("types")),
+  kTagRow(        XMLString::transcode("row")),
   kAttrProcessor( XMLString::transcode("processor")),
   kAttrId(        XMLString::transcode("id")),
   kAttrRole(      XMLString::transcode("role")),
+  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
-  kAttrModule(    XMLString::transcode("module"))
+  kAttrModule(    XMLString::transcode("module")),
+  kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
  
@@ -62,11 +66,15 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagParam(      XMLString::transcode("param")),
   kTagMask(       XMLString::transcode("mask")),
   kTagDisable(    XMLString::transcode("disable")),
+  kTagTypes(      XMLString::transcode("types")),
+  kTagRow(        XMLString::transcode("row")),
   kAttrProcessor( XMLString::transcode("processor")),
   kAttrId(        XMLString::transcode("id")),
   kAttrRole(      XMLString::transcode("role")),
+  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
-  kAttrModule(    XMLString::transcode("module"))
+  kAttrModule(    XMLString::transcode("module")),
+  kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
  
@@ -144,7 +152,8 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, const std::st
       DOMNode* currentNode = processors->item(xx);
       if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
         DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-        aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrRole)), _toString(currentElement->getAttribute(kAttrId)));
+        aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrRole)));
+        aTrigSystem.addProcCrate(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrCrate)));
       }
     }
   }
@@ -166,36 +175,61 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             // found a parameter
             std::string id = _toString(elem->getAttribute(kAttrId));
             std::string type = _toString(elem->getAttribute(kAttrType));
-            std::string value = "";
-            DOMNodeList* valNodes = elem->getChildNodes();
+
             // the type table needs special treatment since it consists of child nodes
-            if (type == "table") {
-              // TODO: handle table type
-              aTrigSystem.addSetting(type, id, value, contextId);
-            } else { // all other types
+            if (type == kTypeTable) {
+              // TODO: implement handling of table
+              // get the column type string
+              //std::string typesStr = "";
+              //DOMNodeList* colTypesElements = elem->getElementsByTagName(kTagTypes);
+              //for (XMLSize_t j = 0; j < colTypesElements->getLength(); ++j) {
+              //  DOMNodeList* colTypesChilds = colTypesElements->item(j)->getChildNodes();
+              //  for (XMLSize_t k = 0; k < colTypesChilds->getLength(); ++k) {
+              //    if (colTypesChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
+              //      typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
+              //      pruneString(typesStr);
+              //    }
+              //  }
+              //}
+
+              //// get the rows
+              //std::vector<std::string> rowStrs;
+              //DOMNodeList* rowElements = elem->getElementsByTagName(kTagRow);
+              //for (XMLSize_t j = 0; j < rowElements->getLength(); ++j) {
+              //  DOMNodeList* rowChilds = rowElements->item(j)->getChildNodes();
+              //  for (XMLSize_t k = 0; k < rowChilds->getLength(); ++k) {
+              //    if (rowChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
+              //      std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
+              //      pruneString(rowStr);
+              //      rowStrs.push_back(rowStr);
+              //    }
+              //  }
+              //}
+
+              //aTrigSystem.addSettingTable(rowStrs, rowStrs);
+
+            } else { // all types other than table
+              std::string value = "";
+              DOMNodeList* valNodes = elem->getChildNodes();
               for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
                 if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
                   value += _toString(valNodes->item(j)->getNodeValue());
                 }
               }
+
               // strip leading and trailing line breaks and spaces
-              std::size_t alphanumBegin = value.find_first_not_of("\n ");
-              std::size_t alphanumEnd = value.find_last_not_of("\n ");
-              if (alphanumBegin != std::string::npos) {
-                if (alphanumEnd != std::string::npos) {
-                  value = value.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
-                } else {
-                  value = value.substr(alphanumBegin);
-                }
-              }
+              pruneString(value);
+
               //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
               aTrigSystem.addSetting(type, id, value, contextId);
             }
+
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
             // found a mask
             std::string id = _toString(elem->getAttribute(kAttrId));
             //std::cout << "mask element node with id attribute " << id << std::endl;
             aTrigSystem.addMask(id, contextId);
+
           } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
             // found a disable
             std::string id = _toString(elem->getAttribute(kAttrId));
@@ -271,4 +305,17 @@ void XmlConfigReader::appendNodesFromSubDoc(DOMNode* parentNode, DOMDocument* su
   }
 }
 
+
+void XmlConfigReader::pruneString(std::string& str)
+{
+  std::size_t alphanumBegin = str.find_first_not_of("\n ");
+  std::size_t alphanumEnd = str.find_last_not_of("\n ");
+  if (alphanumBegin != std::string::npos) {
+    if (alphanumEnd != std::string::npos) {
+      str = str.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
+    } else {
+      str = str.substr(alphanumBegin);
+    }
+  }
+}
 
