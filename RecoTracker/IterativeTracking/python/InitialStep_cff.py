@@ -31,6 +31,10 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
     )
     )
 initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+
 _SeedMergerPSet = cms.PSet(
     layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
     addRemainingTriplets = cms.bool(False),
@@ -43,6 +47,7 @@ eras.trackingPhase1.toModify(initialStepSeeds,
         GeneratorPSet = _PixelQuadrupletGenerator.clone(
             extraHitRZtolerance = initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRZtolerance,
             extraHitRPhitolerance = initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRPhitolerance,
+            SeedComparitorPSet = initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet,
             maxChi2 = dict(
                 pt1    = 0.8, pt2    = 2,
                 value1 = 200, value2 = 100,
@@ -67,9 +72,6 @@ eras.trackingPhase1PU70.toModify(initialStepSeeds,
 )
 
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 eras.trackingLowPU.toModify(initialStepSeeds, OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 100000)))
 
 # building

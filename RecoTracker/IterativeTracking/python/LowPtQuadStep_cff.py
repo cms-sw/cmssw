@@ -70,6 +70,7 @@ eras.trackingPhase1.toModify(lowPtQuadStepSeeds,
         GeneratorPSet = _PixelQuadrupletGenerator.clone(
             extraHitRZtolerance = lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRZtolerance,
             extraHitRPhitolerance = lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRPhitolerance,
+            SeedComparitorPSet = lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet,
             maxChi2 = dict(
                 pt1    = 0.8  , pt2    = 2,
                 value1 = 2000, value2 = 100,

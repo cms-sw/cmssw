@@ -32,12 +32,19 @@ initialStepSeedsPreSplitting = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriple
     )
     )
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayersPreSplitting'
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
+initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
+initialStepSeedsPreSplitting.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
+
 eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string("CombinedHitQuadrupletGenerator"),
         GeneratorPSet = _PixelQuadrupletGenerator.clone(
             extraHitRZtolerance = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRZtolerance,
             extraHitRPhitolerance = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRPhitolerance,
+            SeedComparitorPSet = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet,
             maxChi2 = dict(
                 pt1    = 0.8, pt2    = 2,
                 value1 = 200, value2 = 100,
@@ -57,11 +64,6 @@ eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
     )
 )
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
-initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
-initialStepSeedsPreSplitting.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
