@@ -11,11 +11,10 @@ GlobalParametersRcdSource = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-GlobalParameters = cms.ESProducer("L1TGlobalParamsESProducer",
-
- 
+#GlobalParameters = cms.ESProducer("L1TGlobalParamsESProducer", 
+GlobalParameters = cms.ESProducer("StableParametersTrivialProducer", 
     # bx in event
-    NumberBxInEvent = cms.int32(5),
+    #NumberBxInEvent = cms.int32(5),
 
     # trigger decision
     
@@ -26,10 +25,10 @@ GlobalParameters = cms.ESProducer("L1TGlobalParamsESProducer",
     # trigger objects
 
     # muons
-    NumberL1Mu = cms.uint32(12),
+    NumberL1Muon = cms.uint32(12),
     
     # e/gamma and isolated e/gamma objects
-    NumberL1EG = cms.uint32(12),
+    NumberL1EGamma = cms.uint32(12),
 
     #  jets
     NumberL1Jet = cms.uint32(12),
@@ -48,21 +47,6 @@ GlobalParameters = cms.ESProducer("L1TGlobalParamsESProducer",
     # correspondence "condition chip - GTL algorithm word" in the hardware
     # e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
     OrderOfChip = cms.vint32(1),
-
-    # number of PSB boards in GT
-    #NumberPsbBoards = cms.int32(7),
-
-    # number of bits for eta of calorimeter objects
-    #IfCaloEtaNumberBits = cms.uint32(4),
-    
-    # number of bits for eta of muon objects
-    #IfMuEtaNumberBits = cms.uint32(6),
-    
-    # GT DAQ record organized in words of WordLength bits
-    #WordLength = cms.int32(64),
-
-    # one unit in the word is UnitLength bits
-    #UnitLength = cms.int32(8)
 )
 
 
