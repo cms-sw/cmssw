@@ -23,13 +23,27 @@ class XmlConfigReader {
 
  public:
 
-  const std::string kModuleNameAlgo;
-  const std::string kModuleNameRunSettings;
+  const XMLCh* kTagHw;
+  const XMLCh* kTagAlgo;
+  const XMLCh* kTagRunSettings;
+  const XMLCh* kTagDb;
+  const XMLCh* kTagKey;
+  const XMLCh* kTagLoad;
+  const XMLCh* kTagContext;
+  const XMLCh* kTagParam;
+  const XMLCh* kTagMask;
+  const XMLCh* kTagDisable;
+  const XMLCh* kAttrProcessor;
+  const XMLCh* kAttrId;
+  const XMLCh* kAttrRole;
+  const XMLCh* kAttrType;
+  const XMLCh* kAttrModule;
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
   void readDOMFromFile(const std::string& fName);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
+  void readHwDescription(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
   xercesc::DOMElement* getKeyElement(const std::string& key);
