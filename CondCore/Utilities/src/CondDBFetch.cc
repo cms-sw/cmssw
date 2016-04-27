@@ -213,6 +213,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( L1TUtmObject )
       FETCH_PAYLOAD_CASE( L1TUtmScale )
       FETCH_PAYLOAD_CASE( L1TUtmTriggerMenu )
+      FETCH_PAYLOAD_CASE( L1TGlobalParameters )
       FETCH_PAYLOAD_CASE( L1TriggerKey )
       FETCH_PAYLOAD_CASE( L1TriggerKeyList )
       FETCH_PAYLOAD_CASE( lumi::LumiSectionData )
@@ -286,6 +287,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       FETCH_PAYLOAD_CASE( EcalCondObjectContainer<float> )
       FETCH_PAYLOAD_CASE( MagFieldConfig )
+      FETCH_PAYLOAD_CASE( L1TGlobalPrescalesVetos )
 
       //   
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    

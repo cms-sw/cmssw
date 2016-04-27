@@ -48,8 +48,8 @@ class SiStripDetVOffBuilder
   /** Build the SiStripDetVOff object for transfer. */
   void BuildDetVOffObj();
   /** Return modules Off vector of objects. */
-  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff(const int deltaTmin = 1, const int maxIOVlength = 120) {
-    reduction(deltaTmin, maxIOVlength);
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff() {
+    reduction(deltaTmin_, maxIOVlength_);
     return modulesOff;
   }
   /** Return statistics about payloads transferred for storage in logDB. */
@@ -128,6 +128,7 @@ class SiStripDetVOffBuilder
   bool debug_;
   coral::TimeStamp tmax, tmin, tsetmin;
   std::vector<int> tDefault, tmax_par, tmin_par, tset_par;
+  uint32_t deltaTmin_, maxIOVlength_;
 
   std::string detIdListFile_;
   std::string excludedDetIdListFile_;

@@ -156,7 +156,7 @@ TrackerTopology * SiStripCondObjBuilderFromDb::buildTrackerTopology() {
 // -----------------------------------------------------------------------------
 /** */
 bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label){
-
+  // DEPRECATED. Superseded by SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& typeInfo).
 
   //get current config DB parameter
       
@@ -184,7 +184,43 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
 
   return true;
 }
+// -----------------------------------------------------------------------------
+/** */
+std::string SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& typeInfo){
+  // create config line used by fast O2O
 
+  std::stringstream output;
+
+  SiStripDbParams::const_iterator_range partitionsRange = dbParams().partitions();
+  SiStripDbParams::SiStripPartitions::const_iterator ipart = partitionsRange.begin();
+  SiStripDbParams::SiStripPartitions::const_iterator ipartEnd = partitionsRange.end();
+  for ( ; ipart != ipartEnd; ++ipart ) {
+    SiStripPartition partition=ipart->second;
+    output << "%%" << "Partition: " << partition.partitionName();
+
+    // Make everything depend on cabVersion and maskVersion!
+    output << " CablingVersion: " << partition.cabVersion().first << "." << partition.cabVersion().second;
+    output << " MaskVersion: " << partition.maskVersion().first << "." << partition.maskVersion().second;
+
+    if(typeInfo==typeid(SiStripFedCabling)){
+      // Do nothing. FedCabling only depends on cabVersion and maskVersion.
+    }
+    else if(typeInfo==typeid(SiStripLatency)){
+      // Latency is FEC related, add fecVersion.
+      output << " FecVersion: " << partition.fecVersion().first << "." << partition.fecVersion().second;
+    }else{
+      // BadStrip, Noises, Pedestals and Thresholds are FED related, add fecVersion.
+      output << " FedVersion: " << partition.fedVersion().first << "." << partition.fedVersion().second;
+      if(typeInfo==typeid(SiStripApvGain)){
+        // Not used in O2O.
+        output << " ApvTimingVersion: " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
+      }
+    }
+  }
+
+  return output.str();
+
+}
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCondObjBuilderFromDb::buildCondObj() {
@@ -584,6 +620,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
               
     for ( ; ipair != conns.end(); ++ipair ){
       // Check if the ApvPair is connected
+      if ( !(*ipair) ) continue;
       if ((*ipair)->fedId()!=sistrip::invalid_ && (*ipair)->apvPairNumber()<3){
         // (*ipair)->print(ssMessage);
 	// ssMessage<< std::endl;
@@ -606,11 +643,13 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  << "\n "
 	  << " Unable to find FED connection for detid : " << std::dec << *det_id << " APV pair number " << apvPair
 	  << " Writing default values" << std::endl;
-	(*ipair)->print(ssMessage);
+//	(*ipair)->print(ssMessage); // this will crash!
 	//If no connection was found, add 100 to apvpair
 	apvPair+=100;
 	std::cout << " Put apvPair+100:" << apvPair << " into vector!" << std::endl;
-	p_apvpcon=std::make_pair(apvPair,**ipair);
+	// use dummy FedChannelConnection since it's not used in this case
+	FedChannelConnection dummy;
+	p_apvpcon=std::make_pair(apvPair,dummy);
 	v_apvpcon.push_back(p_apvpcon);
 	apvPair=apvPair-100;
 	continue;

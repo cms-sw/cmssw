@@ -299,6 +299,9 @@ namespace ecaldqm
       bool match(true);
       bool matchFG(true);
 
+      // Loop over real TPs and look for an emulated TP index with matching Et:
+      // If an Et match is found, return TP index correpsonding to BX of emulated TP where match was found
+      // Standard TPG comparison: { TP index:matched BX } = { no emul:No Et match, 0:BX-2, 1:BX-1, 2:in-time, 3:BX+1, 4:BX+2 }
       EcalTrigPrimDigiCollection::const_iterator realItr(realTps_->find(ttid));
       if(realItr != realTps_->end()){
 
@@ -312,14 +315,30 @@ namespace ecaldqm
             if(et != realEt) match = false;
             if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
 
-            std::vector<int> matchedIndex(0);
-            for(int iDigi(0); iDigi < 5; iDigi++){
-              if((*tpItr)[iDigi].compressedEt() == realEt)
-                matchedIndex.push_back(iDigi + 1);
-            }
+	    // NOTE: matchedIndex comparison differs from Standard TPG comparison:
+	    // { matchedIndex:TP index } = { 0:no emul, 1:BX-2, 2:BX-1, 3:in-time, 4:BX+1, 5:BX+2 }
+	    std::vector<int> matchedIndex(0);
+	    // iDigi only loops over explicit Et matches:
+	    // { iDigi:TP index } = { 0:BX-2, 1:BX-1, 2:in-time, 3:BX+1, 4:BX+2 }
+	    for(int iDigi(0); iDigi < 5; iDigi++){
+	      if((*tpItr)[iDigi].compressedEt() == realEt) {
+		// matchedIndex = iDigi + 1
+		if (iDigi != 2) {
+		  matchedIndex.push_back(iDigi + 1);
+		}
+		// If an in-time match is found, exit loop and clear out any other matches:
+		// Ensures multiple matches are not returned (e.g. during saturation)
+		else {
+		  matchedIndex.clear();
+		  matchedIndex.push_back(3); // Et match is to in-time emulated TP
+		  break;
+		}
+	      } // Et match found
+	    } // iDigi
+	    if(!matchedIndex.size()) matchedIndex.push_back(0); // no Et match found => no emul
 
-            if(!matchedIndex.size()) matchedIndex.push_back(0);
-            for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
+	    // Fill matchedIndex ME
+	    for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
               meMatchedIndex.fill(ttid, *matchItr + 0.5);
 
               // timing information is only within emulated TPs (real TPs have one time sample)

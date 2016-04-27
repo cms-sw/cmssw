@@ -52,6 +52,15 @@ namespace DataFormats_L1Trigger {
     edm::Wrapper<l1t::CaloSpareBxCollection> w_caloSpareColl;
     edm::Wrapper<l1t::L1DataEmulResultBxCollection>   w_deResult;
 
+    std::vector<l1t::L1Candidate> v_l1CandidateBx;
+    std::vector<l1t::EGamma> v_eGammaBx;
+    std::vector<l1t::EtSum> v_etSumBx;
+    std::vector<l1t::Jet> v_jetBx;
+    std::vector<l1t::Muon> v_muonBx;
+    std::vector<l1t::Tau> v_tauBx;
+    std::vector<l1t::CaloSpare> v_caloSparseBx;
+    std::vector<l1t::L1DataEmulResult> v_deResult;
+
     l1t::L1CandidateRef   refL1Candidate_;
     l1t::L1CandidateRefVector   refVecL1Candidate_;
     l1t::L1CandidateVectorRef   vecRefL1Candidate_;
