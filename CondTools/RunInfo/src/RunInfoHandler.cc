@@ -25,6 +25,21 @@ void RunInfoHandler::getNewObjects() {
                                    << ", last object valid since " << tagInfo().lastInterval.first
                                    << " token " << tagInfo().lastPayloadToken << std::endl;
   edm::LogInfo( "RunInfoHandler" ) << "runnumber/first since = " << m_since << std::endl;
+
+  //check if a transfer is needed:
+  //if the new run number is smaller than or equal to the latest IOV, exit.
+  //This is needed as now the IOV Editor does not always protect for insertions:
+  //ANY and VALIDATION sychronizations are allowed to write in the past.
+  if( tagInfo().size > 0  && tagInfo().lastInterval.first >= m_since ) {
+    edm::LogWarning( "RunInfoHandler" ) << "------- " << m_name
+                                        << " - > getNewObjects\n"
+                                        << "last IOV " << tagInfo().lastInterval.first
+                                        << ( tagInfo().lastInterval.first == m_since ? " is equal to" : " is larger than" )
+                                        << " the run proposed for insertion " << m_since
+                                        << ". No transfer needed." << std::endl;
+    return;
+  }
+
   RunInfo* r = new RunInfo();
   
   //fill with null runinfo if empty run are found beetween the two last valid ones 
