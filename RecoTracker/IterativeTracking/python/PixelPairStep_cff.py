@@ -1,29 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_pixelPairStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("lowPtTripletStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag("lowPtTripletStepClusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-pixelPairStepClusters = _pixelPairStepClustersBase.clone(
-    trackClassifier                          = cms.InputTag('lowPtTripletStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
-    overrideTrkQuals                         = "lowPtTripletStepSelector:QualityMasks",
-))
-eras.trackingPhase1PU70.toReplaceWith(pixelPairStepClusters, _pixelPairStepClustersBase.clone(
-    trajectories                             = "mixedTripletStepTracks",
-    oldClusterRemovalInfo                    = "mixedTripletStepClusters",
-    overrideTrkQuals                         = "mixedTripletStep",
-))
+pixelPairStepClusters = _cfg.clusterRemoverForIter("PixelPairStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(pixelPairStepClusters, _cfg.clusterRemoverForIter("PixelPairStep", era))
 
 
 # SEEDING LAYERS

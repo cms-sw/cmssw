@@ -1,34 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_lowPtTripletStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("detachedTripletStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-lowPtTripletStepClusters = _lowPtTripletStepClustersBase.clone(
-    trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks"),
-    oldClusterRemovalInfo                    = cms.InputTag("detachedTripletStepClusters"),
-)
-eras.trackingLowPU.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
-    trajectories                             = "initialStepTracks",
-    overrideTrkQuals                         = "initialStepSelector:QualityMasks",
-))
-eras.trackingPhase1.toModify(lowPtTripletStepClusters,
-    trajectories                             = "lowPtQuadStepTracks",
-    oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
-    trackClassifier                          = "lowPtQuadStep:QualityMasks",
-)
-eras.trackingPhase1PU70.toReplaceWith(lowPtTripletStepClusters, _lowPtTripletStepClustersBase.clone(
-    trajectories                             = "lowPtQuadStepTracks",
-    oldClusterRemovalInfo                    = "lowPtQuadStepClusters",
-    overrideTrkQuals                         = "lowPtQuadStepSelector:lowPtQuadStep",
-))
+lowPtTripletStepClusters = _cfg.clusterRemoverForIter("LowPtTripletStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(lowPtTripletStepClusters, _cfg.clusterRemoverForIter("LowPtTripletStep", era))
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
