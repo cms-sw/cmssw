@@ -34,11 +34,15 @@ class XmlConfigReader {
   const XMLCh* kTagParam;
   const XMLCh* kTagMask;
   const XMLCh* kTagDisable;
+  const XMLCh* kTagTypes;
+  const XMLCh* kTagRow;
   const XMLCh* kAttrProcessor;
   const XMLCh* kAttrId;
   const XMLCh* kAttrRole;
+  const XMLCh* kAttrCrate;
   const XMLCh* kAttrType;
   const XMLCh* kAttrModule;
+  const std::string kTypeTable;
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
@@ -60,6 +64,8 @@ class XmlConfigReader {
   xercesc::DOMDocument* doc_;
 
   void appendNodesFromSubDoc(xercesc::DOMNode* parentNode, xercesc::DOMDocument* subDoc);
+  void pruneString(std::string& str);
+
 };
 
 }
