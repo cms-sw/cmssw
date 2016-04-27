@@ -147,5 +147,14 @@ std::vector<std::vector<std::string> > setting::getTableRows()
 	return tempTable;
 }
 
+std::string tableRow::getRowAsStr()
+{
+	std::ostringstream str;
+	for (auto it=_row.begin(); it!=_row.end(); it++)
+		str << *it << " ";
+
+	return str.str();
+}
+
 }
 
