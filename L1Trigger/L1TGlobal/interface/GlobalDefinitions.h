@@ -26,12 +26,7 @@
 namespace l1t {
 /// board types in GT
 enum L1GtBoardType {
-    GTFE,
-    FDL,
-    PSB,
-    GMT,
-    TCS,
-    TIM,
+    MP7,
     BoardNull
 };
 
@@ -43,43 +38,6 @@ struct L1GtBoardTypeStringToEnum {
 L1GtBoardType l1GtBoardTypeStringToEnum(const std::string&);
 std::string l1GtBoardTypeEnumToString(const L1GtBoardType&);
 
-/// quadruples sent to GT via PSB
-enum L1GtPsbQuad {
-    Free,
-    TechTr,
-    IsoEGQ,
-    NoIsoEGQ,
-    CenJetQ,
-    ForJetQ,
-    TauJetQ,
-    ESumsQ,
-    JetCountsQ,
-    MQB1,
-    MQB2,
-    MQF3,
-    MQF4,
-    MQB5,
-    MQB6,
-    MQF7,
-    MQF8,
-    MQB9,
-    MQB10,
-    MQF11,
-    MQF12,
-    CastorQ,
-    HfQ,
-    BptxQ,
-    GtExternalQ,
-    PsbQuadNull
-};
-
-struct L1GtPsbQuadStringToEnum {
-    const char* label;
-    L1GtPsbQuad value;
-};
-
-L1GtPsbQuad l1GtPsbQuadStringToEnum(const std::string&);
-std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad&);
 
 /// condition types
 /// TypeNull:  null type - for condition constructor only
@@ -90,11 +48,6 @@ std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad&);
 /// Type3s : three particles, same type
 /// Type4s : four particles, same type
 /// TypeETM, TypeETT, TypeHTT, TypeHTM  : ETM, ETT, HTT, HTM
-/// TypeJetCounts : JetCounts
-/// TypeCastor : CASTOR condition (logical result only; definition in CASTOR)
-/// TypeHfBitCounts :  HfBitCounts
-/// TypeHfRingEtSums : HfRingEtSums
-/// TypeBptx: BPTX (logical result only; definition in BPTX system)
 /// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
 enum GtConditionType {
     TypeNull,
@@ -108,11 +61,8 @@ enum GtConditionType {
     TypeETT,
     TypeHTT,
     TypeHTM,
-    TypeJetCounts,
-    TypeCastor,
-    TypeHfBitCounts,
-    TypeHfRingEtSums,
-    TypeBptx,
+    TypeETM2,
+    TypeMinBias,
     TypeExternal
 };
 
@@ -130,12 +80,7 @@ enum GtConditionCategory {
     CondMuon,
     CondCalo,
     CondEnergySum,
-    CondJetCounts,
     CondCorrelation,
-    CondCastor,
-    CondHfBitCounts,
-    CondHfRingEtSums,
-    CondBptx,
     CondExternal
 };
 

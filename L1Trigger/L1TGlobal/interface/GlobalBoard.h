@@ -2,7 +2,7 @@
 #define GtBoard_h
 
 /**
- * \class GtBoard
+ * \class GlobalBoard
  *
  *
  * Description: Global Trigger Logic board.
@@ -18,10 +18,8 @@
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-//#include "DataFormats/L1TGlobal/interface/L1TGlobalReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
+
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
 // Trigger Objects
@@ -30,6 +28,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -50,16 +49,16 @@ class L1MuTriggerScales;
 
 namespace l1t {
 
-class GtBoard
+class GlobalBoard
 {
 
 public:
 
     // constructors
-    GtBoard();
+    GlobalBoard();
 
     // destructor
-    virtual ~GtBoard();
+    virtual ~GlobalBoard();
 
 public:
 
@@ -92,13 +91,12 @@ public:
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const int iBxInEvent, std::auto_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
         const int nrL1Tau,	
-        const int nrL1Jet,
-        const int nrL1JetCounts);
+        const int nrL1Jet);
 
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
@@ -115,14 +113,9 @@ public:
      /// Fill the Daq Records
      void fillAlgRecord(int iBxInEvent, 
                         std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
-			cms_uint64_t orbNr,
-			int bxNr);
-			
-     void fillExtRecord(int iBxInEvent,
-     		        std::auto_ptr<GlobalExtBlkBxCollection>& uGtExtRecord,
-			cms_uint64_t orbNr,
-			int bxNr);
-
+			int prescaleSet,
+			int menuUUID,
+			int firmwareUUID);
 
 
     /// clear uGT
@@ -135,13 +128,13 @@ public:
     void printGmtData(const int iBxInEvent) const;
 
     /// return decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const
+    inline const std::bitset<GlobalAlgBlk::maxPhysicsTriggers>& getDecisionWord() const
     {
         return m_gtlDecisionWord;
     }
 
     /// return algorithm OR decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getAlgorithmOR() const
+    inline const std::bitset<GlobalAlgBlk::maxPhysicsTriggers>& getAlgorithmOR() const
     {
         return m_gtlAlgorithmOR;
     }
@@ -253,11 +246,10 @@ private:
     int m_bxFirst_;
     int m_bxLast_;
 
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
+    std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlAlgorithmOR;
+    std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;
     
     GlobalAlgBlk m_uGtAlgBlk;
-    GlobalExtBlk m_uGtExtBlk;
 
     // cache  of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;

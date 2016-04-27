@@ -2,7 +2,7 @@
 #define L1Trigger_L1TGlobal_GtCondition_h
 
 /**
- * \class GtCondition
+ * \class GlobalCondition
  *
  *
  * Description: base class for L1 Global Trigger object templates (condition).
@@ -24,32 +24,32 @@
 #include <iostream>
 
 // user include files
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
-//#include "L1Trigger/L1TGlobal/interface/L1GtObject.h"
-#include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObject.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalDefinitions.h"
 
 // forward declarations
 
+using namespace l1t;
+
 // class declaration
-class GtCondition
+class GlobalCondition
 {
 
 public:
 
     /// constructor(s)
     ///
-    GtCondition();
+    GlobalCondition();
 
     ///   constructor from condition name
-    GtCondition(const std::string& );
+    GlobalCondition(const std::string& );
 
     ///   constructor from condition name, category and type
-    GtCondition(const std::string&,
+    GlobalCondition(const std::string&,
                   const l1t::GtConditionCategory&, const l1t::GtConditionType& );
 
     /// destructor
-    virtual ~GtCondition();
+    virtual ~GlobalCondition();
 
 public:
 
@@ -87,12 +87,12 @@ public:
     }
 
     /// get / set the trigger object type(s) in the condition
-    inline const std::vector<L1GtObject>& objectType() const
+    inline const std::vector<GlobalObject>& objectType() const
     {
         return m_objectType;
     }
 
-    inline void setObjectType(const std::vector<L1GtObject>& objType)
+    inline void setObjectType(const std::vector<GlobalObject>& objType)
     {
         m_objectType = objType;
     }
@@ -148,7 +148,7 @@ public:
     virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const GtCondition&);
+    friend std::ostream& operator<<(std::ostream&, const GlobalCondition&);
 
 protected:
 
@@ -162,7 +162,7 @@ protected:
     l1t::GtConditionType m_condType;
 
     /// the trigger object type(s)
-    std::vector<L1GtObject> m_objectType;
+    std::vector<GlobalObject> m_objectType;
 
     /// the operator used for the condition (>=, =): true for >=
     bool m_condGEq;
