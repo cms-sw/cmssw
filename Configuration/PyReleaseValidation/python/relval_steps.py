@@ -975,10 +975,6 @@ hltKey25ns='relval25ns'
 menuR2_25ns = autoHLT[hltKey25ns]
 steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_25ns'},steps['HLTD'] ] )
 
-hltKey2016='relval2016'
-menuR2_2016 = autoHLT[hltKey2016]
-steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
-
 
 hltKey2016='relval2016'
 menuR2_2016 = autoHLT[hltKey2016]
