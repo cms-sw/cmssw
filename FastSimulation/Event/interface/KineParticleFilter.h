@@ -1,33 +1,29 @@
 #ifndef FastSimulation_Event_KineParticleFilter_H
 #define FastSimulation_Event_KineParticleFilter_H
 
-#include <set>
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 class RawParticle;
 namespace edm { 
-  class ParameterSet;
+    class ParameterSet;
 }
 
 class KineParticleFilter
 {
 public:
     KineParticleFilter(const edm::ParameterSet& kine); 
-    virtual ~KineParticleFilter(){;};
     
-    void setMainVertex(const math::XYZTLorentzVector& mv) { mainVertex=mv; }
+    ~KineParticleFilter(){;}
     
-    const math::XYZTLorentzVector& vertex() const { return mainVertex; }
+    bool acceptParticle(const RawParticle & p) const;
     
-    virtual bool accept(const RawParticle & p) const;
+    bool acceptVertex(const math::XYZTLorentzVector & p) const;
 
 private:
-    
-    double etaMin, etaMax, phiMin, phiMax, pTMin, pTMax, EMin, EMax;
-    double cos2Max, cos2PreshMin, cos2PreshMax;
-    math::XYZTLorentzVector mainVertex;
-    
-    std::set<int>   forbiddenPdgCodes;
+    // see constructor for comments
+    double chargedPtMin2, EMin, protonEMin;
+    double cos2ThetaMax;
+    double vertexRMax2,vertexZMax;
 };
 
 #endif
