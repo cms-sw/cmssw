@@ -35,6 +35,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
+
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 
 using namespace l1t;
@@ -80,6 +81,24 @@ class L1TCaloLayer1Validator : public edm::EDAnalyzer {
   uint32_t nonZeroRegionCount;
   uint32_t badNonZeroRegionCount;
 
+  uint32_t ngRegion[22];
+  uint32_t nbRegion[22];
+  uint32_t zgRegion[22];
+  uint32_t zbRegion[22];
+
+  uint32_t ngCard[18];
+  uint32_t nbCard[18];
+  uint32_t zgCard[18];
+  uint32_t zbCard[18];
+
+  uint32_t tLrEmulTotET;
+  uint32_t tErEmulTotET;
+  uint32_t tGrEmulTotET;
+
+  uint32_t tLeTotET;
+  uint32_t tEeTotET;
+  uint32_t tGeTotET;
+
   bool validateTowers;
   bool validateRegions;
 
@@ -113,9 +132,18 @@ L1TCaloLayer1Validator::L1TCaloLayer1Validator(const edm::ParameterSet& iConfig)
   badRegionCount(0),
   nonZeroRegionCount(0),
   badNonZeroRegionCount(0),
+  tLrEmulTotET(0),
+  tErEmulTotET(0),
+  tGrEmulTotET(0),
+  tLeTotET(0),
+  tEeTotET(0),
+  tGeTotET(0),
   validateTowers(iConfig.getParameter<bool>("validateTowers")),
   validateRegions(iConfig.getParameter<bool>("validateRegions")),
-  verbose(iConfig.getParameter<bool>("verbose")) {}
+  verbose(iConfig.getParameter<bool>("verbose")) {
+  for(uint32_t r = 0; r < 22; r++) ngRegion[r] = nbRegion[r] = zgRegion[r] = zbRegion[r] = 0; 
+  for(uint32_t c = 0; c < 18; c++) ngCard[c] = nbCard[c] = zgCard[c] = zbCard[c] = 0;
+}
 
 L1TCaloLayer1Validator::~L1TCaloLayer1Validator() {}
 
@@ -130,13 +158,22 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    using namespace edm;
    bool badEvent = false;
+   int theBX = 0;
 
+   // Emulator calo towers and regions should always be available - get them
+   // Data will always contain calo regions, but not necessarily calo towers
+
+   edm::Handle<CaloTowerBxCollection> emulTowers;
+   iEvent.getByToken(emulTowerToken, emulTowers);
+   edm::Handle<L1CaloRegionCollection> testRegions;
+   iEvent.getByToken(testRegionToken, testRegions);
+   edm::Handle<L1CaloRegionCollection> emulRegions;
+   iEvent.getByToken(emulRegionToken, emulRegions);
+   
    if(validateTowers) {
+     // Test towers will be available for spy and fat events only
      edm::Handle<CaloTowerBxCollection> testTowers;
      iEvent.getByToken(testTowerToken, testTowers);
-     edm::Handle<CaloTowerBxCollection> emulTowers;
-     iEvent.getByToken(emulTowerToken, emulTowers);
-     int theBX = 0;
      for(std::vector<CaloTower>::const_iterator testTower = testTowers->begin(theBX);
 	 testTower != testTowers->end(theBX);
 	 ++testTower) {
@@ -201,19 +238,18 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    if(validateRegions) {
      UCTGeometry g;
-     edm::Handle<L1CaloRegionCollection> testRegions;
-     iEvent.getByToken(testRegionToken, testRegions);
-     edm::Handle<L1CaloRegionCollection> emulRegions;
-     iEvent.getByToken(emulRegionToken, emulRegions);
+     uint32_t testRegionTotET = 0;
+     uint32_t emulRegionTotET = 0;
      for(std::vector<L1CaloRegion>::const_iterator testRegion = testRegions->begin();
 	 testRegion != testRegions->end();
 	 ++testRegion) {
-       uint16_t test_raw = testRegion->raw();
+       //       uint16_t test_raw = testRegion->raw();
        uint32_t test_et = testRegion->et();
+       testRegionTotET += test_et;
        uint32_t test_rEta = testRegion->id().ieta();
        uint32_t test_rPhi = testRegion->id().iphi();
-       uint32_t test_iEta = (test_raw >> 12) & 0x3;
-       uint32_t test_iPhi = (test_raw >> 14) & 0x3;
+       //       uint32_t test_iEta = (test_raw >> 12) & 0x3;
+       //       uint32_t test_iPhi = (test_raw >> 14) & 0x3;
        bool test_negativeEta = false;
        int test_cEta = (test_rEta - 11) * 4 + 1;//test_iEta + 1;
        if(test_rEta < 11) {
@@ -227,12 +263,13 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        for(std::vector<L1CaloRegion>::const_iterator emulRegion = emulRegions->begin();
 	   emulRegion != emulRegions->end();
 	   ++emulRegion) {
-	 uint16_t emul_raw = emulRegion->raw();
+	 //	 uint16_t emul_raw = emulRegion->raw();
 	 uint32_t emul_et = emulRegion->et();
+	 if(testRegion == testRegions->begin()) emulRegionTotET += emul_et; // increment only once!
 	 uint32_t emul_rEta = emulRegion->id().ieta();
 	 uint32_t emul_rPhi = emulRegion->id().iphi();
-	 uint32_t emul_iEta = (emul_raw >> 12) & 0x3;
-	 uint32_t emul_iPhi = (emul_raw >> 14) & 0x3;
+	 //	 uint32_t emul_iEta = (emul_raw >> 12) & 0x3;
+	 //	 uint32_t emul_iPhi = (emul_raw >> 14) & 0x3;
 	 bool emul_negativeEta = false;
 	 int emul_cEta = (emul_rEta - 11) * 4 + 1;//emul_iEta + 1;
 	 if(emul_rEta < 11) {
@@ -249,25 +286,63 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	   //if(test_iEta != emul_iEta) success = false;
 	   //if(test_iPhi != emul_iPhi) success = false;
 	   if(!success) {
-	     LOG_ERROR << "Checks failed for region ("
+	     if(verbose) LOG_ERROR << "Checks failed for region ("
 		       << std::dec
+		       << test_rEta << ", "
+		       << test_rPhi << ") ("
 		       << test_negativeEta << ", "
 		       << test_crate << ", "
 		       << test_card << ", "
 		       << test_region << ", "
-		       << test_iEta << ", "
-		       << test_iPhi << ", "
+	       //		       << test_iEta << ", "
+	       //                      << test_iPhi << ", "
 		       << test_et << ") != ("
 		       << emul_negativeEta << ", "
 		       << emul_crate << ", "
 		       << emul_card << ", "
 		       << emul_region << ", "
-		       << emul_iEta << ", "
-		       << emul_iPhi << ", "
+	       //		       << emul_iEta << ", "
+	       //		       << emul_iPhi << ", "
 		       << emul_et << ")"<< std::endl;
 	     badEvent = true;
 	     badRegionCount++;
-	     if(test_et > 0) badNonZeroRegionCount++;
+	     if(test_et > 0) {
+	       badNonZeroRegionCount++;
+	       nbRegion[test_rEta]++;
+	       nbCard[test_rPhi]++;
+	     }
+	     else {
+	       zbRegion[test_rEta]++;
+	       zbCard[test_rPhi]++;
+	     }
+	   }
+	   else {
+	     if(test_et > 0) {
+	       ngRegion[test_rEta]++;
+	       ngCard[test_rPhi]++;
+	       if(verbose) LOG_ERROR << "Checks passed for region ("
+			 << std::dec
+			 << test_rEta << ", "
+			 << test_rPhi << ") ("
+			 << test_negativeEta << ", "
+			 << test_crate << ", "
+			 << test_card << ", "
+			 << test_region << ", "
+		 //		       << test_iEta << ", "
+		 //                      << test_iPhi << ", "
+			 << test_et << ") == ("
+			 << emul_negativeEta << ", "
+			 << emul_crate << ", "
+			 << emul_card << ", "
+			 << emul_region << ", "
+		 //		       << emul_iEta << ", "
+		 //		       << emul_iPhi << ", "
+			 << emul_et << ")"<< std::endl;
+	     }
+	     else {
+	       zgRegion[test_rEta]++;
+	       zgCard[test_rPhi]++;
+	     }
 	   }
 	   regionCount++;
 	   if(test_et > 0) nonZeroRegionCount++;
@@ -277,24 +352,55 @@ L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				 << std::dec
 				 << test_rEta << ", "
 				 << test_rPhi << ", "
-				 << test_iEta << ", "
-				 << test_iPhi << ", "
+			 //				 << test_iEta << ", "
+			 //				 << test_iPhi << ", "
 				 << test_et << ") != ("
 				 << emul_rEta << ", "
 				 << emul_rPhi << ", "
-				 << emul_iEta << ", "
-				 << emul_iPhi << ", "
+			 //				 << emul_iEta << ", "
+			 //				 << emul_iPhi << ", "
 				 << emul_et << ")"<< std::endl;
 	 }
        }
      }
+     uint32_t emulTowerTotET = 0;
+     for(std::vector<CaloTower>::const_iterator emulTower = emulTowers->begin(theBX);
+	 emulTower != emulTowers->end(theBX);
+	 ++emulTower) {
+       int twr_et = emulTower->hwPt();
+       int twr_cEta = emulTower->hwEta();
+       int twr_cPhi = emulTower->hwPhi();
+       uint32_t twr_region = g.getRegion(twr_cEta, twr_cPhi);
+       uint32_t twr_gEta = 10 - twr_region;
+       if(twr_cEta > 0) twr_gEta = twr_region + 11;
+       uint32_t twr_gPhi = g.getUCTRegionPhiIndex(twr_cPhi);
+       if(badEvent && twr_et > 0) {
+	 if(verbose) LOG_ERROR << "Non-zero tower in region ("
+		   << twr_gEta << ", "
+		   << twr_gPhi << ") "
+		   << "(cEta, cPhi, et) = (" 
+		   << twr_cEta << ", "
+		   << twr_cPhi << ", "
+		   << twr_et << ")"
+		   << std::endl;
+       }
+       if(std::abs(twr_cEta) <= 28) emulTowerTotET += twr_et; // Exclude HF towers for now
+     }
+     // Increment counters for emulated total tower ET comparison with total region ET
+     if(emulTowerTotET < emulRegionTotET) tLrEmulTotET++;
+     else if(emulTowerTotET > emulRegionTotET) tGrEmulTotET++;
+     else tErEmulTotET++;
+     // Increment counters for emulated total region ET comparison with region test ET
+     if(testRegionTotET < emulRegionTotET) tLeTotET++;
+     else if(testRegionTotET > emulRegionTotET) tGeTotET++;
+     else tEeTotET++;
    }
 
    // Event counters
 
    if(badEvent) badEventCount++;
    eventCount++;
-
+   
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -308,15 +414,26 @@ void
 L1TCaloLayer1Validator::endJob() 
 {
   if(validateTowers)
-    LOG_ERROR << "L1TCaloLayer1Vaidator: Summary is Non-Zero Bad Tower / Bad Tower / Event Count = ("
+    LOG_ERROR << "L1TCaloLayer1Validator: Summary is Non-Zero Bad Tower / Bad Tower / Event Count = ("
 	      << badNonZeroTowerCount << " of " << nonZeroTowerCount << ") / ("
 	      << badTowerCount << " of " << towerCount << ") / ("
 	      << badEventCount << " of " << eventCount << ")" << std::endl;
-  if(validateRegions)
-    LOG_ERROR << "L1TCaloLayer1Vaidator: Summary is Non-Zero Bad Region / Bad Region / Event Count = ("
+  if(validateRegions) {
+    LOG_ERROR << "L1TCaloLayer1Validator: Summary is Non-Zero Bad Region / Bad Region / Event Count = ("
 	      << badNonZeroRegionCount << " of " << nonZeroRegionCount << ") / ("
 	      << badRegionCount << " of " << regionCount << ") / ("
 	      << badEventCount << " of " << eventCount << ")" << std::endl;
+    LOG_ERROR << "L1TCaloLayer1Validator reTa, non-zero-good / non-zero-bad / zero-good / zero-bad region[rEta] = " << std::endl;
+    for(uint32_t r = 0; r < 22; r++) 
+      LOG_ERROR << r << ", " << ngRegion[r] << " / " << nbRegion[r] << " / " << zgRegion[r] << " / " << zbRegion[r] << std::endl;
+    LOG_ERROR << "L1TCaloLayer1Validator rPhi, non-zero-good / non-zero-bad / zero-good / zero-bad region[rPhi] = " << std::endl;
+    for(uint32_t r = 0; r < 18; r++) 
+      LOG_ERROR << r << ", " << ngCard[r] << " / " << nbCard[r] << " / " << zgCard[r] << " / " << zbCard[r] << std::endl;
+    LOG_ERROR << "L1TCaloLayer1Validator : Total ET emulator tower vs region; less / equal / greater counts: "
+	      << tLrEmulTotET << " / " << tErEmulTotET << " / " << tGrEmulTotET << std::endl;
+    LOG_ERROR << "L1TCaloLayer1Validator : Total ET region test vs emulator; less / equal / greater counts: "
+	      << tLeTotET << " / " << tEeTotET << " / " << tGeTotET << std::endl;
+  }
 }
 
 // ------------ method called when starting to processes a run  ------------
