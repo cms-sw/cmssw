@@ -118,6 +118,8 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    } else {
       m_params_helper.setMaskedCaloInputs(std::bitset<28>());
    }
+   m_params_helper.setMaskedEmtfpInputs(emtfpMasked);
+   m_params_helper.setMaskedEmtfnInputs(emtfnMasked);
 
    std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
    std::bitset<12> bmtfMasked;
