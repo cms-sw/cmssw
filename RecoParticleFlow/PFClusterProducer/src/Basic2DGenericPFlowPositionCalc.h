@@ -52,8 +52,8 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
 
  private:
   const int _posCalcNCrystals;
-  const double _logWeightDenom;
-  const double _minAllowedNorm;
+  const float _logWeightDenom;
+  const float _minAllowedNorm;
   
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
