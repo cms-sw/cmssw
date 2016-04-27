@@ -109,6 +109,31 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 }
 
 
+void XmlConfigReader::readRootElement(const std::string& sysId, trigSystem& aTrigSystem)
+{
+  DOMElement* rootElement = doc_->getDocumentElement();
+  if (rootElement) {
+    if (rootElement->getNodeType() == DOMNode::ELEMENT_NODE) {
+      readElement(rootElement, sysId, aTrigSystem);
+    }
+  } else {
+    std::cout << "No xml root element found" << std::endl;
+  }
+}
+
+
+void XmlConfigReader::readElement(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
+{
+  if (XMLString::equals(element->getTagName(), kTagHw)) {
+    // in case this is a HW description
+    readHwDescription(element, sysId, aTrigSystem);
+  } else if (XMLString::equals(element->getTagName(), kTagAlgo) || XMLString::equals(element->getTagName(), kTagRunSettings)) {
+    // in case this is a configuration snippet
+    readContext(element, sysId, aTrigSystem);
+  }
+}
+
+
 void XmlConfigReader::readHwDescription(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
 {
   if (_toString(element->getAttribute(kAttrId)) == sysId) {
@@ -128,56 +153,53 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, const std::st
 
 void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
 {
-  if (XMLString::equals(element->getTagName(), kTagHw)) { // in case this is a HW description
-    readHwDescription(element, sysId, aTrigSystem);
-  } else {
-    if (_toString(element->getAttribute(kAttrId)) == sysId) {
-      DOMNodeList* contextElements = element->getElementsByTagName(kTagContext);
+  if (_toString(element->getAttribute(kAttrId)) == sysId) {
+    DOMNodeList* contextElements = element->getElementsByTagName(kTagContext);
 
-      for (XMLSize_t i = 0; i < contextElements->getLength(); ++i) {
-        DOMElement* contextElement = static_cast<DOMElement*>(contextElements->item(i));
-        std::string contextId = _toString(contextElement->getAttribute(kAttrId));
+    for (XMLSize_t i = 0; i < contextElements->getLength(); ++i) {
+      DOMElement* contextElement = static_cast<DOMElement*>(contextElements->item(i));
+      std::string contextId = _toString(contextElement->getAttribute(kAttrId));
 
-        for (DOMElement* elem = static_cast<DOMElement*>(contextElement->getFirstChild()); elem; elem = static_cast<DOMElement*>(elem->getNextSibling())) {
-          if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
-            if (XMLString::equals(elem->getTagName(), kTagParam)) {
-              // found a parameter
-              std::string id = _toString(elem->getAttribute(kAttrId));
-              std::string type = _toString(elem->getAttribute(kAttrType));
-              std::string value = "";
-              DOMNodeList* valNodes = elem->getChildNodes();
-              // the type table needs special treatment since it consists of child nodes
-              if (type == "table") {
-                // TODO: handle table type
-                aTrigSystem.addSetting(type, id, value, contextId);
-              } else { // all other types
-                for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
-                  if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-                    value += _toString(valNodes->item(j)->getNodeValue());
-                  }
+      for (DOMElement* elem = static_cast<DOMElement*>(contextElement->getFirstChild()); elem; elem = static_cast<DOMElement*>(elem->getNextSibling())) {
+        if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
+          if (XMLString::equals(elem->getTagName(), kTagParam)) {
+            // found a parameter
+            std::string id = _toString(elem->getAttribute(kAttrId));
+            std::string type = _toString(elem->getAttribute(kAttrType));
+            std::string value = "";
+            DOMNodeList* valNodes = elem->getChildNodes();
+            // the type table needs special treatment since it consists of child nodes
+            if (type == "table") {
+              // TODO: handle table type
+              aTrigSystem.addSetting(type, id, value, contextId);
+            } else { // all other types
+              for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
+                if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+                  value += _toString(valNodes->item(j)->getNodeValue());
                 }
-                // strip leading and trailing line breaks and spaces
-                std::size_t alphanumBegin = value.find_first_not_of("\n ");
-                std::size_t alphanumEnd = value.find_last_not_of("\n ");
-                if (alphanumBegin != std::string::npos) {
-                  if (alphanumEnd != std::string::npos) {
-                    value = value.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
-                  } else {
-                    value = value.substr(alphanumBegin);
-                  }
-                }
-                //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-                aTrigSystem.addSetting(type, id, value, contextId);
               }
-            } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
-              // found a mask
-              std::string id = _toString(elem->getAttribute(kAttrId));
-              //std::cout << "mask element node with id attribute " << id << std::endl;
-              aTrigSystem.addMask(id, contextId);
-            } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
-              std::string id = _toString(elem->getAttribute(kAttrId));
-              aTrigSystem.disableDaqProc(id);
+              // strip leading and trailing line breaks and spaces
+              std::size_t alphanumBegin = value.find_first_not_of("\n ");
+              std::size_t alphanumEnd = value.find_last_not_of("\n ");
+              if (alphanumBegin != std::string::npos) {
+                if (alphanumEnd != std::string::npos) {
+                  value = value.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
+                } else {
+                  value = value.substr(alphanumBegin);
+                }
+              }
+              //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
+              aTrigSystem.addSetting(type, id, value, contextId);
             }
+          } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
+            // found a mask
+            std::string id = _toString(elem->getAttribute(kAttrId));
+            //std::cout << "mask element node with id attribute " << id << std::endl;
+            aTrigSystem.addMask(id, contextId);
+          } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
+            // found a disable
+            std::string id = _toString(elem->getAttribute(kAttrId));
+            aTrigSystem.disableDaqProc(id);
           }
         }
       }
