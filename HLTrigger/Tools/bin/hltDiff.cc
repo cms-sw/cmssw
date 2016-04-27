@@ -5,6 +5,7 @@
  */
 
 #include <vector>
+#include <set>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -830,13 +831,24 @@ private:
     Pair(int _v, int _e) : v(_v), e(_e) {};
   };
 
+  struct Event {
+    int run;
+    int lumi;
+    int event;
+
+    Event(int _run, int _lumi, int _event) : run(_run), lumi(_lumi), event(_event) {};
+    bool operator < (const Event& b) const {
+      return std::tie(run, lumi, event) < std::tie(b.run, b.lumi, b.event);
+    }
+  };
+
   struct GenericSummary {
     const JsonOutputProducer& json;
     int id;
     std::string name;
-    std::vector<int> v_gained;
-    std::vector<int> v_lost;
-    std::vector<int> v_changed;
+    std::set<Event> v_gained;
+    std::set<Event> v_lost;
+    std::set<Event> v_changed;
 
     GenericSummary(int _id, const JsonOutputProducer& _json, const std::vector<std::string>& _names) :
       json(_json),
@@ -844,22 +856,22 @@ private:
         name = _names.at(id);
     }
 
-    int addEntry(const JsonOutputProducer::JsonTriggerEventState& _state, bool storeTriggerId = false) {
-      int objectId = _state.tr;
-      if (_state.o.s == State::Pass && _state.n.s == State::Fail) {
-        if (!storeTriggerId) objectId = _state.n.l;
-        v_lost.push_back(objectId);
+    int addEntry(const JsonOutputProducer::JsonEvent& _event, const int _triggerIndex) {
+      const JsonOutputProducer::JsonTriggerEventState& state = _event.triggerStates.at(_triggerIndex);
+      const Event event = Event(_event.run, _event.lumi, _event.event);
+      int moduleId = state.o.l;
+      if (state.o.s == State::Pass && state.n.s == State::Fail) {
+        moduleId = state.n.l;
+        v_lost.insert(event);
       } else 
-      if (_state.o.s == State::Fail && _state.n.s == State::Pass) {
-        if (!storeTriggerId) objectId = _state.o.l;
-        v_gained.push_back(objectId);
+      if (state.o.s == State::Fail && state.n.s == State::Pass) {
+        v_gained.insert(event);
       } else
-      if (_state.o.s == State::Fail && _state.n.s == State::Fail) {
-        if (!storeTriggerId) objectId = _state.o.l;
-        v_changed.push_back(objectId);
+      if (state.o.s == State::Fail && state.n.s == State::Fail) {
+        v_changed.insert(event);
       }
 
-      return objectId;
+      return moduleId;
     }
 
     Pair gained() const {
@@ -885,12 +897,12 @@ private:
       accepted_o(_json.vars.trigger_passed_count.at(id).first), 
       accepted_n(_json.vars.trigger_passed_count.at(id).second) {}
 
-    void addEntry(const JsonOutputProducer::JsonTriggerEventState& _state, const std::vector<std::string>& _moduleNames) {
-      int moduleLabelId = GenericSummary::addEntry(_state, false);
+    void addEntry(const JsonOutputProducer::JsonEvent& _event, const int _triggerIndex, const std::vector<std::string>& _moduleNames) {
+      int moduleLabelId = GenericSummary::addEntry(_event, _triggerIndex);
       // Updating number of events affected by the particular module
       if (m_modules.count(moduleLabelId) == 0) 
         m_modules.emplace(moduleLabelId, GenericSummary(moduleLabelId, json, _moduleNames));
-      m_modules.at(moduleLabelId).addEntry(_state, true);
+      m_modules.at(moduleLabelId).addEntry(_event, _triggerIndex);
     }
 
     Pair gained(int type =0) const {
@@ -937,11 +949,11 @@ private:
 
     // Loop over each affected trigger in each event and add it to the trigger/module summary objects
     for (const JsonOutputProducer::JsonEvent& event : json.events) {
-      for (const JsonOutputProducer::JsonTriggerEventState& state : event.triggerStates) {
-        const int triggerId = state.tr;
-        triggerSummary.at(triggerId).addEntry(state, json.vars.label);
+      for (size_t iTrigger = 0; iTrigger < event.triggerStates.size(); ++iTrigger) {
+        const JsonOutputProducer::JsonTriggerEventState& state = event.triggerStates.at(iTrigger);
+        triggerSummary.at(state.tr).addEntry(event, iTrigger, json.vars.label);
         const int moduleId = state.o.s == State::Fail ? state.o.l : state.n.l;
-        moduleSummary.at(moduleId).addEntry(state, true);
+        moduleSummary.at(moduleId).addEntry(event, iTrigger);
       }
     }
     // Building histograms/graphs out of the summary objects
@@ -961,6 +973,10 @@ private:
     m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers, 0, nTriggers));
     name = "trigger";
     m_graph.emplace(name, new TGraphAsymmErrors(nTriggers));
+    name = "module_changed";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nModules, 0, nModules));
+    name = "module";
+    m_graph.emplace(name, new TGraphAsymmErrors(nModules));
 
     // Filling the per-trigger bins
     for (const TriggerSummary& trig : triggerSummary) {
@@ -973,10 +989,6 @@ private:
       m_histo.at("trigger_lost_frac")->SetBinContent(bin, -trig.lost(1).v);
       m_histo.at("trigger_changed_frac")->SetBinContent(bin, trig.changed(1).v);
       
-      m_histo.at("trigger_accepted")->SetBinError(bin, sqrt(trig.accepted_o));
-      m_histo.at("trigger_gained")->SetBinError(bin, trig.gained().e);
-      m_histo.at("trigger_lost")->SetBinError(bin, trig.lost().e);
-      m_histo.at("trigger_changed")->SetBinError(bin, trig.changed().e);
       m_histo.at("trigger_gained_frac")->SetBinError(bin, trig.gained(1).e);
       m_histo.at("trigger_lost_frac")->SetBinError(bin, trig.lost(1).e);
       m_histo.at("trigger_changed_frac")->SetBinError(bin, trig.changed(1).e);
@@ -985,11 +997,6 @@ private:
       m_graph.at("trigger")->SetPoint(bin, double(trig.id)+0.5, 0);
       m_graph.at("trigger")->SetPointEYhigh(bin, trig.gained(2).v);
       m_graph.at("trigger")->SetPointEYlow(bin, trig.lost(2).v);
-      if (bin == 0) {
-        m_graph.at("trigger")->GetYaxis()->SetTitle("#frac{gained}{lost} [#sigma^{accepted}]");
-        m_graph.at("trigger")->SetTitle("");
-        m_graph.at("trigger")->SetMarkerStyle(7);
-      }
 
       // Skipping triggers that are not affected
       if (trig.m_modules.size() == 0) continue;
@@ -997,7 +1004,6 @@ private:
       // Creating a hisotgram with modules overview for the trigger
       // Filling the per-module bins
       int binMod = 0;
-      printf("%s  nBins: %d\n", trig.name.c_str(), (int)trig.m_modules.size());
       // Filling modules that caused internal changes in the trigger
       name = "module_changed_"+trig.name;
       for (const auto& idModule : trig.m_modules) {
@@ -1025,7 +1031,6 @@ private:
         binMod++;
         if (binMod == 1) {
           m_graph.at(name)->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
-          m_graph.at(name)->SetMarkerStyle(7);
         }
       }
       if (m_graph.count(name) > 0) {
@@ -1036,23 +1041,47 @@ private:
         m_graph.at(name)->GetXaxis()->CenterLabels();
       }
     }
+    // Setting bin labels to the graph axis bins
+    m_graph.at("trigger")->GetYaxis()->SetTitle("#frac{gained}{lost} / accepted - #sigma^{accepted}");
+    m_graph.at("trigger")->GetXaxis()->Set(triggerSummary.size(), 0, triggerSummary.size());
+    for (const TriggerSummary& trig : triggerSummary) {
+      m_graph.at("trigger")->GetXaxis()->SetBinLabel(trig.id+1, trig.name.c_str());
+    }
     // Setting bin labels to the corresponding trigger names
     for (const auto& nameHisto : m_histo) {
       if (nameHisto.first.find("trigger") == std::string::npos) continue;
       const std::vector<std::string>& binLabels = json.vars.trigger;
       TAxis* xAxis = nameHisto.second->GetXaxis();
-      printf("Setting labels to %d bins of histo: %s\n", nameHisto.second->GetNbinsX(), nameHisto.first.c_str());
       for (int bin=0; bin<nameHisto.second->GetNbinsX(); ++bin)
         xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
     }
-    for (const auto& nameGraph : m_graph) {
-      if (nameGraph.first.find("trigger") == std::string::npos) continue;
-      const std::vector<std::string>& binLabels = json.vars.trigger;
-      TAxis* xAxis = nameGraph.second->GetXaxis();
-      for (int bin=0; bin<nameGraph.second->GetN(); ++bin)
-        xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
-      xAxis->CenterLabels();
+
+    // Filling the per-module bins
+    for (const GenericSummary& mod : moduleSummary) {
+      int bin = mod.id + 1;
+      m_histo.at("module_changed")->SetBinContent(bin, mod.changed().v);
+      
+      bin = mod.id;  // Bin numbering starts from 0 for TGraph
+      m_graph.at("module")->SetPoint(bin, double(bin)+0.5, 0);
+      m_graph.at("module")->SetPointEYhigh(bin, mod.gained().v);
+      m_graph.at("module")->SetPointEYlow(bin, mod.lost().v);
     }
+    // Setting bin labels to the corresponding module names
+    m_graph.at("module")->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
+    m_graph.at("module")->GetXaxis()->Set(moduleSummary.size(), 0, moduleSummary.size());
+    for (const GenericSummary& mod : moduleSummary) {
+      m_histo.at("module_changed")->GetXaxis()->SetBinLabel(mod.id+1, mod.name.c_str());
+      m_graph.at("module")->GetXaxis()->SetBinLabel(mod.id+1, mod.name.c_str());
+    }
+    // Setting generic styling to all graphs
+    for (const auto& nameGraph : m_graph) {
+      TGraph* graph = nameGraph.second;
+      graph->SetTitle("");
+      graph->SetMarkerStyle(7);
+      graph->GetXaxis()->CenterLabels();
+
+    }
+
 
   }
 
