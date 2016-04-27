@@ -64,20 +64,6 @@ def customise_Reco(process,pileup):
     # insert the new clusterizer
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
     
-    #process.load('RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi')	
-    #clustersTmp = 'siPixelClustersPreSplitting'
-     # 0. Produce tmp clusters in the first place.
-    #process.siPixelClustersPreSplitting = process.siPixelClusters.clone()
-    #process.siPixelRecHitsPreSplitting = process.siPixelRecHits.clone()
-    #process.siPixelRecHitsPreSplitting.src = clustersTmp
-    #process.pixeltrackerlocalreco.replace(process.siPixelClusters, process.siPixelClustersPreSplitting)
-    #process.pixeltrackerlocalreco.replace(process.siPixelRecHits, process.siPixelRecHitsPreSplitting)
-    #process.clusterSummaryProducer.pixelClusters = clustersTmp
-    itIndex = process.pixeltrackerlocalreco.index(process.siPixelClustersPreSplitting)
-    process.pixeltrackerlocalreco.insert(itIndex, process.siPhase2Clusters)
-    process.pixeltrackerlocalreco.remove(process.siPixelClustersPreSplitting)
-    process.pixeltrackerlocalreco.remove(process.siPixelRecHitsPreSplitting)
-    process.trackerlocalreco.remove(process.clusterSummaryProducer)
     # keep new clusters
     alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
     for a in alist:
@@ -85,7 +71,7 @@ def customise_Reco(process,pileup):
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_siPhase2Clusters_*_*')
 
-#use with latest pixel geometry
+    #use with latest pixel geometry
     process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
     # Need this line to stop error about missing siPixelDigis.
     process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
@@ -110,13 +96,73 @@ def customise_Reco(process,pileup):
     # from RecoTracker_cff.py to RecoTrackerPhase1PU140_cff.py
 
     # remove all the tracking first
-    itIndex=process.globalreco.index(process.trackingGlobalReco)
-    grIndex=process.reconstruction.index(process.globalreco)
+    itIndex=process.globalreco_tracking.index(process.trackingGlobalReco)
+    grIndex=process.globalreco.index(process.globalreco_tracking)
 
-    process.reconstruction.remove(process.globalreco)
-    process.globalreco.remove(process.iterTracking)
-    process.globalreco.remove(process.electronSeedsSeq)
+    process.globalreco.remove(process.globalreco_tracking)
+    process.globalreco_tracking.remove(process.iterTracking)
+    process.globalreco_tracking.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+
+    process.reconstruction_fromRECO.remove(process.initialStepSeedClusterMask)
+    process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.initialStepSeeds)
+    process.reconstruction_fromRECO.remove(process.initialStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.initialStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStepClusters)
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStep)
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.lowPtTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.pixelPairStepSeedClusterMask)
+    process.reconstruction_fromRECO.remove(process.pixelPairStepClusters)
+    process.reconstruction_fromRECO.remove(process.pixelPairStepSeeds)
+    process.reconstruction_fromRECO.remove(process.pixelPairStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.pixelPairStep)
+    process.reconstruction_fromRECO.remove(process.pixelPairStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.pixelPairStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.convClusters)
+    process.reconstruction_fromRECO.remove(process.convLayerPairs)
+    process.reconstruction_fromRECO.remove(process.convStepSelector)
+    process.reconstruction_fromRECO.remove(process.convTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.convStepTracks)
+    process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
+
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+
+    process.reconstruction_fromRECO.remove(process.newCombinedSeeds)
+    process.reconstruction_fromRECO.remove(process.preDuplicateMergingGeneralTracks)
+    process.reconstruction_fromRECO.remove(process.tripletElectronClusterMask)
+    process.reconstruction_fromRECO.remove(process.tripletElectronSeedLayers)
+    process.reconstruction_fromRECO.remove(process.tripletElectronSeeds)
+
+    process.reconstruction_fromRECO.remove(process.detachedQuadStep)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepClusters)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepSeeds)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepTracks)
+    process.reconstruction_fromRECO.remove(process.detachedQuadStepSelector)
+
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepClusters)
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepTracks)
+    process.reconstruction_fromRECO.remove(process.highPtTripletStepSelector)
+
+    process.reconstruction_fromRECO.remove(process.lowPtQuadStepClusters)
+    process.reconstruction_fromRECO.remove(process.lowPtQuadStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.lowPtQuadStepSeeds)
+    process.reconstruction_fromRECO.remove(process.lowPtQuadStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.lowPtQuadStepTracks)
+
     del process.iterTracking
     del process.ckftracks
     del process.ckftracks_woBH
@@ -125,42 +171,49 @@ def customise_Reco(process,pileup):
     del process.trackingGlobalReco
     del process.electronSeedsSeq
     del process.InitialStep
+    del process.HighPtTripletStep
+    del process.LowPtQuadStep
     del process.LowPtTripletStep
-    del process.PixelPairStep
-    del process.DetachedTripletStep
+    del process.DetachedQuadStep
     del process.MixedTripletStep
-    del process.PixelLessStep
+    del process.PixelPairStep
     del process.TobTecStep
     del process.earlyGeneralTracks
-    del process.ConvStep
-    del process.earlyMuons
-    del process.muonSeededStepCore
-    del process.muonSeededStepExtra 
+    #del process.earlyMuons
     del process.muonSeededStep
+    del process.muonSeededStepCore
+    del process.muonSeededStepCoreInOut
+    del process.muonSeededStepExtra 
     del process.muonSeededStepDebug
+    del process.muonSeededStepDebugInOut
+    del process.ConvStep
     
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase2BEPixel10D_cff")
 
-    process.globalreco.insert(itIndex,process.trackingGlobalReco)
-    process.reconstruction.insert(grIndex,process.globalreco)
+    process.globalreco_tracking.insert(itIndex,process.trackingGlobalReco)
+    process.globalreco.insert(grIndex,process.globalreco_tracking)
     #Note process.reconstruction_fromRECO is broken
     
     # End of new tracking configuration which can be removed if new Reconstruction is used.
 
+    process.InitialStepPreSplitting.remove(process.siPixelClusters)
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak7BasicJets)
+    process.reconstruction.remove(process.ak5CastorJets)
+    process.reconstruction.remove(process.ak5CastorJetID)
+    process.reconstruction.remove(process.ak7CastorJets)
+    #process.reconstruction.remove(process.ak7BasicJets)
     process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
     process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
-    process.pixelseedmergerlayers.layerList = cms.vstring('BPix1+BPix2+BPix3+BPix4',
+    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
+    process.PixelSeedMergerQuadruplets.layerList = cms.vstring('BPix1+BPix2+BPix3+BPix4',
 						       'BPix1+BPix2+BPix3+FPix1_pos','BPix1+BPix2+BPix3+FPix1_neg',
 						       'BPix1+BPix2+FPix1_pos+FPix2_pos', 'BPix1+BPix2+FPix1_neg+FPix2_neg',
 						       'BPix1+FPix1_pos+FPix2_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix2_neg+FPix3_neg',
@@ -171,10 +224,47 @@ def customise_Reco(process,pileup):
 						       'FPix5_pos+FPix6_pos+FPix7_pos+FPix8_pos', 'FPix5_neg+FPix6_neg+FPix7_neg+FPix8_neg',
 						       'FPix5_pos+FPix6_pos+FPix7_pos+FPix9_pos', 'FPix5_neg+FPix6_neg+FPix7_neg+FPix9_neg',
 						       'FPix6_pos+FPix7_pos+FPix8_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix8_neg+FPix9_neg')
-    
+
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+    process.siPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
+
+    # As in the phase1 tracking reconstruction,
+    # Remove the pre-cluster-splitting clustering step
+    # To be enabled later together with or after the jet core step is enabled
+    # This snippet must be after the loading of recoFromSimDigis_cff    
+    process.pixeltrackerlocalreco = cms.Sequence(
+        process.siPhase2Clusters +
+        process.siPixelClusters +
+        process.siPixelRecHits
+    )
+    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+
+    # As in the phase1 tracking reconstruction,
+    # Enable, for now, pixel tracks and vertices
+    # To be removed later together with the cluster splitting
+    process.globalreco_tracking.replace(process.standalonemuontracking,
+                                        process.standalonemuontracking+process.recopixelvertexing)
+    process.initialStepSelector.vertices = "pixelVertices"
+    process.highPtTripletStepSelector.vertices = "pixelVertices"
+    process.lowPtQuadStepSelector.vertices = "pixelVertices"
+    process.lowPtTripletStepSelector.vertices = "pixelVertices"
+    process.detachedQuadStepSelector.vertices = "pixelVertices"
+    process.mixedTripletStepSelector.vertices = "pixelVertices"
+    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+    process.pixelPairStepSelector.vertices = "pixelVertices"
+    process.tobTecStepSelector.vertices = "pixelVertices"
+    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+    process.duplicateTrackClassifier.vertices = "pixelVertices"
+    process.convStepSelector.vertices = "pixelVertices"
+    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
+    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
+
     # PixelCPEGeneric #
     process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
     process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
@@ -194,8 +284,8 @@ def customise_Reco(process,pileup):
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
     # End of pixel template needed section
     
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
+    process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
+    process.regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
         hitErrorRZ = cms.double(0.006),
         useErrorsFromParam = cms.bool(True),
@@ -205,7 +295,7 @@ def customise_Reco(process,pileup):
     )
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
@@ -215,9 +305,14 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
 
+    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+
+    # STILL TO DO (when the ph2 PF will be included):
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
-    process=customise_PFlow.customise_extendedTrackerBarrel( process )
+#    process=customise_PFlow.customise_extendedTrackerBarrel( process )
+
  
     return process
 
@@ -226,4 +321,161 @@ def customise_condOverRides(process):
     return process
 
 
+def l1EventContent(process):
+    #extend the event content
+
+    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+    for a in alist:
+        b=a+'output'
+        if hasattr(process,b):
+
+            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
+
+            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+
+            getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
+            getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')
+
+            getattr(process,b).outputCommands.append('keep *_simSiPixelDigis_*_*')
+
+    return process
+
+def customise_DQM(process,pileup):
+    # We cut down the number of iterative tracking steps
+#    process.dqmoffline_step.remove(process.TrackMonStep3)
+#    process.dqmoffline_step.remove(process.TrackMonStep4)
+#    process.dqmoffline_step.remove(process.TrackMonStep5)
+#    process.dqmoffline_step.remove(process.TrackMonStep6)
+    			    #The following two steps were removed
+                            #process.PixelLessStep*
+                            #process.TobTecStep*
+#    process.dqmoffline_step.remove(process.muonAnalyzer)
+#    process.dqmoffline_step.remove(process.jetMETAnalyzer)
+#    process.dqmoffline_step.remove(process.TrackMonStep9)
+#    process.dqmoffline_step.remove(process.TrackMonStep10)
+#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+    # SiPixelRawDataErrorSource doesn't work with Stacks, so take it out
+    process.dqmoffline_step.remove(process.SiPixelRawDataErrorSource)
+
+    # Tracking DQM needs to be migrated for phase2
+    process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
+    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
+
+    # Doesn't work because TriggerResults::HLT is missing
+    process.muonAnalyzer.remove(process.muonRecoOneHLT)
+
+    # Excessive printouts because 2017 doesn't have HLT yet
+    process.SiStripDQMTier0.remove(process.MonitorTrackResiduals)
+    process.SiStripDQMTier0MinBias.remove(process.MonitorTrackResiduals)
+    process.jetMETDQMOfflineSource.remove(process.jetDQMAnalyzerSequence)
+    process.jetMETDQMOfflineSource.remove(process.METDQMAnalyzerSequence)
+    process.dqmPhysics.remove(process.ewkMuDQM)
+    process.dqmPhysics.remove(process.ewkElecDQM)
+    process.dqmPhysics.remove(process.ewkMuLumiMonitorDQM)
+    process.DQMOfflinePrePOG.remove(process.pfTauRunDQMValidation)
+    process.DQMOffline.remove(process.HLTMonitoring)
+    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
+
+    ## DQM for stacks doesn't work yet, so skip adding the outer tracker.
+    ##add Phase 2 Upgrade Outer Tracker
+    #stripIndex=process.DQMOfflinePreDPG.index(process.SiStripDQMTier0)
+    #process.load("DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
+    #process.dqmoffline_step.insert(stripIndex, process.OuterTrackerSource)
+
+    #put isUpgrade flag==true
+    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
+
+    #from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
+    #process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
+    #process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
+    #process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
+    if hasattr(process,"globalrechitsanalyze") : # Validation takes this out if pileup is more than 30
+       process.globalrechitsanalyze.ROUList = cms.vstring(
+          'g4SimHitsTrackerHitsPixelBarrelLowTof',
+          'g4SimHitsTrackerHitsPixelBarrelHighTof',
+          'g4SimHitsTrackerHitsPixelEndcapLowTof',
+          'g4SimHitsTrackerHitsPixelEndcapHighTof')
+    return process
+
+def customise_Validation(process,pileup):
+    process.validation_step.remove(process.PixelTrackingRecHitsValid)
+    process.validation_step.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.trackerHitsValid)
+    process.validation_step.remove(process.StripTrackingRecHitsValid)
+
+    ## This next part doesn't work for stacks yet, so skip adding it.
+    ## Include Phase 2 Upgrade Outer Tracker
+    #stripVIndex=process.globalValidation.index(process.trackerDigisValidation)
+    #process.load("Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
+    #process.validation_step.insert(stripVIndex, process.OuterTrackerSource)
+
+    process.pixelDigisValid.src = cms.InputTag('simSiPixelDigis', "Pixel")
+    process.tpClusterProducer.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel")
+    
+    # No HLT yet for 2017, so no need to run the validation
+    process.hltassociation = cms.Sequence()
+    process.hltvalidation = cms.Sequence()
+    process.validation_step.remove(process.HLTSusyExoValSeq)
+    process.validation_step.remove(process.hltHiggsValidator)
+#    process.validation_step.remove(process.relvalMuonBits)
+    # TrackerHitAssociator needs updating for stacks, so all of the following
+    # need to be taken out. They either require hit association or rely on a
+    # module that does.
+    process.validation_step.remove(process.globalrechitsanalyze)
+    process.validation_step.remove(process.pixRecHitsValid)
+    process.validation_step.remove(process.recoMuonValidation)
+    
+    if pileup>30:
+        process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
+        process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
+        process.globalValidation.remove(process.recoMuonValidation)
+        process.validation.remove(process.recoMuonValidation)
+        process.validation_preprod.remove(process.recoMuonValidation)
+        process.validation_step.remove(process.recoMuonValidation)
+        process.validation.remove(process.globalrechitsanalyze)
+        process.validation_prod.remove(process.globalrechitsanalyze)
+        process.validation_step.remove(process.globalrechitsanalyze)
+        process.validation.remove(process.stripRecHitsValid)
+        process.validation_step.remove(process.stripRecHitsValid)
+        process.validation_step.remove(process.StripTrackingRecHitsValid)
+        process.globalValidation.remove(process.vertexValidation)
+        process.validation.remove(process.vertexValidation)
+        process.validation_step.remove(process.vertexValidation)
+        process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
+        process.mix.minBunch = cms.int32(0)
+        process.mix.maxBunch = cms.int32(0)
+
+    if hasattr(process,'simHitTPAssocProducer'):
+        process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
+                                                              cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
+    if hasattr(process,'trackingParticleNumberOfLayersProducer'):
+        process.trackingParticleNumberOfLayersProducer.simHits=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
+                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
+
+    return process
+
+def customise_harvesting(process):
+    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
+    process.dqmHarvesting.remove(process.dataCertificationJetMET)
+    process.dqmHarvesting.remove(process.sipixelEDAClient)
+    process.dqmHarvesting.remove(process.sipixelCertification)
+
+    # Include Phase 2 Upgrade Outer Tracker
+    strip2Index=process.DQMOffline_SecondStep_PreDPG.index(process.SiStripOfflineDQMClient)
+    process.load("DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff")
+    process.dqmHarvesting.insert(strip2Index, process.OuterTrackerClient)
+
+    strip2VIndex=process.postValidation.index(process.bTagCollectorSequenceMCbcl)
+    process.load("Validation.Phase2OuterTracker.OuterTrackerClientConfig_cff")
+    process.validationHarvesting.insert(strip2VIndex, process.OuterTrackerClient)
+    return (process)
 
