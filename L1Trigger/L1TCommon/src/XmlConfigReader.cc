@@ -75,6 +75,24 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
 }
 
 
+void XmlConfigReader::readDOMFromString(const std::string& str, DOMDocument*& doc)
+{
+  MemBufInputSource xmlstr_buf((const XMLByte*)(str.c_str()), str.size(), "xmlstrbuf");
+  parser_->parse(xmlstr_buf);
+  doc = parser_->getDocument();
+  assert(doc);
+}
+
+
+void XmlConfigReader::readDOMFromString(const std::string& str)
+{
+  MemBufInputSource xmlstr_buf((const XMLByte*)(str.c_str()), str.size(), "xmlstrbuf");
+  parser_->parse(xmlstr_buf);
+  doc_ = parser_->getDocument();
+  assert(doc_);
+}
+
+
 void XmlConfigReader::readDOMFromFile(const std::string& fName, DOMDocument*& doc)
 {
   parser_->parse(fName.c_str()); 
@@ -200,6 +218,7 @@ DOMElement* XmlConfigReader::getKeyElement(const std::string& key)
   }
   return nullptr;
 }
+
 
 void XmlConfigReader::buildGlobalDoc(const std::string& key)
 {
