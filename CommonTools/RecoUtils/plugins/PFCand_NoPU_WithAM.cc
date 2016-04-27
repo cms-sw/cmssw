@@ -92,8 +92,8 @@ void
 PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	auto_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection() );
-	auto_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection() );
+	unique_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection() );
+	unique_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection() );
 
 	bool p2vassmap = false;
 	bool v2passmap = false;
@@ -149,7 +149,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  }
 
-          iEvent.put( p2v_firstvertex, "P2V" );
+          iEvent.put(std::move(p2v_firstvertex), "P2V" );
 
 	}
 
@@ -180,7 +180,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  }
 
-          iEvent.put( v2p_firstvertex, "V2P" );
+          iEvent.put(std::move(v2p_firstvertex), "V2P" );
 
 	}
 }

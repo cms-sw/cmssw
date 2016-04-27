@@ -117,7 +117,7 @@ namespace reco {
     Handle<C1> cands;
     evt.getByToken(srcToken_, cands);
     // create product
-    auto_ptr<MatchMap> matchMap(new MatchMap(matched));
+    unique_ptr<MatchMap> matchMap(new MatchMap(matched));
     size_t size = cands->size();
     if( size != 0 ) {
       //
@@ -189,7 +189,7 @@ namespace reco {
       filler.insert(master.get(), indices.begin(), indices.end());
       filler.fill();
     }
-    evt.put(matchMap);
+    evt.put(std::move(matchMap));
   }
 
 }

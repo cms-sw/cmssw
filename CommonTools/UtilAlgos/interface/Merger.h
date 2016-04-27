@@ -56,7 +56,7 @@ Merger<InputCollection, OutputCollection, P>::~Merger() {
 
 template<typename InputCollection, typename OutputCollection, typename P>
 void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup&) {
-  std::auto_ptr<OutputCollection> coll( new OutputCollection );
+  std::unique_ptr<OutputCollection> coll( new OutputCollection );
   for( typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++ s ) {
     edm::Handle<InputCollection> h;
     evt.getByToken( * s, h );
@@ -64,7 +64,7 @@ void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, con
       coll->push_back( P::clone( * c ) );
     }
   }
-  evt.put( coll );
+  evt.put(std::move(coll));
 }
 
 #endif
