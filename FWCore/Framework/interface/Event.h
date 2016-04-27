@@ -227,7 +227,7 @@ namespace edm {
     size_t size() const;
 
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
-    virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
+    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 

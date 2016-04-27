@@ -224,12 +224,13 @@ namespace edmtest {
       }
     }
 
-    edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName("HLT");
-    if(resultsByNameHLT.isValid() && expectedTriggerResultsHLT_.size() > 0) {
+    edm::InputTag tag("TriggerResults", "", "HLT");
+    edm::Handle<edm::TriggerResults> hTriggerResults;
+    e.getByLabel(tag, hTriggerResults);
 
-      edm::InputTag tag("TriggerResults", "", "HLT");
-      edm::Handle<edm::TriggerResults> hTriggerResults;
-      e.getByLabel(tag, hTriggerResults);
+    if(hTriggerResults.isValid() && expectedTriggerResultsHLT_.size() > 0) {
+
+      edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName(*hTriggerResults);
 
       if(hTriggerResults->parameterSetID() != resultsByNameHLT.parameterSetID() ||
            hTriggerResults->wasrun() != resultsByNameHLT.wasrun() ||
@@ -269,7 +270,15 @@ namespace edmtest {
     }
 
     if(expectedTriggerResultsHLT_.size() > iEvent_) {
-      edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName("HLT");
+
+      if(!hTriggerResults.isValid()) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Invalid TriggerResults Handle for HLT" << std::endl;
+        abort();
+      }
+
+      edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName(*hTriggerResults);
+
       if(!resultsByNameHLT.isValid()) {
         std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
                   << "Invalid object for HLT" << std::endl;
@@ -284,8 +293,19 @@ namespace edmtest {
                 << std::endl;
     }
 
+    edm::InputTag tagPROD("TriggerResults", "", "PROD");
+    edm::Handle<edm::TriggerResults> hTriggerResultsPROD;
+    e.getByLabel(tagPROD, hTriggerResultsPROD);
+
     if(expectedTriggerResultsPROD_.size() > iEvent_) {
-      edm::TriggerResultsByName resultsByNamePROD = e.triggerResultsByName("PROD");
+
+      if(!hTriggerResultsPROD.isValid()) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Invalid TriggerResults Handle for PROD" << std::endl;
+        abort();
+      }
+
+      edm::TriggerResultsByName resultsByNamePROD = e.triggerResultsByName(*hTriggerResultsPROD);
       if(!resultsByNamePROD.isValid()) {
         std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
                   << "Invalid object for PROD" << std::endl;
@@ -297,13 +317,6 @@ namespace edmtest {
         abort();
       }
       std::cout << "Event " << iEvent_ << "  " << resultsByNamePROD.accept("p1") << std::endl;
-    }
-
-    edm::TriggerResultsByName resultsByNameNONE = e.triggerResultsByName("NONE");
-    if(resultsByNameNONE.isValid()) {
-      std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
-                << "Object is valid with nonexistent process name" << std::endl;
-      abort();
     }
     ++iEvent_;
   }
