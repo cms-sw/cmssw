@@ -38,7 +38,7 @@ void trigSystem::configureSystem(const std::string& l1HltKey, const std::string&
 }
 
 
-void trigSystem::addProcRole(const std::string& role, const std::string& processor)
+void trigSystem::addProcRole(const std::string& processor, const std::string& role)
 {
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
 	{
@@ -52,6 +52,11 @@ void trigSystem::addProcRole(const std::string& role, const std::string& process
 
 	_procEnabled[processor] = true;
 
+}
+
+void trigSystem::addProcCrate(const std::string& processor, const std::string& crate)
+{
+	_daqttcProcs[crate].push_back(processor);
 }
 
 void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
