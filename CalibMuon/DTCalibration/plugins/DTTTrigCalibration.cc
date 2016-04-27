@@ -46,6 +46,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+  consumes< DTDigiCollection >(edm::InputTag(digiLabel));
 
   // Switch on/off the DB writing
   findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", false);
