@@ -5,81 +5,39 @@ process = cms.Process("process")
 
 ### Load cfis ###
 
+process.load("DQM.Integration.config.inputsource_cfi")
+process.load("DQM.Integration.config.environment_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+
+process.load("FWCore.Modules.preScaler_cfi")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 #process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
-process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi")
-process.load("L1Trigger.Configuration.L1RawToDigi_cff")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.EcalMapping.EcalMapping_cfi")
+#process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+#process.load("L1Trigger.Configuration.L1RawToDigi_cff")
+#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi")
+
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+#process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
+#process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
+#process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+#process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+#process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+#process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+#process.load("RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff")
+#process.load("RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff")
+
 process.load("DQM.EcalMonitorTasks.EcalMonitorTask_cfi")
 process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
-process.load("DQM.Integration.config.environment_cfi")
-process.load("FWCore.Modules.preScaler_cfi")
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-process.load("DQM.Integration.config.inputsource_cfi")
 
 ### Individual module setups ###
-
-process.ecalDigis = cms.EDProducer("EcalRawToDigi",
-    tccUnpacking = cms.bool(True),
-    FedLabel = cms.InputTag("listfeds"),
-    srpUnpacking = cms.bool(True),
-    syncCheck = cms.bool(True),
-    feIdCheck = cms.bool(True),
-    silentMode = cms.untracked.bool(True),
-    InputLabel = cms.InputTag("rawDataCollector"),
-    orderedFedList = cms.vint32(601, 602, 603, 604, 605, 
-        606, 607, 608, 609, 610, 
-        611, 612, 613, 614, 615, 
-        616, 617, 618, 619, 620, 
-        621, 622, 623, 624, 625, 
-        626, 627, 628, 629, 630, 
-        631, 632, 633, 634, 635, 
-        636, 637, 638, 639, 640, 
-        641, 642, 643, 644, 645, 
-        646, 647, 648, 649, 650, 
-        651, 652, 653, 654),
-    eventPut = cms.bool(True),
-    numbTriggerTSamples = cms.int32(1),
-    numbXtalTSamples = cms.int32(10),
-    orderedDCCIdList = cms.vint32(1, 2, 3, 4, 5, 
-        6, 7, 8, 9, 10, 
-        11, 12, 13, 14, 15, 
-        16, 17, 18, 19, 20, 
-        21, 22, 23, 24, 25, 
-        26, 27, 28, 29, 30, 
-        31, 32, 33, 34, 35, 
-        36, 37, 38, 39, 40, 
-        41, 42, 43, 44, 45, 
-        46, 47, 48, 49, 50, 
-        51, 52, 53, 54),
-    FEDs = cms.vint32(601, 602, 603, 604, 605, 
-        606, 607, 608, 609, 610, 
-        611, 612, 613, 614, 615, 
-        616, 617, 618, 619, 620, 
-        621, 622, 623, 624, 625, 
-        626, 627, 628, 629, 630, 
-        631, 632, 633, 634, 635, 
-        636, 637, 638, 639, 640, 
-        641, 642, 643, 644, 645, 
-        646, 647, 648, 649, 650, 
-        651, 652, 653, 654),
-    DoRegional = cms.bool(False),
-    feUnpacking = cms.bool(True),
-    forceToKeepFRData = cms.bool(False),
-    headerUnpacking = cms.bool(True),
-    memUnpacking = cms.bool(True)
-)
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     cosmics = cms.untracked.uint32(1),
@@ -186,6 +144,7 @@ elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
     process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
     process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
+    process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"

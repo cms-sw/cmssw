@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ecalPresampleTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
+        doPulseMaxCheck = cms.untracked.bool(True),
         pulseMaxPosition = cms.untracked.int32(5),
         nSamples = cms.untracked.int32(3)
     ),

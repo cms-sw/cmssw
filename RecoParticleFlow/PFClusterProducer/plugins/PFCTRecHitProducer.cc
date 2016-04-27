@@ -23,6 +23,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -856,36 +857,22 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
       <<layer<<endl;
     return 0;
   }
-  
-  const GlobalPoint& position = thisCell->getPosition();
-  
-  double depth_correction = 0.;
+    
   switch ( layer ) { 
   case PFLayer::HF_EM:
-    depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
-    break;
   case PFLayer::HF_HAD:
-    depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+  {
+    auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+    assert(zp);
+    thisCell = zp->forPF();
+  }
     break;
   default:
     break;
   }
 
   reco::PFRecHit *rh = 
-    new reco::PFRecHit( newDetId.rawId(),  layer, energy, 
-			position.x(), position.y(), position.z()+depth_correction, 
-			0,0,0 );
- 
-  
-  
-  
-  // set the corners
-  const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-
-  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z()+depth_correction );
-  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z()+depth_correction );
-  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z()+depth_correction );
-  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z()+depth_correction );
+    new reco::PFRecHit(thisCell, newDetId.rawId(),  layer, energy);
  
   return rh;
 }

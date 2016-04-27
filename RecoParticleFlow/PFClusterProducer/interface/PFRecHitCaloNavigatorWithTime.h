@@ -119,15 +119,14 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
     double sigma2=10000.0;
     
-    const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
-				      temp,
+				      id,
 				      [](const reco::PFRecHit& a, 
-					 const reco::PFRecHit& b){
-					if (DetId(a.detId()).det() == DetId::Hcal || DetId(b.detId()).det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
+					  DetId b){
+					if (DetId(a.detId()).det() == DetId::Hcal || b.det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b);
 
-					else return a.detId() < b.detId();
+					else return a.detId() < b.rawId();
 				      });
 
 
@@ -137,7 +136,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
       sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
       const double deltaTime = hit.time()-found_hit->time();
       if(deltaTime*deltaTime<sigmaCut2_*sigma2) {
-	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+	hit.addNeighbour(eta,phi,0,found_hit-hits->begin());
       }
     }
 
