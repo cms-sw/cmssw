@@ -23,9 +23,6 @@
 #include <map>
 #include <string>
 #include <array>
-#include <mutex>
-
-namespace edm { class ActivityRegistry; };
 
 class GeometryInterface {
   public:
@@ -126,7 +123,6 @@ class GeometryInterface {
   // needs the lock since this will be called from the spec builder, which will
   // run in the constructor and this is parallel.
   ID intern(std::string const& id) {
-    //std::lock_guard<std::mutex> lock(ids_lock);
     auto it = ids.find(id);
     if (it == ids.end()) {
       ids[id] = ++max_id;
@@ -139,7 +135,6 @@ class GeometryInterface {
   // labels), so it can be slow (though intern() does not have to be fast 
   // either). Also locks, might not be needed but better save than sorry.
   std::string unintern(ID id) {
-    //std::lock_guard<std::mutex> lock(ids_lock);
     for (auto& e : ids) 
       if (e.second == id) return e.first;
     return "INVALID";
