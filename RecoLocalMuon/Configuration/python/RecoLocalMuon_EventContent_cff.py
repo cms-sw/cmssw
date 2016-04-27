@@ -31,6 +31,7 @@ RecoLocalMuonAOD = cms.PSet(
 
 def _modifyRecoLocalMuonEventContentForPhase2( object ):
     object.outputCommands.append('keep *_gemRecHits_*_*')
+    object.outputCommands.append('keep *_gemSegments_*_*')
     object.outputCommands.append('keep *_me0RecHits_*_*')
     object.outputCommands.append('keep *_me0Segments_*_*')
 
