@@ -54,7 +54,7 @@ bool KineParticleFilter::acceptParticle(const RawParticle & particle) const
     }
     
     // cut on eta if the origin vertex is close to the beam
-    else if( (particle.vertex()/*-mainVertex*/).Perp2() < 25. && particle.cos2Theta() > cos2ThetaMax)
+    else if( particle.vertex().Perp2() < 25. && particle.cos2Theta() > cos2ThetaMax)
     {
 	return false;
     }
