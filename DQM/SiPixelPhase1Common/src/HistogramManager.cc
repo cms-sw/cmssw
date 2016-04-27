@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Logger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
