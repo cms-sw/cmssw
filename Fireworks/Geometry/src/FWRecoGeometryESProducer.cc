@@ -93,8 +93,8 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
 
   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
-  DetId detId( DetId::Tracker, 0 );
-  m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+  // DetId detId( DetId::Tracker, 0 );
+  // m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
   if( m_tracker )
   {
@@ -107,11 +107,11 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   }
   if( m_muon )
   {
-    addDTGeometry();
-    addCSCGeometry();
-    addRPCGeometry();
+    //addDTGeometry();
+    //addCSCGeometry();
+    //addRPCGeometry();
     addGEMGeometry();
-    addME0Geometry();
+    //addME0Geometry();
   }
   if( m_calo )
   {
@@ -282,6 +282,7 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
 
   try 
   {
+    std::cout <<"addGEMGeometry "<< std::endl;
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
     
     // add in superChambers - gem Segments are based on superChambers
@@ -289,6 +290,7 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
     { 
       if( sc )
       {
+	std::cout <<"addGEMGeometry::superChambers"<< std::endl;
 	unsigned int rawid = sc->geographicalId().rawId();
 	unsigned int current = insert_id( rawid );
 	fillShapeAndPlacement( current, sc );

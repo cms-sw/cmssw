@@ -63,6 +63,9 @@ def simGeoLoad(score):
     elif score == "CRack":
        process.load('Geometry.TrackerCommonData.crackGeometryXML_cfi')
 
+    elif score == "GEMCosmic":
+       process.load('Configuration.Geometry.GeometryGEMCosmicStand_cff')
+
     elif score == "DB":
         process.load("Configuration.StandardSequences.GeometryDB_cff")
         process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
