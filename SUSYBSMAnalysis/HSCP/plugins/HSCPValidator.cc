@@ -107,6 +107,7 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   tkTracksToken_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks"))),
   dEdxTrackToken_(consumes<edm::ValueMap<reco::DeDxData> >(edm::InputTag("dedxHarmonic2"))),
   rpcRecHitsToken_(consumes<RPCRecHitCollection>(edm::InputTag("rpcRecHits"))),
+  triggerResultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"))),
   particleIds_ (iConfig.getParameter< std::vector<int> >("particleIds")),
   particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",1)),
   ebSimHitToken_ (consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EBSimHitCollection"))),
@@ -378,12 +379,17 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
   using namespace edm;
   //get HLT infos
 
+   edm::Handle<edm::TriggerResults> triggerResults;
+   iEvent.getByToken(triggerResultsToken_, triggerResults);
 
-      edm::TriggerResultsByName tr = iEvent.triggerResultsByName("HLT");
+   edm::TriggerResultsByName tr(nullptr, nullptr);
+   if(triggerResults.isValid()) {
+     tr = iEvent.triggerResultsByName(*triggerResults);
+   }
 
-          if(!tr.isValid()){
-        std::cout<<"Tirgger Results not available"<<std::endl;
-      }
+   if(!tr.isValid()){
+      std::cout<<"Trigger Results not available"<<std::endl;
+   }
 
    edm::Handle< trigger::TriggerEvent > trEvHandle;
    iEvent.getByToken(trEvToken_, trEvHandle);
