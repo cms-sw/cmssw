@@ -1,9 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
+from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
+
+l1UpgradeTfMuonEmuTree = l1UpgradeTfMuonTree.clone()
+l1UpgradeTfMuonEmuTree.bmtfMuonToken = cms.untracked.InputTag("simBmtfDigis","BMTF") 
+l1UpgradeTfMuonEmuTree.omtfMuonToken = cms.untracked.InputTag("simOmtfDigis","OMTF") 
+l1UpgradeTfMuonEmuTree.emtfMuonToken = cms.untracked.InputTag("simEmtfDigis","EMTF") 
 
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("none")
@@ -30,6 +36,7 @@ if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
 
 L1NtupleEMU = cms.Sequence(
   l1EventTree
+  +l1UpgradeTfMuonEmuTree
   +l1CaloTowerEmuTree
   +l1UpgradeEmuTree
   +l1uGTEmuTree
