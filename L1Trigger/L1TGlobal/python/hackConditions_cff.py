@@ -30,5 +30,7 @@ from Configuration.StandardSequences.Eras import eras
 if eras.stage2L1Trigger.isChosen():
     print "L1TGlobal Conditions configured for Stage-2 (2016) trigger. "
     from L1Trigger.L1TGlobal.StableParameters_cff import *
+#    from L1Trigger.L1TGlobal.GlobalParameters_cff import *
+#   from L1Trigger.L1TGlobal.PrescalesVetos_cff import *
 #   from L1Trigger.L1TGlobal.TriggerMenu_cff import *
 #   TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')

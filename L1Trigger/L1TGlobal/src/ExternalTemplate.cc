@@ -26,13 +26,12 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
 // constructors
 ExternalTemplate::ExternalTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondExternal;
@@ -40,7 +39,7 @@ ExternalTemplate::ExternalTemplate()
 }
 
 ExternalTemplate::ExternalTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondExternal;
@@ -48,7 +47,7 @@ ExternalTemplate::ExternalTemplate(const std::string& cName)
 }
 
 ExternalTemplate::ExternalTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondExternal, cType)
+        : GlobalCondition(cName, l1t::CondExternal, cType)
 {
 
     m_condCategory = l1t::CondExternal;
@@ -57,7 +56,7 @@ ExternalTemplate::ExternalTemplate(const std::string& cName, const l1t::GtCondit
 
 // copy constructor
 ExternalTemplate::ExternalTemplate(const ExternalTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -82,7 +81,7 @@ void ExternalTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  ExternalTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
 
     myCout << "  External Channel " << m_extChannel << std::endl;

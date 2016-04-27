@@ -19,6 +19,34 @@
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
   <class name="std::vector<GlobalExtBlk>"/>
 
+  <class name="GlobalObjectMapRecord" ClassVersion="10">
+   <version ClassVersion="10" checksum="1219328086"/>
+  </class>
+  <class name="edm::Wrapper<GlobalObjectMapRecord>"/>
+
+  <class name="GlobalObjectMap" ClassVersion="10">
+   <version ClassVersion="10" checksum="1899280385"/>
+  </class>
+  <class name="edm::Wrapper<GlobalObjectMap>"/>
+  <class name="std::vector<GlobalObjectMap>"/>
+  <class name="edm::Wrapper<std::vector<GlobalObjectMap> >"/>
+
+  <class name="std::vector<l1t::GlobalObject>"/>
+  <class name="std::vector<std::vector<l1t::GlobalObject> >"/>
+  
+  <class name="GlobalLogicParser::OperandToken" ClassVersion="11">
+   <version ClassVersion="11" checksum="2765209856"/>
+    <version ClassVersion="10" checksum="599247693"/>
+  </class>
+  <class name="std::vector<GlobalLogicParser::OperandToken>"/>
+
+  <class name="GlobalLogicParser::TokenRPN" ClassVersion="11">
+   <version ClassVersion="11" checksum="2556920576"/>
+    <version ClassVersion="10" checksum="1759531300"/>
+  </class>
+  <class name="std::vector<GlobalLogicParser::TokenRPN>"/>
+  
 </lcgdict>
+
 
 
