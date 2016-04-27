@@ -56,12 +56,6 @@ namespace edm {
     static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
       a->postPathEventSignal_(*pathContext->streamContext(), *pathContext, status);
     }
-    static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
-      a->preModuleEventSignal_(*streamContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
-      a->postModuleEventSignal_(*streamContext, *moduleCallingContext);
-    }
   };
 
   template <>
