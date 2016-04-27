@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_ExternalCondition_h
-#define GlobalTrigger_ExternalCondition_h
+#ifndef L1Trigger_L1TGlobal_ExternalCondition_h
+#define L1Trigger_L1TGlobal_ExternalCondition_h
 
 /**
  * \class ExternalCondition
@@ -24,14 +24,14 @@
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class ExternalTemplate;
 
 namespace l1t {
 
 class L1Candidate;
 
-class GtBoard;
+class GlobalBoard;
 
 // class declaration
 class ExternalCondition : public ConditionEvaluation
@@ -44,7 +44,7 @@ public:
     ExternalCondition();
 
     ///     from base template condition (from event setup usually)
-    ExternalCondition(const GtCondition*, const GtBoard*);
+    ExternalCondition(const GlobalCondition*, const GlobalBoard*);
 
     // copy constructor
     ExternalCondition(const ExternalCondition&);
@@ -72,12 +72,12 @@ public:
 
     void setGtExternalTemplate(const ExternalTemplate*);
 
-    ///   get / set the pointer to uGt GtBoard
-    inline const GtBoard* getuGtB() const {
+    ///   get / set the pointer to uGt GlobalBoard
+    inline const GlobalBoard* getuGtB() const {
         return m_uGtB;
     }
 
-    void setuGtB(const GtBoard*);
+    void setuGtB(const GlobalBoard*);
 
 private:
 
@@ -89,8 +89,8 @@ private:
     /// pointer to a ExternalTemplate
     const ExternalTemplate* m_gtExternalTemplate;
 
-    /// pointer to uGt GtBoard, to be able to get the trigger objects
-    const GtBoard* m_uGtB;
+    /// pointer to uGt GlobalBoard, to be able to get the trigger objects
+    const GlobalBoard* m_uGtB;
 
 };
 

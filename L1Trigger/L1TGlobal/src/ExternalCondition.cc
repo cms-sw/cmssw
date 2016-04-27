@@ -26,9 +26,7 @@
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
@@ -45,7 +43,7 @@ l1t::ExternalCondition::ExternalCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::ExternalCondition::ExternalCondition(const GtCondition* eSumTemplate, const GtBoard* ptrGTB) :
+l1t::ExternalCondition::ExternalCondition(const GlobalCondition* eSumTemplate, const GlobalBoard* ptrGTB) :
     ConditionEvaluation(),
     m_gtExternalTemplate(static_cast<const ExternalTemplate*>(eSumTemplate)),
     m_uGtB(ptrGTB)
@@ -101,8 +99,8 @@ void l1t::ExternalCondition::setGtExternalTemplate(const ExternalTemplate* eSumT
 
 }
 
-///   set the pointer to uGT GtBoard
-void l1t::ExternalCondition::setuGtB(const GtBoard* ptrGTB) {
+///   set the pointer to uGT GlobalBoard
+void l1t::ExternalCondition::setuGtB(const GlobalBoard* ptrGTB) {
 
     m_uGtB = ptrGTB;
 
