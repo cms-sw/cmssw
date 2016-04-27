@@ -38,9 +38,9 @@ muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+cscloca
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 
 def _modifyRecoLocalMuonForPhase2( theProcess ):
-    theProcess.load("RecoLocalMuon.GEMRecHit.gemRecHits_cfi")
+    theProcess.load("RecoLocalMuon.GEMRecHit.gemLocalReco_cff")
     theProcess.load("RecoLocalMuon.GEMRecHit.me0LocalReco_cff")
-    theProcess.muonlocalreco += theProcess.gemRecHits
+    theProcess.muonlocalreco += theProcess.gemLocalReco
     theProcess.muonlocalreco += theProcess.me0LocalReco
 
 from Configuration.StandardSequences.Eras import eras

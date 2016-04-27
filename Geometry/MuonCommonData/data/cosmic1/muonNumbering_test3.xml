@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="muonconstants">
+  <Constant name="xml_starts_with_copyno" value="1"/>
+  <Constant name="level" value="1000"/>
+  <Constant name="super" value="100"/>
+  <Constant name="base" value="1"/>
+  <Constant name="mb_region" value="1*[level]"/>
+  <Constant name="mb_wheel" value="2*[level]"/>
+  <Constant name="mb_station" value="3*[level]"/>
+  <Constant name="mb_superlayer" value="4*[level]"/>
+  <Constant name="mb_layer" value="5*[level]"/>
+  <Constant name="mb_wire" value="6*[level]"/>
+  <Constant name="me_region" value="[mb_region]"/>
+  <Constant name="me_station" value="2*[level]"/>
+  <Constant name="me_subring" value="3*[level]"/>
+  <Constant name="me_sector" value="4*[level]"/>
+  <Constant name="me_ring" value="5*[level]"/>
+  <Constant name="me_layer" value="6*[level]"/>
+  <Constant name="mr_region" value="[mb_region]"/>
+  <Constant name="mr_bwheel" value="[mb_wheel]"/>
+  <Constant name="mr_bstation" value="[mb_station]"/>
+  <Constant name="mr_bplane" value="4*[level]"/>
+  <Constant name="mr_bchamber" value="5*[level]"/>
+  <Constant name="mr_estation" value="[me_station]"/>
+  <Constant name="mr_eplane" value="3*[level]"/>
+  <Constant name="mr_esector" value="4*[level]"/>
+  <Constant name="mr_eroll" value="5*[level]"/>
+  <Constant name="mg_region" value="[mb_region]"/>
+  <Constant name="mg_station" value="[me_station]"/> 
+  <Constant name="mg_ring" value="3*[level]"/>
+  <Constant name="mg_sector" value="4*[level]"/>
+  <Constant name="mg_roll" value="5*[level]"/>
+ </ConstantsSection>
+ <SpecParSection label="muonregionnumbering" eval="true">
+  <SpecPar name="MuonCommonNumbering">
+   <PartSelector path="//MUON"/>
+   <Parameter name="OnlyForMuonNumbering" value="justputsomethingheretonotfind" eval="false"/>
+   <Parameter name="xml_starts_with_copyno" value="[xml_starts_with_copyno]"/>
+   <Parameter name="level" value="[level]"/>
+   <Parameter name="super" value="[super]"/>
+   <Parameter name="base" value="[base]"/>
+   <Parameter name="mb_region" value="[mb_region]"/>
+   <Parameter name="mb_wheel"      value="[mb_wheel]"/>
+   <Parameter name="mb_station"    value="[mb_station]"/>
+   <Parameter name="mb_superlayer" value="[mb_superlayer]"/>
+   <Parameter name="mb_layer"      value="[mb_layer]"/>
+   <Parameter name="mb_wire"       value="[mb_wire]"/>
+   <Parameter name="me_region"     value="[me_region]"/>
+   <Parameter name="me_station"    value="[me_station]"/>
+   <Parameter name="me_subring"    value="[me_subring]"/>
+   <Parameter name="me_sector"     value="[me_sector]"/>
+   <Parameter name="me_ring"       value="[me_ring]"/>
+   <Parameter name="me_layer"      value="[me_layer]"/>
+   <Parameter name="mr_region"     value="[mr_region]"/>
+   <Parameter name="mr_bwheel"     value="[mr_bwheel]"/>
+   <Parameter name="mr_bstation"   value="[mr_bstation]"/>
+   <Parameter name="mr_bplane"     value="[mr_bplane]"/>
+   <Parameter name="mr_bchamber"   value="[mr_bchamber]"/>
+   <Parameter name="mr_estation"   value="[mr_estation]"/>
+   <Parameter name="mr_eplane"     value="[mr_eplane]"/>
+   <Parameter name="mr_esector"    value="[mr_esector]"/>
+   <Parameter name="mr_eroll"      value="[mr_eroll]"/>
+   <Parameter name="mg_region"     value="[mg_region]"/>
+   <Parameter name="mg_station"    value="[mg_station]"/>
+   <Parameter name="mg_ring"       value="[mg_ring]"/>
+   <Parameter name="mg_sector"     value="[mg_sector]"/>
+   <Parameter name="mg_roll"       value="[mg_roll]"/>
+  </SpecPar>
+ </SpecParSection>
+ <SpecParSection label="muonendcapnumbering" eval="true">
+  <SpecPar name="MuonEndcapStation1">
+   <PartSelector path="//GEMBox.*"/>
+  </SpecPar>
+ </SpecParSection>
+ <SpecParSection label="muonGEMnumbering" eval="true">
+  <SpecPar name="MuonGEMEndcap">
+   <PartSelector path="//GEMBox11L"/>
+   <PartSelector path="//GEMBox11S"/>
+   <PartSelector path="//GEMBox11L"/>
+   <PartSelector path="//GEMBox11S"/>
+   <PartSelector path="//GEMBox11L"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMSector">
+   <PartSelector path="//GEMBox.*"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMChamber">
+   <PartSelector path="//GHA.*"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

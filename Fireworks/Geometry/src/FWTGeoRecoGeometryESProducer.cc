@@ -748,34 +748,63 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
       const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
 
       TGeoVolume* tv =  GetTopHolder("Muon", kMuonRPC);
-      TGeoVolume *assembly = GetDaughter(tv, "GEM", kMuonGEM);
-
-      for( auto it = gemGeom->etaPartitions().begin(),
-              end = gemGeom->etaPartitions().end(); 
-           it != end; ++it )
-      {
-         const GEMEtaPartition* roll = (*it);
-         if( roll )
-         {
-            GEMDetId detid = roll->geographicalId();
-            std::stringstream s;
-            s << detid;
-            std::string name = s.str();
+      TGeoVolume *assemblyTop = GetDaughter(tv, "GEM", kMuonGEM);
       
-            TGeoVolume* child = createVolume( name, roll, kMuonGEM );
+      {
+	TGeoVolume *assembly = GetDaughter(assemblyTop, "GEMSuperChambers", kMuonGEM);      
+	for( auto it = gemGeom->superChambers().begin(),
+	       end = gemGeom->superChambers().end(); 
+	     it != end; ++it )
+	  {
+	    const GEMSuperChamber* sc = (*it);
+	    if( sc )
+	      {
+		GEMDetId detid = sc->geographicalId();
+		std::stringstream s;
+		s << detid;
+		std::string name = s.str();
+      
+		TGeoVolume* child = createVolume( name, sc, kMuonGEM );
 
-            TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", kMuonGEM , detid.region());
-            holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
-            holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
-            holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
-            holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
+		TGeoVolume* holder  = GetDaughter(assembly, "SuperChamber Region", kMuonGEM , detid.region());
+		holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
+		holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
+		holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
 
-            AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
-         }
+		AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+	      }
+	  }
+      }
+      
+      {
+	TGeoVolume *assembly = GetDaughter(assemblyTop, "GEMetaPartitions", kMuonGEM);      
+	for( auto it = gemGeom->etaPartitions().begin(),
+	       end = gemGeom->etaPartitions().end(); 
+	     it != end; ++it )
+	  {
+	    const GEMEtaPartition* roll = (*it);
+	    if( roll )
+	      {
+		GEMDetId detid = roll->geographicalId();
+		std::stringstream s;
+		s << detid;
+		std::string name = s.str();
+      
+		TGeoVolume* child = createVolume( name, roll, kMuonGEM );
+
+		TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", kMuonGEM , detid.region());
+		holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
+		holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
+		holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
+		holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
+
+		AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+	      }
+	  }
       }
    }catch (cms::Exception &exception) {
-    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
-
+     edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
+     
    }
 }
 

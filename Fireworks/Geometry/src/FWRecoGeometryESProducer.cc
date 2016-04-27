@@ -283,6 +283,28 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+    
+    // add in superChambers - gem Segments are based on superChambers
+    for(auto sc : gemGeom->superChambers())
+    { 
+      if( sc )
+      {
+	unsigned int rawid = sc->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, sc );
+      }
+    }
+    // add in chambers
+    for(auto ch : gemGeom->chambers())
+    { 
+      if( ch )
+      {
+	unsigned int rawid = ch->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, ch );
+      }
+    }    
+    // add in etaPartitions - gem rechits are based on etaPartitions
     for(auto roll : gemGeom->etaPartitions())
     { 
       if( roll )

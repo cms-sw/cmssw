@@ -2,6 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 ## change the current default GEM geometry
 
+## GE1/1 for Cosmic Ray Stand
+## in 2023 scenario
+def custom_cosmic1(process) :
+    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/PhaseII/muonNumbering.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/PhaseII/muonNumbering.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/cosmic1/muonNumbering.xml') 
+    #geomReplace( process, 'mfshield.xml','Geometry/MuonCommonData/data/cosmic1/muonProdCuts.xml')
+    geomReplace( process, 'muonProdCuts.xml','Geometry/MuonCommonData/data/cosmic1/muonProdCuts.xml')
+    #geomReplace( process, 'me0.xml','Geometry/MuonCommonData/data/cosmic1/cms.xml')
+    geomReplace( process, 'muonSens.xml','Geometry/MuonCommonData/data/cosmic1/muonSens.xml')
+    #geomReplace( process, 'mf.xml','Geometry/MuonCommonData/data/cosmic1/gembox.xml')
+    geomReplace( process, 'gem21.xml','Geometry/MuonCommonData/data/cosmic1/gembox.xml')
+    geomReplace( process, 'gem11.xml','Geometry/MuonCommonData/data/cosmic1/gem11.xml')
+    #geomReplace( process, 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml')
+    return process
+
 ## GE1/1 in 2019/2023 scenario
 def custom_GE11_6partitions_v1(process):
     mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v4/gem11.xml')
