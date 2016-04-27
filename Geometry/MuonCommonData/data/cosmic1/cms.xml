@@ -4,6 +4,7 @@
 <SolidSection label="cms.xml">
   <Box  name="OCMS" dz="2.0*m" dy="2.0*m"  dx="2.0*m" />
   <Box  name="CMSE" dz="2.0*m" dy="2.0*m"  dx="2.0*m" />
+  <Box  name="MUON" dz="2.0*m" dy="2.0*m"  dx="2.0*m" />
 </SolidSection>
 
 <LogicalPartSection label="cms.xml">
@@ -19,6 +20,10 @@
     <rSolid name="CMSE"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
+  <LogicalPart name="MUON" category="unspecified">
+    <rSolid name="MUON"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
 </LogicalPartSection>
 
 <PosPartSection label="cms.xml">
@@ -29,6 +34,10 @@
   <PosPart copyNumber="1">
     <rParent name="cms:OCMS"/>
     <rChild name="cms:CMSE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="cms:MUON"/>
   </PosPart>
 </PosPartSection>
 

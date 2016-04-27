@@ -22,7 +22,7 @@
 
 <PosPartSection label="gembox.xml">
   <PosPart copyNumber="1">
-    <rParent name="muonBase:gembox"/>
+    <rParent name="cms:MUON"/>
     <rChild name="gembox:GEMBox"/>
     <Translation x="0*fm" y="0*fm" z="0*fm" />
   </PosPart>

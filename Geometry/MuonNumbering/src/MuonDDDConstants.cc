@@ -35,14 +35,14 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   
   const DDsvalues_type mySpecs (fview.mergedSpecifics());
 #ifdef LOCAL_DEBUG
-  std::cout << "mySpecs.size() = " << mySpecs.size() << std::endl;
 #endif
-  if ( mySpecs.size() < 25 ) {
-    edm::LogError("MuonDDDConstants") << " MuonDDDConstants: Missing SpecPars from DetectorDescription." << std::endl;
-    std::string msg = "MuonDDDConstants does not have the appropriate number of SpecPars associated";
-    msg+= " with the part //MUON.";
-    throw cms::Exception("GeometryBuildFailure", msg);
-  }
+  // if ( mySpecs.size() < 25 ) {
+  //   edm::LogError("MuonDDDConstants") << " MuonDDDConstants: Missing SpecPars from DetectorDescription." << std::endl;
+  //   std::cout << "mySpecs.size() = " << mySpecs.size() << std::endl;
+  //   std::string msg = "MuonDDDConstants does not have the appropriate number of SpecPars associated";
+  //   msg+= " with the part //MUON.";
+  //   throw cms::Exception("GeometryBuildFailure", msg);
+  // }
 
   DDsvalues_type::const_iterator bit = mySpecs.begin();
   DDsvalues_type::const_iterator eit = mySpecs.end();

@@ -10,8 +10,8 @@
 
  <PosPartSection label="mf.xml">
   <PosPart copyNumber="1">
-   <rParent name="muonBase:MUON"/>
-   <rChild name="muonBase:gembox"/>
+   <rParent name="MUON"/>
+   <rChild name="gembox"/>
    <rRotation name="rotations:000D"/>
   </PosPart>
  </PosPartSection>
