@@ -38,7 +38,7 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset):
   detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis",false)) {
 
   edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Constructor called.";
-
+  consumes< DTRecSegment4DCollection >(edm::InputTag(segment4DLabel_));
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName","residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();

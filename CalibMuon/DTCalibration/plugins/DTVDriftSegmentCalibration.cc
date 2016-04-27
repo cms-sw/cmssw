@@ -38,7 +38,7 @@ DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset)
   theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")) {
 
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Constructor called!";
-
+  consumes< DTRecSegment4DCollection >(edm::InputTag(theRecHits4DLabel_));
   // the root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTVDriftHistos.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
