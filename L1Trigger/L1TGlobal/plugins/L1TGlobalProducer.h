@@ -19,7 +19,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -49,7 +50,7 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const GlobalStableParameters* m_l1GtStablePar;
+    const L1TGlobalParameters* m_l1GtStablePar;
     unsigned long long m_l1GtParCacheID;
 
     // trigger menu
