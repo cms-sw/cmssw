@@ -577,8 +577,8 @@ class TrackerTopology {
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
  
-  PixelBarrelValues const& getPBVals() const { return pbVals_; };
-  PixelEndcapValues const& getPFVals() const { return pfVals_; };
+  PixelBarrelValues const& getPBVals() const { return pbVals_; }
+  PixelEndcapValues const& getPFVals() const { return pfVals_; }
  
  private:
 
