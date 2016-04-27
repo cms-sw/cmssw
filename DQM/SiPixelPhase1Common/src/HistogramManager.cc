@@ -443,7 +443,6 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
     } else /* if (step.arg) == ... TODO: more */ {
       edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg << " not yet implemented\n";
     }
-    new_histo.is0d = true;
     new_histo.th1 = new TH1D(name.c_str(), (";;" + label).c_str(), 1, 0, 1); 
     new_histo.th1->SetBinContent(1, reduced_quantity);
   }
@@ -480,14 +479,14 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
       // We need to book. Two cases here: 1D or 2D.
       if (th1->GetDimension() == 1) {
 	// Output is 1D
-	new_histo.th1 = (TH1*) new TH1D(th1->GetName(), (std::string("") 
+	new_histo.th1 = (TH1*) new TH1F(th1->GetName(), (std::string("") 
 					+ th1->GetYaxis()->GetTitle() + " per " + colname
 					+ ";" + colname + "/" + th1->GetXaxis()->GetTitle()
 					+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
 					nbins[new_vals], 0, nbins[new_vals]);
       } else {
 	// output is 2D, input is 2D histograms.
-	new_histo.th1 = (TH1*) new TH2D(th1->GetName(), (std::string("") 
+	new_histo.th1 = (TH1*) new TH2F(th1->GetName(), (std::string("") 
 					+ th1->GetTitle() + " per " + colname
 					+ ";" + colname + "/" + th1->GetXaxis()->GetTitle()
 					+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 

@@ -11,8 +11,8 @@
 // the histograms in the right places and with consistent labels.
 //
 // One HistogramManager records one quantity, which may be multidimensional.
-// A plugin can use more than one HistogramManager, but probably it should be
-// more than one plugin in that case.
+// A plugin can use more than one HistogramManager, which can be held in a
+// HistogramManagerHolder (SiPixelPhase1Base.h)
 // 
 
 // CMSSW

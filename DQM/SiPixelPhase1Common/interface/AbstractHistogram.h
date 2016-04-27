@@ -42,7 +42,6 @@ struct AbstractHistogram {
   };
   
   int count = 0; // how many things where inserted already. For concat.
-  bool is0d = false; // for a 0D histogram we still have a TH1D, with 1 bin and metadata on the y-Axis.
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
 
