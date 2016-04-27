@@ -38,7 +38,7 @@ namespace l1t {
     //calibration
     void loadCalibrationLuts();
 
-    double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
+    // double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
 
     // parameters
     CaloParamsHelper* params_;
@@ -54,7 +54,7 @@ namespace l1t {
     bool is3x3Maximum (const l1t::CaloTower& tower, const std::vector<CaloTower>& towers, l1t::CaloStage2Nav& caloNav); // is maximum in the 3x3 window? (recompute jet flag)
     std::vector<l1t::CaloCluster*> makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav); // make the secondary clusters fr merging (need to be deleted later)
     unsigned int calibLutIndex (int ieta, int Et, int hasEM, int isMerged);
-    int calibratedPt(const l1t::CaloCluster& clus, int hwPt, bool isMerged);
+    int calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool isMerged);
 
   };
 

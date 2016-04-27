@@ -118,7 +118,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 l1t::Tau tau (emptyP4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
 
                 // Corrections function of ieta, ET, and cluster shape
-                int calibPt = calibratedPt(mainCluster, tau.hwPt(), false); // FIXME! for the moment no calibration
+                int calibPt = calibratedPt(mainCluster, towers, tau.hwPt(), false); // FIXME! for the moment no calibration
 
                 //int calibPt = mainCluster.hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
@@ -402,7 +402,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // ==================================================================
 
                 // Corrections function of ieta, ET, and cluster shape
-                int calibPt = calibratedPt(mainCluster, tau.hwPt(), true); // FIXME! for the moment no calibration
+                int calibPt = calibratedPt(mainCluster, towers, tau.hwPt(), true); // FIXME! for the moment no calibration
                 //int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
 
@@ -776,11 +776,11 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta,
     return address;
 }
 
-int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, int hwPt, bool isMerged)
+int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool isMerged)
 {
-    //cout << "** DEBUG: CALLING calibPt with params: " << hwPt << " " << isMerged << endl;
-
-    int hasEM = (clus.hwPtEm() > 0 ? 1 : 0);
+    // get seed tower
+    const l1t::CaloTower& seedTT = l1t::CaloTools::getTower(towers, clus.hwEta(), clus.hwPhi());
+    int hasEM = (seedTT.hwEtEm() > 0 ? 1 : 0);
     int isMergedI = (isMerged ? 1 : 0);
 
     //cout << "  --> ieta = " << clus.hwEta() << " , hasEM = " << hasEM << " , isMergedI = " << isMergedI << endl;
