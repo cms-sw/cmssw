@@ -20,6 +20,7 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/bitset.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unordered_map.hpp>
 
 // We cannot include Equal.h here since it is C++11
 namespace cond {

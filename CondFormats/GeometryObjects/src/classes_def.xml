@@ -143,6 +143,7 @@
    <field name="waferR_"          mapping="blob"/>  
    <field name="nCells_"          mapping="blob"/>
    <field name="nSectors_"        mapping="blob"/>
-   <field name="mode_"            mapping="blob"/>  
+   <field name="mode_"            mapping="blob"/>
+   <field name="copiesInLayers_"  mapping="blob"/>
  </class>
 </lcgdict> 
