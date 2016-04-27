@@ -157,13 +157,12 @@ public:
     return et;
   }
 
-  bool getFB(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
+  uint32_t getFB(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t index = getFeatureIndex(cType, negativeEta, cEta, iPhi);
     const uint32_t data = myDataPtr[index];
-    bool fb = false;
+    uint32_t fb = 0;
     if(cType == HF) {
-      // Two bits are expected from HF - this is interface to get one compressed bit!
-      fb = (getHFFeatureBits(negativeEta, cEta, iPhi) != 0);
+      fb = getHFFeatureBits(negativeEta, cEta, iPhi);
     }
     else {
       // Pick out the correct bit for the tower chosen
@@ -171,7 +170,7 @@ public:
       if(((cEta - 1) % 2) == 1) {
 	tower += 4;
       }
-      fb = ((data & (0x1 << tower)) != 0);
+      fb = ((data & (0x1 << tower)) != 0) ? 1 : 0;
     }
     return fb;
   }
