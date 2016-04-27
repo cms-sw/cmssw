@@ -24,8 +24,10 @@
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h" 
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h" 
+
+#include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h" 
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -413,52 +415,32 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtParCacheID =
-            evSetup.get<L1TGlobalStableParametersRcd>().cacheIdentifier();
+            evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
 
     if (m_l1GtParCacheID != l1GtParCacheID) {
 
-        edm::ESHandle< GlobalStableParameters > l1GtStablePar;
-        evSetup.get< L1TGlobalStableParametersRcd >().get( l1GtStablePar );
+        edm::ESHandle< L1TGlobalParameters > l1GtStablePar;
+        evSetup.get< L1TGlobalParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
+	const GlobalParamsHelper * data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
-	// -bx in event
-	//  NumberBxInEvent = cms.int32(5),
-	// -number of physics trigger algorithms
-	//  NumberPhysTriggers = cms.uint32(512),
-	// -muons
-	//  NumberL1Mu = cms.uint32(12),
-	// -e/gamma and isolated e/gamma objects
-	//  NumberL1EG = cms.uint32(12),
-	// -jets
-	//  NumberL1Jet = cms.uint32(12),
-	// -taus
-	//  NumberL1Tau = cms.uint32(8),
-	// -number of maximum chips defined in the xml file
-	//  NumberChips = cms.uint32(1),
-	// -number of pins on the GTL condition chips
-	//  PinsOnChip = cms.uint32(512),
-	// -correspondence "condition chip - GTL algorithm word" in the hardware
-	//  e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-	//  OrderOfChip = cms.vint32(1),
-
-	// FIXME:
         // number of bx
-	m_totalBxInEvent = 5;
+	m_totalBxInEvent = data->totalBxInEvent();
 
         // number of physics triggers
-        m_numberPhysTriggers = 512;
+        m_numberPhysTriggers = data->numberPhysTriggers();
 
         // number of objects of each type
-        m_nrL1Mu = 12;
+        m_nrL1Mu = data->numberL1Mu();
 
 	// EG	
-        m_nrL1EG = 12;
+        m_nrL1EG = data->numberL1EG();
 
 	// jets
-        m_nrL1Jet = 12;
+        m_nrL1Jet = data->numberL1Jet();
 
 	// taus
-        m_nrL1Tau= 8;
+        m_nrL1Tau= data->numberL1Tau();
 
 
         // Initialize Board
@@ -477,6 +459,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+	const GlobalParamsHelper * data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
@@ -485,23 +468,16 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	// Instantiate Parser
         TriggerMenuParser gtParser = TriggerMenuParser();   
 
-	// FIXME:
-	//gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberChips());
-	//gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnChip());
-	//gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderOfChip());
-	//gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
-
-	gtParser.setGtNumberConditionChips(1);
-	gtParser.setGtPinsOnConditionChip(512);
-	std::vector<int> tmp = {1};
-	gtParser.setGtOrderConditionChip(tmp);
-	gtParser.setGtNumberPhysTriggers(512);
+	gtParser.setGtNumberConditionChips(data->numberChips());
+	gtParser.setGtPinsOnConditionChip(data->pinsOnChip());
+	gtParser.setGtOrderConditionChip(data->orderOfChip());
+	gtParser.setGtNumberPhysTriggers(data->numberPhysTriggers());
         
 	//Parse menu into emulator classes
 	gtParser.parseCondFormats(utml1GtMenu); 
         
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), 1, //FIXME:  m_l1GtStablePar->gtNumberChips(),
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), data->numberChips(), 
                         gtParser.vecMuonTemplate(),
                         gtParser.vecCaloTemplate(),
                         gtParser.vecEnergySumTemplate(),
