@@ -29,8 +29,6 @@
 
 // user include files
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
@@ -44,10 +42,6 @@ namespace edm {
   // for bare pointer
   template<typename T> T*& get_underlying_safe(propagate_const<T*>& iP) {return get_underlying(iP);}
   template<typename T> T const* get_underlying_safe(propagate_const<T*> const& iP) {T const* copy = get_underlying(iP); return copy;}
-
-  // for boost::shared_ptr
-  template<typename T> boost::shared_ptr<T>& get_underlying_safe(propagate_const<boost::shared_ptr<T>>& iP) {return get_underlying(iP);}
-  template<typename T> boost::shared_ptr<T const> get_underlying_safe(propagate_const<boost::shared_ptr<T>> const& iP) {boost::shared_ptr<T const> copy = get_underlying(iP); return copy;}
 
   // for std::unique_ptr
   template<typename T> std::unique_ptr<T>& get_underlying_safe(propagate_const<std::unique_ptr<T>>& iP) {return get_underlying(iP);}

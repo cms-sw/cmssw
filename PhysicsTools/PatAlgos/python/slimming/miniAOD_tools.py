@@ -235,8 +235,6 @@ def miniAOD_customizeCommon(process):
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
     
-    process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
-    process.patJetsPuppi.userData.userInts.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
@@ -246,7 +244,7 @@ def miniAOD_customizeCommon(process):
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
-
+    
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
     makePuppies( process );
@@ -255,6 +253,7 @@ def miniAOD_customizeCommon(process):
                                         pfCandColl=cms.InputTag("puppiForMET"),
                                         jetCollUnskimmed="slimmedJetsPuppi",
                                         recoMetFromPFCs=True,
+                                        jetFlavor="AK4PFPuppi",
                                         postfix="Puppi"
                                         )
     

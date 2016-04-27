@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from Configuration.EventContent.EventContent_cff import FEVTEventContent
+from Configuration.EventContent.EventContent_cff import FEVTEventContent as _FEVTEventContent
 
 OutALCARECOHotline_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
@@ -27,7 +27,7 @@ OutALCARECOHotline_noDrop = cms.PSet(
             "pathHotlineSkimCondMET",
         ),
     ),
-    outputCommands = copy.deepcopy(FEVTEventContent.outputCommands)
+    outputCommands = copy.deepcopy(_FEVTEventContent.outputCommands)
 )
 
 while 'drop *' in OutALCARECOHotline_noDrop.outputCommands: OutALCARECOHotline_noDrop.outputCommands.remove('drop *')

@@ -55,8 +55,8 @@ namespace edm {
   }
 
   void
-  LuminosityBlock::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    luminosityBlockPrincipal().getAllProvenance(provenances);
+  LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    luminosityBlockPrincipal().getAllStableProvenance(provenances);
   }
 
   void

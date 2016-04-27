@@ -96,9 +96,11 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   iSetup.get<IdealGeometryRecord>().get(nameSense_,pHGNDC);
   const HGCalDDDConstants hgdc(*pHGNDC);
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) 
-	    << " Sectors = " << hgdc.sectors() << std::endl;
+	    << " Sectors = " << hgdc.sectors() << " Minimum Slope = "
+	    << hgdc.minSlope() << std::endl;
   std::pair<int,int> kxy, lxy;
   std::pair<float,float> xy;
+  std::string        flg;
   HGCalParameters::hgtrap mytr = hgdc.getModule(0,hexType_,reco_);
   bool halfCell(false);
   if (!hexType_) halfCell = ((mytr.alpha) > 0);
@@ -109,19 +111,21 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
       kxy = hgdc.assignCell(localx,localy,i+1,subsec,reco_);
       xy  = hgdc.locateCell(kxy.second,i+1,kxy.first,reco_);
       lxy = hgdc.assignCell(xy.first,xy.second,i+1,0,reco_);
+      flg = (kxy == lxy) ? " " : " ***** Error *****";
       std::cout << "Input: (" << localx << "," << localy << "," << i+1 
 		<< ", " << subsec << "), assignCell o/p (" << kxy.first << ", "
 		<< kxy.second << ") locateCell o/p (" << xy.first << ", " 
 		<< xy.second << ")," << " final (" << lxy.first << ", " 
-		<< lxy.second << ")" << std::endl;
+		<< lxy.second << ")" << flg << std::endl;
       kxy = hgdc.assignCell(-localx,-localy,i+1,subsec,reco_);
       xy  = hgdc.locateCell(kxy.second,i+1,kxy.first,reco_);
       lxy = hgdc.assignCell(xy.first,xy.second,i+1,0,reco_);
+      flg = (kxy == lxy) ? " " : " ***** Error *****";
       std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
 		<< ", " << subsec << "), assignCell o/p (" << kxy.first << ", "
 		<< kxy.second << ") locateCell o/p (" << xy.first << ", " 
 		<< xy.second << ")," << " final (" << lxy.first << ", " 
-		<< lxy.second << ")" << std::endl;
+		<< lxy.second << ")" << flg << std::endl;
       if (k == 0 && i==0) {
 	std::vector<int> ncells = hgdc.numberCells(i+1,reco_);
 	std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";

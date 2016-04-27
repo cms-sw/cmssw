@@ -414,10 +414,10 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
 void TriggerJSONMonitoring::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup){ resetLumi(); }
 
-std::shared_ptr<hltJson::lumiVars>
+std::shared_ptr<trigJson::lumiVars>
 TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext)
 {
-  std::shared_ptr<hltJson::lumiVars> iSummary(new hltJson::lumiVars);
+  std::shared_ptr<trigJson::lumiVars> iSummary(new trigJson::lumiVars);
 
   unsigned int MAXPATHS = 500;
 
@@ -454,7 +454,7 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
 }//End globalBeginLuminosityBlockSummary function  
 
 void
-TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, hltJson::lumiVars* iSummary) const{
+TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, trigJson::lumiVars* iSummary) const{
 
   //Whichever stream gets there first does the initialiazation 
   if (iSummary->hltWasRun->value().size() == 0){
@@ -533,7 +533,7 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 
 
 void
-TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
+TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, trigJson::lumiVars* iSummary)
 {
 
   unsigned int iLs  = iLumi.luminosityBlock();

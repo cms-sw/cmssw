@@ -22,7 +22,7 @@ class SiStripGainESSource : public edm::ESProducer, public edm::EventSetupRecord
   SiStripGainESSource( const edm::ParameterSet& );
   virtual ~SiStripGainESSource() {;}
   
-  virtual std::auto_ptr<SiStripApvGain> produce( const SiStripApvGainRcd& );
+  virtual std::unique_ptr<SiStripApvGain> produce( const SiStripApvGainRcd& );
   
  protected:
 

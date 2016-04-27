@@ -103,7 +103,7 @@ namespace edm {
   ParameterDescriptionNode::print(std::ostream& os,
                                   bool optional,
                                   bool writeToCfi,
-                                  DocFormatHelper& dfh) {
+                                  DocFormatHelper& dfh) const {
     if (hasNestedContent()) {
       dfh.incrementCounter();
     }
@@ -113,7 +113,7 @@ namespace edm {
   void
   ParameterDescriptionNode::printNestedContent(std::ostream& os,
                                                bool optional,
-                                               DocFormatHelper& dfh) {
+                                               DocFormatHelper& dfh) const {
     if (hasNestedContent()) {
       dfh.incrementCounter();
       printNestedContent_(os, optional, dfh);
@@ -130,138 +130,138 @@ namespace edm {
 
   // operator>> ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionCases<bool> >
+  std::unique_ptr<ParameterDescriptionCases<bool>>
   operator>>(bool caseValue,
              ParameterDescriptionNode const& node) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return caseValue >> clonedNode;
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return caseValue >> std::move(clonedNode);
   }
 
-  std::auto_ptr<ParameterDescriptionCases<int> >
+  std::unique_ptr<ParameterDescriptionCases<int>>
   operator>>(int caseValue,
              ParameterDescriptionNode const& node) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return caseValue >> clonedNode;
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return caseValue >> std::move(clonedNode);
   }
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string>>
   operator>>(std::string const& caseValue,
              ParameterDescriptionNode const& node) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return caseValue >> clonedNode;
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return caseValue >> std::move(clonedNode);
   }
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string>>
   operator>>(char const* caseValue,
              ParameterDescriptionNode const& node) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return caseValue >> clonedNode;
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return caseValue >> std::move(clonedNode);
   }
 
-  std::auto_ptr<ParameterDescriptionCases<bool> >
+  std::unique_ptr<ParameterDescriptionCases<bool>>
   operator>>(bool caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node) {
-    return std::auto_ptr<ParameterDescriptionCases<bool> >(
-      new ParameterDescriptionCases<bool>(caseValue, node));
+             std::unique_ptr<ParameterDescriptionNode> node) {
+    return std::unique_ptr<ParameterDescriptionCases<bool>>(
+      new ParameterDescriptionCases<bool>(caseValue, std::move(node)));
   }
 
-  std::auto_ptr<ParameterDescriptionCases<int> >
+  std::unique_ptr<ParameterDescriptionCases<int>>
   operator>>(int caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node) {
-    return std::auto_ptr<ParameterDescriptionCases<int> >(
-      new ParameterDescriptionCases<int>(caseValue, node));
+             std::unique_ptr<ParameterDescriptionNode> node) {
+    return std::unique_ptr<ParameterDescriptionCases<int>>(
+      new ParameterDescriptionCases<int>(caseValue, std::move(node)));
   }
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string>>
   operator>>(std::string const& caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node) {
-    return std::auto_ptr<ParameterDescriptionCases<std::string> >(
-      new ParameterDescriptionCases<std::string>(caseValue, node));
+             std::unique_ptr<ParameterDescriptionNode> node) {
+    return std::unique_ptr<ParameterDescriptionCases<std::string>>(
+      new ParameterDescriptionCases<std::string>(caseValue, std::move(node)));
   }
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string>>
   operator>>(char const* caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node) {
+             std::unique_ptr<ParameterDescriptionNode> node) {
     std::string caseValueString(caseValue);
-    return std::auto_ptr<ParameterDescriptionCases<std::string> >(
-      new ParameterDescriptionCases<std::string>(caseValue, node));
+    return std::unique_ptr<ParameterDescriptionCases<std::string>>(
+      new ParameterDescriptionCases<std::string>(caseValue, std::move(node)));
   }
 
   // operator&& ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
+    return std::make_unique<ANDGroupDescription>(node_left, node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
+    return std::make_unique<ANDGroupDescription>(std::move(node_left), node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
+             std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<ANDGroupDescription>(node_left, std::move(node_right));
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
+  std::unique_ptr<ParameterDescriptionNode>
+  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
+             std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<ANDGroupDescription>(std::move(node_left), std::move(node_right));
   }
 
   // operator|| ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
+    return std::make_unique<ORGroupDescription>(node_left, node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
+    return std::make_unique<ORGroupDescription>(std::move(node_left), node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
+             std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<ORGroupDescription>(node_left, std::move(node_right));
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
+  std::unique_ptr<ParameterDescriptionNode>
+  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
+             std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<ORGroupDescription>(std::move(node_left), std::move(node_right));
   }
 
   // operator^  ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
             ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
+    return std::make_unique<XORGroupDescription>(node_left, node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
             ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
+    return std::make_unique<XORGroupDescription>(std::move(node_left), node_right);
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
-            std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
+            std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<XORGroupDescription>(node_left, std::move(node_right));
   }
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
-            std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
+  std::unique_ptr<ParameterDescriptionNode>
+  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
+            std::unique_ptr<ParameterDescriptionNode> node_right) {
+    return std::make_unique<XORGroupDescription>(std::move(node_left), std::move(node_right));
   }
 }

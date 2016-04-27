@@ -6,15 +6,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/TrackingRecHitPropagator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  TrackingRecHitPropagatorESProducer: public edm::ESProducer{
  public:
   TrackingRecHitPropagatorESProducer(const edm::ParameterSet & p);
   virtual ~TrackingRecHitPropagatorESProducer(); 
-  boost::shared_ptr<TrackingRecHitPropagator> produce(const TrackingComponentsRecord&);
+  std::shared_ptr<TrackingRecHitPropagator> produce(const TrackingComponentsRecord&);
  private:
-  boost::shared_ptr<TrackingRecHitPropagator> theHitPropagator;
+  std::shared_ptr<TrackingRecHitPropagator> theHitPropagator;
   edm::ParameterSet pset_;
 };
 

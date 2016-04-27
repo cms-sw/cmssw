@@ -5,19 +5,13 @@ TrajectoryStateOnSurface
 FullConvolutionWithMaterial::operator() (const TrajectoryStateOnSurface& tsos,
 					 const PropagationDirection propDir) const {
   //
-  // decomposition of input state
-  //
-  auto && input = tsos.components();
-  //
   // vector of result states
-  //
   MultiTrajectoryStateAssembler result;
   //
   // now add material effects to each component
   //
-  for (auto const & iTsos : input) {
+  for (auto const & iTsos : tsos.components()) {
     // add material
-    //
     TrajectoryStateOnSurface updatedTSoS = 
       theMEUpdator->updateState(iTsos,propDir);
     if ( updatedTSoS.isValid() )

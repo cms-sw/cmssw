@@ -185,7 +185,7 @@ private:
 using namespace edm::eventsetup;
 void testdependentrecord::dependentConstructorTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> depProvider =
+   std::unique_ptr<EventSetupRecordProvider> depProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
    
    CPPUNIT_ASSERT(1 == depProvider->dependentRecords().size());
@@ -606,7 +606,7 @@ void testdependentrecord::timeAndRunTest()
 
 void testdependentrecord::dependentSetproviderTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> depProvider =
+   std::unique_ptr<EventSetupRecordProvider> depProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
    
    std::shared_ptr<EventSetupRecordProvider> dummyProvider(

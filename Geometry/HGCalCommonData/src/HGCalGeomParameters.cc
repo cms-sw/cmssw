@@ -12,6 +12,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <unordered_set>
@@ -384,17 +385,30 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	  if (ktr == wafertype.end()) wafertype[wafer] = type;
 	  bool newc(false);
 	  std::map<int,HGCalGeomParameters::cellParameters>::iterator itr;
+	  double cellsize = php.cellSize_[0];
 	  if (type == 1) {
 	    itr = cellsf.find(cell);
 	    newc= (itr == cellsf.end());
 	  } else {
 	    itr = cellsc.find(cell);
 	    newc= (itr == cellsc.end());
+	    cellsize = php.cellSize_[1];
 	  }
 	  if (newc) {
 	    bool half = (name.find("Half") != std::string::npos);
 	    double xx = k_ScaleFromDDD*fv2.translation().X();
 	    double yy = k_ScaleFromDDD*fv2.translation().Y();
+	    if (half) {
+	      math::XYZPointD p1(-2.0*cellsize/9.0,0,0);
+	      math::XYZPointD p2 = fv2.rotation()(p1);
+	      xx += (k_ScaleFromDDD*(p2.X()));
+	      yy += (k_ScaleFromDDD*(p2.Y()));
+#ifdef DebugLog
+	      std::cout << "Type " << type << " Cell " << cellx << " local " 
+			<< xx << ":" << yy << " new " << p1 << ":" << p2 
+			<< std::endl;
+#endif
+	    }
 	    HGCalGeomParameters::cellParameters cp(half,wafer,GlobalPoint(xx,yy,0));
 	    if (type == 1) {
 	      cellsf[cell] = cp;
@@ -489,10 +503,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       double yy = (itr->second).xyz.y();
       int    waf= (itr->second).wafer;
       std::pair<double,double> xy = cellPosition(wafers,itrf,waf,xx,yy);
-      if ((itr->second).half) {
-	if (xy.first > 0) xy.first -= 0.001;
-	else              xy.first += 0.001;
-      } 
       php.cellFineX_.push_back(xy.first);
       php.cellFineY_.push_back(xy.second);
     }
@@ -510,10 +520,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       double yy = (itr->second).xyz.y();
       int    waf= (itr->second).wafer;
       std::pair<double,double> xy = cellPosition(wafers,itrf,waf,xx,yy);
-      if ((itr->second).half) {
-	if (xy.first > 0) xy.first -= 0.001;
-	else              xy.first += 0.001;
-      } 
       php.cellCoarseX_.push_back(xy.first);
       php.cellCoarseY_.push_back(xy.second);
     }
@@ -625,9 +631,13 @@ void HGCalGeomParameters::loadSpecParsSquare(const DDFilteredView& fv,
 
   //Grouping in the detector plane
   php.cellFactor_  = dbl_to_int(getDDDArray("GroupingXY",sv,php.nCells_));
+  int nmin = 1;
+  std::vector<double> slp = getDDDArray("Slope",sv,nmin);
+  php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: " << php.nCells_ 
-	    << " entries for cellFactor_" << std::endl;
+  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
+	    << " and " << php.nCells_ << " entries for cellFactor_" 
+	    << std::endl;
   for (int i=0; i<php.nCells_; i++) {
     std::cout << " [" << i << "] = " << php.cellFactor_[i];
     if (i%8 == 7) std::cout << std::endl;
@@ -670,9 +680,12 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   php.layerGroup_  = dbl_to_int(getDDDArray("GroupingZFine",sv,nmin));
   php.layerGroupM_ = dbl_to_int(getDDDArray("GroupingZMid",sv,nmin));
   php.layerGroupO_ = dbl_to_int(getDDDArray("GroupingZOut",sv,nmin));
+  nmin = 1;
+  std::vector<double> slp = getDDDArray("Slope",sv,nmin);
+  php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: layer grouping for the 3 ranges:" 
-	    << std::endl;
+  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
+	    << " and layer groupings for the 3 ranges:"  << std::endl;
   for (int k=0; k<nmin; ++k)
     std::cout << "[" << k << "] " << php.layerGroup_[k] << ":" 
 	      << php.layerGroupM_[k] << ":" << php.layerGroupO_[k] << std::endl;
@@ -733,7 +746,7 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string & str,
     } else {
       if (nval < 1 && nmin == 0) {
         edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str
-				   << " bins " << nval << " < 2 ==> illegal"
+				   << " bins " << nval << " < 1 ==> illegal"
 				   << " (nmin=" << nmin << ")";
         throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
       }

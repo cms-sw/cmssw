@@ -67,7 +67,7 @@ def testbeam2006(process):
             ETtotMax = cms.untracked.double(400.),
             EHCalMax = cms.untracked.double(400.),
             beamEnergy = cms.untracked.double(50.),
-            TimeLimit  = cms.double(500.),
+            TimeLimit  = cms.double(180.),
             EcalWidth  = cms.double(0.362),
             HcalWidth  = cms.double(0.640),
             EcalFactor = cms.double(1.),
@@ -95,8 +95,6 @@ def testbeam2006(process):
     process.g4SimHits.StackingAction.MaxTimeNames = cms.vstring()
     process.g4SimHits.StackingAction.MaxTrackTimes = cms.vdouble()
     process.g4SimHits.StackingAction.DeadRegions = cms.vstring()
-    process.g4SimHits.StackingAction.RusRoGammaEnergyLimit = cms.double(0.0)
-    process.g4SimHits.StackingAction.RusRoNeutronEnergyLimit = cms.double(0.0)
 
     process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(1000.0)
     process.g4SimHits.SteppingAction.MaxTimeNames = cms.vstring()

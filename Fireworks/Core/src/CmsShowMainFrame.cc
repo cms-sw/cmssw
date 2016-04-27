@@ -29,6 +29,7 @@
 
 #include <TSystem.h>
 #include <TImage.h>
+#include <TEnv.h>
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -83,7 +84,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
-
+   gClient->SetStyle("classic");
    CSGAction *openData    = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData  = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());

@@ -80,3 +80,15 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     cleaningConfig=cleaningAlgoConfig,
 
     )
+
+from Configuration.StandardSequences.Eras import eras
+# disable workerRecover_ which requires EcalEndcapGeometryRecord
+eras.phase2_common.toModify( ecalRecHit,
+    recoverEBIsolatedChannels = cms.bool(False), 
+    recoverEEIsolatedChannels = cms.bool(False), 
+    recoverEBVFE = cms.bool(False), 
+    recoverEEVFE = cms.bool(False), 
+    recoverEBFE = cms.bool(False), 
+    recoverEEFE = cms.bool(False), 
+    killDeadChannels = cms.bool(False)
+)

@@ -34,8 +34,8 @@ namespace edm {
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    runPrincipal().getAllProvenance(provenances);
+  Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    runPrincipal().getAllStableProvenance(provenances);
   }
 
 /* Not yet fully implemented

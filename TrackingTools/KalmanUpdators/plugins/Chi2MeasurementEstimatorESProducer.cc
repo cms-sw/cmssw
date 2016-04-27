@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace {
 
@@ -19,13 +19,13 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   Chi2MeasurementEstimatorESProducer(const edm::ParameterSet & p);
   virtual ~Chi2MeasurementEstimatorESProducer();
-  boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   //  static edm::ParameterSetDescription getFilledConfigurationDescription();
 
  private:
-  boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
+  std::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
   edm::ParameterSet const m_pset;
 };
 
@@ -37,7 +37,7 @@ Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm
 
 Chi2MeasurementEstimatorESProducer::~Chi2MeasurementEstimatorESProducer() {}
 
-boost::shared_ptr<Chi2MeasurementEstimatorBase> 
+std::shared_ptr<Chi2MeasurementEstimatorBase> 
 Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
   auto nSigma  = m_pset.getParameter<double>("nSigma");
@@ -45,7 +45,7 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto maxSag  = m_pset.getParameter<double>("MaxSagitta");
   auto minTol = m_pset.getParameter<double>("MinimalTolerance");
    
-  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxDis, maxSag, minTol));
+  m_estimator = std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol);
   return m_estimator;
 }
 

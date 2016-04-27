@@ -32,7 +32,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   setWhatProduced(this,name);
 }
 
-boost::shared_ptr<StripClusterParameterEstimator> StripCPEESProducer::
+std::shared_ptr<StripClusterParameterEstimator> StripCPEESProducer::
 produce(const TkStripCPERecord & iRecord) 
 { 
   edm::ESHandle<TrackerGeometry> pDD;  iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
@@ -49,19 +49,19 @@ produce(const TkStripCPERecord & iRecord)
   switch(cpeNum) {
 
   case SIMPLE:     
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ));  
+    cpe = std::make_shared<StripCPE>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
     break;
     
   case TRACKANGLE: 
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = std::make_shared<StripCPEfromTrackAngle>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
     break;
     
   case GEOMETRIC:  
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = std::make_shared<StripCPEgeometric>(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
     break;  
 
   case TEMPLATE: 
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTemplate( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = std::make_shared<StripCPEfromTemplate>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
     break;
 
   }

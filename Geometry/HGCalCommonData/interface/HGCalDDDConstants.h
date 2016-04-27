@@ -51,6 +51,7 @@ public:
   int                 maxCellsSquare(float h, float bl, float tl, float alpha,
 				     float cellSize) const;
   int                 maxRows(int lay, bool reco) const;
+  double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   std::pair<int,int>  newCell(int cell, int layer, int sector, int subsector,
@@ -70,7 +71,10 @@ public:
   std::pair<double,double> waferPosition(int wafer) const;
   int                 wafers() const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
+  // wafer transverse thickness classification (2 = coarse, 1 = fine)
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
+  // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
+  int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
   double              waferZ(int layer, bool reco) const;
 
   HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;

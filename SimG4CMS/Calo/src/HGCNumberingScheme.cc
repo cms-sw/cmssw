@@ -63,15 +63,13 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     }
   }
 #ifdef DebugLog
-  if (verbosity > 0) {
-    std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
+  std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	      << module << ":" << iz << ":";
-    if (hgcons_.geomMode() == HGCalGeometryMode::Square) 
-      std::cout << pos << " o/p " << phiSector << ":" << icell;
-    else
-      std::cout << wafer << ":" << celltyp << ":" << icell;
-    std::cout << ":" << std::hex << index << std::dec  << std::endl;
-  }
+  if (hgcons_.geomMode() == HGCalGeometryMode::Square) 
+    std::cout << pos << " o/p " << phiSector << ":" << icell;
+  else
+    std::cout << wafer << ":" << celltyp << ":" << icell;
+  std::cout << ":" << std::hex << index << std::dec  << std::endl;
 #endif
   return index;
 }

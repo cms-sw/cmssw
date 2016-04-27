@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /*
  * GeantPropagatorESProducer
@@ -19,10 +19,10 @@ class GeantPropagatorESProducer: public edm::ESProducer{
   GeantPropagatorESProducer(const edm::ParameterSet & p);
   virtual ~GeantPropagatorESProducer() override; 
 
-  boost::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
 
  private:
-  boost::shared_ptr<Propagator> _propagator;
+  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 

@@ -5,6 +5,7 @@ from RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff import *
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighPurBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
 
@@ -14,6 +15,8 @@ from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexV2BJetTags_cfi imp
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVerticesFiltered_cfi import *
 from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderFilteredTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 
 # Negative taggers
@@ -21,7 +24,9 @@ from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderFilteredNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.negativeSimpleSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.negativeSimpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.negativeSimpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.negativeSimpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.negativeCombinedSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.negativeCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 
@@ -32,20 +37,25 @@ from RecoBTag.SecondaryVertex.positiveCombinedInclusiveSecondaryVertexV2BJetTags
 # New candidate based fwk
 from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfSimpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfSimpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
-from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfosAK8_cfi import *
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderAK8TagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfBoostedDoubleSecondaryVertexAK8BJetTags_cfi import *
-from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfosCA15_cfi import *
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderCA15TagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfBoostedDoubleSecondaryVertexCA15BJetTags_cfi import *
 
 # Negative taggers
 from RecoBTag.SecondaryVertex.pfSecondaryVertexNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfNegativeSimpleSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeSimpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfNegativeCombinedSecondaryVertexV2BJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeSimpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeSimpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 
 # Positive taggers

@@ -1,8 +1,8 @@
 
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Common/interface/Provenance.h"
 
 #include <TBranch.h>
 
@@ -30,7 +30,7 @@ class ProductInfo {
 
 ProductInfo::ProductInfo(const edm::Provenance &prov, TBranch & branch, edm::EDGetToken const& token) :
     m_tag(prov.moduleLabel(), prov.productInstanceName(), prov.processName()),
-    m_type(prov.product().unwrappedTypeID()),
+    m_type(prov.branchDescription().unwrappedTypeID()),
     m_token(token),
     m_size(0)
 {

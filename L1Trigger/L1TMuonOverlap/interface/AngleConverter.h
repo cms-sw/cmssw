@@ -1,8 +1,11 @@
-#ifndef __ANGLECONVERTER_H__
-#define __ANGLECONVERTER_H__
+#ifndef ANGLECONVERTER_H
+#define ANGLECONVERTER_H
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 #include <memory>
 
 namespace edm {  
@@ -18,6 +21,8 @@ class L1MuDTChambPhDigi;
 class L1MuDTChambThContainer;
 class CSCCorrelatedLCTDigi;
 class RPCDigi;
+class CSCDetId;
+class RPCDetId;
 
   class AngleConverter {
   public:
@@ -27,16 +32,11 @@ class RPCDigi;
     ///Update the Geometry with current Event Setup
     void checkAndUpdateGeometry(const edm::EventSetup&);
 
-    ///Convert local phi coordinate to global digital OMTF scale.
-    int getGlobalPhi(unsigned int rawid, const L1MuDTChambPhDigi &aDigi);
-
-    ///Convert local phi coordinate to global digital OMTF scale.
-    int getGlobalPhi(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi);
-
-    ///Convert local phi coordinate to global digital OMTF scale.
-    ///To maintain backward comtability return float value fo global
-    ///phi. Later whewn LUT will be used will return int as other methods.
-    float getGlobalPhi(unsigned int rawid, const RPCDigi &aDigi);
+    /// get phi of DT,CSC and RPC azimutal angle digi in processor scale, used by OMTF algorithm.
+    /// in case of wrong phi returns OMTFConfiguration::instance()->nPhiBins
+    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const L1MuDTChambPhDigi &digi) const;
+    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const;
+    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const;
 
     ///Convert local eta coordinate to global digital microGMT scale.
     int getGlobalEta(unsigned int rawid, const L1MuDTChambPhDigi &aDigi,
@@ -46,7 +46,7 @@ class RPCDigi;
     int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi);
     
     ///Convert local eta coordinate to global digital microGMT scale.
-    int getGlobalEta(unsigned int rawid, const RPCDigi &aDigi);
+    int getGlobalEta(unsigned int rawid, const unsigned int &aDigi);
 
   private:
 

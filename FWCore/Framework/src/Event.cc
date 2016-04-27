@@ -2,7 +2,8 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -89,6 +90,11 @@ namespace edm {
   void
   Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
+  }
+
+  void
+  Event::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
   bool

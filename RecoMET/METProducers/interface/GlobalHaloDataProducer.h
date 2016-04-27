@@ -189,10 +189,13 @@ namespace reco
     
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
+    GlobalHaloAlgo GlobalAlgo;
+
     edm::InputTag IT_CaloTower;
     edm::InputTag IT_met;
     edm::InputTag IT_CSCRecHit;
     edm::InputTag IT_CSCSegment;
+    edm::InputTag IT_Muon;
 
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;
@@ -202,6 +205,7 @@ namespace reco
     edm::EDGetTokenT<reco::CaloMETCollection> calomet_token_;
     edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
     edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<reco::MuonCollection> muon_token_;
     edm::EDGetTokenT<CSCHaloData> cschalo_token_;
     edm::EDGetTokenT<EcalHaloData> ecalhalo_token_;
     edm::EDGetTokenT<HcalHaloData> hcalhalo_token_;
@@ -211,7 +215,8 @@ namespace reco
     float HcalMinMatchingRadius;
     float HcalMaxMatchingRadius;
     float CaloTowerEtThreshold;
-    
+
+    bool ishlt;
   };
 }
 

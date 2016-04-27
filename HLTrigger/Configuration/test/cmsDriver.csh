@@ -37,9 +37,9 @@ set NNHIMC = 25
 set NNHIRD = 25
 
 set EraRun1        = " "
-set EraRun2pp      = " --era=Run2_25ns "
-set EraRun2pp50ns  = " --era=Run2_50ns "
-set EraRun2HI      = " --era=Run2_HI   "
+set EraRun25ns     = " --era=Run2_25ns "
+set EraRun2pp      = " --era=Run2_2016 "
+set EraRun2HI      = " --era=Run2_2016,Run2_HI "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -87,8 +87,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-# foreach table ( GRun 50nsGRun HIon PIon PRef 25nsLowPU LowPU HIon_2015_v2 pp5TeV_2015_v2 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
-  foreach table ( GRun HIon PIon PRef Fake )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 )
 
     set name = ${table}_${gtag}  
 
@@ -103,7 +102,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:GT2
+      set L1REPACK = L1REPACK:Full
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
@@ -116,6 +115,18 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun1
       set Custom = " "
       set L1REPACK = L1REPACK:GT1
+    else if ( $table == Fake1 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:Fake1
+      set GTAG = ${BASE2}_Fake1
+      set RTAG = ${BASE2RD}_Fake1
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun2
+      set Era  = $EraRun25ns
+      set Custom = " "
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
@@ -127,79 +138,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 25ns14e33_v1 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:25ns14e33_v1
-      set GTAG = ${BASE2}_25ns14e33_v1
-      set RTAG = ${BASE2RD}_25ns14e33_v1
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 25ns14e33_v3 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:25ns14e33_v3
-      set GTAG = ${BASE2}_25ns14e33_v3
-      set RTAG = ${BASE2RD}_25ns14e33_v3
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 25ns14e33_v4 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:25ns14e33_v4
-      set GTAG = ${BASE2}_25ns14e33_v4
-      set RTAG = ${BASE2RD}_25ns14e33_v4
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 50nsGRun ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:50nsGRun
-      set GTAG = ${BASE2}_50nsGRun
-      set RTAG = ${BASE2RD}_50nsGRun
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp50ns
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 50ns_5e33_v1 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:50ns_5e33_v1
-      set GTAG = ${BASE2}_50ns_5e33_v1
-      set RTAG = ${BASE2RD}_50ns_5e33_v1
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp50ns
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 50ns_5e33_v3 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:50ns_5e33_v3
-      set GTAG = ${BASE2}_50ns_5e33_v3
-      set RTAG = ${BASE2RD}_50ns_5e33_v3
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp50ns
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
+      set L1REPACK = L1REPACK:Full
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -211,19 +150,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawHIon
       set Era  = $EraRun2HI
       set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == HIon_2015_v2 ) then
-      set XL1T = $XL1THI
-      set XHLT = HLT:HIon_2015_v2
-      set GTAG = ${BASE2}_HIon_2015_v2
-      set RTAG = ${BASE2RD}_HIon_2015_v2
-      set NN   = $NNHI
-      set SCEN = HeavyIons
-      set InputGenSim = $InputGenSimHIon
-      set InputLHCRaw = $InputLHCRawHIon
-      set Era  = $EraRun2HI
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
+      set L1REPACK = L1REPACK:Full
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -235,7 +162,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawPIon
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:GT2
+      set L1REPACK = L1REPACK:Full
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:PRef
@@ -247,43 +174,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == pp5TeV_2015_v2 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:pp5TeV_2015_v2
-      set GTAG = ${BASE2}_pp5TeV_2015_v2
-      set RTAG = ${BASE2RD}_pp5TeV_2015_v2
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == LowPU ) then
-      set XL1T = $XL1TLOWPU
-      set XHLT = HLT:LowPU
-      set GTAG = ${BASE2}_LowPU
-      set RTAG = ${BASE2RD}_LowPU
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp50ns
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
-    else if ( $table == 25nsLowPU ) then
-      set XL1T = $XL1TLOWPU
-      set XHLT = HLT:25nsLowPU
-      set GTAG = ${BASE2}_25nsLowPU
-      set RTAG = ${BASE2RD}_25nsLowPU
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:GT2
+      set L1REPACK = L1REPACK:Full
     else
       # unsupported
       continue
@@ -312,7 +203,7 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating FastSim $name"
-    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
+    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,DIGI2RAW,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                      --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
 
     endif
 

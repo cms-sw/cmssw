@@ -22,7 +22,6 @@
          produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of 
          the object).  If multiple items are being Produced they the 'produce' method must return an
          ESProducts<> object which holds all of the items.
-         Note: std::auto_ptr and boost::shared_ptr are also supported, but are deprecated.
       2) add 'setWhatProduced(this);' to their classes constructor
 
 Example: one algorithm creating only one object
@@ -156,16 +155,15 @@ class ESProducer : public ESProxyFactoryProducer
                               TReturn (T ::* iMethod)(const TRecord&),
                               const TArg& iDec,
                               const es::Label& iLabel = es::Label()) {
-            std::shared_ptr<eventsetup::Callback<T,TReturn,TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
-            callback(new eventsetup::Callback<T,
+            auto callback = std::make_shared<eventsetup::Callback<T,
                                           TReturn,
                                           TRecord, 
-                                          typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>(
+                                          typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(
                                                                iThis, 
                                                                iMethod, 
                                                                createDecoratorFrom(iThis, 
                                                                                     static_cast<const TRecord*>(nullptr),
-                                                                                    iDec)));
+                                                                                    iDec));
             registerProducts(callback,
                              static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                              static_cast<const TRecord*>(nullptr),
@@ -210,7 +208,7 @@ class ESProducer : public ESProxyFactoryProducer
          void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
 	    typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.default_);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
          }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
@@ -224,7 +222,7 @@ class ESProducer : public ESProxyFactoryProducer
             }
 	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T> > FactoryType;
-            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.labels_[IIndex]);
+            registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
          }
       
       // ---------- member data --------------------------------

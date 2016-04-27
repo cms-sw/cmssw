@@ -337,7 +337,6 @@ SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(const G
 #include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -365,7 +364,7 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
 
   ~SkippingLayerCosmicNavigationSchoolESProducer(){}
 
-   typedef boost::shared_ptr<NavigationSchool> ReturnType;
+   typedef std::shared_ptr<NavigationSchool> ReturnType;
 
 
   ReturnType produce(const NavigationSchoolRecord&);
@@ -373,7 +372,7 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-  boost::shared_ptr<NavigationSchool> theNavigationSchool ;
+  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 
 
 };

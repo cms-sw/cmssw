@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,7 +21,7 @@ class QGLikelihoodESProducer : public edm::ESProducer{
       QGLikelihoodESProducer(const edm::ParameterSet&);
       ~QGLikelihoodESProducer(){};
 
-      boost::shared_ptr<QGLikelihoodObject> produce(const QGLikelihoodRcd&);
+      std::shared_ptr<QGLikelihoodObject> produce(const QGLikelihoodRcd&);
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
 
    private:

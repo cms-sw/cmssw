@@ -111,7 +111,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
        CSCData.GetSegmentIsCaloMatched()
        )
     TheBeamHaloSummary->GetCSCHaloReport()[5] = 1;
-
+  
 
 
   //Ecal Specific Halo Data
@@ -274,7 +274,25 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TheBeamHaloSummary->GetGlobalHaloReport()[0] = 1;
   if( GlobalTightId )
     TheBeamHaloSummary->GetGlobalHaloReport()[1] = 1;
+  
+  //GlobalTight Id for 2016
+  if((GlobalData.GetSegmentIsEBCaloMatched() || GlobalData.GetHaloPatternFoundEB() ) ||
+     (GlobalData.GetSegmentIsEECaloMatched() || GlobalData.GetHaloPatternFoundEE() ) ||
+     (GlobalData.GetSegmentIsHBCaloMatched() || GlobalData.GetHaloPatternFoundHB() ) ||
+     (GlobalData.GetSegmentIsHECaloMatched() || GlobalData.GetHaloPatternFoundHE() ) 
+     )
+    TheBeamHaloSummary->GetGlobalHaloReport()[2] = 1;
+
+  //Global SuperTight Id for 2016 
+  if((GlobalData.GetSegmentIsEBCaloMatched() && GlobalData.GetHaloPatternFoundEB() ) ||
+     (GlobalData.GetSegmentIsEECaloMatched() && GlobalData.GetHaloPatternFoundEE() ) ||
+     (GlobalData.GetSegmentIsHBCaloMatched() && GlobalData.GetHaloPatternFoundHB() ) ||
+     (GlobalData.GetSegmentIsHECaloMatched() && GlobalData.GetHaloPatternFoundHE() ) 
+     ) 
+    TheBeamHaloSummary->GetGlobalHaloReport()[3] = 1;
  
+
+
   iEvent.put(TheBeamHaloSummary);
   return;
 }

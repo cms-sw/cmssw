@@ -29,12 +29,6 @@ namespace edm {
 
     class NamedEventSelector {
     public:
-      NamedEventSelector(std::string const& n, EventSelector const& s) :
-	inputTag_("TriggerResults", "", n),
-        token_(),
-	eventSelector_(s)
-      { }
-
       NamedEventSelector(std::string const& n, EventSelector const& s, ConsumesCollector&& iC) :
 	inputTag_("TriggerResults", "", n),
         token_(iC.consumes<TriggerResults>(inputTag_)),
@@ -65,7 +59,7 @@ namespace edm {
       typedef std::vector<NamedEventSelector>     selectors_t;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
-      void setupDefault(std::vector<std::string> const& triggernames);
+      void setupDefault();
 
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
 		 std::vector<std::string> const& triggernames,
@@ -76,6 +70,7 @@ namespace edm {
 
     private:
       selectors_t selectors_;
+      bool wantAllEvents_;
     };
 
     /** Handles the final initialization of the TriggerResutsBasedEventSelector

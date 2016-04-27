@@ -1,5 +1,3 @@
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -30,7 +28,7 @@ public:
   XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& );
   ~XMLIdealMagneticFieldGeometryESProducer();
   
-  typedef std::auto_ptr<DDCompactView> ReturnType;
+  typedef std::unique_ptr<DDCompactView> ReturnType;
   
   ReturnType produce( const IdealMagneticFieldRecord& );
 

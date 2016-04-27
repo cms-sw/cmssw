@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
@@ -41,7 +40,7 @@ public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
   ~HcalDDDRecConstantsESModule();
 
-  typedef boost::shared_ptr<HcalDDDRecConstants> ReturnType;
+  typedef std::shared_ptr<HcalDDDRecConstants> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
 

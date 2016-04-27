@@ -42,3 +42,13 @@ if eras.fastSim.isChosen():
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(premix = False)
     from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
+
+#phase 2 common mods
+def _modifyDigitizerPhase2Common( theProcess ):
+    theProcess.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
+    
+
+from Configuration.StandardSequences.Eras import eras
+modifyDigitizerPhase2Common_ = eras.phase2_common.makeProcessModifier( _modifyDigitizerPhase2Common )
+
+

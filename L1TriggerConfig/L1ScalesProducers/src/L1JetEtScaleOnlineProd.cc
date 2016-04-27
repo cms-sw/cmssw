@@ -36,7 +36,7 @@ class L1JetEtScaleOnlineProd :
       L1JetEtScaleOnlineProd(const edm::ParameterSet&);
       ~L1JetEtScaleOnlineProd();
 
-  virtual boost::shared_ptr< L1CaloEtScale > newObject(
+  virtual std::shared_ptr< L1CaloEtScale > newObject(
     const std::string& objectKey ) override ;
 
 
@@ -74,7 +74,7 @@ L1JetEtScaleOnlineProd::~L1JetEtScaleOnlineProd()
 
 }
 
-boost::shared_ptr< L1CaloEtScale >
+std::shared_ptr< L1CaloEtScale >
 L1JetEtScaleOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
@@ -237,7 +237,7 @@ L1JetEtScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      // return object
-     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( rgnEtLsb, thresholds ) );
+     return std::make_shared<L1CaloEtScale>( rgnEtLsb, thresholds );
 }
 
 

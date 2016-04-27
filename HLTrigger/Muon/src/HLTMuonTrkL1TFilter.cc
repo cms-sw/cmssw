@@ -61,7 +61,7 @@ HLTMuonTrkL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("minPt",24);
   desc.add<unsigned int>("minN",1);
   desc.add<double>("maxAbsEta",1e99);
-  descriptions.add("hltMuonTrkFilter",desc);
+  descriptions.add("hltMuonTrkL1TFilter",desc);
 }
 
 bool

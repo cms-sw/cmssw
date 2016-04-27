@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
@@ -45,7 +44,7 @@ public:
   HGCalTopologyBuilder( const edm::ParameterSet& iP );
   ~HGCalTopologyBuilder() ;
 
-  typedef boost::shared_ptr< HGCalTopology > ReturnType;
+  typedef std::shared_ptr< HGCalTopology > ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

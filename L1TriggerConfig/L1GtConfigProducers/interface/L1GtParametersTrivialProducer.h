@@ -19,7 +19,6 @@
 #include <memory>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -49,7 +48,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    boost::shared_ptr<L1GtParameters> produceGtParameters(
+    std::shared_ptr<L1GtParameters> produceGtParameters(
         const L1GtParametersRcd&);
 
 private:

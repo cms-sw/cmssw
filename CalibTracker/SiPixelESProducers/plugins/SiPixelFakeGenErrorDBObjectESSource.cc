@@ -16,7 +16,7 @@ SiPixelFakeGenErrorDBObjectESSource::~SiPixelFakeGenErrorDBObjectESSource()
 {
 }
 
-std::auto_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::produce(const SiPixelGenErrorDBObjectRcd & )
+std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::produce(const SiPixelGenErrorDBObjectRcd & )
 {
 	using namespace edm::es;
 
@@ -84,7 +84,7 @@ std::auto_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::prod
 	}
 
 	//std::cout << *obj << std::endl;
-	return std::auto_ptr<SiPixelGenErrorDBObject>(obj);
+	return std::unique_ptr<SiPixelGenErrorDBObject>(obj);
 }
 
 void SiPixelFakeGenErrorDBObjectESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 

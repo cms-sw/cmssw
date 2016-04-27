@@ -8,3 +8,4 @@ pixelDigitizer = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True)
 )
+

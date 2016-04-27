@@ -42,7 +42,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+//#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -72,6 +72,11 @@
 
 using namespace std;
 HitEff::HitEff(const edm::ParameterSet& conf) : 
+  combinatorialTracks_token_( consumes< reco::TrackCollection >(conf.getParameter<edm::InputTag>("combinatorialTracks")) ),
+  trajectories_token_( consumes< std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories")) ),
+  clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters")) ),
+  digis_token_( consumes< DetIdCollection >(conf.getParameter<edm::InputTag>("siStripDigis")) ),
+  trackerEvent_token_( consumes< MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent")) ),
   conf_(conf)
 {
   layers =conf_.getParameter<int>("Layer");
@@ -151,17 +156,18 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   //CombinatoriaTrack
   edm::Handle<reco::TrackCollection> trackCollectionCKF;
-  edm::InputTag TkTagCKF = conf_.getParameter<edm::InputTag>("combinatorialTracks");
-  e.getByLabel(TkTagCKF,trackCollectionCKF);
+  //edm::InputTag TkTagCKF = conf_.getParameter<edm::InputTag>("combinatorialTracks");
+  e.getByToken(combinatorialTracks_token_,trackCollectionCKF);
   
   edm::Handle<std::vector<Trajectory> > TrajectoryCollectionCKF;
-  edm::InputTag TkTrajCKF = conf_.getParameter<edm::InputTag>("trajectories");
-  e.getByLabel(TkTrajCKF,TrajectoryCollectionCKF);
+  //edm::InputTag TkTrajCKF = conf_.getParameter<edm::InputTag>("trajectories");
+  e.getByToken(trajectories_token_,TrajectoryCollectionCKF);
   
   // Clusters
   // get the SiStripClusters from the event
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > theClusters;
-  e.getByLabel("siStripClusters", theClusters);
+  //e.getByLabel("siStripClusters", theClusters);
+  e.getByToken(clusters_token_, theClusters);
 
   //get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
@@ -190,13 +196,15 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   // get the list of module IDs with FED-detected errors
   edm::Handle< DetIdCollection > fedErrorIds;
-  e.getByLabel("siStripDigis", fedErrorIds );
+  //e.getByLabel("siStripDigis", fedErrorIds );
+  e.getByToken(digis_token_, fedErrorIds );
 
   ESHandle<MeasurementTracker> measurementTrackerHandle;
   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
-  e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
+  //e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
+  e.getByToken(trackerEvent_token_,measurementTrackerEvent);
 
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
   es.get<TrackingComponentsRecord>().get("Chi2",est);

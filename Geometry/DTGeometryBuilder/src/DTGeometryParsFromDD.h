@@ -10,7 +10,6 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 class DTGeometry;
 class DDCompactView;

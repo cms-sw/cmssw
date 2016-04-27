@@ -17,7 +17,7 @@
     23, 18, 12, 10, 2, 0, 0x3, 0xF, 0x3F, 0x3, 0xFF, 0x3
   </Vector>
   <Vector name="Subdetector5" type="numeric" nEntries="10">
-    20, 12, 12, 2, 0, 0xF, 0x0, 0xFF, 0x3FF, 0x3
+    20, 18, 10, 2, 0, 0xF, 0x3, 0xFF, 0xFF, 0x3
   </Vector>
   <Vector name="Subdetector6" type="numeric" nEntries="14">
     18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3
@@ -30,7 +30,7 @@
     18, 20, 14,
     
     12, 10,  4,
-    10, 12,  8,
+    10, 10,  8,
     
      2,  2,  2,
      2,  2,  5,

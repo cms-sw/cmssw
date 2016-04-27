@@ -695,6 +695,3 @@ void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iVa
   }
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TSync);

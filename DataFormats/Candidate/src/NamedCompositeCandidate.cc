@@ -101,15 +101,15 @@ void NamedCompositeCandidate::addDaughter( const Candidate & cand, const std::st
   }
 
   roles_.push_back( s );
-  std::auto_ptr<Candidate> c( cand.clone() );
+  std::unique_ptr<Candidate> c( cand.clone() );
   NamedCompositeCandidate * c1 =  dynamic_cast<NamedCompositeCandidate*>(&*c);
   if ( c1 != 0 ) {
     c1->setName( s );
   }
-  CompositeCandidate::addDaughter( c );
+  CompositeCandidate::addDaughter( std::move(c) );
 }
 
-void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, const std::string& s )
+void NamedCompositeCandidate::addDaughter( std::unique_ptr<Candidate> cand, const std::string& s )
 {
   role_collection::iterator begin = roles_.begin(), end = roles_.end();
   bool isFound = ( find( begin, end, s) != end );
@@ -124,7 +124,7 @@ void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, const 
   if ( c1 != 0 ) {
     c1->setName( s );
   }
-  CompositeCandidate::addDaughter( cand );
+  CompositeCandidate::addDaughter( std::move(cand) );
 }
 
 

@@ -4,8 +4,8 @@ from RecoBTag.ImpactParameter.impactParameter_EventSetup_cff import *
 
 from RecoBTag.ImpactParameter.impactParameterTagInfos_cfi import *
 from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import *
-from RecoBTag.ImpactParameter.pfImpactParameterTagInfosAK8_cfi import *
-from RecoBTag.ImpactParameter.pfImpactParameterTagInfosCA15_cfi import *
+from RecoBTag.ImpactParameter.pfImpactParameterAK8TagInfos_cfi import *
+from RecoBTag.ImpactParameter.pfImpactParameterCA15TagInfos_cfi import *
 
 # MVA
 from RecoBTag.ImpactParameter.impactParameterMVABJetTags_cfi import *

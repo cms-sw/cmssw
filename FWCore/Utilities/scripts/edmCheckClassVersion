@@ -172,7 +172,7 @@ if options.library is None:
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:
-    if 0 != ROOT.gSystem.Load(options.library):
+    if ROOT.gSystem.Load(options.library) < 0 :
         raise RuntimeError("failed to load library '"+options.library+"'")
 
 missingDict = 0

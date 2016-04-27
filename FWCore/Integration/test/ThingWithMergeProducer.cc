@@ -66,15 +66,15 @@ namespace edmtest {
       e.getByLabel(tag, h);
     }
 
-    std::unique_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 11;
     if (!noPut_) e.put(std::move(result), std::string("event"));
 
-    std::unique_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 12;
     if (!noPut_) e.put(std::move(result2), std::string("event"));
 
-    std::unique_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 13;
     if (changeIsEqualValue_) result3->a = 14;
     if (!noPut_) e.put(std::move(result3), std::string("event"));
@@ -82,15 +82,15 @@ namespace edmtest {
 
   void ThingWithMergeProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    std::unique_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 101;
     if (!noPut_) lb.put(std::move(result), "beginLumi");
 
-    std::unique_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 102;
     if (!noPut_) lb.put(std::move(result2), "beginLumi");
 
-    std::unique_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 103;
     if (changeIsEqualValue_) result3->a = 104;
     if (!noPut_) lb.put(std::move(result3), "beginLumi");
@@ -98,15 +98,15 @@ namespace edmtest {
 
   void ThingWithMergeProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    std::unique_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 1001;
     if (!noPut_) lb.put(std::move(result), "endLumi");
 
-    std::unique_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 1002;
     if (!noPut_) lb.put(std::move(result2), "endLumi");
 
-    std::unique_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 1003;
     if (changeIsEqualValue_) result3->a = 1004;
     if (!noPut_) lb.put(std::move(result3), "endLumi");
@@ -115,15 +115,15 @@ namespace edmtest {
   // Functions that gets called by framework every run
   void ThingWithMergeProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
 
-    std::unique_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 10001;
     if (!noPut_) r.put(std::move(result), "beginRun");
 
-    std::unique_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 10002;
     if (!noPut_) r.put(std::move(result2), "beginRun");
 
-    std::unique_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 10003;
     if (changeIsEqualValue_) result3->a = 10004;
     if (!noPut_) r.put(std::move(result3), "beginRun");
@@ -131,15 +131,15 @@ namespace edmtest {
 
   void ThingWithMergeProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
 
-    std::unique_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 100001;
     if (!noPut_) r.put(std::move(result), "endRun");
 
-    std::unique_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 100002;
     if (!noPut_) r.put(std::move(result2), "endRun");
 
-    std::unique_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 100003;
     if (changeIsEqualValue_) result3->a = 100004;
     if (!noPut_) r.put(std::move(result3), "endRun");

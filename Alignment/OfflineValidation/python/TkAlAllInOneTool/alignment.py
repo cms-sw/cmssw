@@ -1,6 +1,7 @@
-import os
 import configTemplates
 from helperFunctions import replaceByMap
+import os
+import ROOT
 from TkAlExceptions import AllInOneError
 
 class Alignment:
@@ -44,9 +45,21 @@ class Alignment:
         self.runGeomComp = runGeomComp
         self.globaltag = config.get( section, "globaltag" )
         self.conditions = self.__getConditions( config, section )
+
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
-
+        try: #make sure color is an int
+            int(self.color)
+        except ValueError:
+            try:   #kRed, kBlue, ...
+                self.color = str(getattr(ROOT, self.color))
+                int(self.color)
+            except (AttributeError, ValueError):
+                raise ValueError("color has to be an integer or a ROOT constant (kRed, kBlue, ...)!")
+        try: #make sure style is an int
+            int(self.style)
+        except ValueError:
+            raise ValueError("style has to be an integer!")
         
     def __shorthandExists(self, theRcdName, theShorthand):
         """Method which checks, if `theShorthand` is a valid shorthand for the

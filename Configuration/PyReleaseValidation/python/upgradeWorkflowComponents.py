@@ -3,39 +3,40 @@
 upgradeKeys=['2017',
              '2017PU',
 	     '2023',   
-	     '2023dev', 
+	     '2023tilted', 
 	     '2023sim',
 	     '2023LReco',
-	     '2023Reco' 
-	     	       
-	     
+	     '2023Reco'
 	     ]
 
 
 upgradeGeoms={ '2017' : 'Extended2017',
-	     '2023' : 'Extended2023',   
-	     '2023dev' : 'Extended2023dev', 
-	     '2023sim' : 'Extended2023',
-	     '2023LReco': 'Extended2023',
-	     '2023Reco' : 'Extended2023'
+               '2023' : 'Extended2023',   
+               '2023tilted' : 'Extended2023tilted', 
+               '2023sim' : 'Extended2023sim',
+               '2023LReco': 'Extended2023LReco',
+               '2023Reco' : 'Extended2023Reco'
                }
 	       
-upgradeGTs={ '2017' : 'auto:phase1_2017_design',
-	     '2023' :  'auto_run2_mc',
-	     '2023dev' :  'auto_run2_mc',
-	     '2023sim' : 'auto_run2_mc',
-	     '2023LReco': 'auto_run2_mc',
-	     '2023Reco' : 'auto_run2_mc'	     	      
+upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
+	     '2023' :  'auto:run2_mc',
+	     '2023tilted' :  'auto:run2_mc',
+	     '2023sim' : 'auto:run2_mc',
+	     '2023LReco': 'auto:run2_mc',
+	     '2023Reco' : 'auto:run2_mc'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
  		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
- 		 '2023dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023dev',
+ 		 '2023tilted' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
  		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
  		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
  		 '2023Reco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Reco'
 		 
                  }
 upgradeEras={ '2017' : 'Run2_2017',
+	      '2023sim' : 'Phase2',
+	      '2023tilted' : 'Phase2',
+	      '2023LReco' : 'Phase2'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
@@ -80,7 +81,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'QQH1352T_Tauola_14TeV_cfi',
                   'MinBias_TuneZ2star_14TeV_pythia6_cff',
                   'WM_14TeV_cfi',
-                  'ZMM_14TeV_cfi',
+                  'ZMM_13TeV_TuneCUETP8M1_cfi',
 		  'QCDForPF_14TeV_cfi',
 		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
 		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
@@ -98,16 +99,15 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','DigiFulllocalreco','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
-upgradeScenToRun={ 
-                   '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023dev':['GenSimFull','DigiFull','RecoFull'],#dev scenario
+		   '2023tilted':['GenSimFull','DigiFulllocalreco'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
-		   '2023LReco':['GenSimFull','DigiFull'],#local reco scneario
+		   '2023LReco':['GenSimFull','DigiFulllocalreco'],#local reco scneario
 		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
                    }
 
@@ -153,7 +153,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'QQH1352T_Tauola_14TeV_cfi':Kby(9,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(90,100),
            'WM_14TeV_cfi':Kby(9,100),
-           'ZMM_14TeV_cfi':Kby(18,100),
+           'ZMM_13TeV_TuneCUETP8M1_cfi':Kby(18,100),
 	   'QCDForPF_14TeV_cfi':Kby(9,50),
 	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
 	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100),
@@ -201,7 +201,7 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'QQH1352T_Tauola_14TeV_cfi' : 'QQH1352T_Tauola_14TeV',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
-                            'ZMM_14TeV_cfi' : 'ZMM_14TeV',
+                            'ZMM_13TeV_TuneCUETP8M1_cfi' : 'ZMM_13',
 			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
 			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
 			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',

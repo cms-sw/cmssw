@@ -37,7 +37,7 @@ public:
     for ( int i = r.begin(); i != r.end(); i++ ) {
       for (unsigned int j = 0; j < 10000; ++j) {
         unsigned int index = inputTag->indexFor(testTypeID1, edm::InRun, reg1);
-        if (index != 5 && index != edm::ProductHolderIndexInvalid) abort();
+        if (index != 5 && index != edm::ProductResolverIndexInvalid) abort();
         // std::cout << "a\n";
       }
       for (unsigned int j = 0; j < 100; ++j) {
@@ -48,7 +48,7 @@ public:
         unsigned int index = inputTag->indexFor(testTypeID1, edm::InRun, reg1);
         // if (index != 5) abort(); // This can fail!
         // std::cout << index << " c\n";
-        if (index != 5 && index != edm::ProductHolderIndexInvalid) abort();
+        if (index != 5 && index != edm::ProductResolverIndexInvalid) abort();
       }
     }
   }
@@ -200,7 +200,7 @@ int main() {
   }
 
   unsigned int index = tag5.indexFor(testTypeID1, edm::InRun, reg1);
-  if (index != edm::ProductHolderIndexInvalid) {
+  if (index != edm::ProductResolverIndexInvalid) {
     std::cout << "InputTag::indexFor failed" << std::endl;
     abort();
   }
@@ -214,9 +214,9 @@ int main() {
     abort();
   }
 
-  if (tag5.indexFor(testTypeID1, edm::InLumi, reg1) != edm::ProductHolderIndexInvalid ||
-      tag5.indexFor(testTypeID1, edm::InRun, reg2) != edm::ProductHolderIndexInvalid ||
-      tag5.indexFor(testTypeID2, edm::InRun, reg1) != edm::ProductHolderIndexInvalid) {
+  if (tag5.indexFor(testTypeID1, edm::InLumi, reg1) != edm::ProductResolverIndexInvalid ||
+      tag5.indexFor(testTypeID1, edm::InRun, reg2) != edm::ProductResolverIndexInvalid ||
+      tag5.indexFor(testTypeID2, edm::InRun, reg1) != edm::ProductResolverIndexInvalid) {
     std::cout << "InputTag::indexFor call 3 failed" << std::endl;
     abort();
   }

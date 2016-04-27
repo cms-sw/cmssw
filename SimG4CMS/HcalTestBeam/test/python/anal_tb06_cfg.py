@@ -29,7 +29,6 @@ process.testbeam.MinE = process.common_beam_parameters.MinE
 process.testbeam.MaxE = process.common_beam_parameters.MaxE
 process.testbeam.PartID = process.common_beam_parameters.PartID
 
-process.testbeam.TestBeamAnalysis.TimeLimit  = cms.double(500.)
 process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(1.)
 process.testbeam.TestBeamAnalysis.HcalFactor = cms.double(100.)
 
