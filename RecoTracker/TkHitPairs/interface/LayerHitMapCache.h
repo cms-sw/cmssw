@@ -20,6 +20,7 @@ private:
     using ValueType = RecHitsSortedInPhi;
     using KeyType = int;
     SimpleCache(unsigned int initSize) : theContainer(initSize, nullptr){}
+    SimpleCache(SimpleCache&& rh): theContainer(std::move(rh.theContainer)) {}
     ~SimpleCache() { clear(); }
     void resize(int size) { theContainer.resize(size,nullptr); }
     const ValueType*  get(KeyType key) { return theContainer[key];}
@@ -42,6 +43,7 @@ private:
   typedef SimpleCache Cache;
 public:
   LayerHitMapCache(unsigned int initSize=50) : theCache(initSize) { }
+  LayerHitMapCache(LayerHitMapCache&& rh): theCache(std::move(rh.theCache)) {}
 
   void clear() { theCache.clear(); }
   
