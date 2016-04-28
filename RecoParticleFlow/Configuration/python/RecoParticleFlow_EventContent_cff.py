@@ -144,7 +144,11 @@ def _modifyPFEventContentForHGCalFEVT( obj ):
 
 # mods for HGCAL
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, func=_modifyPFEventContentForHGCalFEVT)
-eras.phase2_hgcal.toModify( RecoParticleFlowRECO, func=_modifyPFEventContentForHGCalRECO )
-eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  func=_modifyPFEventContentForHGCalRECO )
+eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [ 
+        'keep recoPFRecHits_particleFlowClusterECAL__*',
+        'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*'
+    ]
+)
+eras.phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*' ] )
+eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*' ] )
 
