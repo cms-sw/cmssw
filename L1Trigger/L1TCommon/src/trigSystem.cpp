@@ -9,30 +9,20 @@ trigSystem::trigSystem() : _isConfigured(false)
 
 trigSystem::~trigSystem()
 {
-	;
+
 }
 
-void trigSystem::configureSystem(const std::string& l1HltKey, const std::string& subSysName)
+void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const std::string& topCfgFile, const std::string& key)
 {
-        std::cout << "L1_HLT_key: " << l1HltKey << ", subsystem name: " << subSysName << std::endl;
-        // TODO: get _sysId from JSON
-	//_sysId = "ugmt";
-        // TODO: get processors and roles from JSON
-        // loop to add all roles and processors found in the JSON
-	//addProcRole("processors", "ugmt_processor");
+        // read hw description xml
+        // this will set the sysId
+        _xmlRdr.readDOMFromFile(hwCfgFile);
+        _xmlRdr.readRootElement(*this);
 
-        // TODO: get subsystem key and subsystem RS key from DB using l1HltKey
-        // TODO: get clobs from subsystem keys
-
-        // this is for loading from clobs from DB
-        // loop over clobs received
-        // build DOM from clob
-        //_xmlRdr.readContext(domElement, _sysId, *this);
-
-        // this is for loading from xml config file
-        _xmlRdr.readDOMFromFile("ugmt_top_config_p5.xml");
-        _xmlRdr.buildGlobalDoc("TestKey1");
-        _xmlRdr.readContexts("TestKey1", _sysId, *this);
+        // read configuration xml files
+        _xmlRdr.readDOMFromFile(topCfgFile);
+        _xmlRdr.buildGlobalDoc(key);
+        _xmlRdr.readContexts(key, _sysId, *this);
 
         _isConfigured = true;
 }
