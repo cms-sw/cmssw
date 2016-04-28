@@ -45,7 +45,8 @@ void trigSystem::addProcRole(const std::string& processor, const std::string& ro
 		if ( it->second.compare(processor) == 0 && it->first.compare(role) != 0 )
 			throw std::runtime_error ("Processor: " + processor + " already exists but with different role");
 	}	
-
+	
+	std::cout << "Adding processor: " << processor << std::endl;
 	_procRole[processor] = role;
 
 	_roleProcs[role].push_back(processor);
@@ -61,6 +62,7 @@ void trigSystem::addProcCrate(const std::string& processor, const std::string& c
 
 void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
 {
+	std::cout << "Adding setting: " << id << std::endl;
 	bool applyOnRole, foundRoleProc(false);
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
 	{
@@ -137,7 +139,7 @@ void trigSystem::addSettingTable(const std::string& id, const std::string& colum
 	if (!applyOnRole)
 	{
 		if (!checkIdExistsAndSetSetting(_procSettings[procRole], id, columns, types, rows, procRole, delim))
-			_procSettings[procRole].push_back(setting("table", id, columns, types, rows, procRole, delim));
+			_procSettings[procRole].push_back(setting(id, columns, types, rows, procRole, delim));
 
 	}
 	else
@@ -156,10 +158,10 @@ void trigSystem::addSettingTable(const std::string& id, const std::string& colum
 					}					
 				}
 				if (!settingAlreadyExist)
-					_procSettings.at(*it).push_back(setting("table", id, columns, types, rows, procRole, delim));
+					_procSettings.at(*it).push_back(setting(id, columns, types, rows, procRole, delim));
 			}
 			else
-				_procSettings[*it].push_back(setting("table", id, columns, types, rows, procRole, delim));
+				_procSettings[*it].push_back(setting(id, columns, types, rows, procRole, delim));
 		}
 
 	}
@@ -169,6 +171,9 @@ std::map<std::string, setting> trigSystem::getSettings(const std::string& proces
 {
 	if (!_isConfigured)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+	if ( _procRole.find(processor) == _procRole.end() )
+		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object");
+
 	std::map<std::string, setting> settings;
 	std::vector<setting> vecSettings = _procSettings.at(processor);
 	for(auto it=vecSettings.begin(); it!=vecSettings.end(); it++)
@@ -284,7 +289,9 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& processor)
 {
 	if (!_isConfigured)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
-
+	if ( _procRole.find(processor) == _procRole.end() )
+		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object");
+	
 	std::map<std::string, mask> masks;
 	std::vector<mask> vecMasks= _procMasks.at(processor);
 	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++)
