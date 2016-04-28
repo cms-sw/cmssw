@@ -81,20 +81,21 @@ process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useLSB = cms.bool(True)
-process.simCaloStage2Layer1Digis.verbose = cms.bool(False)
+process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
 
 process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
 process.layer1Validator.testRegionToken = cms.InputTag("l1tCaloLayer1Digis")
 process.layer1Validator.emulRegionToken = cms.InputTag("simCaloStage2Layer1Digis")
+process.layer1Validator.emulTowerToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.validateTowers = cms.bool(False)
 process.layer1Validator.validateRegions = cms.bool(True)
 process.layer1Validator.verbose = cms.bool(True)
 
 process.load('EventFilter.RctRawToDigi.l1RctHwDigis_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(inputFiles)
