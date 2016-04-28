@@ -12,8 +12,8 @@ public:
      theStrict(pset.getParameter<bool>("strictSeedExtension")),
      theExtension(pset.getParameter<int>("seedExtension")) {}
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  virtual bool qualityFilter( const Trajectory& traj) const { return QF(traj); }
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return QF(traj); }
 
   virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
   virtual bool toBeContinued( Trajectory& traj) const{ return TBC<Trajectory>(traj);}
@@ -21,6 +21,9 @@ public:
   virtual std::string name() const{return "LostHitsFractionTrajectoryFilter";}
 
 private:
+  template<class T> bool QF(const T & traj) const {
+    return traj.stopReason() != StopReason::SEED_EXTENSION; // reject tracks killed by seed extension
+  }
 
   template<class T> bool TBC(T& traj) const {
     if(theExtension <= 0) return true; // skipping checks explicitly when intended to be disabled is the safest way
