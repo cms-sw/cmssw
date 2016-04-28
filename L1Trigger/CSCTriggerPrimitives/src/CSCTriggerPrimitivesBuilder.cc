@@ -52,6 +52,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  isSLHC = commonParams.getParameter<bool>("isSLHC");
   smartME1aME1b = commonParams.getParameter<bool>("smartME1aME1b");
   disableME1a = commonParams.getParameter<bool>("disableME1a");
   disableME42 = commonParams.getParameter<bool>("disableME42");
@@ -90,13 +91,13 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
-            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
+            if (stat==1 && ring==1 && isSLHC && smartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+            else if (stat==1 && ring==1 && isSLHC && smartME1aME1b && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf) );
-            else if (stat==2 && ring==1 && runME21ILT_)
+            else if (stat==2 && ring==1 && isSLHC && runME21ILT_)
 	      tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf) );
-            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 || stat==4) && ring==1 && isSLHC && runME3141ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf) );
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
@@ -205,7 +206,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
 
             // running upgraded ME1/1 TMBs
-            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
+            if (stat==1 && ring==1 && isSLHC && smartME1aME1b && !runME11ILT_)
             {
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
  
@@ -317,7 +318,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             } // upgraded TMB
 
 	    // running upgraded ME1/1 TMBs with GEMs
-            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+            else if (stat==1 && ring==1 && isSLHC && smartME1aME1b && runME11ILT_)
 	    {
 	      CSCMotherboardME11GEM* tmb11GEM = static_cast<CSCMotherboardME11GEM*>(tmb);
 	      
@@ -443,7 +444,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 	    } 
 
             // running upgraded ME2/1 TMBs
-            else if (stat==2 && ring==1 && runME21ILT_)
+            else if (stat==2 && ring==1 && isSLHC && runME21ILT_)
 	    {
 	      CSCMotherboardME21GEM* tmb21GEM = static_cast<CSCMotherboardME21GEM*>(tmb);
 	      tmb21GEM->setCSCGeometry(csc_g);
@@ -505,7 +506,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 	      }
 	    }
 	    // running upgraded ME3/1-ME4/1 TMBs
-            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 or stat==4) && ring==1 && isSLHC && runME3141ILT_)
 	    {
 	      CSCMotherboardME3141RPC* tmb3141RPC = static_cast<CSCMotherboardME3141RPC*>(tmb);
 	      tmb3141RPC->setCSCGeometry(csc_g);
