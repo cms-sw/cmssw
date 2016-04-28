@@ -48,6 +48,10 @@ _iterations_trackingPhase1PU70 = [
     "PixelPairStep",
     "TobTecStep",
 ]
+_iterations_muonSeeded = [
+    "MuonSeededStepInOut",
+    "MuonSeededStepOutIn",
+]
 _oldStyleHasSelector = set([
     "InitialStep",
     "HighPtTripletStep",
@@ -67,7 +71,7 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
     minNumberOfLayersWithMeasBeforeFiltering = 0,
 )
 
-def _postfix(era):
+def postfix(era):
     return "_"+era if era != _defaultEra else era
 
 def _modulePrefix(iteration):
@@ -89,22 +93,28 @@ def _classifier(iteration, oldStyle=False, oldStyleQualityMasks=False):
     else:
         return pre+":QualityMasks"
 
+def allEras():
+    return _allEras
+
 def nonDefaultEras():
     return _nonDefaultEras
 
 def createEarlySequence(era, modDict):
-    postfix = _postfix(era)
+    pf = postfix(era)
     seq = cms.Sequence()
-    for it in globals()["_iterations"+postfix]:
+    for it in globals()["_iterations"+pf]:
         seq += modDict[it]
     return seq
+
+def iterationAlgos(era):
+    return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + _iterations_muonSeeded]
 
 def clusterRemoverForIter(iteration, era="", module=None):
     if module is None:
         module = _trackClusterRemoverBase.clone()
 
-    postfix = _postfix(era)
-    iters = globals()["_iterations"+postfix]
+    pf = postfix(era)
+    iters = globals()["_iterations"+pf]
     try:
         ind = iters.index(iteration)
     except ValueError:
