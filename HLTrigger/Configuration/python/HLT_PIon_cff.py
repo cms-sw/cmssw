@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V72 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/PIon/V73 (CMSSW_8_0_4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V72')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V73')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1215,6 +1215,11 @@ fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
 fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "CSCIndexerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 fragment.StableParametersRcdSource = cms.ESSource( "EmptyESSource",

@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V72 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/PIon/V73 (CMSSW_8_0_4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V72')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V73')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1215,6 +1215,11 @@ process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
 process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "CSCIndexerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+process.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
