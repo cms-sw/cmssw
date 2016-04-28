@@ -22,9 +22,11 @@ public:
 
 private:
 
-  template<class T> bool TBC(const T& traj) const {
-     if(theExtension <= 0) return true; // skipping checks explicitly when intended to be disabled is the safest way
-     return theStrict? strictTBC(traj) : looseTBC(traj);
+  template<class T> bool TBC(T& traj) const {
+    if(theExtension <= 0) return true; // skipping checks explicitly when intended to be disabled is the safest way
+    const bool ret =  theStrict? strictTBC(traj) : looseTBC(traj);
+    if(!ret) traj.setStopReason(StopReason::SEED_EXTENSION);
+    return ret;
   }
   template<class T> bool looseTBC(const T& traj) const;
   template<class T> bool strictTBC(const T& traj) const;
