@@ -24,6 +24,13 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+def customiseFor14282(process):
+    process.GlobalParametersRcdSource = cms.ESSource("EmptyESSource",
+        recordName = cms.string('L1TGlobalParametersRcd'),
+        iovIsRunNotTime = cms.bool(True),
+        firstValid = cms.vuint32(1))
+    return process
+
 # Add quadruplet-specific pixel track duplicate cleaning mode (PR #13753)
 def customiseFor13753(process):
     for producer in producers_by_type(process, "PixelTrackProducer"):
@@ -40,6 +47,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_8_1":
         process = customiseFor13753(process)
+        process = customiseFor14282(process)
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
