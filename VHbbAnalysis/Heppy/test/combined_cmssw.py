@@ -71,20 +71,13 @@ def initialize(**kwargs):
     # Boosted Substructure
     ########################################
     
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis#Muons
-    # As we can't get the vertex in the selection string use TightNoVtx instead of Tight
-    # taken from https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_6_3_patch2/doc/html/df/d34/Muon_8py_source.htlm
-    process.selectedMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.4 && pt>15. &&
-    isLooseMuon() &&
-    isGlobalMuon() &&
-    globalTrack().normalizedChi2() < 10 &&
-    globalTrack().hitPattern().numberOfValidMuonHits() > 0 &&
-    numberOfMatchedStations()>1 &&
-    innerTrack().hitPattern().numberOfValidPixelHits()>0 &&
-    innerTrack().hitPattern().trackerLayersWithMeasurement() > 5 &&
-    ((pfIsolationR04().sumChargedHadronPt + max( pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - 0.5 * pfIsolationR04().sumPUPt,0.0)) / pt() < 0.25)'''))
-
-
+    # Use the trivial selector to convert patMuons into reco::Muons for removal
+    process.selectedMuonsTmp = cms.EDProducer("MuonRemovalForBoostProducer", 
+                                                  src = cms.InputTag("slimmedMuons"),
+                                                  vtx = cms.InputTag("offlineSlimmedPrimaryVertices"))
+    process.selectedMuons = cms.EDFilter("CandPtrSelector", 
+                                             src = cms.InputTag("selectedMuonsTmp"), 
+                                             cut = cms.string("1"))
 
     # Use the trivial selector to convert patElectrons into reco::Electrons for removal
     process.selectedElectronsTmp = cms.EDProducer("ElectronRemovalForBoostProducer", 
