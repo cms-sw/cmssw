@@ -57,6 +57,14 @@ public:
 private:
 
   PrescalesVetosHelper data_;
+
+  unsigned int m_numberPhysTriggers;
+  std::string m_prescalesFile;
+
+  std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
+  std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
+  std::vector<int> m_initialTriggerMaskVetoAlgoTrig;
+  
 };
 
 //
@@ -78,6 +86,169 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
+
+  // directory in /data/Luminosity for the trigger menu
+  std::string menuDir = conf.getParameter<std::string>("TriggerMenuLuminosity");
+  //std::string menuDir = "startup";
+
+  // prescale CSV file
+  std::string prescaleFileName = conf.getParameter<std::string>("PrescaleCSVFile");
+
+  edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/" +
+		     menuDir + "/" + prescaleFileName);
+
+  m_prescalesFile = f1.fullPath();
+
+  unsigned int temp_numberPhysTriggers = 512;
+ 
+  // Get prescale factors from CSV file for now
+  std::fstream inputPrescaleFile;
+  inputPrescaleFile.open(m_prescalesFile);
+
+  std::vector<std::vector<int> > vec;
+  std::vector<std::vector<int> > prescale_vec;
+
+  std::vector<unsigned int> temp_triggerMask;
+  std::vector<int> temp_triggerVetoMask;
+
+  if( inputPrescaleFile ){
+    std::string prefix1("#");
+    std::string prefix2("-1");
+
+    std::string line; 
+
+    bool first = true;
+
+    while( getline(inputPrescaleFile,line) ){
+
+      if( !line.compare(0, prefix1.size(), prefix1) ) continue;
+      //if( !line.compare(0, prefix2.size(), prefix2) ) continue;
+
+      istringstream split(line);
+      int value;
+      int col = 0;
+      char sep;
+
+      while( split >> value ){
+	if( first ){
+	  // Each new value read on line 1 should create a new inner vector
+	  vec.push_back(std::vector<int>());
+	}
+
+	vec[col].push_back(value);
+	++col;
+
+	// read past the separator
+	split>>sep;
+      }
+
+      // Finished reading line 1 and creating as many inner
+      // vectors as required
+      first = false;
+    }
+
+
+    int NumPrescaleSets = 0;
+
+    int maskColumn = -1;
+    int maskVetoColumn = -1;
+    for( int iCol=0; iCol<int(vec.size()); iCol++ ){
+      if( vec[iCol].size() > 0 ){
+	int firstRow = vec[iCol][0];
+
+	if( firstRow > 0 ) NumPrescaleSets++;
+	else if( firstRow==-2 ) maskColumn = iCol;
+	else if( firstRow==-3 ) maskVetoColumn = iCol;
+      }
+    }
+
+    // Fill default values for mask and veto mask
+    for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
+      unsigned int inputDefaultMask = 1;
+      unsigned int inputDefaultVetoMask = 0;
+      temp_triggerMask.push_back(inputDefaultMask);
+      temp_triggerVetoMask.push_back(inputDefaultVetoMask);
+    }
+
+    // Fill non-trivial mask and veto mask
+    if( maskColumn>=0 || maskVetoColumn>=0 ){
+      for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
+	unsigned int algoBit = vec[0][iBit];
+	// algoBit must be less than the number of triggers
+	if( algoBit < temp_numberPhysTriggers ){
+	  if( maskColumn>=0 ){
+	    unsigned int triggerMask = vec[maskColumn][iBit];
+	    temp_triggerMask[algoBit] = triggerMask;
+	  }
+	  if( maskVetoColumn>=0 ){
+	    unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
+	    temp_triggerVetoMask[algoBit] = triggerVetoMask;
+	  }
+	}
+      }
+    }
+
+
+    if( NumPrescaleSets > 0 ){
+      // Fill default prescale set
+      for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	prescale_vec.push_back(std::vector<int>());
+	for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
+	  int inputDefaultPrescale = 1;
+	  prescale_vec[iSet].push_back(inputDefaultPrescale);
+	}
+      }
+
+      // Fill non-trivial prescale set
+      for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
+	unsigned int algoBit = vec[0][iBit];
+	// algoBit must be less than the number of triggers
+	if( algoBit < temp_numberPhysTriggers ){
+	  for( int iSet=0; iSet<int(vec.size()); iSet++ ){
+	    int useSet = -1;
+	    if( vec[iSet].size() > 0 ){
+	      useSet = vec[iSet][0];
+	    }
+	    useSet -= 1;
+	      
+	    if( useSet<0 ) continue;
+
+	    int prescale = vec[iSet][iBit];
+	    prescale_vec[useSet][algoBit] = prescale;
+	  }
+	}
+	else{
+	  LogTrace("L1TGlobalPrescalesVetosESProducer")
+	    << "\nPrescale file has algo bit: " << algoBit
+	    << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
+	    << "\nSomething is wrong. Ignoring."
+	    << std::endl;
+	}
+      }
+    }
+
+  }
+  else {
+    LogTrace("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find file: " << m_prescalesFile
+      << "\nFilling the prescale vectors with prescale 1"
+      << "\nSetting prescale set to 1"
+      << std::endl;
+
+    for( int col=0; col < 1; col++ ){
+      prescale_vec.push_back(std::vector<int>());
+      for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
+	int inputDefaultPrescale = 1;
+	prescale_vec[col].push_back(inputDefaultPrescale);
+      }
+    }
+  }
+
+  inputPrescaleFile.close();
+
+  m_initialPrescaleFactorsAlgoTrig = prescale_vec;
+  m_initialTriggerMaskAlgoTrig = temp_triggerMask;
+  m_initialTriggerMaskVetoAlgoTrig = temp_triggerVetoMask;
 
 }
 
@@ -102,7 +273,8 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
   
   // configure the helper class parameters via its set funtions, e.g.:
   data_.setBxMaskDefault(0);
-  
+  data_.setPrescaleFactorTable(m_initialPrescaleFactorsAlgoTrig);
+  data_.setTriggerMaskVeto(m_initialTriggerMaskVetoAlgoTrig);
 
   // write the condition format to the event setup via the helper:
   using namespace edm::es;
