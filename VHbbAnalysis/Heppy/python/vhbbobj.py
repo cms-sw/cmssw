@@ -374,7 +374,9 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
 # Four Vector + b-Tag
 
 subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
-    NTupleVariable("btag",  lambda x : x.btag, help="CVS IVF V2 btag-score")])
+    NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
+],)
 
 ##------------------------------------------  
 ## PAT Subjet

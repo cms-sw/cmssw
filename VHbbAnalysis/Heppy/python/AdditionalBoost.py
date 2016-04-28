@@ -698,7 +698,7 @@ class AdditionalBoost( Analyzer ):
             self.handles['ca15softdrop']            = AutoHandle( ("ca15PFSoftdropJetsCHS","","EX"), "std::vector<reco::BasicJet>")
             self.handles['ca15softdropz2b1']        = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","","EX"), "std::vector<reco::BasicJet>")
 
-            self.handles['ca15subjetfiltered']        = AutoHandle( ("ca15PFSubjetFilterCHS","fat","EX"), "std::vector<reco::BasicJet>")
+            self.handles['ca15subjetfiltered']        = AutoHandle( ("ca15PFSubjetFilterCHS","filtercomp","EX"), "std::vector<reco::BasicJet>")
 
             self.handles['ca15prunedsubjets']       = AutoHandle( ("ca15PFPrunedJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
             self.handles['ca15softdropsubjets']     = AutoHandle( ("ca15PFSoftdropJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
@@ -828,6 +828,9 @@ class AdditionalBoost( Analyzer ):
 #
 #        setattr(event, 'ak08prunedcal', pruned_cal_jets)
 #
+
+
+
             
         ######## 
         # Subjets 
@@ -838,14 +841,44 @@ class AdditionalBoost( Analyzer ):
             if self.skip_ca15 and ("ca15" in fj_name):
                 continue
 
+            # Get the 4-vectors
             setattr(event, fj_name + "subjets", map(PhysicsObject, self.handles[fj_name+"subjets"].product()))
             
+            # Add b-tag information
             newtags =  self.handles[fj_name+'subjetbtag'].product()
             for i in xrange(0,len(newtags)) :
                 for j in getattr(event, fj_name+"subjets"):
                     if  j.physObj == newtags.key(i).get():
                         j.btag = newtags.value(i)
 
+            # Add information from which FJ the subjet comes
+            # Loop over subjets
+            for j in getattr(event, fj_name+"subjets"):
+
+                j.fromFJ = -1
+
+                # Loop over fatjets
+                for i_fj, fj in enumerate(getattr(event, fj_name)):
+
+                    # Loop over daughters (and see if they correspond to the subjet)
+                    # (Unfortunately the object == fails, so we have to use kinematics)
+                    for i_daughter in range(fj.numberOfDaughters()):
+
+                        if not fj_name == "ca15subjetfiltered":
+                            daughter = fj.daughter(i_daughter)
+                        else:
+                            daughter = fj.daughterPtr(i_daughter).get()                            
+
+                        if (daughter.pt() == j.pt() and 
+                            daughter.eta() == j.eta() and 
+                            daughter.phi() == j.phi() and
+                            daughter.mass() == j.mass()):
+
+                            j.fromFJ = i_fj
+                            break
+
+                    if j.fromFJ > -1:
+                        break
 
         ######## 
         # HEPTopTagger

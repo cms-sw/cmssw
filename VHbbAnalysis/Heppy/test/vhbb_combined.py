@@ -89,7 +89,7 @@ if not boostana.skip_ca15:
                                                                      help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=1, beta=0")
 
 
-    treeProducer.collections["ca15subjetfilteredsubjets"] = NTupleCollection("SubjetCA15subjetfilter",
+    treeProducer.collections["ca15subjetfilteredsubjets"] = NTupleCollection("SubjetCA15subjetfiltered",
                                                                              subjetType,
                                                                              10,
                                                                              help="Subjets of CA, R=1.5, pT > 200 GeV, BDRS, filterjets")
