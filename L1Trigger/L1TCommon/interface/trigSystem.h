@@ -28,6 +28,7 @@ class trigSystem
 		std::map<std::string, mask> getMasks(const std::string& proccessor);
 		bool isMasked(const std::string& proccessor, const std::string& id);
 		bool isProcEnabled(const std::string& proccessor);
+		void setConfigured(const bool state=true) { _isConfigured=state; };
 
 
 	private:
