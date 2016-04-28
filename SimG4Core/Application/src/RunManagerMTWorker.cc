@@ -181,6 +181,9 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   int thisID = getThreadIndex();
 
+  edm::LogInfo("SimG4CoreApplication")
+    << "RunManagerMTWorker::initializeThread " << thisID;
+
   // Initialize per-thread output
   G4Threading::G4SetThreadId( thisID );
   G4UImanager::GetUIpointer()->SetUpForAThread( thisID );
@@ -274,6 +277,10 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   m_tls->registry.beginOfJobSignal_(&aBeginOfJob);
 
   initializeUserActions();
+
+  edm::LogInfo("SimG4CoreApplication")
+    << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
+
   /*
   for(const std::string& command: runManagerMaster.G4Commands()) {
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
@@ -361,6 +368,7 @@ void RunManagerMTWorker::initializeRun() {
 }
 
 void RunManagerMTWorker::terminateRun() {
+  /*
   if(m_tls && m_tls->userRunAction) {
     m_tls->userRunAction->EndOfRunAction(m_tls->currentRun.get());
     m_tls->userRunAction.reset();
@@ -373,6 +381,7 @@ void RunManagerMTWorker::terminateRun() {
     kernel->RunTermination();
     m_tls->runTerminated = true;
   }
+  */
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, 
@@ -386,6 +395,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
   //
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves. 
+
   if(!(m_tls && m_tls->threadInitialized)) {
     LogDebug("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
     initializeThread(runManagerMaster, es);
