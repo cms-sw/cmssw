@@ -172,7 +172,7 @@ std::map<std::string, setting> trigSystem::getSettings(const std::string& proces
 	if (!_isConfigured)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
 	if ( _procRole.find(processor) == _procRole.end() )
-		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object");
+		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object list");
 
 	std::map<std::string, setting> settings;
 	std::vector<setting> vecSettings = _procSettings.at(processor);
@@ -290,7 +290,7 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& processor)
 	if (!_isConfigured)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
 	if ( _procRole.find(processor) == _procRole.end() )
-		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object");
+		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object list");
 	
 	std::map<std::string, mask> masks;
 	std::vector<mask> vecMasks= _procMasks.at(processor);
