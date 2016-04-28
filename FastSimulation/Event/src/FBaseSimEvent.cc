@@ -149,9 +149,9 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 				  simVertices[0].position().z(),
 				  simVertices[0].position().t());
   //
-  myFilter->setMainVertex(primaryVertex);
+  //myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
-  addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
+  addSimVertex(/*myFilter->vertex()*/primaryVertex, -1, FSimVertexType::PRIMARY_VERTEX);
   myVertices[0] = 0;
 
   for( unsigned trackId=0; trackId<nTks; ++trackId ) {
@@ -360,20 +360,18 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 					  primaryVertex->position().z()/10.,
 					  primaryVertex->position().t()/10.);
 
-  // Set the main vertex
-  myFilter->setMainVertex(primaryVertexPosition);
-
   // This is the main vertex index
-  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
-
-  HepMC::GenEvent::particle_const_iterator piter;
-  HepMC::GenEvent::particle_const_iterator pbegin = myGenEvent.particles_begin();
-  HepMC::GenEvent::particle_const_iterator pend = myGenEvent.particles_end();
+  int mainVertex = addSimVertex(primaryVertexPosition, -1, FSimVertexType::PRIMARY_VERTEX);
 
   int initialBarcode = 0; 
-  if ( pbegin != pend ) initialBarcode = (*pbegin)->barcode();
+  if ( myGenEvent.particles_begin() != myGenEvent.particles_end() )
+  {
+      initialBarcode = (*myGenEvent.particles_begin())->barcode();
+  }
+
   // Loop on the particles of the generated event
-  for ( piter = pbegin; piter != pend; ++piter ) {
+  for ( auto piter =  myGenEvent.particles_begin(); piter !=  myGenEvent.particles_end(); ++piter ) 
+  {
 
     // This is the generated particle pointer - for the signal event only
     HepMC::GenParticle* p = *piter;
@@ -404,7 +402,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 			      productionVertex->position().t()/10.);
       }
     }
-    if ( !myFilter->accept(productionVertexPosition) ) continue;
+    if ( !myFilter->acceptVertex(productionVertexPosition) ) continue;
 
     int abspdgId = abs(p->pdg_id());
     HepMC::GenVertex* endVertex = p->end_vertex();
@@ -535,7 +533,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
   
   // Check that the particle is in the Famos "acceptance"
   // Keep all primaries of pile-up events, though
-  if ( !myFilter->accept(p) && ig >= -1 ) return -1;
+  if ( !myFilter->acceptParticle(*p) && ig >= -1 ) return -1;
 
   // The new track index
   int trackId = nSimTracks++;
@@ -573,7 +571,7 @@ int
 FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type) {
   
   // Check that the vertex is in the Famos "acceptance"
-  if ( !myFilter->accept(v) ) return -1;
+  if ( !myFilter->acceptVertex(v) ) return -1;
 
   // The number of vertices
   int vertexId = nSimVertices++;
@@ -735,32 +733,8 @@ FBaseSimEvent::chargedTrack(int id) const {
     return -1;
 }
 
-/* 
-const SimTrack & 
-FBaseSimEvent::embdTrack(int i) const {  
-  return (*theSimTracks)[i].simTrack();
-}
-
-const SimVertex & 
-FBaseSimEvent::embdVertex(int i) const { 
-  return (*theSimVertices)[i].simVertex();
-}
-*/
-
 const HepMC::GenParticle* 
 FBaseSimEvent::embdGenpart(int i) const {
   return (*theGenParticles)[i]; 
 }
 
-/*
-FSimTrack&  
-FBaseSimEvent::track(int id) const { 
-  return (*theSimTracks)[id];
-}
-
-
-FSimVertex&  
-FBaseSimEvent::vertex(int id) const { 
-  return (*theSimVertices)[id];
-}
-*/
