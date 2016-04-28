@@ -117,12 +117,12 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 }
 
 
-void XmlConfigReader::readRootElement(const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readRootElement(trigSystem& aTrigSystem, const std::string& sysId)
 {
   DOMElement* rootElement = doc_->getDocumentElement();
   if (rootElement) {
     if (rootElement->getNodeType() == DOMNode::ELEMENT_NODE) {
-      readElement(rootElement, sysId, aTrigSystem);
+      readElement(rootElement, aTrigSystem, sysId);
     }
   } else {
     std::cout << "No xml root element found" << std::endl;
@@ -130,11 +130,11 @@ void XmlConfigReader::readRootElement(const std::string& sysId, trigSystem& aTri
 }
 
 
-void XmlConfigReader::readElement(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readElement(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
 {
   if (XMLString::equals(element->getTagName(), kTagHw)) {
     // in case this is a HW description
-    readHwDescription(element, sysId, aTrigSystem);
+    readHwDescription(element, aTrigSystem, sysId);
   } else if (XMLString::equals(element->getTagName(), kTagAlgo) || XMLString::equals(element->getTagName(), kTagRunSettings)) {
     // in case this is a configuration snippet
     readContext(element, sysId, aTrigSystem);
@@ -142,19 +142,22 @@ void XmlConfigReader::readElement(const DOMElement* element, const std::string& 
 }
 
 
-void XmlConfigReader::readHwDescription(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
 {
-  if (_toString(element->getAttribute(kAttrId)) == sysId) {
-    DOMNodeList* processors = element->getElementsByTagName(kAttrProcessor);
-    const  XMLSize_t nodeCount = processors->getLength();
+  // if sysId == "" set the systemId of the trigsystem from the xml sytem id
+  if (sysId != "" && sysId != _toString(element->getAttribute(kAttrId))) {
+    return;
+  }
+  aTrigSystem.setSystemId(_toString(element->getAttribute(kAttrId)));
+  DOMNodeList* processors = element->getElementsByTagName(kAttrProcessor);
+  const  XMLSize_t nodeCount = processors->getLength();
 
-    for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
-      DOMNode* currentNode = processors->item(xx);
-      if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
-        DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-        aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrRole)));
-        aTrigSystem.addProcCrate(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrCrate)));
-      }
+  for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
+    DOMNode* currentNode = processors->item(xx);
+    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
+      DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
+      aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrRole)));
+      aTrigSystem.addProcCrate(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrCrate)));
     }
   }
 }
