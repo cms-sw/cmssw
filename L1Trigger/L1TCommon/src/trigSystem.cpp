@@ -112,6 +112,59 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 	}
 }
 
+void trigSystem::addSettingTable(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
+{
+	bool applyOnRole, foundRoleProc(false);
+	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
+	{
+		if (it->first.compare(procRole) == 0)
+		{
+			applyOnRole = false;
+			foundRoleProc = true;
+			break;
+		}
+		else if (it->second.compare(procRole) == 0)
+		{
+			applyOnRole = true;
+			foundRoleProc = true;
+			break;
+		}
+	}
+
+	if (!foundRoleProc)
+		throw std::runtime_error ("Processor or Role " + procRole + " was not found in the map");
+
+	if (!applyOnRole)
+	{
+		if (!checkIdExistsAndSetSetting(_procSettings[procRole], id, columns, types, rows, procRole, delim))
+			_procSettings[procRole].push_back(setting("table", id, columns, types, rows, procRole, delim));
+
+	}
+	else
+	{
+		for( auto it = _roleProcs[procRole].begin(); it != _roleProcs[procRole].end(); it++)
+		{			
+			if ( _procSettings.find(*it) != _procSettings.end() )
+			{
+				bool settingAlreadyExist(false);
+				for(auto is = _procSettings.at(*it).begin(); is != _procSettings.at(*it).end(); is++)
+				{
+					if (is->getId().compare(id) == 0)
+					{
+						settingAlreadyExist = true;
+						break;
+					}					
+				}
+				if (!settingAlreadyExist)
+					_procSettings.at(*it).push_back(setting("table", id, columns, types, rows, procRole, delim));
+			}
+			else
+				_procSettings[*it].push_back(setting("table", id, columns, types, rows, procRole, delim));
+		}
+
+	}
+}
+
 std::map<std::string, setting> trigSystem::getSettings(const std::string& processor)
 {
 	if (!_isConfigured)
@@ -124,7 +177,7 @@ std::map<std::string, setting> trigSystem::getSettings(const std::string& proces
 	return settings;
 }
 
-template <class varType> bool trigSystem::checkIdExistsAndSetSetting(std::vector<varType>& vec, const std::string& id, const std::string& value, const std::string& procRole)
+bool trigSystem::checkIdExistsAndSetSetting(std::vector<setting>& vec, const std::string& id, const std::string& value, const std::string& procRole)
 {
 	bool found(false);
 	for(auto it = vec.begin(); it != vec.end(); it++)
@@ -134,6 +187,43 @@ template <class varType> bool trigSystem::checkIdExistsAndSetSetting(std::vector
 			found = true;
 			it->setValue(value);
 			it->setProcRole(procRole);
+		}
+	}
+
+	return found;
+}
+
+bool trigSystem::checkIdExistsAndSetSetting(std::vector<setting>& vec, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
+{
+	bool found(false);
+	for(auto it = vec.begin(); it != vec.end(); it++)
+	{
+		if (it->getId().compare(id) == 0)
+		{
+			found = true;
+						
+			std::string vecTypes, vecColumns;
+		/*	if ( !parse ( std::string(columns+delim+" ").c_str(),
+			(
+				* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vecColumns ) ] >> *boost::spirit::classic::space_p )
+			), boost::spirit::classic::nothing_p ).full )
+			{ 	
+				throw std::runtime_error ("Wrong value format: " + columns);
+			}
+
+			if ( !parse ( std::string(types+delim+" ").c_str(),
+			(
+				* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vecTypes ) ] >> *boost::spirit::classic::space_p )
+			), boost::spirit::classic::nothing_p ).full )
+			{ 	
+				throw std::runtime_error ("Wrong value format: " + types);
+			}
+*/
+			it->resetTableRows();
+			it->setTableTypes(vecTypes);
+			it->setTableColumns(vecColumns);
+			for(auto ir=rows.begin(); ir!=rows.end(); ir++)
+				it->addTableRow(*ir, delim);
 		}
 	}
 
