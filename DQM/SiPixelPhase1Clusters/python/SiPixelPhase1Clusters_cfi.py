@@ -73,28 +73,58 @@ SiPixelPhase1ClustersEventrate = DefaultHisto.clone(
 
 SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
   bookUndefined = False,
-  name = "clusterposition",
+  name = "clusterposition_zphi",
   title = "Cluster Positions",
-  range_min   =  -30, range_max   =  30, range_nbins   = 200,
+  range_min   =  -60, range_max   =  60, range_nbins   = 600,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
   specs = cms.VPSet(
-    Specification().groupBy("PXBarrel/PXLayer")
-                   .save()
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXRing").save(),
+    Specification().groupBy("").save(),
   )
 )
 
 SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
-  name = "clusterposition",
+  bookUndefined = False,
+  name = "clusterposition_xy",
   title = "Cluster Positions",
   xlabel = "Global X", ylabel = "Global Y",
   range_min   = -20, range_max   = 20, range_nbins   = 200,
   range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
   dimensions = 2,
   specs = cms.VPSet(
-    Specification().groupBy("PXForward|PXBarrel/PXDisk|")
-                   .save(),
+    Specification().groupBy("PXForward/HalfCylinder/PXDisk").save(),
+    Specification().groupBy("PXBarrel").save(),
+  )
+)
+
+SiPixelPhase1ClustersPositionXZ = DefaultHisto.clone(
+  enabled = False, # only for debugging geometry
+  name = "clusterposition_xz",
+  title = "Cluster Positions",
+  xlabel = "Global X", ylabel = "Global Z",
+  range_min   = -20, range_max   = 20, range_nbins   = 200,
+  range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
+  dimensions = 2,
+  specs = cms.VPSet(
+    Specification().groupBy(DefaultHisto.defaultGrouping)
+                   .saveAll(),
+  )
+)
+
+SiPixelPhase1ClustersPositionYZ = DefaultHisto.clone(
+  enabled = False, # only for debugging geometry
+  name = "clusterposition_yz",
+  title = "Cluster Positions",
+  xlabel = "Global Y", ylabel = "Global Z",
+  range_min   = -20, range_max   = 20, range_nbins   = 200,
+  range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
+  dimensions = 2,
+  specs = cms.VPSet(
+    Specification().groupBy(DefaultHisto.defaultGrouping)
+                   .saveAll(),
   )
 )
 
@@ -119,6 +149,8 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersEventrate,
   SiPixelPhase1ClustersPositionB,
   SiPixelPhase1ClustersPositionF,
+  SiPixelPhase1ClustersPositionXZ,
+  SiPixelPhase1ClustersPositionYZ,
   SiPixelPhase1ClustersSizeVsEta
 )
 

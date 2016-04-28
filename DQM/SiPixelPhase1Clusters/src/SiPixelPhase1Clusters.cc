@@ -52,6 +52,8 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
       histo[POSITION_B ].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
       histo[POSITION_F ].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+      histo[POSITION_XZ].fill(clustgp.x(),   clustgp.z(),     id, &iEvent);
+      histo[POSITION_YZ].fill(clustgp.y(),   clustgp.z(),     id, &iEvent);
       histo[SIZE_VS_ETA].fill(clustgp.eta(), cluster.sizeY(), id, &iEvent);
 
       if (geometryInterface.extract(forward, id) != GeometryInterface::UNDEFINED)

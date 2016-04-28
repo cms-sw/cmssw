@@ -19,6 +19,8 @@ class SiPixelPhase1Clusters : public SiPixelPhase1Base {
     EVENTRATE,
     POSITION_B,
     POSITION_F,
+    POSITION_XZ,
+    POSITION_YZ,
     SIZE_VS_ETA
   };
 
