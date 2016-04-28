@@ -214,6 +214,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
        
     edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
 					 << simg4ex.what();
+    m_runManager->stopG4();
        
     throw edm::Exception( edm::errors::EventCorruption ) 
       << "SimG4CoreApplication exception in generation of event "
