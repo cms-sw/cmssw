@@ -51,9 +51,9 @@ namespace edm {
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup){
 
-      std::auto_ptr< std::vector< edm::FwdPtr<T> > > pOutput ( new std::vector<edm::FwdPtr<T> > );
+      std::unique_ptr< std::vector< edm::FwdPtr<T> > > pOutput ( new std::vector<edm::FwdPtr<T> > );
 
-      std::auto_ptr< std::vector<T> > pClones ( new std::vector<T> );
+      std::unique_ptr< std::vector<T> > pClones ( new std::vector<T> );
 
 
       edm::Handle< std::vector< edm::FwdPtr<T> > > hSrcAsFwdPtr;
@@ -94,9 +94,9 @@ namespace edm {
       }
 
       bool pass = pOutput->size() > 0;
-      iEvent.put( pOutput );
+      iEvent.put(std::move(pOutput));
       if ( makeClones_ )
-	iEvent.put( pClones );
+	iEvent.put(std::move(pClones));
       if ( filter_ )
 	return pass;
       else

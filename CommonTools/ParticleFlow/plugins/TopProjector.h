@@ -269,7 +269,7 @@ void TopProjector< Top, Bottom, Matcher >::produce( edm::Event& iEvent,
 
   // output collection of FwdPtrs to objects,
   // selected from the Bottom collection
-  std::auto_ptr< BottomFwdPtrCollection >
+  std::unique_ptr< BottomFwdPtrCollection >
     pBottomFwdPtrOutput( new BottomFwdPtrCollection );
 
   LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ ";
@@ -297,7 +297,7 @@ void TopProjector< Top, Bottom, Matcher >::produce( edm::Event& iEvent,
     }
   }
 
-  iEvent.put( pBottomFwdPtrOutput );
+  iEvent.put(std::move(pBottomFwdPtrOutput));
 }
 
 

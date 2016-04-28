@@ -102,7 +102,7 @@ void
 SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr< PFOutputCollection > pOutput( new PFOutputCollection );
+  std::unique_ptr< PFOutputCollection > pOutput( new PFOutputCollection );
 
   // get PF Candidates
   edm::Handle<reco::CandidateView> pfCandidates;
@@ -123,7 +123,7 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<fastjet::PseudoJet> soft_killed_event;
   soft_killer.apply(fjInputs, soft_killed_event, pt_threshold);
 
-  std::auto_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
+  std::unique_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection skP4s;
 
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
@@ -154,8 +154,8 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   p4SKFiller.insert(pfCandidates,skP4s.begin(), skP4s.end() );
   p4SKFiller.fill();
 
-  iEvent.put(p4SKOut,"SoftKillerP4s");
-  iEvent.put( pOutput );
+  iEvent.put(std::move(p4SKOut),"SoftKillerP4s");
+  iEvent.put(std::move(pOutput));
 
 }
 
