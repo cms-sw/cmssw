@@ -6,18 +6,11 @@ process = cms.Process('cluTest')
 
 # Import all the necessary files
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration.StandardSequences.L1Reco_cff')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('Configuration.StandardSequences.Validation_cff')
-process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.Geometry.GeometryExtended2023LRecoReco_cff')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(
@@ -31,7 +24,8 @@ process.source = cms.Source('PoolSource',
 
 # TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Output
 process.TFileService = cms.Service('TFileService',
@@ -50,8 +44,18 @@ process.MessageLogger = cms.Service('MessageLogger',
 # Analyzer
 process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
     src = cms.InputTag("siPhase2Clusters"),
-    links = cms.InputTag("simSiPixelDigis")
+    links = cms.InputTag("simSiPixelDigis", "Tracker")
 )
 
 # Processes to run
 process.p = cms.Path(process.analysis)
+
+
+#from SLHCUpgradeSimulations.Configuration.phase2TkFlat import *
+#customise(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
+
+#call to customisation function cust_2023dev imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023LReco(process)
