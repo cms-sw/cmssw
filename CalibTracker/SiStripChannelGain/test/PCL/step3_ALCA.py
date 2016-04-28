@@ -15,8 +15,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -25,7 +25,9 @@ process.ALCARECOCalibrationTracksAAG.src = cms.InputTag("ALCARECOSiStripCalMinBi
 #process.ALCARECOCalibrationTracks.src = cms.InputTag("generalTracks")    #for 2012 data
 
 process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
+#use the same trigger bit of SiStripCalMinBias because the FirstCollisionAfterAbortGap trigger is missing on 2015 data
 process.ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
+
 #process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('*')     #for 2012 data
 
 
