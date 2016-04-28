@@ -27,7 +27,7 @@
 // user include files
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
@@ -37,9 +37,9 @@
 
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class L1GtAlgorithm;
-class L1TGlobalScales;
+class GlobalScales;
 
 // class declaration
 class TriggerMenu
@@ -95,11 +95,19 @@ public:
     void setGtTriggerMenuName(const std::string&);
 
     //
-    inline const std::string& gtTriggerMenuImplementation() const {
+    inline const unsigned long gtTriggerMenuUUID() const {
+       return m_triggerMenuUUID;
+    }
+    
+    void setGtTriggerMenuUUID(const unsigned long uuid);
+
+
+    //
+    inline const unsigned long gtTriggerMenuImplementation() const {
         return m_triggerMenuImplementation;
     }
 
-    void setGtTriggerMenuImplementation(const std::string&);
+    void setGtTriggerMenuImplementation(const unsigned long);
 
     /// menu associated scale key
     inline const std::string& gtScaleDbKey() const {
@@ -194,11 +202,11 @@ public:
 
 
    /// get the scales
-    inline const l1t::L1TGlobalScales& gtScales() const {
+    inline const l1t::GlobalScales& gtScales() const {
         return m_gtScales;
     }
     
-    void setGtScales(const l1t::L1TGlobalScales&);
+    void setGtScales(const l1t::GlobalScales&);
 
 /*
     /// get / set the technical trigger map
@@ -229,7 +237,9 @@ private:
     /// menu names
     std::string m_triggerMenuInterface;
     std::string m_triggerMenuName;
-    std::string m_triggerMenuImplementation;
+    unsigned long m_triggerMenuImplementation;
+    
+    unsigned long m_triggerMenuUUID;
 
     /// menu associated scale key
     std::string m_scaleDbKey;
@@ -257,7 +267,7 @@ private:
 //    l1t::AlgorithmMap m_technicalTriggerMap;
 
     // class containing the scales from the L1 Menu XML
-    l1t::L1TGlobalScales m_gtScales;
+    l1t::GlobalScales m_gtScales;
 
 
 };

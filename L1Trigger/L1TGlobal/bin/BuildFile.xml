@@ -1,6 +1,0 @@
-<bin file="readTestVector.cc" name="readTestVector">
-  <use name="xerces-c"/>
-  <use name="L1Trigger/L1TGlobal"/>
-  <use name="boost_program_options"/>
-  <use name="root"/>
-</bin>

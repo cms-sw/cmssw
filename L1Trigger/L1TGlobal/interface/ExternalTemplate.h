@@ -24,12 +24,12 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // forward declarations
 
 // class declaration
-class ExternalTemplate : public GtCondition
+class ExternalTemplate : public GlobalCondition
 {
 
 public:
