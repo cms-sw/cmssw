@@ -12,9 +12,9 @@ L1TGlobalPrescalesVetosRcdSource = cms.ESSource("EmptyESSource",
 )
 
 L1TGlobalPrescalesVetos = cms.ESProducer("L1TGlobalPrescalesVetosESProducer",
+    TriggerMenuLuminosity = cms.string('startup'),
+    PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv'),
 
-    # dummy version, no parameters yet...                                        
- 
 )
 
 
