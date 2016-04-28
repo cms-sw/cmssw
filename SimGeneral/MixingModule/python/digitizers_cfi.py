@@ -42,13 +42,13 @@ if eras.fastSim.isChosen():
     setattr(theDigitizers,"tracks",recoTrackAccumulator)
 
 
-def _modifySimGeneralMixingModuleDigitizersForHGCal( obj ):
-    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
-    obj.hgceeDigitizer=hgceeDigitizer
-    obj.hgchebackDigitizer=hgchebackDigitizer
-    obj.hgchefrontDigitizer=hgchefrontDigitizer   
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
     
-eras.phase2_hgcal.toModify( theDigitizers, func=_modifySimGeneralMixingModuleDigitizersForHGCal)
+eras.phase2_hgcal.toModify( theDigitizers,
+                            hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                            hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+)
 
     
 theDigitizersValid = cms.PSet(

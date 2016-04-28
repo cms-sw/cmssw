@@ -57,18 +57,23 @@ RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 
-def _modifyRecoLocalCaloEventContentForHGCalRECO( obj ):
-    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
+def _updateOutput( era, outputPSets, commands):
+   for o in outputPSets:
+      era.toModify( o, outputCommands = o.outputCommands + commands )
 
-def _modifyRecoLocalCaloEventContentForHGCalFEVT( obj ):
-    obj.outputCommands.append('keep *_HGCalRecHit_*_*')
-    obj.outputCommands.append('keep *_HGCalUncalibRecHit_*_*')
+# mods for HCAL
+from Configuration.StandardSequences.Eras import eras
 
+_outputs = [RecoLocalCaloFEVT, RecoLocalCaloRECO]
+_updateOutput( eras.phase2_common, _outputs, [ 'keep *_hbheUpgradeReco_*_*', 'keep *_hfUpgradeReco_*_*' ] )
 
 # mods for HGCAL
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, func=_modifyRecoLocalCaloEventContentForHGCalFEVT)
-eras.phase2_hgcal.toModify( RecoLocalCaloRECO, func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [
+        'keep *_HGCalRecHit_*_*',
+        'keep *_HGCalUncalibRecHit_*_*'
+    ]
+)
+eras.phase2_hgcal.toModify( RecoLocalCaloRECO, outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_HGCalRecHit_*_*'] )
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
-#eras.phase2_hgcal.toModify( RecoLocalMuonAOD,  func=_modifyRecoLocalCaloEventContentForHGCalRECO )
+#eras.phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*'] )
 

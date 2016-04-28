@@ -91,35 +91,33 @@ eras.run2_HF_2016.toModify( es_hardcode, testHFQIE10=cms.bool(True) )
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
-def _modifyHcal_Conditions_forGlobalTagForPhase2Common( obj ):
-    obj.toGet = cms.untracked.vstring(
-                'GainWidths',
-                'MCParams',
-                'RecoParams',
-                'RespCorrs',
-                'QIEData',
-                'QIETypes',
-                'Gains',
-                'Pedestals',
-                'PedestalWidths',
-                'ChannelQuality',
-                'ZSThresholds',
-                'TimeCorrs',
-                'LUTCorrs',
-                'LutMetadata',
-                'L1TriggerObjects',
-                'PFCorrs',
-                'ElectronicsMap',
-                'CholeskyMatrices',
-                'CovarianceMatrices',
-                'FlagHFDigiTimeParams'
-                )    
-    # Special Upgrade trick (if absent - regular case assumed)
-    obj.GainWidthsForTrigPrims = cms.bool(True)
-    obj.HEreCalibCutoff = cms.double(100.)
-    obj.useHBUpgrade = cms.bool(True)
-    obj.useHEUpgrade = cms.bool(True)
-    obj.useHFUpgrade = cms.bool(True)
-
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( es_hardcode,  func=_modifyHcal_Conditions_forGlobalTagForPhase2Common )
+eras.phase2_common.toModify( es_hardcode,
+                             toGet = cms.untracked.vstring(
+                                         'GainWidths',
+                                         'MCParams',
+                                         'RecoParams',
+                                         'RespCorrs',
+                                         'QIEData',
+                                         'QIETypes',
+                                         'Gains',
+                                         'Pedestals',
+                                         'PedestalWidths',
+                                         'ChannelQuality',
+                                         'ZSThresholds',
+                                         'TimeCorrs',
+                                         'LUTCorrs',
+                                         'LutMetadata',
+                                         'L1TriggerObjects',
+                                         'PFCorrs',
+                                         'ElectronicsMap',
+                                         'CholeskyMatrices',
+                                         'CovarianceMatrices',
+                                         'FlagHFDigiTimeParams'
+                                         ),
+                             GainWidthsForTrigPrims = cms.bool(True),
+                             HEreCalibCutoff = cms.double(100.),
+                             useHBUpgrade = cms.bool(True),
+                             useHEUpgrade = cms.bool(True),
+                             useHFUpgrade = cms.bool(True)
+)
