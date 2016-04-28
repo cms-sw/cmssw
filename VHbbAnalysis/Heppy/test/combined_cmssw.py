@@ -82,25 +82,17 @@ def initialize(**kwargs):
     numberOfMatchedStations()>1 &&
     innerTrack().hitPattern().numberOfValidPixelHits()>0 &&
     innerTrack().hitPattern().trackerLayersWithMeasurement() > 5 &&
-    ((pfIsolationR04().sumChargedHadronPt + max( pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - 0.5 * pfIsolationR04().sumPUPt,0.0)) / pt() < 0.15)'''))
+    ((pfIsolationR04().sumChargedHadronPt + max( pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - 0.5 * pfIsolationR04().sumPUPt,0.0)) / pt() < 0.25)'''))
 
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis#Electrons    
-    process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = 
-                                             cms.InputTag("slimmedElectrons"), 
-                                             cut = cms.string('''abs(eta)<2.4 && pt>15. && 
-                                             electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80") &&                                            
-                                             ( ( abs(superCluster().eta) < 1.4442 && 
-                                             full5x5_sigmaIetaIeta < 0.012 && 
-                                             hcalOverEcal < 0.09 && (ecalPFClusterIso / pt) < 0.37 && 
-                                             (hcalPFClusterIso / pt) < 0.25 && (dr03TkSumPt / pt) < 0.18 && 
-                                             abs(deltaEtaSuperClusterTrackAtVtx) < 0.0095 && 
-                                             abs(deltaPhiSuperClusterTrackAtVtx) < 0.065 ) || 
-                                             ( abs(superCluster().eta) > 1.5660 && 
-                                             full5x5_sigmaIetaIeta < 0.033 && 
-                                             hcalOverEcal <0.09 && 
-                                             (ecalPFClusterIso / pt) < 0.45 && 
-                                             (hcalPFClusterIso / pt) < 0.28 && 
-                                             (dr03TkSumPt / pt) < 0.18 ))'''))
+
+
+    # Use the trivial selector to convert patElectrons into reco::Electrons for removal
+    process.selectedElectronsTmp = cms.EDProducer("ElectronRemovalForBoostProducer", 
+                                                  src = cms.InputTag("slimmedElectrons"),
+                                                  rho = cms.InputTag("fixedGridRhoFastjetAll"))
+    process.selectedElectrons = cms.EDFilter("CandPtrSelector", 
+                                             src = cms.InputTag("selectedElectronsTmp"), 
+                                             cut = cms.string("1"))
 
     # Remove electrons and muons from CHS
     process.chsTmp1 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))  
