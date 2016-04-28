@@ -1,4 +1,3 @@
-using namespace std;
 #include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
