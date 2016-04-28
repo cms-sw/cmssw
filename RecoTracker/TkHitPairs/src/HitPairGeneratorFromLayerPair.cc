@@ -96,10 +96,10 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   Layer innerLayerObj = innerLayer(layers);
   Layer outerLayerObj = outerLayer(layers);
 
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iEvent, iSetup);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iSetup);
   if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
 
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iSetup);
   if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
   doublets(region,
@@ -118,10 +118,10 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   typedef RecHitsSortedInPhi::Hit Hit;
 
 
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayer, region, iEvent, iSetup);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayer, region, iSetup);
   if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
 
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayer, region, iEvent, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayer, region, iSetup);
   if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
   doublets(region,

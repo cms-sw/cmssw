@@ -80,7 +80,7 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
 
   // Build KDtrees
   for(size_t il=0; il!=size; ++il) {
-    fourthHitMap[il] = &(*theLayerCache)(fourthLayers[il], region, ev, es);
+    fourthHitMap[il] = &(*theLayerCache)(fourthLayers[il], region, es);
     auto const& hits = *fourthHitMap[il];
 
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
