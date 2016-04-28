@@ -231,7 +231,7 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 	    for ( HepMC::GenEvent::particle_const_iterator mcIter=myGenEvent->particles_begin(); mcIter != myGenEvent->particles_end(); mcIter++ ) {
 	      
 	      // select electrons
-	      if ( abs((*mcIter)->pdg_id()) == 11 )
+	      if ( std::abs((*mcIter)->pdg_id()) == 11 )
 		{
 		
 		  // single primary electrons or electrons from Zs or Ws
@@ -243,9 +243,9 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 		  }
 		  if ( (
 			(mother == 0) || 
-			((mother != 0) && (mother->pdg_id() == 23)) ||
-			((mother != 0) && (mother->pdg_id() == 32)) ||
-			((mother != 0) && (fabs(mother->pdg_id()) == 24))
+			((mother != 0) && (std::abs(mother->pdg_id()) == 23)) ||
+			((mother != 0) && (std::abs(mother->pdg_id()) == 32)) ||
+			((mother != 0) && (std::abs(mother->pdg_id()) == 24))
 			)
 		       ) 
 		    {
