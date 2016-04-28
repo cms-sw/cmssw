@@ -104,7 +104,7 @@ reco::Track* PixelFitterByHelixProjections::run(
   int nhits = hits.size();
   if (nhits <2) return 0;
 
-  if (!theField) { 
+  {  
     edm::ESHandle<MagneticField> fieldESH;
     es.get<IdealMagneticFieldRecord>().get(fieldESH);
     theField = fieldESH.product();
