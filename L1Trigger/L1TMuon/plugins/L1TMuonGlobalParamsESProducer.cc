@@ -87,7 +87,8 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    // get configuration from DB
    if (iConfig.getParameter<bool>("configFromDb")) {
       l1t::trigSystem trgSys;
-      trgSys.configureSystem("L1_key", iConfig.getParameter<std::string>("uGmtDbName"));
+      //trgSys.configureSystem("L1_key", iConfig.getParameter<std::string>("uGmtDbName"));
+      trgSys.configureSystemFromFiles("UGMT_HW.xml", "ugmt_top_config_p5.xml", "TestKey1");
       std::string procId = iConfig.getParameter<std::string>("uGmtProcessorId");
       std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
       std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
@@ -99,7 +100,7 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
       //}
 
       // uGMT disabled inputs
-      disableCaloInputs = settings["disableCaloInputs"].getValue<bool>();
+      //disableCaloInputs = settings["disableCaloInputs"].getValue<bool>();
       std::string bmtfInputsToDisableStr = settings["bmtfInputsToDisable"].getValueAsStr();
       std::string omtfInputsToDisableStr = settings["omtfInputsToDisable"].getValueAsStr();
       std::string emtfInputsToDisableStr = settings["emtfInputsToDisable"].getValueAsStr();
