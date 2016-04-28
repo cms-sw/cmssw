@@ -6,7 +6,7 @@
 
 namespace l1t {
   namespace stage2 {
-    EMTFTokens::EMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
+    EMTFTokens::EMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
     {
       auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
 
