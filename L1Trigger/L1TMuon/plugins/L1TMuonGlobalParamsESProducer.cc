@@ -102,7 +102,7 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
       //}
 
       // uGMT disabled inputs
-      //disableCaloInputs = settings["disableCaloInputs"].getValue<bool>();
+      disableCaloInputs = settings["caloInputsDisable"].getValue<bool>();
       std::string bmtfInputsToDisableStr = settings["bmtfInputsToDisable"].getValueAsStr();
       std::string omtfInputsToDisableStr = settings["omtfInputsToDisable"].getValueAsStr();
       std::string emtfInputsToDisableStr = settings["emtfInputsToDisable"].getValueAsStr();
