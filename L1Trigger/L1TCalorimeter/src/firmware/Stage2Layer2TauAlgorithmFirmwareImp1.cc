@@ -126,10 +126,19 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwPt(calibPt);
 
                 // isolation
+
+                // Isolation 
+                int isoLeftExtension = params_->tauIsoAreaNrTowersEta();
+                int isoRightExtension = params_->tauIsoAreaNrTowersEta();
+                if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+                    isoRightExtension++;
+                else
+                    isoLeftExtension++;
+
                 int isolBit = 0;
                 int tauHwFootprint = mainCluster.hwPt();
                 unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
-                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-isoLeftExtension,isoRightExtension,
                                             -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
@@ -409,10 +418,17 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwPt(calibPt);
                 
                 // isolation
+                int isoLeftExtension = params_->tauIsoAreaNrTowersEta();
+                int isoRightExtension = params_->tauIsoAreaNrTowersEta();
+                if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+                    isoRightExtension++;
+                else
+                    isoLeftExtension++;
+                
                 int isolBit = 0;
                 int tauHwFootprint = mainCluster.hwPt() + secondaryCluster->hwPt();
                 unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
-                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-isoLeftExtension,isoRightExtension,
                                             -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
