@@ -164,6 +164,8 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
       //Remove later
       if (std::abs(thisTrack->eta()) < 1.8) continue;
+      // low pt tracks cannot be propagated to me0
+      if (thisTrack->pt() < 1.0) continue;
 
       float zSign = thisTrack->pz() > 0 ? 1.0f : -1.0f;
 

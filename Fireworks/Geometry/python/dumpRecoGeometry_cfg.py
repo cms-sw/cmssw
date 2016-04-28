@@ -97,6 +97,12 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['mc']
        process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 
+    elif  score == "GEMCosmic":
+       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+       from Configuration.AlCa.autoCond import autoCond
+       process.GlobalTag.globaltag = autoCond['mc']
+       process.load('Configuration.Geometry.GeometryGEMCosmicStand_cff')
+       
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
        process.load('Geometry.TrackerCommonData.mapsaGeometryXML_cfi')

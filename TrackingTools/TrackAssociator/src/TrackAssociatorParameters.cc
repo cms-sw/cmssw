@@ -46,7 +46,8 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    theHORecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
    theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
    theCSCSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-   
+   theGEMSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("GEMSegmentCollectionLabel");
+
    accountForTrajectoryChangeCalo   = iConfig.getParameter<bool>("accountForTrajectoryChangeCalo");
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
    
@@ -63,6 +64,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    if (useMuon) {
      dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
      cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
+     gemSegmentsToken=iC.consumes<GEMSegmentCollection>(theGEMSegmentCollectionLabel);
    }
    if (truthMatch) {
      simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));

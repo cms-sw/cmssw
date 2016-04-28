@@ -31,3 +31,6 @@ process.test = cms.EDAnalyzer("GEMGeometryAnalyzer")
 
 process.p = cms.Path(process.test)
 
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_cosmic1
+process = custom_cosmic1(process)
+

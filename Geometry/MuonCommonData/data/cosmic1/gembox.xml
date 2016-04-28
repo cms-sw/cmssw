@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="gembox.xml" eval="true">
+  <Constant name="layers"     value="5"/>
+  <Constant name="separation" value="20*cm"/>
+  <Constant name="dyBox"      value="([layers]*[separation]/2+2.0*cm)"/>
+  <Constant name="dxBox"      value="30*cm"/>
+  <Constant name="dzBox"      value="65*cm"/>
+</ConstantsSection>
+
+<SolidSection label="gembox.xml">
+  <Box  name="GEMBox" dx="[dxBox]" dy="[dyBox]" dz="[dzBox]" />
+</SolidSection>
+
+<LogicalPartSection label="gembox.xml">
+  <LogicalPart name="GEMBox" category="unspecified">
+    <rSolid name="GEMBox"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="gembox.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:MUON"/>
+    <rChild name="gembox:GEMBox"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11L"/>
+    <Translation x="0*fm" y="2*[separation]" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11S"/>
+    <Translation x="0*fm" y="[separation]" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11L"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11S"/>
+    <Translation x="0*fm" y="-[separation]" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11L"/>
+    <Translation x="0*fm" y="-2*[separation]" z="0*fm" />
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
