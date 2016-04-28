@@ -47,6 +47,10 @@ namespace l1t {
     int bxMaskDefault() const { return read_->bxmask_default_; };
     void setBxMaskDefault(int value) { check_write(); write_->bxmask_default_ = value; };
 
+    inline const std::vector<std::vector<int> >& prescaleTable() const { return read_->prescale_table_; };
+    void setPrescaleFactorTable(std::vector<std::vector<int> > value){ check_write(); write_->prescale_table_ = value; };
+    inline const std::vector<int>& triggerMaskVeto() const { return read_->veto_; };
+    void setTriggerMaskVeto(std::vector<int> value){ check_write(); write_->veto_ = value; };
 
     // access to underlying pointers, mainly for ESProducer:
     const L1TGlobalPrescalesVetos *  getReadInstance() const {return read_;}
