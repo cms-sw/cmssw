@@ -222,7 +222,10 @@ namespace edm
       //
       if ( decayer_ ) 
       {
-        event.reset( decayer_->decay( event.get(),lheEvent ) );
+        auto t = decayer_->decay( event.get(),lheEvent );
+        if(t != event.get()) {
+          event.reset(t);
+        }
       }
 
       if ( !event.get() ) continue;
