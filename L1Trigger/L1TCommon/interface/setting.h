@@ -41,10 +41,12 @@ class setting
 	public:
 		setting() {};
 		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
+		setting(const std::string& type, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void setProcRole(const std::string& procRole) { _procRole = procRole; };
 		void setValue(const std::string& value) {_value = value; };
 		void setId(const std::string& id) { _id = id; } ;
-		void addTableRow(const std::string& row);
+		void addTableRow(const std::string& row, const std::string& delim=",");
+		void resetTableRows() { _tableRows.clear();};
 		void setTableTypes(const std::string& types);
 		void setTableColumns(const std::string& cols);
 		std::string getProcRole() { return _procRole; };
