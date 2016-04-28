@@ -2,6 +2,7 @@
 <use   name="root"/>
 <use   name="classlib"/>
 <use   name="clhep"/>
+<use   name="SimTracker/SiPhase2Digitizer"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimDataFormats/CrossingFrame"/>
