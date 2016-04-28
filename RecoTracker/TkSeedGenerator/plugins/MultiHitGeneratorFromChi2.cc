@@ -166,7 +166,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   vector<const DetLayer *> thirdLayerDetLayer(size,0);
   for (int il=0; il<size; ++il) 
     {
-      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
 
       thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
     }

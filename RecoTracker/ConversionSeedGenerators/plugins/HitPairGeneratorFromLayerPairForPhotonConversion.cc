@@ -72,10 +72,10 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   if(!checkBoundaries(*outerLayerObj.detLayer(),convRegion,50.,60.)) return; //FIXME, the maxSearchR(Z) are not optimized
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, event, es);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, es);
   if (innerHitsMap.empty()) return;
  
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, event, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
   if (outerHitsMap.empty()) return;
   /*----------------*/
 

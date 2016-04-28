@@ -47,12 +47,12 @@ public:
   
   const RecHitsSortedInPhi &
   operator()(const SeedingLayerSetsHits::SeedingLayer& layer, const TrackingRegion & region,
-	     const edm::Event & iEvent, const edm::EventSetup & iSetup) {
+	     const edm::EventSetup & iSetup) {
     int key = layer.index();
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer.detLayer());
+      lhm=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
       lhm->theOrigin = region.origin();
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
       theCache.add( key, lhm);

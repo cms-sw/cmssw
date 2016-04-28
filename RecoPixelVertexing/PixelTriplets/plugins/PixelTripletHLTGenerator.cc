@@ -71,7 +71,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     vector<const DetLayer *> thirdLayerDetLayer(size,0);
     for (int il=0; il<size; ++il) 
     {
-	thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+	thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
 	thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
     }
     hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
