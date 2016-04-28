@@ -52,7 +52,7 @@ PixelOfflineDQMClientWithDataCertificationHI = cms.Sequence(PixelOfflineDQMClien
 PixelOfflineDQMClientWithDataCertificationHI.replace(sipixelQTester,sipixelQTesterHI)
 
 # Modify for running with the Phase 1 pixel detector.
-from DQM.SiPixelPhase1Common.SiPixelPhase1OfflineDQM_harvesting_cff import *
+from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
 eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClient, siPixelPhase1OfflineDQM_harvesting)
 #TODO: properly upgrade these and the others
 eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClientNoDataCertification, siPixelPhase1OfflineDQM_harvesting)
