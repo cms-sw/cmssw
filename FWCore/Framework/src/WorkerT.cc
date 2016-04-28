@@ -95,11 +95,6 @@ namespace edm{
     };
   }
   
-  UnscheduledHandler const* getUnscheduledHandler(EventPrincipal const& ep) {
-    return ep.unscheduledHandler().get();
-  }
-
-
   template<typename T>
   inline
   WorkerT<T>::WorkerT(std::shared_ptr<T> ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :

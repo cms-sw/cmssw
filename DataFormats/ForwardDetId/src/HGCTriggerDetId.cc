@@ -3,6 +3,17 @@
 #include <ostream>
 #include <iostream>
 
+const uint32_t HGCTriggerDetId::cell_shift;
+const uint32_t HGCTriggerDetId::cell_mask;
+const uint32_t HGCTriggerDetId::module_mask;
+const uint32_t HGCTriggerDetId::module_shift;
+const uint32_t HGCTriggerDetId::sector_shift;
+const uint32_t HGCTriggerDetId::sector_mask;
+const uint32_t HGCTriggerDetId::layer_shift;
+const uint32_t HGCTriggerDetId::layer_mask;
+const uint32_t HGCTriggerDetId::zside_shift;
+const uint32_t HGCTriggerDetId::zside_mask;
+
 const HGCTriggerDetId HGCTriggerDetId::Undefined(ForwardEmpty,0,0,0,0,0);
 
 HGCTriggerDetId::HGCTriggerDetId() : DetId() {

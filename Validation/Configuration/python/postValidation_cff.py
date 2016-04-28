@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -35,6 +36,9 @@ postValidation = cms.Sequence(
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
 )
+eras.phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
+    runTauEff # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors
@@ -62,20 +66,22 @@ postValidation_gen = cms.Sequence(
 )
 
 postValidationCosmics = cms.Sequence(
-      postProcessorMuonMultiTrack
+    postProcessorMuonMultiTrack
 )
 
 postValidationMiniAOD = cms.Sequence(
-      electronPostValidationSequenceMiniAOD
+    electronPostValidationSequenceMiniAOD
 )
 
 def _modifyPostValidationForPhase2( theProcess ):
     theProcess.load('Validation.MuonGEMHits.PostProcessor_cff')
     theProcess.load('Validation.MuonGEMDigis.PostProcessor_cff')
     theProcess.load('Validation.MuonGEMRecHits.PostProcessor_cff')
+    theProcess.load('Validation.HGCalValidation.HGCalPostProcessor_cff')
     theProcess.postValidation += theProcess.MuonGEMHitsPostProcessors
     theProcess.postValidation += theProcess.MuonGEMDigisPostProcessors
     theProcess.postValidation += theProcess.MuonGEMRecHitsPostProcessors
+    theProcess.postValidation += theProcess.hgcalPostProcessor
 
 from Configuration.StandardSequences.Eras import eras
 modifyConfigurationStandardSequencesPostValidationForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyPostValidationForPhase2 )

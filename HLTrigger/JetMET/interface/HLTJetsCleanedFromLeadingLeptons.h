@@ -266,10 +266,10 @@ void HLTJetsCleanedFromLeadingLeptons<JetType>::produce(edm::Event &iEvent,
     
     
     // Store the collection in the event
-    std::auto_ptr<JetCollectionVector> product(new JetCollectionVector);
-    //^ Have to use the depricated auto_ptr here because this is what edm::Event::put expects
+    std::unique_ptr<JetCollectionVector> product(new JetCollectionVector);
+    //^ Have to use the depricated unique_ptr here because this is what edm::Event::put expects
     product->emplace_back(cleanedJetRefs);
-    iEvent.put(product);
+    iEvent.put(std::move(product));
 }
 
 #endif  // HLTJetsCleanedFromLeadingLeptons_h

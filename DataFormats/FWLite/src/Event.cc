@@ -493,20 +493,14 @@ Event::fillParameterSetRegistry() const {
 }
 
 edm::TriggerResultsByName
-Event::triggerResultsByName(std::string const& process) const {
+Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 
-  fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  hTriggerResults.getByLabel(*this, "TriggerResults", "", process.c_str());
-  if (!hTriggerResults.isValid()) {
-    return edm::TriggerResultsByName(0,0);
-  }
-
-  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
   if (names == nullptr && !parameterSetRegistryFilled_) {
     fillParameterSetRegistry();
-    names = triggerNames_(*hTriggerResults);
+    names = triggerNames_(triggerResults);
   }
-  return edm::TriggerResultsByName(hTriggerResults.product(), names);
+  return edm::TriggerResultsByName(&triggerResults, names);
 }
 
 //

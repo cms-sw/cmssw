@@ -142,8 +142,8 @@ PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
-  std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
-  std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
+  std::unique_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
+  std::unique_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
   
    //get tracks
   Handle<std::vector<reco::Track> > tracks;
@@ -212,8 +212,8 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
 	  }
       }
     }
-  iEvent.put(pOut);
-  iEvent.put(pOut_PUjets,"PUjets");
+  iEvent.put(std::move(pOut));
+  iEvent.put(std::move(pOut_PUjets),"PUjets");
   
 }
 

@@ -1,5 +1,57 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.PileupJetIDCutParams_cfi import *
+
+
+####################################################################################################################                                                                                      
+full_80x_chs = cms.PSet(
+ impactParTkThreshold = cms.double(1.) ,
+ cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(True),
+ tmvaWeights_jteta_0_2p5    = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta0to2p5_BDT.weights.xml.gz"),
+ tmvaWeights_jteta_2p5_2p75 = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p5to2p75_BDT.weights.xml.gz"),
+ tmvaWeights_jteta_2p75_3   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p75to3_BDT.weights.xml.gz"),
+ tmvaWeights_jteta_3_5      = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta3to5_BDT.weights.xml.gz"),
+ tmvaMethod  = cms.string("JetIDMVAHighPt"),
+ version = cms.int32(-1),
+ tmvaVariables_jteta_0_3 = cms.vstring(
+    "nvtx",
+    "dR2Mean"     ,
+    "nParticles"     ,
+    "nCharged" ,
+    "majW" ,
+    "minW",
+    "frac01"  ,
+    "frac02"      ,
+    "frac03"   ,
+    "frac04"   ,
+    "ptD"   ,
+    "beta"   ,
+    "pull"   ,
+    "jetR"   ,
+    "jetRchg"   ,
+    ),
+ tmvaVariables_jteta_3_5 = cms.vstring(
+    "nvtx",
+    "dR2Mean"     ,
+    "nParticles"     ,
+    "majW" ,
+    "minW",
+    "frac01"  ,
+    "frac02"      ,
+    "frac03"   ,
+    "frac04"   ,
+    "ptD"   ,
+    "pull"   ,
+    "jetR"   ,
+    ),
+ tmvaSpectators = cms.vstring(
+    "jetPt"   ,
+    "jetEta"   ,
+    ),
+ JetIdParams = full_80x_chs_wp,
+ label = cms.string("full")
+ )
+
 ####################################################################################################################                                                                                      
 full_76x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,

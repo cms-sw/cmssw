@@ -29,3 +29,5 @@ ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)
 ecalDigitizer.doES = cms.bool(True)
 
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False), doES = cms.bool(False) )

@@ -148,7 +148,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //configuration to apply for the computation of time-of-flight
   bool weightToAbyEnergy(false);
-  float tdcOnset(0),keV2fC(0.0);
+  float tdcOnset(0.f),keV2fC(0.f);
   switch( mySubDet_ ) {
   case ForwardSubdetector::HGCEE:
     weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();

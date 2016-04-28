@@ -419,7 +419,7 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
 {
   std::shared_ptr<trigJson::lumiVars> iSummary(new trigJson::lumiVars);
 
-  unsigned int MAXPATHS = 500;
+  unsigned int MAXPATHS = 1000;
 
   iSummary->processed = new HistoJ<unsigned int>(1, 1);
 

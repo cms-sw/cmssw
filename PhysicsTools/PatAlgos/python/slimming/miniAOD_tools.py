@@ -253,6 +253,7 @@ def miniAOD_customizeCommon(process):
                                         pfCandColl=cms.InputTag("puppiForMET"),
                                         jetCollUnskimmed="slimmedJetsPuppi",
                                         recoMetFromPFCs=True,
+                                        jetFlavor="AK4PFPuppi",
                                         postfix="Puppi"
                                         )
     

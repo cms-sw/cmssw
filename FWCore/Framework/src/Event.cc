@@ -228,18 +228,9 @@ namespace edm {
   }
 
   TriggerResultsByName
-  Event::triggerResultsByName(std::string const& process) const {
+  Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 
-    Handle<TriggerResults> hTriggerResults;
-    InputTag tag(std::string("TriggerResults"),
-                 std::string(""),
-                 process);
-
-    getByLabel(tag, hTriggerResults);
-    if(!hTriggerResults.isValid()) {
-      return TriggerResultsByName(0, 0);
-    }
-    edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
-    return TriggerResultsByName(hTriggerResults.product(), names);
+    edm::TriggerNames const* names = triggerNames_(triggerResults);
+    return TriggerResultsByName(&triggerResults, names);
   }
 }

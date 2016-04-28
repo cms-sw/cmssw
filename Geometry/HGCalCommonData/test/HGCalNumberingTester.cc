@@ -96,7 +96,8 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   iSetup.get<IdealGeometryRecord>().get(nameSense_,pHGNDC);
   const HGCalDDDConstants hgdc(*pHGNDC);
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) 
-	    << " Sectors = " << hgdc.sectors() << std::endl;
+	    << " Sectors = " << hgdc.sectors() << " Minimum Slope = "
+	    << hgdc.minSlope() << std::endl;
   std::pair<int,int> kxy, lxy;
   std::pair<float,float> xy;
   std::string        flg;

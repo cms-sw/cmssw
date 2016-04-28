@@ -54,6 +54,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h" 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -105,6 +106,7 @@ namespace reco
     edm::InputTag IT_EBRecHit;
     edm::InputTag IT_EERecHit;
     edm::InputTag IT_ESRecHit;
+    edm::InputTag IT_HBHERecHit;
 
     //Higher Level Reco
     edm::InputTag IT_SuperCluster;
@@ -113,6 +115,7 @@ namespace reco
     edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
     edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
     edm::EDGetTokenT<ESRecHitCollection> esrechit_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<reco::SuperClusterCollection> supercluster_token_;
     edm::EDGetTokenT<reco::PhotonCollection> photon_token_;
     

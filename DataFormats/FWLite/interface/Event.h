@@ -150,7 +150,7 @@ namespace fwlite {
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
-         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
 
          virtual edm::ProcessHistory const& processHistory() const {return history();}
 

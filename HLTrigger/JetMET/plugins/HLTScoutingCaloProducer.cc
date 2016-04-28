@@ -85,7 +85,7 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //get calo jets
     Handle<reco::CaloJetCollection> caloJetCollection;
-    std::auto_ptr<ScoutingCaloJetCollection> outCaloJets(new ScoutingCaloJetCollection());
+    std::unique_ptr<ScoutingCaloJetCollection> outCaloJets(new ScoutingCaloJetCollection());
     if(iEvent.getByToken(caloJetCollection_, caloJetCollection)){
         for(auto &jet : *caloJetCollection){
             if(jet.pt() > caloJetPtCut && fabs(jet.eta()) < caloJetEtaCut){
@@ -102,7 +102,7 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //get vertices
     Handle<reco::VertexCollection> vertexCollection;
-    std::auto_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
         //produce vertices (only if present; otherwise return an empty collection)
         for(auto &vtx : *vertexCollection){
@@ -114,26 +114,26 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //get rho
     Handle<double>rho;
-    std::auto_ptr<double> outRho(new double(-999));
+    std::unique_ptr<double> outRho(new double(-999));
     if(iEvent.getByToken(rho_, rho)){
         outRho.reset(new double(*rho));
     }
 
     //get MET 
     Handle<reco::CaloMETCollection> metCollection;
-    std::auto_ptr<double> outMetPt(new double(-999));
-    std::auto_ptr<double> outMetPhi(new double(-999));
+    std::unique_ptr<double> outMetPt(new double(-999));
+    std::unique_ptr<double> outMetPhi(new double(-999));
     if(doMet && iEvent.getByToken(metCollection_, metCollection)){
         outMetPt.reset(new double(metCollection->front().pt()));
         outMetPhi.reset(new double(metCollection->front().phi()));
     }
 
     //put output
-    iEvent.put(outCaloJets);
-    iEvent.put(outVertices);
-    iEvent.put(outRho, "rho");
-    iEvent.put(outMetPt, "caloMetPt");
-    iEvent.put(outMetPhi, "caloMetPhi");
+    iEvent.put(std::move(outCaloJets));
+    iEvent.put(std::move(outVertices));
+    iEvent.put(std::move(outRho), "rho");
+    iEvent.put(std::move(outMetPt), "caloMetPt");
+    iEvent.put(std::move(outMetPhi), "caloMetPhi");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -22,6 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -35,6 +37,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include <string>
 #include <type_traits>
@@ -132,6 +136,22 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
       delete (*it);
     }
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src",edm::InputTag("ak4PFJetsCHS"));
+    desc.add<edm::InputTag>("offsetCorrLabel",edm::InputTag("ak4PFCHSL1FastjetCorrector"));
+    desc.add<edm::InputTag>("jetCorrLabel",edm::InputTag("ak4PFCHSL1FastL2L3Corrector"));
+    desc.add<edm::InputTag>("jetCorrLabelRes",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"));
+    desc.add<double>("jetCorrEtaMax",9.9);
+    desc.add<double>("type1JetPtThreshold",15);
+    desc.add<bool>("skipEM",true);
+    desc.add<double>("skipEMfractionThreshold",0.90);
+    desc.add<bool>("skipMuons",true);
+    desc.add<std::string>("skipMuonSelection","isGlobalMuon | isStandAloneMuon");
+    descriptions.add(defaultModuleLabel< PFJetMETcorrInputProducerT<T, Textractor> >(), desc);
+    }
+
 
  private:
 

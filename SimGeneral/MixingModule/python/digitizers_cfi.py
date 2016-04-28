@@ -40,6 +40,16 @@ if eras.fastSim.isChosen():
     delattr(theDigitizers,"pixel")
     delattr(theDigitizers,"strip")
     setattr(theDigitizers,"tracks",recoTrackAccumulator)
+
+
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
+    
+eras.phase2_hgcal.toModify( theDigitizers,
+                            hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                            hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+)
+
     
 theDigitizersValid = cms.PSet(
     theDigitizers,

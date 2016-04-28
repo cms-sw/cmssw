@@ -6,6 +6,7 @@
   </class>
   <class name="l1t::L1CandidateBxCollection"/>
   <class name="edm::Wrapper<l1t::L1CandidateBxCollection>"/>
+  <class name="std::vector<l1t::L1Candidate>"/>
   <class name="l1t::L1CandidateRef"/>
   <class name="edm::Wrapper<l1t::L1CandidateRef>"/>
   <class name="l1t::L1CandidateRefVector"/>
@@ -21,6 +22,7 @@
   </class>
   <class name="l1t::JetBxCollection"/>
   <class name="edm::Wrapper<l1t::JetBxCollection>"/>
+  <class name="std::vector<l1t::Jet>"/>
   <class name="l1t::JetRef"/>
   <class name="edm::Wrapper<l1t::JetRef>"/>
   <class name="l1t::JetRefVector"/>
@@ -36,6 +38,7 @@
    <version ClassVersion="10" checksum="130849840"/>
   </class>
   <class name="l1t::EGammaBxCollection"/>
+  <class name="std::vector<l1t::EGamma>"/>
   <class name="edm::Wrapper<l1t::EGammaBxCollection>"/>
   <class name="l1t::EGammaRef"/>
   <class name="edm::Wrapper<l1t::EGammaRef>"/>
@@ -51,6 +54,7 @@
    <version ClassVersion="10" checksum="3389025278"/>
   </class>
   <class name="l1t::EtSumBxCollection"/>
+  <class name="std::vector<l1t::EtSum>"/>
   <class name="edm::Wrapper<l1t::EtSumBxCollection>"/>
   <class name="l1t::EtSumRef"/>
   <class name="edm::Wrapper<l1t::EtSumRef>"/>
@@ -66,6 +70,7 @@
    <version ClassVersion="10" checksum="3214350964"/>
   </class>
   <class name="l1t::TauBxCollection"/>
+  <class name="std::vector<l1t::Tau>"/>
   <class name="edm::Wrapper<l1t::TauBxCollection>"/>
   <class name="l1t::TauRef"/>
   <class name="edm::Wrapper<l1t::TauRef>"/>
@@ -84,6 +89,7 @@
    <version ClassVersion="10" checksum="1956355507"/>
   </class>
   <class name="l1t::MuonBxCollection"/>
+  <class name="std::vector<l1t::Muon>"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
   <class name="l1t::MuonRef"/>
   <class name="edm::Wrapper<l1t::MuonRef>"/>
@@ -99,6 +105,7 @@
    <version ClassVersion="10" checksum="3477497140"/>
   </class>
   <class name="l1t::CaloSpareBxCollection"/>
+  <class name="std::vector<l1t::CaloSpare>"/>
   <class name="edm::Wrapper<l1t::CaloSpareBxCollection>"/>
 
   <class name="l1extra::L1EmParticle" ClassVersion="13">
@@ -206,6 +213,7 @@
     <version ClassVersion="10" checksum="604440326"/>
   </class>
   <class name="l1t::L1DataEmulResultBxCollection"/>
+  <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
 
 

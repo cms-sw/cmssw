@@ -95,8 +95,6 @@ def testbeam2006(process):
     process.g4SimHits.StackingAction.MaxTimeNames = cms.vstring()
     process.g4SimHits.StackingAction.MaxTrackTimes = cms.vdouble()
     process.g4SimHits.StackingAction.DeadRegions = cms.vstring()
-    process.g4SimHits.StackingAction.RusRoGammaEnergyLimit = cms.double(0.0)
-    process.g4SimHits.StackingAction.RusRoNeutronEnergyLimit = cms.double(0.0)
 
     process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(1000.0)
     process.g4SimHits.SteppingAction.MaxTimeNames = cms.vstring()

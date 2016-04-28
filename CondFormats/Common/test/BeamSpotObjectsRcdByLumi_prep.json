@@ -1,11 +1,7 @@
 {
-    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT", 
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
     "destinationTags": {
-        "BeamSpotObjects_PCL_byLumi_v1_prompt": {
-            "dependencies": {
-            }, 
-            "synchronizeTo": "prompt"
-        }
+        "BeamSpotObjects_PCL_byLumi_v1_prompt": {}
     },
     "inputTag": "BeamSpotObject_ByLumi", 
     "since": null, 

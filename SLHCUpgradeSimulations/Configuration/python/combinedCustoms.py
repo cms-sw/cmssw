@@ -6,25 +6,24 @@ from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase
 
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
+from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
+
 import SLHCUpgradeSimulations.Configuration.aging as aging
-
-from Configuration.StandardSequences.Eras import eras
-
-def cust_2017(process):
-    # To allow simulatenous use of customisation and era while the era migration is in progress
-    if not eras.run2_common.isChosen():
-        process=customisePostLS1(process,displayDeprecationWarning=False)
-    process=customisePhase1Tk(process)
-    #process=customise_HcalPhase0(process)
-    return process
 
 
 def cust_2023sim(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     return process
 
-def cust_2023dev(process):
+def cust_2023tilted(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK(process)
+    return process
+
+def cust_2023LReco(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseFlatTK(process)
     return process
 
 
@@ -44,40 +43,7 @@ def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
 
-def cust_2023HGCal_common(process):   
-    process = fixRPCConditions(process)
-    process = customise_HcalPhase1(process)
-    process = customisePhase1Tk(process)    
-    if hasattr(process,'L1simulation_step'):
-        process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
-    if hasattr(process,'digitisation_step'):
-        if hasattr(process.mix.digitizers,'ecal'):
-            process.mix.digitizers.ecal.doEE = cms.bool(False)
-            process.mix.digitizers.ecal.doES = cms.bool(False)
-        process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
-        process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
-        process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
-        process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
-        # update the HCAL Endcap for BH geom.
-        newFactors = cms.vdouble(
-            210.55, 197.93, 186.12, 189.64, 189.63,
-            189.96, 190.03, 190.11, 190.18, 190.25,
-            190.32, 190.40, 190.47, 190.54, 190.61,
-            190.69, 190.83, 190.94, 190.94, 190.94,
-            190.94, 190.94, 190.94, 190.94, 190.94,
-            190.94, 190.94, 190.94, 190.94, 190.94,
-            190.94, 190.94, 190.94, 190.94, 190.94,
-            190.94, 190.94, 190.94, 190.94, 190.94)
-        process.mix.digitizers.hcal.he.samplingFactors = newFactors
-        process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
-        # Also need to tell the MixingModule to make the correct collections available from
-        # the pileup, even if not creating CrossingFrames.
-        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
-        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
-        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
-        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
-        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
-        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )    
+def cust_2023HGCal_common(process):      
     return process
 
 def cust_2023HGCal(process):    

@@ -101,7 +101,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
 
     //get vertices
     Handle<reco::VertexCollection> vertexCollection;
-    std::auto_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
         for(auto &vtx : *vertexCollection){
             outVertices->emplace_back(
@@ -112,15 +112,15 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
 
     //get rho
     Handle<double> rho;
-    std::auto_ptr<double> outRho(new double(-999));
+    std::unique_ptr<double> outRho(new double(-999));
     if(iEvent.getByToken(rho_, rho)){
         outRho.reset(new double(*rho));
     }
 
     //get MET
     Handle<reco::METCollection> metCollection;
-    std::auto_ptr<double> outMetPt(new double(-999));
-    std::auto_ptr<double> outMetPhi(new double(-999));
+    std::unique_ptr<double> outMetPt(new double(-999));
+    std::unique_ptr<double> outMetPhi(new double(-999));
     if(doMet && iEvent.getByToken(metCollection_, metCollection)){
         outMetPt.reset(new double(metCollection->front().pt()));
         outMetPhi.reset(new double(metCollection->front().phi()));
@@ -128,7 +128,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
 
     //get PF candidates
     Handle<reco::PFCandidateCollection> pfCandidateCollection;
-    std::auto_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
+    std::unique_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
     if(doCandidates && iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)){
         for(auto &cand : *pfCandidateCollection){
             if(cand.pt() > pfCandidatePtCut){
@@ -155,7 +155,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
 
     //get PF jets
     Handle<reco::PFJetCollection> pfJetCollection;
-    std::auto_ptr<ScoutingPFJetCollection> outPFJets(new ScoutingPFJetCollection());
+    std::unique_ptr<ScoutingPFJetCollection> outPFJets(new ScoutingPFJetCollection());
     if(iEvent.getByToken(pfJetCollection_, pfJetCollection)){
         //get PF jet tags
         Handle<reco::JetTagCollection> pfJetTagCollection;
@@ -215,12 +215,12 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     }
 
     //put output
-    iEvent.put(outVertices);
-    iEvent.put(outPFCandidates);
-    iEvent.put(outPFJets);
-    iEvent.put(outRho, "rho");
-    iEvent.put(outMetPt, "pfMetPt");
-    iEvent.put(outMetPhi, "pfMetPhi");
+    iEvent.put(std::move(outVertices));
+    iEvent.put(std::move(outPFCandidates));
+    iEvent.put(std::move(outPFJets));
+    iEvent.put(std::move(outRho), "rho");
+    iEvent.put(std::move(outMetPt), "pfMetPt");
+    iEvent.put(std::move(outMetPhi), "pfMetPhi");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

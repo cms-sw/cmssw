@@ -7,11 +7,11 @@ from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 HGCalRecHit = cms.EDProducer(
     "HGCalRecHitProducer",
     HGCEErechitCollection = cms.string('HGCEERecHits'),
-    HGCEEuncalibRecHitCollection = cms.InputTag("HGCalUncalibRecHit","HGCEEUncalibRecHits"),
+    HGCEEuncalibRecHitCollection = cms.InputTag('HGCalUncalibRecHit:HGCEEUncalibRecHits'),
     HGCHEFrechitCollection = cms.string('HGCHEFRecHits'),
-    HGCHEFuncalibRecHitCollection = cms.InputTag("HGCalUncalibRecHit","HGCHEFUncalibRecHits"),
+    HGCHEFuncalibRecHitCollection = cms.InputTag('HGCalUncalibRecHit:HGCHEFUncalibRecHits'),
     HGCHEBrechitCollection = cms.string('HGCHEBRecHits'),
-    HGCHEBuncalibRecHitCollection = cms.InputTag("HGCalUncalibRecHit","HGCHEBUncalibRecHits"),
+    HGCHEBuncalibRecHitCollection = cms.InputTag('HGCalUncalibRecHit:HGCHEBUncalibRecHits'),
     
     # digi constants
     HGCEE_keV2DIGI  = hgceeDigitizer.digiCfg.keV2fC,

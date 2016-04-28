@@ -133,7 +133,7 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 
   unsigned int ne = 0;
   unsigned int nh = 0;
-  if(EcalHits) {  
+  if(m_ECAL) {  
     ne = EcalHits->size();
     for (unsigned int i=0; i<ne; ++i) {
       EBDetId ecalid((*EcalHits)[i].id());
@@ -161,10 +161,10 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 	ehcals += (*HcalHits)[i].energy();
       }
     }
-    if(m_widthHcal > 0.0) {
-      eecals += G4RandGauss::shoot(0.0,m_widthHcal);
-    }
     ehcals *= m_factHcal;
+    if(m_widthHcal > 0.0) {
+      ehcals += G4RandGauss::shoot(0.0,m_widthHcal);
+    }
   }
   double etots = eecals + ehcals;
   LogDebug("HcalTBSim") << "HcalTB06Analysis:: Etot(MeV)= " << etots 

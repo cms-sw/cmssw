@@ -124,8 +124,8 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
   Handle<EEDigiCollection> digisEEHandle;
   
   // output collections
-  std::auto_ptr<EBDigiCollection> outputEBDigiCollection( new EBDigiCollection );
-  std::auto_ptr<EEDigiCollection> outputEEDigiCollection( new EEDigiCollection );
+  std::unique_ptr<EBDigiCollection> outputEBDigiCollection( new EBDigiCollection );
+  std::unique_ptr<EEDigiCollection> outputEEDigiCollection( new EEDigiCollection );
   
   // calibrated rechits
   Handle<EcalRecHitCollection> recHitsHandle;
@@ -148,7 +148,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     }
 
     // add the built collection to the event 
-    iEvent.put( outputEBDigiCollection, digisOut_);     
+    iEvent.put(std::move(outputEBDigiCollection), digisOut_);     
     break;      
   }    
   case endcap: {
@@ -166,7 +166,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     } // end loop over endcap rechits
 
     // add the built collection to the event     
-    iEvent.put(outputEEDigiCollection, digisOut_);     
+    iEvent.put(std::move(outputEEDigiCollection), digisOut_);     
     break;
   }
   case invalidRegion: {

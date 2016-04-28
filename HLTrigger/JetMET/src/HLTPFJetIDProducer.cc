@@ -53,7 +53,7 @@ void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
 void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::PFJetCollection> result (new reco::PFJetCollection());
+    std::unique_ptr<reco::PFJetCollection> result (new reco::PFJetCollection());
 
     edm::Handle<reco::PFJetCollection> pfjets;
     iEvent.getByToken(m_thePFJetToken, pfjets);
@@ -83,7 +83,7 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             pass = true;
             pass = pass && (ntot > NTOT_);
             pass = pass && (nef < NEF_);
-            pass = pass && (nhf < NHF_); //to be revisited if PF-reconstruction at HLT changes to be in line with offline code
+            pass = pass && (nhf < NHF_ || std::abs(eta) >= 2.4); //NHF-cut does not work in HF anymore with recent PF
             pass = pass && (cef < CEF_ || std::abs(eta) >= 2.4);
             pass = pass && (chf > CHF_ || std::abs(eta) >= 2.4);
             pass = pass && (nch > NCH_ || std::abs(eta) >= 2.4);
@@ -93,5 +93,5 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

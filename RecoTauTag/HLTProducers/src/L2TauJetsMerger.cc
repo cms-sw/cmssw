@@ -51,7 +51,7 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
    iL1Jet++;
  }
 
- std::auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
+ std::unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
 
  //Removing the collinear jets correctly!
  
@@ -72,7 +72,7 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
  }
  
 
-  iEvent.put(tauL2jets);
+  iEvent.put(std::move(tauL2jets));
 
 }
 

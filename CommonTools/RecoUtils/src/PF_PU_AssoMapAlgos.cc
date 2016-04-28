@@ -209,11 +209,11 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
 /* function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2  */
 /*****************************************************************************************/
 
-auto_ptr<TrackToVertexAssMap>
+unique_ptr<TrackToVertexAssMap>
 PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 {
 	//create a new TrackVertexAssMap for the Output which will be sorted
-     	auto_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap() );
+	unique_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap() );
 
 	//Create and fill a vector of pairs of vertex and the summed (pT-pT_Error)**2 of the tracks associated to the vertex
 	VertexPtsumVector vertexptsumvector;

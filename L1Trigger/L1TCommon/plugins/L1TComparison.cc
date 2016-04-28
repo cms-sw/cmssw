@@ -348,7 +348,7 @@ L1TComparison::beginJob()
 
 void
 L1TComparison::endJob() {
-  cout << "INFO:  L1T Summary for " << tag_ << "\n";
+  cout << "INFO:  L1T Comparison for " << tag_ << "\n";
   cout << "INFO: count of successful comparison for each type follows:\n";
   if (egCheck_)   cout << "eg:    " << egCount_ << "\n";
   if (tauCheck_)  cout << "tau:   " << tauCount_ << "\n";
@@ -361,6 +361,23 @@ L1TComparison::endJob() {
   if (jetCheck_)  cout << "jet:   " << jetFails_ << "\n";
   if (sumCheck_)  cout << "sum:   " << sumFails_ << "\n";
   if (muonCheck_) cout << "muon:  " << muonFails_ << "\n";
+
+  int fail = 0;
+  if (egCheck_ &&   ((egFails_>0)   || (egCount_<=0))) fail = 1;
+  if (tauCheck_ &&  ((tauFails_>0)  || (tauCount_<=0))) fail = 1;
+  if (jetCheck_ &&  ((jetFails_>0)  || (jetCount_<=0))) fail = 1;
+  if (sumCheck_ &&  ((sumFails_>0)  || (sumCount_<=0))) fail = 1;
+  if (muonCheck_ && ((muonFails_>0) || (muonCount_<=0))) fail = 1;
+
+  if (fail){
+    cout << "SUMMARY:  L1T Comparison for " << tag_ << " was FAILURE\n";
+  } else {
+    cout << "SUMMARY:  L1T Comparison for " << tag_ << " was SUCCESS\n";
+  }
+      
+
+
+
 }
 
 void

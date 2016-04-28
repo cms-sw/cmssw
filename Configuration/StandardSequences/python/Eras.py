@@ -24,12 +24,12 @@ class Eras (object):
         # Phase 2 sub-eras for stable features
         self.phase2_common = cms.Modifier()
         self.phase2_tracker = cms.Modifier()
-        self.phase2_hgc = cms.Modifier()
+        self.phase2_hgcal = cms.Modifier()
         self.phase2_muon = cms.Modifier()
         # Phase 2 sub-eras for in-development features
         self.phase2dev_common = cms.Modifier()
         self.phase2dev_tracker = cms.Modifier()
-        self.phase2dev_hgc = cms.Modifier()
+        self.phase2dev_hgcal = cms.Modifier()
         self.phase2dev_muon = cms.Modifier()
 
         # These eras are used to specify the tracking configuration
@@ -39,6 +39,7 @@ class Eras (object):
         # phase1Pixel detector.
         self.trackingPhase1 = cms.Modifier()
         self.trackingPhase1PU70 = cms.Modifier()
+        self.trackingLowPU = cms.Modifier()
         
         # This era should not be set by the user with the "--era" command, it's
         # activated automatically if the "--fast" command is used.
@@ -59,9 +60,13 @@ class Eras (object):
         self.Run2_2017 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel, self.trackingPhase1 )
         # Scenarios further afield.
         # Phase2 is everything for the 2023 (2026?) detector that works so far in this release.
-        self.Phase2 = cms.ModifierChain( self.phase2_common, self.phase2_tracker, self.phase2_hgc, self.phase2_muon )
+        # include phase 1 stuff until phase 2 tracking is fully defined....
+        self.Phase2 = cms.ModifierChain( self.phase1Pixel, self.trackingPhase1, self.phase2_common, self.phase2_tracker, self.phase2_hgcal, self.phase2_muon )
         # Phase2dev is everything for the 2023 (2026?) detector that is still in development.
-        self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgc, self.phase2dev_muon )
+        self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgcal, self.phase2dev_muon )
+
+        # Scenarios with low-PU tracking (for B=0T reconstruction)
+        self.Run2_2016_trackingLowPU = cms.ModifierChain(self.Run2_2016, self.trackingLowPU)
 
         # 2017 scenarios with customized tracking for expert use
         # Will be used as reference points for 2017 tracking development
@@ -78,10 +83,10 @@ class Eras (object):
                                 self.run2_HF_2016, self.stage2L1Trigger,
                                 self.phase1Pixel,
                                 self.phase2_common, self.phase2_tracker,
-                                self.phase2_hgc, self.phase2_muon,
+                                self.phase2_hgcal, self.phase2_muon,
                                 self.phase2dev_common, self.phase2dev_tracker,
-                                self.phase2dev_hgc, self.phase2dev_muon,
-                                self.trackingPhase1, self.trackingPhase1PU70,
+                                self.phase2dev_hgcal, self.phase2dev_muon,
+                                self.trackingLowPU, self.trackingPhase1, self.trackingPhase1PU70,
                                ]
 
 eras=Eras()

@@ -42,7 +42,7 @@ void CaloTowerFromL1TCreatorForTauHLT::produce( StreamID sid, Event& evt, const 
   edm::Handle<l1t::TauBxCollection> jetsgen;
   evt.getByToken( mTauTrigger_token, jetsgen);
 
-  std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
+  std::unique_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );
 
   int idTau = 0;
@@ -84,7 +84,7 @@ void CaloTowerFromL1TCreatorForTauHLT::produce( StreamID sid, Event& evt, const 
     edm::LogWarning("MissingProduct") << "L1Upgrade jet bx collection not found." << std::endl;
   }
   
-  evt.put( cands );
+  evt.put(std::move(cands));
   
 }
 
