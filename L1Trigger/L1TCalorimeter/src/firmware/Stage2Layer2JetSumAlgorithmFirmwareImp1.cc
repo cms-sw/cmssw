@@ -46,24 +46,26 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 	
         // find the jet at this (eta,phi)
-	l1t::Jet thisJet;
-	bool foundJet = false;
-	for (unsigned jetIt=0; jetIt<alljets.size(); jetIt++) {
-	  if (CaloTools::mpEta(alljets.at(jetIt).hwEta())==ieta && alljets.at(jetIt).hwPhi()==iphi) {
-	    thisJet = alljets.at(jetIt);
-	    foundJet = true;
-	  }
-	}
-	if (!foundJet) continue;
+		l1t::Jet thisJet;
+		bool foundJet = false;
+		for (unsigned jetIt=0; jetIt<alljets.size(); jetIt++) {
+		  if (CaloTools::mpEta(alljets.at(jetIt).hwEta())==ieta && alljets.at(jetIt).hwPhi()==iphi) {
+			thisJet = alljets.at(jetIt);
+			foundJet = true;
+		  }
+		}
+		if (!foundJet) continue;
 	
-	if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
-	  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( 1023. * cos ( 2 * M_PI * (72 - (iphi-1)) / 72.0 ) ));
-	  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 1023. * sin ( 2 * M_PI * (iphi-1) / 72.0 ) ));
-	}
+		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
+
+		  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( cos_coeff[iphi - 1] ));
+		  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( sin_coeff[iphi - 1] ));
+		  	  
+		}
 	
-	if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=httEtaMax_) {
-	  ringHt += thisJet.hwPt();
-	}
+		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=httEtaMax_) {
+		  ringHt += thisJet.hwPt();
+		}
       }
 
       hx += ringHx;
