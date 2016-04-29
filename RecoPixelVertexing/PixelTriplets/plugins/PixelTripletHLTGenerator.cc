@@ -60,18 +60,26 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
 					   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
-    if (theComparitor) theComparitor->init(ev, es);
-    
     auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
-    
     if (doublets.empty()) return;
+
+    assert(theLayerCache);
+    hitTriplets(region, result, ev, es, doublets, thirdLayers, *theLayerCache);
+}
+
+void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, OrderedHitTriplets& result,
+                                           const edm::Event& ev, const edm::EventSetup& es,
+                                           const HitDoublets& doublets,
+                                           const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                                           LayerCacheType& layerCache) {
+    if (theComparitor) theComparitor->init(ev, es);
 
     int size = thirdLayers.size();
     const RecHitsSortedInPhi * thirdHitMap[size];
     vector<const DetLayer *> thirdLayerDetLayer(size,0);
     for (int il=0; il<size; ++il) 
     {
-	thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
+	thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
 	thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
     }
     hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
