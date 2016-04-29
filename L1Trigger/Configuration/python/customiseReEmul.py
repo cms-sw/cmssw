@@ -46,8 +46,6 @@ def L1TEventSetupForHF1x1TPs(process):
         authenticationMethod = cms.untracked.uint32(0)
         )
     process.es_prefer_es_pool_hf1x1 = cms.ESPrefer("PoolDBESSource", "es_pool_hf1x1")    
-    process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
-    process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
     return process
 
 def L1TReEmulFromRAW2015(process):
@@ -58,7 +56,7 @@ def L1TReEmulFromRAW2015(process):
         cms.InputTag('hcalDigis'),
         cms.InputTag('hcalDigis')
     )
-    process.L1TReEmul = cms.Sequence(process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
+    process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
     process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'  
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
@@ -100,7 +98,13 @@ def L1TReEmulMCFromRAW2015(process):
 
 def L1TReEmulFromRAW(process):
     process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-    process.L1TReEmul = cms.Sequence(process.SimL1Emulator)
+    process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
+    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+        cms.InputTag('hcalDigis'),
+        cms.InputTag('hcalDigis')
+    )
+    process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
     if eras.stage2L1Trigger.isChosen():
         cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
         for b in cutlist:
