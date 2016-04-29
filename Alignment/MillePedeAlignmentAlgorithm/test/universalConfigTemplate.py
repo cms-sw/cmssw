@@ -58,23 +58,13 @@ setupBinaryFile       = "milleBinaryISN.dat"
 readFiles = cms.untracked.vstring()
 
 
+# General setup
+# ------------------------------------------------------------------------------
+import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.GeneralSetup as generalSetup
+generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla)
 
-## MessageLogger for convenient output
-## -----------------------------------------------------------------------------
-process.load('Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.myMessageLogger_cff')
 
 
-## Load the conditions
-## -----------------------------------------------------------------------------
-if setupCosmicsZeroTesla:
-    # actually only needed for 0T MC samples, but does not harm for 0T data
-    process.load("Configuration.StandardSequences.MagneticField_0T_cff") # B-field map
-else:
-    process.load('Configuration.StandardSequences.MagneticField_cff') # B-field map
-process.load('Configuration.Geometry.GeometryRecoDB_cff') # Ideal geometry and interface
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff") # Global tag
-process.GlobalTag.connect   = "frontier://FrontierProd/CMS_CONDITIONS"
-process.GlobalTag.globaltag = setupGlobaltag
 
 
 ## Overwrite some conditions in global tag
