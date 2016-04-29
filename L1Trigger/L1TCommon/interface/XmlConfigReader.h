@@ -34,6 +34,7 @@ class XmlConfigReader {
   const XMLCh* kTagParam;
   const XMLCh* kTagMask;
   const XMLCh* kTagDisable;
+  const XMLCh* kTagColumns;
   const XMLCh* kTagTypes;
   const XMLCh* kTagRow;
   const XMLCh* kAttrProcessor;
@@ -41,6 +42,7 @@ class XmlConfigReader {
   const XMLCh* kAttrRole;
   const XMLCh* kAttrCrate;
   const XMLCh* kAttrType;
+  const XMLCh* kAttrDelim;
   const XMLCh* kAttrModule;
   const std::string kTypeTable;
 

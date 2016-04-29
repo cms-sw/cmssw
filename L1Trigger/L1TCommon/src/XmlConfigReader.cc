@@ -34,6 +34,7 @@ XmlConfigReader::XmlConfigReader() :
   kTagParam(      XMLString::transcode("param")),
   kTagMask(       XMLString::transcode("mask")),
   kTagDisable(    XMLString::transcode("disable")),
+  kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
   kAttrProcessor( XMLString::transcode("processor")),
@@ -41,6 +42,7 @@ XmlConfigReader::XmlConfigReader() :
   kAttrRole(      XMLString::transcode("role")),
   kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
+  kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
   kTypeTable("table")
 {
@@ -66,6 +68,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagParam(      XMLString::transcode("param")),
   kTagMask(       XMLString::transcode("mask")),
   kTagDisable(    XMLString::transcode("disable")),
+  kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
   kAttrProcessor( XMLString::transcode("processor")),
@@ -73,6 +76,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kAttrRole(      XMLString::transcode("role")),
   kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
+  kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
   kTypeTable("table")
 {
@@ -185,35 +189,49 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
-              // TODO: implement handling of table
+              std::string delim = _toString(elem->getAttribute(kAttrDelim));
+
+              // get the columns string
+              std::string columnsStr = "";
+              DOMNodeList* colElements = elem->getElementsByTagName(kTagColumns);
+              for (XMLSize_t j = 0; j < colElements->getLength(); ++j) {
+                DOMNodeList* colChilds = colElements->item(j)->getChildNodes();
+                for (XMLSize_t k = 0; k < colChilds->getLength(); ++k) {
+                  if (colChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
+                    columnsStr = _toString(colChilds->item(k)->getNodeValue());
+                    pruneString(columnsStr);
+                  }
+                }
+              }
+
               // get the column type string
-              //std::string typesStr = "";
-              //DOMNodeList* colTypesElements = elem->getElementsByTagName(kTagTypes);
-              //for (XMLSize_t j = 0; j < colTypesElements->getLength(); ++j) {
-              //  DOMNodeList* colTypesChilds = colTypesElements->item(j)->getChildNodes();
-              //  for (XMLSize_t k = 0; k < colTypesChilds->getLength(); ++k) {
-              //    if (colTypesChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-              //      typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
-              //      pruneString(typesStr);
-              //    }
-              //  }
-              //}
+              std::string typesStr = "";
+              DOMNodeList* colTypesElements = elem->getElementsByTagName(kTagTypes);
+              for (XMLSize_t j = 0; j < colTypesElements->getLength(); ++j) {
+                DOMNodeList* colTypesChilds = colTypesElements->item(j)->getChildNodes();
+                for (XMLSize_t k = 0; k < colTypesChilds->getLength(); ++k) {
+                  if (colTypesChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
+                    typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
+                    pruneString(typesStr);
+                  }
+                }
+              }
 
-              //// get the rows
-              //std::vector<std::string> rowStrs;
-              //DOMNodeList* rowElements = elem->getElementsByTagName(kTagRow);
-              //for (XMLSize_t j = 0; j < rowElements->getLength(); ++j) {
-              //  DOMNodeList* rowChilds = rowElements->item(j)->getChildNodes();
-              //  for (XMLSize_t k = 0; k < rowChilds->getLength(); ++k) {
-              //    if (rowChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-              //      std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
-              //      pruneString(rowStr);
-              //      rowStrs.push_back(rowStr);
-              //    }
-              //  }
-              //}
+              // get the rows
+              std::vector<std::string> rowStrs;
+              DOMNodeList* rowElements = elem->getElementsByTagName(kTagRow);
+              for (XMLSize_t j = 0; j < rowElements->getLength(); ++j) {
+                DOMNodeList* rowChilds = rowElements->item(j)->getChildNodes();
+                for (XMLSize_t k = 0; k < rowChilds->getLength(); ++k) {
+                  if (rowChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
+                    std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
+                    pruneString(rowStr);
+                    rowStrs.push_back(rowStr);
+                  }
+                }
+              }
 
-              //aTrigSystem.addSettingTable(rowStrs, rowStrs);
+              aTrigSystem.addSettingTable(id, columnsStr, typesStr, rowStrs, contextId, delim);
 
             } else { // all types other than table
               std::string value = "";
