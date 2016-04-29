@@ -158,7 +158,8 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
      if(m_uGtAlgBlk.isValid()) {
        // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
-       if (algBlk != m_uGtAlgBlk->end(0)){     
+       if (algBlk != m_uGtAlgBlk->end(0)){
+	 m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
 	 // Grab the final OR from the AlgBlk,       
 	 m_finalOR = algBlk->getFinalOR();
        

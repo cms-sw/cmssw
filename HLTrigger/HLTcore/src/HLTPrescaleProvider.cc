@@ -58,6 +58,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
     return -1;
   }
  } else if (hltConfigProvider_.l1tType()==2) {
+   l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
    return static_cast<int>(l1tGlobalUtil_.prescaleColumn());
  } else {
    if (count_[0]<2) {
@@ -146,6 +147,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
     result.first=1;
   } else if (nL1TSeedModules==1) {
+    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
     const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
     bool l1error(!l1tGlobalUtil_.getPrescaleByName(l1tname,result.first));
     if (l1error) {
@@ -267,6 +269,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
     result.first.clear();
   } else if (nL1TSeedModules==1) {
+    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
     const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
     GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
     const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
