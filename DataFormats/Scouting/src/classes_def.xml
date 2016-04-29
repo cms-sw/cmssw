@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="ScoutingCaloJet" ClassVersion="2">
+  <class name="ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="2" checksum="2705685116"/>
+      <version ClassVersion="3" checksum="631496401"/>
   </class>
   <class name="ScoutingPFJet" ClassVersion="2">
       <version ClassVersion="2" checksum="2507658732"/>

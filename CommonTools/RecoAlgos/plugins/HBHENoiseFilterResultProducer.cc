@@ -146,12 +146,12 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   decisionMap_["HBHENoiseFilterResultRun2Tight"] = failRun2Tight;
 
   // Write out the standard flags
-  std::auto_ptr<bool> pOut;
+  std::unique_ptr<bool> pOut;
   for (std::map<std::string, bool>::const_iterator it = decisionMap_.begin();
        it != decisionMap_.end(); ++it)
   {
-      pOut = std::auto_ptr<bool>(new bool(!it->second));
-      iEvent.put(pOut, it->first);
+      pOut = std::unique_ptr<bool>(new bool(!it->second));
+      iEvent.put(std::move(pOut), it->first);
   }
 
   // Overwrite defaultDecision_ dynamically based on bunchSpacingProducer
@@ -173,15 +173,15 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::map<std::string, bool>::const_iterator it = decisionMap_.find(defaultDecision_);
   if (it == decisionMap_.end())
       throw cms::Exception("Invalid HBHENoiseFilterResultProducer parameter \"defaultDecision\"");
-  pOut = std::auto_ptr<bool>(new bool(!it->second));
-  iEvent.put(pOut, "HBHENoiseFilterResult");
+  pOut = std::unique_ptr<bool>(new bool(!it->second));
+  iEvent.put(std::move(pOut), "HBHENoiseFilterResult");
 
   // Check isolation requirements
   const bool failIsolation = summary.numIsolatedNoiseChannels() >= minNumIsolatedNoiseChannels_ ||
                              summary.isolatedNoiseSumE() >= minIsolatedNoiseSumE_ ||
                              summary.isolatedNoiseSumEt() >= minIsolatedNoiseSumEt_;
-  pOut = std::auto_ptr<bool>(new bool(!failIsolation));
-  iEvent.put(pOut, "HBHEIsoNoiseFilterResult");
+  pOut = std::unique_ptr<bool>(new bool(!failIsolation));
+  iEvent.put(std::move(pOut), "HBHEIsoNoiseFilterResult");
   
   return;
 }

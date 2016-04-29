@@ -73,6 +73,7 @@ class HSCPValidator : public edm::EDAnalyzer {
       edm::EDGetTokenT<reco::TrackCollection> tkTracksToken_;
       edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dEdxTrackToken_;
       edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       std::vector<int> particleIds_;
       int particleStatus_;
       std::map<int,int> particleIdsFoundMap_;

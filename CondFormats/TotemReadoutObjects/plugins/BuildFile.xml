@@ -1,0 +1,7 @@
+<library name="CondFormatsTotemReadoutObjectsPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/TotemReadoutObjects"/>
+  <use name="xerces-c"/>
+</library>

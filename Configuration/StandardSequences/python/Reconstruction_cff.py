@@ -43,7 +43,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
@@ -59,9 +59,10 @@ globalreco_tracking = cms.Sequence(offlineBeamSpot*
                           standalonemuontracking*
                           trackingGlobalReco*
                           vertexreco)
-_globalreco_trackingLowPU = globalreco_tracking.copy()
-_globalreco_trackingLowPU.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
-eras.trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_trackingLowPU)
+_globalreco_tracking_LowPU_Phase1PU70 = globalreco_tracking.copy()
+_globalreco_tracking_LowPU_Phase1PU70.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
+eras.trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           hcalGlobalRecoSequence*
@@ -98,9 +99,9 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(bunchSpacingProducer*localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
-reconstruction_trackingOnly = cms.Sequence(bunchSpacingProducer*localreco*globalreco_tracking)
+reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -193,5 +194,3 @@ reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*l
 # modules instead of sequences
 #
 reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
-
-

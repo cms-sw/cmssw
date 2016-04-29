@@ -80,7 +80,13 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
   unsigned int counter= 0; ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
   for(std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
      iLink != theTrackLinks.end(); iLink++){
-    LogDebug(category_) << "making map between " << (*iLink).first<<" and "<< (*iLink).second;
+#ifdef EDM_ML_DEBUG
+    edm::EDConsumerBase::Labels labels_first;
+    edm::EDConsumerBase::Labels labels_second;
+    labelsForToken(iLink->first, labels_first);
+    labelsForToken(iLink->second, labels_second);
+    LogDebug(category_) << "making map between " << labels_first.module <<" and "<< labels_second.module;
+#endif
     std::string mapname = theTrackLinkNames[counter].first + "To" + theTrackLinkNames[counter].second;
     reco::TrackToTrackMap ttmap;
 

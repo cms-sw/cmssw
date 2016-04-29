@@ -33,6 +33,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
@@ -81,7 +83,6 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
     private:
 
         std::map< unsigned int, ClusterHistos >::iterator createLayerHistograms(unsigned int);
-        unsigned int getLayerNumber(const DetId&, const TrackerTopology*);
         unsigned int getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >&, const DetId&, unsigned int);
 
         edm::EDGetTokenT< Phase2TrackerCluster1DCollectionNew > tokenClusters_;
@@ -150,11 +151,11 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
     // Get the geometry
     edm::ESHandle< TrackerGeometry > geomHandle;
-    eventSetup.get< TrackerDigiGeometryRecord >().get(geomHandle);
+    eventSetup.get< TrackerDigiGeometryRecord >().get("idealForDigi", geomHandle);
     const TrackerGeometry* tkGeom = &(*geomHandle);
 
     edm::ESHandle< TrackerTopology > tTopoHandle;
-    eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
+    eventSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
     const TrackerTopology* tTopo = tTopoHandle.product();
 
     /*
@@ -198,10 +199,10 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
         // Get the detector unit's id
         unsigned int rawid(DSViter->detId()); 
         DetId detId(rawid);
-        unsigned int layer(getLayerNumber(detId, tTopo));
+        unsigned int layer(phase2trackerdigi::getLayerNumber(rawid, tTopo));
 
         // Get the geometry of the tracker
-        const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
+        const TrackerGeomDet* geomDetUnit(tkGeom->idToDetUnit(detId));
         const PixelGeomDetUnit* theGeomDet = dynamic_cast< const PixelGeomDetUnit* >(geomDetUnit);
         const PixelTopology& topol = theGeomDet->specificTopology();
 
@@ -257,7 +258,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
             // Get all the simTracks that form the cluster
             for (unsigned int i(0); i < clustIt->size(); ++i) {
-                unsigned int channel(PixelDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column())); // Here we have to use the old pixelToChannel function (not Phase2TrackerDigi but PixelDigi), change this when using new Digis
+                unsigned int channel(Phase2TrackerDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column())); 
                 unsigned int simTrackId(getSimTrackId(pixelSimLinks, detId, channel));
                 clusterSimTrackIds.push_back(simTrackId);
             }
@@ -474,15 +475,6 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
     fs->file().cd("/");
 
     return insertedIt.first;
-}
-
-unsigned int Phase2TrackerClusterizerValidation::getLayerNumber(const DetId& detid, const TrackerTopology* topo) {
-    if (detid.det() == DetId::Tracker) {
-        if (detid.subdetId() == PixelSubdetector::PixelBarrel) return (topo->pxbLayer(detid));
-        else if (detid.subdetId() == PixelSubdetector::PixelEndcap) return (100 * topo->pxfSide(detid) + topo->pxfDisk(detid));
-        else return 999;
-    }
-    return 999;
 }
 
 unsigned int Phase2TrackerClusterizerValidation::getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >& pixelSimLinks, const DetId& detId, unsigned int channel) {

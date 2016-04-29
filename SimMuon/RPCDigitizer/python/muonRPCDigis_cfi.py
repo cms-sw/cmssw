@@ -28,8 +28,8 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 #the new digitizer is RPCSimAsymmetricCls
 )
 
-
 from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
     simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
-    
+eras.phase2_muon.toModify( simMuonRPCDigis, digiModel = cms.string('RPCSimAverageNoiseEffCls') )
+

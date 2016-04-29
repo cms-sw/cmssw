@@ -103,7 +103,7 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 	edm::ESHandle<TransientTrackBuilder> theB;
 	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
-	std::auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
+	std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
 	// look at all trackcands,  check cuts and make vertices
 	double e1,e2;
@@ -192,7 +192,7 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 			 vertexCollection->push_back(vertex);
 	       }
 	}
-   	iEvent.put(vertexCollection);
+   	iEvent.put(std::move(vertexCollection));
 }
 
 

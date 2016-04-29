@@ -154,8 +154,8 @@ void testEventsetup::getExcTest()
 class DummyEventSetupProvider : public edm::eventsetup::EventSetupProvider {
 public:
    template<class T>
-   void insert(std::auto_ptr<T> iRecord) {
-      edm::eventsetup::EventSetupProvider::insert(iRecord);
+   void insert(std::unique_ptr<T> iRecord) {
+      edm::eventsetup::EventSetupProvider::insert(std::move(iRecord));
    }
 };
 
@@ -163,9 +163,9 @@ void testEventsetup::recordProviderTest()
 {
    DummyEventSetupProvider provider;
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
    
-   provider.insert(dummyRecordProvider);
+   provider.insert(std::move(dummyRecordProvider));
    
    //NOTE: use 'invalid' timestamp since the default 'interval of validity'
    //       for a Record is presently an 'invalid' timestamp on both ends.
@@ -206,12 +206,12 @@ void testEventsetup::recordValidityTest()
 {
    DummyEventSetupProvider provider;
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
 
    std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
    dummyRecordProvider->addFinder(finder);
    
-   provider.insert(dummyRecordProvider);
+   provider.insert(std::move(dummyRecordProvider));
    
    {
       Timestamp time_1(1);
@@ -243,12 +243,12 @@ void testEventsetup::recordValidityExcTest()
 {
    DummyEventSetupProvider provider;
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
 
    std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
    dummyRecordProvider->addFinder(finder);
    
-   provider.insert(dummyRecordProvider);
+   provider.insert(std::move(dummyRecordProvider));
    
    {
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(1)));
@@ -724,12 +724,12 @@ void testEventsetup::iovExtentionTest()
 {
   DummyEventSetupProvider provider;
   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-  std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+  auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
   
   std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
   dummyRecordProvider->addFinder(finder);
   
-  provider.insert(dummyRecordProvider);
+  provider.insert(std::move(dummyRecordProvider));
   
   const Timestamp time_2(2);
   finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{3}}));

@@ -17,7 +17,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedSecondaryVertices_*_*',
         'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
         'keep *_slimmedJetsAK8PFPuppiSoftDropPacked_SubJets_*',
-        
+
         'keep recoPhotonCores_reducedEgamma_*_*',
         'keep recoGsfElectronCores_reducedEgamma_*_*',
         'keep recoConversions_reducedEgamma_*_*',

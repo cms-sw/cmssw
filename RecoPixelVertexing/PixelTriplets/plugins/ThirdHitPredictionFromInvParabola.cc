@@ -89,16 +89,16 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius, int icharge) const
   Scalar phi1 = f_phi(theRotation.rotateBack(Point2D(u[0],v[0])));
   Scalar phi2 = phi1+(v[1]-v[0]); 
   
+  if (phi2<phi1) std::swap(phi1, phi2);
+
   if (ip.empty()) {
     Range r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
     Range r2(phi2*radius-theTolerance, phi2*radius+theTolerance); 
-    return r1.intersection(r2);
+    return r1.intersection(r2); // this range can be empty
   }
 
-  if (phi2<phi1) std::swap(phi1, phi2); 
   return Range(radius*phi1-theTolerance, radius*phi2+theTolerance);
   
-
 }
 
 
@@ -107,14 +107,15 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius) const
 {
 
   auto getRange = [&](Scalar phi1, Scalar phi2, bool empty)->RangeD {
-    
+  
+    if (phi2<phi1) std::swap(phi1, phi2);  
     if (empty) {
       RangeD r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
       RangeD r2(phi2*radius-theTolerance, phi2*radius+theTolerance); 
       return r1.intersection(r2);
     }
     
-    return RangeD(radius*std::min(phi1,phi2)-theTolerance, radius*std::max(phi1,phi2)+theTolerance);
+    return RangeD(radius*phi1-theTolerance, radius*phi2+theTolerance);
   };
 
 

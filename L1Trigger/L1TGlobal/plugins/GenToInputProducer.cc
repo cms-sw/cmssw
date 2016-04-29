@@ -10,7 +10,7 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -77,9 +77,9 @@ namespace l1t {
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-    //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-    //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+    //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    //std::shared_ptr<const FirmwareVersion> m_fwv;
+    //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
     TRandom3* gRandom;
 
@@ -201,7 +201,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   eventCnt_++;
 
-  LogDebug("l1t|Global") << "GenToInputProducer::produce function called...\n";
+  LogDebug("GtGenToInputProducer") << "GenToInputProducer::produce function called...\n";
 
   // Setup vectors
   std::vector<l1t::Muon> muonVec;
@@ -268,7 +268,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenParticles collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenParticles collection not found!" << std::endl;
   }
 
 
@@ -439,7 +439,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenJets collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenJets collection not found!" << std::endl;
   }
 
 
@@ -465,7 +465,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenMet collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenMet collection not found!" << std::endl;
   }
 
 
@@ -665,7 +665,7 @@ GenToInputProducer::endJob() {
 
 void GenToInputProducer::beginRun(Run const&iR, EventSetup const&iE){
 
-  LogDebug("l1t|Global") << "GenToInputProducer::beginRun function called...\n";
+  LogDebug("GtGenToInputProducer") << "GenToInputProducer::beginRun function called...\n";
 
   counter_ = 0;
   srand( 0 );

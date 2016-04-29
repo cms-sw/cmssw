@@ -1,4 +1,7 @@
 <lcgdict>
+  <class name="HGCTriggerDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="593085218"/>
+  </class>
   <class name="HGCEEDetId" ClassVersion="13">
    <version ClassVersion="13" checksum="2559951294"/>
    <version ClassVersion="12" checksum="511816684"/>

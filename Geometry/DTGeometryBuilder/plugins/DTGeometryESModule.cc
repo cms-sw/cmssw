@@ -53,7 +53,7 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 
 DTGeometryESModule::~DTGeometryESModule(){}
 
-boost::shared_ptr<DTGeometry> 
+std::shared_ptr<DTGeometry> 
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
   //
@@ -91,7 +91,7 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  _dtGeometry = std::make_shared<DTGeometry>();
   edm::ESHandle<MuonDDDConstants> mdc;
   record.get( mdc );
 
@@ -108,7 +108,7 @@ void DTGeometryESModule::dbGeometryCallback_( const DTRecoGeometryRcd& record ) 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  _dtGeometry = std::make_shared<DTGeometry>();
   edm::ESHandle<RecoIdealGeometry> rig;
   record.get(rig);
   

@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -47,7 +46,7 @@ public:
     /// public methods
 
     /// produce mappings of the L1 GT boards
-    boost::shared_ptr<L1GtBoardMaps> produceBoardMaps(
+    std::shared_ptr<L1GtBoardMaps> produceBoardMaps(
         const L1GtBoardMapsRcd&);
 
 private:

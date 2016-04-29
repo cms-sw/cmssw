@@ -7,10 +7,10 @@
 #include "FWCore/Utilities/src/Guid.h"
 
 #include <string>
+#include <cmath>
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 #include <openssl/x509.h>
 #include <openssl/pem.h>

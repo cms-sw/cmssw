@@ -75,6 +75,11 @@ bool Py8EGun::generatePartonsAndHadronize()
          particleID = std::fabs(particleID) ;
       }
       (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+      int eventSize = (fMasterGen->event).size()-1;
+// -log(flat) = exponential distribution
+      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+      (fMasterGen->event)[eventSize].tau( tauTmp );
+
 
 // Here also need to add anti-particle (if any)
 // otherwise just add a 2nd particle of the same type 
@@ -90,6 +95,10 @@ bool Py8EGun::generatePartonsAndHadronize()
 	 {
 	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
+         eventSize = (fMasterGen->event).size()-1;
+// -log(flat) = exponential distribution
+         tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+         (fMasterGen->event)[eventSize].tau( tauTmp );
       }
 
    }

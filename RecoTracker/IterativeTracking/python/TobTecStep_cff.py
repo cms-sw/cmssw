@@ -21,6 +21,11 @@ tobTecStepClusters = _tobTecStepClustersBase.clone(
 eras.trackingLowPU.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
     overrideTrkQuals                         = "pixelLessStepSelector:QualityMasks",
 ))
+eras.trackingPhase1PU70.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
+    trajectories                             = "pixelPairStepTracks",
+    oldClusterRemovalInfo                    = "pixelPairStepClusters",
+    overrideTrkQuals                         = "pixelPairStepSelector:pixelPairStep",
+))
 
 # TRIPLET SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -157,10 +162,30 @@ eras.trackingLowPU.toReplaceWith(tobTecStepSeeds, RecoTracker.TkSeedGenerator.Gl
         originRadius = 6.0,
     ))
 ))
+# Phase1PU70
+eras.trackingPhase1PU70.toReplaceWith(tobTecStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
+    OrderedHitsFactoryPSet = dict(SeedingLayers = 'tobTecStepSeedLayers'),
+    RegionFactoryPSet = dict(
+        RegionPSet = dict(
+            ptMin = 1.0,
+            originHalfLength = 15.0,
+            originRadius = 2.0
+        )
+    ),
+    SeedCreatorPSet = dict(OriginTransverseErrorMultiplier = 3.0),
+    SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits = cms.bool(False),
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ),
+))
+
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-
 _tobTecStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 5,
@@ -173,10 +198,14 @@ tobTecStepTrajectoryFilter = _tobTecStepTrajectoryFilterBase.clone(
 eras.trackingLowPU.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 6,
 ))
+eras.trackingPhase1PU70.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
+    minimumNumberOfHits = 6,
+))
 
 tobTecStepInOutTrajectoryFilter = tobTecStepTrajectoryFilter.clone(
     minimumNumberOfHits = 4,
 )
+
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 tobTecStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -187,6 +216,10 @@ tobTecStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cf
 )
 eras.trackingLowPU.toModify(tobTecStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
+)
+eras.trackingPhase1PU70.toModify(tobTecStepChi2Est,
+    MaxChi2 = 9.0,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
 
 # TRACK BUILDING
@@ -238,6 +271,7 @@ tobTecStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     )
 tobTecStepTrackCandidates.TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
 eras.trackingLowPU.toModify(tobTecStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
+eras.trackingPhase1PU70.toModify(tobTecStepTrajectoryCleanerBySharedHits, fractionShared = 0.08)
 
 # TRACK FITTING AND SMOOTHING OPTIONS
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
@@ -249,6 +283,7 @@ tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFi
     Smoother = cms.string('tobTecStepRKSmoother')
     )
 eras.trackingLowPU.toModify(tobTecStepFitterSmoother, MinNumberOfHits = 8)
+eras.trackingPhase1PU70.toModify(tobTecStepFitterSmoother, MinNumberOfHits = 8)
 
 tobTecStepFitterSmootherForLoopers = tobTecStepFitterSmoother.clone(
     ComponentName = 'tobTecStepFitterSmootherForLoopers',
@@ -262,6 +297,7 @@ tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.
     minHits = 7
 )
 eras.trackingLowPU.toModify(tobTecStepRKTrajectoryFitter, minHits = 8)
+eras.trackingPhase1PU70.toModify(tobTecStepRKTrajectoryFitter, minHits = 8)
 
 tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitterForLoopers'),
@@ -274,6 +310,7 @@ tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cf
     minHits = 7
 )
 eras.trackingLowPU.toModify(tobTecStepRKTrajectorySmoother, minHits = 8)
+eras.trackingPhase1PU70.toModify(tobTecStepRKTrajectorySmoother, minHits = 8)
 
 tobTecStepRKTrajectorySmootherForLoopers = tobTecStepRKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmootherForLoopers'),
@@ -317,10 +354,10 @@ tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 eras.trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='tobTecStepTracks',
+    src = 'tobTecStepTracks',
     useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('MVASelectorIter6'),
-    trackSelectors= cms.VPSet(
+    trackSelectors = [
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'tobTecStepLoose',
             chi2n_par = 0.4,
@@ -359,8 +396,7 @@ eras.trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.mul
             d0_par2 = ( 1.4, 4.0 ),
             dz_par2 = ( 1.3, 4.0 )
         ),
-    ),
-    vertices = cms.InputTag("pixelVertices") #end of vpset
+    ] #end of vpset
 )) #end of clone
 
 
@@ -378,26 +414,35 @@ TobTecStep = cms.Sequence(tobTecStepClusters*
 
 
 
-### Following are specific for LowPU, they're collected here to
+### Following are specific for LowPU and/or Phase1PU70, they're collected here to
 ### not to interfere too much with the default configuration
+# For Phase1PU70
+tobTecStepSeedClusters = _trackClusterRemover.clone(
+    maxChi2                                  = 9.0,
+    trajectories                             = "mixedTripletStepTracks",
+    pixelClusters                            = "siPixelClusters",
+    stripClusters                            = "siStripClusters",
+    oldClusterRemovalInfo                    = "mixedTripletStepClusters",
+    overrideTrkQuals                         = 'mixedTripletStep',
+    TrackQuality                             = 'highPurity',
+    minNumberOfLayersWithMeasBeforeFiltering = 0,
+)
 
 # SEEDING LAYERS
 tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('TOB1+TOB2',
-        'TOB1+TEC1_pos', 'TOB1+TEC1_neg',
-        'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos',
-        'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos',
-        'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos',
-        'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg',
-        'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg',
+    layerList = cms.vstring('TOB1+TOB2', 
+        'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
+        'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
+        'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
+        'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
+        'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
+        'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
         'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
-
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
         TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny'))
     ),
-
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
@@ -408,7 +453,63 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         maxRing = cms.int32(5)
     )
 )
+eras.trackingPhase1PU70.toModify(tobTecStepSeedLayers,
+    TOB = dict(
+        skipClusters = 'tobTecStepSeedClusters',
+        clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    ),
+    TEC = dict(
+        skipClusters = 'tobTecStepSeedClusters',
+        clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    ),
+)
 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src = 'tobTecStepTracks',
+    trackSelectors = [
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'tobTecStepLoose',
+            chi2n_par = 0.25,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.2, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.2, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'tobTecStepTight',
+            preFilterName = 'tobTecStepLoose',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            max_minMissHitOutOrIn = 1,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.0, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.0, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'tobTecStep',
+            preFilterName = 'tobTecStepTight',
+            chi2n_par = 0.15,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 6,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            max_minMissHitOutOrIn = 0,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.8, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.8, 4.0 )
+        ),
+    ] #end of vpset
+) #end of clone
 
 eras.trackingLowPU.toReplaceWith(TobTecStep, cms.Sequence(
     tobTecStepClusters*
@@ -417,4 +518,13 @@ eras.trackingLowPU.toReplaceWith(TobTecStep, cms.Sequence(
     tobTecStepTrackCandidates*
     tobTecStepTracks*
     tobTecStep
+))
+eras.trackingPhase1PU70.toReplaceWith(TobTecStep, cms.Sequence(
+    tobTecStepClusters*
+    tobTecStepSeedClusters*
+    tobTecStepSeedLayers*
+    tobTecStepSeeds*
+    tobTecStepTrackCandidates*
+    tobTecStepTracks*
+    tobTecStepSelector
 ))

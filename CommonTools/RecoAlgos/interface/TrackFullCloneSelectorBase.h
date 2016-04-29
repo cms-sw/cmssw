@@ -63,10 +63,10 @@ private:
       edm::Handle<reco::TrackCollection> hSrcTrack;
       evt.getByToken( hSrcTrackToken_, hSrcTrack );
 
-      selTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
+      selTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection());
       if (copyExtras_) {
-          selTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-          selHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+          selTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
+          selHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
       }
 
       TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();
@@ -115,8 +115,8 @@ private:
           evt.getByToken(hTTAssToken_, hTTAss);
           evt.getByToken(hTrajToken_, hTraj);
           edm::RefProd< std::vector<Trajectory> > TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
-          selTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
-          selTTAss_ = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+          selTrajs_ = std::unique_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+          selTTAss_ = std::unique_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
           for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
               edm::Ref< std::vector<Trajectory> > trajRef(hTraj, i);
               TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
@@ -134,13 +134,13 @@ private:
           }
       }
 
-      evt.put(selTracks_);
+      evt.put(std::move(selTracks_));
       if (copyExtras_) {
-            evt.put(selTrackExtras_);
-            evt.put(selHits_);
+            evt.put(std::move(selTrackExtras_));
+            evt.put(std::move(selHits_));
             if ( copyTrajectories_ ) {
-                evt.put(selTrajs_);
-                evt.put(selTTAss_);
+                evt.put(std::move(selTrajs_));
+                evt.put(std::move(selTTAss_));
             }
       }
   }
@@ -155,11 +155,11 @@ private:
   /// filter event
   Selector selector_;
   // some space
-  std::auto_ptr<reco::TrackCollection> selTracks_;
-  std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-  std::auto_ptr<TrackingRecHitCollection> selHits_;
-  std::auto_ptr< std::vector<Trajectory> > selTrajs_;
-  std::auto_ptr< TrajTrackAssociationCollection > selTTAss_;
+  std::unique_ptr<reco::TrackCollection> selTracks_;
+  std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
+  std::unique_ptr<TrackingRecHitCollection> selHits_;
+  std::unique_ptr< std::vector<Trajectory> > selTrajs_;
+  std::unique_ptr< TrajTrackAssociationCollection > selTTAss_;
 };
 
 } }

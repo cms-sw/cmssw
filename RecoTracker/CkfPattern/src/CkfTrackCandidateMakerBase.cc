@@ -1,6 +1,3 @@
-#include <memory>
-#include <string>
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -82,11 +79,6 @@ namespace cms{
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
     skipClusters_(false)
   {  
-    //produces<TrackCandidateCollection>();  
-    // old configuration totally descoped.
-    //    if (!conf.exists("src"))
-    //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
-    //    else
       theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
 #ifndef	VI_REPRODUCIBLE
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
@@ -274,7 +266,7 @@ namespace cms{
         std::vector<Trajectory> theTmpTrajectories;
 
 
-	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
+	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========\n";
 	
         { Lock lock(theMutex); 
 	// Check if seed hits already used by another track
@@ -288,7 +280,7 @@ namespace cms{
 	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
-			            << " trajectories from seed " << j << " ========"<<endl
+			            << " trajectories from seed " << j << " ========\n"
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 	
         if (cleanTrajectoryAfterInOut) {
@@ -296,8 +288,9 @@ namespace cms{
 	  // Select the best trajectory from this seed (declare others invalid)
   	  theTrajectoryCleaner->clean(theTmpTrajectories);
 
-  	  LogDebug("CkfPattern") << "======== In-out trajectory cleaning gave the following valid trajectories from seed " 
-                                 << j << " ========"<<endl
+  	  LogDebug("CkfPattern") << "======== In-out trajectory cleaning gave the following " << theTmpTrajectories.size()
+                                      << " valid trajectories from seed " 
+                                 << j << " ========\n"
 				 << PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
 
@@ -308,7 +301,7 @@ namespace cms{
 	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
 
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
-  			              << " valid/invalid trajectories from seed " << j << " ========"<<endl
+  			              << " valid/invalid trajectories from seed " << j << " ========\n"
 				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
 	
@@ -316,8 +309,8 @@ namespace cms{
         // Select the best trajectory from this seed (after seed region rebuilding, can be more than one)
 	theTrajectoryCleaner->clean(theTmpTrajectories);
 
-        LogDebug("CkfPattern") << "======== Trajectory cleaning gave the following valid trajectories from seed " 
-                               << j << " ========"<<endl
+        LogDebug("CkfPattern") << "======== Trajectory cleaning gave the following " << theTmpTrajectories.size() << " valid trajectories from seed " 
+                               << j << " ========\n"
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 
         { Lock lock(theMutex); 
@@ -489,7 +482,7 @@ namespace cms{
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);            
       LogTrace("CkfPattern|TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info =========="
-						    << "number of Seed: " << collseed->size()<<endl
+						    << "number of Seed: " << collseed->size()<<'\n'
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
       assert(viTotHits>=0); // just to use it...

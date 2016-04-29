@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.Configuration.customiseForRunI import customiseForRunI
+
 ##############################################################################
 # common utilities
 ##############################################################################
@@ -63,6 +65,7 @@ def customiseCosmicData(process):
     return process
 
 
+
 ##############################################################################
 def customiseCosmicMC(process):
     return process
@@ -79,6 +82,7 @@ def customiseVALSKIM(process):
 def customiseExpress(process):
     process= customisePPData(process)
     process = _swapOfflineBSwithOnline(process)
+    
     return process
 
 ##############################################################################
@@ -198,7 +202,6 @@ def customiseExpressRun2Deprecated_50ns(process):
     return process
 
 def customiseExpressRun2DeprecatedB0T(process):
-    from RecoTracker.Configuration.customiseForRunI import customiseForRunI
     process=customiseForRunI(process)
     process=customiseExpressRun2Deprecated(process)
     return process
@@ -215,7 +218,6 @@ def customisePromptRun2Deprecated_50ns(process):
     return process
 
 def customisePromptRun2DeprecatedB0T(process):
-    from RecoTracker.Configuration.customiseForRunI import customiseForRunI
     process=customiseForRunI(process)
     process=customisePromptRun2Deprecated(process)
     return process

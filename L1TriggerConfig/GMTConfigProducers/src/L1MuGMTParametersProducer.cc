@@ -31,12 +31,12 @@ L1MuGMTParametersProducer::~L1MuGMTParametersProducer() {
 //
 
 // ------------ methods called to produce the data  ------------
-std::auto_ptr<L1MuGMTParameters> 
+std::unique_ptr<L1MuGMTParameters> 
 L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::auto_ptr<L1MuGMTParameters> gmtparams = std::auto_ptr<L1MuGMTParameters>( new L1MuGMTParameters() );
+  std::unique_ptr<L1MuGMTParameters> gmtparams = std::unique_ptr<L1MuGMTParameters>( new L1MuGMTParameters() );
 
   gmtparams->setEtaWeight_barrel(m_ps->getParameter<double>("EtaWeight_barrel"));
   gmtparams->setPhiWeight_barrel(m_ps->getParameter<double>("PhiWeight_barrel"));
@@ -84,12 +84,12 @@ L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& 
   return gmtparams ;
 }
 
-std::auto_ptr<L1MuGMTChannelMask> 
+std::unique_ptr<L1MuGMTChannelMask> 
 L1MuGMTParametersProducer::produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::auto_ptr<L1MuGMTChannelMask> gmtchanmask = std::auto_ptr<L1MuGMTChannelMask>( new L1MuGMTChannelMask() );
+  std::unique_ptr<L1MuGMTChannelMask> gmtchanmask = std::unique_ptr<L1MuGMTChannelMask>( new L1MuGMTChannelMask() );
 
   gmtchanmask->setSubsystemMask(m_ps->getParameter<unsigned>("SubsystemMask"));
 

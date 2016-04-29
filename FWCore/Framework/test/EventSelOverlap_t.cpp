@@ -224,7 +224,7 @@ try {
   typedef edm::service::TriggerNamesService TNS;
   typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-  auto tnsptr = std::make_shared<w_TNS>(std::auto_ptr<TNS>(new TNS(proc_pset)));
+  auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(proc_pset));
 
   ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
 

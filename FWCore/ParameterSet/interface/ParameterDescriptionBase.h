@@ -86,15 +86,15 @@ namespace edm {
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
-                        DocFormatHelper & dfh);
+                        DocFormatHelper & dfh) const;
 
     virtual void printDefault_(std::ostream & os,
                                  bool writeToCfi,
-                                 DocFormatHelper & dfh);
+                                 DocFormatHelper & dfh) const;
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & dfh);
+                                     DocFormatHelper & dfh) const;
 
     using ParameterDescriptionNode::exists_;
     virtual bool exists_(ParameterSet const& pset, bool isTracked) const = 0;

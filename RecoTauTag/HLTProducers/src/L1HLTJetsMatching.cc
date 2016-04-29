@@ -34,7 +34,7 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   
   typedef std::vector<LeafCandidate> LeafCandidateCollection;
   
-  auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+  unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
   
   double deltaR = 1.0;
   double matchingR = 0.5;
@@ -97,6 +97,6 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
   //std::cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<std::endl;
 
-  iEvent.put(tauL2jets);
-  // iEvent.put(tauL2LC);
+  iEvent.put(std::move(tauL2jets));
+  // iEvent.put(std::move(tauL2LC));
 }

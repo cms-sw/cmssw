@@ -5,6 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 
 class G4LogicalVolume;
+class G4VRangeToEnergyConverter;
 
 class CMSGDMLWriteStructure : public G4GDMLWriteStructure
 {
@@ -17,6 +18,10 @@ public:
   virtual void AddExtension(xercesc::DOMElement* volumeElement,
 			    const G4LogicalVolume* const glv);
 
+
+ private:
+
+  G4VRangeToEnergyConverter *converter[4];
 };
 
 #endif

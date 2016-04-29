@@ -22,14 +22,19 @@
  then several other tasks have been created in a different thread and before running those
  new tasks you need the result of the long calculation.
  \code
- class CalcTask : public tbb::task {
+ class CalcTask : public edm::WaitingTask {
     public:
     CalcTask(edm::WaitingTaskList* iWL, Value* v):
     m_waitList(iWL), m_output(v) {}
  
     tbb::task* execute() {
-     *m_output = doCalculation();
-     m_waitList.doneWaiting();
+     std::exception_ptr ptr;
+     try {
+       *m_output = doCalculation();
+     catch(...) {
+       ptr = std::current_exception();
+     }
+     m_waitList.doneWaiting(ptr);
      return nullptr;
     }
     private:
@@ -50,7 +55,7 @@
  tbb::task::spawn(calc);
  \endcode
  
- Finally in some unrelated part of the code we can create tasks needed the calculation
+ Finally in some unrelated part of the code we can create tasks that need the calculation
  \code
  tbb::task* t1 = makeTask1(v);
  waitList.add(t1);
@@ -69,13 +74,18 @@
 #include <atomic>
 
 // user include files
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 
 // forward declarations
-namespace tbb {
-   class task;
-}
 
 namespace edm {
+   class EmptyWaitingTask : public WaitingTask {
+   public:
+      EmptyWaitingTask() = default;
+      
+      tbb::task* execute() override { return nullptr;}
+   };
+
    class WaitingTaskList
    {
       
@@ -96,15 +106,16 @@ namespace edm {
        * then be spawned.
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
-      void add(tbb::task*);
+      void add(WaitingTask*);
       
       ///Signals that the resource is now available and tasks should be spawned
       /**The owner of the resource calls this function to allow the waiting tasks to
        * start accessing it.
+       * If the task fails, a non 'null' std::exception_ptr should be used.
        * To have tasks wait again one must call reset().
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
-      void doneWaiting();
+      void doneWaiting(std::exception_ptr iPtr);
       
       ///Resets access to the resource so that added tasks will wait.
       /**The owner of the resouce calls reset() to make tasks wait.
@@ -124,7 +135,7 @@ namespace edm {
       void announce();
       
       struct WaitNode {
-         tbb::task* m_task;
+         WaitingTask* m_task;
          std::atomic<WaitNode*> m_next;
          bool m_fromCache;
          
@@ -137,12 +148,13 @@ namespace edm {
          }
       };
       
-      WaitNode* createNode(tbb::task* iTask);
+      WaitNode* createNode(WaitingTask* iTask);
       
       
       // ---------- member data --------------------------------
       std::atomic<WaitNode*> m_head;
       WaitNode* m_nodeCache;
+      std::exception_ptr m_exceptionPtr; //guarded by m_waiting
       unsigned int m_nodeCacheSize;
       std::atomic<unsigned int> m_lastAssignedCacheIndex;
       std::atomic<bool> m_waiting;    

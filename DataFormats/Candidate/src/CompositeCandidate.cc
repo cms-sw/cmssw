@@ -133,7 +133,7 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
   dau.push_back(c);
 }
 
-void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::string& s) {
+void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
   if (s != "") {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
@@ -148,7 +148,7 @@ void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::s
       c1->setName(s);
     }
   }
-  dau.push_back(cand);
+  dau.push_back(std::move(cand));
 }
 
 

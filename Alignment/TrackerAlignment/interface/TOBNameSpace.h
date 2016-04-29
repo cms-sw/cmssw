@@ -10,6 +10,9 @@
  *  $Date: 2007/10/18 09:57:10 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
+ *
+ *  Last Update: Max Stark
+ *         Date: Fri, 05 Feb 2016 17:21:33 CET
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
@@ -31,6 +34,9 @@ namespace align
 
     /// HalfBarrel number is 1 at -z side and 2 at +z side.
     inline unsigned int halfBarrelNumber(align::ID, const TrackerTopology*);
+
+    /// Barrel number is 1 for all align::ID's which belong to this barrel
+    inline unsigned int barrelNumber(align::ID, const TrackerTopology*);
   }
 }
 
@@ -52,6 +58,11 @@ unsigned int align::tob::layerNumber(align::ID id, const TrackerTopology* tTopo)
 unsigned int align::tob::halfBarrelNumber(align::ID id, const TrackerTopology* tTopo)
 {
   return tTopo->tobRodInfo(id)[0];
+}
+
+unsigned int align::tob::barrelNumber(align::ID, const TrackerTopology*)
+{
+  return 1;
 }
 
 #endif

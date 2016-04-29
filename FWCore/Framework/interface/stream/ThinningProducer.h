@@ -80,8 +80,8 @@ namespace edm {
     edm::Event const& constEvent = event;
     selector_->preChoose(inputCollection, constEvent, eventSetup);
 
-    std::auto_ptr<Collection> thinnedCollection(new Collection);
-    std::auto_ptr<ThinnedAssociation> thinnedAssociation(new ThinnedAssociation);
+    auto thinnedCollection = std::make_unique<Collection>();
+    auto thinnedAssociation = std::make_unique<ThinnedAssociation>();
 
     unsigned int iIndex = 0;
     for(auto iter = inputCollection->begin(), iterEnd = inputCollection->end();
@@ -91,11 +91,11 @@ namespace edm {
         thinnedAssociation->push_back(iIndex);
       }
     }
-    OrphanHandle<Collection> orphanHandle = event.put(thinnedCollection);
+    OrphanHandle<Collection> orphanHandle = event.put(std::move(thinnedCollection));
 
     thinnedAssociation->setParentCollectionID(inputCollection.id());
     thinnedAssociation->setThinnedCollectionID(orphanHandle.id());
-    event.put(thinnedAssociation);
+    event.put(std::move(thinnedAssociation));
   }
 
   template <typename Collection, typename Selector>

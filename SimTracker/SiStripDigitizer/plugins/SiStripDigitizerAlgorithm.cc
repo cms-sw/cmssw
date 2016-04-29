@@ -169,7 +169,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 			    if(charge!=0 && isHadron){
 					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
                                                 int FirstAPV = localFirstChannel/128;
-				 		int LastAPV = localLastChannel/128;
+				 		int LastAPV = (localLastChannel-1)/128;
 						//std::cout << "-------------------HIP--------------" << std::endl;
 						//std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
 				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {

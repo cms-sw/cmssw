@@ -37,8 +37,8 @@ buildClusters(const reco::PFClusterCollection& input,
 	      const std::vector<bool>& seedable,
 	      reco::PFClusterCollection& output) {
 
-  std::vector<double> etaRMS(input.size(),0.0);
-  std::vector<double> phiRMS(input.size(),0.0);
+  std::vector<double> etaRMS2(input.size(),0.0);
+  std::vector<double> phiRMS2(input.size(),0.0);
 
   //We need to sort the clusters for smaller to larger depth
   //  for (unsigned int i=0;i<input.size();++i)
@@ -47,10 +47,10 @@ buildClusters(const reco::PFClusterCollection& input,
 
 
   //calculate cluster shapes
-  calculateShowerShapes(input,etaRMS,phiRMS);
+  calculateShowerShapes(input,etaRMS2,phiRMS2);
 
   //link
-  std::vector<ClusterLink> links = link(input,etaRMS,phiRMS); 
+  auto && links = link(input,etaRMS2,phiRMS2); 
   //  for (const auto& link: links)
   //    printf("link %d %d %f %f\n",link.from(),link.to(),link.dR(),link.dZ());
 
@@ -60,9 +60,7 @@ buildClusters(const reco::PFClusterCollection& input,
   std::vector<bool> linked(input.size(),false);
 
   //prune
-  std::vector<ClusterLink> prunedLinks;
-  if (links.size())
-    prunedLinks =  prune(links,linked);
+  auto && prunedLinks =  prune(links,linked);
 
   //printf("Pruned links\n")
   //  for (const auto& link: prunedLinks)
@@ -97,15 +95,13 @@ buildClusters(const reco::PFClusterCollection& input,
 
 
 void PFMultiDepthClusterizer::
-calculateShowerShapes(const reco::PFClusterCollection& clusters,std::vector<double>& etaRMS,std::vector<double>& phiRMS) {
-  float etaSum;
-  float phiSum;
+calculateShowerShapes(const reco::PFClusterCollection& clusters,std::vector<double>& etaRMS2,std::vector<double>& phiRMS2) {
 
   //shower shapes. here do not use the fractions 
 
   for( unsigned int i=0;i<clusters.size();++i ) {
     const reco::PFCluster& cluster = clusters[i]; 
-    etaSum=0.0;phiSum=0.0;
+    double etaSum=0.0; double phiSum=0.0;
     auto const & crep = cluster.positionREP();
     for (const auto& frac : cluster.recHitFractions()) {
       auto const & h = *frac.recHitRef();
@@ -114,42 +110,44 @@ calculateShowerShapes(const reco::PFClusterCollection& clusters,std::vector<doub
       phiSum += (frac.fraction()*h.energy())*std::abs(deltaPhi(rep.phi(),crep.phi()));
     }
     //protection for single line : assign ~ tower
-    etaRMS[i] = std::max(etaSum/cluster.energy(),0.1);
-    phiRMS[i] = std::max(phiSum/cluster.energy(),0.1);
-    
+    etaRMS2[i] = std::max(etaSum/cluster.energy(),0.1);
+    etaRMS2[i]*= etaRMS2[i];
+    phiRMS2[i] = std::max(phiSum/cluster.energy(),0.1);
+    phiRMS2[i]*=phiRMS2[i];
   }
 
 }
 
 
 std::vector<PFMultiDepthClusterizer::ClusterLink>   PFMultiDepthClusterizer::
-link(const reco::PFClusterCollection& clusters ,const std::vector<double>& etaRMS,const std::vector<double>& phiRMS) {
+link(const reco::PFClusterCollection& clusters ,const std::vector<double>& etaRMS2,const std::vector<double>& phiRMS2) {
 
   std::vector<ClusterLink> links;
   //loop on all pairs
   for (unsigned int i=0;i<clusters.size();++i)
     for (unsigned int j=0;j<clusters.size();++j) {
-      if (i==j )
-	continue;
+      if (i==j )  continue;
 
       const reco::PFCluster& cluster1 = clusters[i]; 
       const reco::PFCluster& cluster2 = clusters[j]; 
 
-      float dz = (cluster2.depth() - cluster1.depth());
+      auto dz = (cluster2.depth() - cluster1.depth());
 
       //Do not link at the same layer and only link inside out!
-      if (dz<0.0 || fabs(dz)<0.2)
-	continue;
+      if (dz<0.0f || std::abs(dz)<0.2f)  continue;
+ 
       auto const & crep1 = cluster1.positionREP();
       auto const & crep2 = cluster2.positionREP();
-
-      float deta =(crep1.eta()-crep2.eta())*(crep1.eta()-crep2.eta())/(etaRMS[i]*etaRMS[i]+etaRMS[j]*etaRMS[j]);
-      float dphi = deltaPhi(crep1.phi(),crep2.phi())*deltaPhi(crep1.phi(),crep2.phi())/(phiRMS[i]*phiRMS[i]+phiRMS[j]*phiRMS[j]);
+ 
+      auto deta = crep1.eta()-crep2.eta();
+      deta = deta*deta/(etaRMS2[i]+etaRMS2[j]);
+      auto dphi = deltaPhi(crep1.phi(),crep2.phi());
+      dphi = dphi*dphi/(phiRMS2[i]+phiRMS2[j]);
 
       //      printf("Testing Link %d -> %d (%f %f %f %f ) \n",i,j,deta,dphi,cluster1.position().Eta()-cluster2.position().Eta(),deltaPhi(cluster1.position().Phi(),cluster2.position().Phi()));
 
-      if (deta<nSigmaEta_ && dphi<nSigmaPhi_ ) 
-	links.push_back(ClusterLink(i,j,deta+dphi,fabs(dz),cluster1.energy()+cluster2.energy()));
+      if ( (deta<nSigmaEta_) & (dphi<nSigmaPhi_ ) )
+	links.push_back(ClusterLink(i,j,deta+dphi,std::abs(dz),cluster1.energy()+cluster2.energy()));
     }
 
       return links;
@@ -159,12 +157,12 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::
 prune(std::vector<ClusterLink>& links,std::vector<bool>& linkedClusters) {
       std::vector<ClusterLink> goodLinks ;
       std::vector<bool> mask(links.size(),false);
+      if (links.empty()) return goodLinks;
 
       for (unsigned int i=0;i<links.size()-1;++i) {
 	if (mask[i])
 	  continue;
 	for (unsigned int j=i+1;j<links.size();++j) {
-
 	  if (mask[j])
 	    continue;
 	  

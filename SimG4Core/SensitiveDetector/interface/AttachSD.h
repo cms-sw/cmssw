@@ -5,6 +5,9 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include <vector>
 
+namespace edm {
+  class ParameterSet;
+}
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
 class SimActivityRegistry;

@@ -152,7 +152,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4MuMultipleScattering* pimsc = nullptr;
   G4MuMultipleScattering* kmsc = nullptr;
   G4MuMultipleScattering* pmsc = nullptr;
-  G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
+  G4hMultipleScattering* hmsc = nullptr;
 
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100*MeV;
@@ -248,6 +248,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
     } else if (particleName == "GenericIon") {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
 
@@ -327,6 +330,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
     }

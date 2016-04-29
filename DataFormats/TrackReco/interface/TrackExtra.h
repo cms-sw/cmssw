@@ -172,7 +172,7 @@ public:
     edm::RefToBase<TrajectorySeed> seedRef() const {
         return seedRef_;
     }
-    void setSeedRef(edm::RefToBase<TrajectorySeed> &r) {
+    void setSeedRef(const edm::RefToBase<TrajectorySeed> &r) {
         seedRef_ = r;
     }
     /// set the residuals

@@ -11,7 +11,6 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.Modifiers import modifyExpress
 
 class pp(Reco):
     def __init__(self):
@@ -19,10 +18,8 @@ class pp(Reco):
         self.recoSeq=''
         self.cbSc='pp'
         self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePrompt' ]
-        self.expressCustoms=[ ]
-        self.expressModifiers = modifyExpress
-        self.visCustoms=[ ]
-        self.visModifiers = modifyExpress
+        self.expressCustoms=[ 'Configuration/DataProcessing/RecoTLR.customiseExpress' ]
+        self.visCustoms=[ 'Configuration/DataProcessing/RecoTLR.customiseExpress' ]
     """
     _pp_
 

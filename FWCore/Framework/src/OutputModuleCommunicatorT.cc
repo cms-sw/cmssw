@@ -104,13 +104,13 @@ namespace edm {
       return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
     }
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule * iMod){
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{ new OutputModuleCommunicatorT<edm::OutputModule>(iMod) });
+      return std::make_unique<OutputModuleCommunicatorT<edm::OutputModule>>(iMod);
     }
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase * iMod){
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{ new OutputModuleCommunicatorT<edm::global::OutputModuleBase>(iMod) });
+      return std::make_unique<OutputModuleCommunicatorT<edm::global::OutputModuleBase>>(iMod);
     }
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase * iMod){
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{ new OutputModuleCommunicatorT<edm::one::OutputModuleBase>(iMod) });
+      return std::make_unique<OutputModuleCommunicatorT<edm::one::OutputModuleBase>>(iMod);
     }
   }
 }

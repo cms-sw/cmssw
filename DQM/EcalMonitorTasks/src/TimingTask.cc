@@ -65,26 +65,26 @@ namespace ecaldqm
                     float energy(hit.energy());
 
                     float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
-                    if (id.subdetId() == EcalBarrel) {
-                      signedSubdet=EcalBarrel;
-                    }
-                    else {
-                      EEDetId eeId(hit.id());
-                      if(eeId.zside() < 0){
-                        signedSubdet = -EcalEndcap;
-                      }
-                      else{
-                        signedSubdet = EcalEndcap;
-                      }
-                    }
+		    if (id.subdetId() == EcalBarrel) {
+		      signedSubdet=EcalBarrel;
+		    }
+		    else {
+		      EEDetId eeId(hit.id());
+		      if(eeId.zside() < 0){
+		        signedSubdet = -EcalEndcap;
+		      }
+		      else{
+		        signedSubdet = EcalEndcap;
+		      }
+		    }
 
-                    if(energy > threshold){
-                      meChi2.fill(signedSubdet, hit.chi2());
-                    }
+		    if(energy > threshold){
+		      meChi2.fill(signedSubdet, hit.chi2());
+		    }
 
-                    if( hit.chi2() > chi2Threshold ) return;
+		    if( hit.chi2() > chi2Threshold ) return;
 
-                    meTimeAmp.fill(id, energy, time);
+		    meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
 
                     if(energy > threshold){

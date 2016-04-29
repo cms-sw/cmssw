@@ -1,6 +1,6 @@
 
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,7 +26,7 @@ class EcalNextToDeadChannelESProducer : public edm::ESProducer {
 public:
   EcalNextToDeadChannelESProducer(const edm::ParameterSet& iConfig);
   
-  typedef boost::shared_ptr<EcalNextToDeadChannel> ReturnType;
+  typedef std::shared_ptr<EcalNextToDeadChannel> ReturnType;
   
   ReturnType produce(const EcalNextToDeadChannelRcd& iRecord);
   
