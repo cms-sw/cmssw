@@ -66,6 +66,7 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+  bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
 
   // ----------member data ---------------------------
 
@@ -105,23 +106,26 @@ AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig, con
 
 }
 
-
-AlCaGammaJetSelector::~AlCaGammaJetSelector() {
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
+AlCaGammaJetSelector::~AlCaGammaJetSelector() { }
 
 //
 // member functions
 //
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void AlCaGammaJetSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PhoInput", edm::InputTag("gedPhotons"));
+  desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<double>("MinPtJet", 10.0);
+  desc.add<double>("MinPtPhoton", 10.0);
+  descriptions.addDefault(desc);
+}
+
 // ------------ method called on each new Event  ------------
-bool
-AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nProcessed_++;
 
   // Access the collections from iEvent
@@ -142,30 +146,7 @@ AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::PFJetCollection pfjets = *(pfjetHandle.product());
 
   // Check the conditions for a good event
-  if (photons.size()<1) return false;
-  if (pfjets.size()<1) return false;
-
-  // Check the requirement for minimum pT
-  // Assume ordered collections, but make no assumption about the direction
-
-  if ((photons.begin()->pt() < minPtPhoton_) &&
-      (photons.back().pt() < minPtPhoton_)) {
-    int found=0;
-    for (reco::PhotonCollection::const_iterator it= photons.begin()+1;
-	 !found && (it!=photons.end()); it++) {
-      if (it->pt() >= minPtPhoton_) found=1;
-    }
-    if (!found) return false;
-  }
-
-  if ((pfjets.begin()->pt() < minPtJet_) && (pfjets.back().pt() < minPtJet_)) {
-    int found=0;
-    for (reco::PFJetCollection::const_iterator it= pfjets.begin()+1;
-	 !found && (it!=pfjets.end()); it++) {
-      if (it->pt() >= minPtJet_) found=1;
-    }
-    if (!found) return false;
-  }
+  if (!(select(photons, pfjets))) return false;
 
   //std::cout << "good event\n";
   nSelected_++;
@@ -186,17 +167,26 @@ void AlCaGammaJetSelector::globalEndJob(const AlCaGammaJet::Counters* count) {
 				  << count->nProcessed_;
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-AlCaGammaJetSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("PhoInput", edm::InputTag("gedPhotons"));
-  desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<double>("MinPtJet", 10.0);
-  desc.add<double>("MinPtPhoton", 10.0);
-  descriptions.addDefault(desc);
+bool AlCaGammaJetSelector::select (const reco::PhotonCollection &photons,
+				   const reco::PFJetCollection &jets) {
+
+  // Check the requirement for minimum pT
+  if (photons.size() == 0) return false;
+  bool ok(false);
+  for (reco::PFJetCollection::const_iterator itr=jets.begin();
+       itr!=jets.end(); ++itr) {
+    if (itr->pt() >= minPtJet_) {
+      ok = true;
+      break;
+    }
+  }
+  if (!ok) return ok;
+  for (reco::PhotonCollection::const_iterator itr=photons.begin();
+       itr!=photons.end(); ++itr) {
+    if (itr->pt() >= minPtPhoton_) return ok;
+  }
+  return false;
 }
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlCaGammaJetSelector);
