@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
 l1CaloTowerTree = cms.EDAnalyzer(
     "L1CaloTowerTreeProducer",
