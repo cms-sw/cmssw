@@ -18,11 +18,11 @@ _procRole(procRole)
 		{
 			std::string delim(","); //TODO: should be read dynamically
 			std::vector<std::string> vals;
-			if ( !parse ( std::string(_value+delim+" ").c_str(),
+			if ( !parse ( std::string(erSp(_value, delim)+delim).c_str(),
 			(
-				* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+				  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
 			), boost::spirit::classic::nothing_p ).full )
-			{ 	
+			{  	
 				throw std::runtime_error ("Wrong value format: " + _value);
 			}
 
@@ -46,38 +46,35 @@ _procRole(procRole)
 	}
 }
 
-setting::setting(const std::string& type, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim) :
-_type(type),
+setting::setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim) :
+_type("table"),
 _id(id),
 _procRole(procRole)
 {
-	if (type.find("table") != std::string::npos)
-		throw std::runtime_error ("Type should be table but is " + type);
-
-	if ( !parse ( std::string(columns+delim+" ").c_str(),
+	if ( !parse ( std::string(erSp(columns, delim)+delim).c_str(),
 	(
-		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( _tableColumns ) ] >> *boost::spirit::classic::space_p )
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( _tableColumns ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	{  	
 		throw std::runtime_error ("Wrong value format: " + columns);
 	}
 
-	if ( !parse ( std::string(types+delim+" ").c_str(),
+	if ( !parse ( std::string(erSp(types, delim)+delim).c_str(),
 	(
-		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( _tableTypes ) ] >> *boost::spirit::classic::space_p )
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( _tableTypes ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	{  	
 		throw std::runtime_error ("Wrong value format: " + types);
 	}
 
 	for (auto it=rows.begin(); it!=rows.end(); it++)
 	{
 		std::vector<std::string> aRow;
-		if ( !parse ( std::string(*it+delim+" ").c_str(),
+		if ( !parse ( std::string(erSp(*it, delim)+delim).c_str(),
 		(
-			* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( aRow ) ] >> *boost::spirit::classic::space_p )
+			  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( aRow ) ] % delim.c_str() )
 		), boost::spirit::classic::nothing_p ).full )
-		{ 	
+		{  	
 			throw std::runtime_error ("Wrong value format: " + *it);
 		}
 		tableRow temp(aRow);
@@ -135,11 +132,11 @@ void setting::addTableRow(const std::string& row, const std::string& delim)
 
 	
 	std::vector<std::string> vals;
-	if ( !parse ( std::string(row+delim+" ").c_str(),
+	if ( !parse ( std::string(erSp(row, delim)+delim).c_str(),
 	(
-		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	{   	
 		throw std::runtime_error ("Wrong value format: " + row);
 	}
 	tableRow tempRow(vals);
@@ -153,15 +150,14 @@ void setting::setTableTypes(const std::string& types)
 	if (_type.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot set table types in type: " + _type + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
-	std::vector<std::string> vals;
-	if ( !parse ( std::string(types+delim+" ").c_str(),
+
+	if ( !parse ( std::string(types+delim).c_str(),
 	(
-		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( _tableTypes ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	{  	
 		throw std::runtime_error ("Wrong value format: " + types);
 	}
-	_tableTypes = vals;
 }
 
 void setting::setTableColumns(const std::string& cols)
@@ -169,24 +165,14 @@ void setting::setTableColumns(const std::string& cols)
 	if (_type.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot set table columns in type: " + _type + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
-	std::vector<std::string> vals;
-	if ( !parse ( std::string(cols+delim+" ").c_str(),
+	
+	if ( !parse ( std::string(erSp(cols, delim)+delim).c_str(),
 	(
-		* ( ( boost::spirit::classic::anychar_p - delim.c_str() )[boost::spirit::classic::push_back_a ( vals ) ] >> *boost::spirit::classic::space_p )
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( _tableColumns ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	{  	
 		throw std::runtime_error ("Wrong value format: " + cols);
 	}
-	_tableColumns = vals;
-}
-
-std::vector<std::vector<std::string> > setting::getTableRows()
-{
-	std::vector<std::vector<std::string> > tempTable;
-	for(auto it = _tableRows.begin(); it != _tableRows.end(); it++)
-		tempTable.push_back(it->getRow());
-
-	return tempTable;
 }
 
 std::string tableRow::getRowAsStr()
@@ -196,6 +182,14 @@ std::string tableRow::getRowAsStr()
 		str << *it << " ";
 
 	return str.str();
+}
+
+std::string setting::erSp(std::string str, const std::string& delim)
+{
+	if ( delim != " " )
+		str.erase( std::remove_if( str.begin(), str.end(), ::isspace ), str.end() );
+    
+    return str;
 }
 
 }
