@@ -404,11 +404,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 {
 
 
-    int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
-    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;		   
 
-    int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
-    int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
 
 
     // process event iEvent
@@ -443,7 +439,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	// taus
         m_nrL1Tau= data->numberL1Tau();
 
-
+	if (m_L1DataBxInEvent < 1) m_L1DataBxInEvent=1;
+	int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
+	int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
+	
         // Initialize Board
         m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
 
@@ -452,8 +451,13 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     }
 
-
-
+    if (m_emulateBxInEvent < 0) {
+      m_emulateBxInEvent = m_totalBxInEvent;
+    }
+    
+    if (m_emulateBxInEvent < 1) m_emulateBxInEvent=1;
+    int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
+    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;		   
 
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
