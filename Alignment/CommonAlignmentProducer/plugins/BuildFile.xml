@@ -17,7 +17,6 @@
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/GeometryObjects"/>
   <use   name="FWCore/ServiceRegistry"/>
-  <use   name="boost"/>
 </library>
 <library   name="AlignmentPCLTrackerAlignmentProducerPlugin" file="PCLTrackerAlProducer.cc">
   <use   name="Alignment/CommonAlignment"/>
@@ -31,7 +30,6 @@
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/GeometryObjects"/>
   <use   name="FWCore/ServiceRegistry"/>
-  <use   name="boost"/>
 </library>
 <library   name="CommonAlignmentProducerSelectors" file="Alignment*SelectorModule.cc,AlignmentMuonHIPTrajectorySelector.cc">
   <use   name="Alignment/CommonAlignmentProducer"/>

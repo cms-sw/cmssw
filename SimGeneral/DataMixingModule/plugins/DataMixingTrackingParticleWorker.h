@@ -1,4 +1,4 @@
-#ifndef DataMixingTrackingParticleWorker_h
+#ifndef SimDataMixingTrackingParticleWorker_h
 #define SimDataMixingTrackingParticleWorker_h
 
 /** \class DataMixingTrackingParticleWorker
@@ -120,4 +120,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingTrackingParticleWorker_h

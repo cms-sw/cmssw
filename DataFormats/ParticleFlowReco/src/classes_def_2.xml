@@ -36,7 +36,8 @@
   </class>
 
 
-  <class name="reco::PFRecHit" ClassVersion="17">
+  <class name="reco::PFRecHit" ClassVersion="18">
+   <version ClassVersion="18" checksum="3122773923"/>
    <version ClassVersion="17" checksum="2606786437"/>
    <version ClassVersion="10" checksum="1807687081"/>
    <version ClassVersion="11" checksum="3727193351"/>
@@ -49,9 +50,11 @@
     <![CDATA[]]>
    </ioread>
 
-   <field name="positionrep_" transient="true"/>
-   <field name="nCorners_" transient="true"/>
-   <field name="cornersrep_" transient="true"/>
+   <field name="caloCell_" transient="true"/>
+   <field name="neighbours_" transient="true"/>
+   <field name="neighbours_info" transient="true"/>
+   <field name="neighbours4_" transient="true"/>
+   <field name="neighbours8_" transient="true"/>
 
   </class>
 

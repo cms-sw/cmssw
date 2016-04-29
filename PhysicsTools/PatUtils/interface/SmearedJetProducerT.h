@@ -158,7 +158,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             auto source =
 	      (edm::ParameterDescription<std::string>("algo", true) and edm::ParameterDescription<std::string>("algopt", true)) xor
 	      (edm::ParameterDescription<edm::FileInPath>("resolutionFile", true) and edm::ParameterDescription<edm::FileInPath>("scaleFactorFile", true));
-            desc.addNode(source);
+            desc.addNode(std::move(source));
 
             pat::GenJetMatcher::fillDescriptions(desc);
 

@@ -188,23 +188,23 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     chi2Map.insert(recoEcalCandRef, chi2Value);
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaSeedMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESuperMinusOneOverPMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESeedMinusOneOverPMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> missingHitsForEvent(new reco::RecoEcalCandidateIsolationMap(missingHitsMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> validHitsForEvent(new reco::RecoEcalCandidateIsolationMap(validHitsMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> chi2ForEvent(new reco::RecoEcalCandidateIsolationMap(chi2Map));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaSeedMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESuperMinusOneOverPMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESeedMinusOneOverPMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> missingHitsForEvent(new reco::RecoEcalCandidateIsolationMap(missingHitsMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> validHitsForEvent(new reco::RecoEcalCandidateIsolationMap(validHitsMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> chi2ForEvent(new reco::RecoEcalCandidateIsolationMap(chi2Map));
 
-  iEvent.put(dEtaMapForEvent, "Deta" );
-  iEvent.put(dEtaSeedMapForEvent, "DetaSeed" );
-  iEvent.put(dPhiMapForEvent, "Dphi" );
-  iEvent.put(oneOverESuperMinusOneOverPMapForEvent,"OneOESuperMinusOneOP");
-  iEvent.put(oneOverESeedMinusOneOverPMapForEvent,"OneOESeedMinusOneOP");
-  iEvent.put(missingHitsForEvent, "MissingHits");
-  iEvent.put(validHitsForEvent, "ValidHits");
-  iEvent.put(chi2ForEvent, "Chi2");
+  iEvent.put(std::move(dEtaMapForEvent), "Deta" );
+  iEvent.put(std::move(dEtaSeedMapForEvent), "DetaSeed" );
+  iEvent.put(std::move(dPhiMapForEvent), "Dphi" );
+  iEvent.put(std::move(oneOverESuperMinusOneOverPMapForEvent), "OneOESuperMinusOneOP");
+  iEvent.put(std::move(oneOverESeedMinusOneOverPMapForEvent), "OneOESeedMinusOneOP");
+  iEvent.put(std::move(missingHitsForEvent), "MissingHits");
+  iEvent.put(std::move(validHitsForEvent), "ValidHits");
+  iEvent.put(std::move(chi2ForEvent), "Chi2");
 }
 
 

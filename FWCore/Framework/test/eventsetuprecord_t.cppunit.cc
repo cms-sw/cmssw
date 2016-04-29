@@ -85,7 +85,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupRecord);
 
 void testEventsetupRecord::factoryTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+   std::unique_ptr<EventSetupRecordProvider> dummyProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                               EventSetupRecordKey::makeKey<DummyRecord>());
    
@@ -451,7 +451,7 @@ void testEventsetupRecord::doGetExepTest()
 
 void testEventsetupRecord::proxyResetTest()
 {
-  std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+  std::unique_ptr<EventSetupRecordProvider> dummyProvider =
   EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                                                                         EventSetupRecordKey::makeKey<DummyRecord>());
   
@@ -502,7 +502,7 @@ void testEventsetupRecord::proxyResetTest()
 
 void testEventsetupRecord::transientTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+   std::unique_ptr<EventSetupRecordProvider> dummyProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                                                                          EventSetupRecordKey::makeKey<DummyRecord>());
    

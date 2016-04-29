@@ -25,7 +25,7 @@ class HitPixelLayersTPSelector
 
 
   // output collection type
-  typedef std::vector<const TrackingParticle*> container;
+  typedef TrackingParticleRefVector container;
 
   // iterator over result collection type.
   typedef container::const_iterator const_iterator;
@@ -86,8 +86,7 @@ class HitPixelLayersTPSelector
 	       testId)
 	    {
 	      if (tripletSeedOnly_ && !goodHitPattern(pixelHitPattern(tpr,tTopo)) ) continue; //findable triplet seed
-	      const TrackingParticle * trap = &(tpc[i]);
-	      selected_.push_back(trap);
+	      selected_.push_back(tpr);
 	    }
 
 	}

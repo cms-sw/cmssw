@@ -31,13 +31,27 @@ PixelTrackReconstructionBlock = cms.PSet (
         )
     ),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits')
+        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
+        useQuadrupletAlgo = cms.bool(False),
     )
 )
 
-eras.trackingLowPU.toModify(PixelTrackReconstructionBlock,
-    OrderedHitsFactoryPSet = dict(
-        SeedingLayers = "PixelLayerTripletsPreSplitting",
-        GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
+_OrderedHitsFactoryPSet_LowPU_Phase1PU70 = dict(
+    SeedingLayers = "PixelLayerTripletsPreSplitting",
+    GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
+)
+eras.trackingLowPU.toModify(PixelTrackReconstructionBlock, OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70)
+eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
+    SeedMergerPSet = cms.PSet(
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+        addRemainingTriplets = cms.bool(False),
+        mergeTriplets = cms.bool(True),
+        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
     ),
+    FilterPSet = dict(
+        chi2 = 50.0,
+        tipMax = 0.05
+    ),
+    RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
+    OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
 )

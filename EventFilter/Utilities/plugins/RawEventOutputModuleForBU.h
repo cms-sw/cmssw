@@ -1,11 +1,12 @@
 #ifndef IOPool_Streamer_RawEventOutputModuleForBU_h
 #define IOPool_Streamer_RawEventOutputModuleForBU_h
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -36,18 +37,19 @@ class RawEventOutputModuleForBU : public edm::OutputModule
   ~RawEventOutputModuleForBU();
 
  private:
-  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*);
-  virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
-  virtual void endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
-  virtual void writeRun(const edm::RunPrincipal&, edm::ModuleCallingContext const*){}
-  virtual void writeLuminosityBlock(const edm::LuminosityBlockPrincipal&, edm::ModuleCallingContext const*){}
+  virtual void write(edm::EventForOutput const& e) override;
+  virtual void beginRun(edm::RunForOutput const&) override;
+  virtual void endRun(edm::RunForOutput const&) override;
+  virtual void writeRun(const edm::RunForOutput&) override {}
+  virtual void writeLuminosityBlock(const edm::LuminosityBlockForOutput&) override {}
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
-  virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+  virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   std::auto_ptr<Consumer> templateConsumer_;
   std::string label_;
   std::string instance_;
+  edm::EDGetTokenT<FEDRawDataCollection> token_;
   unsigned int numEventsPerFile_;
   unsigned int frdVersion_;
   unsigned long long totsize;
@@ -65,6 +67,7 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
   templateConsumer_(new Consumer(ps)),
   label_(ps.getUntrackedParameter<std::string>("ProductLabel","source")),
   instance_(ps.getUntrackedParameter<std::string>("ProductInstance","")),
+  token_(consumes<FEDRawDataCollection>(edm::InputTag(label_, instance_))),
   numEventsPerFile_(ps.getUntrackedParameter<unsigned int>("numEventsPerFile",100)),
   frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion",3)),
   totsize(0LL),
@@ -80,7 +83,7 @@ template <class Consumer>
 RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, edm::ModuleCallingContext const *mcc)
+void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e)
 {
   unsigned int ls = e.luminosityBlock();
   if(totevents>0 && totevents%numEventsPerFile_==0){
@@ -92,9 +95,8 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   totevents++;
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
-  edm::Event event(const_cast<edm::EventPrincipal&>(e), description(),mcc);
   edm::Handle<FEDRawDataCollection> fedBuffers;
-  event.getByLabel(label_, instance_, fedBuffers);
+  e.getByToken(token_, fedBuffers);
 
   // determine the expected size of the FRDEvent IN BYTES !!!!!
   int headerSize = FRDHeaderVersionSize[frdVersion_];
@@ -112,9 +114,9 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   boost::shared_array<unsigned char> workBuffer(new unsigned char[expectedSize + 256]);
   uint32 *bufPtr = (uint32*) workBuffer.get();
   *bufPtr++ = (uint32) frdVersion_;  // version number
-  *bufPtr++ = (uint32) event.id().run();
-  *bufPtr++ = (uint32) event.luminosityBlock();
-  *bufPtr++ = (uint32) event.id().event();
+  *bufPtr++ = (uint32) e.id().run();
+  *bufPtr++ = (uint32) e.luminosityBlock();
+  *bufPtr++ = (uint32) e.id().event();
   if (frdVersion_==4)
     *bufPtr++ = 0;//64-bit event id high part
 
@@ -166,20 +168,20 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
 }
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
+void RawEventOutputModuleForBU<Consumer>::beginRun(edm::RunForOutput const&)
 {
  // edm::Service<evf::EvFDaqDirector>()->updateBuLock(1);
   templateConsumer_->start();
 }
    
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
+void RawEventOutputModuleForBU<Consumer>::endRun(edm::RunForOutput const&)
 {
   templateConsumer_->stop();
 }
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*){
+void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const& ls){
 	index_ = 0;
 	std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath( ls.id().luminosityBlock(),index_);
 	std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
@@ -205,7 +207,7 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   firstLumi_ = false;
 }
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*){
+void RawEventOutputModuleForBU<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const& ls){
 
   //  templateConsumer_->touchlock(ls.id().luminosityBlock(),basedir);
   templateConsumer_->endOfLS(ls.id().luminosityBlock());

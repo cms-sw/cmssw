@@ -37,6 +37,7 @@
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoTorus.h"
+#include "TGeoEltu.h"
 
 #include "Math/GenVector/RotationX.h"
 #include "Math/GenVector/RotationZ.h"
@@ -93,7 +94,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    iRecord.getRecord<IdealGeometryRecord>().get(viewH);
 
    if ( ! viewH.isValid()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
@@ -111,14 +112,14 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    // geometry AND the magnetic field volumes!
    walker.firstChild();
    if( ! walker.firstChild()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
    if (top == 0) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    geo_mgr->SetTopVolume(top);
@@ -209,7 +210,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    nameToMaterial_.clear();
    nameToMedium_.clear();
 
-   return boost::shared_ptr<TGeoManager>(geo_mgr);
+   return std::shared_ptr<TGeoManager>(geo_mgr);
 }
 
 
@@ -597,6 +598,18 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 					       boolS);
 	    }
 	    break;
+	 }
+         case ddellipticaltube:
+	 {
+	   DDEllipticalTube eSolid(iSolid);
+	   if(!eSolid) {
+	     throw cms::Exception("GeomConvert") <<"conversion to DDEllipticalTube failed";
+	   }
+	   rSolid = new TGeoEltu(iName.c_str(),
+				 params[0]/cm,
+				 params[1]/cm,
+				 params[2]/cm);
+	   break;
 	 }
 	 default:
 	    break;

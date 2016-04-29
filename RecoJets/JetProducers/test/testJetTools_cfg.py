@@ -20,7 +20,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak4PFJetsCHS'),
     algo = 'ak4',
     rParam = 0.4,
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
 addJetCollection(
@@ -29,7 +29,7 @@ addJetCollection(
     jetSource = cms.InputTag('ca8PFJetsCHS'),
     algo = 'ca8',
     rParam = 0.8,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+    jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
 addJetCollection(
@@ -38,22 +38,14 @@ addJetCollection(
     jetSource = cms.InputTag('ak8PFJetsCHS'),
     algo = 'ak8',
     rParam = 0.8,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+    jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
 switchJetCollection(
     process,
     jetSource = cms.InputTag('ak4PFJets'),
     rParam = 0.4,
-    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
-    btagDiscriminators = ['jetBProbabilityBJetTags',
-                          'jetProbabilityBJetTags',
-                          'trackCountingHighPurBJetTags',
-                          'trackCountingHighEffBJetTags',
-                          'simpleSecondaryVertexHighEffBJetTags',
-                          'simpleSecondaryVertexHighPurBJetTags',
-                          'combinedSecondaryVertexBJetTags'
-                          ],
+    jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
     )
 
 #process.patJetGenJetMatchCA8PFCHS.matched = cms.InputTag("ca8GenJetsNoNu")
@@ -78,12 +70,6 @@ process.out.outputCommands += ['keep *_ak4PFJetsCHS_*_*',
 #pileupJetID
 
 process.load('RecoJets.JetProducers.PileupJetID_cfi')
-
-process.pileupJetIdCalculator.jets = cms.InputTag("ak4PFJetsCHS")
-process.pileupJetIdEvaluator.jets = cms.InputTag("ak4PFJetsCHS")
-process.pileupJetIdCalculator.rho = cms.InputTag("fixedGridRhoFastjetAll")
-process.pileupJetIdEvaluator.rho = cms.InputTag("fixedGridRhoFastjetAll")
-
 patJetsAK4.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
 patJetsAK4.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
 process.out.outputCommands += ['keep *_pileupJetIdEvaluator_*_*']

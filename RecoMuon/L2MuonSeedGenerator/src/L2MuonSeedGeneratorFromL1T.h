@@ -71,6 +71,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   const unsigned theL1MinQuality;
   const bool useOfflineSeed;
   const bool useUnassociatedL1;
+  std::vector<double> matchingDR;
+  std::vector<double> etaBins;
 
   /// use central bx only muons
   bool centralBxOnly_;
@@ -82,7 +84,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 
   const TrajectorySeed* associateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > &, 
 						  std::vector<int> &, 
-						  TrajectoryStateOnSurface &);
+						  TrajectoryStateOnSurface &,
+						  double );
 
 };
 

@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_TRACKERNUMBERINGBUILDER_TRACKERTOPOLOGYEP_H
 #define GEOMETRY_TRACKERNUMBERINGBUILDER_TRACKERTOPOLOGYEP_H 1
 
-#include "boost/shared_ptr.hpp"
+#include "memory"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -17,7 +17,7 @@ public:
   TrackerTopologyEP( const edm::ParameterSet & );
   ~TrackerTopologyEP( void );
 
-  typedef boost::shared_ptr<TrackerTopology> ReturnType;
+  typedef std::shared_ptr<TrackerTopology> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     

@@ -4,9 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # scenarios. In this case it makes changes for Run 2.
 from Configuration.StandardSequences.Eras import eras
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
@@ -32,7 +29,7 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
-castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
+castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
@@ -78,10 +75,12 @@ muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
 
+# until we have hcal raw data for phase 2...
+eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
 
-if eras.phase1Pixel.isChosen() :
-    RawToDigi.remove(siPixelDigis)
-    RawToDigi.remove(castorDigis)
+
+# Remove siPixelDigis until we have phase1 pixel digis
+eras.phase1Pixel.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
 
 
 

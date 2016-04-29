@@ -551,7 +551,6 @@ void TrackerMap::drawModule(TmModule * mod, int key,int mlay, bool print_total, 
   int numod=0;
   phi = phival(mod->posx,mod->posy);
   r = sqrt(mod->posx*mod->posx+mod->posy*mod->posy);
-  vhbot = mod->width;
   vhtop=mod->width;
   vhapo=mod->length;
   if(mlay < 31){ //endcap

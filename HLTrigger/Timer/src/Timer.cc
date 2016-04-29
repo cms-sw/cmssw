@@ -100,10 +100,10 @@ void Timer::newTimingMeasurement(const ModuleDescription& iMod, double iTime)
 void
 Timer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<EventTime> out(new EventTime(timing));
+  std::unique_ptr<EventTime> out(new EventTime(timing));
   // reset data so that we can start from scratch for next event
    timing.reset();
    //
-   iEvent.put(out);
+   iEvent.put(std::move(out));
 }
 

@@ -52,9 +52,9 @@ bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&, EventAuxiliary::Ex
 void MCFileSource::produce(Event &e) {
   // Store one HepMC event in the Event.
 
-  std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+  auto bare_product = std::make_unique<HepMCProduct>();  
   bare_product->addHepMCData(evt_);
-  e.put(bare_product);
+  e.put(std::move(bare_product));
 }
 
 }

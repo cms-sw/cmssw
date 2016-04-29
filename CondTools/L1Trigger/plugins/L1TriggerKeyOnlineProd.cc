@@ -86,9 +86,8 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
        throw ex ;
      }
 
-   boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
-   pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
-     new L1TriggerKey( *subsystemKeys ) ) ;
+   std::shared_ptr<L1TriggerKey> pL1TriggerKey ;
+   pL1TriggerKey = std::make_shared< L1TriggerKey >( *subsystemKeys ) ;
 
   // Collate object keys
   std::vector< std::string >::const_iterator itr = m_subsystemLabels.begin() ;

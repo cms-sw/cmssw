@@ -83,7 +83,7 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   printDefault_(std::ostream& os,
                   bool writeToCfi,
-                  DocFormatHelper& dfh) {
+                  DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
     if(!writeToCfi) os << " (do not write to cfi)";
@@ -92,7 +92,7 @@ namespace edm {
 
   bool
   ParameterDescription<ParameterSetDescription>::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -100,7 +100,7 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
@@ -273,7 +273,7 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   printDefault_(std::ostream& os,
                 bool writeToCfi,
-                DocFormatHelper& dfh) {
+                DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
     if(!writeToCfi) os << " (do not write to cfi)";
@@ -283,7 +283,7 @@ namespace edm {
 
   bool
   ParameterDescription<std::vector<ParameterSet> >::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -291,7 +291,7 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
 
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {

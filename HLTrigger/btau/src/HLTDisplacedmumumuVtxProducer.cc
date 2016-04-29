@@ -96,7 +96,7 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   
-  std::auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
   
   // look at all mucands,  check cuts and make vertices
   double e1,e2,e3;
@@ -197,7 +197,7 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
       }
     }
   }
-  iEvent.put(vertexCollection);
+  iEvent.put(std::move(vertexCollection));
 }
 
 

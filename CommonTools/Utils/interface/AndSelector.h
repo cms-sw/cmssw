@@ -29,7 +29,7 @@ struct AndSelector {
   }
 
 private:
-  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, S5>;
+  friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, S5>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -51,7 +51,7 @@ struct AndSelector<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, hel
     return s1_( t1 ) && s2_( t2 );
   }
 private:
-  friend class reco::modules::CombinedEventSetupInit<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>;
+  friend struct reco::modules::CombinedEventSetupInit<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
 };
@@ -69,7 +69,7 @@ struct AndSelector<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>
     return s1_( t1 ) && s2_( t2 ) && s3_( t3 );
   }
 private:
-  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>;
+  friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -88,7 +88,7 @@ struct AndSelector<S1, S2, S3, S4, helpers::NullAndOperand> {
     return s1_( t1 ) && s2_( t2 ) && s3_( t3 ) && s4_( t4 );
   }
 private:
-  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, helpers::NullAndOperand>;
+  friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;

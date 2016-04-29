@@ -24,7 +24,7 @@ L1THLTTauMatching::~L1THLTTauMatching(){ }
 void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const
 {
     
-  auto_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
+  unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
     
   double deltaR    = 1.0;
   double matchingR = 0.5;
@@ -59,7 +59,7 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
     }
   }  
    
-  iEvent.put(tauL2jets);
+  iEvent.put(std::move(tauL2jets));
 }
 
 void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 

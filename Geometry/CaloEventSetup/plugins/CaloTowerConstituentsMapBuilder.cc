@@ -67,9 +67,9 @@ CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
   edm::ESHandle<CaloTowerTopology> cttopo;
   iRecord.getRecord<HcalRecNumberingRecord>().get(cttopo);
 
-  std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( &*hcaltopo, &*cttopo ));
+  auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo, &*cttopo );
 
-//std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( &*hcaltopo ));
+//auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo );
 
   //keep geometry pointer as member for alternate EE->HE mapping
   edm::ESHandle<CaloGeometry> pG;

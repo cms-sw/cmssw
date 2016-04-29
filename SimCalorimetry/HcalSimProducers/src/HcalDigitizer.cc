@@ -290,9 +290,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   edm::ParameterSet ps0 = ps.getParameter<edm::ParameterSet>("HcalReLabel");
   relabel_ = ps0.getUntrackedParameter<bool>("RelabelHits");
 //  std::cout << "Flag to see if Hit Relabeller to be initiated " << relabel_ << std::endl;
-  if (relabel_) {
-    theRelabeller=new HcalHitRelabeller(ps0.getUntrackedParameter<edm::ParameterSet>("RelabelRules"));
-  }     
+  if (relabel_) theRelabeller=new HcalHitRelabeller(ps0);
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {

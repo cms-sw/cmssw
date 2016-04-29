@@ -77,9 +77,9 @@ testServiceRegistry::externalServiceTest()
    edm::AssertHandler ah;
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
+      auto dummyPtr = std::make_unique<DummyService>();
       dummyPtr->value_ = 2;
-      edm::ServiceToken token(edm::ServiceRegistry::createContaining(dummyPtr));
+      edm::ServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
       {         
          edm::ServiceRegistry::Operate operate(token);
          edm::Service<DummyService> dummy;
@@ -98,7 +98,7 @@ testServiceRegistry::externalServiceTest()
          pss.push_back(ps);
       
          edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(std::move(dummyPtr),
                                                                          token,
                                                                          edm::serviceregistry::kOverlapIsError));
          
@@ -111,8 +111,8 @@ testServiceRegistry::externalServiceTest()
    }
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
-      auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(dummyPtr);
+      auto dummyPtr = std::make_unique<DummyService>();
+      auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(std::move(dummyPtr));
       edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
 
       wrapper->get().value_ = 2;
@@ -135,7 +135,7 @@ testServiceRegistry::externalServiceTest()
          pss.push_back(ps);
          
          edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(std::move(dummyPtr),
                                                                          token,
                                                                          edm::serviceregistry::kOverlapIsError));
          

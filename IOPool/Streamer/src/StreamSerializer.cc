@@ -2,7 +2,7 @@
  * StreamSerializer.cc
  *
  * Utility class for serializing framework objects (e.g. ProductRegistry and
- * EventPrincipal) into streamer message objects.
+ * Event) into streamer message objects.
  */
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -15,11 +15,10 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
@@ -53,8 +52,8 @@ namespace edm {
 
 
     for(auto const& selection : *selections_)  {
-        sd.push_back(*selection);
-        FDEBUG(9) << "StreamOutput got product = " << selection->className()
+        sd.push_back(*selection.first);
+        FDEBUG(9) << "StreamOutput got product = " << selection.first->className()
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
@@ -126,34 +125,32 @@ namespace edm {
 
 
    */
-  int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
+  int StreamSerializer::serializeEvent(EventForOutput const& event,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer &data_buffer,
-                                       ModuleCallingContext const* mcc) {
+                                       SerializeDataBuffer& data_buffer) {
     Parentage parentage;
 
-    EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
+    EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
-    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
+    SendEvent se(event.eventAuxiliary(), event.processHistory(), selectionIDs, event.branchListIndexes());
 
     // Loop over EDProducts, fill the provenance, and write.
 
-    for(SelectedProducts::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
-      BranchDescription const& desc = **i;
-      BranchID const& id = desc.branchID();
-
-      OutputHandle const oh = eventPrincipal.getForOutput(id, true, mcc);
-      if(!oh.productProvenance()) {
+    for(auto const& selection : *selections_) {
+      BranchDescription const& desc = *selection.first;
+      BasicHandle result;
+      event.getByToken(selection.second, desc.unwrappedTypeID(), result);
+      if(!result.isValid()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
-        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenance()->parentageID(), parentage);
+        bool found = ParentageRegistry::instance()->getMapped(result.provenance()->productProvenance()->parentageID(), parentage);
         assert(found);
-        se.products().push_back(StreamedProduct(oh.wrapper(),
+        se.products().push_back(StreamedProduct(result.wrapper(),
                                                 desc,
-                                                oh.wrapper() != 0,
+                                                result.wrapper() != nullptr,
                                                 &parentage.parents()));
       }
     }
@@ -168,7 +165,7 @@ namespace edm {
         {
           throw cms::Exception("StreamTranslation","Event serialization failed")
             << "StreamSerializer failed to serialize event: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
       case 1: // succcess
@@ -178,7 +175,7 @@ namespace edm {
           throw cms::Exception("StreamTranslation","Event serialization truncated")
             << "StreamSerializer module attempted to serialize an event\n"
             << "that is to big for the allocated buffers: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
     default: // unknown
@@ -186,7 +183,7 @@ namespace edm {
           throw cms::Exception("StreamTranslation","Event serialization failed")
             << "StreamSerializer module got an unknown error code\n"
             << " while attempting to serialize event: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
       }

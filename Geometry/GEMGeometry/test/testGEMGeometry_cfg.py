@@ -14,7 +14,18 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.MessageLogger = cms.Service("MessageLogger")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('cout'),
+                                    categories = cms.untracked.vstring('GEMGeometryBuilderFromDDD'),
+                                    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+            ),
+        GEMGeometryBuilderFromDDD = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+            )
+        )
+                                    )
 
 process.test = cms.EDAnalyzer("GEMGeometryAnalyzer")
 

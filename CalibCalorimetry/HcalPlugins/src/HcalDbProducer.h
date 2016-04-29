@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -37,9 +36,9 @@ class HcalDbProducer : public edm::ESProducer {
   HcalDbProducer( const edm::ParameterSet& );
   ~HcalDbProducer();
   
-  boost::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
+  std::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
 
-  boost::shared_ptr<HcalChannelQuality> produceChannelQualityWithTopo( const HcalChannelQualityRcd&);
+  std::shared_ptr<HcalChannelQuality> produceChannelQualityWithTopo( const HcalChannelQualityRcd&);
 
   // callbacks
   void pedestalsCallback (const HcalPedestalsRcd& fRecord);
@@ -60,7 +59,7 @@ class HcalDbProducer : public edm::ESProducer {
 
    private:
       // ----------member data ---------------------------
-  boost::shared_ptr<HcalDbService> mService;
+  std::shared_ptr<HcalDbService> mService;
   std::vector<std::string> mDumpRequest;
   std::ostream* mDumpStream;
 

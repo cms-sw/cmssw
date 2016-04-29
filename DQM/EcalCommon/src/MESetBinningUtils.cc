@@ -70,7 +70,7 @@ namespace ecaldqm
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
             if(outer) bin += 56; // Sets bin number to increment by 56 for TTs in "outer" TCCs (closer to the barrel)
             bin += (tccid % 2) * (outer ? 16 : 28); // 16 trigger towers per TCC for "outer" TCCs, 24 for "inner" TCCs but they are numbered from 0 to 27 with some missing
-	    // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
+            // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
             return bin;
           }
           else
@@ -149,7 +149,7 @@ namespace ecaldqm
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
             if(outer) bin += 56; // Sets bin number to increment by 56 for TTs in "outer" TCCs (closer to the barrel)
             bin += (tccid % 2) * (outer ? 16 : 28); // 16 trigger towers per TCC for "outer" TCCs, 24 for "inner" TCCs but they are numbered from 0 to 27 with some missing
-	    // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
+            // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
             return bin;
           }
           else

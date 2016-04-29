@@ -46,7 +46,7 @@ private:
 
   std::string p_type;
   std::string p_cfgstr;
-  boost::shared_ptr<coral::ISessionProxy> cmDbSession;
+  std::shared_ptr<coral::ISessionProxy> cmDbSession;
   edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
 };
 
@@ -81,7 +81,7 @@ void SiStripPayloadHandler<SiStripPayload>::analyze( const edm::Event& evt, cons
   cond::Hash last_hash = iovProxy.getLast().payloadId;
 
   // that's the final goal: obtain the payload to store into the sqlite file for the upload into the DB
-  boost::shared_ptr<SiStripPayload> payloadToUpload;
+  std::shared_ptr<SiStripPayload> payloadToUpload;
   // first compute the hash of the configuration
   std::string configHash = makeConfigHash();
   // query the configMap DB to find the corresponding payload hash
@@ -104,7 +104,7 @@ void SiStripPayloadHandler<SiStripPayload>::analyze( const edm::Event& evt, cons
         << "NO mapping payload hash found. Will run the long O2O. ";
     SiStripPayload *obj = nullptr;
     condObjBuilder->getValue(obj);
-    payloadToUpload = boost::shared_ptr<SiStripPayload>(obj);
+    payloadToUpload = std::shared_ptr<SiStripPayload>(obj);
     std::cout << "@@@[FastO2O:false]@@@" << std::endl;
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
         << " ... New payload has been created.";

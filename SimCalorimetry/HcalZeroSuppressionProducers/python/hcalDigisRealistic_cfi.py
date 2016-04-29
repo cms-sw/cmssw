@@ -21,5 +21,11 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     useConfigZSvalues = cms.int32(0)
 )
 
-
-
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( simHcalDigis,
+                             useConfigZSvalues = cms.int32(1),
+                             HBlevel = cms.int32(16),
+                             HElevel = cms.int32(16),
+                             HOlevel = cms.int32(16),
+                             HFlevel = cms.int32(16)
+)

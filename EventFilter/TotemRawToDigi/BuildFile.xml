@@ -1,0 +1,15 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/Common"/>
+
+<use name="DataFormats/TotemDigi"/>
+<use name="DataFormats/TotemRPDetId"/>
+
+<use name="CondFormats/TotemReadoutObjects"/>
+
+<export>
+	<lib name="1"/>
+</export>

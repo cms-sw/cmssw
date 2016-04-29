@@ -1,6 +1,5 @@
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -19,7 +18,7 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
       L1TMuonOverlapParamsESProducer(const edm::ParameterSet&);
       ~L1TMuonOverlapParamsESProducer();
 
-      typedef boost::shared_ptr<L1TMuonOverlapParams> ReturnType;
+      typedef std::shared_ptr<L1TMuonOverlapParams> ReturnType;
 
       ReturnType produce(const L1TMuonOverlapParamsRcd&);
 

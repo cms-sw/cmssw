@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 Ideal2015 Ideal2015dev 2015 2015dev 2019 PhaseIPixel Phase1_R34F16 Phase2Tk  2023Muon SLHC DB SLHCDB")
+varType = Enumerate ("Run1 Ideal2015 Ideal2015dev 2015 2015dev RPC4RE11 2017 2019 2023 2023dev 2023sim 2023Muon MaPSA CRack DB")
 
 def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
@@ -42,34 +42,29 @@ def simGeoLoad(score):
     elif score == "2019":
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
   
-    elif score == "PhaseIPixel":
-       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi')
+    elif score == "2023dev":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023devXML_cfi')
 
+    elif score == "2023sim":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023simXML_cfi')
  
     elif score == "2023Muon":
        process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 
     elif score == "2023":
        process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-                
+
+    elif score == "MaPSA":
+       process.load('Geometry.TrackerCommonData.mapsaGeometryXML_cfi')
+
+    elif score == "CRack":
+       process.load('Geometry.TrackerCommonData.crackGeometryXML_cfi')
+
     elif score == "DB":
         process.load("Configuration.StandardSequences.GeometryDB_cff")
         process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
         from Configuration.AlCa.autoCond import autoCond
-        process.GlobalTag.globaltag = autoCond['mc']
-
-    elif score == "SLHCDB":
-        process.load("Configuration.StandardSequences.GeometryDB_cff")
-        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-        process.GlobalTag.globaltag = 'DESIGN42_V17::All'
-        process.XMLFromDBSource.label=''
-
-        process.GlobalTag.toGet = cms.VPSet(
-                 cms.PSet(record = cms.string("GeometryFileRcd"),
-                    tag = cms.string("XMLFILE_Geometry_428SLHCYV0_Phase1_R30F12_HCal_Ideal_mc"),
-                    connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")
-                 )
-        )
+        process.GlobalTag.globaltag = autoCond['run2_mc']
 
     else:
       help()

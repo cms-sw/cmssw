@@ -18,7 +18,7 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -82,7 +82,7 @@ using namespace l1t;
 
     // the processor
     Stage2Layer2FirmwareFactory m_factory;
-    boost::shared_ptr<Stage2MainProcessor> m_processor;
+    std::shared_ptr<Stage2MainProcessor> m_processor;
 
   };
 

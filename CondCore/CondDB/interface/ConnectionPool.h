@@ -43,10 +43,10 @@ namespace cond {
       void configure();
       Session createSession( const std::string& connectionString, bool writeCapable = false );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
-      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable = false );
+      std::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable = false );
       
     private:
-      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, 
+      std::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, 
                                                                   const std::string& transactionId, 
                                                                   bool writeCapable = false );
       Session createSession( const std::string& connectionString, 

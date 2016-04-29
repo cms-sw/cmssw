@@ -58,7 +58,7 @@ private:
 	double fVtxZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
-        std::auto_ptr< PFOutputCollection >          fPuppiCandidates;
-	std::auto_ptr< PackedOutputCollection >      fPackedPuppiCandidates;
+        std::unique_ptr< PFOutputCollection >          fPuppiCandidates;
+	std::unique_ptr< PackedOutputCollection >      fPackedPuppiCandidates;
 };
 #endif

@@ -58,7 +58,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
-  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_unique<edm::ProductRegistry>();
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
@@ -128,7 +128,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_unique<edm::ProductRegistry>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
@@ -156,7 +156,7 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
-    std::unique_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
+    auto pr = std::make_unique<edmtest::IntProduct>();
     pr->value = 10;
 
     refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);

@@ -10,6 +10,7 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include <algorithm>
+#include <cmath>
 
 class testFormulaEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFormulaEvaluator);
@@ -26,7 +27,7 @@ public:
 
 namespace {
   bool compare(double iLHS, double iRHS) {
-    return std::abs(iLHS-iRHS)< 1E-6*std::abs(iLHS);
+    return std::fabs(iLHS-iRHS)< 1E-6*std::fabs(iLHS);
   }
 }
 

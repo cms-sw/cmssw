@@ -180,7 +180,7 @@ ZeeCalibration::~ZeeCalibration()
 
 //_____________________________________________________________________________
 // Produce EcalIntercalibConstants
-boost::shared_ptr<EcalIntercalibConstants>
+std::shared_ptr<EcalIntercalibConstants>
 ZeeCalibration::produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& iRecord )
 {
   std::cout << "@SUB=ZeeCalibration::produceEcalIntercalibConstants" << std::endl;
@@ -747,7 +747,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 	  }
       }
 
-    ical = boost::shared_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+    ical = std::make_shared<EcalIntercalibConstants>();
   
     for(int k = 0; k < theAlgorithm_->getNumberOfChannels(); k++)
       {

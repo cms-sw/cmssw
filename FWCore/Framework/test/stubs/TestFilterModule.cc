@@ -73,9 +73,9 @@ namespace edmtest
     virtual ~SewerModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
-    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void write(edm::EventForOutput const& e) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    virtual void writeRun(edm::RunForOutput const&) override {}
     virtual void endJob() override;
 
     std::string name_;
@@ -184,7 +184,7 @@ namespace edmtest
   {
   }
 
-  void SewerModule::write(edm::EventPrincipal const&, ModuleCallingContext const*)
+  void SewerModule::write(edm::EventForOutput const&)
   {
     ++total_;
   }

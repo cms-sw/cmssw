@@ -58,7 +58,7 @@ void MCZll::endJob()
 // ------------ method called to skim the data  ------------
 bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct()); 
+  std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
   nEvents_++;
   using namespace edm;
@@ -130,7 +130,7 @@ bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(zEvent)  
 	bare_product->addHepMCData(zEvent);
       if (filter_)
-	iEvent.put(bare_product);
+	iEvent.put(std::move(bare_product));
       nAccepted_++;
       //      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++"<< std::endl;
       LogDebug("MCZll") << "Event " << iEvent.id().event()  << " accepted" << std::endl; 

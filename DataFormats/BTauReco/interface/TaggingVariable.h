@@ -78,7 +78,9 @@ namespace reco {
 
       vertexEnergyRatio,                        // ratio of energy at secondary vertex over total energy
       vertexJetDeltaR,                          // pseudoangular distance between jet axis and secondary vertex direction
-
+      
+      flightDistance1dVal,                      // Longitudinal distance along the z-axis between primary and secondary vertex
+      flightDistance1dSig,                      // Longitudinal distance significance along the z-axis between primary and secondary vertex
       flightDistance2dVal,                      // transverse distance between primary and secondary vertex
       flightDistance2dSig,                      // transverse distance significance between primary and secondary vertex
       flightDistance3dVal,                      // distance between primary and secondary vertex

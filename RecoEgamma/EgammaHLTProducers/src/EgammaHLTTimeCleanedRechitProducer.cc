@@ -60,7 +60,7 @@ void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::Eve
     
 
   for (unsigned int i=0; i<hitLabels.size(); i++) {
-    std::auto_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
+    std::unique_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
     
     evt.getByToken(hitTokens[i], rhcH[i]);  
     if (!(rhcH[i].isValid())) {
@@ -75,7 +75,7 @@ void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::Eve
 	hits->push_back(*it);
     }
     
-    evt.put(hits, productLabels[i]);
+    evt.put(std::move(hits), productLabels[i]);
   }
 }
 

@@ -114,7 +114,7 @@ void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, E
 
 void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
 {
-  std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
 
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
   if (MultiMuon) genRunInfo->setInternalXSec(0.);
@@ -122,7 +122,7 @@ void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
   genRunInfo->setExternalXSecLO(extCrossSect);
   genRunInfo->setFilterEfficiency(extFilterEff);
 
-  run.put(genRunInfo);
+  run.put(std::move(genRunInfo));
 
   CosMuoGen->terminate();
 }
@@ -232,11 +232,11 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   if (cmVerbosity_) fEvt->print();
 
-  std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   CMProduct->addHepMCData( fEvt );
-  e.put(CMProduct, "unsmeared");
+  e.put(std::move(CMProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
+  e.put(std::move(genEventInfo));
 
 }

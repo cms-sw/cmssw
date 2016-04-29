@@ -52,6 +52,8 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
   useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
             iConfig.getParameter<bool>("UseUnassociatedL1") : true),
+  matchingDR(iConfig.getParameter<std::vector<double> >("MatchDR")),          
+  etaBins(iConfig.getParameter<std::vector<double> >("EtaMatchingBins")),          
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") )
   {
 
@@ -60,6 +62,14 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   if(useOfflineSeed) {
     theOfflineSeedLabel = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
     offlineSeedToken_ = consumes<edm::View<TrajectorySeed> >(theOfflineSeedLabel);
+  
+  // check that number of eta bins -1 matches number of dR cones
+  if( matchingDR.size()!=etaBins.size() - 1  ) {
+    throw cms::Exception("Configuration") << "Size of MatchDR "
+					  << "does not match number of eta bins." << endl;
+  }
+
+  
   }
   
   // service parameters
@@ -92,6 +102,8 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned int>("L1MinQuality",0);   
   desc.addUntracked<bool>("UseOfflineSeed",false);
   desc.add<bool>("UseUnassociatedL1", true);
+  desc.add<std::vector<double>>("MatchDR", {0.3});
+  desc.add<std::vector<double>>("EtaMatchingBins", {0., 2.5});
   desc.add<bool>("CentralBxOnly", true);
   desc.addUntracked<edm::InputTag>("OfflineSeedLabel", edm::InputTag(""));
 
@@ -139,7 +151,9 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       // Set charge=0 for the time being if the valid charge bit is zero
       if (!valid_charge) charge = 0;
 
-      bool barrel = fabs(eta) < 1.04 ? true : false; // FIXME: to be updated once we have definition from L1  
+      int link = 36 + (int)(it -> tfMuonIndex() / 3.);
+      bool barrel = true;
+      if ( (link >= 36 && link <= 41) || (link >= 66 && link <= 71)) barrel = false;
 
       if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
   
@@ -164,6 +178,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       vec.setTheta(theta);
       vec.setPhi(phi);
   
+      DetId theid; 
       // Get the det layer on which the state should be put
       if ( barrel ){
         LogTrace(metname) << "The seed is in the barrel";
@@ -177,6 +192,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
 
         radius = fabs(bc->radius()/sin(theta));
+        theid  = id;    
 
         LogTrace(metname) << "radius "<<radius;
 
@@ -196,6 +212,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
         radius = fabs(detLayer->position().z()/cos(theta));      
+        theid = id;    
     
         if( pt < 1.0) pt = 1.0;
       }
@@ -232,44 +249,75 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
  
       LogTrace(metname) << "State after the propagation on the layer";
       LogTrace(metname) << debug.dumpLayer(detLayer);
-      LogTrace(metname) << debug.dumpFTS(state);
+      LogTrace(metname) << debug.dumpTSOS(tsos);
+
+ 	  double dRcone = matchingDR[0];
+	  if ( fabs(eta) < etaBins.back() ){
+		std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(eta));     
+		dRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);   
+	  }
 
       if (tsos.isValid()) {
-        // Get the compatible dets on the layer
-        std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
-      detsWithStates = detLayer->compatibleDets(tsos, 
-                            *theService->propagator(thePropagatorName), 
-                            *theEstimator);   
-        if (detsWithStates.size()){
 
-          TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
-          const GeomDet *newTSOSDet = detsWithStates.front().first;
+        edm::OwnVector<TrackingRecHit> container;
+   
+        if(useOfflineSeed && ( !valid_charge || charge == 0) ) {
+
+          const TrajectorySeed *assoOffseed = 
+   	        associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos, dRcone );
+    
+          if(assoOffseed!=0) {
+            PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
+            TrajectorySeed::const_iterator 
+            tsci  = assoOffseed->recHits().first,
+            tscie = assoOffseed->recHits().second;
+            for(; tsci!=tscie; ++tsci) {
+              container.push_back(*tsci);
+            }
+            output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                              MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+          }
+          else {
+            if(useUnassociatedL1) {
+              // convert the TSOS into a PTSOD
+              PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
+              output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                                MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+            }
+          }
+        }
+        else if (useOfflineSeed && valid_charge){
+          // Get the compatible dets on the layer
+          std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
+            detsWithStates = detLayer->compatibleDets(tsos, 
+                              *theService->propagator(thePropagatorName), 
+                              *theEstimator);   
+          if (detsWithStates.size()){
   
-          LogTrace(metname) << "Most compatible det";
-          LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-          LogDebug(metname) << "L1 info: Det and State:";
-          LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-          if (newTSOS.isValid()){
-
-            //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
-            //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
-            LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
-                              << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
-            LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
-                              << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
-
-            //LogDebug(metname) << "State on it";
-            //LogDebug(metname) << debug.dumpTSOS(newTSOS);
-
-             //PTrajectoryStateOnDet seedTSOS;
-            edm::OwnVector<TrackingRecHit> container;
-
-            if(useOfflineSeed) {
+            TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+            const GeomDet *newTSOSDet = detsWithStates.front().first;
+    
+            LogTrace(metname) << "Most compatible det";
+            LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+  
+            LogDebug(metname) << "L1 info: Det and State:";
+            LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+  
+            if (newTSOS.isValid()){
+  
+              //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
+              //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
+              LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi=" 
+                                << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
+              LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi=" 
+                                << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
+  
+              //LogDebug(metname) << "State on it";
+              //LogDebug(metname) << debug.dumpTSOS(newTSOS);
+  
               const TrajectorySeed *assoOffseed = 
-                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
-
+                associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS, dRcone);
+  
               if(assoOffseed!=0) {
                 PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
                 TrajectorySeed::const_iterator 
@@ -280,7 +328,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                 }
                 output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
                                   MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
-
               }
               else {
                 if(useUnassociatedL1) {
@@ -290,22 +337,18 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                                     MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
                 }
               } 
-            }  
-            else {
-              // convert the TSOS into a PTSOD
-              PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
-              output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-                                MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
             }
-      
-          }
+          } 
         }
-      }
+        else {
+          // convert the TSOS into a PTSOD
+          PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( tsos, theid.rawId());
+          output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
+        }      
+      }  
     }
-
   }
-  
-  
   
   iEvent.put(output);
 }
@@ -314,7 +357,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 // FIXME: does not resolve ambiguities yet! 
 const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > & offseeds, 
                                      std::vector<int> & offseedMap, 
-                                     TrajectoryStateOnSurface & newTsos) {
+                                     TrajectoryStateOnSurface & newTsos,
+                                     double dRcone ) {
 
   const std::string metlabel = "Muon|RecoMuon|L2MuonSeedGeneratorFromL1T";
   MuonPatternRecoDumper debugtmp;
@@ -358,7 +402,7 @@ const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm:
       double newDr = deltaR( newTsos.globalPosition().eta(),     newTsos.globalPosition().phi(), 
                  offseedTsos.globalPosition().eta(), offseedTsos.globalPosition().phi() );
       LogDebug(metlabel) << "   -- DR = " << newDr << std::endl;
-      if( newDr<0.3 && newDr<bestDr ) {  // FIXME: to be updated once we have info on eta resolution from L1
+      if( newDr < dRcone && newDr<bestDr ) {  
         LogDebug(metlabel) << "          --> OK! " << newDr << std::endl << std::endl;
         selOffseed = &*offseed;
         bestDr = newDr;

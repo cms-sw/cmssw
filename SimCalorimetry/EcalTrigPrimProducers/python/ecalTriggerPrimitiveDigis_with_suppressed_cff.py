@@ -7,3 +7,6 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_with_suppres
 from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_mc_cff import *
 
 
+#Common
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( simEcalTriggerPrimitiveDigis, BarrelOnly = cms.bool(True) )

@@ -1,4 +1,4 @@
-#ifndef DataMixingGeneralTrackWorker_h
+#ifndef SimDataMixingGeneralTrackWorker_h
 #define SimDataMixingGeneralTrackWorker_h
 
 /** \class DataMixingGeneralTrackWorker
@@ -72,4 +72,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingGeneralTrackWorker_h

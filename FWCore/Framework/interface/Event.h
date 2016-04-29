@@ -204,8 +204,15 @@ namespace edm {
     Provenance
     getProvenance(ProductID const& theID) const;
 
+    // Get the provenance for all products that may be in the event
     void
     getAllProvenance(std::vector<Provenance const*>& provenances) const;
+
+    // Get the provenance for all products that may be in the event,
+    // excluding the per-event provenance (the parentage information).
+    // The excluded information may change from event to event.
+    void
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     // Return true if this Event has been subjected to a process with
     // the given processName, and false otherwise.
@@ -220,7 +227,7 @@ namespace edm {
     size_t size() const;
 
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
-    virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
+    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 

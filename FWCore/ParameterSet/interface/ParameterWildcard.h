@@ -86,11 +86,11 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() const;
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & helper);
+                                     DocFormatHelper & helper) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 
@@ -122,11 +122,11 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() const;
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & dfh);
+                                     DocFormatHelper & dfh) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 

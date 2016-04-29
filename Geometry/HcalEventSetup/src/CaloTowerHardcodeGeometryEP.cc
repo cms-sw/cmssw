@@ -66,9 +66,8 @@ CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.getRecord<HcalRecNumberingRecord>().get( pHRNDC );
   
-  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
+  return std::unique_ptr<CaloSubdetectorGeometry>( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
 
-  return pCaloSubdetectorGeometry ;
 }
 
 

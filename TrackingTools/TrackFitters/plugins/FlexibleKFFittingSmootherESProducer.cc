@@ -84,7 +84,7 @@ namespace {
       descriptions.add("FlexibleKFFittingSmoother", desc);
     }
     
-    boost::shared_ptr<TrajectoryFitter> 
+    std::shared_ptr<TrajectoryFitter> 
     produce(const TrajectoryFitterRecord & iRecord){ 
       
       edm::ESHandle<TrajectoryFitter> standardFitter;
@@ -93,7 +93,7 @@ namespace {
       iRecord.get(pset_.getParameter<std::string>("standardFitter"),standardFitter);
       iRecord.get(pset_.getParameter<std::string>("looperFitter"),looperFitter);
       
-      return boost::shared_ptr<TrajectoryFitter>(new FlexibleKFFittingSmoother(*standardFitter.product(),
+      return std::shared_ptr<TrajectoryFitter>(new FlexibleKFFittingSmoother(*standardFitter.product(),
 									       *looperFitter.product())
 						 );
     }

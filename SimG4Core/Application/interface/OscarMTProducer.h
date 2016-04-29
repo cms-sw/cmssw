@@ -10,8 +10,6 @@
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 #include <memory>
 
 class SimProducer;
@@ -33,14 +31,12 @@ public:
   static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext);
   static void globalEndJob(OscarMTMasterThread *masterThread);
 
-
   virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
   virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
 
 private:
   Producers     m_producers;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 };
 
 #endif

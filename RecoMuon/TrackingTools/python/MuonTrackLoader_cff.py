@@ -83,4 +83,3 @@ MuonTrackLoaderForCosmic = cms.PSet(
         TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
-

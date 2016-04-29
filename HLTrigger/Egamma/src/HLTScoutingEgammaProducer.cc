@@ -56,12 +56,15 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, 
 {
     using namespace edm;
 
+    std::unique_ptr<ScoutingElectronCollection> outElectrons(new ScoutingElectronCollection());
+    std::unique_ptr<ScoutingPhotonCollection> outPhotons(new ScoutingPhotonCollection());
+
     // Get RecoEcalCandidate
     Handle<reco::RecoEcalCandidateCollection> EgammaCandidateCollection;
     if(!iEvent.getByToken(EgammaCandidateCollection_,
                           EgammaCandidateCollection)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: EgammaCandidateCollection" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
@@ -69,86 +72,84 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, 
     Handle<reco::GsfTrackCollection> EgammaGsfTrackCollection;
     if(!iEvent.getByToken(EgammaGsfTrackCollection_,
                           EgammaGsfTrackCollection)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: EgammaGsfTrackCollection" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get SigmaIEtaIEtaMap
     Handle<RecoEcalCandMap> SigmaIEtaIEtaMap;
     if(!iEvent.getByToken(SigmaIEtaIEtaMap_, SigmaIEtaIEtaMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaClusterShape:sigmaIEtaIEta5x5" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get HoverEMap
     Handle<RecoEcalCandMap> HoverEMap;
     if(!iEvent.getByToken(HoverEMap_, HoverEMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaHoverE" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get DetaMap
     Handle<RecoEcalCandMap> DetaMap;
     if(!iEvent.getByToken(DetaMap_, DetaMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaGsfTrackVars:Deta" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get DphiMap
     Handle<RecoEcalCandMap> DphiMap;
     if(!iEvent.getByToken(DphiMap_, DphiMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaGsfTrackVars:Dphi" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get MissingHitsMap
     Handle<RecoEcalCandMap> MissingHitsMap;
     if(!iEvent.getByToken(MissingHitsMap_, MissingHitsMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaGsfTrackVars:MissingHits" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get 1/E - 1/p Map
     Handle<RecoEcalCandMap> OneOEMinusOneOPMap;
     if(!iEvent.getByToken(OneOEMinusOneOPMap_, OneOEMinusOneOPMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaGsfTrackVars:OneOESuperMinusOneOP" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get EcalPFClusterIsoMap
     Handle<RecoEcalCandMap> EcalPFClusterIsoMap;
     if(!iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaEcalPFClusterIso" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get EleGsfTrackIsoMap
     Handle<RecoEcalCandMap> EleGsfTrackIsoMap;
     if(!iEvent.getByToken(EleGsfTrackIsoMap_, EleGsfTrackIsoMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: hltEgammaEleGsfTrackIso" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Get HcalPFClusterIsoMap
     Handle<RecoEcalCandMap> HcalPFClusterIsoMap;
     if(!iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap)){
-        edm::LogError ("HLTScoutingEgammaProducer")
-            << "invalid collection: HcalPFClusterIso" << "\n";
+        iEvent.put(std::move(outElectrons));
+        iEvent.put(std::move(outPhotons));
         return;
     }
 
     // Produce electrons and photons
-    std::auto_ptr<ScoutingElectronCollection> outElectrons(new ScoutingElectronCollection());
-    std::auto_ptr<ScoutingPhotonCollection> outPhotons(new ScoutingPhotonCollection());
     int index = 0;
     for (auto &candidate : *EgammaCandidateCollection) {
         reco::RecoEcalCandidateRef candidateRef = getRef(EgammaCandidateCollection, index);
@@ -200,8 +201,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, 
     }
 
     // Put output
-    iEvent.put(outElectrons);
-    iEvent.put(outPhotons);
+    iEvent.put(std::move(outElectrons));
+    iEvent.put(std::move(outPhotons));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

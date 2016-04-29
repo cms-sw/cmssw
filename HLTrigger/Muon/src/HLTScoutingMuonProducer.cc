@@ -46,48 +46,44 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 {
     using namespace edm;
 
+    std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
+
     // Get RecoChargedCandidate
     Handle<reco::RecoChargedCandidateCollection> ChargedCandidateCollection;
     if(!iEvent.getByToken(ChargedCandidateCollection_, ChargedCandidateCollection)){
-        edm::LogError ("HLTScoutingMuonProducer")
-            << "invalid collection: ChargedCandidateCollection" << "\n";
+        iEvent.put(std::move(outMuons));
         return;
     }
 
     // Get Track
     Handle<reco::TrackCollection> TrackCollection;
     if(!iEvent.getByToken(TrackCollection_, TrackCollection)){
-        edm::LogError ("HLTScoutingMuonProducer")
-            << "invalid collection: TrackCollection" << "\n";
+        iEvent.put(std::move(outMuons));
         return;
     }
 
     // Get EcalPFClusterIsoMap
     Handle<RecoChargedCandMap> EcalPFClusterIsoMap;
     if(!iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap)){
-        edm::LogError ("HLTScoutingMuonProducer")
-            << "invalid collection: hltMuonEcalPFClusterIsoForMuons" << "\n";
+        iEvent.put(std::move(outMuons));
         return;
     }
 
     // Get HcalPFClusterIsoMap
     Handle<RecoChargedCandMap> HcalPFClusterIsoMap;
     if(!iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap)){
-        edm::LogError ("HLTScoutingMuonProducer")
-            << "invalid collection: hltMuonHcalPFClusterIsoForMuons" << "\n";
+        iEvent.put(std::move(outMuons));
         return;
     }
 
     // Get TrackIsoMap
     Handle<ValueMap<double>> TrackIsoMap;
     if(!iEvent.getByToken(TrackIsoMap_, TrackIsoMap)){
-        edm::LogError ("HLTScoutingMuonProducer")
-            << "invalid collection: TrackIsoMap" << "\n";
+        iEvent.put(std::move(outMuons));
         return;
     }
 
     // Produce muons
-    std::auto_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
     int index = 0;
     for (auto &muon : *ChargedCandidateCollection) {
         reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
@@ -116,7 +112,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     }
 
     // Put output
-    iEvent.put(outMuons);
+    iEvent.put(std::move(outMuons));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

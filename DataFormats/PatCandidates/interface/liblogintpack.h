@@ -10,6 +10,7 @@ namespace logintpack
         // is no "x" such that "unpack(x) == -unpack(0)"
         constexpr int8_t smallestNegative = -1;
 
+        inline
         int8_t pack8logCeil(double x,double lmin, double lmax, uint8_t base=128)
         {
                 if(base>128) base=128;
@@ -22,6 +23,7 @@ namespace logintpack
                 return r;
         }
 
+	inline
 	int8_t pack8log(double x,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
@@ -36,6 +38,7 @@ namespace logintpack
 
         /// pack a value x distributed in [-1,1], with guarantee that -1 and 1 are preserved exactly in packing and unpacking.
         /// tries to keep the best precision for x close to the endpoints, sacrifying that in the middle
+	inline
 	int8_t pack8logClosed(double x,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
@@ -48,7 +51,7 @@ namespace logintpack
 		return r;
 	}
 
-
+	inline
 	double unpack8log(int8_t i,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
@@ -59,6 +62,7 @@ namespace logintpack
 	}
 
         /// reverse of pack8logClosed
+	inline
 	double unpack8logClosed(int8_t i,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;

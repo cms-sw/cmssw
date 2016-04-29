@@ -130,27 +130,27 @@ private:
 
     if( value_!="" )
     {
-      std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+      std::unique_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
 
       JetValueMap::Filler filler(*jetValueMap);
       filler.insert(h_jets1, values.begin(), values.end());
       filler.fill();
 
       // put in Event
-      iEvent.put(jetValueMap);
+      iEvent.put(std::move(jetValueMap));
     }
     if( multiValue_ )
     {
       for( size_t i=0; i<valueLabels_.size(); ++i)
       {
-        std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+        std::unique_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
 
         JetValueMap::Filler filler(*jetValueMap);
         filler.insert(h_jets1, valuesMap.at(valueLabels_[i]).begin(), valuesMap.at(valueLabels_[i]).end());
         filler.fill();
 
         // put in Event
-        iEvent.put(jetValueMap, valueLabels_[i]);
+        iEvent.put(std::move(jetValueMap), valueLabels_[i]);
       }
     }
   }

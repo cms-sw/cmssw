@@ -65,15 +65,7 @@ namespace edm {
       prov_.setStore(provRetriever);
       prov_.setProcessHistory(ph);
     }
-    
-    void connectTo( ProductData const& iOther) {
-      wrapper_ = iOther.wrapper_;
-      // Then the product ID and the ProcessHistory
-      prov_.setProductID(iOther.prov_.productID());
-      prov_.setProcessHistory(iOther.prov_.processHistory());
-      // Then the store, in case the product needs reading in a subprocess.
-      prov_.setStore(iOther.prov_.store());
-    }
+
     // NOTE: We should probably think hard about whether these
     // variables should be declared "mutable" as part of
     // the effort to make the Framework multithread capable ...

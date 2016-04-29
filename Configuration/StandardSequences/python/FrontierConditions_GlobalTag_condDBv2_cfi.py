@@ -1,1 +1,0 @@
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *

@@ -18,6 +18,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -63,9 +64,13 @@
 namespace {
 typedef std::map< const float*, TGeoVolume*> CaloVolMap;
 }
-FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ ):
-m_dummyMedium(0)
+FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& pset )
+  : m_dummyMedium(0)
 {
+  m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
+  m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
+  m_calo = pset.getUntrackedParameter<bool>( "Calo", true );
+  
   setWhatProduced( this );
 }
 
@@ -252,18 +257,19 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
 
 
 
-boost::shared_ptr<FWTGeoRecoGeometry> 
+std::shared_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
    using namespace edm;
 
-   m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
+   m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
    DetId detId( DetId::Tracker, 0 );
    m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
-  
-   record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+
+   if( m_calo )
+     record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
    if( 0 == gGeoIdentity )
@@ -277,37 +283,45 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
    m_dummyMedium = new TGeoMedium( "reco", 0, vacuum);
 
-
    TGeoVolume *top = geom->MakeBox( "CMS", m_dummyMedium, 270., 270., 120. );
   
-
    if( 0 == top )
    {
-      return boost::shared_ptr<FWTGeoRecoGeometry>();
+      return std::shared_ptr<FWTGeoRecoGeometry>();
    }
    geom->SetTopVolume( top );
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
+
+   if( m_tracker )
+   {
+     addPixelBarrelGeometry();
+     addPixelForwardGeometry();
+
+     addTIBGeometry();
+     addTIDGeometry();
+     addTOBGeometry();
+     addTECGeometry();
+   }
    
-   addPixelBarrelGeometry();
-   addPixelForwardGeometry();
+   if( m_muon )
+   {
+     addDTGeometry();
 
-   addTIBGeometry();
-   addTIDGeometry();
-   addTOBGeometry();
-   addTECGeometry();
-   addDTGeometry();
+     addCSCGeometry();
+     addRPCGeometry();
+     addME0Geometry();
+     addGEMGeometry();
+   }
 
-   addCSCGeometry();
-   addRPCGeometry();
-   addME0Geometry();
-   addGEMGeometry();
-
-   addEcalCaloGeometry();   
-   addHcalCaloGeometryBarrel();
-   addHcalCaloGeometryEndcap();
-
+   if( m_calo )
+   {  
+     addEcalCaloGeometry();   
+     addHcalCaloGeometryBarrel();
+     addHcalCaloGeometryEndcap();
+   }
+   
    geom->CloseGeometry();
 
    geom->DefaultColors();

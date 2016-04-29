@@ -6,6 +6,7 @@
 
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -82,7 +83,7 @@ namespace popcon {
     private:
       
       cond::persistency::Session m_dbsession;
-      boost::shared_ptr<T> m_d;
+      std::shared_ptr<T> m_d;
     };
     
     

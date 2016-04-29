@@ -203,8 +203,8 @@ void HLTPrescaleRecorder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (event_) {
     /// Writing to Event
-    auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
-    iEvent.put(product,"Event");
+    unique_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
+    iEvent.put(std::move(product),"Event");
   }
 
   return;
@@ -216,8 +216,8 @@ void HLTPrescaleRecorder::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
 
   if (lumi_) {
     /// Writing to Lumi Block
-    auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
-    iLumi.put(product,"Lumi");
+    unique_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
+    iLumi.put(std::move(product),"Lumi");
   }
   return;
 }
@@ -273,7 +273,7 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
 void HLTPrescaleRecorder::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
    if (run_) {
      /// Writing to Run Block
-     auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
-     iRun.put(product,"Run");
+     unique_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
+     iRun.put(std::move(product),"Run");
    }
 }

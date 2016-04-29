@@ -79,6 +79,7 @@ ThirdHitCorrection::init(
   };
 
   theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), point2(), layer2.seqNum());
+  
 }
 
 void ThirdHitCorrection::init( 

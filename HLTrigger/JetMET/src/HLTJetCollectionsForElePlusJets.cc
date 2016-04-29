@@ -124,9 +124,9 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   
   const TCollection & theJetCollection = *theJetCollectionHandle;
   
-  //std::auto_ptr< TCollection >  theFilteredJetCollection(new TCollection);
+  //std::unique_ptr< TCollection >  theFilteredJetCollection(new TCollection);
   
-  std::auto_ptr < TCollectionVector > allSelections(new TCollectionVector());
+  std::unique_ptr < TCollectionVector > allSelections(new TCollectionVector());
   
  //bool foundSolution(false);
 
@@ -146,8 +146,8 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
     allSelections->push_back(refVector);
     }
 
-    //iEvent.put(theFilteredJetCollection);
-    iEvent.put(allSelections);
+    //iEvent.put(std::move(theFilteredJetCollection));
+    iEvent.put(std::move(allSelections));
   
   return;
   

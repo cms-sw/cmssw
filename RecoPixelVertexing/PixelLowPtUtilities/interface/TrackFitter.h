@@ -25,7 +25,6 @@ public:
      const TrackingRegion& region) const;
 
 private:
-  int getCharge(const std::vector<GlobalPoint> & points) const;
   float getCotThetaAndUpdateZip
     (const GlobalPoint& inner, const GlobalPoint& outer,
      float radius, float phi, float d0, float& zip) const;

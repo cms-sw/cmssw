@@ -11,3 +11,17 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
 #from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 #hcalGlobalRecoSequence = cms.Sequence(hbhereco)
+
+from RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi import *
+from RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi import *
+
+_phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
+_phase2_hcalLocalRecoSequence.replace(hfreco,hfUpgradeReco)
+_phase2_hcalLocalRecoSequence.replace(hbheprereco,hbheUpgradeReco)
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toModify( hbheprereco, digiLabel = cms.InputTag('simHcalDigis','HBHEUpgradeDigiCollection') )
+eras.phase2_common.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
+eras.phase2_common.toModify( hfreco, digiLabel = cms.InputTag('simHcalDigis','HFUpgradeDigiCollection') )
+eras.phase2_common.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
+eras.phase2_common.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )

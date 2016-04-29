@@ -1,16 +1,9 @@
 {
-    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_STRIP", 
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "SiStripBadChannel_PCL_v1_offline": {
-            "dependencies": {
-                "SiStripBadChannel_PCL_v1_hlt": "hlt",
-                "SiStripBadChannel_PCL_v1_prompt": "prompt"
-            }, 
-            "synchronizeTo": "offline"
-        }
-    }, 
-    "inputTag": "SiStripBadStrip_pcl", 
-    "since": null, 
-    "userText": "T0 PCL Upload for SiStrip bad-channles"
+        "SiStripBadChannel_FromOfflineCalibration_GR10_v1_prompt": {}
+    },
+    "inputTag": "SiStripBadStrip_pcl",
+    "since": null,
+    "userText": "T0 PCL Upload for SiStrip bad-channels"
 }
-

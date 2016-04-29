@@ -8,6 +8,9 @@ ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('firstStepPrimaryVer
 eras.trackingLowPU.toModify(ak4CaloJetsForTrk,
     srcPVs = "pixelVertices"
 )
+eras.trackingPhase1PU70.toModify(ak4CaloJetsForTrk,
+    srcPVs = "pixelVertices"
+)
 
 caloJetsForTrk = cms.Sequence(caloTowerForTrk*ak4CaloJetsForTrk)
 

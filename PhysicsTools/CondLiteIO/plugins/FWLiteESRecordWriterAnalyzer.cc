@@ -267,7 +267,7 @@ FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
             }
             dataInfos.push_back(DataInfo(tt,itData->second));
          }
-         m_handlers.push_back( std::shared_ptr<RecordHandler>( new RecordHandler(rKey,m_file,dataInfos) ) );
+         m_handlers.push_back( std::make_shared<RecordHandler>(rKey,m_file,dataInfos) );
       }
    }
    

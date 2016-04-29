@@ -2,7 +2,8 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -89,6 +90,11 @@ namespace edm {
   void
   Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
+  }
+
+  void
+  Event::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
   bool
@@ -222,18 +228,9 @@ namespace edm {
   }
 
   TriggerResultsByName
-  Event::triggerResultsByName(std::string const& process) const {
+  Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 
-    Handle<TriggerResults> hTriggerResults;
-    InputTag tag(std::string("TriggerResults"),
-                 std::string(""),
-                 process);
-
-    getByLabel(tag, hTriggerResults);
-    if(!hTriggerResults.isValid()) {
-      return TriggerResultsByName(0, 0);
-    }
-    edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
-    return TriggerResultsByName(hTriggerResults.product(), names);
+    edm::TriggerNames const* names = triggerNames_(triggerResults);
+    return TriggerResultsByName(&triggerResults, names);
   }
 }

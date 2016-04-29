@@ -44,4 +44,3 @@ GlobalMuonRefitter = cms.PSet(
 
     RefitFlag = cms.bool( True )
 )
-

@@ -47,7 +47,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
-boost::shared_ptr<PixelClusterParameterEstimator>
+std::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -86,10 +86,10 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>
-    (new PixelCPEGeneric(pset_,magfield.product(),*pDD.product(),
+  cpe_  = std::make_shared<PixelCPEGeneric>(
+                         pset_,magfield.product(),*pDD.product(),
 			 *hTT.product(),lorentzAngle.product(),
-			 genErrorDBObjectProduct,lorentzAngleWidthProduct) );
+			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
 
 #else  // old full templates, not used anymore  
   // Errors can be used from tempaltes or from GenError, for testing only
@@ -104,9 +104,9 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-										pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-										templateDBobject.product(),lorentzAngleWidthProduct) );
+  cpe_  = std::make_shared<PixelCPEGeneric>(
+					pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
+					templateDBobject.product(),lorentzAngleWidthProduct);
 #endif
 
   return cpe_;
