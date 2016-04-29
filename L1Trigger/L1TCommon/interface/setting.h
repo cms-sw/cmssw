@@ -41,7 +41,7 @@ class setting
 	public:
 		setting() {};
 		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
-		setting(const std::string& type, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
+		setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void setProcRole(const std::string& procRole) { _procRole = procRole; };
 		void setValue(const std::string& value) {_value = value; };
 		void setId(const std::string& id) { _id = id; } ;
@@ -55,8 +55,7 @@ class setting
 		std::string getId() { return _id; } ;
 		template <class varType> varType getValue();
 		template <class varType> std::vector<varType> getVector(std::string delim = ",");
-		std::vector<std::vector<std::string> > getTableRows();
-		
+		std::vector<tableRow>  getTableRows() { return _tableRows; };
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
 
@@ -66,8 +65,8 @@ class setting
 		std::vector<tableRow> _tableRows;
 		std::vector<std::string> _tableTypes;
 		std::vector<std::string> _tableColumns;
-
-
+		
+		std::string erSp(std::string str, const std::string& delim);
 };
 
 
@@ -76,18 +75,27 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 	if ( _type.find("vector") == std::string::npos )
 		throw std::runtime_error("The registered type: " + _type + " is not vector so you need to call the getValue method");
 
-	std::vector<varType> vals;
-
-	if ( !parse ( std::string(_value+delim+" ").c_str(),
-          (
-          	* ( boost::spirit::classic::uint_p[boost::spirit::classic::push_back_a ( vals ) ] >> delim.c_str() >> *boost::spirit::classic::space_p )
-          ), boost::spirit::classic::nothing_p ).full )
-	{ 	
+	std::vector<std::string> vals;
+	std::cout << "_value is " << _value << std::endl;
+	if ( !parse ( std::string(erSp(_value, delim)+delim).c_str(),
+	(
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
+	), boost::spirit::classic::nothing_p ).full )
+	{  	
 		throw std::runtime_error ("Wrong value format: " + _value);
+	}
+	vals.erase(vals.end()-1);
+
+	std::vector<varType> newVals;
+	std::cout << "Size: " << vals.size() << std::endl;
+	for(auto it=vals.begin(); it!=vals.end(); it++)
+	{
+		std::cout << "it = " << *it << std::endl;
+		newVals.push_back(boost::lexical_cast<varType>(*it));
 	}
 
 	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
-	return vals;
+	return newVals;
 }
 
 template <class varType> varType setting::getValue()
@@ -102,17 +110,20 @@ template <class varType> varType setting::getValue()
 template <class varType> varType tableRow::getRowValue(const std::string& col)
 {
 	bool found(false);
+	int ct;
 	for (unsigned int i = 0; i < _columns.size(); i++)
 	{
 		if (_columns.at(i).find(col) != std::string::npos)
 		{
 			found = true;
-			edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << boost::lexical_cast<varType>(_row.at(i)) <<  " from table row " << this->getRowAsStr();
-			return boost::lexical_cast<varType>(_row.at(i));
+			ct = i;
 		}
 	}
 	if (!found)
 		throw std::runtime_error ("Column " + col + "not found.");
+
+	edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << boost::lexical_cast<varType>(_row.at(ct)) <<  " from table row " << this->getRowAsStr();
+	return boost::lexical_cast<varType>(_row.at(ct));
 }
 
 
