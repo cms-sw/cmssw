@@ -52,6 +52,15 @@ _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
 ]
+_multipleSeedProducers = {
+    "MixedTripletStep": ["A", "B"],
+    "TobTecStep": ["Pair", "Tripl"],
+}
+_multipleSeedProducers_trackingLowPU = {
+    "MixedTripletStep": ["A", "B"],
+}
+_multipleSeedProducers_trackingPhase1 = _multipleSeedProducers
+_multipleSeedProducers_trackingPhase1PU70 = _multipleSeedProducers_trackingLowPU
 _oldStyleHasSelector = set([
     "InitialStep",
     "HighPtTripletStep",
@@ -108,6 +117,32 @@ def createEarlySequence(era, modDict):
 
 def iterationAlgos(era):
     return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + _iterations_muonSeeded]
+
+def _seedOrTrackProducers(era, typ):
+    ret = []
+    pf = postfix(era)
+    iters = globals()["_iterations"+pf]
+    if typ == "Seeds":
+        multipleSeedProducers = globals()["_multipleSeedProducers"+pf]
+    else:
+        multipleSeedProducers = None
+    for i in iters:
+        seeder = _modulePrefix(i)+typ
+        if multipleSeedProducers is not None and i in multipleSeedProducers:
+            ret.extend([seeder+m for m in multipleSeedProducers[i]])
+        else:
+            ret.append(seeder)
+
+    for i in _iterations_muonSeeded:
+        ret.append(_modulePrefix(i).replace("Step", typ))
+
+    return ret
+
+def seedProducers(era):
+    return _seedOrTrackProducers(era, "Seeds")
+
+def trackProducers(era):
+    return _seedOrTrackProducers(era, "Tracks")
 
 def clusterRemoverForIter(iteration, era="", module=None):
     if module is None:
