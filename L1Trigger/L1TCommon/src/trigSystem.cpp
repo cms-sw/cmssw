@@ -36,7 +36,7 @@ void trigSystem::addProcRole(const std::string& processor, const std::string& ro
 			throw std::runtime_error ("Processor: " + processor + " already exists but with different role");
 	}	
 	
-	std::cout << "Adding processor: " << processor << std::endl;
+	//std::cout << "Adding processor: " << processor << std::endl;
 	_procRole[processor] = role;
 
 	_roleProcs[role].push_back(processor);
@@ -52,7 +52,7 @@ void trigSystem::addProcCrate(const std::string& processor, const std::string& c
 
 void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
 {
-	std::cout << "Adding setting: " << id << std::endl;
+	//std::cout << "Adding setting: " << id << std::endl;
 	bool applyOnRole, foundRoleProc(false);
 	for(auto it=_procRole.begin(); it!=_procRole.end(); it++)
 	{
