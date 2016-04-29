@@ -28,7 +28,6 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
         process.AlignmentProducer.algoConfig.binaryFile   = ''
         process.AlignmentProducer.algoConfig.monitorFile  = 'millePedeMonitor_merge.root'
         process.AlignmentProducer.algoConfig.treeFile     = 'treeFile_merge.root'
-        process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = "pede"
 
 
     ########################
