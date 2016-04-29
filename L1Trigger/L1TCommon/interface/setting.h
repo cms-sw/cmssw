@@ -87,12 +87,8 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 	vals.erase(vals.end()-1);
 
 	std::vector<varType> newVals;
-	std::cout << "Size: " << vals.size() << std::endl;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
-	{
-		std::cout << "it = " << *it << std::endl;
 		newVals.push_back(boost::lexical_cast<varType>(*it));
-	}
 
 	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
 	return newVals;
