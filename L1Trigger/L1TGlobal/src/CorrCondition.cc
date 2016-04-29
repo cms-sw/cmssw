@@ -416,6 +416,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		if(etaBin0<0) etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0; //twos complement		
 //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
 		
+		int ssize = m_gtScales->getMUScales().etBins.size();
+		if (etIndex0 >= ssize){ 
+		  etIndex0 = ssize-1; 			  
+		  edm::LogWarning("L1TGlobal") 
+		    << "muon0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		} 
+		
 		// Determine Floating Pt numbers for floating point caluclation
 		std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex0);
 		phi0Phy = 0.5*(binEdges.second + binEdges.first);
@@ -441,7 +448,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etaBin0   = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getEGScales().etaBins.size() + etaBin0;
 //		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
-		    
+
+		    int ssize = m_gtScales->getEGScales().etBins.size();
+		    if (etIndex0 >= ssize){ 
+		      etIndex0 = ssize-1; 			  
+		      edm::LogWarning("L1TGlobal") 
+			<< "EG0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		    } 
+	    
 		    // Determine Floating Pt numbers for floating point caluclation
 		    std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex0);
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);					    
@@ -461,6 +475,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getJETScales().etaBins.size() + etaBin0;
 
+		    int ssize = m_gtScales->getJETScales().etBins.size();
+		    if (etIndex0 >= ssize){ 
+		      //edm::LogWarning("L1TGlobal") 
+		      //<< "jet0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		      etIndex0 = ssize-1; 			  
+		    } 
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
 		    std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex0);
@@ -479,6 +499,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getTAUScales().etaBins.size() + etaBin0;
+
+		    int ssize = m_gtScales->getTAUScales().etBins.size();
+		    if (etIndex0 >= ssize){ 		      
+		      etIndex0 = ssize-1; 			  
+		      edm::LogWarning("L1TGlobal") 
+			<< "tau0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		    } 
 
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
@@ -650,6 +677,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   if(etaBin1<0) etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;	   
 //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
 		   
+		   int ssize = m_gtScales->getMUScales().etBins.size();
+		   if (etIndex1 >= ssize){ 
+		     edm::LogWarning("L1TGlobal") 
+		       << "muon2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
+		     etIndex1 = ssize-1; 			  
+		   } 
+
 		   // Determine Floating Pt numbers for floating point caluclation
 		   std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex1);
 		   phi1Phy = 0.5*(binEdges.second + binEdges.first);
@@ -669,6 +703,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1   =   etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
+
+			int ssize = m_gtScales->getEGScales().etBins.size();
+			if (etIndex1 >= ssize){ 
+			  edm::LogWarning("L1TGlobal") 
+			    << "EG1 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
+			  etIndex1 = ssize-1; 			  
+			} 
 			
 			// Determine Floating Pt numbers for floating point caluclation
 		   	std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex1);
@@ -687,12 +728,21 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
-			
+						
+			int ssize = m_gtScales->getJETScales().etBins.size();
+			assert(ssize);
+			if (etIndex1 >= ssize){ 			  
+			  //edm::LogWarning("L1TGlobal") 
+			  //<< "jet2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
+			  etIndex1 = ssize-1; 			  
+			} 
+
 			// Determine Floating Pt numbers for floating point caluclation
 		   	std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex1);
 		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
 			binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
+			//CRASHES HERE:
 			binEdges = m_gtScales->getJETScales().etBins.at(etIndex1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);
 			lutObj1 = "JET";
@@ -705,6 +755,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
+
+			int ssize = m_gtScales->getTAUScales().etBins.size();
+			if (etIndex1 >= ssize){ 
+			  edm::LogWarning("L1TGlobal") 
+			    << "tau2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
+			  etIndex1 = ssize-1; 			  
+			} 
 						
 			// Determine Floating Pt numbers for floating point caluclation
 		   	std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex1);
