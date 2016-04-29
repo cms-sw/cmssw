@@ -6,6 +6,7 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     #############
     ## general ##
     #############
+    process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
     # Start geometry from db
     process.AlignmentProducer.applyDbAlignment         = True
