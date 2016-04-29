@@ -72,7 +72,8 @@ def readLogFile(fileName):
           delayed = False
           if l.find("finished:") != -1:
               trans = kFinished
-          stream = int( l[l.find("stream = ")+9])
+          streamIndex = l.find("stream = ")
+          stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
           name = l.split("'")[1]
           if l.find("delayed") != -1:
               delayed = True
