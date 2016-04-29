@@ -58,8 +58,13 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 	
 		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
 
-		  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( cos_coeff[iphi - 1] ));
-		  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( sin_coeff[iphi - 1] ));
+		  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
+		  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
+		  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
+		  // The 4 below account for part of that and the rest is accounted for at ouput of demux
+		  // (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
+		  ringHx += (int32_t) (( thisJet.hwPt() * cos_coeff[iphi - 1] ) >> 4 );
+		  ringHy += (int32_t) (( thisJet.hwPt() * sin_coeff[iphi - 1] ) >> 4 );
 		  	  
 		}
 	
@@ -73,9 +78,6 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       ht += ringHt;
       
     }
-
-    hx >>= 10;
-    hy >>= 10;
 
     math::XYZTLorentzVector p4;
     
