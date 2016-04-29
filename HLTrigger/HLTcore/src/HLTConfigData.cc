@@ -32,7 +32,7 @@ HLTConfigData::HLTConfigData():
   processName_(""), globalTag_(""),
   tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
-  hltL1GTSeeds_(),
+  l1tType_(0), hltL1GTSeeds_(), hltL1TSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
   datasetNames_(), datasetIndex_(), datasetContents_(),
   hltPrescaleTable_()
@@ -47,7 +47,7 @@ HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processName_(""), globalTag_(""),
   tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
-  hltL1GTSeeds_(),
+  l1tType_(0), hltL1GTSeeds_(), hltL1TSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
   datasetNames_(), datasetIndex_(), datasetContents_(),
   hltPrescaleTable_()
@@ -134,6 +134,32 @@ void HLTConfigData::extract()
      }
    }
 
+   // Determine L1T Type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
+   unsigned int stage1(0),stage2(0);
+   if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
+     const std::vector<std::string>& allModules(processPSet_->getParameter<std::vector<std::string>>("@all_modules"));
+     for (unsigned int i=0; i<allModules.size(); i++) {
+       if (moduleType(allModules[i]) == "L1GlobalTriggerRawToDigi") {
+	 stage1 += 1;
+       } else if (moduleType(allModules[i]) == "L1TRawToDigi") {
+	 stage2 += 1;
+       }
+     }
+   }
+   if ( (stage1+stage2)==0 ) {
+     edm::LogError("HLTConfigData")
+       << " Incomplete L1T: HLT Process containing neither L1GlobalTriggerRawToDigi nor L1TRawToDigi instances!";
+     l1tType_=0;
+   } else if ( (stage1*stage2) !=0 ) {
+     edm::LogError("HLTConfigData")
+       << " Inconsistent L1T: HLT Process containing both L1GlobalTriggerRawToDigi and L1TRawToDigi instances!";
+     l1tType_=0;
+   } else if (stage1>0) {
+     l1tType_=1;
+   } else {
+     l1tType_=2;
+   }
+
    // Extract and fill HLTLevel1GTSeed information for each trigger path
    hltL1GTSeeds_.resize(n);
    for (unsigned int i=0; i!=n; ++i) {
@@ -151,6 +177,27 @@ void HLTConfigData::extract()
 	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
 	   const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
 	   hltL1GTSeeds_[i].push_back(pair<bool,string>(l1Tech,l1Seed));
+	 }
+       }
+     }
+   }
+
+   // Extract and fill HLTL1TSeed information for each trigger path
+   hltL1TSeeds_.resize(n);
+   for (unsigned int i=0; i!=n; ++i) {
+     hltL1TSeeds_[i].clear();
+     const unsigned int m(size(i));
+     for (unsigned int j=0; j!=m; ++j) {
+       const string& label(moduleLabels_[i][j]);
+       //HLTConfigProvider sees ignored modules as "-modname"
+       //if the HLTL1TSeed is ignored in the config, it shouldnt
+       //count to the number of active HLTL1TSeeds so we now check
+       //for the module being ignored
+       if (label.front()!='-' && moduleType(label) == "HLTL1TSeed") {
+	 const ParameterSet& pset(modulePSet(label));
+	 if (pset!=ParameterSet()) {
+	   const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
+	   hltL1TSeeds_[i].push_back(l1Seed);
 	 }
        }
      }
@@ -255,12 +302,23 @@ void HLTConfigData::dump(const std::string& what) const {
      const unsigned int n(size());
      cout << "HLTConfigData::dump: TriggerSeeds: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       const unsigned int m(hltL1GTSeeds_[i].size());
-       cout << "  " << i << " " << triggerNames_[i] << " " << m << endl;
-       for (unsigned int j=0; j!=m; ++j) {
-	 cout << "    " << j
-	      << " " << hltL1GTSeeds_[i][j].first
-	      << "/" << hltL1GTSeeds_[i][j].second << endl;
+       const unsigned int m1(hltL1GTSeeds_[i].size());
+       const unsigned int m2(hltL1TSeeds_[i].size());
+       cout << "  " << i << " " << triggerNames_[i] << " " << m1 << "/" << m2 << endl;
+       if (m1>0) {
+	 for (unsigned int j1=0; j1!=m1; ++j1) {
+	   cout << "    HLTLevel1GTSeed: " << j1
+		<< " " << hltL1GTSeeds_[i][j1].first
+		<< "/" << hltL1GTSeeds_[i][j1].second;
+	 }
+	 cout << endl;
+       }
+       if (m2>0) {
+	 for (unsigned int j2=0; j2!=m2; ++j2) {
+	   cout << "    HLTL1TSeed: " << j2
+		<< " " << hltL1TSeeds_[i][j2];
+	 }
+	 cout << endl;
        }
      }
    } else if (what=="Modules") {
@@ -272,6 +330,7 @@ void HLTConfigData::dump(const std::string& what) const {
        cout << " - Modules: ";
        unsigned int nHLTPrescalers(0);
        unsigned int nHLTLevel1GTSeed(0);
+       unsigned int nHLTL1TSeed(0);
        for (unsigned int j=0; j!=m; ++j) {
 	 const string& label(moduleLabels_[i][j]);
 	 const string  type(moduleType(label));
@@ -280,10 +339,11 @@ void HLTConfigData::dump(const std::string& what) const {
 	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype << "/" << tags;
 	 if (type=="HLTPrescaler") nHLTPrescalers++;
 	 if (type=="HLTLevel1GTSeed") nHLTLevel1GTSeed++;
+	 if (type=="HLTL1TSeed") nHLTL1TSeed++;
        }
        cout << endl;
-       cout << " - Number of HLTPrescaler/HLTLevel1GTSeed modules: " 
-	    << nHLTPrescalers << "/" << nHLTLevel1GTSeed << endl;
+       cout << " - Number of HLTPrescaler/HLTLevel1GTSeed/HLTL1TSeed modules: " 
+	    << nHLTPrescalers << "/" << nHLTLevel1GTSeed << "/" << nHLTL1TSeed << endl;
      }
    } else if (what=="StreamNames") {
      const unsigned int n(streamNames_.size());
@@ -463,6 +523,18 @@ const std::vector<std::pair<bool,std::string> >& HLTConfigData::hltL1GTSeeds(con
 
 const std::vector<std::pair<bool,std::string> >& HLTConfigData::hltL1GTSeeds(unsigned int trigger) const {
   return hltL1GTSeeds_.at(trigger);
+}
+
+const std::vector<std::vector<std::string > >& HLTConfigData::hltL1TSeeds() const {
+  return hltL1TSeeds_;
+}
+
+const std::vector<std::string >& HLTConfigData::hltL1TSeeds(const std::string& trigger) const {
+  return hltL1TSeeds(triggerIndex(trigger));
+}
+
+const std::vector<std::string >& HLTConfigData::hltL1TSeeds(unsigned int trigger) const {
+  return hltL1TSeeds_.at(trigger);
 }
 
 /// Streams                                                                   
