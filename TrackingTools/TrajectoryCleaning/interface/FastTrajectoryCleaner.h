@@ -38,7 +38,6 @@ class FastTrajectoryCleaner final : public TrajectoryCleaner {
 
   ~FastTrajectoryCleaner(){}
 
-  TrajectoryCleaner::clean;
   void clean(TempTrajectoryContainer&) const override;
   void clean(TrajectoryPointerContainer&) const override;
 
