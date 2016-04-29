@@ -139,7 +139,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     }
     result.first = -1;
   }
- } else if (hltConfigProvider_.l1tType()==1){
+ } else if (hltConfigProvider_.l1tType()==2){
   // get L1T prescale - works only for those hlt trigger paths with
   // exactly one L1T seed module which has exactly one L1T name as seed
   const unsigned int nL1TSeedModules(hltConfigProvider_.hltL1TSeeds(trigger).size());
