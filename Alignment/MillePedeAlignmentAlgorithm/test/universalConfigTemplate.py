@@ -64,33 +64,8 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.GeneralSetup as gene
 generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla)
 
 
-
-
-
-## Overwrite some conditions in global tag
-## -----------------------------------------------------------------------------
-import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagwriter
-
-##########################
-## insert Startgeometry ##
-##########################
-
-##  You can use tagwriter.setCondition() to overwrite conditions in globaltag
-##  Example:
-##  tagwriter.setCondition(process,
-##      connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-##      record  = 'TrackerAlignmentRcd',
-##      tag     = 'TrackerAlignment_Run2015B_PseudoPCL_v2')
-
-
-## Alignment producer
-## -----------------------------------------------------------------------------
-process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
-
-#######################
-## insert Alignables ##
-#######################
-
+# setup alignment producer
+# ------------------------------------------------------------------------------
 import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.ConfigureAlignmentProducer as confAliProducer
 
 confAliProducer.setConfiguration(process,
@@ -100,6 +75,28 @@ confAliProducer.setConfiguration(process,
     binaryFile   = setupBinaryFile,
     primaryWidth = setupPrimaryWidth,
     cosmicsZeroTesla = setupCosmicsZeroTesla)
+
+
+# Overwrite some conditions in global tag
+# ------------------------------------------------------------------------------
+import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagwriter
+
+##########################
+## insert Startgeometry ##
+##########################
+
+# You can use tagwriter.setCondition() to overwrite conditions in globaltag
+#
+# Example:
+# tagwriter.setCondition(process,
+# 	connect = "frontier://FrontierProd/CMS_CONDITIONS",
+# 	record = "TrackerAlignmentErrorExtendedRcd",
+# 	tag = "TrackerIdealGeometryErrorsExtended210_mc")
+
+
+#######################
+## insert Alignables ##
+#######################
 
 
 #########################
