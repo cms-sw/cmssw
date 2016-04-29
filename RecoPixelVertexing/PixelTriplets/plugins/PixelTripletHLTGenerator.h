@@ -31,6 +31,12 @@ public:
                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
 
+  void hitTriplets(const TrackingRegion& region, OrderedHitTriplets& trs,
+                   const edm::Event& ev, const edm::EventSetup& es,
+                   const HitDoublets& doublets,
+                   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                   LayerCacheType& layerCache);
+
     void hitTriplets(
 	const TrackingRegion& region, 
 	OrderedHitTriplets & result,
