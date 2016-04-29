@@ -40,6 +40,7 @@
 import datetime
 import time
 import os
+import sys
 
 #-------------------------------------------------------------------------------
 class jobdatabase:
@@ -56,6 +57,16 @@ class jobdatabase:
     # parses the mps.db file into the member variables and arrays
     def read_db(self):
         DBFILE = open('mps.db','r')
+        try:
+            DBFILE = open('mps.db','r')
+        except IOError as e:
+            if e.args != (2, 'No such file or directory'):
+                raise
+            else:
+                msg = ("No 'mps.db' found. Make sure you are in a campaign "
+                       "directory and that the campaign is set up.")
+                print msg
+                sys.exit(1)
 
         #read infolines at the top, used rstrip to delete the '\n'
         self.header          = DBFILE.readline().strip()
