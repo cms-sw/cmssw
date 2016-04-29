@@ -119,9 +119,9 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
       return id == PixelSubdetector::PixelBarrel;
     };
 
-    std::vector<GlobalPoint> gps(4);
-    std::vector<GlobalError> ges(4);
-    std::vector<bool> barrels(4);
+    declareDynArray(GlobalPoint,4, gps);
+    declareDynArray(GlobalError,4, ges);
+    declareDynArray(bool,4, barrels);
     gps[0] = triplet.inner()->globalPosition();
     ges[0] = triplet.inner()->globalPositionError();
     barrels[0] = isBarrel(triplet.inner()->geographicalId().subdetId());
