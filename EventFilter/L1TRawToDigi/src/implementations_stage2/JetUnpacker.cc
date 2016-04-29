@@ -58,6 +58,8 @@ namespace stage2 {
          l1t::Jet jet = l1t::Jet();
 
          jet.setHwPt(raw_data & 0x7FF);
+
+	 if (jet.hwPt()==0) continue;
          
          int abs_eta = (raw_data >> 11) & 0x7F;
          if ((raw_data >> 18) & 0x1) {
