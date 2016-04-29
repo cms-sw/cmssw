@@ -82,7 +82,7 @@ def main(argv = None):
 
             campaign_list = "MP_ali_list.txt"
             with open(campaign_list, "a") as f:
-                add_campaign(f, next_campaign, args)
+                campaign_info = add_campaign(f, next_campaign, args)
             backup_dir = ".MP_ali_list"
             try:
                 os.makedirs(backup_dir)
@@ -91,7 +91,10 @@ def main(argv = None):
                     pass
                 else:
                     raise
-            shutil.copy(campaign_list, backup_dir)
+            with open(os.path.join(backup_dir, campaign_list), "a") as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                f.write(campaign_info)
+                fcntl.flock(f, fcntl.LOCK_UN)
             print "    - updated campaign list '"+campaign_list+"'"
 
             if args.copy is None:
@@ -179,6 +182,8 @@ def add_campaign(campaign_file, campaign, args):
     fcntl.flock(campaign_file, fcntl.LOCK_EX)
     campaign_file.write(campaign_info)
     fcntl.flock(campaign_file, fcntl.LOCK_UN)
+
+    return campaign_info
 
 
 def copy_default_templates(MPS_dir, next_campaign):
