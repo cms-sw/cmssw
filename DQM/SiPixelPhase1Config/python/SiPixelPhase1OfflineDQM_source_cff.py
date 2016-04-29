@@ -5,6 +5,10 @@ from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
 
+from DQM.SiPixelPhase1RecHits.SiPixelPhase1RecHits_cfi import *
+
 PerModule.enabled = False
 
-siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1DigisAnalyzer + SiPixelPhase1ClustersAnalyzer)
+siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1DigisAnalyzer
+                                            + SiPixelPhase1ClustersAnalyzer
+                                            + SiPixelPhase1RecHitsAnalyzer)
