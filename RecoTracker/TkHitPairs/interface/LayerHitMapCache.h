@@ -25,7 +25,7 @@ private:
     void resize(int size) { theContainer.resize(size,nullptr); }
     const ValueType*  get(KeyType key) { return theContainer[key];}
     /// add object to cache. It is caller responsibility to check that object is not yet there.
-    void add(KeyType key, const ValueType * value) {
+    void add(KeyType key, ValueType * value) {
       if (key>=int(theContainer.size())) resize(key+1);
       theContainer[key]=value;
     }
@@ -54,10 +54,11 @@ public:
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      lhm=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
-      lhm->theOrigin = region.origin();
+      auto tmp=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
+      tmp->theOrigin = region.origin();
+      theCache.add( key, tmp);
+      lhm = tmp;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
-      theCache.add( key, lhm);
     }
     else{
       // std::cout << region.origin() << " " <<  lhm->theOrigin << std::endl;
