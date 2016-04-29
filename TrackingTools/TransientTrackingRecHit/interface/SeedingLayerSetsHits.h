@@ -138,7 +138,7 @@ public:
     const_iterator& operator++() { std::advance(iter_, seedingLayerSets_->nlayers_); return *this; }
     const_iterator operator++(int) {
       const_iterator clone(*this);
-      ++clone;
+      ++(*this);
       return clone;
     }
 
