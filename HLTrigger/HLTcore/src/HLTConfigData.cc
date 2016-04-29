@@ -513,6 +513,10 @@ bool HLTConfigData::saveTags(const std::string& module) const {
   }
 }
 
+unsigned int HLTConfigData::l1tType() const {
+  return l1tType_;
+}
+
 const std::vector<std::vector<std::pair<bool,std::string> > >& HLTConfigData::hltL1GTSeeds() const {
   return hltL1GTSeeds_;
 }

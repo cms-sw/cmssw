@@ -96,5 +96,5 @@ template <typename T>
 HLTPrescaleProvider::HLTPrescaleProvider(edm::ParameterSet const& pset,
                                          edm::ConsumesCollector& iC,
                                          T& module) :
-  l1GtUtils_(pset, iC, false, module), l1tGlobalUtil_() { }
+  l1GtUtils_(pset, iC, false, module), l1tGlobalUtil_(pset, iC, module) { }
 #endif

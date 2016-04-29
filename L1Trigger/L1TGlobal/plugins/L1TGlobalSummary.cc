@@ -62,7 +62,7 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig){
   dumpTriggerSummary_ = iConfig.getParameter<bool>("DumpTrigSummary");
   minBx_              = iConfig.getParameter<int>("MinBx");
   maxBx_              = iConfig.getParameter<int>("MaxBx");     
-  gtUtil_             = new L1TGlobalUtil();
+  gtUtil_             = new L1TGlobalUtil(iConfig, consumesCollector(), *this);
   finalOrCount = 0;
 }
 
@@ -87,8 +87,7 @@ void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup){
   finalCount_.clear();  
 
   finalOrCount = 0;
-  gtUtil_->retrieveL1Run(evSetup);
-  gtUtil_->retrieveL1LumiBlock(evSetup);
+  gtUtil_->retrieveL1Setup(evSetup);
 
   int size = gtUtil_->decisionsInitial().size();
   decisionCount_  .resize(size);
