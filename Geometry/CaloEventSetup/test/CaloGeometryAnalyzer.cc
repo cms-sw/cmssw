@@ -1149,7 +1149,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
    edm::ESHandle<HcalTopology> pT;
-   iSetup.get<IdealGeometryRecord>().get(pT);     
+   iSetup.get<HcalRecNumberingRecord>().get(pT);
 
    const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
 
