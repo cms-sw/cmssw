@@ -165,7 +165,11 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& a
 
 void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
 {
-  if (_toString(element->getAttribute(kAttrId)) == sysId) {
+  std::string systemId = sysId;
+  if (systemId == "") {
+    systemId = aTrigSystem.systemId();
+  }
+  if (_toString(element->getAttribute(kAttrId)) == systemId) {
     DOMNodeList* contextElements = element->getElementsByTagName(kTagContext);
 
     for (XMLSize_t i = 0; i < contextElements->getLength(); ++i) {
