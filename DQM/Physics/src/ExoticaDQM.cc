@@ -1,95 +1,11 @@
 #include "DQM/Physics/src/ExoticaDQM.h"
 
-#include <memory>
-
-// DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-
-// Candidate handling
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
-// Vertex utilities
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-// Other
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-// Math
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-// Transient tracks
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-//JetCorrection
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-// ROOT
-#include "TLorentzVector.h"
-
-// STDLIB
-#include <iostream>
-#include <iomanip>
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <math.h>
-
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace trigger;
 
 typedef vector<string> vstring;
-
 
 //
 // -- Constructor
@@ -134,18 +50,6 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //   
   ecalEndcapRecHitToken_ = consumes<EERecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
-  //
-  TrackToken_        = consumes<reco::TrackCollection>(
-      ps.getParameter<InputTag>("trackCollection"));
-  //
-  MuonDispToken_      = consumes<reco::TrackCollection>(
-      ps.getParameter<InputTag>("displacedMuonCollection"));
-  //
-  MuonDispSAToken_    = consumes<reco::TrackCollection>(
-      ps.getParameter<InputTag>("displacedSAMuonCollection"));
-  //
-  GenParticleToken_   = consumes<reco::GenParticleCollection>(
-      ps.getParameter<InputTag>("genParticleCollection"));
 
   JetCorrectorToken_ = consumes<reco::JetCorrector>(
       ps.getParameter<edm::InputTag>("jetCorrector"));
@@ -178,9 +82,6 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //MonoPhoton
   monophoton_Photon_pt_cut_  = ps.getParameter<double>("monophoton_Photon_pt_cut");
   monophoton_Photon_met_cut_ = ps.getParameter<double>("monophoton_Photon_met_cut");
-  // Displaced lepton or jet
-  dispFermion_eta_cut_ = ps.getParameter<double>("dispFermion_eta_cut");
-  dispFermion_pt_cut_  = ps.getParameter<double>("dispFermion_pt_cut");
 }
 
 //
@@ -321,19 +222,6 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   monophoton_deltaPhiPhotonPFMet  = bei.book1D("monophoton_deltaPhiPhotonPFMet", "#Delta#phi(SubLeading Photon, PFMet)", 40, 0., 3.15);
   monophoton_PhotonMulti          = bei.book1D("monophoton_PhotonMulti", "No. of Photons", 10, 0., 10.);
 
-  bei.setCurrentFolder("Physics/Exotica/DisplacedFermions");
-  //--- Displaced Leptons (filled using only leptons from long-lived stop decay).
-  dispElec_track_effi_lxy         = bei.bookProfile("dispElec_track_effi_lxy","Electron channel; transverse decay length (cm); track reco efficiency", 10, 0., 100., -999., 999, "");
-  dispElec_elec_effi_lxy          = bei.bookProfile("dispElec_elec_effi_lxy" ,"Electron channel; transverse decay length (cm); electron reco efficiency", 10, 0., 100., -999., 999, "");
-  dispMuon_track_effi_lxy         = bei.bookProfile("dispMuon_track_effi_lxy","Muon channel; transverse decay length (cm); track reco efficiency", 10, 0., 100., -999., 999, "");
-  dispMuon_muon_effi_lxy          = bei.bookProfile("dispMuon_muon_effi_lxy" ,"Muon channel; transverse decay length (cm); muon reco efficiency", 10, 0., 100., -999., 999, "");
-  dispMuon_muonDisp_effi_lxy      = bei.bookProfile("dispMuon_muonDisp_effi_lxy","Muon channel; transverse decay length (cm); displacedMuon reco efficiency", 10, 0., 100., -999., 999, "");
-  dispMuon_muonDispSA_effi_lxy     = bei.bookProfile("dispMuon_muonDispSA_effi_lxy","Muon channel; transverse decay length (cm); displacedSAMuon reco efficiency", 10, 0., 400., -999., 999, "");
-  //--- Displaced Jets (filled using only tracks or jets from long-lived stop decay).
-  dispJet_track_effi_lxy         = bei.bookProfile("dispJet_track_effi_lxy"  ,"Jet channel; transverse decay length (cm); track reco efficiency", 10, 0., 100., -999., 999, "");
-
-  bei.cd();
-
   bei.cd();
 }
 
@@ -373,18 +261,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Photons
   bool ValidCaloPhoton = iEvent.getByToken(PhotonToken_, PhotonCollection_);
   if(!ValidCaloPhoton) return;
-
-  // Tracks
-  bool ValidTracks = iEvent.getByToken(TrackToken_, TrackCollection_);
-  if (!ValidTracks) return;
-
-  // Special collections for displaced particles
-  iEvent.getByToken(MuonDispToken_, MuonDispCollection_);
-  
-  iEvent.getByToken(MuonDispSAToken_, MuonDispSACollection_);
-
-  // MC truth
-  bool ValidGenParticles = iEvent.getByToken(GenParticleToken_, GenCollection_);
 
   bool ValidJetCorrector = iEvent.getByToken( JetCorrectorToken_, JetCorrector_ );
 
@@ -620,133 +496,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   analyzeMonoMuons(iEvent);
   analyzeMonoElectrons(iEvent);
 
-  // Displaced Fermion Searches (requires MC truth)
-  if (ValidGenParticles) {
-    analyzeDisplacedLeptons(iEvent, iSetup);
-    analyzeDisplacedJets(iEvent, iSetup);
-  }
-
-}
-
-void ExoticaDQM::analyzeDisplacedLeptons(const Event & iEvent, const edm::EventSetup& iSetup){
-
-  //=== This is designed to run on MC events in which a pair of long-lived stop quarks each decay to a displaced lepton + displaced b jet.
-
-  const unsigned int stop1 = 1000006; // PDG identifier of top squark1
-  const unsigned int stop2 = 2000006; // PDG identifier of top squark2
-  const float deltaRcut = 0.01; // Cone size for matching reco to true leptons.
-  const float invPtcut = 0.1; // Cut in 1/Pt consistency for matching reco tracks to genParticles.
- 
-  for (const reco::GenParticle& gen : *GenCollection_){
-    unsigned int idPdg = abs(gen.pdgId());
-    if (idPdg == stop1 || idPdg == stop2) {
-      unsigned int nDau = gen.numberOfDaughters();
-      for (unsigned int i = 0; i < nDau; i++) {
-        const reco::GenParticle* dau = (const reco::GenParticle*) gen.daughter(i);
-        if (fabs(dau->eta()) < dispFermion_eta_cut_ && dau->pt() > dispFermion_pt_cut_) { 
-          unsigned int pdgIdDau = abs(dau->pdgId());
-          if (pdgIdDau == 11 || pdgIdDau == 13) {
-            float lxy = dau->vertex().rho();
-            GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, dau);
-            if (pdgIdDau == 11) {
-              bool recoedTrk = false;
-              for(const reco::Track&  trk : *TrackCollection_){
-                if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
-              }
-              dispElec_track_effi_lxy->Fill(lxy, recoedTrk);
-              bool recoedE = false;
-              for(const reco::GsfElectron&  eReco : *ElectronCollection_){
-                if (reco::deltaR(genP, eReco) < deltaRcut && fabs(1/dau->pt() - 1/eReco.pt()) < invPtcut) recoedE = true;
-              }
-              dispElec_elec_effi_lxy->Fill(lxy, recoedE);
-            } 
-            else if (pdgIdDau == 13) { 
-              bool recoedTrk = false;
-              for(const reco::Track&  trk : *TrackCollection_){
-                if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/dau->pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
-              }
-              dispMuon_track_effi_lxy->Fill(lxy, recoedTrk);
-              bool recoedMu = false;
-              for(const reco::Muon&  muReco : *MuonCollection_){
-                if (reco::deltaR(genP, muReco) < deltaRcut && fabs(1/dau->pt() - 1/muReco.pt()) < invPtcut) recoedMu = true;
-              }
-              dispMuon_muon_effi_lxy->Fill(lxy, recoedMu);
-              bool recoedMuDisp = false;
-              for(const reco::Track&  muDispReco : *MuonDispCollection_){
-                if (reco::deltaR(genP, muDispReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispReco.pt()) < invPtcut) recoedMuDisp = true;
-              }
-              dispMuon_muonDisp_effi_lxy->Fill(lxy, recoedMuDisp);
-              bool recoedMuDispSA = false;
-              for(const reco::Track&  muDispSAReco : *MuonDispSACollection_){
-                if (reco::deltaR(genP, muDispSAReco) < deltaRcut && fabs(1/dau->pt() - 1/muDispSAReco.pt()) < invPtcut) recoedMuDispSA = true;
-              }
-              dispMuon_muonDispSA_effi_lxy->Fill(lxy, recoedMuDispSA);
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-void ExoticaDQM::analyzeDisplacedJets(const Event & iEvent, const edm::EventSetup& iSetup){
-
-  //=== This is designed to run on MC events in which a pair of long-lived stop quarks each decay to a displaced lepton + displaced b jet.
-
-  auto isRhadron = [](unsigned int pdgId){return (pdgId/100) == 10006 || (pdgId/1000) == 1006;};
-
-  const float deltaRcut = 0.01; // Cone size for matching reco tracks to genParticles.
-  const float invPtcut = 0.1; // Cut in 1/Pt consistency for matching reco tracks to genParticles.
- 
-  for (const reco::GenParticle& gen : *GenCollection_){
-    unsigned int idPdg = abs(gen.pdgId());
-    if (idPdg == 11 || idPdg == 13 || idPdg == 211 || idPdg == 321 || idPdg == 2212) {
-      if (fabs(gen.eta()) < dispFermion_eta_cut_ && gen.pt() > dispFermion_pt_cut_) { 
-        const reco::GenParticle* genMoth = &gen;
-        const reco::GenParticle* genRhadron = nullptr;
-        bool foundParton = false;
-        while (genMoth->numberOfMothers() > 0) {
-          genMoth = (const reco::GenParticle*) genMoth->mother(0);
-          unsigned int idPdgMoth = abs(genMoth->pdgId()); 
-          if ( (idPdgMoth >= 1 && idPdgMoth <= 6) || idPdgMoth == 21) foundParton = true;
-          if (isRhadron( idPdgMoth )) {
-            genRhadron = genMoth;
-            break;
-          }
-        }
-        if (foundParton && genRhadron != nullptr) {
-          float lxy = genRhadron->daughter(0)->vertex().rho();
-          GlobalVector genP = this->getGenParticleTrajectoryAtBeamline(iSetup, &gen);
-          bool recoedTrk = false;
-          for(const reco::Track&  trk : *TrackCollection_){
-            if (reco::deltaR(genP, trk) < deltaRcut && fabs(1/gen.pt() - 1/trk.pt()) < invPtcut) recoedTrk = true;
-          }
-          dispJet_track_effi_lxy->Fill(lxy, recoedTrk);
-        }
-      }
-    }
-  }
-}
-
-GlobalVector ExoticaDQM::getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen ) {
-
-  //=== Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line.
-  
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-
-  FreeTrajectoryState fts(GlobalPoint(gen->vx(),gen->vy(),gen->vz()),
-                          GlobalVector(gen->px(),gen->py(),gen->pz()),
-                          gen->charge(),
-                          theMagField.product());
-
-  TSCBLBuilderNoMaterial tscblBuilder;
-  const BeamSpot beamspot;
-  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(fts, beamspot);
-
-  GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
-  
-  return p;  
 }
 
 void ExoticaDQM::analyzeDiJets(const Event & iEvent){
