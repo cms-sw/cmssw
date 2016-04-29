@@ -76,7 +76,6 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 		throw std::runtime_error("The registered type: " + _type + " is not vector so you need to call the getValue method");
 
 	std::vector<std::string> vals;
-	std::cout << "_value is " << _value << std::endl;
 	if ( !parse ( std::string(erSp(_value, delim)+delim).c_str(),
 	(
 		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
