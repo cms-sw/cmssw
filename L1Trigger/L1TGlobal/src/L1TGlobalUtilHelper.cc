@@ -16,8 +16,8 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset,edm:
       m_foundPreferredL1TAlgBlk(false),
       m_foundPreferredL1TExtBlk(false) {
 
-  m_l1tAlgBlkToken = iC.consumes<BXVector<GlobalAlgBlk>>(m_l1tAlgBlkInputTag);
-  m_l1tExtBlkToken = iC.consumes<BXVector<GlobalExtBlk>>(m_l1tExtBlkInputTag);
+  m_l1tAlgBlkToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tAlgBlkInputTag);
+  m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
 
 }
 
@@ -54,14 +54,14 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
     edm::InputTag("gtStage2Digis"), edm::InputTag("hltGtStage2Digis") };
 
   std::vector<edm::InputTag> preferredL1TExtBlkInputTag = {
-    edm::InputTag("gtStage2Digis"), edm::InputTag("hltGtDigis") };
+    edm::InputTag("gtStage2Digis"), edm::InputTag("hltGtStage2Digis") };
 
 
-  // BXVector<GlobalAlgBlk>
+  // GlobalAlgBlkBxCollection
   
   if (m_findL1TAlgBlk && (!m_foundMultipleL1TAlgBlk)
       && (branchDescription.unwrappedTypeID()
-	  == edm::TypeID(typeid(BXVector<GlobalAlgBlk>)))
+	  == edm::TypeID(typeid(GlobalAlgBlkBxCollection)))
       && (branchDescription.branchType() == edm::InEvent)) {
     
     edm::InputTag tag { branchDescription.moduleLabel(),
@@ -81,7 +81,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 		  != branchDescription.processName()))) {
 	
 	LogDebug("L1TGlobalUtil")
-	  << "\nWARNING: Found multiple preferred input tags for BXVector<GlobalAlgBlk>, "
+	  << "\nWARNING: Found multiple preferred input tags for GlobalAlgBlkBxCollection, "
 	  << "\nwith different instaces or processes."
 	  << "\nInput tag already found: "
 	  << (m_l1tAlgBlkInputTag) << "\nActual tag: " << (tag)
@@ -99,12 +99,12 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	
 	if (branchDescription.moduleLabel() == itPrefTag->label()) {
 	  m_l1tAlgBlkInputTag = tag;
-	  m_l1tAlgBlkToken = m_consumesCollector.consumes<BXVector<GlobalAlgBlk>>(tag);
+	  m_l1tAlgBlkToken = m_consumesCollector.consumes<GlobalAlgBlkBxCollection>(tag);
 	  m_foundPreferredL1TAlgBlk = true;
 	  m_inputTagsL1TAlgBlk.push_back(tag);
 	  
 	  LogDebug("L1TGlobalUtil")
-	    << "\nWARNING: Input tag for BXVector<GlobalAlgBlk> product set to preferred input tag"
+	    << "\nWARNING: Input tag for GlobalAlgBlkBxCollection product set to preferred input tag"
 	    << (tag) << std::endl;
 	  break;
 	}
@@ -119,7 +119,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
       if (m_inputTagsL1TAlgBlk.size() > 1) {
 	
 	LogDebug("L1TGlobalUtil")
-	  << "\nWARNING: Found multiple input tags for BXVector<GlobalAlgBlk> product."
+	  << "\nWARNING: Found multiple input tags for GlobalAlgBlkBxCollection product."
 	  << "\nNone is in the preferred input tags - no safe choice."
 	  << "\nInput tag already found: "
 	  << (m_l1tAlgBlkInputTag) << "\nActual tag: " << (tag)
@@ -132,21 +132,21 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	  
 	  m_l1tAlgBlkInputTag = tag;
 	  m_inputTagsL1TAlgBlk.push_back(tag);
-	  m_l1tAlgBlkToken = m_consumesCollector.consumes<BXVector<GlobalAlgBlk>>(tag);
+	  m_l1tAlgBlkToken = m_consumesCollector.consumes<GlobalAlgBlkBxCollection>(tag);
 	  
 	  LogDebug("L1TGlobalUtil")
-	    << "\nWARNING: No preferred input tag found for BXVector<GlobalAlgBlk>."
+	    << "\nWARNING: No preferred input tag found for GlobalAlgBlkBxCollection."
 	    << "\nInput tag set to " << (tag) << std::endl;
 	}
       }
     }
   }
 
-  // BXVector<GlobalExtBlk>
+  // GlobalExtBlkBxCollection
 
   if (m_findL1TExtBlk && (!m_foundMultipleL1TExtBlk)
       && (branchDescription.unwrappedTypeID()
-	  == edm::TypeID(typeid(BXVector<GlobalExtBlk>)))
+	  == edm::TypeID(typeid(GlobalExtBlkBxCollection)))
       && (branchDescription.branchType() == edm::InEvent)) {
     
     edm::InputTag tag { branchDescription.moduleLabel(),
@@ -168,7 +168,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 		  != branchDescription.processName()))) {
 	
 	LogDebug("L1TGlobalUtil")
-	  << "\nWARNING: Found multiple preferred input tags for BXVector<GlobalExtBlk>, "
+	  << "\nWARNING: Found multiple preferred input tags for GlobalExtBlkBxCollection, "
 	  << "\nwith different instaces or processes."
 	  << "\nInput tag already found: "
 	  << (m_l1tExtBlkInputTag) << "\nActual tag: "
@@ -188,12 +188,12 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	
 	if (branchDescription.moduleLabel() == itPrefTag->label()) {
 	  m_l1tExtBlkInputTag = tag;
-	  m_l1tExtBlkToken = m_consumesCollector.consumes<BXVector<GlobalExtBlk>>(tag);
+	  m_l1tExtBlkToken = m_consumesCollector.consumes<GlobalExtBlkBxCollection>(tag);
 	  m_foundPreferredL1TExtBlk = true;
 	  m_inputTagsL1TExtBlk.push_back(tag);
 	  
 	  LogDebug("L1TGlobalUtil")
-	    << "\nWARNING: Input tag for BXVector<GlobalExtBlk> product set to preferred input tag"
+	    << "\nWARNING: Input tag for GlobalExtBlkBxCollection product set to preferred input tag"
 	    << (tag) << std::endl;
 	  break;
 	}
@@ -208,7 +208,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
       if (m_inputTagsL1TExtBlk.size() > 1) {
 	
 	LogDebug("L1TGlobalUtil")
-	  << "\nWARNING: Found multiple input tags for BXVector<GlobalExtBlk>."
+	  << "\nWARNING: Found multiple input tags for GlobalExtBlkBxCollection."
 	  << "\nNone is in the preferred input tags - no safe choice."
 	  << "\nInput tag already found: "
 	  << (m_l1tExtBlkInputTag) << "\nActual tag: "
@@ -222,10 +222,10 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	  
 	  m_l1tExtBlkInputTag = tag;
 	  m_inputTagsL1TExtBlk.push_back(tag);
-	  m_l1tExtBlkToken = m_consumesCollector.consumes<BXVector<GlobalExtBlk>>(tag);
+	  m_l1tExtBlkToken = m_consumesCollector.consumes<GlobalExtBlkBxCollection>(tag);
 	  
 	  LogDebug("L1TGlobalUtil")
-	    << "\nWARNING: No preferred input tag found for BXVector<GlobalExtBlk> product."
+	    << "\nWARNING: No preferred input tag found for GlobalExtBlkBxCollection product."
 	    << "\nInput tag set to " << (tag) << std::endl;
 	}
       }

@@ -78,8 +78,8 @@ namespace l1t {
   edm::InputTag const& l1tAlgBlkInputTag() const { return m_l1tAlgBlkInputTag; }
   edm::InputTag const& l1tExtBlkInputTag() const { return m_l1tExtBlkInputTag; }
   
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> const& l1tAlgBlkToken() const { return m_l1tAlgBlkToken; }
-  edm::EDGetTokenT<BXVector<GlobalExtBlk>> const& l1tExtBlkToken() const { return m_l1tExtBlkToken; }
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> const& l1tAlgBlkToken() const { return m_l1tAlgBlkToken; }
+  edm::EDGetTokenT<GlobalExtBlkBxCollection> const& l1tExtBlkToken() const { return m_l1tExtBlkToken; }
 
  private:
 
@@ -88,8 +88,8 @@ namespace l1t {
   edm::InputTag m_l1tAlgBlkInputTag;
   edm::InputTag m_l1tExtBlkInputTag;
 
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> m_l1tAlgBlkToken;
-  edm::EDGetTokenT<BXVector<GlobalExtBlk>> m_l1tExtBlkToken;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1tAlgBlkToken;
+  edm::EDGetTokenT<GlobalExtBlkBxCollection> m_l1tExtBlkToken;
 
   bool m_findL1TAlgBlk;
   bool m_findL1TExtBlk;
