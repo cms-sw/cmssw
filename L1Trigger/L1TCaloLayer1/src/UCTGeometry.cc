@@ -212,7 +212,7 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
   int absRegionEta = abs(regionEta);
   int towerEta = (regionEta / absRegionEta) * (absRegionEta * NEtaInRegion + iEta);
   uint32_t regionPhi = region.second;
-  int towerPhi = regionPhi * NPhiInRegion + iPhi;
+  int towerPhi = regionPhi * NPhiInRegion + iPhi + 1;
   return UCTTowerIndex(towerEta, towerPhi);
 }
 

@@ -157,7 +157,6 @@ public:
       gctEta = region + 11;
     else if(r.first < 0 && region < l1tcalo::NRegionsInCard)
       gctEta = 10 - region;
-    std::cout << "uctEta = " << r.first << "gctEta = " << gctEta << std::endl;
     return gctEta;
   }
 
