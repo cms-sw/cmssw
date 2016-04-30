@@ -88,11 +88,6 @@ void HLTConfigData::extract()
      }
    }
 
-   LogVerbatim("HLTConfigData") << "ProcessPSet with: "
-				<< processName_ << " "
-				<< globalTag_ << " "
-				<< tableName_;
-
    // Extract trigger paths (= paths - end_paths)
    if (processPSet_->existsAs<ParameterSet>("@trigger_paths",true)) {
      const ParameterSet& HLTPSet(processPSet_->getParameterSet("@trigger_paths"));
@@ -132,32 +127,6 @@ void HLTConfigData::extract()
      for (unsigned int j=0; j!=m; ++j) {
        moduleIndex_[i][moduleLabels_[i][j]]=j;
      }
-   }
-
-   // Determine L1T Type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
-   unsigned int stage1(0),stage2(0);
-   if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
-     const std::vector<std::string>& allModules(processPSet_->getParameter<std::vector<std::string>>("@all_modules"));
-     for (unsigned int i=0; i<allModules.size(); i++) {
-       if (moduleType(allModules[i]) == "L1GlobalTriggerRawToDigi") {
-	 stage1 += 1;
-       } else if (moduleType(allModules[i]) == "L1TRawToDigi") {
-	 stage2 += 1;
-       }
-     }
-   }
-   if ( (stage1+stage2)==0 ) {
-     edm::LogError("HLTConfigData")
-       << " Incomplete L1T: HLT Process containing neither L1GlobalTriggerRawToDigi nor L1TRawToDigi instances!";
-     l1tType_=0;
-   } else if ( (stage1*stage2) !=0 ) {
-     edm::LogError("HLTConfigData")
-       << " Inconsistent L1T: HLT Process containing both L1GlobalTriggerRawToDigi and L1TRawToDigi instances!";
-     l1tType_=0;
-   } else if (stage1>0) {
-     l1tType_=1;
-   } else {
-     l1tType_=2;
    }
 
    // Extract and fill HLTLevel1GTSeed information for each trigger path
@@ -276,6 +245,43 @@ void HLTConfigData::extract()
      }
 
    }
+
+   // Determine L1T Type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
+   l1tType_ = 0;
+   unsigned int stage1(0),stage2(0);
+   if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
+     const std::vector<std::string>& allModules(processPSet_->getParameter<std::vector<std::string>>("@all_modules"));
+     for (unsigned int i=0; i<allModules.size(); i++) {
+       if ((moduleType(allModules[i]) == "HLTLevel1GTSeed") or (moduleType(allModules[i]) == "L1GlobalTrigger")){
+	 stage1 += 1;
+       } else if ((moduleType(allModules[i]) == "HLTL1TSeed") or (moduleType(allModules[i]) == "L1TGlobalProducer")){
+	 stage2 += 1;
+       }
+     }
+   }
+   if ( (stage1+stage2)==0 ) {
+     l1tType_=0;
+     edm::LogError("HLTConfigData")
+       << " Can't identify l1tType: Process '" << processName_ << "' does not contain L1T instances!";
+   } else if ( (stage1*stage2)!=0 ) {
+     l1tType_=0;
+     edm::LogError("HLTConfigData")
+       << " Can't identify l1tType: Process '" << processName_ << "' contains both legacy/stage-1/stage-2 instances!";
+   } else if (stage1>0) {
+     l1tType_=1;
+     edm::LogError("HLTConfigData")
+       << " Identified Process '" << processName_ << "' as legacy/stage-1 L1T!";
+   } else {
+     l1tType_=2;
+     edm::LogError("HLTConfigData")
+       << " Identified Process '" << processName_ << "' as stage-2 L1T!";
+   }
+
+   LogVerbatim("HLTConfigData") << "HLTConfigData: ProcessPSet with name/GT/table/l1tType: '"
+				<< processName_ << "' '"
+				<< globalTag_ << "' '"
+				<< tableName_ << "' "
+				<< l1tType_;
 
    return;
 }
