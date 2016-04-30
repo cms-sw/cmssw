@@ -39,15 +39,8 @@ SimMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
-def _modifySimMuonEventContentFEVTDEBUGForPhase2( object ):
-    object.outputCommands.append('keep *_simMuonGEMDigis_*_*')
-    object.outputCommands.append('keep *_simMuonGEMPadDigis_*_*')
-    object.outputCommands.append('keep *_simMuonME0Digis_*_*')
-
-def _modifySimMuonEventContentRAWRECOForPhase2( object ):
-    object.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*')
-
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_muon.toModify( SimMuonFEVTDEBUG, func=_modifySimMuonEventContentFEVTDEBUGForPhase2 )
-eras.phase2_muon.toModify( SimMuonRAW, func=_modifySimMuonEventContentRAWRECOForPhase2 )
-eras.phase2_muon.toModify( SimMuonRECO, func=_modifySimMuonEventContentRAWRECOForPhase2 )
+eras.run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*', 'keep *_simMuonGEMPadDigis_*_*'] )
+eras.run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
+eras.run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
+eras.phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0Digis_*_*'] )

@@ -84,19 +84,24 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 
-def _modifyRecoMuonPPonlyForPhase2( object ):
-    object.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
-    object.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
-    object.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
-    object.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
-
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_muon.toModify( standAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
-eras.phase2_muon.toModify( refittedStandAloneMuons, func=_modifyRecoMuonPPonlyForPhase2 )
+_enableGEMMeasurement = dict( EnableGEMMeasurement = cms.bool(True) )
+eras.run3_GEM.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement, 
+    BWFilterParameters = _enableGEMMeasurement ) )
+eras.run3_GEM.toModify( refittedStandAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement,
+    BWFilterParameters = _enableGEMMeasurement ) )
 
-def _modifyRecoMuonPPonlyForPhase2_addME0Muon( theProcess ):
-    theProcess.load("RecoMuon.MuonIdentification.me0MuonReco_cff")
-    theProcess.muonGlobalReco += theProcess.me0MuonReco
+_enableME0Measurement = dict( EnableME0Measurement = cms.bool(True) )
+eras.phase2_muon.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )
+eras.phase2_muon.toModify( refittedStandAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )
 
-modifyConfigurationStandardSequencesRecoMuonPPonlyPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoMuonPPonlyForPhase2_addME0Muon )
-    
+from RecoMuon.MuonIdentification.me0MuonReco_cff import *
+_phase2_muonGlobalReco = muonGlobalReco.copy()
+_phase2_muonGlobalReco += me0MuonReco
+eras.phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
