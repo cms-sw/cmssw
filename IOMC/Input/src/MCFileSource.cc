@@ -33,8 +33,8 @@ MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription con
   }  
   
   reader_->initialize(fileName);  
-  produces<HepMCProduct>();
-  produces<GenEventInfoProduct>();
+  produces<HepMCProduct>("generator");
+  produces<GenEventInfoProduct>("generator");
 }
 
 
@@ -56,8 +56,8 @@ void MCFileSource::produce(Event &e) {
 
   auto bare_product = std::make_unique<HepMCProduct>();  
   bare_product->addHepMCData(evt_);
-  e.put(std::move(bare_product));
+  e.put(std::move(bare_product),"generator");
   std::unique_ptr<GenEventInfoProduct> info ( new GenEventInfoProduct( evt_ ) );
-  e.put(std::move(info) );
+  e.put(std::move(info) ,"generator");
 }
 
