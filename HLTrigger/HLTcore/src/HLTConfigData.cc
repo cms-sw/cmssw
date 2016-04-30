@@ -261,20 +261,16 @@ void HLTConfigData::extract()
    }
    if ( (stage1+stage2)==0 ) {
      l1tType_=0;
-     edm::LogError("HLTConfigData")
-       << " Can't identify l1tType: Process '" << processName_ << "' does not contain any identifying instances!";
+     //     edm::LogError("HLTConfigData") << " Can't identify l1tType: Process '" << processName_ << "' does not contain any identifying instances!";
    } else if ( (stage1*stage2)!=0 ) {
      l1tType_=0;
-     edm::LogError("HLTConfigData")
-       << " Can't identify l1tType: Process '" << processName_ << "' contains both legacy/stage-1/stage-2 instances!";
+     //     edm::LogError("HLTConfigData") << " Can't identify l1tType: Process '" << processName_ << "' contains both legacy/stage-1/stage-2 instances!";
    } else if (stage1>0) {
      l1tType_=1;
-     edm::LogError("HLTConfigData")
-       << " Identified Process '" << processName_ << "' as legacy/stage-1 L1T!";
+     //     edm::LogError("HLTConfigData") << " Identified Process '" << processName_ << "' as legacy/stage-1 L1T!";
    } else {
      l1tType_=2;
-     edm::LogError("HLTConfigData")
-       << " Identified Process '" << processName_ << "' as stage-2 L1T!";
+     //     edm::LogError("HLTConfigData") << " Identified Process '" << processName_ << "' as stage-2 L1T!";
    }
 
    LogVerbatim("HLTConfigData") << "HLTConfigData: ProcessPSet with name/GT/table/l1tType: '"
