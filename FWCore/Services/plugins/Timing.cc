@@ -113,6 +113,8 @@ namespace edm {
     Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry) :
         curr_job_time_(0.),
         curr_job_cpu_(0.),
+        last_run_time_(0.0),
+        last_run_cpu_(0.0),
         curr_events_time_(),
         summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
         report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
@@ -188,13 +190,28 @@ namespace edm {
                                                  min_events_time_.end()));
       double max_event_time = *(std::max_element(max_events_time_.begin(),
                                                max_events_time_.end()));
+
       auto total_loop_time = last_run_time_ - curr_job_time_;
       auto total_loop_cpu = last_run_cpu_ - curr_job_cpu_;
 
+      if(last_run_time_ == 0.0) {
+        total_loop_time = 0.0;
+        total_loop_cpu = 0.0;
+      }
+
       double sum_all_events_time = 0;
       for(auto t : sum_events_time_) { sum_all_events_time += t; }
-      double average_event_time = sum_all_events_time / total_event_count_;
-      
+
+      double average_event_time = 0.0;
+      if(total_event_count_ != 0) {
+        average_event_time = sum_all_events_time / total_event_count_;
+      }
+
+      double event_throughput = 0.0;
+      if(total_loop_time != 0.0) {
+        event_throughput = total_event_count_ / total_loop_time;
+      }
+
       LogImportant("TimeReport")
         << "TimeReport> Time report complete in "
         << total_job_time << " seconds"
@@ -205,7 +222,7 @@ namespace edm {
         << " - Avg event:   " << average_event_time << "\n"
         << " - Total loop:  " <<total_loop_time <<"\n"
         << " - Total job:   " << total_job_time << "\n"
-        << " Event Throughput: "<<total_event_count_/ total_loop_time<<" ev/s\n"
+        << " Event Throughput: "<< event_throughput <<" ev/s\n"
         << " CPU Summary: \n"
         << " - Total loop:  " << total_loop_cpu << "\n"
         << " - Total job:   " << total_job_cpu << "\n";
@@ -217,7 +234,7 @@ namespace edm {
         reportData.insert(std::make_pair("MinEventTime", d2str(min_event_time)));
         reportData.insert(std::make_pair("MaxEventTime", d2str(max_event_time)));
         reportData.insert(std::make_pair("AvgEventTime", d2str(average_event_time)));
-        reportData.insert(std::make_pair("EventThroughput", d2str(total_event_count_/total_loop_time)));
+        reportData.insert(std::make_pair("EventThroughput", d2str(event_throughput)));
         reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
@@ -284,4 +301,3 @@ using edm::service::Timing;
 
 typedef edm::serviceregistry::AllArgsMaker<edm::TimingServiceBase,Timing> TimingMaker;
 DEFINE_FWK_SERVICE_MAKER(Timing, TimingMaker);
-
