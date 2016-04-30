@@ -925,7 +925,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   // get digis
   edm::Handle< edm::DetSetVector<PixelDigi> >  digiinput;
   iEvent.getByToken( digisrcToken_, digiinput );
-  if (!digiinput.isValid()) { cout << "no digis found\n"; }
   const edm::DetSetVector<PixelDigi> diginp = *(digiinput.product());
   
 
