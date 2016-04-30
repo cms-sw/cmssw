@@ -281,7 +281,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     result.first.clear();
   } else if (nL1TSeedModules==1) {
     l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
-    const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
+    std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
     GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
     const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
     int l1error(0);
