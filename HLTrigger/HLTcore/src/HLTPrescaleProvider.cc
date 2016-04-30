@@ -37,7 +37,7 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
   } else if (l1tType==2) {
     l1tGlobalUtil_.retrieveL1Setup(iSetup);
   } else {
-    edm::LogError("HLTConfigData")
+    edm::LogError("HLTPrescaleProvider")
       << " Unknown L1T Type " << l1tType << " - prescales will not be avaiable!";
   }
 
@@ -61,7 +61,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
     /// error - notify user!
     if (count_[0]<countMax) {
       count_[0] += 1;
-      edm::LogError("HLTConfigData")
+      edm::LogError("HLTPrescaleProvider")
 	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
 	<< " Tech/Phys error = " << errorTech << "/" << errorPhys
 	<< " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
@@ -74,7 +74,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
  } else {
    if (count_[0]<countMax) {
      count_[0] += 1;
-     edm::LogError("HLTConfigData")
+     edm::LogError("HLTPrescaleProvider")
        << " Unknown L1T Type " << l1tType << " - can not determine prescale set index! ";
    }
    return -1;
@@ -126,7 +126,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     if (l1error!=0) {
       if (count_[1]<countMax) {
 	count_[1] += 1;
-	edm::LogError("HLTConfigData")
+	edm::LogError("HLTPrescaleProvider")
 	  << " Error in determining L1T prescale for HLT path: '"	<< trigger
 	  << "' with L1T seed: '" << l1tname
 	  << "' using L1GtUtils: error code = " << l1error << "." << std::endl
@@ -144,7 +144,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
       for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
       }
-      edm::LogError("HLTConfigData")
+      edm::LogError("HLTPrescaleProvider")
 	<< " Error in determining L1T prescale for HLT path: '" << trigger
 	<< "' has multiple L1GTSeed modules, " << nL1GTSeedModules
 	<< ", with L1 seeds: " << dump
@@ -164,7 +164,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     if (l1error) {
       if (count_[1]<countMax) {
 	count_[1] += 1;
-	edm::LogError("HLTConfigData")
+	edm::LogError("HLTPrescaleProvider")
 	  << " Error in determining L1T prescale for HLT path: '"	<< trigger
 	  << "' with L1T seed: '" << l1tname
 	  << "' using L1TGlobalUtil: error cond = " << l1error << "." << std::endl
@@ -182,7 +182,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
       for (unsigned int i=1; i!=nL1TSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1TSeeds(trigger).at(i)+"'";
       }
-      edm::LogError("HLTConfigData")
+      edm::LogError("HLTPrescaleProvider")
 	<< " Error in determining L1T prescale for HLT path: '" << trigger
 	<< "' has multiple L1TSeed modules, " << nL1TSeedModules
 	<< ", with L1T seeds: " << dump
@@ -193,7 +193,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
  } else {
    if (count_[1]<countMax) {
      count_[1] += 1;
-     edm::LogError("HLTConfigData")
+     edm::LogError("HLTPrescaleProvider")
        << " Unknown L1T Type " << l1tType << " - can not determine L1T prescale! ";
    }
    result.first = -1;
@@ -254,7 +254,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
 		  << result.first[i].second;
 	}
 	message << ".";
-	edm::LogError("HLTConfigData") << message.str();
+	edm::LogError("HLTPrescaleProvider") << message.str();
       }
       result.first.clear();
     }
@@ -266,7 +266,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
       for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
       }
-      edm::LogError("HLTConfigData")
+      edm::LogError("HLTPrescaleProvider")
 	<< " Error in determining L1T prescale for HLT path: '" << trigger
 	<< "' has multiple L1GTSeed modules, " << nL1GTSeedModules
 	<< ", with L1 seeds: " << dump
@@ -311,7 +311,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
 		  << result.first[i].second;
 	}
 	message << ".";
-	edm::LogError("HLTConfigData") << message.str();
+	edm::LogError("HLTPrescaleProvider") << message.str();
       }
       result.first.clear();
     }
@@ -323,7 +323,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
       for (unsigned int i=1; i!=nL1TSeedModules; ++i) {
 	dump += " * '"+hltConfigProvider_.hltL1TSeeds(trigger).at(i)+"'";
       }
-      edm::LogError("HLTConfigData")
+      edm::LogError("HLTPrescaleProvider")
 	<< " Error in determining L1T prescale for HLT path: '" << trigger
 	<< "' has multiple L1TSeed modules, " << nL1TSeedModules
 	<< ", with L1T seeds: " << dump
@@ -334,7 +334,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
  } else {
    if (count_[3]<countMax) {
      count_[3] += 1;
-     edm::LogError("HLTConfigData")
+     edm::LogError("HLTPrescaleProvider")
        << " Unknown L1T Type " << l1tType << " - can not determine L1T prescale! ";
    }
    result.first.clear();
