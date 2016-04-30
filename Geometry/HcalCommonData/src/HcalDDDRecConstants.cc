@@ -6,7 +6,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+#define DebugLog
 
 enum {kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728} ;
 
@@ -467,18 +467,30 @@ void HcalDDDRecConstants::initialize(void) {
   iEtaMax[1] = ietaHEM;
 
   // Then Phi bins
+  nPhiBins.clear();
+  for (unsigned int k=0; k<4; ++k) nPhiBins.push_back(0);
   ieta = 0;
   phibin.clear(); phiUnitS.clear();
   for (int i=0; i<nEta; ++i) {
     double dphi = (hpar->phigroup[i])*(hpar->phibin[ieta]);
     phibin.push_back(dphi);
+    int    nphi = (int)((CLHEP::twopi + 0.001)/dphi);
+    if (ieta <= iEtaMax[0]) {
+      if (nphi > nPhiBins[0]) nPhiBins[3] = nPhiBins[0] = nphi;
+    }
+    if (ieta >= iEtaMin[1]) {
+      if (nphi > nPhiBins[1]) nPhiBins[1] = nphi;
+    }
     ieta += (hpar->etagroup[i]);
   }
   for (unsigned int i=1; i<hpar->etaTable.size(); ++i) {
     int unit = hcons.unitPhi(hpar->phibin[i-1]);
     phiUnitS.push_back(unit);
   }
-
+  for (unsigned int i=0; i<hpar->phitable.size(); ++i)  {
+    int  nphi = (int)((CLHEP::twopi + 0.001)/hpar->phitable[i]);
+    if (nphi > nPhiBins[2]) nPhiBins[2] = nphi;
+  }
 #ifdef DebugLog
   std::cout << "Modified eta/deltaphi table for " << nEta << " bins" << std::endl;
   for (int i=0; i<nEta; ++i)
@@ -488,6 +500,10 @@ void HcalDDDRecConstants::initialize(void) {
   std::cout << "PhiUnitS";
   for (unsigned int i=0; i<phiUnitS.size(); ++i)
     std::cout << " [" << i << "] = " << phiUnitS[i];
+  std::cout << std::endl;
+  std::cout << "nPhiBins";
+  for (unsigned int i=0; i<nPhiBins.size(); ++i)
+    std::cout << " [" << i << "] = " << nPhiBins[i];
   std::cout << std::endl;
   std::cout << "EtaTableHF";
   for (unsigned int i=0; i<hpar->etaTableHF.size(); ++i)

@@ -76,6 +76,7 @@ public:
   int                       getMaxDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
+  int                       getNPhi(const int type) const {return nPhiBins[type];}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
@@ -103,6 +104,7 @@ private:
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
   std::vector<int>    iEtaMin, iEtaMax; // Minimum and maximum eta
   std::vector<int>    maxDepth;   // Maximum depth in HB/HE/HF/HO 
+  std::vector<int>    nPhiBins;   // Number of phi bis for HB/HE/HF/HO
   std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB

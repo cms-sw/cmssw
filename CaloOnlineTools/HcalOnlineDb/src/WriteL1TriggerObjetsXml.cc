@@ -37,24 +37,25 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 XERCES_CPP_NAMESPACE_USE 
 //
 // class decleration
 //
 
 class WriteL1TriggerObjetsXml : public edm::EDAnalyzer {
-   public:
-      explicit WriteL1TriggerObjetsXml(const edm::ParameterSet&);
-      ~WriteL1TriggerObjetsXml();
+public:
+  explicit WriteL1TriggerObjetsXml(const edm::ParameterSet&);
+  ~WriteL1TriggerObjetsXml();
 
 
-   private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+private:
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
-      // ----------member data ---------------------------
-      std::string tagname_;
+  // ----------member data ---------------------------
+  std::string tagname_;
 };
 
 //
@@ -70,16 +71,16 @@ class WriteL1TriggerObjetsXml : public edm::EDAnalyzer {
 //
 WriteL1TriggerObjetsXml::WriteL1TriggerObjetsXml(const edm::ParameterSet& iConfig) : tagname_(iConfig.getParameter<std::string>("TagName"))
 {
-   //now do what ever initialization is needed
-
+  //now do what ever initialization is needed
+  
 }
 
 
 WriteL1TriggerObjetsXml::~WriteL1TriggerObjetsXml()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -92,45 +93,54 @@ WriteL1TriggerObjetsXml::~WriteL1TriggerObjetsXml()
 void
 WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   edm::ESHandle<HcalDbService> conditions;
-   iSetup.get<HcalDbRecord>().get(conditions);
-   const HcalTopology* topo=conditions->getTopologyUsed();
+  edm::ESHandle<HcalTopology> htopo;
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo = htopo.product();
+  edm::ESHandle<HcalDbService> conditions;
+  iSetup.get<HcalDbRecord>().get(conditions);
 
-   HcalSubdetector subDet[3] = {HcalBarrel, HcalEndcap, HcalForward};
-   std::string subDetName[3] = {"HB", "HE", "HF"};
+  HcalSubdetector subDet[3] = {HcalBarrel, HcalEndcap, HcalForward};
+  std::string subDetName[3] = {"HB", "HE", "HF"};
+  int maxEta(0), maxPhi(72), maxDepth(0);
+  const HcalDDDRecConstants* hcons = topo->dddConstants();
+  for (int isub=0; isub<3; ++isub) {
+    if (hcons->getMaxDepth(isub) > maxDepth) maxDepth = hcons->getMaxDepth(isub);
+    if (hcons->getEtaRange(isub).second > maxEta) 
+      maxEta  = hcons->getEtaRange(isub).second;
+    if (hcons->getNPhi(isub) > maxPhi)       maxPhi  = hcons->getNPhi(isub);
+  }
 
-   HcalL1TriggerObjectsXml xml(tagname_);
-   for (int isub = 0; isub < 3; ++isub){
-      for (int ieta = -41; ieta <= 41; ++ieta){
-         for (int iphi = 1; iphi <=72; ++iphi){
-            for (int depth = 1; depth <= 3; ++depth){
-               HcalDetId id(subDet[isub], ieta, iphi, depth);
+  HcalL1TriggerObjectsXml xml(tagname_);
+  for (int isub = 0; isub < 3; ++isub){
+    for (int ieta = -maxEta; ieta <= maxEta; ++ieta){
+      for (int iphi = 1; iphi <=maxPhi; ++iphi){
+	for (int depth = 1; depth <= maxDepth; ++depth){
+	  HcalDetId id(subDet[isub], ieta, iphi, depth);
 
-               if (!topo->valid(id)) continue;
-               HcalCalibrations calibrations = conditions->getHcalCalibrations(id);
-               const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(id);
-               uint32_t status = channelStatus->getValue();
+	  if (!topo->valid(id)) continue;
+	  HcalCalibrations calibrations = conditions->getHcalCalibrations(id);
+	  const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(id);
+	  uint32_t status = channelStatus->getValue();
 
-               double gain = 0.0;
-               double ped = 0.0;
+	  double gain = 0.0;
+	  double ped = 0.0;
+	       
+	  for (int i=0; i<4; ++i) {
+	    gain += calibrations.LUTrespcorrgain(i);
+	    ped += calibrations.pedestal(i);
+	  }
+	  gain /= 4.;
+	  ped /= 4.;
 
-               for (int i=0; i<4; ++i) {
-                  gain += calibrations.LUTrespcorrgain(i);
-                  ped += calibrations.pedestal(i);
-               }
-               gain /= 4.;
-               ped /= 4.;
+	  xml.add_hcal_channel_dataset(ieta, iphi, depth, subDetName[isub], ped, gain, status);
+	}// for depth
+      }// for iphi
+    }// for ieta
+  }// for subdet
 
-               xml.add_hcal_channel_dataset(ieta, iphi, depth, subDetName[isub], ped, gain, status);
-            }// for depth
-         }// for iphi
-      }// for ieta
-   }// for subdet
-
-   std::string xmlOutputFileName(tagname_);
-   xmlOutputFileName += ".xml";
-   xml.write(xmlOutputFileName);
+  std::string xmlOutputFileName(tagname_);
+  xmlOutputFileName += ".xml";
+  xml.write(xmlOutputFileName);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
