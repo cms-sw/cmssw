@@ -262,7 +262,7 @@ void HLTConfigData::extract()
    if ( (stage1+stage2)==0 ) {
      l1tType_=0;
      edm::LogError("HLTConfigData")
-       << " Can't identify l1tType: Process '" << processName_ << "' does not contain L1T instances!";
+       << " Can't identify l1tType: Process '" << processName_ << "' does not contain any identifying instances!";
    } else if ( (stage1*stage2)!=0 ) {
      l1tType_=0;
      edm::LogError("HLTConfigData")
