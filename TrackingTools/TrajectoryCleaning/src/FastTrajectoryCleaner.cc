@@ -28,7 +28,7 @@ void FastTrajectoryCleaner::clean( TempTrajectoryContainer & tc) const
      maxScore = score;
     }
   }
-  assert(bestTr);
+  
   for (auto & it : tc) {
    if ((&it)!=bestTr) it.invalidate();
   }
