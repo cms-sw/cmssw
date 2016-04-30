@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,16 +43,16 @@ XERCES_CPP_NAMESPACE_USE
 // class decleration
 //
 
-class WriteL1TriggerObjetsXml : public edm::EDAnalyzer {
+class WriteL1TriggerObjetsXml : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit WriteL1TriggerObjetsXml(const edm::ParameterSet&);
   ~WriteL1TriggerObjetsXml();
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
 
   // ----------member data ---------------------------
   std::string tagname_;
@@ -91,8 +91,8 @@ WriteL1TriggerObjetsXml::~WriteL1TriggerObjetsXml()
 
 // ------------ method called to for each event  ------------
 void
-WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+WriteL1TriggerObjetsXml::analyze(edm::Event const& iEvent, 
+				 edm::EventSetup const& iSetup) {
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo = htopo.product();
@@ -141,17 +141,6 @@ WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::string xmlOutputFileName(tagname_);
   xmlOutputFileName += ".xml";
   xml.write(xmlOutputFileName);
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-WriteL1TriggerObjetsXml::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-WriteL1TriggerObjetsXml::endJob() {
 }
 
 //define this as a plug-in
