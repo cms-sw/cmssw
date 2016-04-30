@@ -67,6 +67,9 @@ public:
   void changeForm();
   uint32_t newForm() const;
   static uint32_t newForm(const uint32_t&);
+  /// base detId for HF dual channels
+  bool sameBaseDetId(const DetId&) const;
+  HcalDetId baseDetId() const;
 
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
