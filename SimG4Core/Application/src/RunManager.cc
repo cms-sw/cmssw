@@ -156,7 +156,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 
   m_generator = new Generator(m_pGenerator);
-  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
+  m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
 
 }
 

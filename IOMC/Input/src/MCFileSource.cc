@@ -16,6 +16,7 @@
 #include "IOMC/Input/interface/HepMCFileReader.h" 
 #include "IOMC/Input/interface/MCFileSource.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm {
 
@@ -33,6 +34,7 @@ MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription con
   
   reader_->initialize(fileName);  
   produces<HepMCProduct>();
+  produces<GenEventInfoProduct>();
 }
 
 
@@ -55,6 +57,8 @@ void MCFileSource::produce(Event &e) {
   std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
   bare_product->addHepMCData(evt_);
   e.put(bare_product);
+  std::unique_ptr<GenEventInfoProduct> info ( new GenEventInfoProduct( evt_ ) );
+  e.put(std::move(info) );
 }
 
 }
