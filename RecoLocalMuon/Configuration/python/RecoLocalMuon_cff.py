@@ -37,11 +37,15 @@ muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+cscloca
 # DT, CSC and RPC together (correct sequence for the standard path)
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 
-def _modifyRecoLocalMuonForPhase2( theProcess ):
-    theProcess.load("RecoLocalMuon.GEMRecHit.gemRecHits_cfi")
-    theProcess.load("RecoLocalMuon.GEMRecHit.me0LocalReco_cff")
-    theProcess.muonlocalreco += theProcess.gemRecHits
-    theProcess.muonlocalreco += theProcess.me0LocalReco
+from RecoLocalMuon.GEMRecHit.gemRecHits_cfi import *
+from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *
+
+_run3_muonlocalreco = muonlocalreco.copy()
+_run3_muonlocalreco += gemRecHits
+
+_phase2_muonlocalreco = _run3_muonlocalreco.copy()
+_phase2_muonlocalreco += me0LocalReco
 
 from Configuration.StandardSequences.Eras import eras
-modifyConfigurationStandardSequencesRecoLocalMuonForPhase2_ = eras.phase2_muon.makeProcessModifier( _modifyRecoLocalMuonForPhase2 )
+eras.run3_GEM.toReplaceWith( muonlocalreco , _run3_muonlocalreco )
+eras.phase2_muon.toReplaceWith( muonlocalreco , _phase2_muonlocalreco )
