@@ -28,11 +28,20 @@ bool HLTPrescaleProvider::init(const edm::Run& iRun,
   count_[3]=0;
   count_[4]=0;
 
-  /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
-  l1GtUtils_.getL1GtRunCache(iRun,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
-  l1tGlobalUtil_.retrieveL1Setup(iSetup);
+  const bool result(hltConfigProvider_.init(iRun, iSetup, processName, changed));
 
-  return hltConfigProvider_.init(iRun, iSetup, processName, changed);
+  const unsigned int l1tType(hltConfigProvider_.l1tType());
+  if (l1tType==1) {
+    /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
+    l1GtUtils_.getL1GtRunCache(iRun,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
+  } else if (l1tType==2) {
+    l1tGlobalUtil_.retrieveL1Setup(iSetup);
+  } else {
+    edm::LogError("HLTConfigData")
+      << " Unknown L1T Type " << l1tType << " - prescales will not be avaiable!";
+  }
+
+  return result;
 }
 
 int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
