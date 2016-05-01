@@ -212,11 +212,14 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
   } catch ( const SimG4Exception& simg4ex ) {
        
-    edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 
+    edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
 					 << simg4ex.what();
+    m_runManager->stopG4();
        
-    m_runManager->abortEvent();
-    throw edm::Exception( edm::errors::EventCorruption );
+    throw edm::Exception( edm::errors::EventCorruption ) 
+      << "SimG4CoreApplication exception in generation of event "
+      << e.id() << " in stream " << e.streamID() << " \n"
+      << simg4ex.what();
   }
 }
 
