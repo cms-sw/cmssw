@@ -289,6 +289,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
         # 'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',       # Phase-1 Muon
         'Geometry/RPCGeometryBuilder/data/PhaseII/RPCSpecs.xml', # Phase-2 Muon                   
+        'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter.xml',   # Phase-2 Muon
         'Geometry/GEMGeometryBuilder/data/v5/GEMSpecs.xml',      # Phase-2 Muon
         # 'Geometry/MuonSimData/data/muonProdCuts.xml',          # Phase-1 Muon
         'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',    # Phase-2 Muon
