@@ -132,7 +132,7 @@ namespace edm
     //added for selecting/filtering gen events, in the case of hadronizer+externalDecayer
       
     bool passEvtGenSelector = false;
-    std::auto_ptr<HepMC::GenEvent> event(nullptr);
+    std::unique_ptr<HepMC::GenEvent> event(nullptr);
    
     while(!passEvtGenSelector)
       {
@@ -149,16 +149,19 @@ namespace edm
 	//
 	if ( !hadronizer_.decay() ) return false;
 	
-	event = std::auto_ptr<HepMC::GenEvent>(hadronizer_.getGenEvent());
+	event = std::unique_ptr<HepMC::GenEvent>(hadronizer_.getGenEvent());
 	if ( !event.get() ) return false; 
 	
 	// The external decay driver is being added to the system,
 	// it should be called here
 	//
 	if ( decayer_ ) 
-	  {
-	    event.reset( decayer_->decay( event.get() ) );
-	  }
+	{
+           auto t = decayer_->decay( event.get() );
+           if(t != event.get()) {
+             event.reset(t);
+           }
+	}
 	if ( !event.get() ) return false;
 	
 	passEvtGenSelector = hadronizer_.select( event.get() );
