@@ -74,23 +74,24 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     GEMDetId detIdCh = GEMDetId(rawidCh);
     // back to chambers
     fv.parent();fv.parent();
-    
+
+    // currently there is no superchamber in the geometry
+    // only 2 chambers are present separated by a gap.
+    // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
       geometry->add(gemSuperChamber);
     }
+    GEMChamber *gemChamber = buildChamber(fv, detIdCh);
     
     // loop over chambers
+    // only 1 chamber
     bool doChambers = fv.firstChild();
     while (doChambers){
-
-      GEMChamber *gemChamber = buildChamber(fv, detIdCh);
       
-      //LogDebug("GEMGeometryBuilderFromDDD") <<" doChambers " << fv.translation()<<std::endl;
-      // loop over eta partitions
+    // loop over GEMEtaPartitions
       bool doEtaPart = fv.firstChild();
       while (doEtaPart){
-	//	LogDebug("GEMGeometryBuilderFromDDD") <<" doEtaPart " << fv.logicalPart().name().name()<<std::endl;
 
 	MuonDDDNumbering mdddnum(muonConstants);
 	GEMNumberingScheme gemNum(muonConstants);
@@ -104,16 +105,12 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
       }
       fv.parent();
 
-      //LogDebug("GEMGeometryBuilderFromDDD") <<" doChambers " << fv.translation()<<std::endl;    
-      //      LogDebug("GEMGeometryBuilderFromDDD") <<" doChambers " << fv.logicalPart().name().name()<<std::endl;
       geometry->add(gemChamber);
       
-      //gemSuperChamber->add(gemChamber);
       doChambers = fv.nextSibling();
     }
     fv.parent();
 
-    //LogDebug("GEMGeometryBuilderFromDDD") <<" doSuper "<< fv.logicalPart().name().name()<<std::endl;    
     doSuper = fv.nextSibling();
   }
   
@@ -161,9 +158,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 }
 
 GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildSuperChamber "<< detId <<std::endl;
+  LogDebug("GEMGeometryBuilderFromDDD") << "buildSuperChamber "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
-  //std::vector<double> dpar = fv.logicalPart().solid().solidA().parameters();
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   std::vector<double> dpar = solid.solidA().parameters();
   
@@ -172,35 +168,41 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   double dx1= dpar[4]/cm;// bottom width is along local X
   double dx2= dpar[8]/cm;// top width is along local X
   dpar = solid.solidB().parameters();
-  dz += dpar[3];
+  dz += dpar[3]/cm;// chamber thickness
+  dz *=2; // 2 chambers in superchamber
+  dz += 2.105;// gap between chambers
   
   bool isOdd = detId.chamber()%2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1,dx2,dy,dz), isOdd ));
-
+  LogDebug("GEMGeometryBuilderFromDDD") << "size "<< dx1 << " " << dx2 << " " << dy << " " << dz <<std::endl;
+  
   GEMSuperChamber* superChamber = new GEMSuperChamber(detId.superChamberId(), surf);
   return superChamber;
 }
 
 GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildChamber "<< detId <<std::endl;
+  LogDebug("GEMGeometryBuilderFromDDD") << "buildChamber "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
-  // Chamber specific parameter (size) 
-  std::vector<double> dpar = fv.logicalPart().solid().parameters();
-
+  DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
+  std::vector<double> dpar = solid.solidA().parameters();
+  
   double dy = dpar[0]/cm;//length is along local Y
   double dz = dpar[3]/cm;// thickness is long local Z
   double dx1= dpar[4]/cm;// bottom width is along local X
   double dx2= dpar[8]/cm;// top width is along local X
+  dpar = solid.solidB().parameters();
+  dz += dpar[3]/cm;// chamber thickness
   
   bool isOdd = detId.chamber()%2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1,dx2,dy,dz), isOdd ));
-
+  LogDebug("GEMGeometryBuilderFromDDD") << "size "<< dx1 << " " << dx2 << " " << dy << " " << dz <<std::endl;
+  
   GEMChamber* chamber = new GEMChamber(detId.chamberId(), surf);
   return chamber;
 }
 
 GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildEtaPartition "<< detId <<std::endl;
+  LogDebug("GEMGeometryBuilderFromDDD") << "buildEtaPartition "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
   // EtaPartition specific parameter (nstrips and npads) 
   DDValue numbOfStrips("nStrips");
@@ -237,6 +239,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   std::string name = fv.logicalPart().name().name();
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
   
+  LogDebug("GEMGeometryBuilderFromDDD") << "size "<< be << " " << te << " " << ap << " " << ti <<std::endl;
   GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
   return etaPartition;
 }
@@ -274,7 +277,7 @@ GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
   Basic3DVector<float> newX(1.,0.,0.);
   Basic3DVector<float> newY(0.,0.,1.);
   Basic3DVector<float> newZ(0.,1.,0.);
-  // Odd chambers have wrong Z director assigned
+  // Odd chambers are inverted in gem.xml
   if (isOddChamber) newY *= -1;
   
   rotResult.rotateAxes(newX, newY, newZ);
