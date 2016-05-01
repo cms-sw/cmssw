@@ -413,19 +413,7 @@ void RunManager::abortEvent()
     (TrackingAction*)m_kernel->GetEventManager()->GetUserTrackingAction() ;
   uta->PostUserTrackingAction(t) ;
 
-  m_currentEvent->SetEventAborted();
-    
-  // do NOT call this method for now
-  // because it'll set abortRequested=true (withing G4EventManager)
-  // this will make Geant4, in the event *next* after the aborted one
-  // NOT to get the primary, thus there's NOTHING to trace, and it goes
-  // to the end of G4Event::DoProcessing(G4Event*), where abortRequested
-  // will be reset to true again
-  //    
-  //m_kernel->GetEventManager()->AbortCurrentEvent();
-  //
-  // instead, mimic what it does, except (re)setting abortRequested
-  //
+  m_currentEvent->SetEventAborted();    
   m_kernel->GetEventManager()->GetStackManager()->clear() ;
   m_kernel->GetEventManager()->GetTrackingManager()->EventAborted() ;
      
@@ -472,39 +460,37 @@ void RunManager::initializeUserActions()
 void RunManager::initializeRun()
 {
   m_runInitialized = false;
-  if (m_currentRun==0) { m_currentRun = new G4Run(); }
+  if (m_currentRun==nullptr) { m_currentRun = new G4Run(); }
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_userRunAction!=0) { m_userRunAction->BeginOfRunAction(m_currentRun); }
+  if (m_userRunAction!=nullptr) { m_userRunAction->BeginOfRunAction(m_currentRun); }
   m_runAborted = false;
   m_runInitialized = true;
 }
  
 void RunManager::terminateRun()
 {
-  if (m_userRunAction!=0) {
+  if(m_runTerminated) { return; }
+  if (m_userRunAction!=nullptr) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction; 
-    m_userRunAction = 0;
+    m_userRunAction = nullptr;
   }
-  if (m_kernel!=0 && !m_runTerminated) {
-    delete m_currentEvent;
-    m_currentEvent = 0;
-    delete m_simEvent;
-    m_simEvent = 0;
-    m_kernel->RunTermination();
-    m_runInitialized = false;
-    m_runTerminated = true;
-  }  
+  delete m_currentEvent;
+  m_currentEvent = nullptr;
+  delete m_simEvent;
+  m_simEvent = nullptr;
+  if(m_kernel != nullptr) { m_kernel->RunTermination(); }
+  m_runInitialized = false;
+  m_runTerminated = true;  
 }
 
 void RunManager::abortRun(bool softAbort)
 {
-  m_runAborted = false;
+  if(m_runAborted) { return; }
   if (!softAbort) { abortEvent(); }
   if (m_currentRun!=0) { delete m_currentRun; m_currentRun = 0; }
-  m_runInitialized = false;
-  m_runAborted = true;
   terminateRun();
+  m_runAborted = true;
 }
 
 void RunManager::resetGenParticleId( edm::Event& inpevt ) 
