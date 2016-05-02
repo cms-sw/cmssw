@@ -518,9 +518,6 @@ def customizeHLTforMC(process,_fastSim=False):
     if hasattr(fastsim,"hltL3NoFiltersTrajSeedIOHit"):
       full2fast.modify_hltL3NoFiltersTrajSeedIOHit(fastsim.hltL3NoFiltersTrajSeedIOHit)
 
-    if hasattr(fastsim,'hltL1extraParticles'):
-      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
-
     return fastsim
 
   else:
