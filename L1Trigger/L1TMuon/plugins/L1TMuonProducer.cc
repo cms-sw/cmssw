@@ -381,7 +381,7 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
   }
 
   size_t nMuonsBefore = muons.size();
-  int minWins = nMuonsBefore - nCancelled - nSurvivors;
+  int minWins = nMuonsBefore - nSurvivors;
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
