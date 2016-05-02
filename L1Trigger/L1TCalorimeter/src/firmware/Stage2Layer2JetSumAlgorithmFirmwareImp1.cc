@@ -63,8 +63,8 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 		  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
 		  // The 4 below account for part of that and the rest is accounted for at ouput of demux
 		  // (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
-		  ringHx += (int32_t) (( thisJet.hwPt() * cos_coeff[iphi - 1] ) >> 4 );
-		  ringHy += (int32_t) (( thisJet.hwPt() * sin_coeff[iphi - 1] ) >> 4 );
+		  ringHx += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
+		  ringHy += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
 		  	  
 		}
 	
