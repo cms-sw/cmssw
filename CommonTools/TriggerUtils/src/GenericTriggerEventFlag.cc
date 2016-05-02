@@ -84,7 +84,6 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
         gtEvmInputToken_ = iC.mayConsume< L1GlobalTriggerEvmReadoutRecord >( gtEvmInputTag_ );
       }
       if ( config.exists( "gtDBKey" ) ) gtDBKey_ = config.getParameter< std::string >( "gtDBKey" );
-      std::cout << "[GenericTriggerEventFlag::GenericTriggerEventFlag] gtDBKey: " << gtDBKey_ << std::endl;
     } else {
       onGt_ = false;
     }
@@ -93,7 +92,6 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
       l1LogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "l1Algorithms" );
       errorReplyL1_              = config.getParameter< bool >( "errorReplyL1" );
       if ( config.exists( "l1DBKey" ) )      l1DBKey_      = config.getParameter< std::string >( "l1DBKey" );
-      std::cout << "[GenericTriggerEventFlag::GenericTriggerEventFlag] l1DBKey: " << l1DBKey_ << std::endl;
       if ( config.exists( "l1BeforeMask" ) ) l1BeforeMask_ = config.getParameter< bool >( "l1BeforeMask" );
     } else {
       onL1_ = false;
@@ -105,14 +103,12 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
       hltLogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "hltPaths" );
       errorReplyHlt_              = config.getParameter< bool >( "errorReplyHlt" );
       if ( config.exists( "hltDBKey" ) ) hltDBKey_ = config.getParameter< std::string >( "hltDBKey" );
-      std::cout << "[GenericTriggerEventFlag::GenericTriggerEventFlag] hltDBKey: " << hltDBKey_ << std::endl;
     } else {
       onHlt_ = false;
     }
     if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_ = false;
     else {
       if ( config.exists( "dbLabel" ) ) dbLabel_ = config.getParameter< std::string >( "dbLabel" );
-      std::cout << "[GenericTriggerEventFlag::GenericTriggerEventFlag] dbLabel_: " << dbLabel_ << std::endl;
       watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd >;
     }
   }
@@ -139,25 +135,17 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) gtLogicalExpressions_ = exprs;
     }
     if ( onL1_ && l1DBKey_.size() > 0 ) {
-      std::cout << "onL1" << std::endl;
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
-      std::cout << "exprs" << exprs.size() << std::endl;
-      if ( exprs.empty() ) std::cout << "exprs.at( 0 ): " << exprs.at( 0 ) << std::endl;
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressionsCache_ = exprs;
       for ( unsigned iExpr = 0; iExpr < l1LogicalExpressionsCache_.size(); ++iExpr ) {
 	std::string l1LogicalExpression( l1LogicalExpressionsCache_.at( iExpr ) );  
-	std::cout << "l1LogicalExpressionsCache_: " << l1LogicalExpression << std::endl;
       }
     }
     if ( onHlt_ && hltDBKey_.size() > 0 ) {
-      std::cout << "onHlt_: " << std::endl;
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
-      std::cout << "exprs" << exprs.size() << std::endl;
-      if ( exprs.empty() ) std::cout << "exprs.at( 0 ): " << exprs.at( 0 ) << std::endl;
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressionsCache_ = exprs;
       for ( unsigned iExpr = 0; iExpr < hltLogicalExpressionsCache_.size(); ++iExpr ) {
 	std::string hltLogicalExpression( hltLogicalExpressionsCache_.at( iExpr ) );
-	std::cout << "hltLogicalExpressionsCache_: " << hltLogicalExpression << std::endl;
       }
     }
   }
@@ -375,7 +363,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
       }
       decision = ( gtReadoutRecord->gtFdlWord().physicsDeclared() == 1 );
     } else if ( gtStatusBit == "Stable" || gtStatusBit == "StableBeam" || gtStatusBit == "Adjust" || gtStatusBit == "Sqeeze" || gtStatusBit == "Flat" || gtStatusBit == "FlatTop" ||
-                gtStatusBit == "7TeV" || gtStatusBit == "8TeV" || gtStatusBit == "2360GeV" || gtStatusBit == "900GeV" ) {
+                gtStatusBit == "7TeV" || gtStatusBit == "8TeV" || gtStatusBit == "13TeV" || gtStatusBit == "2360GeV" || gtStatusBit == "900GeV" ) {
       edm::Handle< L1GlobalTriggerEvmReadoutRecord > gtEvmReadoutRecord;
       event.getByToken( gtEvmInputToken_, gtEvmReadoutRecord );
       if ( ! gtEvmReadoutRecord.isValid() ) {
@@ -395,6 +383,8 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 3500 );
       } else if ( gtStatusBit == "8TeV" ) {
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 4000 );
+      } else if ( gtStatusBit == "13TeV" ) {
+        decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 6500 );
       } else if ( gtStatusBit == "2360GeV" ) {
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 1180 );
       } else if ( gtStatusBit == "900GeV" ) {
@@ -623,38 +613,25 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
 /// Reads and returns logical expressions from DB
 std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
 {
-  std::cout << "[GenericTriggerEventFlag::expressionsFromDB] key: " << key.size() << " --> " << key << std::endl;
   if ( key.size() == 0 ) {
-    std::cout << " returning " << emptyKeyError_ << std::endl;
     return std::vector< std::string >( 1, emptyKeyError_ );
   }
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
   std::vector< edm::eventsetup::DataKey > labels;
   setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );
   std::vector< edm::eventsetup::DataKey >::const_iterator iKey = labels.begin();
-  std::cout << "labels: " << labels.size() << std::endl;
   while ( iKey != labels.end() && iKey->name().value() != dbLabel_ ) ++iKey;
 
   if ( iKey == labels.end() ) {
     if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
-    std::cout << " returning " << configError_ << std::endl;
     return std::vector< std::string >( 1, configError_ );
-  } else {
-    std::cout << "iKey->name().value(): " << iKey->name().value() << " <----> " << dbLabel_ << std::endl;
   }
   setup.get< AlCaRecoTriggerBitsRcd >().get( dbLabel_, logicalExpressions );
   const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
-  for (std::map< std::string, std::string >::const_iterator iter = expressionMap.begin();
-       iter != expressionMap.end(); iter++)
-    std::cout << "expressionMap: " << iter->first << " " << iter->second << std::endl;
   std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );
   if ( listIter == expressionMap.end() ) {
-    std::cout << "verbose_: " << verbose_ << std::endl;
     if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
-    std::cout << " returning " << configError_ << std::endl;
     return std::vector< std::string >( 1, configError_ );
-  } else {
-    std::cout << "listIter " << listIter->first << " " << listIter->second << std::endl;
   }
   return logicalExpressions->decompose( listIter->second );
 
