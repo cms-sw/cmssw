@@ -13,7 +13,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/SeedExtensionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxCCCLostHitsTrajectoryFilter.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
@@ -51,6 +51,18 @@ public:
   virtual bool toBeContinued( TempTrajectory& traj) const {return TBC<TempTrajectory>(traj);}
 
   virtual  std::string name() const { return "CkfBaseTrajectoryFilter";}
+
+  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
+    edm::ParameterSetDescription descLooper           = theLooperTrajectoryFilter->getFilledConfigurationDescription();
+    edm::ParameterSetDescription descLostHitsFraction = theLostHitsFractionTrajectoryFilter->getFilledConfigurationDescription();
+    edm::ParameterSetDescription descMinHits          = theMinHitsTrajectoryFilter->getFilledConfigurationDescription();
+
+    edm::ParameterSetDescription desc;
+    desc.add<edm::ParameterSetDescription>("looperTrajectoryFilter",          descLooper);
+    desc.add<edm::ParameterSetDescription>("lostHitsFractionTrajectoryFilter",descLostHitsFraction);
+    desc.add<edm::ParameterSetDescription>("minHitsTrajectoryFilter",         descMinHits);
+    return desc;
+  }
   
 protected:
 
