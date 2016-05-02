@@ -88,6 +88,18 @@ streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_AK4PFBJetBC
     'HLT_AK4PFBJetBSSV60_Eta2p1ForPPRef_v1', 
     'HLT_AK4PFBJetBSSV80_Eta2p1ForPPRef_v1')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHeavyFlavor_selector
+streamA_datasetHeavyFlavor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHeavyFlavor_selector.l1tResults = cms.InputTag('')
+streamA_datasetHeavyFlavor_selector.throw      = cms.bool(False)
+streamA_datasetHeavyFlavor_selector.triggerConditions = cms.vstring('HLT_DmesonPPTrackingGlobal_Dpt15ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt20ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt30ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt40ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt50ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt60ForPPRef_v1', 
+    'HLT_DmesonPPTrackingGlobal_Dpt8ForPPRef_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPtJet80_selector
 streamA_datasetHighPtJet80_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHighPtJet80_selector.l1tResults = cms.InputTag('')
