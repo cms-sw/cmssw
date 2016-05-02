@@ -37,7 +37,7 @@ bool UCTLayer1::clearEvent() {
 }
 
 const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiIndex) const {
-  if(regionEtaIndex == 0 || std::abs(regionEtaIndex) > NRegionsInCard || regionPhiIndex >= MaxUCTRegionsPhi) {
+  if(regionEtaIndex == 0 || (uint32_t) std::abs(regionEtaIndex) > NRegionsInCard || regionPhiIndex >= MaxUCTRegionsPhi) {
     return 0;
   }
   // Get (0,0) tower region information
