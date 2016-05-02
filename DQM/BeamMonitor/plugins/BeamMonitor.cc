@@ -46,8 +46,8 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  tm * ptm;
-  ptm = gmtime ( &t );
+  //tm * ptm;
+  //ptm = gmtime ( &t );
   //int year = ptm->tm_year;
  
   //get correct year from ctime
@@ -57,6 +57,8 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
   localTime = localtime( &currentTime );  // Convert the current time to the local time
   int year   = localTime->tm_year + 1900;
 
+  tm * ptm;
+  ptm = gmtime ( &t );
 
  //check if year is ok
  if (year <= 37) year += 2000;                                                        
