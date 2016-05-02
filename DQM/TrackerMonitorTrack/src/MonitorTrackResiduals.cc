@@ -69,7 +69,7 @@ std::pair<std::string, int32_t> MonitorTrackResidualsBase<pixel_or_strip>::findS
 	  break;
 	case 4:
 	  subdet = "TID";
-          layer = tTopo->tidWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+          layer = tTopo->tidWheel(id) * ( tTopo->tidSide(ModuleID)==1 ? -1 : +1);
 	  break;
 	case 5:
 	  subdet = "TOB";

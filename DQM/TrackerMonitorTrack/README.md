@@ -55,6 +55,9 @@ The data shown in the histograms is computed by the Alignment/OfflineValidation 
 * `SiStrip/MechanicalView/TID/PLUS/wheel_1/HitResiduals_TID__wheel__1`
 * `SiStrip/MechanicalView/TID/PLUS/wheel_2/HitResiduals_TID__wheel__2`
 * `SiStrip/MechanicalView/TID/PLUS/wheel_3/HitResiduals_TID__wheel__3`
+* `SiStrip/MechanicalView/TID/MINUS/wheel_1/HitResiduals_TID__wheel__1`
+* `SiStrip/MechanicalView/TID/MINUS/wheel_2/HitResiduals_TID__wheel__2`
+* `SiStrip/MechanicalView/TID/MINUS/wheel_3/HitResiduals_TID__wheel__3`
 * `SiStrip/MechanicalView/TOB/layer_1/HitResiduals_TOB__Layer__1`
 * `SiStrip/MechanicalView/TOB/layer_2/HitResiduals_TOB__Layer__2`
 * `SiStrip/MechanicalView/TOB/layer_3/HitResiduals_TOB__Layer__3`
