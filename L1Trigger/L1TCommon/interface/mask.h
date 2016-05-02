@@ -13,15 +13,15 @@ class mask
 	public:
 		mask() {};
 		mask(std::string id, std::string procRole);
-		void setProcRole(std::string procRole) { _procRole = procRole; };
+		void setProcRole(std::string procRole) { procRole_ = procRole; };
 		void setPort(std::string id);
-		std::string getProcRole() { return _procRole; };
-		unsigned getPort() { return _port; };
-		std::string getId() {return _id;};
+		std::string getProcRole() { return procRole_; };
+		unsigned getPort() { return port_; };
+		std::string getId() {return id_;};
 
 	private:
-		unsigned _port;
-		std::string _procRole, _id;
+		unsigned port_;
+		std::string procRole_, id_;
 };
 
 }
