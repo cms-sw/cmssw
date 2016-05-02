@@ -4,4 +4,5 @@ from  DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_source_cff import *
 
 siPixelPhase1OfflineDQM_harvesting = cms.Sequence(SiPixelPhase1DigisHarvester 
                                                 + SiPixelPhase1ClustersHarvester
-                                                + SiPixelPhase1RecHitsHarvester)
+                                                + SiPixelPhase1RecHitsHarvester
+                                                + SiPixelPhase1TrackResidualsHarvester)
