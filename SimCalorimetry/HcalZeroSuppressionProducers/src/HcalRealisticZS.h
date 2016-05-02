@@ -31,6 +31,7 @@ private:
   edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUpgrade_;
   edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUpgrade_;
   edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
+  edm::EDGetTokenT<QIE11DigiCollection> tok_hbheQIE11_;
 };
 
 #endif

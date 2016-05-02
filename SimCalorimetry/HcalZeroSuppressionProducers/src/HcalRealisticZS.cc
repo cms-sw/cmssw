@@ -21,6 +21,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
   tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
   tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
+  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
 
 
   std::vector<int> tmp = conf.getParameter<std::vector<int> >("HBregion");
@@ -91,6 +92,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
     produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
     produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+    produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
    
 }
     
@@ -107,6 +109,7 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<HBHEUpgradeDigiCollection> hbheUpgrade;
   edm::Handle<HFUpgradeDigiCollection> hfUpgrade;
   edm::Handle<QIE10DigiCollection> hfQIE10;
+  edm::Handle<QIE11DigiCollection> hbheQIE11;
 
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -130,11 +133,13 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.getByToken(tok_hbheUpgrade_,hbheUpgrade);
   e.getByToken(tok_hfUpgrade_,hfUpgrade);
   e.getByToken(tok_hfQIE10_,hfQIE10);
+  e.getByToken(tok_hbheQIE11_,hbheQIE11);
   
   // create empty output
   std::auto_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
   std::auto_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
   std::auto_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection);
+  std::auto_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection);
   
   //run the algorithm
 
@@ -144,6 +149,7 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   algo_->suppress(*(hbheUpgrade.product()),*zs_hbheUpgrade);
   algo_->suppress(*(hfUpgrade.product()),*zs_hfUpgrade);
   algo_->suppress(*(hfQIE10.product()),*zs_hfQIE10);
+  algo_->suppress(*(hbheQIE11.product()),*zs_hbheQIE11);
 
   
   edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << hbhe->size() << " digis, output " << zs_hbhe->size() << " digis" 
@@ -151,7 +157,8 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 				      <<  " (HF) input " << hf->size() << " digis, output " << zs_hf->size() << " digis"
 				      <<  " (HBHEUpgrade) input " << hbheUpgrade->size() << " digis, output " << zs_hbheUpgrade->size() << " digis"
 				      <<  " (HFUpgrade) input " << hfUpgrade->size() << " digis, output " << zs_hfUpgrade->size() << " digis"
-				      <<  " (HFQIE10) input " << hfQIE10->size() << " digis, output " << zs_hfQIE10->size() << " digis";
+				      <<  " (HFQIE10) input " << hfQIE10->size() << " digis, output " << zs_hfQIE10->size() << " digis"
+				      <<  " (HBHEQIE11) input " << hbheQIE11->size() << " digis, output " << zs_hbheQIE11->size() << " digis";
   
 
     // return result
@@ -161,5 +168,6 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     e.put(zs_hbheUpgrade,"HBHEUpgradeDigiCollection");
     e.put(zs_hfUpgrade,"HFUpgradeDigiCollection");
     e.put(zs_hfQIE10,"HFQIE10DigiCollection");
+    e.put(zs_hbheQIE11,"HBHEQIE11DigiCollection");
 
 }

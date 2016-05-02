@@ -22,6 +22,7 @@ namespace edm {
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
     QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
+    QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
     label_(ps.getParameter<std::string>("Label"))
   {  
 
@@ -31,12 +32,14 @@ namespace edm {
     tok_hf_ = iC.consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
     tok_zdc_ = iC.consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
     tok_qie10_ = iC.consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
+    tok_qie11_ = iC.consumes<HcalQIE11DigitizerTraits::DigiCollection>(QIE11PileInputTag_);
 
     theHBHESignalGenerator = HBHESignalGenerator(HBHEPileInputTag_,tok_hbhe_);
     theHOSignalGenerator = HOSignalGenerator(HOPileInputTag_,tok_ho_);
     theHFSignalGenerator = HFSignalGenerator(HFPileInputTag_,tok_hf_);
     theZDCSignalGenerator = ZDCSignalGenerator(ZDCPileInputTag_,tok_zdc_);
     theQIE10SignalGenerator = QIE10SignalGenerator(QIE10PileInputTag_,tok_qie10_);
+    theQIE11SignalGenerator = QIE11SignalGenerator(QIE11PileInputTag_,tok_qie11_);
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -51,6 +54,7 @@ namespace edm {
     HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
     ZDCDigiCollectionDM_  = ps.getParameter<std::string>("ZDCDigiCollectionDM");
     QIE10DigiCollectionDM_  = ps.getParameter<std::string>("QIE10DigiCollectionDM");
+    QIE11DigiCollectionDM_  = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
     // initialize HcalDigitizer here...
 
@@ -61,6 +65,7 @@ namespace edm {
     myHcalDigitizer_->setHONoiseSignalGenerator( & theHOSignalGenerator );
     myHcalDigitizer_->setZDCNoiseSignalGenerator( & theZDCSignalGenerator );
     myHcalDigitizer_->setQIE10NoiseSignalGenerator( & theQIE10SignalGenerator );
+    myHcalDigitizer_->setQIE11NoiseSignalGenerator( & theQIE11SignalGenerator );
 
   }
 	       
@@ -94,6 +99,7 @@ namespace edm {
     theHFSignalGenerator.initializeEvent(ep, &ES);
     theZDCSignalGenerator.initializeEvent(ep, &ES);
     theQIE10SignalGenerator.initializeEvent(ep, &ES);
+    theQIE11SignalGenerator.initializeEvent(ep, &ES);
 
     // put digis from pileup event into digitizer
 
@@ -101,6 +107,7 @@ namespace edm {
     theHOSignalGenerator.fill(mcc);
     theHFSignalGenerator.fill(mcc);
     theQIE10SignalGenerator.fill(mcc);
+    theQIE11SignalGenerator.fill(mcc);
   }
 
   void DataMixingHcalDigiWorkerProd::putHcal(edm::Event &e,const edm::EventSetup& ES) {

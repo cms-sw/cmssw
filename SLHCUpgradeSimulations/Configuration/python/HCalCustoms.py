@@ -52,8 +52,21 @@ def load_HcalHardcode(process):
                 
     return process
 
-#intermediate customization ("Phase 0.5": HCAL 2017, HE and HF upgrades)
-def customise_HcalPhase0p5(process):
+#intermediate customization (HF 2016 upgrades)
+def customise_Hcal2016(process):
+    process=load_HcalHardcode(process)
+    
+    #for now, use HE run1 conditions - SiPM/QIE11 not ready
+    process.es_hardcode.testHFQIE10 = cms.bool(True)
+    
+    # to get reco to run
+    if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.setNoiseFlags = cms.bool(False)
+    
+    return process
+    
+#intermediate customization (HCAL 2017, HE and HF upgrades - no SiPMs or QIE11)
+def customise_Hcal2017(process):
     process=load_HcalHardcode(process)
     
     #for now, use HE run1 conditions - SiPM/QIE11 not ready
@@ -74,6 +87,15 @@ def customise_HcalPhase0p5(process):
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
     if hasattr(process,'datamixing_step'):
         process=customise_mixing(process)
+    
+    return process
+    
+#intermediate customization (HCAL 2017, HE and HF upgrades - w/ SiPMs & QIE11)
+def customise_Hcal2017Full(process):
+    process=customise_Hcal2017(process)
+    
+    #use HE phase1 conditions - test SiPM/QIE11
+    process.es_hardcode.useHEUpgrade = cms.bool(True)
     
     return process
     
@@ -123,7 +145,6 @@ def customise_RawToDigi(process):
 def customise_Digi(process):
     if hasattr(process,'mix'):
         process.mix.digitizers.hcal.HBHEUpgradeQIE = True
-        process.mix.digitizers.hcal.hb.siPMCells = cms.vint32([1])
         process.mix.digitizers.hcal.hb.photoelectronsToAnalog = cms.vdouble([10.]*16)
         process.mix.digitizers.hcal.hb.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*16)
@@ -256,4 +277,5 @@ def customise_mixing(process):
     process.mixData.HOPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
     process.mixData.HFPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
     process.mixData.QIE10PileInputTag = cms.InputTag("simHcalUnsuppressedDigis","HFQIE10DigiCollection")
+    process.mixData.QIE11PileInputTag = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     return process
