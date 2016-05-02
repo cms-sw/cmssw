@@ -952,6 +952,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	if(! tmeasIt->updatedState().isValid()) continue; 
 	
 	TrajectoryStateOnSurface tsos = tsoscomb( tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState() );
+        if (!tsos.isValid()) continue; // Happens rarely, due to singular matrix or similar
+
 	TransientTrackingRecHit::ConstRecHitPointer hit = tmeasIt->recHit();
 	if(! hit->isValid() || hit->geographicalId().det() != DetId::Tracker ) {
 	  continue; 
