@@ -69,6 +69,8 @@ private:
   int nMinEvts;
   
   bool bookingdone;
+  int NwCh[12][4];
+  int NwSec[12];
   
   // the dt geometry
   edm::ESHandle<DTGeometry> muonGeom;
