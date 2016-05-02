@@ -35,6 +35,9 @@
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
+#include "TrackingTools/TrajectoryCleaning/interface/FastTrajectoryCleaner.h"
+
+
 // for looper reconstruction
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
@@ -221,25 +224,26 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
 
   TrajectoryContainer final;
 
+  // better the seed to be always the same...
+  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
+  if (result.empty())
+    sharedSeed.reset(new TrajectorySeed(seed));
+  else sharedSeed = result.front().sharedSeed();
+
+
   work.reserve(result.size());
-  for (TrajectoryContainer::iterator traj=result.begin();
-       traj!=result.end(); ++traj) {
-    if(traj->isValid()) work.push_back(TempTrajectory(std::move(*traj)));
-  }
+  for (auto && traj : result) 
+    if(traj.isValid()) work.emplace_back(std::move(traj));
+ 
 
   rebuildSeedingRegion(seed,startingTraj,work);
-  final.reserve(work.size());
 
-  // better the seed to be always the same... 
-  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
-  if (result.empty()) 
-    sharedSeed.reset(new TrajectorySeed(seed));
-   else sharedSeed = result.front().sharedSeed();
+   // we clean here now
+  FastTrajectoryCleaner cleaner(theFoundHitBonus,theLostHitPenalty,false);
+  cleaner.clean(work);
 
-
-  for (TempTrajectoryContainer::iterator traj=work.begin();
-       traj!=work.end(); ++traj) {
-    final.push_back(traj->toTrajectory()); final.back().setSharedSeed(sharedSeed);
+  for (auto const & it : work) if (it.isValid()) {
+    final.push_back( it.toTrajectory() ); final.back().setSharedSeed(sharedSeed);
   }
   
   result.swap(final);
@@ -271,25 +275,14 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if ( work_.empty() )  return startingTraj;
 
-  /*  rebuilding is de-coupled from standard building
-  //
-  // try to additional hits in the seeding region
-  //
-  if ( theMinNrOfHitsForRebuild>0 ) {
-    // reverse direction
-    //thePropagator->setPropagationDirection(oppositeDirection(seed.direction()));
-    // rebuild part of the trajectory
-    rebuildSeedingRegion(startingTraj,work);
-  }
-
-  */
+  // cleaning now done here...
+  FastTrajectoryCleaner cleaner(theFoundHitBonus,theLostHitPenalty);
+  cleaner.clean(work_);
 
   boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
-  result.reserve(work_.size());
-  for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
-    result.push_back( it->toTrajectory() ); result.back().setSharedSeed(pseed);
+  for (auto const & it : work_) if (it.isValid()) {
+    result.push_back( it.toTrajectory() ); result.back().setSharedSeed(pseed);
   }
-
   work_.clear(); 
   if (work_.capacity() > work_MaxSize_) {  TempTrajectoryContainer().swap(work_); work_.reserve(work_MaxSize_/2); }
 
