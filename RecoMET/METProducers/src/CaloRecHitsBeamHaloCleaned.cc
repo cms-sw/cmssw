@@ -209,7 +209,7 @@ CaloRecHitsBeamHaloCleaned::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("HBHERecHitsLabel", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("GlobalHaloDataLabel", edm::InputTag("GlobalHaloData"));
   desc.add<bool>("IsHLT",false);
-  descriptions.add("CaloRecHitsBeamHaloCleaned",desc);
+  descriptions.add("caloRecHitsBeamHaloCleaned",desc);
 
 }
 
