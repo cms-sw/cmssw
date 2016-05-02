@@ -184,8 +184,11 @@ process.load('L1Trigger.L1TGlobal.StableParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v3.xml')
+<<<<<<< HEAD
 #process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
 
+=======
+>>>>>>> cms-l1t-offline/l1t-integration-v42.4
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
