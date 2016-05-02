@@ -28,8 +28,7 @@ IdealObliquePrism::IdealObliquePrism( const GlobalPoint& faceCenter,
   : CaloCellGeometry ( faceCenter, mgr, parm )
 {initSpan();}
 
-IdealObliquePrism::~IdealObliquePrism() 
-{}
+IdealObliquePrism::~IdealObliquePrism() = default;
 
 CCGFloat 
 IdealObliquePrism::dEta()  const 

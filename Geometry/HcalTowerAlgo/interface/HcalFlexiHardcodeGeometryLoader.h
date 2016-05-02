@@ -1,5 +1,5 @@
 #ifndef GEOMETRY_HCALTOWERALGO_HCALFLEXIHARDCODEGEOMETRYLOADER_H
-#define GEOMETRY_HCALTOWERALGO_HCALFLEXIHARDCODEGEOMETRYLOADER_H 1
+#define GEOMETRY_HCALTOWERALGO_HCALFLEXIHARDCODEGEOMETRYLOADER_H
 
 /** \class HcalFlexiHardcodeGeometryLoader
  *
@@ -7,7 +7,6 @@
 */
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 

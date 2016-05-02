@@ -7,7 +7,6 @@
 */
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 

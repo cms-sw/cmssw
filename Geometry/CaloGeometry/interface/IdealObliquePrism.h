@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_CALOGEOMETRY_IDEALOBLIQUEPRISM_H
-#define GEOMETRY_CALOGEOMETRY_IDEALOBLIQUEPRISM_H 1
+#define GEOMETRY_CALOGEOMETRY_IDEALOBLIQUEPRISM_H
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
   /** \class IdealObliquePrism
     

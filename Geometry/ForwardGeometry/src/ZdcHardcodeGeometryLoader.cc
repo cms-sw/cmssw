@@ -1,9 +1,7 @@
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcHardcodeGeometryLoader.h"
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <algorithm>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 

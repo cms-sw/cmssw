@@ -1,5 +1,6 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/CaloGeometry"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="clhep"/>

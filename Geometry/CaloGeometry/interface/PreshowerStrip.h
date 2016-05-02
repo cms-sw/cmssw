@@ -1,13 +1,7 @@
-#ifndef PreshowerStrip_h
-#define PreshowerStrip_h
+#ifndef GEOMETRY_CALOGEOMETRY_PRESHOWERSTRIP_H
+#define GEOMETRY_CALOGEOMETRY_PRESHOWERSTRIP_H
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Plane3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
-#include <CLHEP/Geometry/Transform3D.h>
-#include <vector>
-
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 /**
 
@@ -22,7 +16,7 @@
 
 class PreshowerStrip : public CaloCellGeometry
 {
-public:
+ public:
 
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -58,6 +52,7 @@ public:
 
   virtual void getTransform( Tr3D& tr, Pt3DVec* /*lptr*/ ) const override
     { }
+
  private:
   virtual void initCorners(CaloCellGeometry::CornersVec&) override;
 };

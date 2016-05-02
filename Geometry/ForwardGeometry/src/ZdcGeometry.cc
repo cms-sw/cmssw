@@ -1,9 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
-#include "ZdcHardcodeGeometryData.h"
-#include <algorithm>
+#include "Geometry/ForwardGeometry/src/ZdcHardcodeGeometryData.h"
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;

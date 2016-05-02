@@ -1,10 +1,8 @@
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorHardcodeGeometryLoader.h"
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/src/CastorGeometryData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <algorithm>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 

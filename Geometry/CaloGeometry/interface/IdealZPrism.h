@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_CALOGEOMETRY_IDEALZPRISM_H
-#define GEOMETRY_CALOGEOMETRY_IDEALZPRISM_H 1
+#define GEOMETRY_CALOGEOMETRY_IDEALZPRISM_H
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include <memory>
 
 /** \class IdealZPrism
@@ -23,70 +23,65 @@ parameters are eta and phi HALF-widths and the tower z thickness.
 
 \author J. Mans - Minnesota
 */
+
 class IdealZPrism final : public CaloCellGeometry 
 {
  public:
 
   enum DEPTH {None, EM, HADR};
   
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-      
-      IdealZPrism() ;
-      
-      IdealZPrism( const IdealZPrism& idzp ) ;
-      
-      IdealZPrism& operator=( const IdealZPrism& idzp ) ;
-      
-      IdealZPrism( const GlobalPoint& faceCenter , 
-		   CornersMgr*        mgr        ,
-		   const CCGFloat*    parm       ,
-			  IdealZPrism::DEPTH depth) ;
-      
-      virtual ~IdealZPrism() ;
-      
-      CCGFloat dEta() const ;
-      CCGFloat dPhi() const ;
-      CCGFloat dz()   const ;
-      CCGFloat eta()  const ;
-      CCGFloat z()    const ;
-      
-      static void localCorners( Pt3DVec&        vec ,
-				const CCGFloat* pv  ,
-				Pt3D&           ref   ) ;
-      
-      virtual void vocalCorners( Pt3DVec&        vec ,
-				 const CCGFloat* pv  ,
-				 Pt3D&           ref   ) const override;
-
-
+  typedef CaloCellGeometry::CCGFloat CCGFloat ;
+  typedef CaloCellGeometry::Pt3D     Pt3D     ;
+  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
   
+  IdealZPrism() ;
   
-      // corrected geom for PF
-      IdealZPrism const *  forPF() const  { return  m_geoForPF.get();}
-  
-   private:
-
-      virtual void initCorners(CornersVec& ) override;
+  IdealZPrism( const IdealZPrism& idzp ) ;
       
-      static GlobalPoint etaPhiR( float eta ,
-				  float phi ,
-				  float rad   ) ;
+  IdealZPrism& operator=( const IdealZPrism& idzp ) ;
+      
+  IdealZPrism( const GlobalPoint& faceCenter , 
+	       CornersMgr*        mgr        ,
+	       const CCGFloat*    parm       ,
+	       IdealZPrism::DEPTH depth) ;
+      
+  virtual ~IdealZPrism() ;
+      
+  CCGFloat dEta() const ;
+  CCGFloat dPhi() const ;
+  CCGFloat dz()   const ;
+  CCGFloat eta()  const ;
+  CCGFloat z()    const ;
+      
+  static void localCorners( Pt3DVec&        vec ,
+			    const CCGFloat* pv  ,
+			    Pt3D&           ref   ) ;
+      
+  virtual void vocalCorners( Pt3DVec&        vec ,
+			     const CCGFloat* pv  ,
+			     Pt3D&           ref   ) const override;
+  
+  // corrected geom for PF
+  IdealZPrism const *  forPF() const  { return  m_geoForPF.get();}
+  
+ private:
 
-      static GlobalPoint etaPhiPerp( float eta , 
-				     float phi , 
-				     float perp  ) ;
+  virtual void initCorners(CornersVec& ) override;
+  
+  static GlobalPoint etaPhiR( float eta ,
+			      float phi ,
+			      float rad   ) ;
 
-      static GlobalPoint etaPhiZ( float eta , 
-				  float phi ,
-				  float z    ) ;
+  static GlobalPoint etaPhiPerp( float eta , 
+				 float phi , 
+				 float perp  ) ;
 
+  static GlobalPoint etaPhiZ( float eta , 
+			      float phi ,
+			      float z    ) ;
 
-private:
-      // corrected geom for PF
-      std::unique_ptr<IdealZPrism> m_geoForPF;
-
+  // corrected geom for PF
+  std::unique_ptr<IdealZPrism> m_geoForPF;
 };
 
 std::ostream& operator<<( std::ostream& s , const IdealZPrism& cell ) ;

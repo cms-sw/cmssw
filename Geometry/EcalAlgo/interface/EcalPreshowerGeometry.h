@@ -1,5 +1,5 @@
-#ifndef EcalPreshowerGeometry_h
-#define EcalPreshowerGeometry_h
+#ifndef GEOMETRY_ECALALGO_ECALPRESHOWERGEOMETRY_H
+#define GEOMETRY_ECALALGO_ECALPRESHOWERGEOMETRY_H
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

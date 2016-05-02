@@ -1,7 +1,7 @@
-#ifndef Geometry_ForwardGeometry_IdealCastorTrapezoid_H
-#define Geometry_ForwardGeometry_IdealCastorTrapezoid_H 1
+#ifndef GEOMETRY_FORWARDGEOMETRY_IDEALCASTORTRAPEZOID_H
+#define GEOMETRY_FORWARDGEOMETRY_IDEALCASTORTRAPEZOID_H
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
   /** \class IdealCastorTrapezoid
     
@@ -29,50 +29,49 @@
   $Revision: 1.12 $
   \author P. Katsas - UoA
   */
-class IdealCastorTrapezoid: public CaloCellGeometry 
+
+class IdealCastorTrapezoid final : public CaloCellGeometry 
 {
-   public:
+ public:
 
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+  typedef CaloCellGeometry::CCGFloat CCGFloat ;
+  typedef CaloCellGeometry::Pt3D     Pt3D     ;
+  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+  typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-      IdealCastorTrapezoid() ;
+  IdealCastorTrapezoid() ;
 
-      IdealCastorTrapezoid( const IdealCastorTrapezoid& idct ) ;
+  IdealCastorTrapezoid( const IdealCastorTrapezoid& idct ) ;
       
-      IdealCastorTrapezoid& operator=( const IdealCastorTrapezoid& idct ) ;
+  IdealCastorTrapezoid& operator=( const IdealCastorTrapezoid& idct ) ;
       
-      IdealCastorTrapezoid( const GlobalPoint& faceCenter,
-			    CornersMgr*          mgr     ,
-			    const CCGFloat*      parm        ) ;
+  IdealCastorTrapezoid( const GlobalPoint&   faceCenter,
+			CornersMgr*          mgr       ,
+			const CCGFloat*      parm        ) ;
 	 
-      virtual ~IdealCastorTrapezoid() ;
+  virtual ~IdealCastorTrapezoid() ;
 	 
-      CCGFloat dxl() const ; 
-      CCGFloat dxh() const ; 
-      CCGFloat dx()  const ; 
-      CCGFloat dh()  const ;
-      CCGFloat dy()  const ; 
-      CCGFloat dz()  const ;
-      CCGFloat dhz() const ; 
-      CCGFloat dzb() const ; 
-      CCGFloat dzs() const ;
-      CCGFloat an()  const ;
-      CCGFloat dR()  const ;
+  CCGFloat dxl() const ; 
+  CCGFloat dxh() const ; 
+  CCGFloat dx()  const ; 
+  CCGFloat dh()  const ;
+  CCGFloat dy()  const ; 
+  CCGFloat dz()  const ;
+  CCGFloat dhz() const ; 
+  CCGFloat dzb() const ; 
+  CCGFloat dzs() const ;
+  CCGFloat an()  const ;
+  CCGFloat dR()  const ;
 
-      virtual void vocalCorners( Pt3DVec&        vec ,
-				 const CCGFloat* pv  ,
-				 Pt3D&           ref  ) const ;
+  virtual void vocalCorners( Pt3DVec&        vec ,
+			     const CCGFloat* pv  ,
+			     Pt3D&           ref  ) const override;
 
-      static void localCorners( Pt3DVec&        vec ,
-				const CCGFloat* pv  , 
-				Pt3D&           ref   ) ;
-   private:
-      virtual void initCorners(CornersVec& ) override;
-
-
+  static void localCorners( Pt3DVec&        vec ,
+			    const CCGFloat* pv  , 
+			    Pt3D&           ref   ) ;
+ private:
+  virtual void initCorners(CornersVec& ) override;
 };
 
 std::ostream& operator<<( std::ostream& s , const IdealCastorTrapezoid& cell ) ;

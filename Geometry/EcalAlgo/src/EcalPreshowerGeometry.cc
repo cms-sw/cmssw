@@ -2,8 +2,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include <iostream>
+
+#include <CLHEP/Geometry/Plane3D.h>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;

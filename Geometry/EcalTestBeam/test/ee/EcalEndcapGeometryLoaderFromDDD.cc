@@ -34,9 +34,6 @@ EcalEGL::fillGeom( EcalEndcapGeometry*     geom ,
       pv.push_back( factor*vv[i] ) ;
    }
 
-//   CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
-//   corners.resize() ;
-
    std::vector<GlobalPoint> corners ( 8 ) ;
 
    TruncatedPyramid::createCorners( pv, tr, corners ) ;

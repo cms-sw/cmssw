@@ -1,7 +1,6 @@
-#ifndef EcalBarrelGeometry_h
-#define EcalBarrelGeometry_h
+#ifndef GEOMETRY_ECALALGO_ECALBARRELGEOMETRY_H
+#define GEOMETRY_ECALALGO_ECALBARRELGEOMETRY_H
 
-#include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
@@ -9,6 +8,7 @@
 #include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "DataFormats/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/PEcalBarrelRcd.h"
