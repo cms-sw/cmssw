@@ -110,7 +110,7 @@ class jobdatabase:
             self.JOBSP3.append(parts[12])
 
             #count number of jobs
-            if 'jobm' not in self.JOBDIR[self.nJobs]:
+            if not self.JOBDIR[self.nJobs].startswith("jobm"):
                 milleJobs += 1
             self.nJobs += 1
         self.nJobs = milleJobs
