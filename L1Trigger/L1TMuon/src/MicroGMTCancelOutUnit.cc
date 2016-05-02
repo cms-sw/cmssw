@@ -24,6 +24,7 @@ MicroGMTCancelOutUnit::initialise(L1TMuonGlobalParamsHelper* microGMTParamsHelpe
     m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdPosSingleMatchQualLUT(), cancel_t::emtf_emtf_pos, fwVersion);
     m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdNegSingleMatchQualLUT(), cancel_t::emtf_emtf_neg, fwVersion);
 
+    //m_lutDict[tftype::bmtf+tftype::bmtf*10] = m_brlSingleMatchQualLUT;
     m_lutDict[tftype::omtf_neg+tftype::bmtf*10] = m_boNegMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::bmtf*10] = m_boPosMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::omtf_pos*10] = m_ovlPosSingleMatchQualLUT;
@@ -55,7 +56,7 @@ MicroGMTCancelOutUnit::setCancelOutBits(GMTInternalWedges& wedges, tftype trackF
       coll2.push_back(mu);
     }
     if (mode == cancelmode::coordinate) {
-      getCoordinateCancelBits(coll2, coll1); // in case of a tie coll1 muon wins
+      getCoordinateCancelBits(coll1, coll2);
     } else {
       getTrackAddrCancelBits(coll1, coll2);
     }
@@ -154,13 +155,13 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
       int dPhiMask = (1 << matchLUT->getDeltaPhiWidth()) - 1;
       int dEtaMask = (1 << matchLUT->getDeltaEtaWidth()) - 1;
 
+      // temporary fix to take processor offset into account...
       int dPhi = (*mu_w1)->hwGlobalPhi() - (*mu_w2)->hwGlobalPhi();
-      dPhi = std::abs(dPhi);
       if (dPhi > 338) dPhi -= 576; // shifts dPhi to [-pi, pi) in integer scale
       dPhi = std::abs(dPhi);
       int dEta = std::abs((*mu_w1)->hwEta() - (*mu_w2)->hwEta());
       // check first if the delta is within the LSBs that the LUT takes, otherwise the distance
-      // is greater than what we want to cancel -> e.g. 15(int) is max => 15*0.01 = 0.15 (rad)
+      // is greater than what we want to cancel -> e.g. 31(int) is max => 31*0.01 = 0.31 (rad)
       // LUT takes 5 LSB for dEta and 3 LSB for dPhi
       if (dEta <= dEtaMask && dPhi <= dPhiMask) {
         int match = matchLUT->lookup(dEta & dEtaMask, dPhi & dPhiMask);
@@ -253,7 +254,7 @@ MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInt
         }
         //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
         if (nMatchedStations > 0) {
-          if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
+          if ((*mu_w1)->origin().hwQual() > (*mu_w2)->origin().hwQual()) {
             (*mu_w2)->setHwCancelBit(1);
           } else {
             (*mu_w1)->setHwCancelBit(1);
