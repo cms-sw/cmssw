@@ -511,9 +511,6 @@ def customizeHLTforMC(process,_fastSim=False):
     fastsim.setSchedule_(fastsim.schedule)
     fastsim.prune()
 
-    if hasattr(fastsim,'hltL1extraParticles'):
-      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
-
     return fastsim
 
   else:
