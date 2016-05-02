@@ -613,9 +613,7 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
 /// Reads and returns logical expressions from DB
 std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
 {
-  if ( key.size() == 0 ) {
-    return std::vector< std::string >( 1, emptyKeyError_ );
-  }
+  if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
   std::vector< edm::eventsetup::DataKey > labels;
   setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );
