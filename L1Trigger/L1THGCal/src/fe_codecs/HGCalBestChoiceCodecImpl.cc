@@ -1,3 +1,4 @@
+
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
@@ -6,7 +7,13 @@
 HGCalBestChoiceCodecImpl::HGCalBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     nData_(conf.getParameter<uint32_t>("NData")),
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
-    nCellsInModule_(data_type::size)
+    nCellsInModule_(data_type::size),
+    linLSB_(conf.getParameter<double>("linLSB")),
+    adcsaturation_(conf.getParameter<double>("adcsaturation")),
+    adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
+    tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
+    tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
+    tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC"))
 /*****************************************************************/
 {
 }
@@ -80,6 +87,33 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
     return result;
 }
 
+/*****************************************************************/
+void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod, const std::vector<HGCEEDataFrame>& dataframes, std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes)
+/*****************************************************************/
+{
+  double amplitude; uint32_t amplitude_int;
+  double adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
+  double tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+  
+  for(const auto& frame : dataframes) {//loop on DIGI
+    for(const auto& tc_c : mod.triggerCellComponents()) { //treat only the HG cells in the considered module
+      if(tc_c.second==frame.id()) { //treat if the DIGI detID is the same of the considered GC cell
+	if (frame[2].mode()) {//TOT mode
+	  amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
+	}
+	else {//ADC mode
+	  amplitude = double(frame[2].data()) * adcLSB_;
+	}
+
+	amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+	if (amplitude_int>65535) amplitude_int = 65535;
+    
+	linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
+      }
+    }
+  }
+}
+  
 
 /*****************************************************************/
 void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod, const std::vector<HGCEEDataFrame>& dataframes, data_type& data)
