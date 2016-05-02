@@ -1,7 +1,7 @@
 #include "../interface/MicroGMTMatchQualLUT.h"
 #include "TMath.h"
 
-l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const double maxDR, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(4), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(maxDR), m_cancelType(cancelType)
+l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const double maxDR, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(5), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(maxDR), m_cancelType(cancelType)
 {
   m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
   m_outWidth = 1;
@@ -22,7 +22,7 @@ l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const
   }
 }
 
-l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (l1t::LUT* lut, cancel_t cancelType) : MicroGMTLUT(lut), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(4), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(-1.), m_cancelType(cancelType)
+l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (l1t::LUT* lut, cancel_t cancelType) : MicroGMTLUT(lut), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(5), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(-1.), m_cancelType(cancelType)
 {
   m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
   m_outWidth = 1;
