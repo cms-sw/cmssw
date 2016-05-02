@@ -3,7 +3,13 @@ import FWCore.ParameterSet.Config as cms
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      CodecIndex = cms.uint32(1),
                      NData = cms.uint32(12),
-                     DataLength = cms.uint32(8)
+                     DataLength = cms.uint32(8),
+                     linLSB = cms.double(100./1024.),
+                     adcsaturation = cms.double(100),
+                     adcnBits =  cms.uint32(10),
+                     tdcsaturation = cms.double(10000),
+                     tdcnBits =  cms.uint32(12),
+                     tdcOnsetfC = cms.double(60)
                    )
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
