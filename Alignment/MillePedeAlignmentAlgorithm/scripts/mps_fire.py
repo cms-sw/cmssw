@@ -93,7 +93,7 @@ if fireMerge == 0:
 				      (theJobName, resources, theJobData, lib.JOBDIR[i])
 				print submission
 				result = subprocess.check_output(submission, stderr=subprocess.STDOUT, shell=True)
-				print '      '+result
+				print '      '+result,
 				result = result.strip()
 				
 				# check if job was submitted and updating jobdatabase 
@@ -105,7 +105,7 @@ if fireMerge == 0:
 					##lib.JOBID[i] = '%07d' % int(match.group(1))
 					##print 'jobid is',lib.JOBID[i]
 				else:
-					print 'Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result)
+					print 'Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result),
 				nSub +=1
 
 # fire the merge job
@@ -203,7 +203,7 @@ else:
 			curJobName = 'm'+str(nMerge)+'_'+theJobName
 			submission = 'bsub -J %s %s %s' % (curJobName,resources,scriptPath)
 			result = subprocess.check_output(submission, stderr=subprocess.STDOUT, shell=True)
-			print '     '+result
+			print '     '+result,
 			result = result.strip()
 			
 			# check if merge job was submitted and updating jobdatabase 
@@ -215,7 +215,7 @@ else:
 				##lib.JOBID[i] = '%07d' % int(match.group(1))
 				print 'jobid is',lib.JOBID[i]
 			else:
-				print 'Submission of merge job seems to have failed:',result
+				print 'Submission of merge job seems to have failed:',result,
 			
 		i +=1
 		# end of while on merge jobs
