@@ -19,36 +19,40 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-#process.CondDB.connect = 'sqlite_file:EcalTPGCrystalStatus_v2_hlt.db'
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
 process.CondDB.DBParameters.authenticationPath = ''
+
+#process.CondDB.connect = 'sqlite_file:EcalADCToGeVConstant_V1_hlt.db'
+process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
     logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
 #   logconnect = cms.untracked.string('sqlite_file:log.db'),   
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('EcalTPGCrystalStatusRcd'),
-        tag = cms.string('EcalTPGCrystalStatus_v2_hlt')
+        toPut = cms.VPSet(cms.PSet(
+        record = cms.string('EcalADCToGeVConstantRcd'),
+        tag = cms.string('EcalADCToGeVConstant_V1_hlt')
     ))
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadXTAnalyzer",
-    record = cms.string('EcalTPGCrystalStatusRcd'),
+process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
+    record = cms.string('EcalADCToGeVConstantRcd'),
     loggingOn= cms.untracked.bool(True),
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('200000'),
+     FileLowField = cms.string('/data/O2O/Ecal/TPG//ADCToGeV_Boff.xml'),
+     FileHighField = cms.string('/data/O2O/Ecal/TPG/ADCToGeV_Bon.xml'),
+     firstRun = cms.string('207149'),
      lastRun = cms.string('10000000'),
      OnlineDBSID = cms.string('cms_omds_lb'),
 #     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
-     OnlineDBUser = cms.string('cms_ecal_conf'),
-     OnlineDBPassword = cms.string('***'),
+     OnlineDBUser = cms.string('cms_ecal_r'),
+     OnlineDBPassword = cms.string('3c4l_r34d3r'),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('PHYSICS')
+     RunType = cms.string('COSMICS')
     )                            
 )
 
