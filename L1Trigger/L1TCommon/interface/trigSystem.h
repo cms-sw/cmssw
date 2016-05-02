@@ -24,6 +24,8 @@ class trigSystem
 		void addSettingTable(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void addMask(const std::string& id, const std::string& procRole);
 		void disableDaqProc(const std::string& daqProc);
+		std::map<std::string, std::string> getProcRole() { return _procRole; };
+		std::map<std::string, std::vector<std::string> > getRoleProcs() { return _roleProcs; };
 		std::map<std::string, setting> getSettings (const std::string& processor);
 		std::map<std::string, mask> getMasks(const std::string& proccessor);
 		bool isMasked(const std::string& proccessor, const std::string& id);
