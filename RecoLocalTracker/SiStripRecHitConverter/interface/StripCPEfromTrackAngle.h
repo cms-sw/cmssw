@@ -29,9 +29,18 @@ private:
   Algo m_algo;
 
 public:  
+  using AlgoParam = StripCPE::AlgoParam;
+  using AClusters = StripClusterParameterEstimator::AClusters;
+  using ALocalValues  = StripClusterParameterEstimator::ALocalValues;
+  
+  void localParameters(AClusters const & clusters, ALocalValues & retValues, const GeomDetUnit& gd, const LocalTrajectoryParameters &ltp) const override;
 
   StripClusterParameterEstimator::LocalValues
-  localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
+  localParameters( const SiStripCluster& cl, AlgoParam const & ap) const override;
+
+  
+  StripClusterParameterEstimator::LocalValues
+  localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
   
   float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc ) const ;
   float legacyStripErrorSquared(const unsigned N, const float uProj) const;
