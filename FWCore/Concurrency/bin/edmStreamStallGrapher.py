@@ -47,6 +47,9 @@ def getTime(line):
 kStarted=0
 kFinished=1
 
+#Special names
+kSourceFindEvent = "sourceFindEvent"
+
 #----------------------------------------------
 def readLogFile(fileName):
   f = open(fileName,"r")
@@ -62,6 +65,22 @@ def readLogFile(fileName):
               foundEventToStartFrom = True
               stream = int( l[l.find("stream = ")+9])
               processingSteps.append(("FINISH INIT",kFinished,stream,getTime(l)-startTime,False))
+      if l.find("processing event :") != -1:
+          time = getTime(l)
+          if startTime == 0:
+              startTime = time
+          time = time - startTime
+          delayed = False
+          streamIndex = l.find("stream = ")
+          stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
+          name = kSourceFindEvent
+          trans = kStarted
+          #the start of an event is the end of the framework part
+          if l.find("starting:") != -1:
+              trans = kFinished
+          processingSteps.append((name,trans,stream,time,delayed))
+          if stream > numStreams:
+              numStreams = stream
       if l.find("processing event for module") != -1:
           time = getTime(l)
           if startTime == 0:
@@ -102,16 +121,17 @@ def findStalledModules(processingSteps, numStreams):
   for n,trans,s,time,delayed in processingSteps:
     waitTime = None
     if trans == kStarted:
-      if delayed:
+      if delayed or (n == kSourceFindEvent):
         previousStartWasADelayed[s] = True
         streamTime[s] = time
       else:
         previousStartWasADelayed[s] = False
         waitTime = time - streamTime[s]
     else:
-      if delayed and previousStartWasADelayed[s]:
+      if (delayed or (n == kSourceFindEvent)) and previousStartWasADelayed[s]:
         #for a source we only know the combined time for waiting and running
-        n = "source"
+        if n != kSourceFindEvent:
+          n = "source"
         waitTime = time - streamTime[s]
         previousStartWasADelayed[s] = False
       streamTime[s] = time
@@ -139,7 +159,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
       streamState[s]=trans
       waitTime = None
       if trans == kStarted:
-          if delayed:
+          if delayed or (n == kSourceFindEvent):
               previousStartWasADelayed[s] = True
               streamTime[s] = time
               continue
@@ -148,9 +168,10 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
               waitTime = time - streamTime[s]
               streamState[s]=2
       else:
-          if delayed:
+          if delayed or (n == kSourceFindEvent):
               if previousStartWasADelayed[s]:
-                  n="source"
+                  if n != kSourceFindEvent:
+                      n="source"
                   waitTime = time - streamTime[s]
                   streamState[s]=2
                   previousStartWasADelayed[s] = False
@@ -235,6 +256,8 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
           previousStartWasADelayed[s] = False
         else:
             continue
+      if n == kSourceFindEvent:
+          c = "orange"
       streamStartTimes[s].append((streamTime[s],time-streamTime[s]))
       if c == "green" and n in stalledModuleNames:
         c="red"
