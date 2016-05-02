@@ -14,6 +14,7 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 
 class HitPairEDProducer: public edm::stream::EDProducer<> {
 public:
@@ -90,14 +91,35 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     intermediateHitDoublets->reserve(regions.size(), layers.size());
   }
 
+  LogDebug("HitPairEDProducer") << "Creating doublets for " << regions.size() << " and " << layers.size() << " layer sets";
+
+  // This is the easiest way to extract the layer pairs from the full
+  // set of seeding layers. It feels a bit stupid to do it for each
+  // event given the input is defined in configuration. Maybe do it
+  // once-per-job in SeedingLayerSetsEDProducer?
+  std::vector<SeedingLayerSetsHits::SeedingLayerSet> layerPairs;
+  if(layers.numberOfLayersInSet() > 2) {
+    std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
+    layerPairs.reserve(trilayers.size());
+    for(const auto& setAndLayers: trilayers) {
+      layerPairs.push_back(setAndLayers.first);
+    }
+  }
+  else {
+    layerPairs.reserve(layers.size());
+    for(const auto& set: layers)
+      layerPairs.push_back(set);
+  }
+
   for(const TrackingRegion& region: regions) {
     if(produceIntermediateHitDoublets_) {
       intermediateHitDoublets->beginRegion(&region);
     }
 
-    for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layers) {
+    for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layerPairs) {
       LayerHitMapCache hitCache;
       auto doublets = generator_.doublets(region, iEvent, iSetup, layerSet, hitCache);
+      LogTrace("HitPairEDProducer") << " created " << doublets.size() << " doublets for layers " << layerSet[0].index() << "," << layerSet[1].index();
       if(doublets.empty()) continue; // don't bother if no pairs from these layers
       if(produceSeedingHitSets_) {
         for(size_t i=0, size=doublets.size(); i<size; ++i) {
