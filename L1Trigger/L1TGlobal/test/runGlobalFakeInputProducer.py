@@ -184,6 +184,8 @@ process.load('L1Trigger.L1TGlobal.StableParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v3.xml')
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
@@ -206,9 +208,7 @@ process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
-
-
-#process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
+#process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
