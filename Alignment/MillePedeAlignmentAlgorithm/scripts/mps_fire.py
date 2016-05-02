@@ -9,53 +9,43 @@
 #
 #  Usage:
 #
-#  mps_fire.pl [-m[f]] [maxjobs]
-#  mps_fire.pl -h
+#  mps_fire.py [-m[f]] [maxjobs]
+#  mps_fire.py -h
 
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import os
 import sys
 import subprocess
 import re
+import argparse
+
+parser = argparse.ArgumentParser(
+        description="Submit jobs that are setup in local mps database to batch system.",
+)
+parser.add_argument("maxJobs", type=int, nargs='?', default=1,
+                    help="number of Mille jobs to be submitted (default: %(default)d)")
+parser.add_argument("-a", "--all", dest="allMille", default=False,
+                    action="store_true",
+                    help="submit all setup Mille jobs; maxJobs is ignored")
+parser.add_argument("-m", "--merge", dest="fireMerge", default=False,
+                    action="store_true",
+                    help="submit all setup Pede jobs; maxJobs is ignored")
+parser.add_argument("-f", "--force-merge", dest="forceMerge", default=False,
+                    action="store_true",
+                    help=("force the submission of the Pede job in case some "+
+                          "Mille jobs are not in the OK state"))
+args = parser.parse_args(sys.argv[1:])
+
 
 lib = mpslib.jobdatabase()
-maxJobs = 1
-fireMerge = 0
-helpwanted = 0
-forceMerge = 0
-#updateDb = 0
-
-# parse the arguments
-for i, arg in enumerate(sys.argv):
-    if arg[0] == '-':
-        if 'h' in arg:
-            helpwanted = 1
-        if 'm' in arg:
-            fireMerge = 1
-            if 'f' in arg:
-                forceMerge = 1
-    else:
-        if i == 1:
-            maxJobs = arg
-maxJobs = int(maxJobs)
-
-# Option -h ->Print help
-if helpwanted != 0:
-    print "Usage:\n  mps_fire.pl [-m[f]] [maxjobs]"
-    print "\nmaxjobs:       Number of Mille jobs to be submitted (default is one)"
-    print "\nKnown options:";
-    print "\n  -m   Submit all setup Pede jobs, maxJobs is ignored."
-    print "\n  -mf  Force the submission of the Pede job in case"
-    print "\n          some Mille jobs are not in the OK state.\n"
-    print "\n  -h   This help."
-    exit()
-
 lib.read_db()
 
+if args.all:
+    # submit all Mille jobs and ignore 'maxJobs' supplied by user
+    args.maxJobs = lib.nJobs
+
 # build the absolute job directory path (needed by mps_script)
-thePwd = subprocess.check_output('pwd', stderr=subprocess.STDOUT, shell=True)
-thePwd = thePwd.strip()
-theJobData = thePwd+'/jobData'
+theJobData = os.path.join(os.getcwd(), "jobData")
 
 # set the job name ???????????????????
 theJobName = 'mpalign'
@@ -63,7 +53,7 @@ if lib.addFiles != '':
     theJobName = lib.addFiles
 
 # fire the 'normal' parallel Jobs (Mille Jobs)
-if fireMerge == 0:
+if not args.fireMerge:
     #set the resources string coming from mps.db
     resources = lib.get_class('mille')
 
@@ -84,7 +74,7 @@ if fireMerge == 0:
     nSub = 0 # number of submitted Jobs
     for i in xrange(lib.nJobs):
         if lib.JOBSTATUS[i] == 'SETUP':
-            if nSub < maxJobs:
+            if nSub < args.maxJobs:
                 # submit a new job with 'bsub -J ...' and check output
                 # for some reasons LSF wants script with full path
                 submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
@@ -121,11 +111,11 @@ else:
     resources = resources+' -R \"rusage[mem="%s"]\"' % str(lib.pedeMem) # FIXME the dots? -> see .pl
 
     # check whether all other jobs are OK
-    mergeOK = 1
+    mergeOK = True
     for i in xrange(lib.nJobs):
         if lib.JOBSTATUS[i] != 'OK':
             if 'DISABLED' not in lib.JOBSTATUS[i]:
-                mergeOK = 0
+                mergeOK = False
                 break
 
     # loop over merge jobs
@@ -137,7 +127,7 @@ else:
         if lib.JOBSTATUS[i] != 'SETUP':
             print 'Merge job %d status %s not submitted.' % \
                   (jobNumFrom1, lib.JOBSTATUS[i])
-        elif (mergeOK != 1) and (forceMerge != 1):
+        elif not (mergeOK or args.forceMerge):
             print 'Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -mf to force).'
         else:
             # some paths for clarity
@@ -146,7 +136,7 @@ else:
             scriptPath        = Path+'/theScript.sh'
 
             # force option invoked:
-            if forceMerge == 1:
+            if args.forceMerge:
 
                 # make a backup copy of the script first, if it doesn't already exist.
                 if not os.path.isfile(backupScriptPath):
