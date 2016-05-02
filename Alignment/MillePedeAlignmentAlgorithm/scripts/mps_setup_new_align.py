@@ -197,6 +197,17 @@ def copy_default_templates(MPS_dir, next_campaign):
     default_conf_dir = os.path.join(MPS_dir, "test")
     for f in ("universalConfigTemplate.py", "alignment_config.ini"):
         shutil.copy(os.path.join(default_conf_dir, f), next_campaign)
+
+    # replace job name with campaign ID as initial value:
+    config_file = os.path.join(next_campaign, "alignment_config.ini")
+    customized = ""
+    with open(config_file, "r") as f:
+        job_name_regex = re.compile(r"(jobname\s*[=:])(.*)")
+        for line in f:
+            customized += re.sub(job_name_regex, r"\1 "+next_campaign, line)
+    with open(config_file, "w") as f:
+        f.write(customized)
+
     print "    - copied default configuration templates from",
     print "'"+default_conf_dir+"'"
 
