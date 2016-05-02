@@ -38,7 +38,7 @@ def customiseFor13753(process):
             producer.CleanerPSet.useQuadrupletAlgo = cms.bool(False)
     return process
 
-def customiseForXXXXX(process):
+def customiseFor14317(process):
     for pset in process._Process__psets.values():
         if hasattr(pset,'ComponentType'):
             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
@@ -72,7 +72,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if cmsswVersion >= "CMSSW_8_1":
         process = customiseFor13753(process)
         process = customiseFor14282(process)
-        process = customiseForXXXXX(process)
+        process = customiseFor14317(process)
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
