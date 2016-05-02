@@ -96,6 +96,9 @@ namespace edmNew {
       return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>( handle.id(), ci, ci - &(container().front()) );
     }
 
+    unsigned int makeKeyOf(const_iterator ci) const {
+      return  ci - &(container().front());
+    }
     
   private:
 

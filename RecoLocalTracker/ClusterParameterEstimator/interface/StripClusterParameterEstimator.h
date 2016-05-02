@@ -13,6 +13,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 
+#include "CommonTools/Utils/interface/DynArray.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -25,9 +26,15 @@
 class StripClusterParameterEstimator
 {
  public:
-  typedef std::pair<LocalPoint,LocalError>  LocalValues;
+  using LocalValues = std::pair<LocalPoint,LocalError>;
+  using ALocalValues = DynArray<LocalValues>;
+  using AClusters =  DynArray<SiStripCluster const *>;
   typedef std::vector<LocalValues> VLocalValues;
 
+  virtual void localParameters(AClusters const & clusters, ALocalValues & retValues, const GeomDetUnit& gd, const LocalTrajectoryParameters & ltp) const {
+  }
+
+  
   virtual LocalValues localParameters( const SiStripCluster&,const GeomDetUnit&) const {
       return std::make_pair(LocalPoint(), LocalError());
   }
