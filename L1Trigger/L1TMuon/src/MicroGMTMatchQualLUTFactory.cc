@@ -4,7 +4,7 @@
 /// \author: Thomas Reis
 ///
 //
-// This class implements the MatchQualLUT factory. Based on the firmware 
+// This class implements the MatchQualLUT factory. Based on the firmware
 // version it selects the appropriate concrete implementation.
 //
 
@@ -15,16 +15,19 @@
 using namespace edm;
 
 namespace l1t {
-  MicroGMTMatchQualLUTFactory::ReturnType
-  MicroGMTMatchQualLUTFactory::create(const std::string& filename, const double maxDR, cancel_t cancelType, const int fwVersion) {
+  MicroGMTMatchQualLUTFactory::ReturnType MicroGMTMatchQualLUTFactory::create(
+      const std::string& filename, const double maxDR, const double fEta,
+      const double fPhi, cancel_t cancelType, const int fwVersion) {
     ReturnType p;
-
+  
     switch (fwVersion) {
       case 1:
-        p = ReturnType(new MicroGMTMatchQualLUT(filename, maxDR, cancelType));
+        p = ReturnType(new MicroGMTMatchQualLUT(
+            filename, maxDR, fEta, fPhi, cancelType));
         break;
       default:
-        LogError("MicroGMTMatchQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+        LogError("MicroGMTMatchQualLUTFactory")
+            << "Invalid firmware version requested: " << fwVersion;
     }
     return p;
   }

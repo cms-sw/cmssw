@@ -30,7 +30,7 @@ namespace l1t {
 
       typedef std::shared_ptr<MicroGMTMatchQualLUT> ReturnType;
 
-      static ReturnType create(const std::string& filename, const double maxDR, cancel_t cancelType, const int fwVersion);
+      static ReturnType create(const std::string& filename, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType, const int fwVersion);
       static ReturnType create(l1t::LUT* lut, cancel_t cancelType, const int fwVersion);
   };
 

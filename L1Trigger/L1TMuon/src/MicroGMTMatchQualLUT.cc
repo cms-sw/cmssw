@@ -1,7 +1,7 @@
 #include "../interface/MicroGMTMatchQualLUT.h"
 #include "TMath.h"
 
-l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const double maxDR, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(5), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(maxDR), m_cancelType(cancelType)
+l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(5), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(maxDR), m_fEta(fEta), m_fPhi(fPhi), m_cancelType(cancelType)
 {
   m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
   m_outWidth = 1;
@@ -46,12 +46,12 @@ l1t::MicroGMTMatchQualLUT::lookup(int dEtaRed, int dPhiRed) const
   if (m_initialized) {
     return data((unsigned)hashInput(checkedInput(dEtaRed, m_dEtaRedInWidth), checkedInput(dPhiRed, m_dPhiRedInWidth)));
   }
-  double dEta = dEtaRed*m_etaScale;
-  double dPhi = dPhiRed*m_phiScale;
+  double dEta = m_fEta*dEtaRed*m_etaScale;
+  double dPhi = m_fPhi*dPhiRed*m_phiScale;
 
   double dR = std::sqrt(dEta*dEta + dPhi*dPhi);
 
-  int retVal = dR < m_maxDR ? 1 : 0;
+  int retVal = dR <= m_maxDR ? 1 : 0;
   // should we need customisation for the different track finder cancellations:
   // switch (m_cancelType) {
   //   case bmtf_bmtf:
