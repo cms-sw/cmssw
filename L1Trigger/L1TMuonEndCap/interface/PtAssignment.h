@@ -89,7 +89,8 @@ int ModeVariables_Scheme3[13][6] =
     {0,3,5,20,-999,-999}            // 15
   };
 
-const char *dirSchemeC = "L1Trigger/L1TMuon/data/emtf_luts_16_04_21/ModeVariables/trees";
+const char *dirSchemeC = "L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees";
+
 
 //------------------------------------------------//
 
