@@ -164,7 +164,7 @@ sub test_pack_unpack_is_unity {
     if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT $COND_MC -s DIGI,L1,DIGI2RAW,RAW2DIGI -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/Configuration/customiseUtils.L1TStage2ComparisonRAWvsEMU >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT $COND_MC -s DIGI,L1,DIGI2RAW,RAW2DIGI -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/Configuration/customiseUtils.L1TStage2ComparisonRAWvsEMU --customise=L1Trigger/Configuration/customiseUtils.L1TGtStage2ComparisonRAWvsEMU >& CMSDRIVER.log");
 # --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
 	print "INFO: status of cmsDriver call is $status\n";
@@ -179,11 +179,12 @@ sub test_pack_unpack_is_unity {
 	    return;
 	}
     }
+    $count = 0;
     open (INPUT, "grep \"SUMMARY:  L1T Comparison\" CMSRUN.log |");
     while (<INPUT>){
-	if (/SUCCESS/) {system "touch SUCCESS";}
+	if (/SUCCESS/) {$count++;}
     }
-
+    if ($count == 2) {system "touch SUCCESS"; }
 }
 
 
