@@ -7,11 +7,22 @@
 #include "L1TStage2Layer2Constants.h"
 
 namespace l1t {
-   namespace stage2 {
+    namespace stage2 {
       class EtSumPacker : public Packer {
          public:
+	    EtSumPacker(int b1) : b1_(b1) {}
             virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            int b1_;
       };
+      class GTEtSumPacker : public EtSumPacker {
+         public:
+             GTEtSumPacker() : EtSumPacker(20) {}
+      };
+      class CaloEtSumPacker : public EtSumPacker {
+         public:
+	     CaloEtSumPacker() : EtSumPacker(21) {}
+      };
+
    }
 }
 
@@ -23,7 +34,7 @@ namespace stage2 {
    EtSumPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<EtSumBxCollection> etSums;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getEtSumToken(), etSums);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getEtSumToken(), etSums);
 
       uint32_t et_word = 0;
       uint32_t ht_word = 0;
@@ -50,9 +61,11 @@ namespace stage2 {
       load.push_back(mht_word);
       while (load.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load.push_back(0);
 
-      return {Block(21, load)};
+      return {Block(b1_, load)};
    }
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::EtSumPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloEtSumPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTEtSumPacker);
+

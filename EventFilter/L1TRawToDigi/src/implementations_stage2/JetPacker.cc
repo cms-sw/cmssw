@@ -10,8 +10,21 @@ namespace l1t {
    namespace stage2 {
       class JetPacker : public Packer {
          public:
+	    JetPacker(int b1, int b2) : b1_(b1), b2_(b2) {}
             virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+	    int b1_, b2_;
       };
+
+      class GTJetPacker : public JetPacker {
+         public:
+             GTJetPacker() : JetPacker(12,14) {}
+      };
+      class CaloJetPacker : public JetPacker {
+         public:
+	     CaloJetPacker() : JetPacker(13,15) {}
+      };
+
+
    }
 }
 
@@ -23,7 +36,7 @@ namespace stage2 {
    JetPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<JetBxCollection> jets;
-      event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
+      event.getByToken(static_cast<const CommonTokens*>(toks)->getJetToken(), jets);
 
       std::vector<uint32_t> load1, load2;
 
@@ -59,9 +72,10 @@ namespace stage2 {
 
       
 
-      return {Block(13, load1), Block(15, load2)};
+      return {Block(b1_, load1), Block(b2_, load2)};
    }
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::JetPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTJetPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloJetPacker);
