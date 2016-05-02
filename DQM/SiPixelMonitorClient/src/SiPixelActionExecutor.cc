@@ -1708,6 +1708,24 @@ void SiPixelActionExecutor::createEfficiency(DQMStore::IBooker & iBooker, DQMSto
 
 //=============================================================================================================
 
+int SiPixelActionExecutor::getLadder(std::string dname_){
+  int biny_= 0;
+  string lad=dname_.substr(dname_.find("Ladder_") + 7, 2);
+  if(dname_.find(lad)!=string::npos){ biny_ = atoi(lad.c_str());}
+  return biny_;
+}
+
+//=============================================================================================================
+
+int SiPixelActionExecutor::getBlade(std::string dname_){
+  int binx_= 0;
+  string blad=dname_.substr(dname_.find("Blade_") + 6, 2);
+  if(dname_.find(blad)!=string::npos){ binx_ = atoi(blad.c_str());}
+  return binx_;
+}
+
+//=============================================================================================================
+
 void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isbarrel, bool isUpgrade){
   //cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
   string currDir = iBooker.pwd();
@@ -1729,32 +1747,19 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
 	  MonitorElement * valid = iGetter.get(new_path);
 	  if (!valid) continue;
-	  //int binx = 0; 
+	  int binx = 0; 
 	  int biny = 0;
 	  //get the ladder number
-	  
-	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
-	  else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
-	  else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
-	  else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
-	  else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
-	  else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
-	  else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
-	  else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
-	  else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
-	  else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
-	  else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
-	  
-	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
+	   biny = getLadder(dname);//Current
+	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){ 
 	    biny=-biny;
 	  }
-	  
-  	  for(int i=1; i<5;i++){
+	  const int nMod = 4; 
+	  for(int i=1; i<nMod+1;i++){
 	    float hitEfficiency = -1.0;
 	    float missingHits=0;
 	    float validHits=0;
-	    float binx=float(i);
-
+	    binx=i; //Module
 	    if(currDir.find("Shell_m")!=string::npos) binx=-binx;
 
 	    missingHits=missing->getBinContent(i);
@@ -1794,30 +1799,11 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	    float hitEfficiency = -1.;
 	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
 	    int binx = 0; int biny = 0;
-	    if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;}
-	    if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
-	    else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
-	    else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
-	    else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
-	    else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
-	    else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
-	    else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
-	    else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
-	    else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
-	    else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
-	    else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
-	    else if(dname.find("23")!=string::npos){ biny = 23;}else if(dname.find("24")!=string::npos){ biny = 24;}
-	    else if(dname.find("25")!=string::npos){ biny = 25;}else if(dname.find("25")!=string::npos){ biny = 25;}
-	    else if(dname.find("26")!=string::npos){ biny = 26;}else if(dname.find("27")!=string::npos){ biny = 27;}
-	    else if(dname.find("28")!=string::npos){ biny = 28;}else if(dname.find("29")!=string::npos){ biny = 29;}
-	    else if(dname.find("30")!=string::npos){ biny = 30;}else if(dname.find("31")!=string::npos){ biny = 31;}
-	    else if(dname.find("32")!=string::npos){ biny = 32;}
+	    biny = getLadder(dname);
 	    if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
-	      if(currDir.find("Layer_1")!=string::npos){ biny = biny + 6;}
-	      else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 14;}
-	      else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
-	      else if(currDir.find("Layer_4")!=string::npos){ biny = biny + 32;}
+	      biny=-biny;
 	    }
+	    if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;} //x-axis: z-side
 	    if(currDir.find("Layer_1")!=string::npos){
 	      HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
 	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
@@ -1849,12 +1835,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	  float hitEfficiency = -1.;
 	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
 	  int binx = 0; int biny = 1;
-	  if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
-	  else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
-	  else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
-	  else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
-	  else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
-	  else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
+	  binx = getBlade(dname);
 	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 12;}
 	  else{ 
 	    if(binx==1) binx = 12;
@@ -1900,15 +1881,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	  float hitEfficiency = -1.;
 	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
 	  int binx = 0; int biny = 1;
-	  if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
-	  else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
-	  else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
-	  else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
-	  else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
-	  else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
-          else if(currDir.find("13")!=string::npos){ binx = 13;}else if(currDir.find("14")!=string::npos){ binx = 14;}
-          else if(currDir.find("15")!=string::npos){ binx = 15;}else if(currDir.find("16")!=string::npos){ binx = 16;}
-          else if(currDir.find("17")!=string::npos){ binx = 17;}
+	  binx = getBlade(dname);
 	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 12;}
 	  else{ 
 	    if(binx==1) binx = 17;

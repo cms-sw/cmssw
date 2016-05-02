@@ -84,7 +84,8 @@ class SiPixelActionExecutor {
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & summary_freq);
  void readConfiguration(	    );
-
+ int getLadder(                     std::string                    dname_);
+ int getBlade(                     std::string                    dname_);
 
 private:
   
