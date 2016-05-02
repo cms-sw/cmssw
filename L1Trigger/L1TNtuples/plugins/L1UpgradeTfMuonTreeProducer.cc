@@ -54,10 +54,10 @@ private:
 
 public:
   
-  L1Analysis::L1AnalysisL1UpgradeTfMuon* l1UpgradeBmtf;
-  L1Analysis::L1AnalysisL1UpgradeTfMuon* l1UpgradeOmtf;
-  L1Analysis::L1AnalysisL1UpgradeTfMuon* l1UpgradeEmtf;
-  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat * l1UpgradeBmtfData;
+  L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeBmtf;
+  L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeOmtf;
+  L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeEmtf;
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat * l1UpgradeBmtfData; 
   L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat * l1UpgradeOmtfData;
   L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat * l1UpgradeEmtfData;
 
@@ -89,12 +89,9 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
 
   maxL1UpgradeTfMuon_ = iConfig.getParameter<unsigned int>("maxL1UpgradeTfMuon");
  
-  l1UpgradeBmtf     = new L1Analysis::L1AnalysisL1UpgradeTfMuon();
-  l1UpgradeOmtf     = new L1Analysis::L1AnalysisL1UpgradeTfMuon();
-  l1UpgradeEmtf     = new L1Analysis::L1AnalysisL1UpgradeTfMuon();
-  l1UpgradeBmtfData = l1UpgradeBmtf->getData();
-  l1UpgradeOmtfData = l1UpgradeOmtf->getData();
-  l1UpgradeEmtfData = l1UpgradeEmtf->getData();
+  l1UpgradeBmtfData = l1UpgradeBmtf.getData();
+  l1UpgradeOmtfData = l1UpgradeOmtf.getData();
+  l1UpgradeEmtfData = l1UpgradeEmtf.getData();
   
   // set up output
   tree_=fs_->make<TTree>("L1UpgradeTfMuonTree", "L1UpgradeTfMuonTree");
@@ -107,10 +104,6 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
 
 L1UpgradeTfMuonTreeProducer::~L1UpgradeTfMuonTreeProducer()
 {
- 
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -123,9 +116,9 @@ void
 L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  l1UpgradeBmtf->Reset();
-  l1UpgradeOmtf->Reset();
-  l1UpgradeEmtf->Reset();
+  l1UpgradeBmtf.Reset();
+  l1UpgradeOmtf.Reset();
+  l1UpgradeEmtf.Reset();
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuon;
   edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuon;
@@ -136,19 +129,19 @@ L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(emtfMuonToken_, emtfMuon);
 
   if (bmtfMuon.isValid()){ 
-    l1UpgradeBmtf->SetTfMuon(*bmtfMuon, maxL1UpgradeTfMuon_);
+    l1UpgradeBmtf.SetTfMuon(*bmtfMuon, maxL1UpgradeTfMuon_);
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade BMTF muons not found. Branch will not be filled" << std::endl;
   }
 
   if (omtfMuon.isValid()){ 
-    l1UpgradeOmtf->SetTfMuon(*omtfMuon, maxL1UpgradeTfMuon_);
+    l1UpgradeOmtf.SetTfMuon(*omtfMuon, maxL1UpgradeTfMuon_);
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade OMTF muons not found. Branch will not be filled" << std::endl;
   }
 
   if (emtfMuon.isValid()){ 
-    l1UpgradeEmtf->SetTfMuon(*emtfMuon, maxL1UpgradeTfMuon_);
+    l1UpgradeEmtf.SetTfMuon(*emtfMuon, maxL1UpgradeTfMuon_);
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade EMTF muons not found. Branch will not be filled" << std::endl;
   }
