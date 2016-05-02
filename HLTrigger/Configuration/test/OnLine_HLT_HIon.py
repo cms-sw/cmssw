@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V58 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/HIon/V76 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V58')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V76')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1663,8 +1663,13 @@ process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "CSCIndexerRecord" ),
     firstValid = cms.vuint32( 1 )
 )
+process.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalParametersRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "74X_dataRun2_HLT_v1" ),
+    globaltag = cms.string( "80X_dataRun2_HLT_v12" ),
     RefreshEachRun = cms.untracked.bool( True ),
     snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 
@@ -4106,8 +4111,12 @@ process.hltAK4CaloAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
     algorithm = cms.string( "AK4CaloHLT" ),
     level = cms.string( "L3Absolute" )
 )
+process.hltAK4CaloResidualCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L2L3Residual" )
+)
 process.hltPuAK4CaloCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
-    correctors = cms.VInputTag( 'hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector' )
+    correctors = cms.VInputTag( 'hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector','hltAK4CaloResidualCorrector' )
 )
 process.hltPuAK4CaloJetsCorrected50nsMultiFit = cms.EDProducer( "CorrectedCaloJetProducer",
     src = cms.InputTag( "hltPuAK4CaloJets50nsMultiFit" ),
@@ -13182,8 +13191,7 @@ process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'DST_Physics_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltFEDSelector_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtStage2Digis_*_*',
-      'keep L1MuGMTReadoutCollection_hltGtStage2Digis_*_*',
+      'keep *_hltGtStage2Digis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
 
@@ -13195,7 +13203,7 @@ process.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence = cms.S
 process.HLTDoLocalHcalMethod0Sequence = cms.Sequence( process.hltHcalDigis + process.hltHbherecoMethod0 + process.hltHfrecoMethod0 + process.hltHorecoMethod0 )
 process.HLTDoCaloHcalMethod050nsMultiFitSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence + process.HLTDoLocalHcalMethod0Sequence + process.hltTowerMakerHcalMethod050nsMultiFitForAll )
 process.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence = cms.Sequence( process.HLTDoCaloHcalMethod050nsMultiFitSequence + process.hltPuAK4CaloJets50nsMultiFit + process.hltPuAK4CaloJetsIDPassed50nsMultiFit )
-process.HLTPuAK4CaloCorrectorProducersSequence = cms.Sequence( process.hltAK4CaloRelativeCorrector + process.hltAK4CaloAbsoluteCorrector + process.hltPuAK4CaloCorrector )
+process.HLTPuAK4CaloCorrectorProducersSequence = cms.Sequence( process.hltAK4CaloRelativeCorrector + process.hltAK4CaloAbsoluteCorrector + process.hltAK4CaloResidualCorrector + process.hltPuAK4CaloCorrector )
 process.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence = cms.Sequence( process.hltFixedGridRhoFastjetAllCalo50nsMultiFitHcalMethod0 + process.HLTPuAK4CaloCorrectorProducersSequence + process.hltPuAK4CaloJetsCorrected50nsMultiFit + process.hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit )
 process.HLTPuAK4CaloJets50nsMultiFitSequence = cms.Sequence( process.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence + process.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence )
 process.HLTDoHIStripZeroSuppression = cms.Sequence( process.hltSiStripRawToDigi + process.hltSiStripZeroSuppression + process.hltSiStripDigiToZSRaw + process.hltSiStripRawDigiToVirginRaw + process.virginRawDataRepacker + process.rawDataRepacker )

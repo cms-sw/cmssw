@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V58 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/HIon/V76 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V58')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V76')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1661,6 +1661,11 @@ fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
 fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "CSCIndexerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 fragment.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
@@ -3794,8 +3799,12 @@ fragment.hltAK4CaloAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
     algorithm = cms.string( "AK4CaloHLT" ),
     level = cms.string( "L3Absolute" )
 )
+fragment.hltAK4CaloResidualCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L2L3Residual" )
+)
 fragment.hltPuAK4CaloCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
-    correctors = cms.VInputTag( 'hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector' )
+    correctors = cms.VInputTag( 'hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector','hltAK4CaloResidualCorrector' )
 )
 fragment.hltPuAK4CaloJetsCorrected50nsMultiFit = cms.EDProducer( "CorrectedCaloJetProducer",
     src = cms.InputTag( "hltPuAK4CaloJets50nsMultiFit" ),
@@ -11932,7 +11941,7 @@ fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence = cms.
 fragment.HLTDoLocalHcalMethod0Sequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbherecoMethod0 + fragment.hltHfrecoMethod0 + fragment.hltHorecoMethod0 )
 fragment.HLTDoCaloHcalMethod050nsMultiFitSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence + fragment.HLTDoLocalHcalMethod0Sequence + fragment.hltTowerMakerHcalMethod050nsMultiFitForAll )
 fragment.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence = cms.Sequence( fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltPuAK4CaloJets50nsMultiFit + fragment.hltPuAK4CaloJetsIDPassed50nsMultiFit )
-fragment.HLTPuAK4CaloCorrectorProducersSequence = cms.Sequence( fragment.hltAK4CaloRelativeCorrector + fragment.hltAK4CaloAbsoluteCorrector + fragment.hltPuAK4CaloCorrector )
+fragment.HLTPuAK4CaloCorrectorProducersSequence = cms.Sequence( fragment.hltAK4CaloRelativeCorrector + fragment.hltAK4CaloAbsoluteCorrector + fragment.hltAK4CaloResidualCorrector + fragment.hltPuAK4CaloCorrector )
 fragment.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo50nsMultiFitHcalMethod0 + fragment.HLTPuAK4CaloCorrectorProducersSequence + fragment.hltPuAK4CaloJetsCorrected50nsMultiFit + fragment.hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit )
 fragment.HLTPuAK4CaloJets50nsMultiFitSequence = cms.Sequence( fragment.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence + fragment.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence )
 fragment.HLTDoHIStripZeroSuppression = cms.Sequence( fragment.hltSiStripRawToDigi + fragment.hltSiStripZeroSuppression + fragment.hltSiStripDigiToZSRaw + fragment.hltSiStripRawDigiToVirginRaw + fragment.virginRawDataRepacker + fragment.rawDataRepacker )
