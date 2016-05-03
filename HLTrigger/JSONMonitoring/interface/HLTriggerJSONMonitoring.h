@@ -50,12 +50,14 @@ namespace hltJson {
     std::string stHltJsd;   //Definition file name for JSON with rates  
 
     std::string streamHLTDestination;
+    std::string streamHLTMergeType;
   };
   //End lumi struct
   //Struct for storing variable written once per run
   struct runVars{
     mutable std::atomic<bool> wroteFiles;
     mutable std::string streamHLTDestination;
+    mutable std::string streamHLTMergeType;
   };
 }//End hltJson namespace   
 
@@ -79,6 +81,10 @@ class HLTriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hl
     std::shared_ptr<hltJson::runVars> rv(new hltJson::runVars);
     if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
       rv->streamHLTDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
+      std::string mergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamHLTRates");
+      if (!mergeType.empty()) rv->streamHLTMergeType=mergeType;
+      else rv->streamHLTMergeType="JSNDATA";
+
     }
     rv->wroteFiles = false;
     return rv;

@@ -53,6 +53,7 @@ namespace evf {
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
     emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false)),
     microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",false)),
+    mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset","")),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -288,6 +289,7 @@ namespace evf {
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<bool>("emptyLumisectionMode",false)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
     desc.addUntracked<bool>("microMergeDisabled",false)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
+    desc.addUntracked<std::string>("mergingPset","")->setComment("Name of merging PSet to look for merging type definitions for streams");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
   }
@@ -295,6 +297,7 @@ namespace evf {
   void EvFDaqDirector::preBeginJob(edm::PathsAndConsumesOfModulesBase const&,
                                    edm::ProcessContext const& pc) {
     checkTransferSystemPSet(pc);
+    checkMergeTypePSet(pc);
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
@@ -995,6 +998,32 @@ namespace evf {
       ret+=(*it).asString();
     }
     return ret;
+  }
+
+  void EvFDaqDirector::checkMergeTypePSet(edm::ProcessContext const& pc)
+  {
+    if (mergeTypePset_.empty()) return;
+    if(mergeTypeMap_.size()) return;
+    edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
+    if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_,true))
+    {
+      const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
+      for (std::string pname : tsPset.getParameterNames()) {
+          std::string streamType = tsPset.getParameter<std::string>(pname); 
+          mergeTypeMap_[pname]=streamType;
+      }
+    }
+  }
+ 
+  std::string EvFDaqDirector::getStreamMergeType(std::string const& stream) const
+  {
+    if (mergeTypePset_.empty()) return std::string();
+    auto mergeTypeItr = mergeTypeMap_.find(stream.c_str());
+    if (mergeTypeItr == mergeTypeMap_.end()) {
+           edm::LogWarning("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
+           return std::string();
+    }
+    return mergeTypeItr->second;
   }
 
   void EvFDaqDirector::createProcessingNotificationMaybe() const {

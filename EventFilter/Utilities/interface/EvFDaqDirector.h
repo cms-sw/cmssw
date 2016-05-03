@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <map>
 #include <list>
 #include <mutex>
 
@@ -122,7 +123,9 @@ namespace evf{
         filesToDeletePtr_ = filesToDelete;
       }
       void checkTransferSystemPSet(edm::ProcessContext const& pc);
+      void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
+      std::string getStreamMergeType(std::string const& stream) const;
       bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
       bool microMergeDisabled() const {return microMergeDisabled_;}
 
@@ -151,6 +154,7 @@ namespace evf{
       unsigned int fuLockPollInterval_;
       bool emptyLumisectionMode_;
       bool microMergeDisabled_;
+      std::string mergeTypePset_;
 
       std::string hostname_;
       std::string run_string_;
@@ -207,6 +211,7 @@ namespace evf{
       unsigned int stop_ls_override_ = 0;
 
       std::shared_ptr<Json::Value> transferSystemJson_;
+      std::map<std::string,std::string> mergeTypeMap_;
   };
 }
 

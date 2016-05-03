@@ -54,12 +54,14 @@ namespace l1Json {
     
     std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            
     std::string streamL1Destination;
+    std::string streamL1MergeType;
   };
   //End lumi struct
   //Struct for storing variable written once per run
   struct runVars{
     mutable std::atomic<bool> wroteFiles;
     mutable std::string streamL1Destination;
+    mutable std::string streamL1MergeType;
   };
 }//End l1Json namespace   
 
@@ -83,6 +85,9 @@ class L1TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<l1
     std::shared_ptr<l1Json::runVars> rv(new l1Json::runVars);
     if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
       rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
+      std::string mergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates");
+      if (!mergeType.empty()) rv->streamL1MergeType=mergeType;
+      else rv->streamL1MergeType="JSNDATA";
     }
     rv->wroteFiles = false;
     return rv;
