@@ -139,7 +139,7 @@ namespace l1t {
       std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
       unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
 
-      m_gtUtil = new L1TGlobalUtil();
+      m_gtUtil = new L1TGlobalUtil(iConfig, consumesCollector(), *this);
       m_gtUtil->OverridePrescalesAndMasks(preScaleFileName,preScColumn);
   }
   

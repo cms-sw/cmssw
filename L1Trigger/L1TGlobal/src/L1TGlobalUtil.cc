@@ -36,29 +36,45 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(){
 
 }
 
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+				  edm::ConsumesCollector&& iC) :
+  L1TGlobalUtil(pset, iC) { }
+
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+				  edm::ConsumesCollector& iC) :
+  L1TGlobalUtil() {
+  m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC));
+}
+
+// destructor
+l1t::L1TGlobalUtil::~L1TGlobalUtil() {
+
+  // empty
+
+}
+
 void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
   m_preScaleFileName = f1.fullPath();
   m_PreScaleColumn = psColumn;
 }
 
-// destructor
-l1t::L1TGlobalUtil::~L1TGlobalUtil() { 
+void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  // typically, the L1T menu and prescale table (may change only between Runs)
+  retrieveL1Setup(evSetup);
+  // typically the prescale set index used and the event by event accept/reject info (changes between Events)
+  retrieveL1Event(iEvent,evSetup);
 }
 
 void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     edm::EDGetToken gtAlgToken) {
-
-  // typically, the L1T menu (may change only between Runs)
-  retrieveL1Run(evSetup);
-  // typically the L1T prescales and index of specific prescale set used (may change only between LumiBlocks)
-  retrieveL1LumiBlock(evSetup);
-  // typically the event by event accept/reject info (changes between Events)
+  // typically, the L1T menu and prescale table (may change only between Runs)
+  retrieveL1Setup(evSetup);
+  // typically the prescale set index used and the event by event accept/reject info (changes between Events)
   retrieveL1Event(iEvent,evSetup,gtAlgToken);
-
 }
 
-void l1t::L1TGlobalUtil::retrieveL1Run(const edm::EventSetup& evSetup) {
+void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
@@ -78,9 +94,6 @@ void l1t::L1TGlobalUtil::retrieveL1Run(const edm::EventSetup& evSetup) {
 	
 	m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
-}
-
-void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
 
     // Fill the mask and prescales (dummy for now)
     if(!m_filledPrescales) {
@@ -130,6 +143,10 @@ void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
     }
 }
 
+void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  retrieveL1Event(iEvent, evSetup, m_l1tGlobalUtilHelper->l1tAlgBlkToken());
+}
+
 void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
 					 edm::EDGetToken gtAlgToken) {
 
@@ -141,7 +158,8 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
      if(m_uGtAlgBlk.isValid()) {
        // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
-       if (algBlk != m_uGtAlgBlk->end(0)){     
+       if (algBlk != m_uGtAlgBlk->end(0)){
+	 m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
 	 // Grab the final OR from the AlgBlk,       
 	 m_finalOR = algBlk->getFinalOR();
        
