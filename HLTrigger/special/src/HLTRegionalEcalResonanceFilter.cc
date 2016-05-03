@@ -1022,25 +1022,33 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
 
 void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &bc1, const reco::BasicCluster &bc2,float &m_pair,float &pt_pair,float &eta_pair, float &phi_pair){
     
-  
-  float theta1 = 2. * atan(exp(-bc1.eta())); 
+  // use TVector3 instead of TLorentzVector to make things faster (and initialize with cartesian coordinates).
+  // We are interested in the momentum vector:  however, we start from cartesian coordinates to get the vector direction, 
+  // then we set the vector's magnitude to obtain momentum coordinates. The magnitude we set is equal to the particle's energy.
+  // We can do this because, assuming massless particles (or negligible mass), the magnitude of the momentum vector is given by the energy.
+
+  // Define a TVector3 and initialize it with the first cluster's cartesian coordinates
+  TVector3 v1( bc1.x(), bc1.y(), bc1.z() );
+  //start creating the sum of energies of the two input clusters. Here we only sum the first so that we can use it to set the magnitude of v1
   float en1 = bc1.energy();
-  float pt1 = en1 * sin(theta1); 
-  TLorentzVector v1( pt1 *cos(bc1.phi()),pt1 * sin(bc1.phi()),en1*cos(theta1),en1);
-  
-  float theta2 = 2. * atan(exp(-bc2.eta())); 
-  float en2 = bc2.energy();
-  float pt2 = en2 * sin(theta2); 
-  TLorentzVector v2( pt2 *cos(bc2.phi()),pt2 * sin(bc2.phi()),en2*cos(theta2),en2);
-  
-  TLorentzVector v = v1 + v2; 
-  
-  m_pair = v.M();
-  pt_pair = v.Pt();
-  eta_pair = v.Eta();
-  phi_pair = v.Phi();
-  
-  
+  v1.SetMag(en1);
+  // vsum would be v1 + v2, but instead of declaring both v2 and vsum, just declare vsum, initialize as if it is v2 and then sum v1.
+  TVector3 vsum( bc2.x(), bc2.y(), bc2.z() );
+  // define energy sum initializing it to energy2, so that we can use it before summing energy1
+  float energysum = bc2.energy();
+  vsum.SetMag(energysum);
+  vsum += v1;
+  // now sum the energy of the second basic cluster to get total energy
+  energysum += en1;
+
+  // finally, assign values 
+  m_pair = sqrt( energysum * energysum - vsum.Mag2());    // M_pi0 = sqrt(E_pi0^2 - |p_pi0|^2)
+  pt_pair = vsum.Pt();
+  eta_pair = vsum.PseudoRapidity();  // could call vsum.Eta() but this would just call vsum.Pseudorapidity(), so let's skip one step
+  // note that Pseudorapidity is defined as the rapidity (see TVector3 documentation), that is, under the assumption of massless particle
+  phi_pair = vsum.Phi();
+
+
 }
 
 
