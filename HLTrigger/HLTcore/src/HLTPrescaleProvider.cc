@@ -62,7 +62,9 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
     if (count_[0]<countMax) {
       count_[0] += 1;
       edm::LogError("HLTPrescaleProvider")
-	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
+	<< " Using processName '" << hltConfigProvider_.processName() <<"'"
+	<< " and l1tType=" << hltConfigProvider_.l1tType() <<":"
+	<< " Error in determining HLT prescale set index from L1 data using L1GtUtils:"
 	<< " Tech/Phys error = " << errorTech << "/" << errorPhys
 	<< " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
     }
@@ -75,7 +77,8 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
    if (count_[0]<countMax) {
      count_[0] += 1;
      edm::LogError("HLTPrescaleProvider")
-       << " Unknown L1T Type " << l1tType << " - can not determine prescale set index! ";
+       << " Using processName '" << hltConfigProvider_.processName() <<":"
+       << " Unknown L1T Type " << l1tType << " - can not determine prescale set index!";
    }
    return -1;
  }
