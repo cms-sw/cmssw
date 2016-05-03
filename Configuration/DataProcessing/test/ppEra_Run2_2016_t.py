@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_ppRun2_
+_ppEra_Run2_2016_
 
 Test for Collision Scenario implementation
 
@@ -25,71 +25,71 @@ def writePSetFile(name, process):
     handle.close()
 
 
-class ppRun2ScenarioTest(unittest.TestCase):
+class ppEra_Run2_2016ScenarioTest(unittest.TestCase):
     """
-    unittest for ppRun2 collisions scenario
+    unittest for ppEra_Run2_2016 collisions scenario
 
     """
 
     def testA(self):
         """get the scenario"""
         try:
-            scenario = getScenario("ppRun2")
+            scenario = getScenario("ppEra_Run2_2016")
         except Exception as ex:
-            msg = "Failed to get ppRun2 scenario\n"
+            msg = "Failed to get ppEra_Run2_2016 scenario\n"
             msg += str(ex)
             self.fail(msg)
 
 
     def testPromptReco(self):
         """test promptReco method"""
-        scenario = getScenario("ppRun2")
+        scenario = getScenario("ppEra_Run2_2016")
         try:
             process = scenario.promptReco("GLOBALTAG::ALL")
             writePSetFile("testPromptReco.py", process)
         except Exception as ex:
             msg = "Failed to create Prompt Reco configuration\n"
-            msg += "for ppRun2 Scenario\n"
+            msg += "for ppEra_Run2_2016 Scenario\n"
             msg += str(ex)
             self.fail(msg)
 
 
     def testExpressProcessing(self):
         """ test expressProcessing method"""
-        scenario = getScenario("ppRun2")
+        scenario = getScenario("ppEra_Run2_2016")
         try:
             process = scenario.expressProcessing("GLOBALTAG::ALL")
             writePSetFile("testExpressProcessing.py", process)
         except Exception as ex:
             msg = "Failed to create Express Processing configuration\n"
-            msg += "for ppRun2 Scenario\n"
+            msg += "for ppEra_Run2_2016 Scenario\n"
             msg += str(ex)
             self.fail(msg)
 
 
     def testAlcaSkim(self):
         """ test alcaSkim method"""
-        scenario = getScenario("ppRun2")
+        scenario = getScenario("ppEra_Run2_2016")
         try:
             process = scenario.alcaSkim(["MuAlCalIsolatedMu"])
             writePSetFile("testAlcaReco.py", process)
         except Exception as ex:
            msg = "Failed to create Alca Skimming configuration\n"
-           msg += "for ppRun2 Scenario\n"
+           msg += "for ppEra_Run2_2016 Scenario\n"
            msg += str(ex)
            self.fail(msg)
 
 
     def testDQMHarvesting(self):
         """test dqmHarvesting  method"""
-        scenario = getScenario("ppRun2")
+        scenario = getScenario("ppEra_Run2_2016")
         try:
             process = scenario.dqmHarvesting("dataset", 123456,
                                              "GLOBALTAG::ALL")
             writePSetFile("testDQMHarvesting.py", process)
         except Exception as ex:
             msg = "Failed to create DQM Harvesting configuration "
-            msg += "for ppRun2 scenario:\n"
+            msg += "for ppEra_Run2_2016 scenario:\n"
             msg += str(ex)
             self.fail(msg)
 
