@@ -2,31 +2,31 @@
 #define Phase2TrackerMonitorDigi_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-// DQM Histograming
-class DQMStore;
 class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
+class TrackerTopology;
 
-class Phase2TrackerMonitorDigi : public edm::one::EDAnalyzer<> {
+class Phase2TrackerMonitorDigi : public DQMEDAnalyzer{
 
 public:
-
+  
   explicit Phase2TrackerMonitorDigi(const edm::ParameterSet&);
   ~Phase2TrackerMonitorDigi();
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void bookHistograms(DQMStore::IBooker & ibooker,
+		      edm::Run const &  iRun ,
+		      edm::EventSetup const &  iSetup );
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup); 
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-  virtual void endJob(); 
-
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& iSetup);
+  
+  
   struct DigiMEs{
     MonitorElement* NumberOfDigis;
     MonitorElement* PositionOfDigis;
@@ -38,10 +38,8 @@ public:
   };
 
 private:
-  void bookHistos();
-  void bookLayerHistos(unsigned int ilayer); 
-
-  DQMStore* dqmStore_;
+  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo); 
+  
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
   edm::InputTag pixDigiSrc_;

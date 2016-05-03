@@ -4,6 +4,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 namespace phase2trackerdigi {
-  unsigned int getLayerNumber(unsigned int& detid, const TrackerTopology* topo);
+  int getOTLayerNumber(unsigned int& detid, const TrackerTopology* topo);
+  int getPixelLayerNumber(unsigned int& detid, const TrackerTopology* topo);
 }
 #endif
