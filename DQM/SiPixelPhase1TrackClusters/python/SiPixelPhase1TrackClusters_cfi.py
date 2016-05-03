@@ -84,6 +84,30 @@ SiPixelPhase1TrackClustersOffTrackPositionB = \
 SiPixelPhase1TrackClustersOffTrackPositionF = \
   SiPixelPhase1TrackClustersOnTrackPositionF.clone(topFolderName = "PixelPhase1/OffTrack")
 
+SiPixelPhase1TrackClustersNTracks = DefaultHisto.clone(
+  name = "ntracks",
+  title = "Number of Tracks",
+  xlabel = "All - Pixel - BPIX - FPIX",
+  range_min = 1, range_max = 5, range_nbins = 4,
+  dimensions = 1,
+  topFolderName = "PixelPhase1/Tracks",
+  specs = cms.VPSet(
+    Specification().groupBy("").save()
+  )
+)
+
+SiPixelPhase1TrackClustersNTracksInVolume = DefaultHisto.clone(
+  name = "ntracksinpixvolume",
+  title = "Number of Tracks in Pixel fiducial Volume",
+  xlabel = "without hits - with hits",
+  range_min = 0, range_max = 2, range_nbins = 2,
+  dimensions = 1,
+  topFolderName = "PixelPhase1/Tracks",
+  specs = cms.VPSet(
+    Specification().groupBy("").save()
+  )
+)
+
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
@@ -96,6 +120,9 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOffTrackNClusters,
   SiPixelPhase1TrackClustersOffTrackPositionB,
   SiPixelPhase1TrackClustersOffTrackPositionF,
+
+  SiPixelPhase1TrackClustersNTracks,
+  SiPixelPhase1TrackClustersNTracksInVolume,
 )
 
 

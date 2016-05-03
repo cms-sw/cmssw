@@ -99,13 +99,21 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
                                                           1.0 ));
       corr_charge[clust.key()] = (float) corrCharge;
     }
-    // statistics on missing tracks
+
+    // statistics on tracks
+    histo[NTRACKS].fill(1, DetId(0), &iEvent);
+    if (isBpixtrack || isFpixtrack) 
+      histo[NTRACKS].fill(2, DetId(0), &iEvent);
+    if (isBpixtrack) 
+      histo[NTRACKS].fill(3, DetId(0), &iEvent);
+    if (isFpixtrack) 
+      histo[NTRACKS].fill(4, DetId(0), &iEvent);
+
     if (crossesPixVol) {
-      if (isBpixtrack || isFpixtrack) {
-        //...
-      } else {
-        //...
-      }
+      if (isBpixtrack || isFpixtrack)
+        histo[NTRACKS_VOLUME].fill(1, DetId(0), &iEvent);
+      else 
+        histo[NTRACKS_VOLUME].fill(0, DetId(0), &iEvent);
     }
   }
 
