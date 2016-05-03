@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.ConversionSeedGenerators.Phase2BE_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
+from RecoTracker.ConversionSeedGenerators.Phase2PU140Pixel10D_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *

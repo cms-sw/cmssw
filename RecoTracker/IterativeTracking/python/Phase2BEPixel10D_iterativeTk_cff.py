@@ -8,9 +8,9 @@ from RecoTracker.IterativeTracking.Phase2PU140Pixel10D_DetachedQuadStep_cff impo
 from RecoTracker.IterativeTracking.Phase2PU140Pixel10D_PixelPairStep_cff import *
 from RecoTracker.FinalTrackSelectors.Phase1PU140_earlyGeneralTracks_cfi import *
 from RecoTracker.IterativeTracking.Phase2PU140Pixel10D_MuonSeededStep_cff import *
-from RecoTracker.FinalTrackSelectors.Phase2BE_preDuplicateMergingGeneralTracks_cfi import *
+from RecoTracker.FinalTrackSelectors.Phase2PU140Pixel10D_preDuplicateMergingGeneralTracks_cfi import *
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
-from RecoTracker.ConversionSeedGenerators.Phase2BE_ConversionStep_cff import *
+from RecoTracker.ConversionSeedGenerators.Phase2PU140Pixel10D_ConversionStep_cff import *
 
 iterTracking = cms.Sequence(InitialStep*
                             HighPtTripletStep*
