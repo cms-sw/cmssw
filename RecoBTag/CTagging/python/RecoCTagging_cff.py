@@ -5,10 +5,15 @@ from RecoBTag.CTagging.cTagging_cff import *
 # but IP and soft-lepton taginfos from btagging sequence can be recycled
 pfCTagging = cms.Sequence(
     ( inclusiveCandidateVertexingCvsL *
-      pfInclusiveSecondaryVertexFinderCvsLTagInfos
+      pfInclusiveSecondaryVertexFinderCvsLTagInfos*
+      pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos 
     )
 
     # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
     * pfCombinedCvsLJetTags
+    * pfNegativeCombinedCvsLJetTags
+    * pfPositiveCombinedCvsLJetTags
     * pfCombinedCvsBJetTags
+    * pfNegativeCombinedCvsBJetTags
+    * pfPositiveCombinedCvsBJetTags
 )
