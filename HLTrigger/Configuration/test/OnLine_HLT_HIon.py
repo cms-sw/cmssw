@@ -1,19 +1,11 @@
-<<<<<<< HEAD
 # /dev/CMSSW_8_0_0/HIon/V86 (CMSSW_8_0_7_HLT1)
-=======
-# /dev/CMSSW_8_0_0/HIon/V77 (CMSSW_8_0_5)
->>>>>>> Update HLT menu up to /dev/CMSSW_8_0_0/HLT/V206
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-<<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V86')
-=======
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V77')
->>>>>>> Update HLT menu up to /dev/CMSSW_8_0_0/HLT/V206
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
