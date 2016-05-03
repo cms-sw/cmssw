@@ -121,7 +121,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
  	std::vector<ConvertedHit> ConvHits = PrimConv(tester,SectIndex);
 	CHits[SectIndex] = ConvHits;
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////print values for input into Alex's emulator code/////////////////////////////////////////////////////
 	//for(std::vector<ConvertedHit>::iterator h = ConvHits.begin();h != ConvHits.end();h++){
@@ -246,7 +245,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.deltas = AllTracks[fbest].deltas;
 		std::vector<int> ps, ts;
 
-
 		int sector = -1;
 		bool ME13 = false;
 		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
@@ -334,10 +332,30 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
         //int bx = 0;
 		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
 		float eta = (-1)*log(tan(theta_angle/2));
-		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
-		
-		if(!ME13 && fabs(eta) > 1.1)
+
+		// thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
+		// thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
+
+ 		// // Optimal emulator configuration - AWB 29.03.16
+		// std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
+
+		// Actual setting in firmware - AWB 12.04.16
+		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+
+		if(!ME13 && fabs(eta) > 1.1) {
+		  // // Extra debugging output - AWB 29.03.16
+		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
+		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
+		  // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
+		  // 	    << ", quality = " << mode << ", trackaddress = " << 1 
+		  // 	    << ", sector = " << sector << std::endl;
+		  // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+		  // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
+		  // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
+		  // 	    << ", processor = " << outCand.processor() 
+		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
 			holder.push_back(outPair);
+		}
 	}
   }
   
@@ -362,7 +380,6 @@ for(int sect=0;sect<12;sect++){
 
 //ev.put( FoundTracks, "DataITC");
 ev.put( OutputCands, "EMTF");
-  //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer
 
