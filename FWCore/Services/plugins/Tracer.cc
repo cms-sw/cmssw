@@ -134,6 +134,8 @@ namespace edm {
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void preModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
       void postModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
+      void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
+      void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       
       void preModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
       void postModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
@@ -271,6 +273,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   iRegistry.watchPostModuleEvent(this, &Tracer::postModuleEvent);
   iRegistry.watchPreModuleEventDelayedGet(this, &Tracer::preModuleEventDelayedGet);
   iRegistry.watchPostModuleEventDelayedGet(this, &Tracer::postModuleEventDelayedGet);
+  iRegistry.watchPreEventReadFromSource(this, &Tracer::preEventReadFromSource);
+  iRegistry.watchPostEventReadFromSource(this, &Tracer::postEventReadFromSource);
 
   iRegistry.watchPreModuleStreamBeginRun(this, &Tracer::preModuleStreamBeginRun);
   iRegistry.watchPostModuleStreamBeginRun(this, &Tracer::postModuleStreamBeginRun);
@@ -904,6 +908,28 @@ Tracer::postModuleEventDelayedGet(StreamContext const& sc, ModuleCallingContext 
     out << "\n" << sc;
     out << mcc;
   }
+}
+
+void
+Tracer::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 5;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: event delayed read from source: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+}
+
+void
+Tracer::postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 5;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: event delayed read from source: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
 }
 
 
