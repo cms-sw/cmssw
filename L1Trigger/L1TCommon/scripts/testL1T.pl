@@ -134,7 +134,7 @@ sub test_dummy {
 #
 sub test_unpackers_dont_crash {
     #$file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
-    $file = "/store/data/Commissioning2016/MinimumBias/RAW/v1/000/265/655/00000/DEBEA13B-DFDC-E511-8C06-02163E012A67.root";
+    $file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
     $nevt = 200;
     if ($FAST) {$nevt = 10; }
     if ($SLOW) {$nevt = -1; }
