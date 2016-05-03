@@ -36,6 +36,7 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
   return uerr*uerr;
 }
 
+
 float StripCPEfromTrackAngle::legacyStripErrorSquared(const unsigned N, const float uProj) const {
   if unlikely( (float(N)-uProj) > 3.5f )
     return float(N*N)/12.f;
@@ -56,7 +57,7 @@ void StripCPEfromTrackAngle::localParameters(AClusters const & clusters, ALocalV
   auto const & par = getAlgoParam(det,ltp);
   auto const & p = par.p;
   auto loc = par.loc;
-  auto corr = par.loc;
+  auto corr = par.corr;
   auto afp = par.afullProjection;
 
   auto fill = [&](unsigned int i, float uerr2) {
@@ -99,7 +100,7 @@ StripCPEfromTrackAngle::localParameters( const SiStripCluster& cluster, AlgoPara
   auto const & p = par.p;
   auto const & ltp = par.ltp;
   auto loc = par.loc;
-  auto corr = par.loc;
+  auto corr = par.corr;
   auto afp = par.afullProjection;
 
   float uerr2=0;
