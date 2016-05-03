@@ -12,6 +12,7 @@ streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_DiSC30_18_EIso_AND_HE_Mass70_v1', 
     'HLT_IsoTrackHB_v1', 
     'HLT_IsoTrackHE_v1', 
+    'HLT_L1FatEvents_v1', 
     'HLT_L1SingleMuOpen_DT_v2', 
     'HLT_L1Tech_DT_GlobalOR_v2')
 

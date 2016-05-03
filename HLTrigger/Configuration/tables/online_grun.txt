@@ -667,6 +667,11 @@ AlCa_LumiPixels_ZeroBias_v*					# JIRA: CMSHLT-239
 
 HLT_Random_v*							# JIRA: CMSHLT-244
 
+HLT_L1FatEvents_v*						# JIRA: CMSHLT-792
+HLT_Physics_part0_v*						# JIRA: CMSHLT-792 
+HLT_Physics_part1_v*						# JIRA: CMSHLT-792 
+HLT_Physics_part2_v*						# JIRA: CMSHLT-792 
+HLT_Physics_part3_v*						# JIRA: CMSHLT-792 
 HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
