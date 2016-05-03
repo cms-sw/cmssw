@@ -63,7 +63,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
-  
+
   double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
   theFitter->setFitSigma(sigmaFit);
 

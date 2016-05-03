@@ -1,260 +1,63 @@
 #! /usr/bin/env python
-
+import sys,os,time,datetime,logging
+import argparse
 from CalibMuon.DTCalibration.Workflow.DTCalibrationWorker import DTCalibrationWorker
-import sys,os,time,optparse
 
-if __name__ == '__main__':
 
-    parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
-    parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
-    parser.add_option("--runselection", dest="runselection", help="run list or range")
-    parser.add_option("--label", dest="label", default="dtCalibration", help="label used in the naming of workflow output")
-    parser.add_option("--trial", dest="trial", type="int", help="trial number used in the naming of output directories")
-    parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
-    parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (with the '::All' string, if necessary)")
-    parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
-    parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
-    parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
-    parser.add_option("--inputT0DB", dest="inputT0DB", help="uses local SQLITE t0 DB (instead of using the one in the GT)")
-    parser.add_option("--inputDBTag", dest="inputDBTag", help="uses custom ORCOFF tag (instead of using the one in the GT)")
-    parser.add_option("--inputDBRcd", dest="inputDBRcd", help="record for custom ORCOFF tag")
-    parser.add_option("--connect", dest="connectStrDBTag", default='frontier://FrontierProd/CMS_COND_31X_DT', help="connect string (default: 'frontier://FrontierProd/CMS_COND_31X_DT')")
-    parser.add_option("--runOnCosmics", action="store_true", dest="runOnCosmics", default=False, help="set this option to run on Cosmics")
-    parser.add_option("--runOnRAW", action="store_true", dest="runOnRAW", default=False, help="set this option to run on RAW")
-    parser.add_option("--runOnMC", action="store_true", dest="runOnMC", default=False, help="set this option to run on MC")
-    #parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
-    parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
+log = logging.getLogger(__name__)
+log_choices = [ 'ERROR', 'WARNING', 'INFO', 'DEBUG' ]
+date = '%F %H:%M:%S'
 
-    # Option group - options for residuals mode
-    #group_residuals = optparse.OptionGroup(parser,"Options for 'residuals' mode")
-    #group_residuals.add_option("--inputDB", dest="inputDB", help="sets initial DB (instead of using the one in the GT)")
-    #parser.add_option_group(group_residuals)
-    # Option group - DB validation options
-    group_dbValid = optparse.OptionGroup(parser,"DB validation options")
-    group_dbValid.add_option("--refDBTag", dest="refDBTag", default='', help="reference DB tag for validation")
-    group_dbValid.add_option("--connectRefDB", dest="connectStrRefDBTag", help="connect string for validation tag (if not set will point to '--connect')")
-    group_dbValid.add_option("--dbFiles", dest="dbFiles", help="DB files to validate")
-    group_dbValid.add_option("--dbValidRuns", dest="dbValidRuns", help="Run list corresponding to DB files (for DQM output)")
-    parser.add_option_group(group_dbValid)
+def main():
+    options = parse_command_line()
+    # setup logging
+    setupLogging(options)
 
-    # Option group - additional options
-    group_additional = optparse.OptionGroup(parser,"Additional options")
-    group_additional.add_option("--email", dest="email", help="user email")
-    group_additional.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
-    group_additional.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
-    group_additional.add_option("--queueAtCAF", dest="queueAtCAF", default='cmscaf1nh', help="")
-    group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
-
-    group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
-    group_additional.add_option("--ce_black_list", action="store", dest="ce_black_list", help="add sites to black list when run on Grid")
-    group_additional.add_option("--ce_white_list", action="store", dest="ce_white_list", help="add sites to white list when run on Grid")
-    group_additional.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=True, help="output will be copied locally (if running on the Grid this will be the default)")
-
-    # Splitting options
-    group_additional.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
-    group_additional.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
-    group_additional.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
-    group_additional.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
-    group_additional.add_option("--splitByEvent", action="store_true", dest="splitByEvent", default=False, help="will split CRAB jobs by events (For running MC)")
-    group_additional.add_option("--totalnumberevents", dest="totalnumberevents", type="int", default=-1, help="total number of events to be analyzed")
-    group_additional.add_option("--eventsperjob", dest="eventsperjob", type="int", default=10000, help="number of events per job")
-    
-    parser.add_option_group(group_additional)
- 
-    (input, args) = parser.parse_args()
-
-    allowedTypes = ('ttrig','vdrift','noise','t0','validation','analysis','dbvalidation')
-    input.workflowType = 'ttrig'
-    if len(args) > 0: 
-        if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
-        input.workflowType = args[0]
- 
-    allowedTTrigModes = ('timeboxes','residuals','validation')
-    allowedVDriftModes = ('segment','meantimer')
-    allowedAnalysisModes = ('residuals')
-    input.workflowMode = None
-    if input.workflowType == 'ttrig': input.workflowMode = 'residuals'
-    elif input.workflowType == 'vdrift': input.workflowMode = 'segment'
-    elif input.workflowType == 'analysis': input.workflowMode = 'residuals'
-    if len(args) > 1:
-        if input.workflowType == 'ttrig' and args[1] not in allowedTTrigModes:
-            parser.error('option "%s" not allowed' % args[1])
-        if input.workflowType == 'vdrift' and args[1] not in allowedVDriftModes:
-            parser.error('option "%s" not allowed' % args[1])
-        if input.workflowType == 'analysis' and args[1] not in allowedAnalysisModes:
-            parser.error('option "%s" not allowed' % args[1])
-        input.workflowMode = args[1]  
-   
-    requiredFieldsDef = ('run','datasetpath','globaltag')
-    requiredFields = {}
-    requiredFields['ttrig'] = requiredFieldsDef
-    requiredFields['vdrift'] = requiredFieldsDef
-    requiredFields['noise'] = requiredFieldsDef
-    requiredFields['t0'] = requiredFieldsDef
-    requiredFields['validation'] = requiredFieldsDef
-    requiredFields['analysis'] = requiredFieldsDef
-    requiredFields['dbvalidation'] = ('run','datasetpath')
-    for item in requiredFields[input.workflowType]:
-        if not getattr(input,item):
-            parser.error('field "%s" needs to be set' % item) 
-
-    run = input.run
-    runselection = None
-    if hasattr(input,'runselection') and input.runselection: runselection = input.runselection
-    else: runselection = run
-
-    trial = None
-    if hasattr(input,'trial') and input.trial: trial = input.trial
-    else: trial = 1
-
-    label = None
-    if hasattr(input,'label') and input.label: label = input.label
-    else: label = 'dtCalibration'
-
-    if hasattr(input,'lumimask') and input.lumimask:
-        if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
- 
-    ############################################################################### 
-    class config: pass
-
-    config.trial = trial
-    config.label = label
-    config.datasetpath = input.datasetpath
-    config.runselection = runselection
-    if hasattr(input,'inputVDriftDB') and input.inputVDriftDB: config.inputVDriftDB = os.path.abspath(input.inputVDriftDB)
-    if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
-    if hasattr(input,'inputT0DB') and input.inputT0DB: config.inputT0DB = os.path.abspath(input.inputT0DB)
-    if hasattr(input,'inputDBTag') and input.inputDBTag:
-        config.inputDBTag = input.inputDBTag
-        config.inputDBRcd = input.inputDBRcd 
-	config.connectStrDBTag = input.connectStrDBTag
-
-    config.runOnRAW = False 
-    if hasattr(input,'runOnRAW') and input.runOnRAW: config.runOnRAW = input.runOnRAW
-    config.runOnCosmics = False
-    if hasattr(input,'runOnCosmics') and input.runOnCosmics: config.runOnCosmics = input.runOnCosmics
-    config.runOnMC = False
-    if hasattr(input,'runOnMC') and input.runOnMC: config.runOnMC = input.runOnMC
-
-    config.globaltag = ''
-    if input.globaltag: config.globaltag = input.globaltag
-    config.digilabel = 'muonDTDigis'
-    config.preselection = input.preselection 
-    
-    if not input.runOnGrid:
-        config.scheduler = 'CAF'
-        if input.stageOutLocal:
-            config.stageOutCAF = False
-            config.stageOutLocal = True
-        else:
-            config.stageOutCAF = True
-            config.stageOutLocal = False
-    else:
-        config.runOnGrid = True
-        config.scheduler = 'glite'
-        config.stageOutCAF = False
-        config.stageOutLocal = True
-        if hasattr(input,'ce_black_list') and input.ce_black_list is not None: config.ce_black_list = input.ce_black_list
-        if hasattr(input,'ce_white_list') and input.ce_white_list is not None: config.ce_white_list = input.ce_white_list
-
-    config.useserver = input.useserver
-    config.queueAtCAF = input.queueAtCAF
-    #config.totalnumberevents = 1000000
-    #config.eventsperjob = 50000
-    if hasattr(input,'splitByLumi') and input.splitByLumi:
-        config.splitByLumi = True
-        config.splitByEvent = False
-        config.totalnumberlumis = input.totalnumberlumis
-        config.lumisperjob = input.lumisperjob
-        if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
-    elif hasattr(input,'splitByEvent') and input.splitByEvent:
-        config.splitByLumi = False 
-        config.splitByEvent = True
-        config.totalnumberevents = input.totalnumberevents
-        config.eventsperjob = input.eventsperjob
-    else:
-        config.splitByLumi = False 
-        config.splitByEvent = False
-        
-    if hasattr(input,'email') and input.email: config.email = input.email    
-
-    if config.stageOutCAF:
-        """ 
-        castorPath = '' 
-        if not input.castorpath: castorPath = '/castor/cern.ch/cms/store/caf/user/' + os.environ['USER']
-        else: castorPath = input.castorpath
-        """  
-        if not input.castorpath: parser.error('field "%s" needs to be set' % 'castorpath')
-        print "Writing files at",input.castorpath
-        config.castor_prefix = input.castorpath
-        config.castorpath = input.castorpath
-
-    config.jobsFinishedThreshold = input.jobsFinishedThreshold
-
-    # DB validation options
-    config.refDBTag = input.refDBTag
-    if hasattr(input,'connectStrRefDBTag') and input.connectStrRefDBTag: 
-	config.connectStrRefDBTag = input.connectStrRefDBTag
-    else:
-        if hasattr(input,'connectStrDBTag') and input.connectStrDBTag:
-	    config.connectStrRefDBTag = input.connectStrDBTag
-
-    if hasattr(input,'dbFiles') and input.dbFiles: config.dbFiles = input.dbFiles.split(',')
-    config.dbValidRuns = []
-    if hasattr(input,'dbValidRuns') and input.dbValidRuns: config.dbValidRuns = [int(item) for item in input.dbValidRuns.split(',')]
-
-    base_label = ''
-    if input.workflowType == 'ttrig': base_label = 'Ttrig'
-    elif input.workflowType == 'vdrift': base_label = 'VDrift'
-    elif input.workflowType == 'noise': base_label = 'Noise'
-    elif input.workflowType == 't0': base_label = 'T0'
-    elif input.workflowType == 'validation': base_label = 'Valid' 
-    elif input.workflowType == 'analysis': base_label = 'Analysis' 
-    elif input.workflowType == 'dbvalidation': base_label = 'DBValid' 
-    
-    base_dir = ''
-    if config.label: base_dir = 'Run%s-%s/%s' % (run,config.label,base_label) 
-    else:            base_dir = 'Run%s/%s' % (run,base_label)
-    if not os.path.exists(base_dir): os.makedirs(base_dir)
-    config.base_dir = base_dir
-
-    run_dir = base_dir + '/Exec'
-    if not os.path.exists(run_dir): os.makedirs(run_dir)
-    config.run_dir = run_dir
-
-    result_dir = base_dir + '/Results'
-    if not os.path.exists(result_dir): os.makedirs(result_dir)
-    config.result_dir = result_dir
-
-    log_dir = base_dir + '/Log'
-    if not os.path.exists(log_dir): os.makedirs(log_dir)
-    config.log_dir = log_dir 
-
-    #logFileName = os.path.abspath('%s/Run_%s_v%s.log' % (log_dir,run,trial))
-    #logOut = open(logFileName,'w',1)
-
-    ###############################################################################
     start = time.time()
-    print "DT Calibration starting for Run",run
-    print "Using runs",runselection
-    print "Running at",run_dir
-    print "Results at",result_dir 
-    #print "Log files at",logFileName
- 
+    print "DT Calibration starting "
+    print "Running at",options.working_dir
+
     #stdout_original = sys.stdout
     #sys.stdout = logOut
 
-    from CalibMuon.DTCalibration.Workflow.crabWrap import initCrabEnvironment
-    initCrabEnvironment()
-
-    execute = True
-    if input.no_exec: execute = False
-    dtCalibWorker = DTCalibrationWorker(run,config)
-    dtCalibWorker.run(input.workflowType,
-                      input.workflowMode,
-                      execute)
+    dtCalibWorker = DTCalibrationWorker(options)
+    dtCalibWorker.run()
 
     #sys.stdout = stdout_original
-    stop = time.time() 
-    print "DT Calibration finished.. results in",result_dir
+    stop = time.time()
+    print "DT Calibration finished"
     print "Time elapsed was %.1f seconds"%(stop-start)
+
+def setupLogging(options):
+    #setup logging
+    format = '%(levelname)s (%(name)s) [%(asctime)s]: %(message)s'
+    logging.basicConfig( level=logging._levelNames[ options.debug ], format=format, datefmt=date )
+    log.setLevel(logging._levelNames[ options.debug ])
+    formatter = logging.Formatter( format )
+    log_file_name = 'dtCalibration_'
+    log_file_name += datetime.datetime.now().strftime( "%Y-%m-%d_%H.%M.%S" ) + '.log'
+    hdlr = logging.FileHandler( log_file_name, mode='w' )
+    hdlr.setFormatter( formatter )
+    log.addHandler( hdlr )
+    logging.getLogger('CRAB3').propagate = False  # Avoid any CRAB message to propagate up to the handlers of the root logger.
+
+
+def parse_command_line():
+    ''' Setup command line options using prog command [options] sheme '''
+    # This is the main parser instance. This parser will be called to parse the passed args
+    descr = "Main script to perform various DT calibration tasks.\n"
+    descr += "Choose a workflow, in some cases a workflow mode and a command\n"
+    descr += "example dtCalibration ttrig timeboxes submit"
+    main_parser = argparse.ArgumentParser(description=descr)
+    main_parser.add_argument( '--debug',
+        metavar='LEVEL', default='INFO',
+        choices=log_choices,
+        help='Set the debug level. Allowed values: ' +
+            ', '.join( log_choices ) + ' [default: %(default)s]' )
+    DTCalibrationWorker.add_arguments( main_parser )
+
+    return main_parser.parse_args()
+
+
+if __name__ == '__main__':
+    main()
