@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V77 (CMSSW_8_0_5)
+# /dev/CMSSW_8_0_0/GRun/V78 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V77')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V78')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1211,6 +1211,10 @@ fragment.streams = cms.PSet(
     'HINPhoton',
     'HighMultiplicity85EOF',
     'HighMultiplicityEOF' ),
+  PhysicsHLTPhysics = cms.vstring( 'HLTPhysics0',
+    'HLTPhysics1',
+    'HLTPhysics2',
+    'HLTPhysics3' ),
   PhysicsHadronsTaus = cms.vstring( 'BTagCSV',
     'BTagMu',
     'DisplacedJet',
@@ -1439,6 +1443,10 @@ fragment.datasets = cms.PSet(
     'HLT_PFHT350_v3',
     'HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v1' ),
   HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),
+  HLTPhysics0 = cms.vstring( 'HLT_Physics_part0_v1' ),
+  HLTPhysics1 = cms.vstring( 'HLT_Physics_part1_v1' ),
+  HLTPhysics2 = cms.vstring( 'HLT_Physics_part2_v1' ),
+  HLTPhysics3 = cms.vstring( 'HLT_Physics_part3_v1' ),
   HTMHT = cms.vstring( 'HLT_DiCentralPFJet55_PFMET110_v1',
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v1',
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_v1',
