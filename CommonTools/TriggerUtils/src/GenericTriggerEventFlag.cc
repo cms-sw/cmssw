@@ -137,16 +137,10 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
     if ( onL1_ && l1DBKey_.size() > 0 ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressionsCache_ = exprs;
-      for ( unsigned iExpr = 0; iExpr < l1LogicalExpressionsCache_.size(); ++iExpr ) {
-	std::string l1LogicalExpression( l1LogicalExpressionsCache_.at( iExpr ) );  
-      }
     }
     if ( onHlt_ && hltDBKey_.size() > 0 ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressionsCache_ = exprs;
-      for ( unsigned iExpr = 0; iExpr < hltLogicalExpressionsCache_.size(); ++iExpr ) {
-	std::string hltLogicalExpression( hltLogicalExpressionsCache_.at( iExpr ) );
-      }
     }
   }
 
