@@ -234,7 +234,7 @@ void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 	// Top three bits seem to be unused. So, we steal those to set the tower masking, link masking and link status information 
 	// To decode these custom three bits use ((EcalTriggerPrimitiveSample::raw() >> 13) & 0x7)
 	uint32_t towerDatum = ctp7Data.getET(cType, negativeEta, iEta, iPhi);
-	if(ctp7Data.getFB(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0100;
+	if(ctp7Data.getFB(cType, negativeEta, iEta, iPhi)!=0) towerDatum |= 0x0100;
 	if(ctp7Data.isTowerMasked(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x2000;
 	if(ctp7Data.isLinkMasked(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x4000;
 	if(ctp7Data.isLinkMisaligned(cType, negativeEta, iEta, iPhi) ||
@@ -278,7 +278,7 @@ void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 	// We use next three bits to set the tower masking, link masking and link status information as done for Ecal
 	// To decode these custom six bits use ((EcalTriggerPrimitiveSample::raw() >> 9) & 0x77)
 	uint32_t towerDatum = ctp7Data.getET(cType, negativeEta, iEta, iPhi);
-	if(ctp7Data.getFB(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0100;
+	if(ctp7Data.getFB(cType, negativeEta, iEta, iPhi)!=0) towerDatum |= 0x0100;
 	if(ctp7Data.isLinkMisaligned(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0200;
 	if(ctp7Data.isLinkInError(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0400;
 	if(ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0800;
@@ -315,15 +315,16 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
 	// This code is fragile! Note that towerDatum is packed as is done in HcalTriggerPrimitiveSample
 	// Bottom 8-bits are ET
 	// Then feature bit
+        // Then minBias ADC count bit
 	// The remaining bits are undefined presently
 	// We use next three bits for link details, which we did not have room in EcalTriggerPrimitiveSample case
 	// We use next three bits to set the tower masking, link masking and link status information as done for Ecal
 	// To decode these custom six bits use ((EcalTriggerPrimitiveSample::raw() >> 9) & 0x77)
 	uint32_t towerDatum = ctp7Data.getET(cType, negativeEta, iEta, iPhi);
-	if(ctp7Data.getFB(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0100;
-	if(ctp7Data.isLinkMisaligned(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0200;
-	if(ctp7Data.isLinkInError(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0400;
-	if(ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0800;
+        towerDatum |= ctp7Data.getFB(cType, negativeEta, iEta, iPhi) << 8;
+	if(ctp7Data.isLinkMisaligned(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0400;
+	if(ctp7Data.isLinkInError(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x0800;
+	if(ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x1000;
 	if(ctp7Data.isTowerMasked(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x2000;
 	if(ctp7Data.isLinkMasked(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x4000;
 	if(ctp7Data.isLinkMisaligned(cType, negativeEta, iEta, iPhi) ||
@@ -348,8 +349,8 @@ L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std
     if(side == 0) negativeEta = true;
     for(uint32_t region = 0; region <= 6; region++) {
       uint32_t regionData = ctp7Data.getRegionSummary(negativeEta, region);
-      uint32_t lEta = region + 4; // GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
-      if(!negativeEta) lEta += 7;
+      uint32_t lEta = 10 - region; // GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
+      if(!negativeEta) lEta = region + 11;
       regions->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) lEta, (unsigned) lPhi, (int16_t) 0));
     }
   }
