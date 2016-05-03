@@ -26,39 +26,34 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   SiPixelPhase1Base(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
-  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
-  trajectoryToken_ = consumes<std::vector<Trajectory>>(iConfig.getParameter<edm::InputTag>("trajectories"));
   trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
 }
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
   
-  //get trajectories
-  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  iEvent.getByToken ( trajectoryToken_, trajCollectionHandle );
-  auto const & trajColl = *(trajCollectionHandle.product());
-   
-  //get tracks
-  edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
-  iEvent.getByToken( tracksToken_, trackCollectionHandle );
-  auto const & trackColl = *(trackCollectionHandle.product());
-  
   //get the map
-  edm::Handle<TrajTrackAssociationCollection> match;
-  iEvent.getByToken( trackAssociationToken_, match);
-  auto const &  ttac = *(match.product());
+  edm::Handle<TrajTrackAssociationCollection> ttac;
+  iEvent.getByToken( trackAssociationToken_, ttac);
   
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   iEvent.getByToken( clustersToken_, clusterColl );
-  auto const & clustColl = *(clusterColl.product());
   
   TrajectoryStateCombiner tsoscomb;
 
-  for (auto& item : ttac) {
+  // we need to store some per-cluster data. Instead of a map, we use a vector,
+  // exploiting the fact that all custers live in the DetSetVector and we can 
+  // use the same indices to refer to them.
+  // corr_charge is not strictly needed but cleaner to have it.
+  std::vector<bool>  ontrack    (clusterColl->data().size(), false);
+  std::vector<float> corr_charge(clusterColl->data().size(), -1.0f);
+
+  for (auto& item : *ttac) {
     auto trajectory_ref = item.key;
     reco::TrackRef track_ref = item.val;
 
@@ -86,14 +81,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       // get the cluster
       auto clust = pixhit->cluster();
       if (clust.isNull()) continue; 
-
-      // get pixel topo (for local/global pos)
-      const PixelGeomDetUnit* geomdetunit = static_cast<const PixelGeomDetUnit*> (tracker->idToDet(id));
-      if (!geomdetunit) continue; 
-      const PixelTopology& topol = geomdetunit->specificTopology();
-      LocalPoint  clustlp = topol.localPosition (MeasurementPoint(clust->x(), clust->y()));
-      GlobalPoint clustgp = geomdetunit->surface().toGlobal(clustlp);
-
+      ontrack[clust.key()] = true; // mark cluster as ontrack
 
       // compute trajectory parameters at hit
       TrajectoryStateOnSurface tsos = tsoscomb(measurement.forwardPredictedState(), 
@@ -109,10 +97,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       double corrCharge = clust->charge() * sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
                                                           1.0/pow( tan(clust_beta ), 2 ) + 
                                                           1.0 ));
-
-      // now we have all quantities at hand, fill on-track histograms now.
-      // ...
-
+      corr_charge[clust.key()] = (float) corrCharge;
     }
     // statistics on missing tracks
     if (crossesPixVol) {
@@ -125,23 +110,35 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
-  for (it = clustColl.begin(); it != clustColl.end(); ++it) {
-    // TODO: check here if the cluster was seen above
+  for (it = clusterColl->begin(); it != clusterColl->end(); ++it) {
     auto id = DetId(it->detId());
 
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-    const PixelTopology& topol = theGeomDet->specificTopology();
+    const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
+    const PixelTopology& topol = geomdetunit->specificTopology();
 
-    for(SiPixelCluster const& cluster : *it) {
-      histo[OFFTRACK_CHARGE].fill(double(cluster.charge()), id, &iEvent);
-      histo[OFFTRACK_SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
-      histo[OFFTRACK_NCLUSTERS].fill(id, &iEvent);
+    for(auto subit = it->begin(); subit != it->end(); ++subit) {
+      // we could do subit-...->data().front() as well, but this seems cleaner.
+      auto key = edmNew::makeRefTo(clusterColl, subit).key(); 
+      bool is_ontrack = ontrack[key];
+      float corrected_charge = corr_charge[key];
+      SiPixelCluster const& cluster = *subit;
 
       LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
-      GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
-      histo[OFFTRACK_POSITION_B ].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
-      histo[OFFTRACK_POSITION_F ].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+      GlobalPoint clustgp = geomdetunit->surface().toGlobal(clustlp);
 
+      if (is_ontrack) {
+        histo[ONTRACK_NCLUSTERS ].fill(id, &iEvent);
+        histo[ONTRACK_CHARGE    ].fill(double(corrected_charge), id, &iEvent);
+        histo[ONTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
+        histo[ONTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
+        histo[ONTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+      } else {
+        histo[OFFTRACK_NCLUSTERS ].fill(id, &iEvent);
+        histo[OFFTRACK_CHARGE    ].fill(double(cluster.charge()), id, &iEvent);
+        histo[OFFTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
+        histo[OFFTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
+        histo[OFFTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+      }
     }
   }
 

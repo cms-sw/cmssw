@@ -32,8 +32,6 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
 };
 
