@@ -38,7 +38,6 @@ SiPixelAliTrackSelector = AlignmentTrackSelector.clone(
 	pMin = 4.9,  #for 0T Collisions                                                                            
 	pMax = 5.1, #for 0T Collisions
 	ptMin = 0., #for 0T Collisions
-	ptMin = 1.0,
 	etaMin = -999.,
 	etaMax = 999.,
 	nHitMin = 8,
