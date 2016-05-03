@@ -419,6 +419,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
       }
       //check if extrapolated hit to layer 1 one matches the original hit
       TrajectoryStateOnSurface chkPredTrajState=trajStateComb(tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState());
+      if (!chkPredTrajState.isValid()) continue;
       float chkx=chkPredTrajState.globalPosition().x();
       float chky=chkPredTrajState.globalPosition().y();
       float chkz=chkPredTrajState.globalPosition().z();
