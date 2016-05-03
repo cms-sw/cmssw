@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
 #include "vdt/vdtMath.h"

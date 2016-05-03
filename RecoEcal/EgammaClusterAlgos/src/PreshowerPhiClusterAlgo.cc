@@ -6,7 +6,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerPhiClusterAlgo.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 

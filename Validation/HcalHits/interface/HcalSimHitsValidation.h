@@ -25,7 +25,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

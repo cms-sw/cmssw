@@ -41,7 +41,6 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"

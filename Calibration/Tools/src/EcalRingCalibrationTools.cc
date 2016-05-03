@@ -1,10 +1,10 @@
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 //Includes need to read from geometry
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -32,7 +32,6 @@
 
 //Geometry
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

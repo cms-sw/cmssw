@@ -37,14 +37,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
-//#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 #include <vector>
 #include <utility>
 #include <ostream>

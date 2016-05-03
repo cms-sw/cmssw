@@ -20,7 +20,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"

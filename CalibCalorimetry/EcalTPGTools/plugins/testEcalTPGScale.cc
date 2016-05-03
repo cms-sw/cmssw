@@ -3,7 +3,6 @@
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"

@@ -1,9 +1,3 @@
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
@@ -11,8 +5,6 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TFile.h"
 

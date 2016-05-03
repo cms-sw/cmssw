@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"

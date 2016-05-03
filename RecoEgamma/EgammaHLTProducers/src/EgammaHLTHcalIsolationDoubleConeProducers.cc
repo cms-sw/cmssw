@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

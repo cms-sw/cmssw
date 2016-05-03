@@ -20,7 +20,7 @@
 #include "Calibration/Tools/interface/DetIdAssociator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 class HCaloDetIdAssociator: public HDetIdAssociator{
  public:

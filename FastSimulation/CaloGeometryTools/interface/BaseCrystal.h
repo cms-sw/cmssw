@@ -7,8 +7,8 @@
 
 // Unfortunately, GlobalPoints are also needed
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 #include "DataFormats/DetId/interface/DetId.h"
 

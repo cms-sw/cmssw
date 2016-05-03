@@ -17,8 +17,6 @@
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
-
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

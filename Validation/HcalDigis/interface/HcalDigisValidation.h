@@ -20,7 +20,6 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"

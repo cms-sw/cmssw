@@ -1,7 +1,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <map>

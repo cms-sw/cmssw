@@ -3,7 +3,7 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // needed for the debugging
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"

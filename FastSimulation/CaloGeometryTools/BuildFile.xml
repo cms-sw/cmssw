@@ -5,7 +5,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FastSimulation/CalorimeterProperties"/>
-<use   name="Geometry/CaloGeometry"/>
+<use   name="DataFormats/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/EcalAlgo"/>
 <use   name="clhep"/>

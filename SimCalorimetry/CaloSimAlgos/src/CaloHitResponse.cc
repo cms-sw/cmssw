@@ -8,7 +8,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 

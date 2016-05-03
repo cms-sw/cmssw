@@ -2,6 +2,7 @@
 #include "Fireworks/Geometry/interface/FWTGeoRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWTGeoRecoGeometryRecord.h"
 
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -22,7 +23,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"

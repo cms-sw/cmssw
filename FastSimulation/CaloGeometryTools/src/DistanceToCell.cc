@@ -1,7 +1,6 @@
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 DistanceToCell::DistanceToCell():det_(0) {;}
 

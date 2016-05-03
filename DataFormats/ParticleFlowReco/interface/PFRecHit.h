@@ -15,7 +15,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 
 namespace reco {

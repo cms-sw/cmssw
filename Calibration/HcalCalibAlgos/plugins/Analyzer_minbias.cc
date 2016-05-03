@@ -8,7 +8,6 @@
 #include "Calibration/HcalCalibAlgos/plugins/Analyzer_minbias.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
