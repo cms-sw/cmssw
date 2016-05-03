@@ -1,7 +1,3 @@
 #charm tagger
 
-from RecoBTag.CTagging.candidateCombinedSecondaryVertexSoftLeptonCvsLComputer_cfi import *
-from RecoBTag.CTagging.candidateNegativeCombinedSecondaryVertexSoftLeptonCvsLComputer_cfi import *
-from RecoBTag.CTagging.candidatePositiveCombinedSecondaryVertexSoftLeptonCvsLComputer_cfi import *
-
 from RecoBTag.CTagging.charmTaggerProducer_cfi import * #ESSource
