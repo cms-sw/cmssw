@@ -50,7 +50,7 @@ class Jet(PhysicsObject):
         self._leadingTrackSearched = False
 
     def rawEnergy(self):
-        return (self.p4()*self.rawFactor()).energy()
+        return self.energy() * self.rawFactor()
 
     # these energy fraction methods need to be redefined here 
     # because the pat::Jet's currentJECLevel data member cannot be update easily by the calibrator 
@@ -95,7 +95,7 @@ class Jet(PhysicsObject):
         if not self.isPFJet():
             raise RuntimeError("jetID implemented only for PF Jets")
         eta = abs(self.eta());
-        energy = (self.p4()*self.rawFactor()).energy();
+        energy = self.rawEnergy();
         chf = self.chargedHadronEnergy()/energy;
         nhf = self.neutralHadronEnergy()/energy;
         phf = self.neutralEmEnergy()/energy;
