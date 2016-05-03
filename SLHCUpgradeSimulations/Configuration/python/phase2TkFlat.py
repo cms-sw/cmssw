@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 #GEN-SIM so far...
 def customise(process):
-    print "!!!You are using the SUPPORTED Tilted version of the Phase2 Tracker !!!"
+    print "!!!You are using the SUPPORTED Flat version of the Phase2 Tracker !!!"
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -317,7 +317,7 @@ def customise_Reco(process,pileup):
     return process
 
 def customise_condOverRides(process):
-    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff')
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff')
     return process
 
 
