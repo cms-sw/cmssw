@@ -48,13 +48,14 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
   }
   return (*this);
 }
-
+ 
 bool HcalDetId::operator==(DetId gen) const {
   uint32_t rawid = gen.rawId();
   if (rawid == id_) return true;
   int zsid, eta, phi, dep;
   unpackId(rawid, zsid, eta, phi, dep);
-  bool result=(zsid==zside() && eta==ietaAbs() && phi==iphi() && dep==depth());
+  bool result = (((id_&kHcalIdMask) == (rawid&kHcalIdMask)) && (zsid==zside())
+		 && (eta==ietaAbs()) && (phi==iphi()) && (dep==depth()));
   return result;
 }
 
@@ -63,7 +64,8 @@ bool HcalDetId::operator!=(DetId gen) const {
   if (rawid == id_) return false;
   int zsid, eta, phi, dep;
   unpackId(rawid, zsid, eta, phi, dep);
-  bool result=(zsid!=zside() || eta!=ietaAbs() || phi!=iphi() || dep!=depth());
+  bool result = (((id_&kHcalIdMask)!=(rawid&kHcalIdMask)) || (zsid!=zside())
+		 || (eta!=ietaAbs()) || (phi!=iphi()) || (dep!=depth()));
   return result;
 }
 
@@ -152,6 +154,33 @@ uint32_t HcalDetId::newForm(const uint32_t& inpid) {
       (phi&kHcalPhiMask2);
   }
   return rawid;
+}
+ 
+bool HcalDetId::sameBaseDetId(const DetId& gen) const {
+  uint32_t rawid = gen.rawId();
+  if (rawid == id_) return true;
+  int zsid, eta, phi, dep;
+  if ((id_&kHcalIdMask) != (rawid&kHcalIdMask)) return false;
+  unpackId(rawid, zsid, eta, phi, dep);
+  if (subdet() == HcalForward && dep > 2) dep -= 2;
+  bool result = ((zsid==zside()) && (eta==ietaAbs()) && (phi==iphi()) && 
+		 (dep==hfdepth()));
+  return result;
+}
+
+HcalDetId HcalDetId::baseDetId() const {
+  if (subdet() != HcalForward || depth() <= 2) {
+    return HcalDetId(id_);
+  } else {
+    int zsid, eta, phi, dep;
+    unpackId(id_, zsid, eta, phi, dep);
+    dep     -= 2;
+    uint32_t rawid    = id_&kHcalIdMask;
+    rawid   |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+      ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+      (phi&kHcalPhiMask2);
+    return HcalDetId(rawid);
+  }
 }
 
 int HcalDetId::crystal_iphi_low() const { 
