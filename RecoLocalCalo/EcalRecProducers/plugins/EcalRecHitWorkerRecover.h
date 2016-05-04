@@ -81,9 +81,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
  
                 edm::ESHandle<CaloSubdetectorGeometry> pEBGeom_;
-                edm::ESHandle<CaloSubdetectorGeometry> pEEGeom_;
                 const CaloSubdetectorGeometry * ebGeom_;
-                const CaloSubdetectorGeometry * eeGeom_;
 		const CaloGeometry* geo_;
 
                 EcalRecHitSimpleAlgo * rechitMaker_;
