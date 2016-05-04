@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V79 (CMSSW_8_0_5)
+# /dev/CMSSW_8_0_0/GRun/V80 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V79')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V80')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1447,8 +1447,7 @@ fragment.datasets = cms.PSet(
   HLTPhysics1 = cms.vstring( 'HLT_Physics_part1_v1' ),
   HLTPhysics2 = cms.vstring( 'HLT_Physics_part2_v1' ),
   HLTPhysics3 = cms.vstring( 'HLT_Physics_part3_v1' ),
-  HTMHT = cms.vstring( 'HLT_DiCentralPFJet55_PFMET110_v1',
-    'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v1',
+  HTMHT = cms.vstring( 'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v1',
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_v1',
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v2',
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v2',
@@ -1545,6 +1544,7 @@ fragment.datasets = cms.PSet(
     'HLT_L1MinimumBiasHF_OR_v1' ),
   MET = cms.vstring( 'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_v1',
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v2',
+    'HLT_DiCentralPFJet55_PFMET110_v1',
     'HLT_MET200_v1',
     'HLT_MET250_v1',
     'HLT_MET300_v1',
