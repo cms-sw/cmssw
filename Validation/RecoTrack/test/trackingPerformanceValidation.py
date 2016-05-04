@@ -137,15 +137,10 @@ val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
-valv = Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
-    fastsimSamples=[],
-    refRelease=RefRelease, refRepository=RefRepository,
-    newRelease=NewRelease, newRepository=NewRepository)
-valv.download()
-valv.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
-             limitSubFoldersOnlyTo={"": VertexCollections},
-             htmlReport=htmlReport, doFastVsFull=doFastVsFull
+val.download()
+val.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
+            limitSubFoldersOnlyTo={"": VertexCollections},
+            htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 htmlReport.write()
 
