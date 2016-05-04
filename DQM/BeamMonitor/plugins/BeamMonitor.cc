@@ -54,7 +54,7 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
              
   if (year < 1995){                                                                   
         edm::LogError("BadTimeStamp") << "year reported is " << year <<" !!"<<std::endl;
-        year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
+        year = 2016; //overwritten later by BeamFitter.cc for fits but needed here for TH1
         edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
       } 
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
