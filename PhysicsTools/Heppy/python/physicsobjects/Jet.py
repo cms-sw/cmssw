@@ -49,11 +49,53 @@ class Jet(PhysicsObject):
         self._leadingTrack = None
         self._leadingTrackSearched = False
 
+    def rawEnergy(self):
+        return self.energy() * self.rawFactor()
+
+    # these energy fraction methods need to be redefined here 
+    # because the pat::Jet's currentJECLevel data member cannot be update easily by the calibrator 
+    # and then the C++ methods would be broken when new jet corrections are applied in Heppy
+    def chargedEmEnergyFraction(self):
+        return self.chargedEmEnergy()/self.rawEnergy()
+
+    def chargedHadronEnergyFraction(self):
+        return self.chargedHadronEnergy()/self.rawEnergy()
+
+    def chargedMuEnergyFraction(self):
+        return self.chargedMuEnergy()/self.rawEnergy()
+
+    def electronEnergyFraction(self):
+        return self.electronEnergy()/self.rawEnergy()
+
+    def muonEnergyFraction(self):
+        return self.muonEnergy()/self.rawEnergy()
+
+    def neutralEmEnergyFraction(self):
+        return self.neutralEmEnergy()/self.rawEnergy()
+
+    def neutralHadronEnergyFraction(self):
+        return self.neutralHadronEnergy()/self.rawEnergy()
+
+    def photonEnergyFraction(self):
+        return self.photonEnergy()/self.rawEnergy()
+
+
+    def HFHadronEnergyFraction(self):
+        return self.HFHadronEnergy()/self.rawEnergy()
+
+    def HFEMEnergyFraction(self):
+        return self.HFEMEnergy()/self.rawEnergy()
+
+    def hoEnergyFraction(self):
+        return self.hoEnergy()/self.rawEnergy()
+
+
+
     def jetID(self,name=""):
         if not self.isPFJet():
             raise RuntimeError("jetID implemented only for PF Jets")
         eta = abs(self.eta());
-        energy = (self.p4()*self.rawFactor()).energy();
+        energy = self.rawEnergy();
         chf = self.chargedHadronEnergy()/energy;
         nhf = self.neutralHadronEnergy()/energy;
         phf = self.neutralEmEnergy()/energy;
