@@ -302,8 +302,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHTMHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHTMHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHTMHT_selector.throw      = cms.bool(False)
-streamA_datasetHTMHT_selector.triggerConditions = cms.vstring('HLT_DiCentralPFJet55_PFMET110_v1', 
-    'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v1', 
+streamA_datasetHTMHT_selector.triggerConditions = cms.vstring('HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v1', 
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_v1', 
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v2', 
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v2', 
@@ -394,6 +393,7 @@ streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
 streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v2', 
+    'HLT_DiCentralPFJet55_PFMET110_v1', 
     'HLT_MET200_v1', 
     'HLT_MET250_v1', 
     'HLT_MET300_v1', 
