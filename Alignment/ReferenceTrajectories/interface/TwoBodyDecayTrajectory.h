@@ -19,6 +19,12 @@ public:
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
   typedef std::pair< ConstRecHitContainer, ConstRecHitContainer > ConstRecHitCollection;
 
+  TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState& tsos,
+                         const ConstRecHitCollection& recHits,
+                         const MagneticField* magField,
+                         const reco::BeamSpot& beamSpot,
+                         const ReferenceTrajectoryBase::Config& config);
+
   TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState & trajectoryState,
 			  const ConstRecHitCollection & recHits,
 			  const MagneticField* magField,

@@ -67,6 +67,12 @@ public:
      the material effects to be considered and a particle mass,
      the magnetic field and beamSpot of the event are needed for propagations etc.
    */
+  ReferenceTrajectory(const TrajectoryStateOnSurface& referenceTsos,
+                      const TransientTrackingRecHit::ConstRecHitContainer& recHits,
+                      const MagneticField* magField,
+                      const reco::BeamSpot& beamSpot,
+                      const ReferenceTrajectoryBase::Config& config);
+
   ReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
 		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 		      bool hitsAreReverse,

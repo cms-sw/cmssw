@@ -8,6 +8,17 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
+BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                                                   const TransientTrackingRecHit::ConstRecHitContainer& recHits,
+                                                   const MagneticField *magField,
+                                                   const reco::BeamSpot& beamSpot,
+                                                   const ReferenceTrajectoryBase::Config& config) :
+  BzeroReferenceTrajectory(tsos, recHits, config.hitsAreReverse, magField, config.materialEffects,
+                           config.propDir, config.mass, config.momentumEstimate, config.useBeamSpot,
+                           beamSpot)
+{
+}
+
 BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
 						   const TransientTrackingRecHit::ConstRecHitContainer
 						   &recHits, bool hitsAreReverse,

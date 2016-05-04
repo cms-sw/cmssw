@@ -10,6 +10,20 @@
 #include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h"
 
 
+
+DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                                                           const ConstRecHitContainer& forwardRecHits,
+                                                           const ConstRecHitContainer& backwardRecHits,
+                                                           const MagneticField* magField,
+                                                           const reco::BeamSpot& beamSpot,
+                                                           const ReferenceTrajectoryBase::Config& config) :
+  DualBzeroReferenceTrajectory(tsos, forwardRecHits, backwardRecHits, magField,
+                               config.materialEffects, config.propDir, config.mass,
+                               config.momentumEstimate, config.useBeamSpot,
+                               beamSpot)
+{
+}
+
 DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
 							    const ConstRecHitContainer &forwardRecHits,
 							    const ConstRecHitContainer &backwardRecHits,

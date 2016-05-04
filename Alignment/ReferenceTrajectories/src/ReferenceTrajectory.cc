@@ -47,6 +47,16 @@
 using namespace gbl;
 
 
+ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos,
+                                         const TransientTrackingRecHit::ConstRecHitContainer& recHits,
+                                         const MagneticField* magField,
+                                         const reco::BeamSpot& beamSpot,
+                                         const ReferenceTrajectoryBase::Config& config) :
+  ReferenceTrajectory(refTsos, recHits, config.hitsAreReverse, magField, config.materialEffects,
+                      config.propDir, config.mass, config.useBeamSpot, beamSpot)
+{
+}
+
 ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
 					 const TransientTrackingRecHit::ConstRecHitContainer
 					 &recHits, bool hitsAreReverse,
