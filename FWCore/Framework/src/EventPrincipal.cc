@@ -197,7 +197,7 @@ namespace edm {
         }
       });
       
-      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this, preReadFromSourceSignal_, postReadFromSourceSignal_, mcc));
+      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this, &preReadFromSourceSignal_, &postReadFromSourceSignal_, mcc));
 
       // Now fix up the ProductResolver
       phb.putProduct(std::move(edp));
