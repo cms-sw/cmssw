@@ -12,20 +12,21 @@ class Forest
 
         // Constructor(s)/Destructor
         Forest();
-        Forest(std::vector<Event*>& trainingEvents, std::vector<Event*>& testEvents);
+        Forest(std::vector<Event*>& trainingEvents);
         ~Forest();
 
         // Get/Set
         void setTrainingEvents(std::vector<Event*>& trainingEvents);
-        void setTestEvents(std::vector<Event*>& testingEvents);
         std::vector<Event*> getTrainingEvents();
-        std::vector<Event*> getTestEvents();
 
         // Returns the number of trees in the forest.
         unsigned int size();
 
         // Get info on variable importance.
-        std::vector<Double_t> rankVariables();
+        void rankVariables(std::vector<int>& rank);
+ 
+        // Output the list of split values used for each variable.
+        void saveSplitValues(const char* savefilename);
 
         // Helpful operations
         void listEvents(std::vector< std::vector<Event*> >& e);
@@ -45,14 +46,17 @@ class Forest
 
         // Predict some events
         void updateEvents(Tree* tree);
-        void appendCorrection(std::vector<Event*> eventsp, Int_t treenum);
-        void predictEvents(std::vector<Event*> eventsp, unsigned int trees);
+        void appendCorrection(std::vector<Event*>& eventsp, Int_t treenum);
+        void predictEvents(std::vector<Event*>& eventsp, unsigned int trees);
+        void appendCorrection(Event* e, Int_t treenum);
+        void predictEvent(Event* e, unsigned int trees);
+
+        Tree* getTree(unsigned int i);
 
     private:
 
         std::vector< std::vector<Event*> > events;
         std::vector< std::vector<Event*> > subSample;
-        std::vector<Event*> testEvents;
         std::vector<Tree*> trees;
 };
 
