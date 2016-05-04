@@ -116,48 +116,48 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
   
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod, const std::vector<HGCEEDataFrame>& dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
     std::map<HGCTriggerDetId, uint32_t> payload;
     // sum energies in trigger cells
-    for(const auto& frame : dataframes)
-    {
+    for(const auto& frame : linearized_dataframes)
+      {
         // FIXME: only EE
-        HGCEEDetId cellid(frame.id());
+        HGCEEDetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid(0);
         for(const auto& tc_c : mod.triggerCellComponents())
-        {
+	  {
             if(tc_c.second==cellid)
             {
-                tcid = tc_c.first;
+	      tcid = tc_c.first;
                 break;
             }
-        }
+	  }
         if(!tcid)
-        {
+	  {
             throw cms::Exception("BadGeometry")
-                << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
-        }
+	      << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
+	  }
         HGCTriggerDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
-        uint32_t value = frame[2].data(); // 'value' has to be a 12 bit word
+        uint32_t value = frame.second; // 'value' has to be a 12 bit word
         payload[triggercellid] += value; // 32 bits integer should be largely enough (maximum 7 12-bits sums are done)
-
-    }
+	
+      }
     // fill data payload
     for(const auto& id_value : payload)
-    {
+      {
         uint32_t id = id_value.first.cell();
         if(id>nCellsInModule_) // cell number starts at 1
-        {
+	  {
             throw cms::Exception("BadGeometry")
-                << "Number of trigger cells in module too large for available data payload\n";
-        }
+	      << "Number of trigger cells in module too large for available data payload\n";
+	  }
         data.payload.at(id-1) = id_value.second;
-    }
+      }
 }
 
 
