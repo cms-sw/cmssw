@@ -1,5 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondTools/RunInfo/interface/RunInfoHandler.h"
 #include "CondTools/RunInfo/interface/RunInfoRead.h"
 #include<iostream>
@@ -8,7 +7,10 @@
 RunInfoHandler::RunInfoHandler( const edm::ParameterSet& pset ) :
    m_since( pset.getParameter<unsigned long long>( "runNumber" ) )
   ,m_name( pset.getUntrackedParameter<std::string>( "name", "RunInfoHandler" ) )
-  ,m_connectionString( pset.getUntrackedParameter<std::string>( "connectionString", "oracle://cms_omds_adg/CMS_RUNINFO_R" ) ) {
+  ,m_runinfo_schema( pset.getUntrackedParameter<std::string>( "RunInfoSchema", "CMS_RUNINFO" ) )
+  ,m_dcsenv_schema( pset.getUntrackedParameter<std::string>( "DCSEnvSchema", "CMS_DCS_ENV_PVSS_COND") )
+  ,m_connectionString( pset.getParameter<std::string>( "connect" ) )
+  ,m_connectionPset( pset.getParameter<edm::ParameterSet>( "DBParameters" ) ) {
 }
 
 RunInfoHandler::~RunInfoHandler() {}
@@ -59,8 +61,9 @@ void RunInfoHandler::getNewObjects() {
   }
   
   //reading from omds
-  RunInfoRead rn( m_connectionString );
-  *r = rn.readData( "RUNSESSION_PARAMETER", "STRING_VALUE",(int)m_since );
+  RunInfoRead rn( m_connectionString, m_connectionPset );
+  //*r = rn.readData( "RUNSESSION_PARAMETER", "STRING_VALUE",(int)m_since );
+  *r = rn.readData( m_runinfo_schema, m_dcsenv_schema, (int)m_since );
   m_to_transfer.push_back( std::make_pair( (RunInfo*)r, m_since) );
   ss << "run number: " << m_since << ";";
   m_userTextLog = ss.str();
