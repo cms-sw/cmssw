@@ -4,7 +4,7 @@ def customise_HcalPhase0(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
-        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.TestNumbering=True
 
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
@@ -126,7 +126,7 @@ def customise_Digi(process):
         process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*16)
         process.mix.digitizers.hcal.he.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.HFUpgradeQIE = True
-        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.TestNumbering = True
 
     if hasattr(process,'simHcalDigis'):
         process.simHcalDigis.useConfigZSvalues=cms.int32(1)

@@ -287,10 +287,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
   theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doEmpty);
 
-  edm::ParameterSet ps0 = ps.getParameter<edm::ParameterSet>("HcalReLabel");
-  relabel_ = ps0.getUntrackedParameter<bool>("RelabelHits");
-//  std::cout << "Flag to see if Hit Relabeller to be initiated " << relabel_ << std::endl;
-  if (relabel_) theRelabeller=new HcalHitRelabeller(ps0);
+  testNumbering_ = ps.getParameter<bool>("TestNumbering");
+//  std::cout << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << std::endl;
+  if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps);
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
@@ -458,11 +457,11 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
     hcalHits.reserve(hcalHitsOrig.size());
 
     //evaluate darkening before relabeling
-    if(m_HEDarkening || m_HFRecalibration){
-      darkening(hcalHitsOrig);
-    }
-    // Relabel PCaloHits if necessary
-    if (relabel_) {
+    if (testNumbering_) {
+      if(m_HEDarkening || m_HFRecalibration){
+	darkening(hcalHitsOrig);
+      }
+      // Relabel PCaloHits if necessary
       edm::LogInfo("HcalDigitizer") << "Calling Relabeller";
       theRelabeller->process(hcalHitsOrig);
     }

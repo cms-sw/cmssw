@@ -66,7 +66,7 @@ simHcalUnsuppressedDigis.hb.pixels = cms.int32(4500*4*2)
 #HcalTopologyIdealEP.SLHCMode = cms.untracked.bool(True)
 
 #turn on hit relabeling and set depth segmentation
-HcalReLabel.RelabelHits = cms.untracked.bool(True)
+mix.digitizers.hcal.TestNumbering = cms.bool(True)
 
 #
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
