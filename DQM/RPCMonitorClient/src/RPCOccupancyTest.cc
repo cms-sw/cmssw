@@ -31,8 +31,8 @@ void RPCOccupancyTest::beginJob(std::string & workingFolder){
  edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
  globalFolder_ =  workingFolder;
 
- totalStrips_ = 0.;
- totalActive_ = 0.;   
+ totalStrips_ = 0;
+ totalActive_ = 0;   
 }
 
  
@@ -59,8 +59,9 @@ void RPCOccupancyTest::clientOperation() {
   }//End loop on MEs
 
   //Active Channels
-  if(Active_Fraction && totalStrips_!=0.){    
-    Active_Fraction->setBinContent(1, (totalActive_/totalStrips_));
+  if(Active_Fraction && totalStrips_!=0){
+    float fractionActiveChannel = (float)totalActive_/(float)totalStrips_;
+    Active_Fraction->setBinContent(1, fractionActiveChannel);
   }
   if(Active_Dead){    
     Active_Dead->setBinContent( 1, totalActive_ );
@@ -95,7 +96,6 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker & ibooker){
   Barrel_OccBySt -> setBinLabel(2, "St2", 1);
   Barrel_OccBySt -> setBinLabel(3, "St3", 1);
   Barrel_OccBySt -> setBinLabel(4, "St4", 1);
-  
   
   histoName.str("");
   histoName<<"EndCap_OccupancyByRings_Normalized";
@@ -146,7 +146,6 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker & ibooker){
     rpcUtils.labelXAxisSegment(AsyMeDisk[d+offset]);
     rpcUtils.labelYAxisRing(AsyMeDisk[d+offset], numberOfRings_,  useRollInfo_);
     
-   
     
     if(useNormalization_){
    
@@ -216,7 +215,7 @@ if (!myMe) return;
     
 	
     int stripInRoll=myMe->getNbinsX();
-    totalStrips_ += (float)stripInRoll;
+    totalStrips_ += stripInRoll;
     float FOccupancy=0;
     float BOccupancy=0;
     

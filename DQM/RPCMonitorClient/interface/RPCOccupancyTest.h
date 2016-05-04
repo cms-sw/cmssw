@@ -35,7 +35,7 @@ private:
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
 
-  float totalActive_, totalStrips_;
+  int totalActive_, totalStrips_;
    
   int numberOfDisks_, numberOfRings_;
  
