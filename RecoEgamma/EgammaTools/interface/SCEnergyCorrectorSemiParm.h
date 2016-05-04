@@ -47,8 +47,6 @@ class SCEnergyCorrectorSemiParm {
   
   edm::ESHandle<CaloTopology> calotopo_;
   edm::ESHandle<CaloGeometry> calogeom_;
-  const CaloTopologyRecord* topo_record_;
-  const CaloGeometryRecord* geom_record_;    
   
   edm::EDGetTokenT<EcalRecHitCollection> tokenEBRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> tokenEERecHits_;

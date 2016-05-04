@@ -19,9 +19,7 @@ forestee_(0),
 forestsigmaeb_(0),
 forestsigmaee_(0),
 calotopo_(0),
-calogeom_(0),
-topo_record_(0),
-geom_record_(0)
+calogeom_(0)
 {}
 
 //--------------------------------------------------------------------------------------------------
@@ -49,19 +47,9 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
 
 //--------------------------------------------------------------------------------------------------
 void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
-  
-  const CaloTopologyRecord& topofrom_es = es.get<CaloTopologyRecord>();
-  if( !topo_record_ ||
-      topofrom_es.cacheIdentifier() != topo_record_->cacheIdentifier() ) {
-    topo_record_ = &topofrom_es;
-    topo_record_->get(calotopo_);
-  }
-  const CaloGeometryRecord& geomfrom_es = es.get<CaloGeometryRecord>();
-  if( !geom_record_ ||
-      geomfrom_es.cacheIdentifier() != geom_record_->cacheIdentifier() ) {
-    geom_record_ = &geomfrom_es;
-    geom_record_->get(calogeom_);
-  }  
+
+  es.get<CaloTopologyRecord>().get(calotopo_);
+  es.get<CaloGeometryRecord>().get(calogeom_);
 
   edm::ESHandle<GBRForestD> readereb;
   edm::ESHandle<GBRForestD> readerebvar;
