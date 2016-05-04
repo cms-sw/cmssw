@@ -12,6 +12,17 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+TwoBodyDecayTrajectory::TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState& tsos,
+                                               const ConstRecHitCollection& recHits,
+                                               const MagneticField* magField,
+                                               const reco::BeamSpot& beamSpot,
+                                               const ReferenceTrajectoryBase::Config& config) :
+  TwoBodyDecayTrajectory(tsos, recHits, magField, config.materialEffects,
+                         config.propDir, config.hitsAreReverse, beamSpot,
+                         config.useRefittedState, config.constructTsosWithErrors)
+{
+}
+
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,
 						const ConstRecHitCollection & recHits,
 						const MagneticField* magField,

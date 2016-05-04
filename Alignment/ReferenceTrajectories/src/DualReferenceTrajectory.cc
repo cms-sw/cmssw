@@ -8,6 +8,17 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
+DualReferenceTrajectory::DualReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+						 const ConstRecHitContainer& forwardRecHits,
+						 const ConstRecHitContainer& backwardRecHits,
+						 const MagneticField* magField,
+						 const reco::BeamSpot& beamSpot,
+						 const ReferenceTrajectoryBase::Config& config) :
+  DualReferenceTrajectory(tsos, forwardRecHits, backwardRecHits, magField, config.materialEffects,
+			  config.propDir, config.mass, config.useBeamSpot, beamSpot)
+{
+}
+
 DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
 						  const ConstRecHitContainer &forwardRecHits,
 						  const ConstRecHitContainer &backwardRecHits,

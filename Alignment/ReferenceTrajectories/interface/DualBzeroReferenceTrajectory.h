@@ -42,6 +42,13 @@ public:
 
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
+  DualBzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                               const ConstRecHitContainer& forwardRecHits,
+                               const ConstRecHitContainer& backwardRecHits,
+                               const MagneticField* magField,
+                               const reco::BeamSpot& beamSpot,
+                               const ReferenceTrajectoryBase::Config& config);
+
   DualBzeroReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
 				const ConstRecHitContainer &forwardRecHits,
 				const ConstRecHitContainer &backwardRecHits,
