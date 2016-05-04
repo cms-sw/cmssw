@@ -15,6 +15,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #include <memory>
 #include <atomic>
@@ -102,6 +103,8 @@ namespace edm {
                                                  ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool unscheduledWasNotRun_() const override final {return false;}
+    
+      WaitingTaskList m_waitingTasks;
 
   };
 
