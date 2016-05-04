@@ -55,7 +55,6 @@ RunInfo
 RunInfoRead::readData( const std::string & runinfo_schema
 		     , const std::string & dcsenv_schema
                      , const int r_number ) {
-  RunInfo  sum;
   RunInfo temp_sum;
   //for B currents...
   bool Bnotchanged = 0;
@@ -362,6 +361,5 @@ RunInfoRead::readData( const std::string & runinfo_schema
                                             << e.what() << std::endl;
   }
   
-  sum= temp_sum;
-  return sum;
+  return temp_sum;
 }
