@@ -59,10 +59,10 @@ DualBzeroReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenc
   if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
     << "[DualBzeroReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
   
-  return new BzeroReferenceTrajectory(referenceTsos, recHits,
-				      false, magField,
-				      materialEffects, propDir,
-				      mass, theMomentumEstimate, useBeamSpot, beamSpot);
+  ReferenceTrajectoryBase::Config config(materialEffects, propDir, mass, theMomentumEstimate);
+  config.useBeamSpot = useBeamSpot;
+  config.hitsAreReverse = false;
+  return new BzeroReferenceTrajectory(referenceTsos, recHits, magField, beamSpot, config);
 }
 
 

@@ -89,8 +89,11 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects,
-				   propDir, mass, false, beamSpot);
+  ReferenceTrajectoryBase::Config config(materialEffects, propDir, mass);
+  config.useBeamSpot = false;
+  config.hitsAreReverse = false;
+
+  ReferenceTrajectory trajectory1(tsos.first, recHits.first, field, beamSpot, config);
 
   // check if construction of trajectory was successful
   if ( !trajectory1.isValid() ) return false;
@@ -99,8 +102,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   // second track
   //
 
-  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects,
-				   propDir, mass, false, beamSpot );
+  ReferenceTrajectory trajectory2(tsos.second, recHits.second, field, beamSpot, config);
 
   if ( !trajectory2.isValid() ) return false;
   
