@@ -261,10 +261,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   //get the meta data
   m_triggerMenuDescription = menu->getComment();
   m_triggerMenuDate = menu->getDatetime();
-  m_triggerMenuImplementation =  0; // FIXME: ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuImplementation = ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
-  m_triggerMenuUUID = 0; // FIXME:  ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuUUID = ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
@@ -321,9 +321,12 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	  } else if(condition.getType() == esConditionType::TotalEt ||
                     condition.getType() == esConditionType::TotalHt ||
 		    condition.getType() == esConditionType::MissingEt ||
-		    condition.getType() == esConditionType::MissingHt )
+		    condition.getType() == esConditionType::MissingHt ||
 		    //condition.getType() == esConditionType::MissingEt2 ||
-		    //condition.getType() == esConditionType::MinBias )
+		    condition.getType() == esConditionType::MinBiasHFP0 ||
+		    condition.getType() == esConditionType::MinBiasHFM0 ||
+		    condition.getType() == esConditionType::MinBiasHFP1 ||
+		    condition.getType() == esConditionType::MinBiasHFM1 )
 	  {
              parseEnergySum(condition,chipNr,false); 	
 
@@ -2022,11 +2025,23 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 /*    else if( condEnergySum.getType() == esConditionType::MissingEt2 ){
       energySumObjType = GlobalObject::gtETM2;
       cType = TypeETM2;
+    } */
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFP0 ){
+      energySumObjType = GlobalObject::gtMinBiasHFP0;
+      cType = TypeMinBiasHFP0;
+    }     
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFM0 ){
+      energySumObjType = GlobalObject::gtMinBiasHFM0;
+      cType = TypeMinBiasHFM0;
     }
-    else if( condEnergySum.getType() == esConditionType::MinBias ){
-      energySumObjType = GlobalObject::gtMinBias;
-      cType = TypeMinBias;
-    }  */      
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFP1 ){
+      energySumObjType = GlobalObject::gtMinBiasHFP1;
+      cType = TypeMinBiasHFP1;
+    }
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFM1 ){
+      energySumObjType = GlobalObject::gtMinBiasHFM1;
+      cType = TypeMinBiasHFM1;
+    }        
     else {
       edm::LogError("TriggerMenuParser")
 	<< "Wrong type for energy-sum condition (" << type
@@ -2102,6 +2117,11 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 		 cntPhi++; 
 
 	       }
+	       break;
+	     
+	     case esCutType::Count:
+	       lowerThresholdInd = cut.getMinimum().index;
+	       upperThresholdInd = 0xffffff;
 	       break;
 	       
 	     default:
