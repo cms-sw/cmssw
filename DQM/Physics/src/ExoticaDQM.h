@@ -1,95 +1,6 @@
 #ifndef ExoticaDQM_H
 #define ExoticaDQM_H
 
-// #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-// #include "FWCore/ParameterSet/interface/ParameterSet.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "FWCore/Framework/interface/LuminosityBlock.h"
-// #include "FWCore/Framework/interface/Run.h"
-// #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/EventSetup.h"
-// #include "FWCore/Utilities/interface/EDGetToken.h"
-// #include "FWCore/Utilities/interface/InputTag.h"
-// #include "DataFormats/Candidate/interface/Candidate.h"
-// #include "DataFormats/Candidate/interface/CandidateFwd.h"
-// 
-// // Trigger stuff
-// #include "DataFormats/Common/interface/TriggerResults.h"
-// #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-// #include "FWCore/Common/interface/TriggerNames.h"
-// 
-// #include "DataFormats/Common/interface/Handle.h"
-// #include "FWCore/Framework/interface/DataKeyTags.h"
-// #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-// #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-// #include "DataFormats/MuonReco/interface/Muon.h"
-// #include "DataFormats/MuonReco/interface/MuonFwd.h"
-// #include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
-// 
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-// #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-// #include "DataFormats/VertexReco/interface/Vertex.h"
-// 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// 
-// // ParticleFlow
-// #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-// 
-// // Vertex
-// #include "DataFormats/VertexReco/interface/Vertex.h"
-// #include "DataFormats/VertexReco/interface/VertexFwd.h"
-// 
-// // EGamma
-// #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-// #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-// #include "DataFormats/EgammaCandidates/interface/Electron.h"
-// #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-// 
-// // Muon
-// #include "DataFormats/MuonReco/interface/Muon.h"
-// #include "DataFormats/MuonReco/interface/MuonFwd.h"
-// #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-// #include "DataFormats/MuonReco/interface/MuonIsolation.h"
-// 
-// // Tau
-// #include "DataFormats/TauReco/interface/CaloTau.h"
-// #include "DataFormats/TauReco/interface/CaloTauFwd.h"
-// #include "DataFormats/TauReco/interface/PFTau.h"
-// 
-// // Jets
-// #include "DataFormats/JetReco/interface/PFJetCollection.h"
-// #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-// #include "RecoJets/JetProducers/interface/JetIDHelper.h"
-// 
-// // Photon
-// #include "DataFormats/EgammaCandidates/interface/Photon.h"
-// #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-// 
-// // MET
-// #include "DataFormats/METReco/interface/CaloMETCollection.h"
-// #include "DataFormats/METReco/interface/PFMETCollection.h"
-// #include "DataFormats/METReco/interface/GenMETCollection.h"
-// #include "DataFormats/METReco/interface/CaloMET.h"
-// #include "DataFormats/METReco/interface/PFMET.h"
-// #include "DataFormats/METReco/interface/MET.h"
-// #include "DataFormats/METReco/interface/METCollection.h"
-// 
-// //
-// #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-// #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-// 
-// #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-// 
-// // MC truth
-// #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-// 
-// #include <iostream>
-// #include <fstream>
-// #include <string>
-// #include <vector>
-// #include <map>
-
 #include <memory>
 
 // DQM
@@ -148,7 +59,6 @@
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/MET.h"
