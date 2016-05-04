@@ -6,12 +6,9 @@
 #include<vector>
 
 RunInfoHandler::RunInfoHandler( const edm::ParameterSet& pset ) :
-   m_name( pset.getUntrackedParameter<std::string>( "name", "RunInfoHandler" ) )
-  ,m_since( pset.getParameter<unsigned long long>( "runNumber" ) )
-  ,m_connectionString( pset.getUntrackedParameter<std::string>( "connectionString", "oracle://cms_omds_adg/CMS_RUNINFO" ) )
-  ,m_authpath( pset.getUntrackedParameter<std::string>( "authenticationPath", "" ) )
-  ,m_user( pset.getUntrackedParameter<std::string>( "OnlineDBUser", "CMS_RUNINFO_R" ) )
-  ,m_pass( pset.getUntrackedParameter<std::string>( "OnlineDBPass", "PASSWORD") ) {
+   m_since( pset.getParameter<unsigned long long>( "runNumber" ) )
+  ,m_name( pset.getUntrackedParameter<std::string>( "name", "RunInfoHandler" ) )
+  ,m_connectionString( pset.getUntrackedParameter<std::string>( "connectionString", "oracle://cms_omds_adg/CMS_RUNINFO_R" ) ) {
 }
 
 RunInfoHandler::~RunInfoHandler() {}
@@ -62,7 +59,7 @@ void RunInfoHandler::getNewObjects() {
   }
   
   //reading from omds
-  RunInfoRead rn( m_connectionString, m_user, m_pass );
+  RunInfoRead rn( m_connectionString );
   *r = rn.readData( "RUNSESSION_PARAMETER", "STRING_VALUE",(int)m_since );
   m_to_transfer.push_back( std::make_pair( (RunInfo*)r, m_since) );
   ss << "run number: " << m_since << ";";

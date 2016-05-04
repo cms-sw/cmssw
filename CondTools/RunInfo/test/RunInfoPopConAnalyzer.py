@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from CondCore.CondDB.CondDB_cfi import *
 
-sourceConnection = 'oracle://cms_omds_adg/CMS_RUNINFO'
+sourceConnection = 'oracle://cms_omds_adg/CMS_RUNINFO_R'
 if socket.getfqdn().find('.cms') != -1:
-    sourceConnection = 'oracle://cms_omds_lb/CMS_RUNINFO'
+    sourceConnection = 'oracle://cms_omds_lb/CMS_RUNINFO_R'
 
 options = VarParsing.VarParsing()
 options.register( 'runNumber'
@@ -73,9 +73,6 @@ process.popConRunInfo = cms.EDAnalyzer( "RunInfoPopConAnalyzer"
                                       , record = cms.string( 'RunInfoRcd' )
                                       , Source = cms.PSet( runNumber = cms.uint64( options.runNumber )
                                                          , connectionString = cms.untracked.string( sourceConnection )
-                                                         , authenticationPath = cms.untracked.string ( '' )
-                                                         , OnlineDBUser = cms.untracked.string( 'CMS_RUNINFO_R' )
-                                                         , OnlineDBPass = cms.untracked.string( 'PASSWORD' )
                                                            )
                                       , loggingOn = cms.untracked.bool( True )
                                       , targetDBConnectionString = cms.untracked.string( options.targetConnection )
