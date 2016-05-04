@@ -144,9 +144,10 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
   if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
     << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
   
-  return new ReferenceTrajectory(referenceTsos, recHits, false,
-				 magField, materialEffects, propDir, mass,
-				 useBeamSpot, beamSpot);
+  ReferenceTrajectoryBase::Config config(materialEffects, propDir, mass);
+  config.useBeamSpot = useBeamSpot;
+  config.hitsAreReverse = false;
+  return new ReferenceTrajectory(referenceTsos, recHits, magField, beamSpot, config);
 }
 
 
