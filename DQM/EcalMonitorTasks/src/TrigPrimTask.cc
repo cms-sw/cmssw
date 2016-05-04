@@ -275,6 +275,7 @@ namespace ecaldqm
     MESet& meMatchedIndex(MEs_.at("MatchedIndex"));
     MESet& meEtEmulError(MEs_.at("EtEmulError"));
     MESet& meFGEmulError(MEs_.at("FGEmulError"));
+    MESet& meRealvEmulEt(MEs_.at("RealvEmulEt"));
 
     for(EcalTrigPrimDigiCollection::const_iterator tpItr(_tps.begin()); tpItr != _tps.end(); ++tpItr){
       EcalTrigTowerDetId ttid(tpItr->id());
@@ -336,6 +337,9 @@ namespace ecaldqm
 	      } // Et match found
 	    } // iDigi
 	    if(!matchedIndex.size()) matchedIndex.push_back(0); // no Et match found => no emul
+
+	    // Fill Real vs Emulated TP Et
+	    meRealvEmulEt.fill( ttid,realEt,(*tpItr)[2].compressedEt() ); // iDigi=2:in-time BX
 
 	    // Fill matchedIndex ME
 	    for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
