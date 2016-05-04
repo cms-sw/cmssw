@@ -45,6 +45,9 @@ options.parseArguments()
 CondDBConnection = CondDB.clone( connect = cms.string( options.destinationConnection ) )
 CondDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messageLevel )
 
+OMDSDBConnection = CondDB.clone( connect = cms.string( sourceConnection ) )
+OMDSDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messageLevel )
+
 process = cms.Process( "RunInfoPopulator" )
 
 process.MessageLogger = cms.Service( "MessageLogger"
@@ -71,8 +74,8 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService"
 process.popConRunInfo = cms.EDAnalyzer( "RunInfoPopConAnalyzer"
                                       , SinceAppendMode = cms.bool( True )
                                       , record = cms.string( 'RunInfoRcd' )
-                                      , Source = cms.PSet( runNumber = cms.uint64( options.runNumber )
-                                                         , connectionString = cms.untracked.string( sourceConnection )
+                                      , Source = cms.PSet( OMDSDBConnection
+                                                         , runNumber = cms.uint64( options.runNumber )
                                                            )
                                       , loggingOn = cms.untracked.bool( True )
                                       , targetDBConnectionString = cms.untracked.string( options.targetConnection )

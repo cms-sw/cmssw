@@ -5,7 +5,7 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
  public:
@@ -19,7 +19,10 @@ class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
   std::string m_name;
   
   // for reading from omds
+  std::string m_runinfo_schema;
+  std::string m_dcsenv_schema;
   std::string m_connectionString;
+  edm::ParameterSet m_connectionPset;
 };
 
 #endif 
