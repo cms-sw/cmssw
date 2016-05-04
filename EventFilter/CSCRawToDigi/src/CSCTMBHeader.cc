@@ -31,9 +31,17 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision):
     }
   else if(firmwareVersion == 2007)
     {
-      if(firmwareRevision >= 0x50c3)
-        {
-          if (firmwareRevision >= 0x7a76) ///!!! Put actual firmware revision code
+
+      /* Checks for TMB2007 firmware revisions ranges to detect data format
+       * rev.0x50c3 - first revision with changed format 
+       * rev.0x42D5 - oldest known from 06/21/2007
+       * There is 4-bits year value rollover in revision number (0 in 2016)
+       */
+      if((firmwareRevision >= 0x50c3) || (firmwareRevision < 0x42D5))
+        { 
+          // if (firmwareRevision >= 0x7a76) // First OTMB firmware revision with 2013 format
+          /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
+          if ((firmwareRevision >= 0x6000) || (firmwareRevision < 0x42D5))
             {
               theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
             }
@@ -65,9 +73,16 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
     {
       theFirmwareVersion=2007;
       theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
-      if(theHeaderFormat->firmwareRevision() >= 0x50c3)
+      /* Checks for TMB2007 firmware revisions ranges to detect data format
+       * rev.0x50c3 - first revision with changed format 
+       * rev.0x42D5 - oldest known from 06/21/2007
+       * There is 4-bits year value rollover in revision number (0 in 2016)
+       */
+      if ((theHeaderFormat->firmwareRevision() >= 0x50c3) || (theHeaderFormat->firmwareRevision() < 0x42D5))
         {
-          if (theHeaderFormat->firmwareRevision() >= 0x7a76) ///!!! Put actual firmware revision code
+          // if (theHeaderFormat->firmwareRevision() >= 0x7a76) // First OTMB firmware revision with 2013 format
+          /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
+          if ((theHeaderFormat->firmwareRevision() >= 0x6000) || (theHeaderFormat->firmwareRevision() < 0x42D5))
             {
               theFirmwareVersion=2013;
               theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013(buf));
@@ -148,6 +163,16 @@ CSCTMBHeader2007 CSCTMBHeader::tmbHeader2007()   const
   if(result == 0)
     {
       throw cms::Exception("Could not get 2007 TMB header format");
+    }
+  return *result;
+}
+
+CSCTMBHeader2007_rev0x50c3 CSCTMBHeader::tmbHeader2007_rev0x50c3()   const
+{
+  CSCTMBHeader2007_rev0x50c3 * result = dynamic_cast<CSCTMBHeader2007_rev0x50c3 *>(theHeaderFormat.get());
+  if(result == 0)
+    {
+      throw cms::Exception("Could not get 2007 rev0x50c3 TMB header format");
     }
   return *result;
 }
