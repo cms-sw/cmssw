@@ -1,5 +1,11 @@
+import socket
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+from CondCore.CondDB.CondDB_cfi import *
+
+sourceConnection = 'oracle://cms_omds_adg/CMS_RUNINFO'
+if socket.getfqdn().find('.cms') != -1:
+    sourceConnection = 'oracle://cms_omds_lb/CMS_RUNINFO'
 
 options = VarParsing.VarParsing()
 options.register( 'runNumber'
@@ -8,13 +14,38 @@ options.register( 'runNumber'
                 , VarParsing.VarParsing.varType.int
                 , "Run number to be uploaded."
                   )
+options.register( 'destinationConnection'
+                , 'sqlite_file:RunInfo_PopCon_test.db' #default value
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "Connection string to the DB where payloads will be possibly written."
+                  )
+options.register( 'targetConnection'
+                , '' #default value
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , """Connection string to the target DB:
+                     if not empty (default), this provides the latest IOV and payloads to compare;
+                     it is the DB where payloads should be finally uploaded."""
+                  )
+options.register( 'tag'
+                , 'RunInfo_PopCon_test'
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "Tag written in destinationConnection and finally appended in targetConnection."
+                  )
+options.register( 'messageLevel'
+                , 0 #default value
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.int
+                , "Message level; default to 0"
+                  )
 options.parseArguments()
 
+CondDBConnection = CondDB.clone( connect = cms.string( options.destinationConnection ) )
+CondDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messageLevel )
+
 process = cms.Process( "RunInfoPopulator" )
-process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
-process.CondDBCommon.connect = 'sqlite_file:dbox_upload.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel=cms.untracked.int32( 3 )
 
 process.MessageLogger = cms.Service( "MessageLogger"
                                    , cout = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) )
@@ -22,18 +53,17 @@ process.MessageLogger = cms.Service( "MessageLogger"
                                      )
 
 process.source = cms.Source( "EmptyIOVSource"
-                           , lastValue = cms.uint64( 1 )
+                           , lastValue = cms.uint64( options.runNumber )
                            , timetype = cms.string( 'runnumber' )
-                           , firstValue = cms.uint64( 1 )
+                           , firstValue = cms.uint64( options.runNumber )
                            , interval = cms.uint64( 1 )
                              )
 
 process.PoolDBOutputService = cms.Service( "PoolDBOutputService"
-                                         , process.CondDBCommon
-                                         , logconnect = cms.untracked.string( 'sqlite_file:logruninfo_pop_test.db' )
+                                         , CondDBConnection
                                          , timetype = cms.untracked.string( 'runnumber' )
                                          , toPut = cms.VPSet( cms.PSet( record = cms.string( 'RunInfoRcd' )
-                                                                      , tag = cms.string( 'runinfo_31X_hlt' )
+                                                                      , tag = cms.string( options.tag )
                                                                         )
                                                               )
                                           )
@@ -42,11 +72,13 @@ process.popConRunInfo = cms.EDAnalyzer( "RunInfoPopConAnalyzer"
                                       , SinceAppendMode = cms.bool( True )
                                       , record = cms.string( 'RunInfoRcd' )
                                       , Source = cms.PSet( runNumber = cms.uint64( options.runNumber )
+                                                         , connectionString = cms.untracked.string( sourceConnection )
+                                                         , authenticationPath = cms.untracked.string ( '' )
+                                                         , OnlineDBUser = cms.untracked.string( 'CMS_RUNINFO_R' )
                                                          , OnlineDBPass = cms.untracked.string( 'PASSWORD' )
                                                            )
                                       , loggingOn = cms.untracked.bool( True )
-                                      , IsDestDbCheckedInQueryLog = cms.untracked.bool( False )
-                                      , targetDBConnectionString = cms.untracked.string( 'sqlite_file:run_info_popcontest.db' )
+                                      , targetDBConnectionString = cms.untracked.string( options.targetConnection )
                                         )
 
 process.p = cms.Path( process.popConRunInfo )
