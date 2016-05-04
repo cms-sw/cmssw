@@ -45,7 +45,7 @@ namespace {
 }
 
 RunInfoRead::RunInfoRead( const std::string& connectionString
-			, const edm::ParameterSet& connectionPset ):
+                        , const edm::ParameterSet& connectionPset ):
    m_connectionString( connectionString )
   ,m_connectionPset( connectionPset ) {}
 
@@ -53,7 +53,7 @@ RunInfoRead::~RunInfoRead() {}
 
 RunInfo 
 RunInfoRead::readData( const std::string & runinfo_schema
-		     , const std::string & dcsenv_schema
+                     , const std::string & dcsenv_schema
                      , const int r_number ) {
   RunInfo temp_sum;
   //for B currents...
@@ -95,14 +95,14 @@ RunInfoRead::readData( const std::string & runinfo_schema
       start = row[ sValueDataColumn ].data<coral::TimeStamp>();
       /*
       std::cout << "start time extracted == " 
-		<< "-->year " << start.year()
-		<< "-- month " << start.month()
-		<< "-- day " << start.day()
-		<< "-- hour " << start.hour()
-		<< "-- minute " << start.minute()
-		<< "-- second " << start.second()
-		<< "-- nanosecond " << start.nanosecond() 
-		<< std::endl;
+                << "-->year " << start.year()
+                << "-- month " << start.month()
+                << "-- day " << start.day()
+                << "-- hour " << start.hour()
+                << "-- minute " << start.minute()
+                << "-- second " << start.second()
+                << "-- nanosecond " << start.nanosecond() 
+                << std::endl;
       */
       boost::posix_time::ptime start_ptime = start.time();
       std::cout << "Posix time for run start: "<< start_ptime << std::endl;
@@ -113,8 +113,8 @@ RunInfoRead::readData( const std::string & runinfo_schema
       std::cout << "microsecond since Epoch (UTC) : " << temp_sum.m_start_time_ll << std::endl;    
     }
     else {
-	temp_sum.m_start_time_str = "null";
-	temp_sum.m_start_time_ll = -1;
+      temp_sum.m_start_time_str = "null";
+      temp_sum.m_start_time_ll = -1;
     }
     
     //new query to obtain the stop_time
@@ -135,14 +135,14 @@ RunInfoRead::readData( const std::string & runinfo_schema
       stop = row[ sValueDataColumn ].data<coral::TimeStamp>(); 
       /*
       std::cout << "stop time extracted == " 
-		<< "-->year " << stop.year()
-		<< "-- month " << stop.month()
-		<< "-- day " << stop.day()
-		<< "-- hour " << stop.hour()
-		<< "-- minute " << stop.minute()
-		<< "-- second " << stop.second()
-		<< "-- nanosecond " << stop.nanosecond() 
-		<< std::endl;
+                << "-->year " << stop.year()
+                << "-- month " << stop.month()
+                << "-- day " << stop.day()
+                << "-- hour " << stop.hour()
+                << "-- minute " << stop.minute()
+                << "-- second " << stop.second()
+                << "-- nanosecond " << stop.nanosecond() 
+                << std::endl;
       */
       boost::posix_time::ptime stop_ptime = stop.time();
       std::cout << "Posix time for run stop: "<< stop_ptime << std::endl;
@@ -192,7 +192,7 @@ RunInfoRead::readData( const std::string & runinfo_schema
       //std::cout << "fed:: " << fed << "--> val:: " << val << std::endl; 
       //val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
       if( (val & 0001) == 1 && (val != 5) && (val != 7) ) 
-	temp_sum.m_fed_in.push_back(fedNumber);
+      temp_sum.m_fed_in.push_back(fedNumber);
     } 
     std::cout << "feds in run:--> ";
     std::copy(temp_sum.m_fed_in.begin(), temp_sum.m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
@@ -246,10 +246,10 @@ RunInfoRead::readData( const std::string & runinfo_schema
       lastValueQuery->addToOrderList( sDCSMagnetChangeDateColumn + std::string( " DESC" ) );
       coral::ICursor& lastValueCursor = lastValueQuery->execute();
       if( lastValueCursor.next() ) {
-	//lastValueCursor.currentRow().toOutputStream(std::cout) << std::endl;
-	const coral::AttributeList& row = lastValueCursor.currentRow();
-	last_current = row[sDCSMagnetCurrentColumn].data<float>();
-	std::cout << "previos run(s) current, not changed in this run... " << last_current << std::endl;
+        //lastValueCursor.currentRow().toOutputStream(std::cout) << std::endl;
+        const coral::AttributeList& row = lastValueCursor.currentRow();
+        last_current = row[sDCSMagnetCurrentColumn].data<float>();
+        std::cout << "previos run(s) current, not changed in this run... " << last_current << std::endl;
       }
       temp_sum.m_avg_current = last_current;
       temp_sum.m_min_current = last_current;
@@ -265,14 +265,14 @@ RunInfoRead::readData( const std::string & runinfo_schema
       if(temp_sum.m_stop_time_str == "null") break;
       /*
       std::cout << "  last current time extracted == " 
-		<< "-->year " << lastCurrentDate.year()
-	        << "-- month " << lastCurrentDate.month()
-	        << "-- day " << lastCurrentDate.day()
-		<< "-- hour " << lastCurrentDate.hour() 
-		<< "-- minute " << lastCurrentDate.minute() 
-		<< "-- second " << lastCurrentDate.second()
-		<< "-- nanosecond " << lastCurrentDate.nanosecond()
-		<< std::endl;
+                << "-->year " << lastCurrentDate.year()
+                << "-- month " << lastCurrentDate.month()
+                << "-- day " << lastCurrentDate.day()
+                << "-- hour " << lastCurrentDate.hour() 
+                << "-- minute " << lastCurrentDate.minute() 
+                << "-- second " << lastCurrentDate.second()
+                << "-- nanosecond " << lastCurrentDate.nanosecond()
+                << std::endl;
       */
       boost::posix_time::ptime lastCurrentDate_ptime = lastCurrentDate.time();
       std::cout << "Posix time for last current time: " << lastCurrentDate_ptime << std::endl;
@@ -308,29 +308,29 @@ RunInfoRead::readData( const std::string & runinfo_schema
       min = temp_sum.m_current.front();
       max = temp_sum.m_current.front();
       for(size_t i = 0; i < csize; ++i) {
-	std::cout << "--> " << temp_sum.m_current[i] << std::endl;
-	if( (tsize > 1) && ( i < csize - 1 ) ) { 
-	  wi = (time_curr[i] - time_curr[i+1])  ;
-	  temp_sum.m_times_of_currents.push_back(wi);
-	  //v_wi.push_back(wi);
-	  sumwixi += wi * temp_sum.m_current[i] ;
-	  sumwi += wi;
-	}  
-	min = std::min(min, temp_sum.m_current[i]);
-	max = std::max(max, temp_sum.m_current[i]);
+        std::cout << "--> " << temp_sum.m_current[i] << std::endl;
+        if( (tsize > 1) && ( i < csize - 1 ) ) { 
+          wi = (time_curr[i] - time_curr[i+1]);
+          temp_sum.m_times_of_currents.push_back(wi);
+          //v_wi.push_back(wi);
+          sumwixi += wi * temp_sum.m_current[i] ;
+          sumwi += wi;
+        }
+        min = std::min(min, temp_sum.m_current[i]);
+        max = std::max(max, temp_sum.m_current[i]);
       }
       //for (size_t i = 0; i < v_wi.size(); ++i) {
       for (size_t i = 0; i < temp_sum.m_times_of_currents.size(); ++i){
-	std::cout << "wi " << temp_sum.m_times_of_currents[i] << std::endl;
+        std::cout << "wi " << temp_sum.m_times_of_currents[i] << std::endl;
       }
       temp_sum.m_start_current = temp_sum.m_current.back(); //temp_sum.m_current[csize - 1];
       std::cout << "--> " << "start cur " << temp_sum.m_start_current << std::endl;
       temp_sum.m_stop_current = temp_sum.m_current.front(); //temp_sum.m_current[0];
       std::cout<< "--> " << "stop cur " << temp_sum.m_stop_current << std::endl;
       if (tsize>1) {
-	temp_sum.m_avg_current=sumwixi/sumwi;
+        temp_sum.m_avg_current=sumwixi/sumwi;
       } else { 
-	temp_sum.m_avg_current= temp_sum.m_start_current; 
+        temp_sum.m_avg_current= temp_sum.m_start_current; 
       }
       std::cout<< "--> " << "avg cur  " << temp_sum.m_avg_current << std::endl;
       temp_sum.m_max_current= max;
@@ -339,11 +339,11 @@ RunInfoRead::readData( const std::string & runinfo_schema
       std::cout<< "--> " << "min cur  " << temp_sum.m_min_current << std::endl;
     } else {
       if (!Bnotchanged) {
-	temp_sum.m_avg_current = -1;
-	temp_sum.m_min_current = -1;
-	temp_sum.m_max_current = -1;
-	temp_sum.m_stop_current = -1;
-	temp_sum.m_start_current = -1;
+        temp_sum.m_avg_current = -1;
+        temp_sum.m_min_current = -1;
+        temp_sum.m_max_current = -1;
+        temp_sum.m_stop_current = -1;
+        temp_sum.m_start_current = -1;
       }
     }
     

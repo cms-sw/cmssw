@@ -50,7 +50,7 @@ void RunInfoHandler::getNewObjects() {
                                      << std::endl;
   } 
   std::ostringstream ss;
- // transfer fake run for 1 to since for the first time
+  // transfer fake run for 1 to since for the first time
   if( tagInfo().size == 0 && m_since != 1 ) {
     m_to_transfer.push_back( std::make_pair( (RunInfo*)(r->Fake_RunInfo()), 1 ) );
     ss << "fake run number: " << 1 << ", ";
@@ -62,7 +62,6 @@ void RunInfoHandler::getNewObjects() {
   
   //reading from omds
   RunInfoRead rn( m_connectionString, m_connectionPset );
-  //*r = rn.readData( "RUNSESSION_PARAMETER", "STRING_VALUE",(int)m_since );
   *r = rn.readData( m_runinfo_schema, m_dcsenv_schema, (int)m_since );
   m_to_transfer.push_back( std::make_pair( (RunInfo*)r, m_since) );
   ss << "run number: " << m_since << ";";
