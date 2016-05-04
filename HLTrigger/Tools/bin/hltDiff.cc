@@ -938,151 +938,127 @@ private:
 
   void buildHistograms() {
     // Initialising the summary objects for trigger/module
-    const int nTriggers( json.vars.trigger.size() );
-    const int nModules( json.vars.label.size() );
-    std::vector<TriggerSummary> triggerSummary;
-    std::vector<GenericSummary> moduleSummary;
-    for (int i=0; i<nTriggers; ++i) 
-      triggerSummary.push_back( TriggerSummary(i, json) );
-    for (int i=0; i<nModules; ++i) 
-      moduleSummary.push_back( GenericSummary(i, json, json.vars.label) );
+    const size_t nTriggers( json.vars.trigger.size() );
+    const size_t nModules( json.vars.label.size() );
+    std::map<int, TriggerSummary> m_triggerSummary;
+    std::map<int, GenericSummary> m_moduleSummary;
+    for (size_t i=0; i<nTriggers; ++i) 
+      m_triggerSummary.emplace(i, TriggerSummary(i, json) );
+    for (size_t i=0; i<nModules; ++i) 
+      m_moduleSummary.emplace(i, GenericSummary(i, json, json.vars.label) );
 
-    // Loop over each affected trigger in each event and add it to the trigger/module summary objects
+    // Add each affected trigger in each event to the trigger/module summary objects
     for (const JsonOutputProducer::JsonEvent& event : json.events) {
       for (size_t iTrigger = 0; iTrigger < event.triggerStates.size(); ++iTrigger) {
         const JsonOutputProducer::JsonTriggerEventState& state = event.triggerStates.at(iTrigger);
-        triggerSummary.at(state.tr).addEntry(event, iTrigger, json.vars.label);
+        m_triggerSummary.at(state.tr).addEntry(event, iTrigger, json.vars.label);
         const int moduleId = state.o.s == State::Fail ? state.o.l : state.n.l;
-        moduleSummary.at(moduleId).addEntry(event, iTrigger);
+        m_moduleSummary.at(moduleId).addEntry(event, iTrigger);
       }
     }
-    // Building histograms/graphs out of the summary objects
+
+    // Building indices of summary objects that should be skipped to optimise binning of the overview histograms
+    // *_c - changed; *_gl - gained or lost
+    std::set<int> v_triggerIdToSkip_c;
+    std::set<int> v_triggerIdToSkip_gl;
+    std::set<int> v_moduleIdToSkip_c;
+    std::set<int> v_moduleIdToSkip_gl;
+    
+    for (const auto& idSummary : m_triggerSummary) {
+      if (idSummary.second.changed().v < 1) v_triggerIdToSkip_c.insert(idSummary.first);
+      if (idSummary.second.gained().v + idSummary.second.lost().v < 1) v_triggerIdToSkip_gl.insert(idSummary.first);
+    }
+    for (const auto& idSummary : m_moduleSummary) {
+      if (idSummary.second.changed().v < 1) v_moduleIdToSkip_c.insert(idSummary.first);
+      if (idSummary.second.gained().v + idSummary.second.lost().v < 1) v_moduleIdToSkip_gl.insert(idSummary.first);
+    }
+
+    // Initialising overview histograms
     std::string name = "trigger_accepted";
     m_histo.emplace(name, new TH1F(name.c_str(), ";;Events accepted^{OLD}", nTriggers, 0, nTriggers));
     name = "trigger_gained";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nTriggers, 0, nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
     name = "trigger_lost";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nTriggers, 0, nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
     name = "trigger_changed";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nTriggers, 0, nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nTriggers - v_triggerIdToSkip_c.size(), 0, nTriggers - v_triggerIdToSkip_c.size()));
     name = "trigger_gained_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{gained}{accepted}", nTriggers, 0, nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{gained}{accepted}", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
     name = "trigger_lost_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{lost}{accepted}", nTriggers, 0, nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{lost}{accepted}", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
     name = "trigger_changed_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers, 0, nTriggers));
-    name = "trigger";
-    m_graph.emplace(name, new TGraphAsymmErrors(nTriggers));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers - v_triggerIdToSkip_c.size(), 0, nTriggers - v_triggerIdToSkip_c.size()));
     name = "module_changed";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nModules, 0, nModules));
-    name = "module";
-    m_graph.emplace(name, new TGraphAsymmErrors(nModules));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nModules - v_moduleIdToSkip_c.size(), 0, nModules - v_moduleIdToSkip_c.size()));
+    name = "module_gained";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nModules - v_moduleIdToSkip_gl.size(), 0, nModules - v_moduleIdToSkip_gl.size()));
+    name = "module_lost";
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nModules - v_moduleIdToSkip_gl.size(), 0, nModules - v_moduleIdToSkip_gl.size()));
 
-    // Filling the per-trigger bins
-    for (const TriggerSummary& trig : triggerSummary) {
-      int bin = trig.id + 1;
-      m_histo.at("trigger_accepted")->SetBinContent(bin, trig.accepted_o);
-      m_histo.at("trigger_gained")->SetBinContent(bin, trig.gained().v);
-      m_histo.at("trigger_lost")->SetBinContent(bin, -trig.lost().v);
-      m_histo.at("trigger_changed")->SetBinContent(bin, trig.changed().v);
-      m_histo.at("trigger_gained_frac")->SetBinContent(bin, trig.gained(1).v);
-      m_histo.at("trigger_lost_frac")->SetBinContent(bin, -trig.lost(1).v);
-      m_histo.at("trigger_changed_frac")->SetBinContent(bin, trig.changed(1).v);
-      
-      m_histo.at("trigger_gained_frac")->SetBinError(bin, trig.gained(1).e);
-      m_histo.at("trigger_lost_frac")->SetBinError(bin, trig.lost(1).e);
-      m_histo.at("trigger_changed_frac")->SetBinError(bin, trig.changed(1).e);
-
-      bin -= 1;  // Bin numbering starts from 0 for TGraph
-      m_graph.at("trigger")->SetPoint(bin, double(trig.id)+0.5, 0);
-      m_graph.at("trigger")->SetPointEYhigh(bin, trig.gained(2).v);
-      m_graph.at("trigger")->SetPointEYlow(bin, trig.lost(2).v);
-
-      // Skipping triggers that are not affected
-      if (trig.m_modules.size() == 0) continue;
-
-      // Creating a hisotgram with modules overview for the trigger
-      // Filling the per-module bins
-      int binMod = 0;
-      // Filling modules that caused internal changes in the trigger
-      name = "module_changed_"+trig.name;
-      for (const auto& idModule : trig.m_modules) {
-        const GenericSummary& mod = idModule.second;
-        if (mod.changed().v < 1.0) continue;
-        // Creating the histogram for this trigger if it doesn't exist yet
-        if (m_histo.count(name) == 0) m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", trig.m_modules.size(), 0, trig.m_modules.size()));
-        binMod++;
-        m_histo.at(name)->SetBinContent(binMod, mod.changed().v);
-        m_histo.at(name)->GetXaxis()->SetBinLabel(binMod, mod.name.c_str());
+    // Filling the per-trigger bins in the summary histograms
+    size_t bin(0), bin_c(0), bin_gl(0);
+    for (const auto& idSummary : m_triggerSummary) {
+      ++bin;
+      const size_t id = idSummary.first;
+      const TriggerSummary& summary = idSummary.second;
+      // Setting bin contents
+      m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
+      // Setting bin labels
+      m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
+      if (v_triggerIdToSkip_gl.count(id) == 0) {
+        ++bin_gl;
+        // Setting bin contents
+        m_histo.at("trigger_gained")->SetBinContent(bin_gl, summary.gained().v);
+        m_histo.at("trigger_lost")->SetBinContent(bin_gl, -summary.lost().v);
+        m_histo.at("trigger_gained_frac")->SetBinContent(bin_gl, summary.gained(1).v);
+        m_histo.at("trigger_lost_frac")->SetBinContent(bin_gl, -summary.lost(1).v);
+        // Setting bin errors
+        m_histo.at("trigger_gained_frac")->SetBinError(bin_gl, summary.gained(1).e);
+        m_histo.at("trigger_lost_frac")->SetBinError(bin_gl, -summary.lost(1).e);
+        // Setting bin labels
+        m_histo.at("trigger_gained")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
+        m_histo.at("trigger_lost")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
+        m_histo.at("trigger_gained_frac")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
+        m_histo.at("trigger_lost_frac")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
       }
-      // Filling modules that caused gains or losses for the trigger
-      name = "module_"+trig.name;
-      binMod = 0;
-      std::vector<std::string> binLabels;
-      for (const auto& idModule : trig.m_modules) {
-        const GenericSummary& mod = idModule.second;
-        if (mod.gained().v < 1.0 && mod.lost().v < 1.0) continue;
-        // Creating the graph for this trigger if it doesn't exist yet
-        if (m_graph.count(name) == 0) m_graph.emplace(name, new TGraphAsymmErrors());
-        binLabels.push_back(mod.name);
-        m_graph.at(name)->SetPoint(binMod, double(binMod)+0.5, 0);
-        m_graph.at(name)->SetPointEYhigh(binMod, mod.gained().v);
-        m_graph.at(name)->SetPointEYlow(binMod, mod.lost().v);
-        binMod++;
-        if (binMod == 1) {
-          m_graph.at(name)->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
-        }
-      }
-      if (m_graph.count(name) > 0) {
-        // Setting axis labels
-        m_graph.at(name)->GetXaxis()->Set(binMod, 0, binMod);
-        for (int binId=0; binId<binMod; ++binId) 
-          m_graph.at(name)->GetXaxis()->SetBinLabel(binId+1, binLabels.at(binId).c_str());
-        m_graph.at(name)->GetXaxis()->CenterLabels();
+      if (v_triggerIdToSkip_c.count(id) == 0) {
+        ++bin_c;
+        // Setting bin contents
+        m_histo.at("trigger_changed")->SetBinContent(bin_c, summary.changed().v);
+        m_histo.at("trigger_changed_frac")->SetBinContent(bin_c, summary.changed(1).v);
+        // Setting bin errors
+        m_histo.at("trigger_changed_frac")->SetBinError(bin_c, summary.changed(1).e);
+        // Setting bin labels
+        m_histo.at("trigger_changed")->GetXaxis()->SetBinLabel(bin_c, summary.name.c_str());
+        m_histo.at("trigger_changed_frac")->GetXaxis()->SetBinLabel(bin_c, summary.name.c_str());
       }
     }
-    // Setting bin labels to the graph axis bins
-    m_graph.at("trigger")->GetYaxis()->SetTitle("#frac{gained}{lost} / accepted - #sigma^{accepted}");
-    m_graph.at("trigger")->GetXaxis()->Set(triggerSummary.size(), 0, triggerSummary.size());
-    for (const TriggerSummary& trig : triggerSummary) {
-      m_graph.at("trigger")->GetXaxis()->SetBinLabel(trig.id+1, trig.name.c_str());
-    }
-    // Setting bin labels to the corresponding trigger names
-    for (const auto& nameHisto : m_histo) {
-      if (nameHisto.first.find("trigger") == std::string::npos) continue;
-      const std::vector<std::string>& binLabels = json.vars.trigger;
-      TAxis* xAxis = nameHisto.second->GetXaxis();
-      for (int bin=0; bin<nameHisto.second->GetNbinsX(); ++bin)
-        xAxis->SetBinLabel(bin+1, binLabels.at(bin).c_str());
-    }
 
-    // Filling the per-module bins
-    for (const GenericSummary& mod : moduleSummary) {
-      int bin = mod.id + 1;
-      m_histo.at("module_changed")->SetBinContent(bin, mod.changed().v);
-      
-      bin = mod.id;  // Bin numbering starts from 0 for TGraph
-      m_graph.at("module")->SetPoint(bin, double(bin)+0.5, 0);
-      m_graph.at("module")->SetPointEYhigh(bin, mod.gained().v);
-      m_graph.at("module")->SetPointEYlow(bin, mod.lost().v);
+    // Filling the per-module bins in the summary histograms
+    bin = 0;
+    bin_c = 0;
+    bin_gl = 0;
+    for (const auto& idSummary : m_moduleSummary) {
+      ++bin;
+      const size_t id = idSummary.first;
+      const GenericSummary& summary = idSummary.second;
+      if (v_moduleIdToSkip_gl.count(id) == 0) {
+        ++bin_gl;
+        // Setting bin contents
+        m_histo.at("module_gained")->SetBinContent(bin_gl, summary.gained().v);
+        m_histo.at("module_lost")->SetBinContent(bin_gl, -summary.lost().v);
+        // Setting bin labels
+        m_histo.at("module_gained")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
+        m_histo.at("module_lost")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
+      }
+      if (v_moduleIdToSkip_c.count(id) == 0) {
+        ++bin_c;
+        // Setting bin contents
+        m_histo.at("module_changed")->SetBinContent(bin_c, summary.changed().v);
+        // Setting bin labels
+        m_histo.at("module_changed")->GetXaxis()->SetBinLabel(bin_c, summary.name.c_str());
+      }
     }
-    // Setting bin labels to the corresponding module names
-    m_graph.at("module")->GetYaxis()->SetTitle("#frac{gained}{lost} [events]");
-    m_graph.at("module")->GetXaxis()->Set(moduleSummary.size(), 0, moduleSummary.size());
-    for (const GenericSummary& mod : moduleSummary) {
-      m_histo.at("module_changed")->GetXaxis()->SetBinLabel(mod.id+1, mod.name.c_str());
-      m_graph.at("module")->GetXaxis()->SetBinLabel(mod.id+1, mod.name.c_str());
-    }
-    // Setting generic styling to all graphs
-    for (const auto& nameGraph : m_graph) {
-      TGraph* graph = nameGraph.second;
-      graph->SetTitle("");
-      graph->SetMarkerStyle(7);
-      graph->GetXaxis()->CenterLabels();
-
-    }
-
-
   }
 
 public:
@@ -1100,8 +1076,6 @@ public:
     out_file = new TFile(out_file_name.c_str(), "RECREATE");
     for (const auto& nameHisto : m_histo)
       nameHisto.second->Write(nameHisto.first.c_str());
-    for (const auto& nameGraph : m_graph)
-      nameGraph.second->Write(nameGraph.first.c_str());
     out_file->Close();
   }
 };
