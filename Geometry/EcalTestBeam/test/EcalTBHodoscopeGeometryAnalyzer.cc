@@ -29,8 +29,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
 #include "CLHEP/Vector/ThreeVector.h"

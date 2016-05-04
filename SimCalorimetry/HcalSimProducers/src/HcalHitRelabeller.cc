@@ -3,7 +3,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define DebugLog

@@ -1,7 +1,7 @@
 #ifndef GeometryCaloGeometryFlatTrd_h
 #define GeometryCaloGeometryFlatTrd_h
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
 #include <CLHEP/Geometry/Vector3D.h>

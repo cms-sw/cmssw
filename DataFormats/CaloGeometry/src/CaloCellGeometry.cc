@@ -1,4 +1,4 @@
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include <CLHEP/Geometry/Plane3D.h>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
@@ -21,12 +21,6 @@ CaloCellGeometry::CaloCellGeometry() :
    m_corners  (  ) ,
    m_parms    ( (CCGFloat*) 0 )
 {}
-
-
-CaloCellGeometry::~CaloCellGeometry()
-{}
-
-
 
 CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
 				    CornersMgr*                 mgr,

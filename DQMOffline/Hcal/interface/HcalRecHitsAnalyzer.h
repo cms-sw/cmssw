@@ -26,7 +26,6 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include <vector>
 #include <utility>

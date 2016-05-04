@@ -1,11 +1,9 @@
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-#include <iostream>
 
 typedef PreshowerStrip::CCGFloat CCGFloat ;
 typedef PreshowerStrip::Pt3D     Pt3D     ;
 typedef PreshowerStrip::Pt3DVec  Pt3DVec  ;
 typedef PreshowerStrip::Tr3D     Tr3D     ;
-
 
 PreshowerStrip::PreshowerStrip()
   : CaloCellGeometry()
@@ -17,8 +15,7 @@ PreshowerStrip::PreshowerStrip( const PreshowerStrip& tr )
   *this = tr ; 
 }
 
-PreshowerStrip::~PreshowerStrip() 
-{}
+PreshowerStrip::~PreshowerStrip() = default;
 
 PreshowerStrip& 
 PreshowerStrip::operator=( const PreshowerStrip& tr ) 

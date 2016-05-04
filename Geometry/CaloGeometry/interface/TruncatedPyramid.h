@@ -1,18 +1,14 @@
-#ifndef TruncatedPyramid_h
-#define TruncatedPyramid_h
+#ifndef GEOMETRY_CALOGEOMETRY_TRUNCATEDPYRAMID_H
+#define GEOMETRY_CALOGEOMETRY_TRUNCATEDPYRAMID_H
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Plane3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
-#include <CLHEP/Geometry/Transform3D.h>
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include <vector>
 
 /**
 
    \class TruncatedPyramid
 
-   \brief A base class to handle the particular shape of Ecal Xtals. Taken from ORCA Calorimetry Code
+   \brief A base class to handle the particular shape of Ecal Xtals.
    
 */
 

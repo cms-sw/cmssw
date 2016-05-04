@@ -2,10 +2,10 @@
 #include <map>
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TH1.h"

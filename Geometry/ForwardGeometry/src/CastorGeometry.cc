@@ -1,9 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
-#include "CastorGeometryData.h"
-#include <algorithm>
+#include "Geometry/ForwardGeometry/src/CastorGeometryData.h"
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -24,7 +22,6 @@ CastorGeometry::CastorGeometry( const CastorTopology* topology ) :
    m_ownsTopology ( false ),
    m_cellVec ( k_NumberOfCellsForCorners )
 {}
-
 
 CastorGeometry::~CastorGeometry() 
 {

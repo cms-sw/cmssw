@@ -1,7 +1,7 @@
-#ifndef EcalEndcapGeometry_h
-#define EcalEndcapGeometry_h
+#ifndef GEOMETRY_ECALALGO_ECALENDCAPGEOMETRY_H
+#define GEOMETRY_ECALALGO_ECALENDCAPGEOMETRY_H
 
-#include "Geometry/CaloGeometry/interface/EZArrayFL.h"
+#include "DataFormats/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

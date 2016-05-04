@@ -1,5 +1,4 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
-#include <math.h>
 
 typedef IdealZPrism::CCGFloat CCGFloat ;
 typedef IdealZPrism::Pt3D     Pt3D     ;
@@ -47,8 +46,7 @@ IdealZPrism::IdealZPrism( const GlobalPoint& faceCenter ,
     m_geoForPF(depth==None ? nullptr : new IdealZPrism(correct(faceCenter,depth), mgr, parm, None ))
 {initSpan();}
 
-IdealZPrism::~IdealZPrism() 
-{}
+IdealZPrism::~IdealZPrism() = default; 
 
 CCGFloat 
 IdealZPrism::dEta() const 

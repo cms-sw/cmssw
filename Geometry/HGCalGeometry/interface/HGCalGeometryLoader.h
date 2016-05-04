@@ -1,7 +1,7 @@
-#ifndef GeometryHGCalGeometryHGCalGeometryLoader_h
-#define GeometryHGCalGeometryHGCalGeometryLoader_h
+#ifndef GEOMETRY_HGCALGEOMETRY_HGCALGEOMETRYLOADER_H
+#define GEOMETRY_HGCALGEOMETRY_HGCALGEOMETRYLOADER_H
+
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 
 class HGCalTopology;

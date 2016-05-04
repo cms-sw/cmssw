@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
 //#include<fstream>

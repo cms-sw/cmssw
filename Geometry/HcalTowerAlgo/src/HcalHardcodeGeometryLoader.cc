@@ -1,5 +1,4 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"

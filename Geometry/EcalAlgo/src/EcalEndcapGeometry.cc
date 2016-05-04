@@ -1,7 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>

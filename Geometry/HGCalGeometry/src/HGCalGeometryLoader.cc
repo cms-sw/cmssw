@@ -1,6 +1,5 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"

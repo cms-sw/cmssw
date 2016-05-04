@@ -7,7 +7,6 @@
  */
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

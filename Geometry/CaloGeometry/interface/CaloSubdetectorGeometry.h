@@ -8,7 +8,7 @@
 #endif
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"

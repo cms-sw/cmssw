@@ -1,7 +1,6 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include <algorithm>
-#include <iostream>
 
+#include <CLHEP/Geometry/Plane3D.h>
 
 typedef TruncatedPyramid::CCGFloat CCGFloat ;
 typedef TruncatedPyramid::Pt3D     Pt3D     ;
@@ -14,8 +13,6 @@ typedef HepGeom::Plane3D<CCGFloat>  Plane3D ;
 typedef HepGeom::Vector3D<double> DVec3D ;
 typedef HepGeom::Plane3D<double>  DPlane3D ;
 typedef HepGeom::Point3D<double>  DPt3D ;
-
-//----------------------------------------------------------------------
 
 TruncatedPyramid::TruncatedPyramid() : 
    CaloCellGeometry() ,
@@ -58,8 +55,7 @@ TruncatedPyramid::TruncatedPyramid( const CornersVec& corn ,
    m_corOne         ( corn[0].x(), corn[0].y(), corn[0].z()  )
 {initSpan();} 
 
-TruncatedPyramid::~TruncatedPyramid() 
-{}
+TruncatedPyramid::~TruncatedPyramid() = default;
 
 const GlobalPoint 
 TruncatedPyramid::getPosition( CCGFloat depth ) const 

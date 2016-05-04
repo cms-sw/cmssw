@@ -1,13 +1,12 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometryLoader.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<string>
+#include <string>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 

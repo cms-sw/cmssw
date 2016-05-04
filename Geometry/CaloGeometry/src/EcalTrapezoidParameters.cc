@@ -11,33 +11,16 @@
 // Created:     Wed Aug 12 09:24:56 EDT 1998
 //
 
-// system include files
 #include <assert.h>
 #include <cmath>
 #include <algorithm>
 
-// user include files
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 
 typedef EcalTrapezoidParameters::TPFloat    TPFloat    ;
 typedef EcalTrapezoidParameters::VertexList VertexList ;
 typedef CaloCellGeometry::Pt3D              Pt3D       ;
 
-// STL classes
-
-//
-// constants, enums and typedefs
-//
-
-//static const char* const kReport = "DetectorGeometry.DGTrapezoidParameters" ;
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 EcalTrapezoidParameters::EcalTrapezoidParameters(
    TPFloat aHalfLengthXNegZLoY , // bl1, A/2
    TPFloat aHalfLengthXPosZLoY , // bl2
@@ -132,39 +115,7 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    m_th  = dc.theta() ;
    m_ph  = dc.phi()   ;
 }
-//      m_hBb, m_hCc, m_hDd ;
 
-// EcalTrapezoidParameters::EcalTrapezoidParameters( const EcalTrapezoidParameters& rhs )
-// {
-//    // do actual copying here; if you implemented
-//    // operator= correctly, you may be able to use just say      
-//    *this = rhs;
-// }
-
-//EcalTrapezoidParameters::~EcalTrapezoidParameters()
-//{
-//}
-
-//
-// assignment operators
-//
-// const EcalTrapezoidParameters& EcalTrapezoidParameters::operator=( const EcalTrapezoidParameters& rhs )
-// {
-//   if( this != &rhs ) {
-//      // do actual copying here, plus:
-//      // "SuperClass"::operator=( rhs );
-//   }
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
 TPFloat EcalTrapezoidParameters::dz()    const { return m_dz   ; }
 TPFloat EcalTrapezoidParameters::theta() const { return m_th   ; }
 TPFloat EcalTrapezoidParameters::phi()   const { return m_ph   ; }
@@ -251,6 +202,3 @@ EcalTrapezoidParameters::vertexList() const
 
    return vtx ;
 }
-//
-// static member functions
-//

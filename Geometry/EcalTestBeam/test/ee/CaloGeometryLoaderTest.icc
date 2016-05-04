@@ -2,7 +2,7 @@
 #define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
 
 #include "Geometry/EcalTestBeam/test/ee/CaloGeometryLoaderTest.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"

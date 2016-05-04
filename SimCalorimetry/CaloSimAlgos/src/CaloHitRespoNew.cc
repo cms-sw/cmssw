@@ -7,13 +7,12 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVPECorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
-#include<iostream>
+#include <iostream>
 
 
 

@@ -1,0 +1,5 @@
+<use   name="DataFormats/GeometryVector"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

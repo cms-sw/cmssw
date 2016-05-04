@@ -7,7 +7,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVPECorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "CLHEP/Random/RandPoissonQ.h"

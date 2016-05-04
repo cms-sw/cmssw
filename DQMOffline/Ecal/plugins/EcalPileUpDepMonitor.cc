@@ -16,7 +16,6 @@
 
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 

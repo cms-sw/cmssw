@@ -1,23 +1,7 @@
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Calibration/Tools/interface/matrixSaver.h"
 #include "Calibration/Tools/interface/BlockSolver.h"
-
-//#include "Calibration/EcalAlCaRecoProducers/interface/trivialParser.h"
-//#include "Calibration/EcalAlCaRecoProducers/bin/trivialParser.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TH2.h"
 #include "TProfile.h"
@@ -97,8 +81,4 @@ int main (int argc, char* argv[])
   //FIXME salva la mappa
   return 0 ;
 
-
 }
-
-
-

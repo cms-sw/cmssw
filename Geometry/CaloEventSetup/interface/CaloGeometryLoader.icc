@@ -1,11 +1,11 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
-#define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
+#define GEOMETRY_ECALGEOMETRYLOADER_ICC
 
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 

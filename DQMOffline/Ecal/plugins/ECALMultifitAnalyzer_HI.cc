@@ -34,10 +34,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 

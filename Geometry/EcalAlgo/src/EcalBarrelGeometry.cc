@@ -1,8 +1,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <CLHEP/Geometry/Point3D.h>
