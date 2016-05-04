@@ -9,31 +9,19 @@
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
 DualReferenceTrajectory::DualReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
-						 const ConstRecHitContainer& forwardRecHits,
-						 const ConstRecHitContainer& backwardRecHits,
-						 const MagneticField* magField,
-						 const reco::BeamSpot& beamSpot,
-						 const ReferenceTrajectoryBase::Config& config) :
-  DualReferenceTrajectory(tsos, forwardRecHits, backwardRecHits, magField, config.materialEffects,
-			  config.propDir, config.mass, config.useBeamSpot, beamSpot)
+                                                 const ConstRecHitContainer& forwardRecHits,
+                                                 const ConstRecHitContainer& backwardRecHits,
+                                                 const MagneticField* magField,
+                                                 const reco::BeamSpot& beamSpot,
+                                                 const ReferenceTrajectoryBase::Config& config) :
+  ReferenceTrajectoryBase(tsos.localParameters().mixedFormatVector().kSize,
+                          numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
+                          0, 0)
 {
-}
-
-DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
-						  const ConstRecHitContainer &forwardRecHits,
-						  const ConstRecHitContainer &backwardRecHits,
-						  const MagneticField *magField,
-						  MaterialEffects materialEffects,
-						  PropagationDirection propDir,
-						  double mass, 
-						  bool useBeamSpot,
-						  const reco::BeamSpot &beamSpot)
-  : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
-			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
-			    0, 0)
-{
-  theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
-				     mass, materialEffects, propDir, magField, useBeamSpot, beamSpot );
+  theValidityFlag = this->construct(tsos, forwardRecHits, backwardRecHits,
+                                    config.mass, config.materialEffects,
+                                    config.propDir, magField,
+                                    config.useBeamSpot, beamSpot);
 }
 
 

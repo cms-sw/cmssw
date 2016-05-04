@@ -17,28 +17,12 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState
                                                const MagneticField* magField,
                                                const reco::BeamSpot& beamSpot,
                                                const ReferenceTrajectoryBase::Config& config) :
-  TwoBodyDecayTrajectory(tsos, recHits, magField, config.materialEffects,
-                         config.propDir, config.hitsAreReverse, beamSpot,
-                         config.useRefittedState, config.constructTsosWithErrors)
-{
-}
-
-TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,
-						const ConstRecHitCollection & recHits,
-						const MagneticField* magField,
-						MaterialEffects materialEffects,
-						PropagationDirection propDir,
-						bool hitsAreReverse,
-						const reco::BeamSpot &beamSpot,
-						bool useRefittedState,
-						bool constructTsosWithErrors )
-
-  : ReferenceTrajectoryBase( 
+  ReferenceTrajectoryBase(
      TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(),
-  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
-  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 )
+  (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
+  (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 )
 {
-  if ( hitsAreReverse )
+  if ( config.hitsAreReverse )
   {
     TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator itRecHits;
     ConstRecHitCollection fwdRecHits;
@@ -55,13 +39,15 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
       fwdRecHits.second.push_back( *itRecHits );
     }
 
-    theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects, propDir,
-				       beamSpot, useRefittedState, constructTsosWithErrors );
+    theValidityFlag = this->construct(tsos, fwdRecHits, magField, config.materialEffects,
+                                      config.propDir, beamSpot, config.useRefittedState,
+                                      config.constructTsosWithErrors);
   }
   else
   {
-    theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects, propDir,
-				       beamSpot, useRefittedState, constructTsosWithErrors );
+    theValidityFlag = this->construct(tsos, recHits, magField, config.materialEffects,
+                                      config.propDir, beamSpot, config.useRefittedState,
+                                      config.constructTsosWithErrors);
   }
 }
 

@@ -17,33 +17,17 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory(const TrajectoryState
                                                            const MagneticField* magField,
                                                            const reco::BeamSpot& beamSpot,
                                                            const ReferenceTrajectoryBase::Config& config) :
-  DualBzeroReferenceTrajectory(tsos, forwardRecHits, backwardRecHits, magField,
-                               config.materialEffects, config.propDir, config.mass,
-                               config.momentumEstimate, config.useBeamSpot,
-                               beamSpot)
+  DualReferenceTrajectory(tsos.localParameters().mixedFormatVector().kSize - 1,
+                          numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1),
+    theMomentumEstimate(config.momentumEstimate)
 {
-}
-
-DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
-							    const ConstRecHitContainer &forwardRecHits,
-							    const ConstRecHitContainer &backwardRecHits,
-							    const MagneticField *magField,
-							    MaterialEffects materialEffects,
-							    PropagationDirection propDir,
-							    double mass,
-							    double momentumEstimate, 
-							    bool useBeamSpot,
-							    const reco::BeamSpot &beamSpot)
-  : DualReferenceTrajectory(referenceTsos.localParameters().mixedFormatVector().kSize - 1,
-			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1),
-    theMomentumEstimate(momentumEstimate)
-{
-    theValidityFlag = DualReferenceTrajectory::construct(referenceTsos,
-							 forwardRecHits,
-							 backwardRecHits,
-							 mass, materialEffects,
-							 propDir, magField,
-							 useBeamSpot, beamSpot);
+    theValidityFlag = DualReferenceTrajectory::construct(tsos,
+                                                         forwardRecHits,
+                                                         backwardRecHits,
+                                                         config.mass,
+                                                         config.materialEffects,
+                                                         config.propDir, magField,
+                                                         config.useBeamSpot, beamSpot);
 }
 
 

@@ -73,15 +73,6 @@ public:
                       const reco::BeamSpot& beamSpot,
                       const ReferenceTrajectoryBase::Config& config);
 
-  ReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
-		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-		      bool hitsAreReverse,
-		      const MagneticField *magField,
-		      MaterialEffects materialEffects,
-		      PropagationDirection propDir,
-		      double mass,
-		      bool useBeamSpot,
-		      const reco::BeamSpot &beamSpot);
   virtual ~ReferenceTrajectory() {}
 
   virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }

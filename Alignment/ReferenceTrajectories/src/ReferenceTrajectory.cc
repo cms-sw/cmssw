@@ -52,46 +52,35 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos
                                          const MagneticField* magField,
                                          const reco::BeamSpot& beamSpot,
                                          const ReferenceTrajectoryBase::Config& config) :
-  ReferenceTrajectory(refTsos, recHits, config.hitsAreReverse, magField, config.materialEffects,
-                      config.propDir, config.mass, config.useBeamSpot, beamSpot)
-{
-}
-
-ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-					 const TransientTrackingRecHit::ConstRecHitContainer
-					 &recHits, bool hitsAreReverse,
-					 const MagneticField *magField, 
-					 MaterialEffects materialEffects,
-					 PropagationDirection propDir,
-					 double mass,
-					 bool useBeamSpot, const reco::BeamSpot &beamSpot) 
- : ReferenceTrajectoryBase( 
-   (materialEffects >= brokenLinesCoarse) ? 1 : refTsos.localParameters().mixedFormatVector().kSize, 
-   (useBeamSpot == true) ? recHits.size()+1 : recHits.size(),
-   (materialEffects >= brokenLinesCoarse) ? 
-       2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())   :
-   ( (materialEffects == breakPoints) ? 2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-2 : 0) , 
-   (materialEffects >= brokenLinesCoarse) ? 
-       2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-4 : 
-   ( (materialEffects == breakPoints) ? 2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-2 : 0) )
+  ReferenceTrajectoryBase(
+   (config.materialEffects >= brokenLinesCoarse) ? 1 : refTsos.localParameters().mixedFormatVector().kSize,
+   (config.useBeamSpot) ? recHits.size()+1 : recHits.size(),
+   (config.materialEffects >= brokenLinesCoarse) ?
+       2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())   :
+   ( (config.materialEffects == breakPoints) ? 2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-2 : 0) ,
+   (config.materialEffects >= brokenLinesCoarse) ?
+       2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-4 :
+   ( (config.materialEffects == breakPoints) ? 2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-2 : 0) )
 {
   // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
   
-  if (hitsAreReverse) {
+  if (config.hitsAreReverse) {
     TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
     fwdRecHits.reserve(recHits.size());
     for (TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator it=recHits.rbegin();
 	 it != recHits.rend(); ++it) {
       fwdRecHits.push_back(*it);
     }
-    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects,
-				      propDir, magField,
-				      useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsos, fwdRecHits, config.mass,
+				      config.materialEffects,
+				      config.propDir, magField,
+				      config.useBeamSpot, beamSpot);
   } else {
-    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects,
-				      propDir, magField,
-				      useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsos, recHits, config.mass,
+				      config.materialEffects,
+				      config.propDir, magField,
+				      config.useBeamSpot, beamSpot);
   }
 }
 
