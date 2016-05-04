@@ -188,6 +188,12 @@ namespace edm {
     virtual void implPostForkReacquireResources(unsigned int iChildIndex,
                                                unsigned int iNumberOfChildren) = 0;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
+    
+    static void exceptionContext(const std::string& iID,
+                          bool iIsEvent,
+                          cms::Exception& ex,
+                          ModuleCallingContext const* mcc);
+
 
     int timesRun_;
     int timesVisited_;
@@ -230,61 +236,6 @@ namespace edm {
       ModuleCallingContext const* moduleCallingContext_;
     };
 
-    template <typename T>
-    void exceptionContext(typename T::MyPrincipal const& principal,
-                          cms::Exception& ex,
-                          ModuleCallingContext const* mcc) {
-
-      ModuleCallingContext const* imcc = mcc;
-      while(imcc->type() == ParentContext::Type::kModule) {
-	std::ostringstream iost;
-        iost << "Calling method for unscheduled module "
-             << imcc->moduleDescription()->moduleName() << "/'"
-             << imcc->moduleDescription()->moduleLabel() << "'";
-        ex.addContext(iost.str());
-        imcc = imcc->moduleCallingContext();
-      }
-      if(imcc->type() == ParentContext::Type::kInternal) {
-        std::ostringstream iost;
-        iost << "Calling method for unscheduled module "
-             << imcc->moduleDescription()->moduleName() << "/'"
-             << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
-        ex.addContext(iost.str());
-        imcc = imcc->internalContext()->moduleCallingContext();
-      }
-      while(imcc->type() == ParentContext::Type::kModule) {
-        std::ostringstream iost;
-        iost << "Calling method for unscheduled module "
-             << imcc->moduleDescription()->moduleName() << "/'"
-             << imcc->moduleDescription()->moduleLabel() << "'";
-        ex.addContext(iost.str());
-        imcc = imcc->moduleCallingContext();
-      }
-      std::ostringstream ost;
-      if (T::isEvent_) {
-        ost << "Calling event method";
-      }
-      else {
-        // It should be impossible to get here, because
-        // this function only gets called when the IgnoreCompletely
-        // exception behavior is active, which can only be true
-        // for events.
-        ost << "Calling unknown function";
-      }
-      ost << " for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
-      ex.addContext(ost.str());
-
-      if (imcc->type() == ParentContext::Type::kPlaceInPath) {
-        ost.str("");
-        ost << "Running path '";
-        ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
-        ex.addContext(ost.str());
-      }
-      ost.str("");
-      ost << "Processing ";
-      ost << principal.id();
-      ex.addContext(ost.str());
-    }
   }
 
   namespace workerhelper {
@@ -543,7 +494,9 @@ namespace edm {
           rc = true;
           ++timesPassed_;
           state_ = Pass;
-          exceptionContext<T>(ep, ex, &tempContext);
+          std::ostringstream iost;
+          iost<<ep.id();
+          exceptionContext(iost.str(), T::isEvent_, ex, &tempContext);
           edm::printCmsExceptionWarning("IgnoreCompletely", ex);
           //now ignore the fact we had thrown an exception
           if(cached_exception_) {
