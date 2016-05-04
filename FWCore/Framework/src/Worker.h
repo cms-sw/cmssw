@@ -28,6 +28,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
@@ -60,6 +61,7 @@ namespace edm {
   class StreamContext;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace workerhelper {
     template< typename O> class CallImpl;
@@ -166,12 +168,19 @@ namespace edm {
     ActivityRegistry* activityRegistry() { return actReg_.get(); }
 
   private:
+    
+    template <typename T>
+    bool runModule(typename T::MyPrincipal const&, EventSetup const& c,
+                StreamID stream,
+                ParentContext const& parentContext,
+                typename T::Context const* context);
 
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
 
+    void prefetchAsync(WaitingTask*, Principal const& );
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
@@ -195,6 +204,8 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<EarlyDeleteHelper*> earlyDeleteHelper_;
+    
+    edm::WaitingTaskList m_waitingTasks;
   };
 
   namespace {
@@ -469,12 +480,16 @@ namespace edm {
       }
     }
 
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-
+    //Need the context to be set until after any exception is resolved
+    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+    auto resetContext = [](ModuleCallingContext* iContext) {iContext->setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr); };
+    std::unique_ptr<ModuleCallingContext, decltype(resetContext)> prefetchSentry(&moduleCallingContext_,resetContext);
+    
     try {
       convertException::wrap([&]() {
 
         if (T::isEvent_) {
+
           ++timesRun_;
           
           //if have TriggerResults based selection we want to reject the event before doing prefetching
@@ -484,27 +499,19 @@ namespace edm {
             rc = true;
             return;
           }
-          // Prefetch products the module declares it consumes (not including the products it maybe consumes)
-          std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
-          for(auto const& item : items) {
-            ProductResolverIndex productResolverIndex = item.productResolverIndex();
-            bool skipCurrentProcess = item.skipCurrentProcess();
-            if(productResolverIndex != ProductResolverIndexAmbiguous) {
-              ep.prefetch(productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
-            }
+          std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
+            [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+          waitTask->increment_ref_count();
+          
+          prefetchAsync(waitTask.get(),ep);
+          waitTask->wait_for_all();
+          if(waitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(waitTask->exceptionPtr()));
           }
         }
-
-        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
-        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
-
-        if (rc) {
-          state_ = Pass;
-          if (T::isEvent_) ++timesPassed_;
-        } else {
-          state_ = Fail;
-          if (T::isEvent_) ++timesFailed_;
-        }
+        //successful prefetch so no reset necessary
+        prefetchSentry.release();
+        rc = runModule<T>(ep,es,streamID,parentContext,context);
       });
     }
     catch(cms::Exception& ex) {
@@ -517,30 +524,80 @@ namespace edm {
       // something other than an event (e.g. run, lumi) always rethrow.
       exception_actions::ActionCodes action = (T::isEvent_ ? actions_->find(ex.category()) : exception_actions::Rethrow);
 
+      ModuleCallingContext tempContext(&description(),ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
       // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
-      ModuleCallingContext const* top_mcc = moduleCallingContext_.getTopModuleCallingContext();
+      ModuleCallingContext const* top_mcc = tempContext.getTopModuleCallingContext();
       if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
          top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
 
-          if ((action == exception_actions::SkipEvent && moduleCallingContext_.type() == ParentContext::Type::kPlaceInPath) ||
+          if ((action == exception_actions::SkipEvent && tempContext.type() == ParentContext::Type::kPlaceInPath) ||
                action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
       }
+      //NOTE: runModule had set cached_exception_ and advanced timesExcept_. These may need to be modified.
       switch(action) {
         case exception_actions::IgnoreCompletely:
+        {
           rc = true;
           ++timesPassed_;
-	  state_ = Pass;
-          exceptionContext<T>(ep, ex, &moduleCallingContext_);
+          state_ = Pass;
+          exceptionContext<T>(ep, ex, &tempContext);
           edm::printCmsExceptionWarning("IgnoreCompletely", ex);
-	  break;
+          //now ignore the fact we had thrown an exception
+          if(cached_exception_) {
+            --timesExcept_;
+            cached_exception_ = nullptr;
+          }
+          break;
+        }
         default:
-          if (T::isEvent_) ++timesExcept_;
-	  state_ = Exception;
-          cached_exception_ = std::shared_ptr<cms::Exception>(ex.clone()); // propagate_const<T> has no reset() function
-	  cached_exception_->raise();
+          if(not cached_exception_) {
+            cached_exception_ =std::shared_ptr<cms::Exception>(ex.clone());
+          }
+          cached_exception_->raise();
       }
+    }
+    return rc;
+  }
+  
+  
+  template <typename T>
+  bool Worker::runModule(typename T::MyPrincipal const& ep,
+                      EventSetup const& es,
+                      StreamID streamID,
+                      ParentContext const& parentContext,
+                      typename T::Context const* context) {
+    //unscheduled producers should advance this
+    //if (T::isEvent_) {
+    //  ++timesVisited_;
+    //}
+    bool rc = false;
+    
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    if (T::isEvent_) {
+      ++timesRun_;
+    }
+    
+    try {
+      convertException::wrap([&]() {
+        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
+        
+        if (rc) {
+          state_ = Pass;
+          if (T::isEvent_) ++timesPassed_;
+        } else {
+          state_ = Fail;
+          if (T::isEvent_) ++timesFailed_;
+        }
+      });
+    }
+    catch(cms::Exception& ex) {
+      if (T::isEvent_) ++timesExcept_;
+      state_ = Exception;
+      cached_exception_ = std::shared_ptr<cms::Exception>(ex.clone()); // propagate_const<T> has no reset() function
+      cached_exception_->raise();
     }
     return rc;
   }

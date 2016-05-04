@@ -5,6 +5,7 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 
 namespace edm {
   namespace {
@@ -91,6 +92,25 @@ private:
     actReg_ = areg;
   }
 
+  void Worker::prefetchAsync(WaitingTask* iTask, Principal const& iPrincipal) {
+    // Prefetch products the module declares it consumes (not including the products it maybe consumes)
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
+    
+    //Need to be sure the ref count isn't set to 0 immediately
+    iTask->increment_ref_count();
+    for(auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if(productResolverIndex != ProductResolverIndexAmbiguous) {
+        iPrincipal.prefetchAsync(iTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
+      }
+    }
+    if(0 == iTask->decrement_ref_count()) {
+      //if everything finishes before we leave this routine, we need to launch the task
+      tbb::task::spawn(*iTask);
+    }
+  }
+  
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) {
     earlyDeleteHelper_=iHelper;
   }

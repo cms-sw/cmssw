@@ -238,10 +238,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000010
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++++ finished: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
@@ -264,10 +260,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000010
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
@@ -314,10 +306,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000020
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++++ finished: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
@@ -340,10 +328,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000020
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
@@ -390,10 +374,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000030
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++++ finished: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
@@ -416,10 +396,6 @@ ModuleCallingContext state = Running
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000030
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
-    previousModuleOnThread: same as parent module
 
 ++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
