@@ -13,38 +13,24 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
                                                    const MagneticField *magField,
                                                    const reco::BeamSpot& beamSpot,
                                                    const ReferenceTrajectoryBase::Config& config) :
-  BzeroReferenceTrajectory(tsos, recHits, config.hitsAreReverse, magField, config.materialEffects,
-                           config.propDir, config.mass, config.momentumEstimate, config.useBeamSpot,
-                           beamSpot)
-{
-}
-
-BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-						   const TransientTrackingRecHit::ConstRecHitContainer
-						   &recHits, bool hitsAreReverse,
-						   const MagneticField *magField, 
-						   MaterialEffects materialEffects,
-						   PropagationDirection propDir,
-						   double mass, double momentumEstimate,
-						   bool useBeamSpot, const reco::BeamSpot &beamSpot) :
-  ReferenceTrajectory( refTsos.localParameters().mixedFormatVector().kSize, recHits.size(), materialEffects),
-  theMomentumEstimate( momentumEstimate )
+  ReferenceTrajectory(tsos.localParameters().mixedFormatVector().kSize, recHits.size(), config.materialEffects),
+  theMomentumEstimate(config.momentumEstimate)
 {
   // no check against magField == 0
 
   // No estimate for momentum of cosmics available -> set to default value.
-  theParameters = asHepVector(refTsos.localParameters().mixedFormatVector());
+  theParameters = asHepVector(tsos.localParameters().mixedFormatVector());
   theParameters[0] = 1./theMomentumEstimate;
 
   LocalTrajectoryParameters locParamWithFixedMomentum( asSVector<5>(theParameters),
-						       refTsos.localParameters().pzSign(),
-						       refTsos.localParameters().charge() );
+						       tsos.localParameters().pzSign(),
+						       tsos.localParameters().charge() );
 
-  const TrajectoryStateOnSurface refTsosWithFixedMomentum(locParamWithFixedMomentum, refTsos.localError(),
-							  refTsos.surface(), magField,
-							  surfaceSide(propDir));
+  const TrajectoryStateOnSurface refTsosWithFixedMomentum(locParamWithFixedMomentum, tsos.localError(),
+							  tsos.surface(), magField,
+							  surfaceSide(config.propDir));
 
-  if (hitsAreReverse)
+  if (config.hitsAreReverse)
   {
     TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
     fwdRecHits.reserve(recHits.size());
@@ -52,13 +38,13 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
     for (TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator it=recHits.rbegin(); it != recHits.rend(); ++it)
       fwdRecHits.push_back(*it);
 
-    theValidityFlag = this->construct(refTsosWithFixedMomentum, fwdRecHits, mass,
-				      materialEffects, propDir, magField,
-				      useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsosWithFixedMomentum, fwdRecHits, config.mass,
+				      config.materialEffects, config.propDir, magField,
+				      config.useBeamSpot, beamSpot);
   } else {
-    theValidityFlag = this->construct(refTsosWithFixedMomentum, recHits, mass,
-				      materialEffects, propDir, magField, 
-				      useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsosWithFixedMomentum, recHits, config.mass,
+				      config.materialEffects, config.propDir, magField,
+				      config.useBeamSpot, beamSpot);
   }
 
   // Exclude momentum from the parameters and also the derivatives of the measurements w.r.t. the momentum.

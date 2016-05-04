@@ -25,16 +25,6 @@ public:
                          const reco::BeamSpot& beamSpot,
                          const ReferenceTrajectoryBase::Config& config);
 
-  TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState & trajectoryState,
-			  const ConstRecHitCollection & recHits,
-			  const MagneticField* magField,
-			  MaterialEffects materialEffects,
-			  PropagationDirection propDir,
-			  bool hitsAreReverse,
-			  const reco::BeamSpot &beamSpot,
-			  bool useRefittedState,
-			  bool constructTsosWithErrors );
-
   TwoBodyDecayTrajectory( void );
 
   ~TwoBodyDecayTrajectory( void ) {}

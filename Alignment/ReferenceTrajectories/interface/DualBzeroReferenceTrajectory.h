@@ -49,17 +49,6 @@ public:
                                const reco::BeamSpot& beamSpot,
                                const ReferenceTrajectoryBase::Config& config);
 
-  DualBzeroReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
-				const ConstRecHitContainer &forwardRecHits,
-				const ConstRecHitContainer &backwardRecHits,
-				const MagneticField *magField,
-				MaterialEffects materialEffects,
-				PropagationDirection propDir,
-				double mass,
-				double momentumEstimate,
-				bool useBeamSpot,
-				const reco::BeamSpot &beamSpot);
-
   virtual ~DualBzeroReferenceTrajectory() {}
 
   virtual DualBzeroReferenceTrajectory* clone() const { return new DualBzeroReferenceTrajectory(*this); }
