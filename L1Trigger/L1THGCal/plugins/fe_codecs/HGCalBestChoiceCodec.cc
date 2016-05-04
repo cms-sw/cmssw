@@ -36,7 +36,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
     std::vector<std::pair<HGCEEDetId, uint32_t > > linearized_dataframes;
     codecImpl_.linearize(mod, dataframes, linearized_dataframes);
     // sum energy in trigger cells
-    codecImpl_.triggerCellSums(mod, dataframes, data_);
+    codecImpl_.triggerCellSums(mod, linearized_dataframes, data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
 
