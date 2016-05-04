@@ -79,9 +79,10 @@ def L1TReEmulFromRAW2015(process):
         print process.schedule
         return process
     else:
-        process.simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
+        process.simRctDigis.ecalDigis = cms.VInputTag('simEcalTriggerPrimitiveDigis')
         process.simRctDigis.hcalDigis = cms.VInputTag('simHcalTriggerPrimitiveDigis')
-        process.simRpcTriggerDigis.label         = 'muonRPCDigis'
+        process.simRpcTriggerDigis.label = 'muonRPCDigis'
+        process.simRpcTechTrigDigis.RPCDigiLabel  = 'muonRPCDigis'
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
         print "L1TReEmul sequence:  "
