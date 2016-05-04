@@ -76,6 +76,10 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP; 
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);    
   
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
+
   edm::Handle<GenParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
   const GenParticleCollection tPCeff = *(TPCollectionHeff.product());
@@ -344,7 +348,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
       
       double dR=0;//fixme: plots vs dR not implemented for now
-      histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(), nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
+      histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
       
       // dE/dx
       if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);

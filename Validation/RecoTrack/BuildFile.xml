@@ -10,6 +10,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use   name="RecoTracker/TkSeedingLayers"/>
 <use   name="SimTracker/Records"/>
 
 <export>
