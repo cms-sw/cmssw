@@ -968,6 +968,7 @@ class Plot:
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
+        legend       -- Bool to enable/disable legend (default True)
         adjustMarginRight  -- Float for adjusting right margin (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
@@ -1030,6 +1031,7 @@ class Plot:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+        _set("legend", True)
 
         _set("adjustMarginRight", None)
 
@@ -1839,27 +1841,27 @@ class PlotGroup:
             canvas.cd()
             plot.draw(canvas, ratio, self._ratioFactor, 1)
 
+            if plot._legend:
+                # Setup legend
+                lx1 = lx1def
+                lx2 = lx2def
+                ly1 = ly1def
+                ly2 = ly2def
 
-            # Setup legend
-            lx1 = lx1def
-            lx2 = lx2def
-            ly1 = ly1def
-            ly2 = ly2def
+                if plot._legendDx is not None:
+                    lx1 += plot._legendDx
+                    lx2 += plot._legendDx
+                if plot._legendDy is not None:
+                    ly1 += plot._legendDy
+                    ly2 += plot._legendDy
+                if plot._legendDw is not None:
+                    lx2 += plot._legendDw
+                if plot._legendDh is not None:
+                    ly1 -= plot._legendDh
 
-            if plot._legendDx is not None:
-                lx1 += plot._legendDx
-                lx2 += plot._legendDx
-            if plot._legendDy is not None:
-                ly1 += plot._legendDy
-                ly2 += plot._legendDy
-            if plot._legendDw is not None:
-                lx2 += plot._legendDw
-            if plot._legendDh is not None:
-                ly1 -= plot._legendDh
-
-            canvas.cd()
-            legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
-                                        denomUncertainty=(ratio and plot.drawRatioUncertainty))
+                canvas.cd()
+                legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
+                                            denomUncertainty=(ratio and plot.drawRatioUncertainty))
 
             ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
