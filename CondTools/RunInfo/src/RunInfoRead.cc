@@ -1,7 +1,10 @@
 //#include "CondFormats/Common/interface/TimeConversions.h"
 //#include "CondFormats/Common/interface/Time.h"
 #include "CondTools/RunInfo/interface/RunInfoRead.h"
-#include "RelationalAccess/ISession.h"
+#include "CondCore/CondDB/interface/Auth.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -23,29 +26,21 @@
 
 
 namespace {
- std::string dot(".");
- std::string quote("\"");
- std::string bNOTb(" NOT ");
+  std::string dot(".");
+  std::string quote("\"");
+  std::string bNOTb(" NOT ");
   std::string squoted( const std::string& s ){
     return quote+s+quote;
   }
 
 
 }
-RunInfoRead::RunInfoRead(const std::string& connectionString,
-			 const std::string& user,
-			 const std::string& pass):
-  TestBase(),
-  m_connectionString( connectionString ),
-  m_user( user ),
-  m_pass( pass ) {
-  m_tableToRead="";
-  m_columnToRead="";
-}
+RunInfoRead::RunInfoRead( const std::string& connectionString ):
+   m_tableToRead( "" )
+  ,m_columnToRead( "" )
+  ,m_connectionString( connectionString ) {}
 
 RunInfoRead::~RunInfoRead() {}
-
-void RunInfoRead::run() {}
 
 RunInfo 
 RunInfoRead::readData(const std::string & table, 
@@ -63,10 +58,10 @@ RunInfoRead::readData(const std::string & table,
   //if cursor is null setting null values  
   temp_sum.m_run = r_number;
   std::cout << "entering readData" << std::endl;
-  coral::ISession* session = this->connect( m_connectionString,
-                                            m_user, m_pass );
+  coral::ConnectionService conserv;
+  coral::ISessionProxy* session = conserv.connect( m_connectionString, cond::auth::COND_READER_ROLE, coral::ReadOnly );
   try{
-    session->transaction().start();
+    session->transaction().start( true );
     std::cout << "starting session " << std::endl;
     coral::ISchema& schema = session->schema("CMS_RUNINFO");
     std::cout << " accessing schema " << std::endl;
@@ -405,8 +400,10 @@ RunInfoRead::readData(const std::string & table,
     
     session->transaction().commit();
   }
-  catch (const std::exception& e) { 
-    std::cout << "Exception: " << e.what() << std::endl;
+  catch (const std::exception& e) {
+    throw cms::Exception( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: "
+                                            << "Unable to create a RunInfo payload. Original Exception:\n"
+                                            << e.what() << std::endl;
   }
   delete session;
   

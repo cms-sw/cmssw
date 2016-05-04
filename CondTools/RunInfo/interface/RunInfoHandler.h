@@ -15,14 +15,11 @@ class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
   RunInfoHandler(const edm::ParameterSet& pset); 
   
  private:
-  std::string m_name;
   unsigned long long m_since;
+  std::string m_name;
   
   // for reading from omds
   std::string m_connectionString;
-  std::string m_authpath;
-  std::string m_user;
-  std::string m_pass;
 };
 
 #endif 
