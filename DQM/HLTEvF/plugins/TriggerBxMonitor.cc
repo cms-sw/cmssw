@@ -68,6 +68,27 @@ private:
   // number of bunch crossings
   static const unsigned int s_bx_range = 3564;
 
+  // TCDS trigger types
+  // see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TcdsEventRecord
+  static constexpr const char * const s_tcds_trigger_types[] = {
+    "Empty",           //  0 - No trigger
+    "Physics",         //  1 - GT trigger
+    "Calibration",     //  2 - Sequence trigger (calibration)
+    "Random",          //  3 - Random trigger
+    "Auxiliary",       //  4 - Auxiliary (CPM front panel NIM input) trigger
+    nullptr,           //  5 - reserved
+    nullptr,           //  6 - reserved
+    nullptr,           //  7 - reserved
+    "Cyclic",          //  8 - Cyclic trigger
+    "Bunch-pattern",   //  9 - Bunch-pattern trigger
+    "Software",        // 10 - Software trigger
+    "TTS",             // 11 - TTS-sourced trigger
+    nullptr,           // 12 - reserved
+    nullptr,           // 13 - reserved
+    nullptr,           // 14 - reserved
+    nullptr            // 15 - reserved
+  };
+
   // module configuration
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection>  m_l1t_results;
   const edm::EDGetTokenT<edm::TriggerResults>       m_hlt_results;
@@ -78,12 +99,16 @@ private:
   HLTConfigProvider         m_hltConfig;
 
   // L1T and HLT results
+  TH2F *                    m_tcds_bx_all;
   TH2F *                    m_l1t_bx_all;
   TH2F *                    m_hlt_bx_all;
+  std::vector<TH1F *>       m_tcds_bx;
   std::vector<TH1F *>       m_l1t_bx;
   std::vector<TH1F *>       m_hlt_bx;
 };
 
+// definition
+constexpr const char * const TriggerBxMonitor::s_tcds_trigger_types[];
 
 
 void TriggerBxMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -105,8 +130,10 @@ TriggerBxMonitor::TriggerBxMonitor(edm::ParameterSet const & config) :
   m_l1tMenu(nullptr),
   m_hltConfig(),
   // L1T and HLT results
+  m_tcds_bx_all(nullptr),
   m_l1t_bx_all(nullptr),
   m_hlt_bx_all(nullptr),
+  m_tcds_bx(),
   m_l1t_bx(),
   m_hlt_bx()
 {
@@ -118,6 +145,10 @@ TriggerBxMonitor::~TriggerBxMonitor()
 
 void TriggerBxMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const & setup)
 {
+  // initialise the TCDS vector
+  m_tcds_bx.clear();
+  m_tcds_bx.resize(sizeof(s_tcds_trigger_types) / sizeof(const char *), nullptr);
+
   // cache the L1 trigger menu
   m_l1tMenu = & get<L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu>(setup);
   if (m_l1tMenu) {
@@ -142,39 +173,52 @@ void TriggerBxMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const &
 
 void TriggerBxMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & setup)
 {
+  // TCDS trigger type plots
+  {
+    size_t size = sizeof(s_tcds_trigger_types) / sizeof(const char *);
+
+    // book 2D histogram to monitor all TCDS trigger types in a single plot
+    booker.setCurrentFolder( m_dqm_path );
+    m_tcds_bx_all = booker.book2D("TCDS Trigger Types", "TCDS Trigger Types vs. bunch crossing", s_bx_range + 1, -0.5, s_bx_range + 0.5, size, -0.5, size - 0.5)->getTH2F();
+
+    // book the individual histograms for the known TCDS trigger types
+    booker.setCurrentFolder( m_dqm_path + "/TCDS" );
+    for (unsigned int i = 0; i < size; ++i) {
+      if (s_tcds_trigger_types[i]) {
+        m_tcds_bx.at(i) = booker.book1D(s_tcds_trigger_types[i], s_tcds_trigger_types[i], s_bx_range + 1, -0.5, s_bx_range + 0.5)->getTH1F();
+        m_tcds_bx_all->GetYaxis()->SetBinLabel(i+1, s_tcds_trigger_types[i]);
+      }
+    }
+  }
+
+  // L1T plots
   if (m_l1tMenu) {
     // book 2D histogram to monitor all L1 triggers in a single plot
     booker.setCurrentFolder( m_dqm_path );
-    m_l1t_bx_all = booker.book2D("Level 1 Triggers", "Level 1 Triggers", s_bx_range + 1, -0.5, s_bx_range + 0.5, m_l1t_bx.size(), -0.5, m_l1t_bx.size() - 0.5)->getTH2F();
+    m_l1t_bx_all = booker.book2D("Level 1 Triggers", "Level 1 Triggers vs. bunch crossing", s_bx_range + 1, -0.5, s_bx_range + 0.5, m_l1t_bx.size(), -0.5, m_l1t_bx.size() - 0.5)->getTH2F();
 
-    // book the rate histograms for the L1 triggers
+    // book the individual histograms for the L1 triggers that are included in the L1 menu
     booker.setCurrentFolder( m_dqm_path + "/L1T" );
-
-    // book the histograms for the L1 triggers that are included in the L1 menu
     for (auto const & keyval: m_l1tMenu->getAlgorithmMap()) {
       unsigned int bit = keyval.second.getIndex();
       std::string const & name = (boost::format("%s (bit %d)") % keyval.first % bit).str();
       m_l1t_bx.at(bit) = booker.book1D(name, name, s_bx_range + 1, -0.5, s_bx_range + 0.5)->getTH1F();
+      m_l1t_bx_all->GetYaxis()->SetBinLabel(bit+1, keyval.first.c_str());
     }
-    /*
-    // book the histograms for the L1 triggers that are not included in the L1 menu
-    for (unsigned int bit = 0; bit < m_l1t_bx.size(); ++bit) if (not m_l1t_bx.at(bit)) {
-      std::string const & name = (boost::format("(unused) (bit %d)") % bit).str();
-      m_l1t_bx.at(bit) = booker.book1D(name, name, s_bx_range + 1, -0.5, s_bx_range + 0.5)->getTH1F();
-    }
-    */
   }
 
+  // HLT plots
   if (m_hltConfig.inited()) {
     // book 2D histogram to monitor all HLT paths in a single plot
     booker.setCurrentFolder( m_dqm_path );
-    m_hlt_bx_all = booker.book2D("High Level Triggers", "High Level Triggers", s_bx_range + 1, -0.5, s_bx_range + 0.5, m_hltConfig.size(), -0.5, m_hltConfig.size() - 0.5)->getTH2F();
+    m_hlt_bx_all = booker.book2D("High Level Triggers", "High Level Triggers vs. bunch crossing", s_bx_range + 1, -0.5, s_bx_range + 0.5, m_hltConfig.size(), -0.5, m_hltConfig.size() - 0.5)->getTH2F();
 
-    // book the HLT triggers rate histograms
+    // book the individual HLT triggers histograms
     booker.setCurrentFolder( m_dqm_path + "/HLT" );
     for (unsigned int i = 0; i < m_hltConfig.size(); ++i) {
       std::string const & name = m_hltConfig.triggerName(i);
       m_hlt_bx[i] = booker.book1D(name, name, s_bx_range + 1, -0.5, s_bx_range + 0.5)->getTH1F();
+      m_hlt_bx_all->GetYaxis()->SetBinLabel(i+1, name.c_str());
     }
   }
 }
@@ -183,6 +227,15 @@ void TriggerBxMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run const
 void TriggerBxMonitor::analyze(edm::Event const & event, edm::EventSetup const & setup)
 {
   unsigned int bx = event.bunchCrossing();
+
+  // monitor the bx distribution for the TCDS trigger types
+  {
+    size_t size = sizeof(s_tcds_trigger_types) / sizeof(const char *);
+    unsigned int type = event.experimentType();
+    if (type < size and m_tcds_bx[type])
+      m_tcds_bx[type]->Fill(bx);
+    m_tcds_bx_all->Fill(bx, type);
+  }
 
   // monitor the bx distribution for the L1 triggers
   if (m_l1tMenu) {
