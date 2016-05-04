@@ -234,7 +234,7 @@ public:
   void setSortRankLUTFactors(unsigned ptFactor, unsigned qualFactor) { pnodes_[sortRank].uparams_.push_back(ptFactor); pnodes_[sortRank].uparams_.push_back(qualFactor); }
 
   // set parameters with a trigSystem object built from the online DB
-  void loadFromOnline(l1t::trigSystem trgSys, const std::string& procId);
+  void loadFromOnline(l1t::trigSystem& trgSys, const std::string& processorId = "");
 
   // print parameters to stream:
   void print(std::ostream&) const;
