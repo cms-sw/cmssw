@@ -505,7 +505,8 @@ namespace edm {
   }
 
   void
-  Principal::prefetch(ProductResolverIndex index,
+  Principal::prefetchAsync(WaitingTask * task,
+                      ProductResolverIndex index,
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
