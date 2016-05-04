@@ -36,23 +36,9 @@ cmsRun geometryrun2writer.py
 # Input cff                    Output file
 # GeometryIdeal2015_cff     giSingleBigFile.xml
 #
-sed -i '{s/Extended/Ideal/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/ge/\/gi/g}' geometryrun2xmlwriter.py
 cmsRun geometryrun2xmlwriter.py
-sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gi/\/gz/g}' geometryrun2xmlwriter.py
-cmsRun geometryrun2xmlwriter.py
-sed -i '{s/ZeroMaterial/CastorMeasured/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gz/\/gc/g}' geometryrun2xmlwriter.py
-cmsRun geometryrun2xmlwriter.py
-sed -i '{s/CastorMeasured/CastorSystMinus/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gc/\/gm/g}' geometryrun2xmlwriter.py
-cmsRun geometryrun2xmlwriter.py
-sed -i '{s/CastorSystMinus/CastorSystPlus/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gm/\/gp/g}' geometryrun2xmlwriter.py
-cmsRun geometryrun2xmlwriter.py
-sed -i '{s/CastorSystPlus/FlatMinus05Percent/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gp/\/gfm05/g}' geometryrun2xmlwriter.py
+sed -i '{s/Extended2015/Extended2015FlatMinus05Percent/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/ge/\/gfm05/g}' geometryrun2xmlwriter.py
 cmsRun geometryrun2xmlwriter.py
 sed -i '{s/FlatMinus05Percent/FlatMinus10Percent/g}' geometryrun2xmlwriter.py
 sed -i '{s/\/gfm05/\/gfm10/g}' geometryrun2xmlwriter.py
@@ -74,23 +60,9 @@ cmsRun geometryrun2xmlwriter.py
 # gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2015GFlash_mc
 # giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal2015_mc
 #
-sed -i '{s/Extended/Ideal/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/ge/\/gi/g}' xmlgeometryrun2writer.py
 cmsRun xmlgeometryrun2writer.py
-sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gi/\/gz/g}' xmlgeometryrun2writer.py
-cmsRun xmlgeometryrun2writer.py
-sed -i '{s/ZeroMaterial/CastorMeasured/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gz/\/gc/g}' xmlgeometryrun2writer.py
-cmsRun xmlgeometryrun2writer.py
-sed -i '{s/CastorMeasured/CastorSystMinus/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gc/\/gm/g}' xmlgeometryrun2writer.py
-cmsRun xmlgeometryrun2writer.py
-sed -i '{s/CastorSystMinus/CastorSystPlus/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gm/\/gp/g}' xmlgeometryrun2writer.py
-cmsRun xmlgeometryrun2writer.py
-sed -i '{s/CastorSystPlus/FlatMinus05Percent/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gp/\/gfm05/g}' xmlgeometryrun2writer.py
+sed -i '{s/Extended2015/Extended2015FlatMinus05Percent/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/ge/\/gfm05/g}' xmlgeometryrun2writer.py
 cmsRun xmlgeometryrun2writer.py
 sed -i '{s/FlatMinus05Percent/FlatMinus10Percent/g}' xmlgeometryrun2writer.py
 sed -i '{s/\/gfm05/\/gfm10/g}' xmlgeometryrun2writer.py
