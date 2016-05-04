@@ -92,6 +92,64 @@ private:
     actReg_ = areg;
   }
 
+  
+  void Worker::exceptionContext(const std::string& iID,
+                        bool iIsEvent,
+                        cms::Exception& ex,
+                        ModuleCallingContext const* mcc) {
+    
+    ModuleCallingContext const* imcc = mcc;
+    while(imcc->type() == ParentContext::Type::kModule) {
+      std::ostringstream iost;
+      iost << "Calling method for unscheduled module "
+      << imcc->moduleDescription()->moduleName() << "/'"
+      << imcc->moduleDescription()->moduleLabel() << "'";
+      ex.addContext(iost.str());
+      imcc = imcc->moduleCallingContext();
+    }
+    if(imcc->type() == ParentContext::Type::kInternal) {
+      std::ostringstream iost;
+      iost << "Calling method for unscheduled module "
+      << imcc->moduleDescription()->moduleName() << "/'"
+      << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
+      ex.addContext(iost.str());
+      imcc = imcc->internalContext()->moduleCallingContext();
+    }
+    while(imcc->type() == ParentContext::Type::kModule) {
+      std::ostringstream iost;
+      iost << "Calling method for unscheduled module "
+      << imcc->moduleDescription()->moduleName() << "/'"
+      << imcc->moduleDescription()->moduleLabel() << "'";
+      ex.addContext(iost.str());
+      imcc = imcc->moduleCallingContext();
+    }
+    std::ostringstream ost;
+    if (iIsEvent) {
+      ost << "Calling event method";
+    }
+    else {
+      // It should be impossible to get here, because
+      // this function only gets called when the IgnoreCompletely
+      // exception behavior is active, which can only be true
+      // for events.
+      ost << "Calling unknown function";
+    }
+    ost << " for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
+    ex.addContext(ost.str());
+    
+    if (imcc->type() == ParentContext::Type::kPlaceInPath) {
+      ost.str("");
+      ost << "Running path '";
+      ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
+      ex.addContext(ost.str());
+    }
+    ost.str("");
+    ost << "Processing ";
+    ost << iID;
+    ex.addContext(ost.str());
+  }
+
+  
   void Worker::prefetchAsync(WaitingTask* iTask, Principal const& iPrincipal) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
