@@ -57,9 +57,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         // histos
         TH1F* hgcCellsPerModule_;
         TH1F* hgcCellData_;
-        //steph
         TH1F* hgcCellData_linampl_;
-        //
         TH1F* hgcCellModuleSum_;
         TH1F* triggerCellsPerModule_;
         TH1F* triggerCellData_;
@@ -150,12 +148,13 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 	if(module.second->containsCell(eedata.id()))              {
 	  dataframes.push_back(eedata);
 	}
-      }   
+      }  
+      
       
       //  Best choice encoding
       data.reset();
       codec_->linearize(*(module.second), dataframes, linearized_dataframes);
-      codec_->triggerCellSums(*(module.second), dataframes, data);
+      codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
       codec_->bestChoiceSelect(data);
       std::vector<bool> dataword = codec_->encode(data);
       HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
