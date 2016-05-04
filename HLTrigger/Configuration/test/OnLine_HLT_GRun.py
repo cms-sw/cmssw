@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V78 (CMSSW_8_0_5)
+# /dev/CMSSW_8_0_0/GRun/V79 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V78')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V79')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -59273,7 +59273,7 @@ process.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     invert = cms.bool( False ),
     period = cms.uint32( 4096 ),
     rawInput = cms.InputTag( "rawDataCollector" ),
-    fedId = cms.int32( 813 )
+    fedId = cms.int32( 1024 )
 )
 process.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG24 OR L1_SingleJet35 OR L1_SingleJet60 OR L1_SingleMuOpen OR L1_ZeroBias" ),
@@ -59309,7 +59309,7 @@ process.hltL1EventNumberUTCA = cms.EDFilter( "HLTL1NumberFilter",
     invert = cms.bool( False ),
     period = cms.uint32( 1048576 ),
     rawInput = cms.InputTag( "rawDataCollector" ),
-    fedId = cms.int32( 813 )
+    fedId = cms.int32( 1024 )
 )
 process.hltPreHcalUTCA = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -62698,7 +62698,7 @@ process.hltSelectedElectronFEDListProducerGsf = cms.EDProducer( "SelectedElectro
     electronTags = cms.VInputTag( 'hltEgammaGsfElectrons','hltEgammaGsfElectrons','hltEgammaGsfElectrons' ),
     HBHERecHitTag = cms.InputTag( "hltHbhereco" ),
     dumpSelectedEcalFed = cms.bool( True ),
-    addThisSelectedFEDs = cms.vint32( 812, 813 ),
+    addThisSelectedFEDs = cms.vint32( 1404 ),
     dRHcalRegion = cms.double( 0.3 ),
     dEtaPixelRegion = cms.double( 0.3 ),
     dPhiPixelRegion = cms.double( 0.3 ),
@@ -63271,7 +63271,7 @@ process.hltPreScoutingCaloOutputSmart = cms.EDFilter( "TriggerResultsFilter",
 )
 process.hltFEDSelectorL1 = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 813 )
+    fedList = cms.vuint32( 1404 )
 )
 process.hltPreScoutingPFOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),

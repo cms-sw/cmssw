@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V78 (CMSSW_8_0_5)
+# /dev/CMSSW_8_0_0/GRun/V79 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V78')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V79')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -58961,7 +58961,7 @@ fragment.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     invert = cms.bool( False ),
     period = cms.uint32( 4096 ),
     rawInput = cms.InputTag( "rawDataCollector" ),
-    fedId = cms.int32( 813 )
+    fedId = cms.int32( 1024 )
 )
 fragment.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG24 OR L1_SingleJet35 OR L1_SingleJet60 OR L1_SingleMuOpen OR L1_ZeroBias" ),
@@ -58997,7 +58997,7 @@ fragment.hltL1EventNumberUTCA = cms.EDFilter( "HLTL1NumberFilter",
     invert = cms.bool( False ),
     period = cms.uint32( 1048576 ),
     rawInput = cms.InputTag( "rawDataCollector" ),
-    fedId = cms.int32( 813 )
+    fedId = cms.int32( 1024 )
 )
 fragment.hltPreHcalUTCA = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
