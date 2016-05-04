@@ -12,6 +12,8 @@ muonL1MatcherParameters = cms.PSet(
     useState = cms.string("atVertex"), # 'innermost' and 'outermost' require the TrackExtra
     useSimpleGeometry = cms.bool(True), # just use a cylinder plus two disks.
     fallbackToME1 = cms.bool(False),    # If propagation to ME2 fails, propagate to ME1
+    useMB2inOverlap =  cms.bool(False)  # propagate to MB2 in overlap region (according to L1 experts OMTF uses MB2 as RF in all its coverage) 
+
     sortBy = cms.string("pt"),          # among compatible candidates, pick the highest pt one
 
     # Matching Criteria
@@ -39,4 +41,12 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
 
     # Write extra ValueMaps
     writeExtraInfo = cms.bool(True),
+
+    # Use stage2 L1 instead of legacy one
+    useStage2L1 = cms.bool(False),
+
+    # Min and Max BXs from l1t::BxVector (applies to stage 2 only)
+    firstBX = cms.int32(0),
+    lastBX  = cms.int32(0),
+
 )

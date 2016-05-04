@@ -238,3 +238,12 @@ def useL1MatchingWindowForSinglets(process):
         process.muonMatchHLTL1.maxDeltaEta   = 0.2
         process.muonMatchHLTL1.fallbackToME1 = True
 
+
+def useL1Stage2Candidates(process):
+    if hasattr(process, 'muonL1Info'):
+         process.muonL1Info.muonL1MatcherParametersl1PhiOffset = cms.double(1.25) # CB to be checked with experts
+         process.muonL1Info.muonL1MatcherParametersuseMB2inOverlap = cms.bool(True)
+         process.muonL1Info.useStage2L1 = cms.bool(True)
+         process.muonL1Info.preselection = cms.string("b")
+         
+
