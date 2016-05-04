@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake/V13 (CMSSW_8_0_4)
+# /dev/CMSSW_8_0_0/Fake/V14 (CMSSW_8_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V13')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V14')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
