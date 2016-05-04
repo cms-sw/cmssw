@@ -334,7 +334,9 @@ private:
   edm::LuminosityBlockNumber_t ev_lumi;
   edm::EventNumber_t ev_event;
 
-  //tracks
+  ////////////////////
+  // tracks
+  // (first) index runs through tracks
   std::vector<float> trk_px       ;
   std::vector<float> trk_py       ;
   std::vector<float> trk_pz       ;
@@ -363,11 +365,13 @@ private:
   std::vector<unsigned int> trk_stopReason;
   std::vector<short> trk_isHP    ;
   std::vector<int> trk_seedIdx ;
-  std::vector<std::vector<float> > trk_shareFrac;
-  std::vector<std::vector<int> > trk_simTrkIdx;
-  std::vector<std::vector<int> > trk_hitIdx;
-  std::vector<std::vector<int> > trk_hitType;
-  //sim tracks
+  std::vector<std::vector<float> > trk_shareFrac; // second index runs through matched TrackingParticles
+  std::vector<std::vector<int> > trk_simTrkIdx;   // second index runs through matched TrackingParticles
+  std::vector<std::vector<int> > trk_hitIdx;      // second index runs through hits
+  std::vector<std::vector<int> > trk_hitType;     // second index runs through hits
+  ////////////////////
+  // sim tracks
+  // (first) index runs through TrackingParticles
   std::vector<int>   sim_event    ;
   std::vector<int>   sim_bunchCrossing;
   std::vector<int>   sim_pdgId    ;
@@ -386,26 +390,28 @@ private:
   std::vector<unsigned int> sim_nLay;
   std::vector<unsigned int> sim_nPixelLay;
   std::vector<unsigned int> sim_n3DLay  ;
-  std::vector<std::vector<int> > sim_trkIdx  ;
-  std::vector<std::vector<float> > sim_shareFrac;
+  std::vector<std::vector<int> > sim_trkIdx;      // second index runs through matched tracks
+  std::vector<std::vector<float> > sim_shareFrac; // second index runs through matched tracks
   std::vector<int> sim_parentVtxIdx;
-  std::vector<std::vector<int> > sim_decayVtxIdx;
-  std::vector<std::vector<int> > sim_hitIdx;
-  std::vector<std::vector<int> > sim_hitType;
-  //pixels: reco and sim hits
+  std::vector<std::vector<int> > sim_decayVtxIdx; // second index runs through decay vertices
+  std::vector<std::vector<int> > sim_hitIdx;      // second index runs through induced reco hits
+  std::vector<std::vector<int> > sim_hitType;     // second index runs through induced reco hits
+  ////////////////////
+  // pixel hits
+  // (first) index runs through hits
   std::vector<short> pix_isBarrel ;
   std::vector<unsigned int> pix_lay      ;
   std::vector<unsigned int> pix_detId    ;
-  std::vector<std::vector<int> > pix_trkIdx;
-  std::vector<std::vector<int> > pix_seeIdx;
-  std::vector<std::vector<int> > pix_simTrkIdx;
-  std::vector<std::vector<int> > pix_particle ;
-  std::vector<std::vector<int> > pix_process  ;
-  std::vector<std::vector<float> > pix_xsim ;
-  std::vector<std::vector<float> > pix_ysim ;
-  std::vector<std::vector<float> > pix_zsim ;
-  std::vector<std::vector<float> > pix_eloss;
-  std::vector<std::vector<float> > pix_tof;
+  std::vector<std::vector<int> > pix_trkIdx;    // second index runs through tracks containing this hit
+  std::vector<std::vector<int> > pix_seeIdx;    // second index runs through seeds containing this hit
+  std::vector<std::vector<int> > pix_simTrkIdx; // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<int> > pix_particle;  // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<int> > pix_process;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_xsim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_ysim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_zsim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_eloss;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_tof;     // second index runs through TrackingParticles inducing this hit
   std::vector<float> pix_x    ;
   std::vector<float> pix_y    ;
   std::vector<float> pix_z    ;
@@ -417,22 +423,24 @@ private:
   std::vector<float> pix_zx   ;
   std::vector<float> pix_radL ;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> pix_bbxi ;
-  //strips: reco and sim hits
+  ////////////////////
+  // strip hits
+  // (first) index runs through hits
   std::vector<short> str_isBarrel ;
   std::vector<short> str_isStereo ;
   std::vector<unsigned int> str_det      ;
   std::vector<unsigned int> str_lay      ;
   std::vector<unsigned int> str_detId    ;
-  std::vector<std::vector<int> > str_trkIdx;
-  std::vector<std::vector<int> > str_seeIdx;
-  std::vector<std::vector<int> > str_simTrkIdx;
-  std::vector<std::vector<int> > str_particle ;
-  std::vector<std::vector<int> > str_process  ;
-  std::vector<std::vector<float> > str_xsim ;
-  std::vector<std::vector<float> > str_ysim ;
-  std::vector<std::vector<float> > str_zsim ;
-  std::vector<std::vector<float> > str_eloss;
-  std::vector<std::vector<float> > str_tof  ;
+  std::vector<std::vector<int> > str_trkIdx;    // second index runs through tracks containing this hit
+  std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hitw
+  std::vector<std::vector<int> > str_simTrkIdx; // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<int> > str_particle;  // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<int> > str_process;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_xsim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_ysim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_zsim;    // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_eloss;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_tof;     // second index runs through TrackingParticles inducing this hit
   std::vector<float> str_x    ;
   std::vector<float> str_y    ;
   std::vector<float> str_z    ;
@@ -444,14 +452,16 @@ private:
   std::vector<float> str_zx   ;
   std::vector<float> str_radL ;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> str_bbxi ;
-  //strip matched hits: reco hits
+  ////////////////////
+  // strip matched hits
+  // (first) index runs through hits
   std::vector<short> glu_isBarrel ;
   std::vector<unsigned int> glu_det      ;
   std::vector<unsigned int> glu_lay      ;
   std::vector<unsigned int> glu_detId    ;
   std::vector<int> glu_monoIdx  ;
   std::vector<int> glu_stereoIdx;
-  std::vector<std::vector<int> > glu_seeIdx;
+  std::vector<std::vector<int> > glu_seeIdx; // second index runs through seeds containing this hit
   std::vector<float> glu_x    ;
   std::vector<float> glu_y    ;
   std::vector<float> glu_z    ;
@@ -463,14 +473,17 @@ private:
   std::vector<float> glu_zx   ;
   std::vector<float> glu_radL ;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> glu_bbxi ;
-  //beam spot
+  ////////////////////
+  // beam spot
   float bsp_x;
   float bsp_y;
   float bsp_z;
   float bsp_sigmax;
   float bsp_sigmay;
   float bsp_sigmaz;
-  //seeds
+  ////////////////////
+  // seeds
+  // (first) index runs through seeds
   std::vector<short> see_fitok     ;
   std::vector<float> see_px       ;
   std::vector<float> see_py       ;
@@ -492,15 +505,17 @@ private:
   std::vector<unsigned int> see_nGlued  ;
   std::vector<unsigned int> see_nStrip  ;
   std::vector<unsigned int> see_algo    ;
-  std::vector<std::vector<float> > see_shareFrac;
-  std::vector<std::vector<int> > see_simTrkIdx;
-  std::vector<std::vector<int> > see_hitIdx;
-  std::vector<std::vector<int> > see_hitType;
-  //seed algo offset
+  std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
+  std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
+  std::vector<std::vector<int> > see_hitIdx;      // second index runs through hits
+  std::vector<std::vector<int> > see_hitType;     // second index runs through hits
+  //seed algo offset, index runs through iterations
   std::vector<unsigned int> see_offset  ;
 
 
+  ////////////////////
   // Vertices
+  // (first) index runs through vertices
   std::vector<float> vtx_x;
   std::vector<float> vtx_y;
   std::vector<float> vtx_z;
@@ -511,17 +526,19 @@ private:
   std::vector<float> vtx_chi2;
   std::vector<short> vtx_fake;
   std::vector<short> vtx_valid;
-  std::vector<std::vector<int> > vtx_trkIdx;
+  std::vector<std::vector<int> > vtx_trkIdx; // second index runs through tracks used in the vertex fit
 
+  ////////////////////
   // Tracking vertices
+  // (first) index runs through TrackingVertices
   std::vector<int>   simvtx_event;
   std::vector<int>   simvtx_bunchCrossing;
   std::vector<unsigned int> simvtx_processType; // only from first SimVertex of TrackingVertex
   std::vector<float> simvtx_x;
   std::vector<float> simvtx_y;
   std::vector<float> simvtx_z;
-  std::vector<std::vector<int> > simvtx_sourceSimIdx;
-  std::vector<std::vector<int> > simvtx_daughterSimIdx;
+  std::vector<std::vector<int> > simvtx_sourceSimIdx;   // second index runs through source TrackingParticles
+  std::vector<std::vector<int> > simvtx_daughterSimIdx; // second index runs through daughter TrackingParticles
   std::vector<int> simpv_idx;
 };
 
