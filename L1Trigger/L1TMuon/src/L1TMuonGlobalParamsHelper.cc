@@ -194,7 +194,29 @@ void L1TMuonGlobalParamsHelper::setFONegMatchQualLUTMaxDR (double maxDR, double 
   pnodes_[fONegMatchQual].dparams_.push_back(fPhi);
 
 
-void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem trgSys, const std::string& procId) {
+void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const std::string& processorId)
+{
+  std::string procId = processorId;
+  // if the procId is an empty string use the one from the trigSystem (the uGMT only has one processor)
+  if (procesorId == "" ) {
+    const std::map<std::string, std::string>& procRoleMap = trgSys.getProcRole();
+    if (procRoleMap.size() != 1) {
+      if (procRoleMap.size() == 0) {
+        edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
+      } else {
+        edm::LogError("uGMT config from online") << "More than one processor id found for uGMT HW configuration.";
+      }
+    } else {
+      processorId = procRoleMap.cbegin()->first;
+    }
+  }
+
+  // FIXME the fwVersion needs to be set from somewhere else
+  // Perhaps directly in the O2O ESProducer
+  setFwVersion(1);
+
+  // get the settings and masks for the processor id
+
   std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
   std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
   //for (auto& it: settings) {

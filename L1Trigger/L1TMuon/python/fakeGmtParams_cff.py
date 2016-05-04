@@ -18,8 +18,11 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
 
     # prefix for uGMT keys in DB
     uGmtDbName = cms.string('UGMT'),
+
     # id for uGMT settings
     uGmtProcessorId = cms.string('ugmt_processor'),
+    # get configuration from DB and ignore values below this one
+    configFromDb = cms.bool(True),
 
     # get configuration from DB and ignore values in this file
     configFromDb = cms.bool(True),
