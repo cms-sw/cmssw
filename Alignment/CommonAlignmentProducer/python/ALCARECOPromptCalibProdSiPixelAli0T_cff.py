@@ -24,7 +24,8 @@ SiPixelAliHighPuritySelector = AlignmentTrackSelector.clone(
         #filter = True,
         src = 'ALCARECOTkAlMinBias',
         trackQualities = ["highPurity"],
-        pMin = 4.,
+		pMin = 4.9, #for 0T Collisions
+		pMax = 5.1, #for 0T Collisions
         )
 
 
@@ -34,8 +35,9 @@ from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import Alignme
 SiPixelAliTrackSelector = AlignmentTrackSelector.clone(
 	src = 'SiPixelAliTrackFitter',
 	applyBasicCuts = True,
-	pMin = 8.,
-	ptMin = 1.0,
+	pMin = 4.9,  #for 0T Collisions                                                                            
+	pMax = 5.1, #for 0T Collisions
+	ptMin = 0., #for 0T Collisions
 	etaMin = -999.,
 	etaMax = 999.,
 	nHitMin = 8,
@@ -100,10 +102,9 @@ SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
-      #process.BrokenLinesBzeroTrajectoryFactory
-      BrokenLinesTrajectoryFactory
+      BrokenLinesBzeroTrajectoryFactory # For 0T collisions
       )
-
+SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MomentumEstimate = 5 #for 0T Collisions
 
 
 
