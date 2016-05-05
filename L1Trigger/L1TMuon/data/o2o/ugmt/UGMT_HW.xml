@@ -1,0 +1,64 @@
+<system id="ugmt" creator="ugmt::hardware::UGMTSystem">
+
+  <crate id="Vadatech"
+         location="P5 s1e04-43"
+         description="P5 uGMT system"/>
+
+  <processor id="ugmt_processor"
+       creator="ugmt::hardware::UGMTProcessor"
+       hw-type="MP7 XE"
+       role="processors"
+       uri="chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-09:50001"
+       address-table="file:///cmsnfshome0/nfshome0/ugmtts/test/address_tables/mp7xe_infra.xml"
+       crate="Vadatech"
+       slot="9"
+       >
+    <rx-port name="CaloL2_[01:29]" pid="[08:36]"/>
+    <rx-port name="EMTF+_[01:07]"  pid="[36:42]"/>
+    <rx-port name="OMTF+_[01:07]"  pid="[42:48]"/>
+    <rx-port name="BMTF_[01:13]"   pid="[48:60]"/>
+    <rx-port name="OMTF-_[01:07]"  pid="[60:66]"/>
+    <rx-port name="EMTF-_[01:07]"  pid="[66:72]"/>
+
+    <tx-port name="uGT_[01:05]" pid="[00:04]"/>
+  </processor>
+
+  <daqttc-mgr 
+      id="ugmt_amc13"
+      creator="swatch::amc13::AMC13Manager"
+      role="daqttcs"
+      crate="Vadatech"
+      slot="13"
+      uri-t1="chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-13-t1.cms:50001"
+      address-table-t1="file:///opt/cactus/etc/amc13/AMC13XG_T1.xml"
+      uri-t2="chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-13-t2.cms:50001"
+      address-table-t2="file:///opt/cactus/etc/amc13/AMC13XG_T2.xml"
+      fed-id="1402"
+      />
+
+  <connected-fed id="1385">
+    <port id="ugmt_processor.inputPorts.EMTF+_[01:07]"/>
+  </connected-fed>
+
+  <connected-fed id="1381">
+    <port id="ugmt_processor.inputPorts.OMTF+_[01:07]"/>
+  </connected-fed>
+
+  <connected-fed id="1376">
+    <port id="ugmt_processor.inputPorts.BMTF_[01:07]"/>
+  </connected-fed>
+
+  <connected-fed id="1377">
+    <port id="ugmt_processor.inputPorts.BMTF_[07:13]"/>
+  </connected-fed>
+
+  <connected-fed id="1380">
+    <port id="ugmt_processor.inputPorts.OMTF-_[01:07]"/>
+  </connected-fed>
+
+  <connected-fed id="1384">
+    <port id="ugmt_processor.inputPorts.EMTF-_[01:07]"/>
+  </connected-fed>
+
+</system>
+
