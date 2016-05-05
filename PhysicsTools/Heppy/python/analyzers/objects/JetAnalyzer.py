@@ -130,7 +130,7 @@ class JetAnalyzer( Analyzer ):
         if self.cfg_ana.copyJetsByValue: 
           import ROOT
           #from ROOT.heppy import JetUtils
-          allJets = map(lambda j:Jet(ROOT.heppy.JetUtils.copyJet(ROOT.edm.ProductID(),j,0)), self.handles['jets'].product())  #copy-by-value is safe if JetAnalyzer is ran more than once
+          allJets = map(lambda j:Jet(ROOT.heppy.JetUtils.copyJet(j)), self.handles['jets'].product())  #copy-by-value is safe if JetAnalyzer is ran more than once
         else: 
           allJets = map(Jet, self.handles['jets'].product()) 
     
