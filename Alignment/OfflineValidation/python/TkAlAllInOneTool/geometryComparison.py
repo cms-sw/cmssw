@@ -154,8 +154,8 @@ class GeometryComparison(GenericValidation):
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
                      "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\",\".oO[plotOnlyGlobal]Oo.\",\".oO[plotPng]Oo.\""+y_ranges+")'\n"
-		     "rfcp "+path+"/TkAl3DVisualization_.oO[name]Oo..C .\n"
-		     "root -l -b -q TkAl3DVisualization_.oO[name]Oo..C+\n")
+		     "rfcp "+path+"/TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C .\n"
+		     "root -l -b -q TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C+\n")
                 if  self.copyImages:
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
@@ -239,9 +239,9 @@ class GeometryComparison(GenericValidation):
                         ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
 		   repMap["runComparisonScripts"] += \
                        ("find . "
-                        "-maxdepth 1 -name \".oO[name]Oo..Visualization_rotated.gif\" -print | xargs -I {} bash "
+                        "-maxdepth 1 -name \".oO[common]Oo._.oO[name]Oo..Visualization_rotated.gif\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
-                        ".Comparison_common"+name+"_Images/.oO[name]Oo..Visualization.gif\"\n")
+                        ".Comparison_common"+name+"_Images/.oO[common]Oo._.oO[name]Oo..Visualization.gif\"\n")
 
                 resultingFile = replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./compared%s_"
                                               ".oO[name]Oo..root"%name), repMap)
@@ -285,7 +285,7 @@ class GeometryComparison(GenericValidation):
 
         #~ print configTemplates.scriptTemplate
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap )}
-	files = {replaceByMap("TkAl3DVisualization_.oO[name]Oo..C", repMap ): replaceByMap(configTemplates.visualizationTrackerTemplate, repMap )}
+	files = {replaceByMap("TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C", repMap ): replaceByMap(configTemplates.visualizationTrackerTemplate, repMap )}
 	self.createFiles(files, path)
         return GenericValidation.createScript(self, scripts, path)
 
