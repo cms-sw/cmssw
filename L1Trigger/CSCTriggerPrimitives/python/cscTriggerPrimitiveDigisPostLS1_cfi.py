@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+print " ######################################################################################################### "
+print " # WARNING: the module L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi is deprecated. # "
+print " # Please import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi                             # "
+print " ######################################################################################################### "
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
