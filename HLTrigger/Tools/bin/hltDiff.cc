@@ -1042,17 +1042,32 @@ private:
       }
     }
 
+    // Styling the histograms
+    for (const auto& nameHisto : m_histo) {
+      const std::string name = nameHisto.first;
+      TH1* histo = nameHisto.second;
+      if (name.find("gained") != std::string::npos || name.find("changed") != std::string::npos) {
+        if (name.find("frac") != std::string::npos) 
+          histo->GetYaxis()->SetRangeUser(0.0, 1.0);
+      }
+      if (name.find("lost") != std::string::npos) {
+        if (name.find("frac") != std::string::npos) 
+          histo->GetYaxis()->SetRangeUser(-1.0, 0.0);
+      }
+    }
+
     // Storing histograms to a ROOT file
     std::string file_name = json.output_filename_base(this->run)+=".root";
-    TFile out_file(file_name.c_str(), "RECREATE");
+    TFile* out_file = new TFile(file_name.c_str(), "RECREATE");
     // Storing the histograms is a proper folder according to the DQM convention
     char savePath[1000];
-    sprintf(savePath, "/DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
-    out_file.mkdir(savePath);
-    out_file.cd(savePath);
+    sprintf(savePath, "DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
+    out_file->mkdir(savePath);
+    gDirectory->cd(savePath);
+    gDirectory->Write();
     for (const auto& nameHisto : m_histo)
       nameHisto.second->Write(nameHisto.first.c_str());
-    out_file.Close();
+    out_file->Close();
 
     return file_name;
   }
