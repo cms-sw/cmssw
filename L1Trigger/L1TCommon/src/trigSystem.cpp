@@ -287,7 +287,7 @@ bool trigSystem::isMasked(const std::string& processor, const std::string& id)
 			isMasked = true;
 			break;
 		}
-    }
+    	}
 
 	edm::LogInfo ("l1t::trigSystem::isMasked") << "Returning " << isMasked << " for processor " << processor << " and port " << id;
 	return isMasked;

@@ -18,7 +18,7 @@ procRole_(procRole)
 		{
 			std::string delim(","); //TODO: should be read dynamically
 			std::vector<std::string> vals;
-			if ( !parse ( std::string(erSp_(value_, delim)+delim).c_str(),
+			if ( !parse ( value_.c_str(),
 			(
 				  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
 			), boost::spirit::classic::nothing_p ).full )
@@ -51,32 +51,35 @@ type_("table"),
 id_(id),
 procRole_(procRole)
 {
-	if ( !parse ( std::string(erSp_(columns, delim)+delim).c_str(),
-	(
-		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableColumns_ ) ] % delim.c_str() )
-	), boost::spirit::classic::nothing_p ).full )
-	{  	
-		throw std::runtime_error ("Wrong value format: " + columns);
-	}
+	str2VecStr_(columns, delim, tableColumns_);
+	// if ( !parse ( columns.c_str(),
+	// (
+	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableColumns_ ) ] % delim.c_str() )
+	// ), boost::spirit::classic::nothing_p ).full )
+	// {  	
+	// 	throw std::runtime_error ("Wrong value format: " + columns);
+	// }
+	str2VecStr_(types, delim, tableTypes_);
 
-	if ( !parse ( std::string(erSp_(types, delim)+delim).c_str(),
-	(
-		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableTypes_ ) ] % delim.c_str() )
-	), boost::spirit::classic::nothing_p ).full )
-	{  	
-		throw std::runtime_error ("Wrong value format: " + types);
-	}
+	// if ( !parse ( types.c_str(),
+	// (
+	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableTypes_ ) ] % delim.c_str() )
+	// ), boost::spirit::classic::nothing_p ).full )
+	// {  	
+	// 	throw std::runtime_error ("Wrong value format: " + types);
+	// }
 
 	for (auto it=rows.begin(); it!=rows.end(); it++)
 	{
 		std::vector<std::string> aRow;
-		if ( !parse ( std::string(erSp_(*it, delim)+delim).c_str(),
-		(
-			  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( aRow ) ] % delim.c_str() )
-		), boost::spirit::classic::nothing_p ).full )
-		{  	
-			throw std::runtime_error ("Wrong value format: " + *it);
-		}
+		str2VecStr_(*it, delim, aRow);
+		// if ( !parse ( *it.c_str(),
+		// (
+		// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( aRow ) ] % delim.c_str() )
+		// ), boost::spirit::classic::nothing_p ).full )
+		// {  	
+		// 	throw std::runtime_error ("Wrong value format: " + *it);
+		// }
 		tableRow temp(aRow);
 		temp.setRowTypes(tableTypes_);
 		temp.setRowColumns(tableColumns_);
@@ -96,18 +99,21 @@ l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::s
 	if ( type_.find("vector:uint") == std::string::npos )
 		throw std::runtime_error("Cannot build LUT from type: " + type_ + ". Only vector:uint is allowed.");
 
+	if ( delim.empty() )
+		delim = ",";
+	
 	std::vector<unsigned int> vec = getVector<unsigned int>(delim);
 	std::stringstream ss;
         ss << "#<header> V1 " << addrWidth << " " << dataWidth << " </header>" << std::endl;
         size_t i = 0;
-	for (unsigned int i=0; i < vec.size() && i < (size_t)(1<<addrWidth); ++i)
+	for (; i < vec.size() && i < (size_t)(1<<addrWidth); ++i) {
 		ss << i << " " << vec[i] << std::endl;
-
-    // add padding to 2^addrWidth rows
-    if (padding >= 0 && i < (size_t)(1<<addrWidth)) 
-    {
-		for (; i < (size_t)(1<<addrWidth); ++i)
+	}
+        // add padding to 2^addrWidth rows
+        if (padding >= 0 && i < (size_t)(1<<addrWidth)) {
+		for (; i < (size_t)(1<<addrWidth); ++i) {
 			ss << i << " " << padding << std::endl;
+		}
 	}
 	
 	l1t::LUT lut;
@@ -125,20 +131,22 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
-void setting::addTableRow(const std::string& row, const std::string& delim)
+void setting::addTableRow(const std::string& row, std::string delim)
 {
 	if (type_.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot add a table row in type: " + type_ + ". Type is not table.");
 
-	
+	if ( delim.empty() )
+		delim = std::string(",");
 	std::vector<std::string> vals;
-	if ( !parse ( std::string(erSp_(row, delim)+delim).c_str(),
-	(
-		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
-	), boost::spirit::classic::nothing_p ).full )
-	{   	
-		throw std::runtime_error ("Wrong value format: " + row);
-	}
+	str2VecStr_(row, delim, vals);
+	// if ( !parse ( row.c_str(),
+	// (
+	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
+	// ), boost::spirit::classic::nothing_p ).full )
+	// {   	
+	// 	throw std::runtime_error ("Wrong value format: " + row);
+	// }
 	tableRow tempRow(vals);
 	tempRow.setRowTypes(tableTypes_);
 	tempRow.setRowColumns(tableColumns_);
@@ -151,13 +159,15 @@ void setting::setTableTypes(const std::string& types)
 		throw std::runtime_error("You cannot set table types in type: " + type_ + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
 
-	if ( !parse ( std::string(types+delim).c_str(),
-	(
-		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableTypes_ ) ] % delim.c_str() )
-	), boost::spirit::classic::nothing_p ).full )
-	{  	
-		throw std::runtime_error ("Wrong value format: " + types);
-	}
+	str2VecStr_(types, delim, tableTypes_);
+
+	// if ( !parse ( std::string(types+delim).c_str(),
+	// (
+	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableTypes_ ) ] % delim.c_str() )
+	// ), boost::spirit::classic::nothing_p ).full )
+	// {  	
+	// 	throw std::runtime_error ("Wrong value format: " + types);
+	// }
 }
 
 void setting::setTableColumns(const std::string& cols)
@@ -165,14 +175,16 @@ void setting::setTableColumns(const std::string& cols)
 	if (type_.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot set table columns in type: " + type_ + ". Type is not table.");
 	std::string delim(","); //TODO: should be read dynamically
+
+	str2VecStr_(cols, delim, tableColumns_);
 	
-	if ( !parse ( std::string(erSp_(cols, delim)+delim).c_str(),
+	/*if ( !parse ( cols.c_str(),
 	(
 		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( tableColumns_ ) ] % delim.c_str() )
 	), boost::spirit::classic::nothing_p ).full )
 	{  	
 		throw std::runtime_error ("Wrong value format: " + cols);
-	}
+	}*/
 }
 
 std::string tableRow::getRowAsStr()
@@ -184,12 +196,23 @@ std::string tableRow::getRowAsStr()
 	return str.str();
 }
 
-std::string setting::erSp_(std::string str, const std::string& delim)
+void setting::str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<std::string>& aVec)
 {
-	if ( delim != " " )
-		str.erase( std::remove_if( str.begin(), str.end(), ::isspace ), str.end() );
-    
-    return str;
+	if ( !parse ( aStr.c_str(),
+	(
+		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( aVec ) ] % delim.c_str() )
+	), boost::spirit::classic::nothing_p ).full )
+	{  	
+		throw std::runtime_error ("Wrong value format: " + aStr);
+	}
+
+	for(auto it = aVec.begin(); it != aVec.end(); it++) 
+	{
+		while (*(it->begin()) == ' ')
+			it->erase(it->begin());
+		while (*(it->end()-1) == ' ')
+            it->erase(it->end()-1);
+	}
 }
 
 }
