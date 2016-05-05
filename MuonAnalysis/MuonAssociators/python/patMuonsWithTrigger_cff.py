@@ -241,9 +241,11 @@ def useL1MatchingWindowForSinglets(process):
 
 def useL1Stage2Candidates(process):
     if hasattr(process, 'muonL1Info'):
-         process.muonL1Info.muonL1MatcherParametersl1PhiOffset = cms.double(1.25) # CB to be checked with experts
-         process.muonL1Info.muonL1MatcherParametersuseMB2inOverlap = cms.bool(True)
+         process.muonL1Info.l1PhiOffset = cms.double(1.25) # CB to be checked with experts
+         process.muonL1Info.useMB2InOverlap = cms.bool(True)
          process.muonL1Info.useStage2L1 = cms.bool(True)
-         process.muonL1Info.preselection = cms.string("b")
+         process.muonL1Info.preselection = cms.string("")
+         process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
+
          
 

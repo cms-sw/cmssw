@@ -110,24 +110,29 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<l1t::MuonBxCollection> l1tBX;
   
     std::vector<l1t::Muon> l1ts;
-    std::map<size_t,int> bxMap;
+    std::vector<size_t> bxIdxs;
 
+    size_t minBxIdx = 0;
+    size_t l1size = 0;
     
     iEvent.getByToken(recoToken_, reco);
 
-    size_t l1size = 0;
     if (useStage2L1_)
       {
 	iEvent.getByToken(l1tToken_, l1tBX);
 	
 	int minBX = max(firstBX_,l1tBX->getFirstBX());
 	int maxBX = min(lastBX_,l1tBX->getLastBX());
+
+	minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
 	std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
-	for (int ibx = minBX; ibx <= maxBX; ++ibx)
+
+	l1size = l1ts.size();
+
+	for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
 	  {
-	    std::vector<l1t::Muon>::const_iterator bxBegin  = l1tBX->begin(ibx);
-	    bxMap[l1tBX->key(bxBegin)] = ibx;
-	    l1size = l1ts.size();
+	    bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
+	    std::cout << (l1tBX->end(ibx) - l1tBX->begin()) << " " << ibx << std::endl; 
 	  }
       }
     else
@@ -174,21 +179,23 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	      charge = l1.charge();
 	      p4     = l1.polarP4();
 	    }
-	    
+
             if (isSelected[match] == -1) { // copy to output if needed
                 isSelected[match] = l1Out->size();
                 l1Out->push_back(PATPrimitive(p4));
                 l1Out->back().addFilterLabel(labelL1_);
                 l1Out->back().setCharge(charge);
             }
+
             fullMatches[i] = isSelected[match]; // index in the output collection
 	    
 	    if (useStage2L1_) {
 	      const l1t::Muon & l1t = l1ts[match];
 	      quality[i]  = l1t.hwQual();
-	      bx[i] = bxMap.upper_bound(i)->second; 
+	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), minBxIdx + match) - bxIdxs.begin()); 
 	      isolated[i] = l1t.hwIso();
-	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(bxMap.upper_bound(i)->first + match));
+	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(minBxIdx + match));
+	      std::cout << "Filling match: " << match << " BX : " << bx[i] << " " << (minBxIdx + match) << std::endl;
 	    }
 	    else {
 	      const L1MuGMTCand & gmt = (*l1s)[match].gmtMuonCand();
@@ -209,6 +216,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     propFiller.fill();
     iEvent.put(propAss, "propagatedReco");
 
+    std::cout << "pippo" << std::endl;
+
     auto_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
     PATTriggerAssociation::Filler fullFiller(*fullAss);
     fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
@@ -222,8 +231,14 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         storeExtraInfo(iEvent, reco, isolated,  "isolated");
         storeExtraInfo(iEvent, reco, quality,   "quality");
         storeExtraInfo(iEvent, reco, l1rawMatches,   "");
-        storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
+	if (useStage2L1_)
+	  storeExtraInfo(iEvent, l1tBX,  whichRecoMatch, "l1ToReco"); //CB che a sto punto scazza ...
+	else
+	  storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
     }
+
+    std::cout << "pluto" << std::endl;
+
 }
 
 template<typename Hand, typename T>

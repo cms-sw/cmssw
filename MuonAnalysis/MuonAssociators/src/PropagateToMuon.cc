@@ -62,11 +62,11 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
         endcapDiskPos_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->forwardCSCLayers()[i]->surface());
         endcapDiskNeg_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->backwardCSCLayers()[i]->surface());
         endcapRadii_[i] = std::make_pair(endcapDiskPos_[i]->innerRadius(), endcapDiskPos_[i]->outerRadius());
-        std::cout << "L1MuonMatcher: endcap " << i << " Z = " << endcapDiskPos_[i]->position().z() << ", radii = " << endcapRadii_[i].first << "," << endcapRadii_[i].second << std::endl;
+        //std::cout << "L1MuonMatcher: endcap " << i << " Z = " << endcapDiskPos_[i]->position().z() << ", radii = " << endcapRadii_[i].first << "," << endcapRadii_[i].second << std::endl;
     }
 
     if (useMB2_ && useMB2InOverlap_)
-      barrelHalfLength_ = endcapDiskPos_[0]->position().z() - endcapDiskNeg_[0]->position().z();
+      barrelHalfLength_ = endcapDiskPos_[2]->position().z();
 }
 
 FreeTrajectoryState 

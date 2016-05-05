@@ -179,6 +179,8 @@ class L1MuonMatcherAlgo {
     private:
         PropagateToMuon prop_;
 
+	bool useStage2L1_;
+
         typedef StringCutObjectSelector<l1extra::L1MuonParticle> L1Selector;
         /// Preselection cut to apply to L1 candidates before matching
         L1Selector preselectionCutL1_;
