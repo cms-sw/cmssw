@@ -12,6 +12,7 @@ namespace l1t {
 
       regionalMuonCandToken_ = cc.consumes<RegionalMuonCandBxCollection>(tag);
       EMTFOutputToken_   = cc.consumes<EMTFOutputCollection>(tag);
+      EMTFLCTToken_ = cc.consumes<CSCCorrelatedLCTDigiCollection>(tag);
     }
   }
 }

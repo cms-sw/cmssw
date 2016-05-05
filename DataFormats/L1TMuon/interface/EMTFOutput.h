@@ -71,6 +71,16 @@ namespace l1t {
     const emtf::EventTrailer GetEventTrailer()   const { return EventTrailer;    };
     const emtf::MTF7Trailer GetMTF7Trailer()     const { return MTF7Trailer;     };
     const emtf::AMC13Trailer GetAMC13Trailer()   const { return AMC13Trailer;    };
+    const emtf::AMC13Header*   PtrAMC13Header()   const { return & AMC13Header;   }
+    const emtf::MTF7Header*    PtrMTF7Header()    const { return & MTF7Header;    }
+    const emtf::EventHeader*   PtrEventHeader()   const { return & EventHeader;   }
+    const emtf::Counters*      PtrCounters()      const { return & Counters;      }
+    const emtf::MECollection*  PtrMECollection()  const { return & MECollection;  }
+    const emtf::RPCCollection* PtrRPCCollection() const { return & RPCCollection; }
+    const emtf::SPCollection*  PtrSPCollection()  const { return & SPCollection;  }
+    const emtf::EventTrailer*  PtrEventTrailer()  const { return & EventTrailer;  }
+    const emtf::MTF7Trailer*   PtrMTF7Trailer()   const { return & MTF7Trailer;   }
+    const emtf::AMC13Trailer*  PtrAMC13Trailer()  const { return & AMC13Trailer;  }
     const int Format_Errors()                    const { return format_errors;   };
     const uint64_t Dataword()                    const { return dataword;        };
     

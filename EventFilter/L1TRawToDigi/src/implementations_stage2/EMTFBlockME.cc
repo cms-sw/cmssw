@@ -58,6 +58,28 @@ namespace l1t {
 
       }
 
+      // Converts station, CSC_ID, sector, subsector, and neighbor from the ME output
+      std::vector<int> convert_ME_location(int _station, int _csc_ID, int _sector) {
+        int new_sector = _sector;
+        int new_csc_ID = _csc_ID; // Until FW update on 05.05.16, need to add "+1" to shift from 0,1,2... convention to 1,2,3...
+        if      (_station == 0) { int arr[] = {       1, new_csc_ID, new_sector,  1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (_station == 1) { int arr[] = {       1, new_csc_ID, new_sector,  2, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (_station <= 4) { int arr[] = {_station, new_csc_ID, new_sector, -1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (_station == 5) new_sector = (_sector != 1) ? _sector-1 : 6;
+        else { int arr[] = {_station, _csc_ID, _sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
+
+        if      (new_csc_ID == 1) { int arr[] = {1, 3, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 2) { int arr[] = {1, 6, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 3) { int arr[] = {1, 9, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 4) { int arr[] = {2, 3, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 5) { int arr[] = {2, 9, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 6) { int arr[] = {3, 3, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 7) { int arr[] = {3, 9, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 8) { int arr[] = {4, 3, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else if (new_csc_ID == 9) { int arr[] = {4, 9, new_sector, -1, 1}; std::vector<int> vec(arr, arr+5); return vec; }
+        else                   { int arr[] = {_station, _csc_ID, _sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
+      }
+
 
       bool MEBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
@@ -81,7 +103,10 @@ namespace l1t {
 	EMTFOutputCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
 	int iOut = res->size() - 1;
-	if (ME_.Format_Errors() > 0) goto write;
+	// if (ME_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
+
+	CSCCorrelatedLCTDigiCollection* res_LCT;
+	res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
 
 	////////////////////////////
 	// Unpack the ME Data Record
@@ -113,9 +138,59 @@ namespace l1t {
 
 	// ME_.set_dataword            ( uint64_t dataword);
 
-      write:
+	int _endcap = ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : 2;
+
+	// Compute station, CSC ID, sector, subsector, and neighbor
+	std::vector<int> conv_vals = convert_ME_location( ME_.Station(), ME_.CSC_ID(),
+							  (res->at(iOut)).PtrEventHeader()->Sector() );
+	int tmp_station   = conv_vals.at(0);
+	int tmp_csc_ID    = conv_vals.at(1);
+	int tmp_sector    = conv_vals.at(2);
+	int tmp_subsector = conv_vals.at(3);
+	int tmp_neighbor  = conv_vals.at(4);
+
+	// Compute ring number
+	int tmp_ring = -99;
+	if (tmp_station > 1) {
+	  if (tmp_csc_ID < 4) tmp_ring = 1;
+	  else                tmp_ring = 2;
+	}
+	else {
+	  if      (tmp_csc_ID < 4) tmp_ring = 1;
+	  else if (tmp_csc_ID < 7) tmp_ring = 2;
+	  else                     tmp_ring = 3;
+	}
+
+	// Compute chamber number
+	int tmp_chamber = -99;
+	if (tmp_station == 1) {
+	  tmp_chamber = ((tmp_sector-1) * 6) + tmp_csc_ID + 2; // Chamber offset of 2: First chamber in sector 1 is chamber 3
+	  if (tmp_ring == 2)       tmp_chamber -= 3;
+	  if (tmp_ring == 3)       tmp_chamber -= 6;
+	  if (tmp_subsector == 2)  tmp_chamber += 3;
+	  if (tmp_chamber > 36)    tmp_chamber -= 36;
+	}
+	else if (tmp_ring == 1) {
+	  tmp_chamber = ((tmp_sector-1) * 3) + tmp_csc_ID + 1; // Chamber offset of 1: First chamber in sector 1 is chamber 2
+	  if (tmp_chamber > 18) tmp_chamber -= 18;
+	}
+	else if (tmp_ring == 2) {
+	  tmp_chamber = ((tmp_sector-1) * 6) + tmp_csc_ID - 3 + 2; // Chamber offset of 2: First chamber in sector 1 is chamber 3
+	  if (tmp_chamber > 36) tmp_chamber -= 36;
+	}
+
+	CSCDetId Id_ = CSCDetId( _endcap, tmp_station, tmp_ring, tmp_chamber );
+	// Unsure of how to fill "trknmb" (first field) or "bx0" (before SE) - for now filling with 1 and 0. - AWB 05.05.16
+	// mpclink = 0 (after Tbin_num) indicates unsorted.
+	CSCCorrelatedLCTDigi LCT_ = CSCCorrelatedLCTDigi( 1, ME_.VP(), ME_.Quality(), ME_.Key_wire_group(), 
+							  ME_.CLCT_key_half_strip(), ME_.CLCT_pattern(), ME_.LR(),
+							  ME_.Tbin_num() + 3, 0, 0, ME_.SE(), tmp_csc_ID );
+
+	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_ME(ME_);
+	if ( tmp_neighbor != 1 ) // Don't write duplicate LCTs from adjacent sectors
+	  res_LCT->insertDigi( Id_, LCT_ );
 
 	// Finished with unpacking one ME Data Record
 	return true;

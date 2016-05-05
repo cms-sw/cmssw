@@ -61,7 +61,6 @@ namespace l1t {
 	//Check Format                                                                                                                                                        
 	if(GetHexBits(SP1a, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1a are incorrect"; }
 	if(GetHexBits(SP1b, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1b are incorrect"; }
-	if(GetHexBits(SP1b, 8, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1b are incorrect"; }
 	if(GetHexBits(SP1c, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1c are incorrect"; }
 	if(GetHexBits(SP1d, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1d are incorrect"; }
 	if(GetHexBits(SP2a, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP2a are incorrect"; }
@@ -105,7 +104,7 @@ namespace l1t {
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
 	RegionalMuonCand mu_;
 	
-	if (SP_.Format_Errors() > 0) goto write;
+	// if (SP_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
 
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
@@ -154,12 +153,13 @@ namespace l1t {
 	// SP_.set_dataword        ( uint64_t dataword );
 	// mu_.set_dataword        ( uint64_t dataword );
 
-      write:
+	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_SP(SP_);
 
-	res_cand->setBXRange(0, 0);
-	res_cand->push_back(0, mu_);
+        // TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
+	res_cand->setBXRange(-3, 4);
+        res_cand->push_back(SP_.TBIN_num() - 3, mu_);
 
 	// int iOut_cand = res_cand->size(0) - 1;
 	// (res_cand->at(iOut_cand)).setBXRange(0, 0);
