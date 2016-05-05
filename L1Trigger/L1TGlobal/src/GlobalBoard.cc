@@ -430,7 +430,7 @@ void l1t::GlobalBoard::runGTL(
      m_uGtAlgBlk.reset();
      m_algInitialOr=false;
      m_algPrescaledOr=false;
-     m_algFinalOrPreVeto=false;
+     m_algIntermOr=false;
      m_algFinalOr=false;
      m_algFinalOrVeto=false;
      
@@ -827,6 +827,43 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     m_uGtAlgBlk.copyInitialToInterm();
     
 
+   // ----------------------------------------------------
+    //      Apply absBXmasking or skip if turned off  TO DO
+    // ----------------------------------------------------
+    if( !algorithmTriggersUnmasked ){
+
+/*  TO DO get absBX masking
+      bool temp_algBxMaskOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
+
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
+
+	if( bitValue ){
+	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+
+	  bool passMask = ( bitValue && !isMasked );
+
+	  if( passMask ) temp_algBxMaskOr = true;
+	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
+
+	}
+      }
+
+      m_algIntermOr = temp_algBxMaskOr; */
+      m_algIntermOr = m_algInitialOr;
+	
+    } 
+    else {
+
+      m_algIntermOr = m_algInitialOr;
+     
+    } ///if we are masking.        
+    
+
+    // Copy Algorithm bits fron Prescaled word to Final Word 
+    // Masking done below if requested.
+    m_uGtAlgBlk.copyIntermToFinal();
+
     // -------------------------------------------
     //      Apply Prescales or skip if turned off
     // -------------------------------------------
@@ -848,17 +885,24 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 	      // bit already true in algoDecisionWord, just reset counter
 	      m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
 	      temp_algPrescaledOr = true;
+	      
+	      // Check if veto mask is true, if it is, set the event veto flag.
+	      if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;	      
 	    } 
 	    else {
 
 	      // change bit to false in prescaled word and final decision word
-	      m_uGtAlgBlk.setAlgoDecisionInterm(iBit,false);
+	      m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
 
 	    } //if Prescale counter reached zero
 	  } //if prescale factor is not 1 (ie. no prescale)
 	  else {
 	    
 	    temp_algPrescaledOr = true;
+
+	    // Check if veto mask is true, if it is, set the event veto flag.
+	    if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;	    
+	    
 	  }
 	} //if algo bit is set true
       } //loop over alg bits
@@ -868,48 +912,14 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     } 
     else {
       // Since not Prescaling just take OR of Initial Work
-      m_algPrescaledOr = m_algInitialOr;
+      m_algPrescaledOr = m_algIntermOr;
 	
     }//if we are going to apply prescales.
 
-      
-    // Copy Algorithm bits fron Prescaled word to Final Word 
-    // Masking done below if requested.
-    m_uGtAlgBlk.copyIntermToFinal();
-    
-    if( !algorithmTriggersUnmasked ){
 
-      bool temp_algFinalOr = false;
-      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
-
-	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
-
-	if( bitValue ){
-	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
-
-	  bool passMask = ( bitValue && !isMasked );
-
-	  if( passMask ) temp_algFinalOr = true;
-	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
-
-	  // Check if veto mask is true, if it is, set the event veto flag.
-	  if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;
-
-	}
-      }
-
-      m_algFinalOrPreVeto = temp_algFinalOr;
-	
-    } 
-    else {
-
-      m_algFinalOrPreVeto = m_algPrescaledOr;
-     
-    } ///if we are masking.
-
-// Set FinalOR for this board
-   m_algFinalOr = (m_algFinalOrPreVeto & !m_algFinalOrVeto);
-
+// Set local and FinalOR for this board
+// FIX ME: Currently in one board operation we are setting the global FINOR as well.
+   m_algFinalOr = (m_algPrescaledOr & !m_algFinalOrVeto);
 
 
 }
@@ -937,7 +947,7 @@ void l1t::GlobalBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setL1FirmwareUUID(firmwareUUID);
         
     m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
-    m_uGtAlgBlk.setFinalORPreVeto(m_algFinalOrPreVeto); 
+    m_uGtAlgBlk.setFinalORPreVeto(m_algPrescaledOr); 
     m_uGtAlgBlk.setFinalOR(m_algFinalOr);
     
 
