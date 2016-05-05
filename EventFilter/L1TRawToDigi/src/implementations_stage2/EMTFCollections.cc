@@ -7,6 +7,7 @@ namespace l1t {
     {
       event_.put(regionalMuonCands_);
       event_.put(EMTFOutputs_);
+      event_.put(EMTFLCTs_);
     }
   }
 }

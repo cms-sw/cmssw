@@ -45,6 +45,7 @@ namespace l1t {
       virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
 	prod.produces<RegionalMuonCandBxCollection>();
 	prod.produces<EMTFOutputCollection>();
+	prod.produces<CSCCorrelatedLCTDigiCollection>();
       };
       
       // Not sure what this function does - AWB 27.01.16
