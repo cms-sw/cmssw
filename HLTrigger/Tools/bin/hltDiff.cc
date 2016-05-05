@@ -1424,14 +1424,10 @@ public:
       std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
       if (skipped)
         std::cout << ", " << skipped << " events were skipped";
-      std::cout << ":\n" << std::endl;
-      std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
-      for (unsigned int p = 0; p < old_config->size(); ++p)
-        std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
+      std::cout << "\nSee more in the files listed below..." << std::endl;
     }
 
     // writing all the required output
-    std::cout << std::endl;
     json.write();   // to JSON file for interactive visualisation
     SummaryOutputProducer summary(json, this->root_out, true);
     summary.write();   // to ROOT file for fast validation with static plots
