@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <stdio.h>
 #include <iomanip>
 #include <memory>
 
@@ -39,62 +40,6 @@
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
-
-void usage(std::ostream & out) {
-  out << "\
-usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-r|--root-output] OUTPUT_FILE.ROOT [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
-\n\
-  -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
-      input file(s) with the old (reference) trigger results\n\
-\n\
-  -O|--old-process PROCESS\n\
-      process name of the collection with the old (reference) trigger results\n\
-      default: take the 'TriggerResults' from the last process\n\
-\n\
-  -n|--new-files FILE1.ROOT [FILE2.ROOT ...]\n\
-      input file(s) with the new trigger results to be compared with the reference\n\
-      to read these from a different collection in the same files as\n\
-      the reference, use '-n -' and specify the collection with -N (see below)\n\
-\n\
-  -N|--new-process PROCESS\n\
-      process name of the collection with the new (reference) trigger results\n\
-      default: take the 'TriggerResults' from the last process\n\
-\n\
-  -m|--max-events MAXEVENTS\n\
-      compare only the first MAXEVENTS events\n\
-      default: compare all the events in the original (reference) files\n\
-\n\
-  -p|--prescales\n\
-      do not ignore differences caused by HLTPrescaler modules\n\
-\n\
-  -j|--json-output OUTPUT_FILE.JSON\n\
-      produce comparison results in a JSON format and store it to the specified file\n\
-      default filename: 'hltDiff_output.json'\n\
-\n\
-  -r|--root-output OUTPUT_FILE.ROOT\n\
-      produce comparison results as ROOT histograms and store them to the specified ROOT file\n\
-      default filename: 'hltDiff_output.root'\n\
-\n\
-  -f|--file-check\n\
-      check existence of every old and new file before running the comparison\n\
-      safer if files are run for the first time, but can cause a substantial delay\n\
-\n\
-  -d|--debug\n\
-      display messages about missing events and collectiions\n\
-\n\
-  -v|--verbose LEVEL\n\
-      set verbosity level:\n\
-      1: event-by-event comparison results\n\
-      2: + print the trigger candidates of the affected filters\n\
-      3: + print all the trigger candidates for the affected events\n\
-      default: 1\n\
-\n\
-  -h|--help\n\
-      print this help message, and exit" << std::endl;
-}
 
 void error(std::ostream & out) {
     out << "Try 'hltDiff --help' for more information" << std::endl;
@@ -502,8 +447,6 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 class JsonOutputProducer
 {
 private:
-  std::string out_file_name;
-  std::ofstream out_file;
   static size_t tab_spaces;
 
   // static variables and methods for printing specific JSON elements
@@ -568,7 +511,9 @@ private:
   }
 
 public:
-  bool isActive;
+  bool writeJson;
+  std::string out_filename_base;
+  bool useSingleOutFile;
   // structs holding particular JSON objects
   struct JsonConfigurationBlock {
     std::string file_base; // common part at the beginning of all files
@@ -576,7 +521,7 @@ public:
     std::string process;
     std::vector<std::string> skipped_triggers;
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent); // line
       json << key_string("file_base", file_base) << ',';
@@ -621,7 +566,7 @@ public:
     bool prescales;
     int events;
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent) << key("configuration") << '{'; // line open
       json << indent(_indent+1) << key("o") << '{';   // line open
@@ -648,17 +593,17 @@ public:
     std::vector<std::string> label;
     std::vector<std::string> type;
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent) << key("vars") << '{';   // line open
       json << indent(_indent+1) << key("state") << list_string(state) << ',';   // line
       json << indent(_indent+1) << key("trigger") << list_string(trigger) << ',';   // line
       json << indent(_indent+1) << key("trigger_passed_count") << '[';   // line
-        for (std::vector<std::pair<int, int> >::iterator it = trigger_passed_count.begin(); it != trigger_passed_count.end(); ++it) {
-          json << '{' << key("o") << (*it).first << ',' << key("n") << (*it).second << '}';
-          if (it != trigger_passed_count.end()-1)
-            json << ',';
-        }
+      for (std::vector<std::pair<int, int> >::const_iterator it = trigger_passed_count.begin(); it != trigger_passed_count.end(); ++it) {
+        json << '{' << key("o") << (*it).first << ',' << key("n") << (*it).second << '}';
+        if (it != trigger_passed_count.end()-1)
+          json << ',';
+      }
       json << "],";
       json << indent(_indent+1) << key("label") << list_string(label) << ',';   // line
       json << indent(_indent+1) << key("type") << list_string(type);   // line
@@ -698,7 +643,7 @@ public:
     int l; // label id
     int t; // type id
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << key_int("s", int(s));   // line
       // No more information needed if the state is 'accepted'
@@ -720,7 +665,7 @@ public:
     JsonEventState o; // old
     JsonEventState n; // new
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent) << key_int("t", tr) << ',';   // line
       json << indent(_indent) << key("o") << '{' << o.serialise() << "},";   // line
@@ -739,10 +684,10 @@ public:
     int event;
     std::vector<JsonTriggerEventState> triggerStates;
 
-    std::string serialise(size_t _indent=0) {
+    std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent) << '{' << "\"r\"" << ':' << run << ",\"l\":" << lumi << ",\"e\":" << event << ",\"t\":[";   // line open
-      for (std::vector<JsonTriggerEventState>::iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
+      for (std::vector<JsonTriggerEventState>::const_iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
         json << '{';   // line open
         json << (*it).serialise(_indent+2);   // block
         json << indent(_indent+1) << '}';   // line close
@@ -770,58 +715,82 @@ public:
   };
 
   // class members
-  std::vector<JsonEvent> events;
+  std::map<int, std::vector<JsonEvent> > m_run_events;
 
   // methods
-  JsonOutputProducer(std::string _file_name) {
-    out_file_name = _file_name;
-    isActive = out_file_name.length() > 0;
+  JsonOutputProducer(bool _writeJson, std::string _file_name) :
+    writeJson(_writeJson),
+    out_filename_base(_file_name) {
+    useSingleOutFile = out_filename_base.length() > 0;
   }
 
   JsonEvent& pushEvent(int _run, int _lumi, int _event) {
-    // check whether the last event is the one
-    if (events.size() > 0) {
-      JsonEvent& lastEvent = events.back();
+    // ensuring that this RUN is present in the producer
+    if ( (m_run_events.count(_run) == 0 && !useSingleOutFile) || m_run_events.size() == 0 )
+      m_run_events.emplace(_run, std::vector<JsonEvent>());
+    std::vector<JsonEvent>& v_events = useSingleOutFile ? m_run_events.begin()->second : m_run_events.at(_run);
+    // check whether the last  event is the one
+    if (v_events.size() > 0) {
+      JsonEvent& lastEvent = v_events.back();
       if (lastEvent.run == _run && lastEvent.lumi == _lumi && lastEvent.event == _event)
         return lastEvent;
     }
-    events.push_back(JsonEvent(_run, _lumi, _event));
-    return events.back();
+    v_events.push_back(JsonEvent(_run, _lumi, _event));
+    return v_events.back();
   }
 
   JsonEventState eventState(State _s, int _m, const std::string& _l, const std::string& _t) {
     return JsonEventState(_s, _m, this->labelId(_l), this->typeId(_t));
   }
 
+  std::string output_filename_base(int _run) const {
+    if (useSingleOutFile) 
+      return out_filename_base;
+
+    char name[1000];
+    sprintf(name, "DQM_V0001_R%.9d__OLD_%s__NEW_%s_DQM", _run, configuration.o.process.c_str(), configuration.n.process.c_str());
+    
+    return std::string(name);
+  }
+
   void write() {
-    if (out_file_name.length() < 1) return;
-    out_file.open(out_file_name, std::ofstream::out);
-    out_file << '{'; // line open
-    out_file << configuration.serialise(1) << ',';
-    out_file << vars.serialise(1) << ',';
-    // writing block for each event
-    out_file << indent(1) << key("events") << '['; // line open
-    for (std::vector<JsonEvent>::iterator it = events.begin(); it != events.end(); ++it) {
-      out_file << (*it).serialise(2);
-      if (it != --events.end()) out_file << ',';
+    std::set<std::string> filesCreated;
+    for (const auto& runEvents : m_run_events) {
+      const int run = runEvents.first;
+      const std::vector<JsonEvent>& v_events = runEvents.second;
+      // Writing the output to a JSON file
+      std::ofstream out_file;
+      std::string output_name = output_filename_base(run)+=".json";
+      out_file.open(output_name, std::ofstream::out);
+      out_file << '{'; // line open
+      out_file << configuration.serialise(1) << ',';
+      out_file << vars.serialise(1) << ',';
+      // writing block for each event
+      out_file << indent(1) << key("events") << '['; // line open
+      for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+        out_file << (*it).serialise(2);
+        if (it != --v_events.end()) out_file << ',';
+      }
+      out_file << indent(1) << ']'; // line close
+      out_file << indent(0) << "}"; // line close
+      out_file.close();
+      // Adding file name to the list of created files
+      filesCreated.insert(output_name);
     }
-    out_file << indent(1) << ']'; // line close
-    out_file << indent(0) << "}"; // line close
-    out_file.close();
+
+    printf("Created the following JSON files:\n");
+    for (const std::string& filename : filesCreated)
+      printf(" %s\n", filename.c_str());
   }
 };
 size_t JsonOutputProducer::tab_spaces = 0;
 
 
-class RootOutputProducer
+class SummaryOutputProducer
 {
 private:
-  std::string out_file_name;
-  TFile* out_file;
   const JsonOutputProducer& json;
-  std::map<std::string, TH1*> m_histo;
-  std::map<std::string, TGraphAsymmErrors*> m_graph;
-  std::map<std::string, TCanvas*> m_canvas;
+  int run;
 
   struct Pair {
     double v;
@@ -885,6 +854,14 @@ private:
     Pair changed() const {
       return Pair( double(v_changed.size()), sqrt( double(v_changed.size()) ) );
     }
+
+    bool keepForC() const { 
+      return v_changed.size() > 0;
+    }
+
+    bool keepForGL() const {
+      return v_gained.size() > 0 || v_lost.size() > 0;
+    }
   };
   
   struct TriggerSummary : GenericSummary {
@@ -936,19 +913,24 @@ private:
     }
   };
 
-  void buildHistograms() {
+private:
+  std::map<int, TriggerSummary> m_triggerSummary;
+  std::map<int, GenericSummary> m_moduleSummary;
+
+  void prepareSummaries(const int _run, const std::vector<JsonOutputProducer::JsonEvent>& _events) {
+    this->run = _run;
     // Initialising the summary objects for trigger/module
+    m_triggerSummary.clear();
+    m_moduleSummary.clear();
     const size_t nTriggers( json.vars.trigger.size() );
     const size_t nModules( json.vars.label.size() );
-    std::map<int, TriggerSummary> m_triggerSummary;
-    std::map<int, GenericSummary> m_moduleSummary;
     for (size_t i=0; i<nTriggers; ++i) 
       m_triggerSummary.emplace(i, TriggerSummary(i, json) );
     for (size_t i=0; i<nModules; ++i) 
       m_moduleSummary.emplace(i, GenericSummary(i, json, json.vars.label) );
 
     // Add each affected trigger in each event to the trigger/module summary objects
-    for (const JsonOutputProducer::JsonEvent& event : json.events) {
+    for (const JsonOutputProducer::JsonEvent& event : _events) {
       for (size_t iTrigger = 0; iTrigger < event.triggerStates.size(); ++iTrigger) {
         const JsonOutputProducer::JsonTriggerEventState& state = event.triggerStates.at(iTrigger);
         m_triggerSummary.at(state.tr).addEntry(event, iTrigger, json.vars.label);
@@ -956,56 +938,57 @@ private:
         m_moduleSummary.at(moduleId).addEntry(event, iTrigger);
       }
     }
+  }
 
-    // Building indices of summary objects that should be skipped to optimise binning of the overview histograms
+  std::string writeHistograms() const {
+    std::map<std::string, TH1*> m_histo;
+    // Counting the numbers of bins for different types of histograms
     // *_c - changed; *_gl - gained or lost
-    std::set<int> v_triggerIdToSkip_c;
-    std::set<int> v_triggerIdToSkip_gl;
-    std::set<int> v_moduleIdToSkip_c;
-    std::set<int> v_moduleIdToSkip_gl;
+    int nTriggers(0), nTriggers_c(0), nTriggers_gl(0), nModules_c(0), nModules_gl(0);
     
     for (const auto& idSummary : m_triggerSummary) {
-      if (idSummary.second.changed().v < 1) v_triggerIdToSkip_c.insert(idSummary.first);
-      if (idSummary.second.gained().v + idSummary.second.lost().v < 1) v_triggerIdToSkip_gl.insert(idSummary.first);
+      if (idSummary.second.accepted_o > 0) ++nTriggers;
+      if (idSummary.second.keepForGL()) ++nTriggers_gl;
+      if (idSummary.second.keepForC()) ++nTriggers_c;
     }
     for (const auto& idSummary : m_moduleSummary) {
-      if (idSummary.second.changed().v < 1) v_moduleIdToSkip_c.insert(idSummary.first);
-      if (idSummary.second.gained().v + idSummary.second.lost().v < 1) v_moduleIdToSkip_gl.insert(idSummary.first);
+      if (idSummary.second.keepForGL()) ++nModules_gl;
+      if (idSummary.second.keepForC()) ++nModules_c;
     }
 
     // Initialising overview histograms
     std::string name = "trigger_accepted";
     m_histo.emplace(name, new TH1F(name.c_str(), ";;Events accepted^{OLD}", nTriggers, 0, nTriggers));
     name = "trigger_gained";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nTriggers_gl, 0, nTriggers_gl));
     name = "trigger_lost";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nTriggers_gl, 0, nTriggers_gl));
     name = "trigger_changed";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nTriggers - v_triggerIdToSkip_c.size(), 0, nTriggers - v_triggerIdToSkip_c.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nTriggers_c, 0, nTriggers_c));
     name = "trigger_gained_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{gained}{accepted}", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{gained}{accepted}", nTriggers_gl, 0, nTriggers_gl));
     name = "trigger_lost_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{lost}{accepted}", nTriggers - v_triggerIdToSkip_gl.size(), 0, nTriggers - v_triggerIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{lost}{accepted}", nTriggers_gl, 0, nTriggers_gl));
     name = "trigger_changed_frac";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers - v_triggerIdToSkip_c.size(), 0, nTriggers - v_triggerIdToSkip_c.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;#frac{changed}{all - accepted}", nTriggers_c, 0, nTriggers_c));
     name = "module_changed";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nModules - v_moduleIdToSkip_c.size(), 0, nModules - v_moduleIdToSkip_c.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events changed", nModules_c, 0, nModules_c));
     name = "module_gained";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nModules - v_moduleIdToSkip_gl.size(), 0, nModules - v_moduleIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events gained", nModules_gl, 0, nModules_gl));
     name = "module_lost";
-    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nModules - v_moduleIdToSkip_gl.size(), 0, nModules - v_moduleIdToSkip_gl.size()));
+    m_histo.emplace(name, new TH1F(name.c_str(), ";;Events lost", nModules_gl, 0, nModules_gl));
 
     // Filling the per-trigger bins in the summary histograms
     size_t bin(0), bin_c(0), bin_gl(0);
     for (const auto& idSummary : m_triggerSummary) {
+      if (idSummary.second.accepted_o == 0) continue;
       ++bin;
-      const size_t id = idSummary.first;
       const TriggerSummary& summary = idSummary.second;
       // Setting bin contents
       m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
       // Setting bin labels
-      m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
-      if (v_triggerIdToSkip_gl.count(id) == 0) {
+      m_histo.at("trigger_accepted")->GetXaxis()->SetBinLabel(bin, summary.name.c_str());
+      if (summary.keepForGL()) {
         ++bin_gl;
         // Setting bin contents
         m_histo.at("trigger_gained")->SetBinContent(bin_gl, summary.gained().v);
@@ -1021,7 +1004,7 @@ private:
         m_histo.at("trigger_gained_frac")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
         m_histo.at("trigger_lost_frac")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
       }
-      if (v_triggerIdToSkip_c.count(id) == 0) {
+      if (summary.keepForC()) {
         ++bin_c;
         // Setting bin contents
         m_histo.at("trigger_changed")->SetBinContent(bin_c, summary.changed().v);
@@ -1040,9 +1023,8 @@ private:
     bin_gl = 0;
     for (const auto& idSummary : m_moduleSummary) {
       ++bin;
-      const size_t id = idSummary.first;
       const GenericSummary& summary = idSummary.second;
-      if (v_moduleIdToSkip_gl.count(id) == 0) {
+      if (summary.keepForGL()) {
         ++bin_gl;
         // Setting bin contents
         m_histo.at("module_gained")->SetBinContent(bin_gl, summary.gained().v);
@@ -1051,7 +1033,7 @@ private:
         m_histo.at("module_gained")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
         m_histo.at("module_lost")->GetXaxis()->SetBinLabel(bin_gl, summary.name.c_str());
       }
-      if (v_moduleIdToSkip_c.count(id) == 0) {
+      if (summary.keepForC()) {
         ++bin_c;
         // Setting bin contents
         m_histo.at("module_changed")->SetBinContent(bin_c, summary.changed().v);
@@ -1059,25 +1041,82 @@ private:
         m_histo.at("module_changed")->GetXaxis()->SetBinLabel(bin_c, summary.name.c_str());
       }
     }
+
+    // Storing histograms to a ROOT file
+    std::string file_name = json.output_filename_base(this->run)+=".root";
+    TFile out_file(file_name.c_str(), "RECREATE");
+    // Storing the histograms is a proper folder according to the DQM convention
+    char savePath[1000];
+    sprintf(savePath, "/DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
+    out_file.mkdir(savePath);
+    out_file.cd(savePath);
+    for (const auto& nameHisto : m_histo)
+      nameHisto.second->Write(nameHisto.first.c_str());
+    out_file.Close();
+
+    return file_name;
+  }
+
+  std::string writeCSV_trigger() const {
+    std::string file_name = json.output_filename_base(this->run)+="_trigger.csv";
+    FILE* out_file = fopen((file_name).c_str(), "w");
+
+    fprintf(out_file,"Total,Accepted OLD,Accepted NEW,Gained,Lost,|G|/A_N + |L|/AO,sigma(AN)+sigma(AO),Changed,C/(T-AO),sigma(T-AO),trigger\n");
+    for (const auto& idSummary : m_triggerSummary) {
+      const SummaryOutputProducer::TriggerSummary& S = idSummary.second;
+      fprintf(out_file, "%d,%d,%d,%+.f,%+.f,%.2f%%,%.2f%%,~%.f,~%.2f%%,%.2f%%,%s\n", 
+        this->json.configuration.events, S.accepted_o, S.accepted_n, S.gained().v, -1.0*S.lost().v, (S.gained(1).v+S.lost(1).v)*100.0, (S.gained(1).e+S.lost(1).e)*100.0, S.changed().v, S.changed(1).v*100.0, S.changed(1).e*100.0, S.name.c_str());
+    }
+
+    fclose(out_file);
+
+    return file_name;
+  }
+
+  std::string writeCSV_module() const {
+    std::string file_name = json.output_filename_base(this->run)+="_module.csv";
+    FILE* out_file = fopen((file_name).c_str(), "w");
+
+    fprintf(out_file,"Total,Gained,Lost,Changed,module\n");
+    for (const auto& idSummary : m_moduleSummary) {
+      const SummaryOutputProducer::GenericSummary& S = idSummary.second;
+      fprintf(out_file, "%d,+%.f,-%.f,~%.f,%s\n", 
+        this->json.configuration.events, S.gained().v, S.lost().v, S.changed().v, S.name.c_str());
+    }
+
+    fclose(out_file);
+
+    return file_name;
   }
 
 public:
-  bool isActive;
+  bool storeROOT;
+  bool storeCSV;
 
-  RootOutputProducer(std::string _file_name, const JsonOutputProducer& _json):
-    out_file_name(_file_name),
-    json(_json) {
-    isActive = out_file_name.length() > 0;
-    buildHistograms();
-  }
+  SummaryOutputProducer(const JsonOutputProducer& _json, bool _storeROOT, bool _storeCSV=true):
+    json(_json),
+    run(-1),
+    storeROOT(_storeROOT),
+    storeCSV(_storeCSV) {}
 
   void write() {
-    if (out_file_name.length() < 1) return;
-    out_file = new TFile(out_file_name.c_str(), "RECREATE");
-    for (const auto& nameHisto : m_histo)
-      nameHisto.second->Write(nameHisto.first.c_str());
-    out_file->Close();
+    std::vector<std::string> filesCreated;
+    // Processing every run from the JSON producer
+    for (const auto& runEvents : json.m_run_events) {
+      prepareSummaries(runEvents.first, runEvents.second);
+      if (storeROOT) 
+        filesCreated.push_back(writeHistograms());
+      if (storeCSV) {
+        filesCreated.push_back(writeCSV_trigger());
+        filesCreated.push_back(writeCSV_module());
+      }
+    }
+
+    printf("Created the following summary files:\n");
+    for (const std::string& filename : filesCreated)
+      printf(" %s\n", filename.c_str());
   }
+
 };
 
 
@@ -1097,32 +1136,56 @@ bool check_files(std::vector<std::string> const & files) {
   return flag;
 }
 
+class HltDiff
+{
 
-void compare(std::vector<std::string> const & old_files, std::string const & old_process,
-             std::vector<std::string> const & new_files, std::string const & new_process,
-             unsigned int max_events, bool ignore_prescales, std::string const & json_out,
-             std::string const & root_out, bool file_check, unsigned int verbose, bool debug) {
+public:
+  std::vector<std::string>  old_files;
+  std::string               old_process;
+  std::vector<std::string>  new_files;
+  std::string               new_process;
+  unsigned int              max_events;
+  bool                      ignore_prescales;
+  bool                      json_out;
+  bool                      root_out;
+  std::string               output_file;
+  bool                      file_check;
+  bool                      debug;
+  unsigned int              verbose;
 
-  std::shared_ptr<fwlite::ChainEvent> old_events;
-  std::shared_ptr<fwlite::ChainEvent> new_events;
+  HltDiff() :
+    old_files(0),
+    old_process(""),
+    new_files(0),
+    new_process(""),
+    max_events(1e9),
+    ignore_prescales(true),
+    json_out(false),
+    root_out(false),
+    output_file(""),
+    file_check(false),
+    debug(false),
+    verbose(0) {}
 
-  if (not file_check or check_files(old_files))
-    old_events = std::make_shared<fwlite::ChainEvent>(old_files);
-  else
-    return;
+  void compare() const {
+    std::shared_ptr<fwlite::ChainEvent> old_events;
+    std::shared_ptr<fwlite::ChainEvent> new_events;
 
-  if (new_files.size() == 1 and new_files[0] == "-")
-    new_events = old_events;
-  else if (not file_check or check_files(new_files))
-    new_events = std::make_shared<fwlite::ChainEvent>(new_files);
-  else
-    return;
+    if (not file_check or check_files(old_files))
+      old_events = std::make_shared<fwlite::ChainEvent>(old_files);
+    else
+      return;
 
-  // creating the structure holding data for JSON and ROOT output
-  JsonOutputProducer json(json_out);
-  if (root_out.length() > 0) json.isActive = true;
+    if (new_files.size() == 1 and new_files[0] == "-")
+      new_events = old_events;
+    else if (not file_check or check_files(new_files))
+      new_events = std::make_shared<fwlite::ChainEvent>(new_files);
+    else
+      return;
 
-  if (json.isActive) {
+    // creating the structure holding data for JSON and ROOT output
+    JsonOutputProducer json(json_out, output_file);
+
     json.configuration.prescales = ignore_prescales;
     // setting the old configuration
     json.configuration.o.process = old_process;
@@ -1132,95 +1195,94 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     json.configuration.n.process = new_process;
     json.configuration.n.files = new_files;
     json.configuration.n.extractFileBase();
-  }
 
-  std::unique_ptr<HLTConfigDataEx> old_config_data;
-  std::unique_ptr<HLTConfigDataEx> new_config_data;
-  std::unique_ptr<HLTCommonConfig> common_config;
-  HLTConfigInterface const * old_config = nullptr;
-  HLTConfigInterface const * new_config = nullptr;
+    // initialising configurations to be compared
+    std::unique_ptr<HLTConfigDataEx> old_config_data;
+    std::unique_ptr<HLTConfigDataEx> new_config_data;
+    std::unique_ptr<HLTCommonConfig> common_config;
+    HLTConfigInterface const * old_config = nullptr;
+    HLTConfigInterface const * new_config = nullptr;
 
-  unsigned int counter = 0;
-  unsigned int skipped = 0;
-  unsigned int affected = 0;
-  bool new_run = true;
-  std::vector<TriggerDiff> differences;
+    unsigned int counter = 0;
+    unsigned int skipped = 0;
+    unsigned int affected = 0;
+    bool new_run = true;
+    std::vector<TriggerDiff> differences;
 
-  // loop over the reference events
-  const unsigned int nEvents = std::min((int)old_events->size(), (int)max_events);
-  for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
-    // printing progress on every 10%
-    if (counter%(nEvents/10) == 0) {
-      printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(nEvents/10));
-    }
-
-    // seek the same event in the "new" files
-    edm::EventID const& id = old_events->id();
-    if (new_events != old_events and not new_events->to(id)) {
-      if (debug)
-        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
-      ++skipped;
-      continue;
-    }
-
-    // read the TriggerResults and TriggerEvent
-    fwlite::Handle<edm::TriggerResults> old_results_h;
-    edm::TriggerResults const * old_results = nullptr;
-    old_results_h.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
-    if (old_results_h.isValid())
-      old_results = old_results_h.product();
-    else {
-      if (debug)
-        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'old' TriggerResults not found, skipping." << std::endl;
-      continue;
-    }
-
-    fwlite::Handle<trigger::TriggerEvent> old_summary_h;
-    trigger::TriggerEvent const * old_summary = nullptr;
-    old_summary_h.getByLabel<fwlite::Event>(* old_events->event(), "hltTriggerSummaryAOD", "", old_process.c_str());
-    if (old_summary_h.isValid())
-      old_summary = old_summary_h.product();
-
-    fwlite::Handle<edm::TriggerResults> new_results_h;
-    edm::TriggerResults const * new_results = nullptr;
-    new_results_h.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
-    if (new_results_h.isValid())
-      new_results = new_results_h.product();
-    else {
-      if (debug)
-        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'new' TriggerResults not found, skipping." << std::endl;
-      continue;
-    }
-
-    fwlite::Handle<trigger::TriggerEvent> new_summary_h;
-    trigger::TriggerEvent const * new_summary = nullptr;
-    new_summary_h.getByLabel<fwlite::Event>(* new_events->event(), "hltTriggerSummaryAOD", "", new_process.c_str());
-    if (new_summary_h.isValid())
-      new_summary = new_summary_h.product();
-
-    // initialise the trigger configuration
-    if (new_run) {
-      new_run = false;
-      old_events->fillParameterSetRegistry();
-      new_events->fillParameterSetRegistry();
-
-      old_config_data = getHLTConfigData(* old_events->event(), old_process);
-      new_config_data = getHLTConfigData(* new_events->event(), new_process);
-      if (new_config_data->triggerNames() == old_config_data->triggerNames()) {
-        old_config = old_config_data.get();
-        new_config = new_config_data.get();
-      } else {
-        common_config = std::unique_ptr<HLTCommonConfig>(new HLTCommonConfig(*old_config_data, *new_config_data));
-        old_config = & common_config->getView(HLTCommonConfig::Index::First);
-        new_config = & common_config->getView(HLTCommonConfig::Index::Second);
-        std::cout << "Warning: old and new TriggerResults come from different HLT menus. Only the common " << old_config->size() << " triggers are compared.\n" << std::endl;
+    // loop over the reference events
+    const unsigned int nEvents = std::min((int)old_events->size(), (int)max_events);
+    for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
+      // printing progress on every 10%
+      if (counter%(nEvents/10) == 0) {
+        printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(nEvents/10));
       }
 
-      differences.clear();
-      differences.resize(old_config->size());
+      // seek the same event in the "new" files
+      edm::EventID const& id = old_events->id();
+      if (new_events != old_events and not new_events->to(id)) {
+        if (debug)
+          std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
+        ++skipped;
+        continue;
+      }
 
-      // adding the list of selected triggers to JSON output
-      if (json.isActive) {
+      // read the TriggerResults and TriggerEvent
+      fwlite::Handle<edm::TriggerResults> old_results_h;
+      edm::TriggerResults const * old_results = nullptr;
+      old_results_h.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
+      if (old_results_h.isValid())
+        old_results = old_results_h.product();
+      else {
+        if (debug)
+          std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'old' TriggerResults not found, skipping." << std::endl;
+        continue;
+      }
+
+      fwlite::Handle<trigger::TriggerEvent> old_summary_h;
+      trigger::TriggerEvent const * old_summary = nullptr;
+      old_summary_h.getByLabel<fwlite::Event>(* old_events->event(), "hltTriggerSummaryAOD", "", old_process.c_str());
+      if (old_summary_h.isValid())
+        old_summary = old_summary_h.product();
+
+      fwlite::Handle<edm::TriggerResults> new_results_h;
+      edm::TriggerResults const * new_results = nullptr;
+      new_results_h.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
+      if (new_results_h.isValid())
+        new_results = new_results_h.product();
+      else {
+        if (debug)
+          std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'new' TriggerResults not found, skipping." << std::endl;
+        continue;
+      }
+
+      fwlite::Handle<trigger::TriggerEvent> new_summary_h;
+      trigger::TriggerEvent const * new_summary = nullptr;
+      new_summary_h.getByLabel<fwlite::Event>(* new_events->event(), "hltTriggerSummaryAOD", "", new_process.c_str());
+      if (new_summary_h.isValid())
+        new_summary = new_summary_h.product();
+
+      // initialise the trigger configuration
+      if (new_run) {
+        new_run = false;
+        old_events->fillParameterSetRegistry();
+        new_events->fillParameterSetRegistry();
+
+        old_config_data = getHLTConfigData(* old_events->event(), old_process);
+        new_config_data = getHLTConfigData(* new_events->event(), new_process);
+        if (new_config_data->triggerNames() == old_config_data->triggerNames()) {
+          old_config = old_config_data.get();
+          new_config = new_config_data.get();
+        } else {
+          common_config = std::unique_ptr<HLTCommonConfig>(new HLTCommonConfig(*old_config_data, *new_config_data));
+          old_config = & common_config->getView(HLTCommonConfig::Index::First);
+          new_config = & common_config->getView(HLTCommonConfig::Index::Second);
+          std::cout << "Warning: old and new TriggerResults come from different HLT menus. Only the common " << old_config->size() << " triggers are compared.\n" << std::endl;
+        }
+
+        differences.clear();
+        differences.resize(old_config->size());
+
+        // adding the list of selected triggers to JSON output
         std::vector<std::string> states_str;
         for (int i = State::Ready; i != State::Invalid; i++)
           states_str.push_back(std::string(path_state(static_cast<State>(i))));
@@ -1240,137 +1302,190 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
           json.configuration.n.skipped_triggers.push_back(*it);
         }
       }
-    }
 
-    // compare the TriggerResults
-    bool needs_header = true;
-    bool event_affected = false;
-    for (unsigned int p = 0; p < old_config->size(); ++p) {
-      // FIXME explicitly converting the indices is a hack, it should be properly encapsulated instead
-      unsigned int old_index = old_config->triggerIndex(p);
-      unsigned int new_index = new_config->triggerIndex(p);
-      State old_state = prescaled_state(old_results->state(old_index), p, old_results->index(old_index), * old_config);
-      State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
+      // compare the TriggerResults
+      bool needs_header = true;
+      bool event_affected = false;
+      for (unsigned int p = 0; p < old_config->size(); ++p) {
+        // FIXME explicitly converting the indices is a hack, it should be properly encapsulated instead
+        unsigned int old_index = old_config->triggerIndex(p);
+        unsigned int new_index = new_config->triggerIndex(p);
+        State old_state = prescaled_state(old_results->state(old_index), p, old_results->index(old_index), * old_config);
+        State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
 
-      if (old_state == Pass) {
-        ++differences[p].count;
-      }
-      if (json.isActive) {
+        if (old_state == Pass) {
+          ++differences[p].count;
+        }
         if (old_state == Pass)
           ++json.vars.trigger_passed_count.at(p).first;
         if (new_state == Pass)
           ++json.vars.trigger_passed_count.at(p).second;
-      }
 
-      bool trigger_affected = false;
-      if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
-        if (old_state == Pass and new_state != Pass) {
-          ++differences[p].lost;
-          trigger_affected = true;
-        } else if (old_state != Pass and new_state == Pass) {
-          ++differences[p].gained;
-          trigger_affected = true;
-        } else if (old_results->index(old_index) != new_results->index(new_index)) {
-          ++differences[p].internal;
-          trigger_affected = true;
+        bool trigger_affected = false;
+        if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
+          if (old_state == Pass and new_state != Pass) {
+            ++differences[p].lost;
+            trigger_affected = true;
+          } else if (old_state != Pass and new_state == Pass) {
+            ++differences[p].gained;
+            trigger_affected = true;
+          } else if (old_results->index(old_index) != new_results->index(new_index)) {
+            ++differences[p].internal;
+            trigger_affected = true;
+          }
         }
-      }
 
-      if (not trigger_affected) continue;
-      
-      event_affected = true;
-      const unsigned int old_moduleIndex = old_results->index(old_index);
-      const unsigned int new_moduleIndex = new_results->index(new_index);
-      // storing the event to JSON
-      if (json.isActive) {
+        if (not trigger_affected) continue;
+        
+        event_affected = true;
+        const unsigned int old_moduleIndex = old_results->index(old_index);
+        const unsigned int new_moduleIndex = new_results->index(new_index);
+        // storing the event to JSON, without any trigger results for the moment
         JsonOutputProducer::JsonEvent& event = json.pushEvent(id.run(), id.luminosityBlock(), id.event());
         JsonOutputProducer::JsonTriggerEventState& state = event.pushTrigger(p);
         state.o = json.eventState(old_state, old_moduleIndex, old_config->moduleLabel(p, old_moduleIndex), old_config->moduleType(p, old_moduleIndex));
         state.n = json.eventState(new_state, new_moduleIndex, new_config->moduleLabel(p, new_moduleIndex), new_config->moduleType(p, new_moduleIndex));
-      }
 
-      if (verbose > 0) {
-        if (needs_header) {
-          needs_header = false;
-          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
-                    << "old result is '" << event_state(old_results->accept()) << "', "
-                    << "new result is '" << event_state(new_results->accept()) << "'"
-                    << std::endl;
+        if (verbose > 0) {
+          if (needs_header) {
+            needs_header = false;
+            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
+                      << "old result is '" << event_state(old_results->accept()) << "', "
+                      << "new result is '" << event_state(new_results->accept()) << "'"
+                      << std::endl;
+          }
+          // print the Trigger path and filter responsible for the discrepancy
+          std::cout << "    Path " << old_config->triggerName(p) << ":\n"
+                    << "        old state is ";
+          print_detailed_path_state(std::cout, old_state, p, old_moduleIndex, * old_config);
+          std::cout << ",\n"
+                    << "        new state is ";
+          print_detailed_path_state(std::cout, new_state, p, new_moduleIndex, * new_config);
+          std::cout << std::endl;
         }
-        // print the Trigger path and filter responsible for the discrepancy
-        std::cout << "    Path " << old_config->triggerName(p) << ":\n"
-                  << "        old state is ";
-        print_detailed_path_state(std::cout, old_state, p, old_moduleIndex, * old_config);
-        std::cout << ",\n"
-                  << "        new state is ";
-        print_detailed_path_state(std::cout, new_state, p, new_moduleIndex, * new_config);
-        std::cout << std::endl;
+        if (verbose > 1 and old_summary and new_summary) {
+          // print TriggerObjects for the filter responsible for the discrepancy
+          unsigned int module = std::min(old_moduleIndex, new_moduleIndex);
+          std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
+          std::cout << "        old trigger candidates:\n";
+          print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
+          std::cout << "        new trigger candidates:\n";
+          print_trigger_candidates(std::cout, * new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
+        }
+        if (verbose > 0)
+          std::cout << std::endl;
       }
-      if (verbose > 1 and old_summary and new_summary) {
-        // print TriggerObjects for the filter responsible for the discrepancy
-        unsigned int module = std::min(old_moduleIndex, new_moduleIndex);
-        std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
-        std::cout << "        old trigger candidates:\n";
-        print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
-        std::cout << "        new trigger candidates:\n";
-        print_trigger_candidates(std::cout, * new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
-      }
-      if (verbose > 0)
-        std::cout << std::endl;
-    }
-    if (event_affected)
-      ++affected;
+      if (event_affected)
+        ++affected;
 
-    // compare the TriggerEvent
-    if (event_affected and verbose > 2 and old_summary and new_summary) {
-      std::set<std::string> names;
-      names.insert(old_summary->collectionTags().begin(), old_summary->collectionTags().end());
-      names.insert(new_summary->collectionTags().begin(), new_summary->collectionTags().end());
-      for (auto const & collection: names) {
-        std::cout << "    Collection " << collection << ":\n";
-        std::cout << "        old trigger candidates:\n";
-        print_trigger_collection(std::cout, * old_summary, collection);
-        std::cout << "        new trigger candidates:\n";
-        print_trigger_collection(std::cout, * new_summary, collection);
-        std::cout << std::endl;
+      // compare the TriggerEvent
+      if (event_affected and verbose > 2 and old_summary and new_summary) {
+        std::set<std::string> names;
+        names.insert(old_summary->collectionTags().begin(), old_summary->collectionTags().end());
+        names.insert(new_summary->collectionTags().begin(), new_summary->collectionTags().end());
+        for (auto const & collection: names) {
+          std::cout << "    Collection " << collection << ":\n";
+          std::cout << "        old trigger candidates:\n";
+          print_trigger_collection(std::cout, * old_summary, collection);
+          std::cout << "        new trigger candidates:\n";
+          print_trigger_collection(std::cout, * new_summary, collection);
+          std::cout << std::endl;
+        }
       }
-    }
 
-    ++counter;
-    if (nEvents and counter >= nEvents)
-      break;
-  }
-  
-  if (json.isActive)
+      ++counter;
+      if (nEvents and counter >= nEvents)
+        break;
+    }
+    
     json.configuration.events = counter;
 
-  if (not counter) {
-    std::cout << "There are no common events between the old and new files";
-    if (skipped)
-      std::cout << ", " << skipped << " events were skipped";
-    std::cout <<  "." << std::endl;
-  } else {
-    std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
-    if (skipped)
-      std::cout << ", " << skipped << " events were skipped";
-    std::cout << ":\n" << std::endl;
-    std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
-    for (unsigned int p = 0; p < old_config->size(); ++p)
-      std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
+    if (not counter) {
+      std::cout << "There are no common events between the old and new files";
+      if (skipped)
+        std::cout << ", " << skipped << " events were skipped";
+      std::cout <<  "." << std::endl;
+    } else {
+      std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
+      if (skipped)
+        std::cout << ", " << skipped << " events were skipped";
+      std::cout << ":\n" << std::endl;
+      std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
+      for (unsigned int p = 0; p < old_config->size(); ++p)
+        std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
+    }
+
+    // writing all the required output
+    std::cout << std::endl;
+    json.write();   // to JSON file for interactive visualisation
+    SummaryOutputProducer summary(json, this->root_out, true);
+    summary.write();   // to ROOT file for fast validation with static plots
   }
 
-  // writing per event data to the output files
-  if (json.isActive) {
-    json.write();   // to JSON file for interactive visualisation
-    RootOutputProducer root(root_out, json);
-    root.write();   // to ROOT file for fast validation with static plots
+  void usage(std::ostream & out) const {
+    out << "\
+usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
+               -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
+               [-r|--root-output] OUTPUT_FILE.ROOT [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
+\n\
+  -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
+      input file(s) with the old (reference) trigger results\n\
+\n\
+  -O|--old-process PROCESS\n\
+      process name of the collection with the old (reference) trigger results\n\
+      default: take the 'TriggerResults' from the last process\n\
+\n\
+  -n|--new-files FILE1.ROOT [FILE2.ROOT ...]\n\
+      input file(s) with the new trigger results to be compared with the reference\n\
+      to read these from a different collection in the same files as\n\
+      the reference, use '-n -' and specify the collection with -N (see below)\n\
+\n\
+  -N|--new-process PROCESS\n\
+      process name of the collection with the new (reference) trigger results\n\
+      default: take the 'TriggerResults' from the last process\n\
+\n\
+  -m|--max-events MAXEVENTS\n\
+      compare only the first MAXEVENTS events\n\
+      default: compare all the events in the original (reference) files\n\
+\n\
+  -p|--prescales\n\
+      do not ignore differences caused by HLTPrescaler modules\n\
+\n\
+  -j|--json-output\n\
+      produce comparison results in a JSON format\n\
+\n\
+  -r|--root-output\n\
+      produce comparison results as histograms in a ROOT file\n\
+\n\
+  -F|--output-file FILE_NAME\n\
+      combine all RUNs to files with the specified custom name: FILE_NAME.json, FILE_NAME.root\n\
+      default: a separate output file will be produced for each RUN with names suitable for the DQM GUI\n\
+\n\
+  -f|--file-check\n\
+      check existence of every old and new file before running the comparison\n\
+      safer if files are run for the first time, but can cause a substantial delay\n\
+\n\
+  -d|--debug\n\
+      display messages about missing events and collectiions\n\
+\n\
+  -v|--verbose LEVEL\n\
+      set verbosity level:\n\
+      1: event-by-event comparison results\n\
+      2: + print the trigger candidates of the affected filters\n\
+      3: + print all the trigger candidates for the affected events\n\
+      default: 1\n\
+\n\
+  -h|--help\n\
+      print this help message, and exit" << std::endl;
   }
-}
+
+};
 
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "dfo:O:n:N:m:pj::r::v::h";
+  const char optstring[] = "dfo:O:n:N:m:pjrF:v::h";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "file-check",   no_argument,        nullptr, 'f' },
@@ -1382,108 +1497,87 @@ int main(int argc, char ** argv) {
     option{ "prescales",    no_argument,        nullptr, 'p' },
     option{ "json-output",  optional_argument,  nullptr, 'j' },
     option{ "root-output",  optional_argument,  nullptr, 'r' },
+    option{ "output-file",  optional_argument,  nullptr, 'F' },
     option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
 
-  // default values
-  std::vector<std::string>  old_files;
-  std::string               old_process("");
-  std::vector<std::string>  new_files;
-  std::string               new_process("");
-  unsigned int              max_events = 1e9;
-  bool                      ignore_prescales = true;
-  std::string               json_out("");
-  std::string               root_out("");
-  bool                      file_check = false;
-  bool                      debug = false;
-  unsigned int              verbose = 0;
+  // Creating an HltDiff object with the default configuration
+  HltDiff* hlt = new HltDiff();
 
   // parse the command line options
   int c = -1;
   while ((c = getopt_long(argc, argv, optstring, longopts, nullptr)) != -1) {
     switch (c) {
       case 'd':
-        debug = true;
+        hlt->debug = true;
         break;
 
       case 'f':
-        file_check = true;
+        hlt->file_check = true;
         break;
 
       case 'o':
-        old_files.emplace_back(optarg);
+        hlt->old_files.emplace_back(optarg);
         while (optind < argc) {
           if (argv[optind][0] == '-')
             break;
-          old_files.emplace_back(argv[optind]);
+          hlt->old_files.emplace_back(argv[optind]);
           ++optind;
         }
         break;
 
       case 'O':
-        old_process = optarg;
+        hlt->old_process = optarg;
         break;
 
       case 'n':
-        new_files.emplace_back(optarg);
+        hlt->new_files.emplace_back(optarg);
         while (optind < argc) {
           if (argv[optind][0] == '-')
             break;
-          new_files.emplace_back(argv[optind]);
+          hlt->new_files.emplace_back(argv[optind]);
           ++optind;
         }
         break;
 
       case 'N':
-        new_process = optarg;
+        hlt->new_process = optarg;
         break;
 
       case 'm':
-        max_events = atoi(optarg);
+        hlt->max_events = atoi(optarg);
         break;
 
       case 'p':
-        ignore_prescales = false;
+        hlt->ignore_prescales = false;
         break;
 
       case 'j':
-        if (optarg) {
-          json_out = optarg;
-        } else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-          // workaround for a bug in getopt which doesn't allow space before optional arguments
-          const char *tmp_optarg = argv[optind++];
-          json_out = tmp_optarg;
-        } else {
-          json_out = "hltDiff_output.json";
-        }
+        hlt->json_out = true;
         break;
 
       case 'r':
-        if (optarg) {
-          root_out = optarg;
-        } else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-          // workaround for a bug in getopt which doesn't allow space before optional arguments
-          const char *tmp_optarg = argv[optind++];
-          root_out = tmp_optarg;
-        } else {
-          root_out = "hltDiff_output.root";
-        }
+        hlt->root_out = true;
+        break;
+
+      case 'F':
+        hlt->output_file = optarg;
         break;
 
       case 'v':
-        verbose = 1;
+        hlt->verbose = 1;
       	if (optarg) {
-          verbose = std::max(1, atoi(optarg));
+          hlt->verbose = std::max(1, atoi(optarg));
       	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
       	  // workaround for a bug in getopt which doesn't allow space before optional arguments
       	  const char *tmp_optarg = argv[optind++];
-          verbose = std::max(1, atoi(tmp_optarg));
+          hlt->verbose = std::max(1, atoi(tmp_optarg));
         }
         break;
 
       case 'h':
-        usage(std::cerr);
+        hlt->usage(std::cerr);
         exit(0);
         break;
 
@@ -1494,16 +1588,16 @@ int main(int argc, char ** argv) {
     }
   }
 
-  if (old_files.empty()) {
+  if (hlt->old_files.empty()) {
     error(std::cerr, "hltDiff: please specify the 'old' file(s)");
     exit(1);
   }
-  if (new_files.empty()) {
+  if (hlt->new_files.empty()) {
     error(std::cerr, "hltDiff: please specify the 'new' file(s)");
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, json_out, root_out, file_check, verbose, debug);
+  hlt->compare();
 
   return 0;
 }
