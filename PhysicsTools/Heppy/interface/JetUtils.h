@@ -9,7 +9,7 @@ namespace heppy{
   struct JetUtils{
 
     static const pat::Jet 
-    copyJet(const edm::ProductID& id, const pat::Jet& ijet, unsigned long key);
+    copyJet(const pat::Jet& ijet);
 
   };
 };

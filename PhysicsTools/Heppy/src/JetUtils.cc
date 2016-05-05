@@ -3,9 +3,9 @@
 namespace heppy{
 
   const pat::Jet
-  JetUtils::copyJet(const edm::ProductID& id, const pat::Jet& ijet, unsigned long key) {
+  JetUtils::copyJet(const pat::Jet& ijet) {
 
-    edm::Ptr<pat::Jet> ptrJet(id, &ijet, key);
+    edm::Ptr<pat::Jet> ptrJet(edm::ProductID(), &ijet, 0,0);
     pat::Jet jet(ptrJet);
     
     return jet;
