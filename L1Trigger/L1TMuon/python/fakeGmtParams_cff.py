@@ -24,9 +24,6 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     # get configuration from DB and ignore values below this one
     configFromDb = cms.bool(True),
 
-    # get configuration from DB and ignore values in this file
-    configFromDb = cms.bool(True),
-
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
     caloInputsDisable = cms.bool(False),
