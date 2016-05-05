@@ -1532,7 +1532,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
         }
 	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
         float weight = 0;
-        if(fabs(weightedPositionMethod)<0.0001){ //linear
+        if(std::abs(weightedPositionMethod)<0.0001){ //linear
             weight = rh_energy/energyTotal;
         }else{ //logrithmic
             weight = std::max(0.0, 4.2 + log(rh_energy/energyTotal));
@@ -1570,7 +1570,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
         }
 	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
         float weight = 0;
-        if(fabs(weightedPositionMethod) < 0.0001){ //linear
+        if(std::abs(weightedPositionMethod) < 0.0001){ //linear
             weight = rh_energy/energyTotal;
         }else{ //logrithmic
             weight = std::max(0.0, 4.2 + log(rh_energy/energyTotal));

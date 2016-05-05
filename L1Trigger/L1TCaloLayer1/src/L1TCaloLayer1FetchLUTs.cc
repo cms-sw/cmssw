@@ -86,6 +86,11 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
     return false;
   }
 
+  // Sanity check scale factors exist
+  if ( useCalib && (ecalSF.size()==0 || hcalSF.size()==0 || hfSF.size()==0) ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing scale factors in CaloParams!  Please check conditions setup.";
+    return false;
+  }
   // get energy scale to convert input from ECAL - this should be linear with LSB = 0.5 GeV
   const double ecalLSB = 0.5;
       
@@ -99,10 +104,10 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // TP compression scale is always phi symmetric
   // We default to 3 since HF has no ieta=41 iphi=1,2
-  auto decodeHcalEt = [&decoder](uint32_t iEta, uint32_t compressedEt, uint32_t iPhi=3) -> double {
+  auto decodeHcalEt = [&decoder](int iEta, uint32_t compressedEt, uint32_t iPhi=3) -> double {
     HcalTriggerPrimitiveSample sample(compressedEt);
     HcalTrigTowerDetId id(iEta, iPhi);
-    if ( abs(iEta) >= 30 ) {
+    if ( std::abs(iEta) >= 30 ) {
       id.setVersion(1);
     }
     return decoder->hcaletValue(id, sample);

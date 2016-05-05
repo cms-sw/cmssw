@@ -201,7 +201,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   eventCnt_++;
 
-  LogDebug("l1t|Global") << "GenToInputProducer::produce function called...\n";
+  LogDebug("GtGenToInputProducer") << "GenToInputProducer::produce function called...\n";
 
   // Setup vectors
   std::vector<l1t::Muon> muonVec;
@@ -268,7 +268,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenParticles collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenParticles collection not found!" << std::endl;
   }
 
 
@@ -439,7 +439,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenJets collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenJets collection not found!" << std::endl;
   }
 
 
@@ -465,7 +465,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   }
   else {
-    LogTrace("l1t|Global") << ">>> GenMet collection not found!" << std::endl;
+    LogTrace("GtGenToInputProducer") << ">>> GenMet collection not found!" << std::endl;
   }
 
 
@@ -665,7 +665,7 @@ GenToInputProducer::endJob() {
 
 void GenToInputProducer::beginRun(Run const&iR, EventSetup const&iE){
 
-  LogDebug("l1t|Global") << "GenToInputProducer::beginRun function called...\n";
+  LogDebug("GtGenToInputProducer") << "GenToInputProducer::beginRun function called...\n";
 
   counter_ = 0;
   srand( 0 );

@@ -42,12 +42,15 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
 using namespace l1t;
+using namespace l1tcalo;
 
 //
 // class declaration
@@ -127,6 +130,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
 {
   produces<CaloTowerBxCollection>();
+  produces<L1CaloRegionCollection>();
   layer1 = new UCTLayer1;
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
@@ -169,6 +173,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
   std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
@@ -206,13 +211,16 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     else if(absCaloEta <= 41) {
       int caloPhi = hcalTp.id().iphi();
+      int et = hcalTp.SOI_compressedEt();
+      bool fg  = hcalTp.t0().fineGrain(0);
+      bool fg2 = hcalTp.t0().fineGrain(1);
       if(caloPhi <= 72) {
-	int et = hcalTp.SOI_compressedEt();
-	bool fg = hcalTp.SOI_fineGrain();
 	if(et != 0) {
 	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
 	  uint32_t featureBits = 0;
-	  if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
+          if(fg)  featureBits |= 0b01;
+          // fg2 should only be set for HF
+          if(absCaloEta > 29 && fg2) featureBits |= 0b10;
 	  if(!layer1->setHCALData(t, featureBits, et)) {
 	    LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
 	    LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
@@ -223,7 +231,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
       else {
-	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et << std::endl;	
       }
     }
     else {
@@ -231,12 +239,10 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   
-  
    //Process
   if(!layer1->process()) {
     LOG_ERROR << "UCT: Failed to process layer 1" << std::endl;
   }
-
 
   int theBX = 0; // Currently we only read and process the "hit" BX only
 
@@ -253,6 +259,30 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   iEvent.put(towersColl);
+
+  UCTGeometry g;
+  vector<UCTCrate*> crates = layer1->getCrates();
+  for(uint32_t crt = 0; crt < crates.size(); crt++) {
+    vector<UCTCard*> cards = crates[crt]->getCards();
+    for(uint32_t crd = 0; crd < cards.size(); crd++) {
+      vector<UCTRegion*> regions = cards[crd]->getRegions();
+      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
+	uint32_t rawData = regions[rgn]->rawData();
+	uint32_t regionData = rawData & 0x0000FFFF;
+	uint32_t crate = regions[rgn]->getCrate();
+	uint32_t card = regions[rgn]->getCard();
+	uint32_t region = regions[rgn]->getRegion();
+	bool negativeEta = regions[rgn]->isNegativeEta();
+	uint32_t rPhi = g.getUCTRegionPhiIndex(crate, card);
+	if(region < NRegionsInCard) { // We only store the Barrel and Endcap - HF has changed in the upgrade
+	  uint32_t rEta = 10 - region; // UCT region is 0-6 for B/E but GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
+	  if(!negativeEta) rEta = 11 + region; // Positive eta portion is offset by 11
+	  rgnCollection->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
+	}
+      }
+    }
+  }  
+  iEvent.put(rgnCollection);
 
 }
 

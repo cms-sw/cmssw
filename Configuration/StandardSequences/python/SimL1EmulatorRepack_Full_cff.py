@@ -15,6 +15,10 @@ else:
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
         DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
 
+    import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
+    unpackCsctf = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone(
+        producer = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+
     import EventFilter.CSCRawToDigi.cscUnpacker_cfi
     unpackCSC = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone(
         InputObjects = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
@@ -60,6 +64,13 @@ else:
     simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("unpackDttf")
     simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
     simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackDttf")
+    simOmtfDigis.srcDTPh               = cms.InputTag("unpackDttf")
+    simOmtfDigis.srcDTTh               = cms.InputTag("unpackDttf")
+    #fix for broken simCscTriggerPrimitiveDigis
+    print "L1T INFO:  L1REPACK Using fix for CSCTF"
+    simEmtfDigis.CSCInput              = cms.InputTag("unpackCsctf")
+    simOmtfDigis.srcCSC                = cms.InputTag("unpackCsctf")
+
 
     # Finally, pack the new L1T output back into RAW
     
@@ -81,6 +92,6 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackDttf
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackDttf+unpackCsctf
                                  +simHcalTriggerPrimitiveDigis+SimL1EmulatorCore+packCaloStage2
                                  +packGmtStage2+packGtStage2+rawDataCollector)

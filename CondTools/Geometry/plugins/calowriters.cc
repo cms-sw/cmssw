@@ -75,7 +75,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     
     ptr->fillDefaultNamedParameters() ;
 
-    ptr->allocateCorners( hcalTopology->ncells() ) ;
+    ptr->allocateCorners( hcalTopology->ncells() + hcalTopology->getHFSize() ) ;
 
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;

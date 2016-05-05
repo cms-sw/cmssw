@@ -20,8 +20,3 @@ inOutSeedsFromTrackerMuons = cms.EDProducer("MuonReSeeder",
     RefitRPCHits = cms.bool(True),
     Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
 )
-
-# This customization will be removed once we get the templates for
-# phase1 pixel
-from Configuration.StandardSequences.Eras import eras
-eras.phase1Pixel.toModify(inOutSeedsFromTrackerMuons, TrackerRecHitBuilder = 'WithTrackAngle') # FIXME

@@ -26,9 +26,3 @@ TrackProducer = cms.EDProducer("TrackProducer",
     MeasurementTracker = cms.string(''),
     MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
-
-# This customization will be removed once we get the templates for
-# phase1 pixel
-from Configuration.StandardSequences.Eras import eras
-eras.phase1Pixel.toModify(TrackProducer, TTRHBuilder = 'WithTrackAngle') # FIXME
-

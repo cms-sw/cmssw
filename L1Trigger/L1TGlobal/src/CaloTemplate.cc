@@ -26,13 +26,12 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
 // constructors
 CaloTemplate::CaloTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondCalo;
@@ -40,7 +39,7 @@ CaloTemplate::CaloTemplate()
 }
 
 CaloTemplate::CaloTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondCalo;
@@ -48,7 +47,7 @@ CaloTemplate::CaloTemplate(const std::string& cName)
 }
 
 CaloTemplate::CaloTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondCalo, cType)
+        : GlobalCondition(cName, l1t::CondCalo, cType)
 {
 
     int nObjects = nrObjects();
@@ -63,7 +62,7 @@ CaloTemplate::CaloTemplate(const std::string& cName, const l1t::GtConditionType&
 
 // copy constructor
 CaloTemplate::CaloTemplate(const CaloTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -99,7 +98,7 @@ void CaloTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  CaloTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     int nObjects = nrObjects();
 

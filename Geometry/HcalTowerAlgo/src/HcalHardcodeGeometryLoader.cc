@@ -35,7 +35,7 @@ CaloSubdetectorGeometry* HcalHardcodeGeometryLoader::load(const HcalTopology& fT
 #endif
   }
   CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (fTopology);
-  if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells() );
+  if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells()+fTopology.getHFSize() );
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (hcalGeometry->numberOfShapes(),
 							       HcalGeometry::k_NumberOfParametersPerShape ) ;
   if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry

@@ -78,7 +78,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::stream::EDProdu
 	produces<L1CSCStatusDigiCollection>();
 	produces<CSCTriggerContainer<csctf::TrackStub> >("DT");
 
-	Raw_token = consumes<FEDRawDataCollection>(edm::InputTag(producer.label(),producer.instance() ));
+	Raw_token = consumes<FEDRawDataCollection>(producer);
 
 }
 

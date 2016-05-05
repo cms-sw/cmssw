@@ -61,10 +61,10 @@ void PFPileUp::produce(Event& iEvent,
 
   // get PFCandidates
 
-  auto_ptr< PFCollection >
+  unique_ptr< PFCollection >
     pOutput( new PFCollection );
 
-  auto_ptr< PFCollectionByValue >
+  unique_ptr< PFCollectionByValue >
     pOutputByValue ( new PFCollectionByValue );
 
   if(enable_) {
@@ -118,7 +118,7 @@ void PFPileUp::produce(Event& iEvent,
 
   } // end if enabled
   // outsize of the loop to fill the collection anyway even when disabled
-  iEvent.put( pOutput );
-  // iEvent.put( pOutputByValue );
+  iEvent.put(std::move(pOutput));
+  // iEvent.put(std::move(pOutputByValue));
 }
 

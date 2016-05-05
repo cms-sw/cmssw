@@ -15,8 +15,8 @@ public:
   virtual bool operator()(const reco::Track*) const;
   virtual bool operator()(const reco::Track*, const PixelTrackFilter::Hits & hits) const;
 private:
-  double thePtMin, theNSigmaInvPtTolerance; 
-  double theTIPMax, theNSigmaTipMaxTolerance;
-  double theChi2Max;
+  float theoPtMin, theNSigmaInvPtTolerance; 
+  float theTIPMax, theNSigmaTipMaxTolerance;
+  float theChi2Max;
 };
 #endif

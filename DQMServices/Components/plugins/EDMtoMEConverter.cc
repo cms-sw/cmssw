@@ -123,7 +123,7 @@ namespace {
       MonitorElement *me = dbe->get(dir+"/"+metoedmobject->GetName());
       if(me) {
         auto histo = HistoTraits<T>::get(me);
-        if(histo && me->getTH1F()->CanExtendAllAxes()) {
+        if(histo && me->getTH1()->CanExtendAllAxes()) {
           TList list;
           list.Add(metoedmobject);
           if (histo->Merge(&list) == -1)

@@ -9,9 +9,9 @@ hcalDigiSequence = cms.Sequence(simHcalTriggerPrimitiveDigis
                                 +simHcalDigis
                                 *simHcalTTPDigis)
 
-def _modifySimCalorimetryHcalDigiSequenceForCommon( obj ):
-    obj.remove(simHcalTriggerPrimitiveDigis)
-    obj.remove(simHcalTTPDigis)
+_phase2_hcalDigiSequence = hcalDigiSequence.copy()
+_phase2_hcalDigiSequence.remove(simHcalTriggerPrimitiveDigis)
+_phase2_hcalDigiSequence.remove(simHcalTTPDigis)
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( hcalDigiSequence, func=_modifySimCalorimetryHcalDigiSequenceForCommon )
+eras.phase2_common.toReplaceWith( hcalDigiSequence, _phase2_hcalDigiSequence )

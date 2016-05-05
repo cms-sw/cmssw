@@ -152,27 +152,25 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	   // Get the algorithm name
 	   std::string algName = itAlgo->first;
 	   int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
-
+	   
 	   bool decisionInitial   = algBlk->getAlgoDecisionInitial(algBit);
 	   (m_decisionsInitial[algBit]).first  = algName;
 	   (m_decisionsInitial[algBit]).second = decisionInitial;
 	   
-	   bool decisionPrescaled = algBlk->getAlgoDecisionPreScaled(algBit);
+	   bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit); 
 	   (m_decisionsPrescaled[algBit]).first  = algName;
 	   (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
-	   
+
 	   bool decisionFinal     = algBlk->getAlgoDecisionFinal(algBit);
 	   (m_decisionsFinal[algBit]).first  = algName;
 	   (m_decisionsFinal[algBit]).second = decisionFinal;
-	   
 	 }
        } else {
 	 //cout << "Error empty AlgBlk recovered.\n";
        }
      } else {
        //cout<< "Error no valid uGT Algorithm Data with Token provided " << endl;
-     }
-    
+     }   
 }
 
 void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {

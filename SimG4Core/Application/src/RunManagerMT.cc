@@ -236,13 +236,15 @@ void RunManagerMT::stopG4()
 }
 
 void RunManagerMT::terminateRun() {
-  m_userRunAction->EndOfRunAction(m_currentRun);
-  delete m_userRunAction;
-  m_userRunAction = 0;
+  if(m_userRunAction) {
+    m_userRunAction->EndOfRunAction(m_currentRun);
+    delete m_userRunAction;
+    m_userRunAction = nullptr;
+  }
   if(m_kernel && !m_runTerminated) {
     m_kernel->RunTermination();
-    m_runTerminated = true;
   }
+  m_runTerminated = true;
 }
 
 void RunManagerMT::DumpMagneticField(const G4Field* field) const

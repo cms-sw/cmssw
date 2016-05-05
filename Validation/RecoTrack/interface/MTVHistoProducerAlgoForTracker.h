@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -17,13 +18,13 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
+
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-
 
 class MTVHistoProducerAlgoForTracker {
  public:
@@ -67,6 +68,7 @@ class MTVHistoProducerAlgoForTracker {
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
+                                     const TrackerTopology& ttopo,
 				     const math::XYZPoint& bsPosition,
 				     const math::XYZPoint *pvPosition,
 				     bool isMatched,
@@ -113,6 +115,7 @@ class MTVHistoProducerAlgoForTracker {
 
   double getPt(double pt);
 
+  unsigned int getSeedingLayerSetBin(const reco::Track& track, const TrackerTopology& ttopo);
 
   //private data members
   std::unique_ptr<TrackingParticleSelector> generalTpSelector;
@@ -155,6 +158,11 @@ class MTVHistoProducerAlgoForTracker {
   double maxDzpvCum; int nintDzpvCum;
   double maxDzpvsigCum; int nintDzpvsigCum;
 
+  std::vector<std::string> seedingLayerSetNames;
+  using SeedingLayerId = std::tuple<SeedingLayerSetsBuilder::SeedingLayerId, bool>; // last bool for strip mono (true) or not (false)
+  using SeedingLayerSetId = std::array<SeedingLayerId, 4>;
+  std::map<SeedingLayerSetId, unsigned int> seedingLayerSetToBin;
+
   //sim
   MonitorElement *h_ptSIM, *h_etaSIM, *h_tracksSIM, *h_vertposSIM, *h_bunchxSIM;
 
@@ -189,6 +197,8 @@ class MTVHistoProducerAlgoForTracker {
 
   std::vector<MonitorElement*> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt, h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
   std::vector<MonitorElement*> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt, h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
+
+  std::vector<MonitorElement*> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet, h_pileup_seedingLayerSet;
 
   // dE/dx
   // in the future these might become an array

@@ -29,10 +29,7 @@
 using namespace ctfseeding;
 using namespace std;
 
-namespace {
-  std::tuple<GeomDetEnumerators::SubDetector,
-             SeedingLayer::Side,
-             int> nameToEnumId(const std::string& name) {
+SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(const std::string& name) {
     GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
     SeedingLayer::Side side = SeedingLayer::Barrel;
     int idLayer = 0;
@@ -99,7 +96,6 @@ namespace {
       }
     }
     return std::make_tuple(subdet, side, idLayer);
-  }
 }
 
 SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC):

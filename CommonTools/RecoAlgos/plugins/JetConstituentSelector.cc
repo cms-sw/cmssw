@@ -53,8 +53,8 @@ public:
 
     virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-      std::auto_ptr< JetsOutput > jets ( new std::vector<T>() );
-      std::auto_ptr< ConstituentsOutput > candsOut( new ConstituentsOutput  );
+      std::unique_ptr< JetsOutput > jets ( new std::vector<T>() );
+      std::unique_ptr< ConstituentsOutput > candsOut( new ConstituentsOutput  );
 
       edm::Handle< typename edm::View<T> > h_jets;
       iEvent.getByToken( srcToken_, h_jets );
@@ -76,8 +76,8 @@ public:
 
       // put  in Event
       bool pass = jets->size() > 0;
-      iEvent.put(jets);
-      iEvent.put(candsOut, "constituents");
+      iEvent.put(std::move(jets));
+      iEvent.put(std::move(candsOut), "constituents");
 
       if ( filter_ )
 	return pass;
