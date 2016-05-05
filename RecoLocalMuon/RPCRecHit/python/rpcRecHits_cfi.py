@@ -12,4 +12,6 @@ rpcRecHits = cms.EDProducer("RPCRecHitProducer",
     deadvecfile = cms.FileInPath('RecoLocalMuon/RPCRecHit/data/RPCDeadVec.dat')
 )
 
-
+#disabling DIGI2RAW,RAW2DIGI chain for Phase2
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_muon.toModify(rpcRecHits, rpcDigiLabel = cms.InputTag('simMuonRPCDigis'))
