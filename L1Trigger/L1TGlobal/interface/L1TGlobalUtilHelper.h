@@ -147,10 +147,10 @@ namespace l1t {
 
    // If the InputTags were set to valid values, make the consumes calls.
    if(!m_l1tAlgBlkInputTag.label().empty()) {
-     m_l1tAlgBlkToken = iC.consumes<BXVector<GlobalAlgBlk>>(m_l1tAlgBlkInputTag);
+     m_l1tAlgBlkToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tAlgBlkInputTag);
    }
    if(!m_l1tExtBlkInputTag.label().empty()) {
-     m_l1tExtBlkToken = iC.consumes<BXVector<GlobalExtBlk>>(m_l1tExtBlkInputTag);
+     m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
    }
 
    // Do we still need to search for each InputTag?

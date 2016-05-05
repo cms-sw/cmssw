@@ -26,7 +26,7 @@
 
 namespace l1t {
 
-class L1TGlobalUtil{
+class L1TGlobalUtil {
 
 public:
 
