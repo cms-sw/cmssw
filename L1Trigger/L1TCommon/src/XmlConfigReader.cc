@@ -109,6 +109,9 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName, DOMDocument*& do
 {
   parser_->parse(fName.c_str()); 
   doc = parser_->getDocument();
+  if (! doc) {
+    edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
+  }
   assert(doc);
 }
 
@@ -117,6 +120,9 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 {
   parser_->parse(fName.c_str()); 
   doc_ = parser_->getDocument();
+  if (! doc_) {
+    edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
+  }
   assert(doc_);
 }
 
