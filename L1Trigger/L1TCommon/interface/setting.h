@@ -35,7 +35,6 @@ class tableRow
 };
 
 
-	
 class setting
 {
 	public:
@@ -45,7 +44,7 @@ class setting
 		void setProcRole(const std::string& procRole) { procRole_ = procRole; };
 		void setValue(const std::string& value) {value_ = value; };
 		void setId(const std::string& id) { id_ = id; } ;
-		void addTableRow(const std::string& row, const std::string& delim=",");
+		void addTableRow(const std::string& row, std::string delim);
 		void resetTableRows() { tableRows_.clear();};
 		void setTableTypes(const std::string& types);
 		void setTableColumns(const std::string& cols);
@@ -54,7 +53,7 @@ class setting
 		std::string getType() { return type_; };
 		std::string getId() { return id_; } ;
 		template <class varType> varType getValue();
-		template <class varType> std::vector<varType> getVector(std::string delim = ",");
+		template <class varType> std::vector<varType> getVector(std::string delim);
 		std::vector<tableRow>  getTableRows() { return tableRows_; };
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
@@ -66,24 +65,29 @@ class setting
 		std::vector<std::string> tableTypes_;
 		std::vector<std::string> tableColumns_;
 		
-		std::string erSp_(std::string str, const std::string& delim);
+		void str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<std::string>& aVec);
 };
 
 
 template <typename varType> std::vector<varType> setting::getVector(std::string delim)
 {
+	
 	if ( type_.find("vector") == std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is not vector so you need to call the getValue method");
 
+	if ( delim.empty() )
+		delim = std::string(",");
+	
 	std::vector<std::string> vals;
-	if ( !parse ( std::string(erSp_(value_, delim)+delim).c_str(),
-	(
-		  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
-	), boost::spirit::classic::nothing_p ).full )
-	{  	
-		throw std::runtime_error ("Wrong value format: " + value_);
-	}
-	vals.erase(vals.end()-1);
+	str2VecStr_(value_, delim, vals);
+	// if ( !parse ( value_.c_str(),
+	// (
+	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
+	// ), boost::spirit::classic::nothing_p ).full )
+	// {  	
+	// 	throw std::runtime_error ("Wrong value format: " + value_);
+	// }
+	//vals.erase(vals.end()-1);
 
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
@@ -95,6 +99,7 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 
 template <class varType> varType setting::getValue()
 {
+	
 	if ( type_.find("vector") != std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is vector so you need to call the getVector method");
 	
@@ -104,6 +109,7 @@ template <class varType> varType setting::getValue()
 
 template <class varType> varType tableRow::getRowValue(const std::string& col)
 {
+	
 	bool found(false);
 	int ct;
 	for (unsigned int i = 0; i < columns_.size(); i++)
@@ -120,11 +126,6 @@ template <class varType> varType tableRow::getRowValue(const std::string& col)
 	edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << boost::lexical_cast<varType>(row_.at(ct)) <<  " from table row " << this->getRowAsStr();
 	return boost::lexical_cast<varType>(row_.at(ct));
 }
-
-
-
-
-
 
 }
 #endif

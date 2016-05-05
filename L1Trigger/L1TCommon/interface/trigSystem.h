@@ -34,7 +34,6 @@ class trigSystem
 		void setSystemId(const std::string id) { sysId_=id; };
 		void setConfigured(const bool state=true) { isConfigured_=state; };
 
-
 	private:
 		std::map<std::string, std::string> procRole_;
 		std::map<std::string, std::vector<std::string> > roleProcs_;
