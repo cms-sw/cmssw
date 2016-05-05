@@ -46,6 +46,7 @@ class CSCMuonPortCard
  private:
   CSCTriggerContainer<csctf::TrackStub> stubs_;
   unsigned int max_stubs_;
+  bool sort_stubs_;
 };
 
 #endif

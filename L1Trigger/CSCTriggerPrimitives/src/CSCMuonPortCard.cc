@@ -37,6 +37,8 @@ CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
     edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcSLHC");
     max_stubs_ = mpcParams.getParameter<unsigned int>("mpcMaxStubs");
   }
+  edm::ParameterSet mpcRun2Params = conf.getParameter<edm::ParameterSet>("mpcRun2");
+  sort_stubs_ = mpcRun2Params.getParameter<bool>("sortStubs");
 }
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
@@ -73,7 +75,7 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
   }
 
   if (result.size()) {
-    std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
+    if (sort_stubs_) std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
     if (result.size() > max_stubs_)
       result.erase(result.begin() + max_stubs_, result.end());
