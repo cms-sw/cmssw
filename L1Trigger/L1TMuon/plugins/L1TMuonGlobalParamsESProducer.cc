@@ -32,6 +32,8 @@
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
+#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+
 //
 // class declaration
 //
@@ -70,6 +72,15 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    // Firmware version
    unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
    m_params_helper.setFwVersion(fwVersion);
+
+   // get configuration from DB
+   if (iConfig.getParameter<bool>("configFromXml")) {
+      l1t::trigSystem trgSys;
+      edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
+      edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
+      // These xml files are for testing the configuration from the online DB 
+      trgSys.configureSystemFromFiles(hwXmlFile.fullPath(), topCfgXmlFile.fullPath(), iConfig.getParameter<std::string>("xmlCfgKey"));
+   } else {
 
    // uGMT disabled inputs
    bool disableCaloInputs = iConfig.getParameter<bool>("caloInputsDisable");
@@ -289,6 +300,10 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setFEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"));
    m_params_helper.setSortRankLUTPath              (iConfig.getParameter<std::string>("SortRankLUTPath"));
 
+
+
+
+   }
    // temp hack to avoid ALCA/DB signoff:
    m_params = cast_to_L1TMuonGlobalParams((L1TMuonGlobalParams_PUBLIC)m_params_helper);
 }
