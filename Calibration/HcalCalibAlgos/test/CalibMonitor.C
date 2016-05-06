@@ -1,9 +1,4 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Thu Jul 30 20:56:15 2015 by ROOT version 5.26/00
-// from TTree CalibTree/CalibTree
-// found on file: output_all.root
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
@@ -33,6 +28,7 @@
 //   histFileName (std::string)= name of the file containing saved histograms
 //   mode (bool)               = true/false if the hitogram file to be opened
 //                               in append/output mode
+//////////////////////////////////////////////////////////////////////////////
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -594,16 +590,7 @@ void CalibMonitor::Loop() {
 		<< std::endl;
     if (debug)
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1
-		<< ":" << kd << ":" << kd1 << ":" << jp << " Hito "
-		<< h_etaX[kp][kv] << ":" << h_etaX[kp][kv1] << ":"
-		<< h_nvxR[kp][kv] << ":" << h_nvxR[kp][kv1] << ":"
-		<< h_dL1R[kp][kd] << ":" << h_dL1R[kp][kd1] << ":"
-		<< h_etaR[kp][jp] << ":" << h_etaR[kp][0] << ":"
-		<< h_etaF[kp][jp] << ":" << h_etaF[kp][0] << ":"
-		<< h_etaX[kp1][kv] << ":" << h_etaX[kp1][kv1] << ":"
-		<< h_nvxR[kp1][kv] << ":" << h_nvxR[kp1][kv1] << ":"
-		<< h_dL1R[kp1][kd] << ":" << h_dL1R[kp1][kd1] << ":"
-		<< h_etaR[kp1][jp] << ":" << h_etaR[kp1][0] << std::endl;
+		<< ":" << kd << ":" << kd1 << ":" << jp << std::endl;
     if (goodTk && kp >=0) {
       if (rat > rcut) {
 	if (plotStandard_) {

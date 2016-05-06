@@ -1,9 +1,42 @@
- //////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Tue Sep  9 17:21:19 2014 by ROOT version 5.34/03
-// from TTree CalibTree/CalibTree
-// found on file: output.root
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// Usage:
+// .L CalibTree.C+g
+//  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
+//     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, 
+//     applyL1Cut, l1Cut, truncateFlag, writeDebugHisto, debug);
+//
+//  where:
+//
+//  inFileName  (std::string) = name of the input file ("Silver")
+//  dirName     (std::string) = name of the directory where the Tree resides
+//                              ("HcalIsoTrkAnalyzer")
+//  treeName    (std::string) = name of the Tree ("CalibTree")
+//  outFileName (std::string) = name of the output ROOT file
+//                              ("Silver_Out.root")
+//  dupFileName (std::string) = name of the file containing list of sequence
+//                              numbers of duplicate entry ("events_DXS2.txt")
+//  useweight   (bool)        = Flag to use event weight (True)
+//  useMean     (bool)        = Flag to use Mean of Most probable value
+//                              (True -- use mean)
+//  nMin        (int)         = Minmum entries for a given cell which will be
+//                              used in evaluating convergence criterion (0)
+//  inverse     (bool)        = Use the ratio E/p or p/E in determining the
+//                              coefficients (False -- use p/E)
+//  ratMin      (double)      = Lower  cut on E/p to select a track (0.25)
+//  ratMax      (double)      = Higher cut on E/p to select a track (10.0)
+//  ietaMax     (int)         = Maximum ieta value for which correcttion
+//                              factor is to be determined (21)
+//  applyL1Cut  (int)         = Flag to see if closeness to L1 object to be
+//                              applied: 0 no check; 1 only to events with
+//                              datatype not equal to 1; 2 to all (1)
+//  l1Cut       (double)      = Cut value for the closeness parameter (0.5)
+//  truncateFlag    (bool)    = Flag to treat both depths of ieta 15, 16 of
+//                              HB as depth 1 (True -- treat together)
+//  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
+//                              in o/p file (False)
+//  debug           (bool)    = To produce more debug printing on screen
+//                              (False)
+//////////////////////////////////////////////////////////////////////////////
 
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -25,9 +58,9 @@
 #include <sstream>
 
 void Run(const char *inFileName="Silver",
-	 const char *dirName="HcalIsoTrkAnalyzer", 
-	 const char *treeName="CalibTree", 
-	 const char *outFileName="Silver_Out.root", 
+	 const char *dirName="HcalIsoTrkAnalyzer",
+	 const char *treeName="CalibTree",
+	 const char *outFileName="Silver_Out.root",
 	 const char *corrFileName="Silver_Input.txt",
 	 const char *dupFileName="events_DXS2.txt", 
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
@@ -131,6 +164,7 @@ public :
   std::pair<double,double> fitMean(TH1D*, int);
   void             makeplots(double rmin, double rmax, int ietaMax,
 			     bool useWeight, bool debug);
+  void             fitPol0(TH1D* hist, bool debug);
 };
 
 
@@ -790,6 +824,18 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
     }
     h2->Write();
   }
-  hbef1->Write(); hbef2->Write();
-  haft1->Write(); haft2->Write();
+  fitPol0(hbef1,debug); fitPol0(hbef2,debug);
+  fitPol0(haft1,debug); fitPol0(haft2,debug);
+}
+
+void CalibTree::fitPol0(TH1D* hist, bool debug) {
+
+  hist->GetXaxis()->SetTitle("i#eta");
+  hist->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
+  hist->GetYaxis()->SetRangeUser(0.4,1.6);
+  TFitResultPtr Fit = hist->Fit("pol0","+QRWLS");
+  if (debug) std::cout << "Fit to Pol0 to " << hist->GetTitle() << ": " 
+		       << Fit->Value(0) << " +- " << Fit->FitResult::Error(0)
+		       << std::endl;
+  hist->Write();
 }
