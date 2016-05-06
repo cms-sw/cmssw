@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V80 (CMSSW_8_0_5)
+# /dev/CMSSW_8_0_0/GRun/V81 (CMSSW_8_0_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V80')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V81')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -2775,20 +2775,20 @@ process.SimpleSecondaryVertex3TrkComputer = cms.ESProducer( "SimpleSecondaryVert
 process.StableParameters = cms.ESProducer( "StableParametersTrivialProducer",
   NumberL1IsoEG = cms.uint32( 4 ),
   NumberL1JetCounts = cms.uint32( 12 ),
-  UnitLength = cms.int32( 8 ),
-  NumberL1ForJet = cms.uint32( 4 ),
+  NumberPhysTriggersExtended = cms.uint32( 64 ),
+  NumberTechnicalTriggers = cms.uint32( 64 ),
+  NumberL1NoIsoEG = cms.uint32( 4 ),
   IfCaloEtaNumberBits = cms.uint32( 4 ),
-  IfMuEtaNumberBits = cms.uint32( 6 ),
+  NumberL1CenJet = cms.uint32( 4 ),
   NumberL1TauJet = cms.uint32( 4 ),
   NumberL1Mu = cms.uint32( 4 ),
   NumberConditionChips = cms.uint32( 1 ),
+  IfMuEtaNumberBits = cms.uint32( 6 ),
   NumberPsbBoards = cms.int32( 7 ),
-  NumberL1CenJet = cms.uint32( 4 ),
   NumberPhysTriggers = cms.uint32( 512 ),
   PinsOnConditionChip = cms.uint32( 512 ),
-  NumberL1NoIsoEG = cms.uint32( 4 ),
-  NumberTechnicalTriggers = cms.uint32( 64 ),
-  NumberPhysTriggersExtended = cms.uint32( 64 ),
+  UnitLength = cms.int32( 8 ),
+  NumberL1ForJet = cms.uint32( 4 ),
   WordLength = cms.int32( 64 ),
   OrderConditionChip = cms.vint32( 1 )
 )
@@ -5419,6 +5419,7 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     CSC_12 = cms.vdouble( -0.161, 0.254, -0.047, 0.042, -0.007, 0.0 )
 )
 process.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
+    OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
       RPCLayers = cms.bool( True ),
@@ -5427,12 +5428,13 @@ process.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
     CentralBxOnly = cms.bool( True ),
     InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
     L1MaxEta = cms.double( 2.5 ),
-    OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
+    EtaMatchingBins = cms.vdouble( 0.0, 2.5 ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
     GMTReadoutCollection = cms.InputTag( "" ),
     UseUnassociatedL1 = cms.bool( False ),
     UseOfflineSeed = cms.untracked.bool( True ),
+    MatchDR = cms.vdouble( 0.3 ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
 )
 process.hltL2Muons = cms.EDProducer( "L2MuonProducer",
@@ -32171,6 +32173,7 @@ process.hltL2CosmicOfflineMuonSeeds = cms.EDProducer( "CosmicMuonSeedGenerator",
     EnableCSCMeasurement = cms.bool( True )
 )
 process.hltL2CosmicMuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
+    OfflineSeedLabel = cms.untracked.InputTag( "hltL2CosmicOfflineMuonSeeds" ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
       RPCLayers = cms.bool( True ),
@@ -32179,12 +32182,13 @@ process.hltL2CosmicMuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
     CentralBxOnly = cms.bool( True ),
     InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
     L1MaxEta = cms.double( 2.5 ),
-    OfflineSeedLabel = cms.untracked.InputTag( "hltL2CosmicOfflineMuonSeeds" ),
+    EtaMatchingBins = cms.vdouble( 0.0, 2.5 ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
     GMTReadoutCollection = cms.InputTag( "" ),
     UseUnassociatedL1 = cms.bool( False ),
     UseOfflineSeed = cms.untracked.bool( True ),
+    MatchDR = cms.vdouble( 0.3 ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
 )
 process.hltL2CosmicMuons = cms.EDProducer( "L2MuonProducer",
@@ -58358,9 +58362,9 @@ process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     clustershapecollectionEE = cms.string( "islandEndcapShape" ),
     clustershapecollectionEB = cms.string( "islandBarrelShape" ),
     VerbosityLevel = cms.string( "ERROR" ),
-    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    IslandBarrelSeedThr = cms.double( 0.5 ),
     endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
-    IslandBarrelSeedThr = cms.double( 0.5 )
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" )
 )
 process.hltHiIslandSuperClustersHI = cms.EDProducer( "HiSuperClusterProducer",
     barrelSuperclusterCollection = cms.string( "islandBarrelSuperClustersHI" ),
@@ -63209,10 +63213,14 @@ process.hltPrePhysicsParkingScoutingMonitorOutputSmart = cms.EDFilter( "TriggerR
 process.hltScoutingCaloPacker = cms.EDProducer( "HLTScoutingCaloProducer",
     metCollection = cms.InputTag( "hltMetClean" ),
     doMet = cms.bool( True ),
+    doJetBTags = cms.bool( False ),
     caloJetPtCut = cms.double( 20.0 ),
     vertexCollection = cms.InputTag( "hltPixelVertices" ),
+    doJetIDTags = cms.bool( False ),
     caloJetCollection = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
     rho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
+    caloJetIDTagCollection = cms.InputTag( "hltCaloJetFromPV" ),
+    caloJetBTagCollection = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     caloJetEtaCut = cms.double( 3.0 )
 )
 process.hltScoutingPFPacker = cms.EDProducer( "HLTScoutingPFProducer",
@@ -65749,7 +65757,7 @@ process.options = cms.untracked.PSet(
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
-    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
