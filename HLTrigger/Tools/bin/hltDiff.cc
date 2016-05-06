@@ -981,13 +981,14 @@ private:
     // Filling the per-trigger bins in the summary histograms
     size_t bin(0), bin_c(0), bin_gl(0);
     for (const auto& idSummary : m_triggerSummary) {
-      if (idSummary.second.accepted_o == 0) continue;
-      ++bin;
       const TriggerSummary& summary = idSummary.second;
-      // Setting bin contents
-      m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
-      // Setting bin labels
-      m_histo.at("trigger_accepted")->GetXaxis()->SetBinLabel(bin, summary.name.c_str());
+      if (summary.accepted_o > 0) {
+        ++bin;
+        // Setting bin contents
+        m_histo.at("trigger_accepted")->SetBinContent(bin, summary.accepted_o);
+        // Setting bin labels
+        m_histo.at("trigger_accepted")->GetXaxis()->SetBinLabel(bin, summary.name.c_str());
+      }
       if (summary.keepForGL()) {
         ++bin_gl;
         // Setting bin contents
@@ -1424,7 +1425,7 @@ public:
       std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
       if (skipped)
         std::cout << ", " << skipped << " events were skipped";
-      std::cout << "\nSee more in the files listed below..." << std::endl;
+      std::cout << "\nSee more in the files listed below...\n" << std::endl;
     }
 
     // writing all the required output
