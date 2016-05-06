@@ -21,8 +21,11 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
 
     # id for uGMT settings
     uGmtProcessorId = cms.string('ugmt_processor'),
+    hwXmlFile = cms.string('UGMT_HW.xml'),
+    topCfgXmlFile = cms.string('ugmt_top_config_p5.xml'),
+    xmlCfgKey = cms.string('TestKey1'),
     # get configuration from DB and ignore values below this one
-    configFromDb = cms.bool(True),
+    configFromXml = cms.bool(True),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
