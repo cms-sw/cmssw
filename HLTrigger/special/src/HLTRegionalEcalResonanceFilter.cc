@@ -2,7 +2,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"  // to use math::XYZVector
 
 using namespace std;
 using namespace edm;
@@ -1027,14 +1027,11 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
 
 void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &bc1, const reco::BasicCluster &bc2,float &m_pair,float &pt_pair,float &eta_pair, float &phi_pair){
     
-  // use XYZPointF instead of TLorentzVector to make things faster (and initialize with cartesian coordinates).
+  // use XYZVector instead of TLorentzVector to make things faster (and initialize with cartesian coordinates).
   // We are interested in the momentum vector:  however, we start from cartesian coordinates to get the vector direction, 
   // then we set the vector's magnitude to obtain momentum coordinates. The magnitude we set is equal to the particle's energy.
   // We can do this because, assuming massless particles (or negligible mass), the magnitude of the momentum vector is given by the energy.
 
-  //try using ROOT::Math::XYZVectorF, vector based on x,y,z coordinates (cartesian) in float precision (not double in order to save memory)
-  //ROOT::Math::XYZVectorF v1( bc1.x(), bc1.y(), bc1.z() );
-  //  math::XYZPoint v1( bc1.x(), bc1.y(), bc1.z() ); // doesn't have Scale(), and other methods, while XYZVector does
   math::XYZVector v1( bc1.x(), bc1.y(), bc1.z() ); 
   float en1 = bc1.energy();
   float scaleFactor = en1 / v1.R();  // XYZVector::R() returns sqrt(Mag2()), where Mag2()= fx*fx + fy*fy + fz*fz 
@@ -1042,11 +1039,9 @@ void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &b
   v1 *= scaleFactor;
 
   // vsum would be v1 + v2, but instead of declaring both v2 and vsum, just declare vsum, initialize as if it is v2 and then sum v1.
-  //math::XYZPoint vsum(bc2.x(), bc2.y(), bc2.z()); 
   math::XYZVector vsum(bc2.x(), bc2.y(), bc2.z());
   // define energy sum initializing it to energy2, so that we can use it before summing energy1
   float energysum = bc2.energy();
-  //vsum.SetMag(energysum);
   scaleFactor = energysum / vsum.R();
   vsum *= scaleFactor;
 
