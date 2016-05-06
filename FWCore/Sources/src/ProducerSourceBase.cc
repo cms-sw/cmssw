@@ -39,7 +39,7 @@ namespace edm {
     // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
   }
 
-  ProducerSourceBase::~ProducerSourceBase() {
+  ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
   }
 
   std::shared_ptr<RunAuxiliary>
