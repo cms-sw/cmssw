@@ -60,6 +60,8 @@ public:
    int  gamma() { return m_gamma.value(); }
    void setGamma();
    void switchBackground();
+   void permuteColors();
+   void randomizeColors();
 
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(int val, bool projected);
@@ -87,6 +89,7 @@ protected:
    // general colors
    mutable FWLongParameter   m_backgroundColor; // can be set via Ctr+b key binding
    FWLongParameter           m_gamma;
+   mutable FWEnumParameter   m_palette;
 
    // geom colors
    FWLongParameter     m_geomTransparency2D;
