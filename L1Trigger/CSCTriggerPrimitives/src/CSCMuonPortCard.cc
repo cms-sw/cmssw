@@ -39,6 +39,8 @@ CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
   }
   edm::ParameterSet mpcRun2Params = conf.getParameter<edm::ParameterSet>("mpcRun2");
   sort_stubs_ = mpcRun2Params.getParameter<bool>("sortStubs");
+  drop_invalid_stubs_ = mpcRun2Params.getParameter<bool>("dropInvalidStubs");
+  drop_low_quality_stubs_ = mpcRun2Params.getParameter<bool>("dropLowQualityStubs");
 }
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
@@ -70,7 +72,8 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
 
   // Make sure no Quality 0 or non-valid LCTs come through the portcard.
   for (LCT = result.begin(); LCT != result.end(); LCT++) {
-    if ( !(LCT->getQuality() && LCT->isValid()) )
+    if ( (drop_invalid_stubs_ && !LCT->isValid()) ||
+	 (drop_low_quality_stubs_ && LCT->getQuality()==0) )
       result.erase(LCT, LCT);
   }
 
