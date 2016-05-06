@@ -51,9 +51,14 @@ OMDSDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messag
 process = cms.Process( "RunInfoPopulator" )
 
 process.MessageLogger = cms.Service( "MessageLogger"
-                                   , cout = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) )
                                    , destinations = cms.untracked.vstring( 'cout' )
+                                   , cout = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) )
                                      )
+
+if options.messageLevel == 3:
+    #enable LogDebug output: remember the USER_CXXFLAGS="-DEDM_ML_DEBUG" compilation flag!
+    process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string( 'DEBUG' ) )
+    process.MessageLogger.debugModules = cms.untracked.vstring( '*' )
 
 process.source = cms.Source( "EmptyIOVSource"
                            , lastValue = cms.uint64( options.runNumber )
