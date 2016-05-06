@@ -69,68 +69,50 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
   
   if ( dataTowerSet.size() != emulTowerSet.size() ) {
     edm::LogError("L1TdeStage2CaloLayer1") << "Data and Emulation have different number of trigger towers! data=" << dataTowerSet.size() << ", emul=" << emulTowerSet.size() << std::endl;
+    towerCountMismatchesPerBx_->Fill(event.bunchCrossing());
     return;
   }
 
-  SimpleTowerSet comparisonFailureSet;
-  std::set_symmetric_difference(dataTowerSet.begin(), dataTowerSet.end(), emulTowerSet.begin(), emulTowerSet.end(), std::inserter(comparisonFailureSet, comparisonFailureSet.begin()));
-  if ( comparisonFailureSet.size() %2 != 0 ) {
-    edm::LogError("L1TdeStage2CaloLayer1") << "Comparison failures should be even!" << std::endl;
-    return;
-  }
-  auto failIter = comparisonFailureSet.begin();
-  while ( failIter != comparisonFailureSet.end() ) {
-    auto dataTower = *(failIter++);
-    auto emulTower = *(failIter++);
+  auto dataIter = dataTowerSet.begin();
+  auto emulIter = emulTowerSet.begin();
+  while ( dataIter != dataTowerSet.end() && emulIter != emulTowerSet.end() ) {
+    auto dataTower = *(dataIter++);
+    auto emulTower = *(emulIter++);
     assert(dataTower.ieta_==emulTower.ieta_ && dataTower.iphi_==emulTower.iphi_);
-    if ( emulTower.compareLeft_ ) {
-      // We have them backwards
-      std::swap(dataTower, emulTower);
-    }
 
     etCorrelation_->Fill(dataTower.et(), emulTower.et());
 
-    HcalTrigTowerDetId id(dataTower.ieta_, dataTower.iphi_);
     if ( abs(dataTower.ieta_) >= 30 ) {
-      id.setVersion(1);
-      auto hcal = hcalTowers->find(id);
-      hcalDataCorrelation_->Fill(hcal->SOI_compressedEt(), dataTower.et());
-      hcalEmulCorrelation_->Fill(hcal->SOI_compressedEt(), emulTower.et());
+      fbCorrelationHF_->Fill(dataTower.fb(), emulTower.fb());
     }
 
-    // Ok, now dissect the failure
-    if ( dataTower.et() != emulTower.et() ) {
-      if      ( dataTower.et() == 0 ) failureOccEtDataZero_->Fill(dataTower.ieta_, dataTower.iphi_);
-      else if ( emulTower.et() == 0 ) failureOccEtEmulZero_->Fill(dataTower.ieta_, dataTower.iphi_);
-      else failureOccEtMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
+    if ( dataTower.data_ == emulTower.data_ ) {
+      // Perfect match
+      if ( dataTower.et() > tpFillThreshold_ ) {
+        matchOcc_->Fill(dataTower.ieta_, dataTower.iphi_);
+      }
+    } else {
+      // Ok, now dissect the failure
+      if ( dataTower.et() != emulTower.et() ) {
+        if      ( dataTower.et() == 0 ) failureOccEtDataZero_->Fill(dataTower.ieta_, dataTower.iphi_);
+        else if ( emulTower.et() == 0 ) failureOccEtEmulZero_->Fill(dataTower.ieta_, dataTower.iphi_);
+        else failureOccEtMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
 
-      etMismatchDiff_->Fill(dataTower.et() - emulTower.et());
-      updateMismatch(event, 0);
-    }
-    if ( dataTower.er() != emulTower.er() ) {
-      failureOccErMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
-      updateMismatch(event, 1);
-    }
-    if ( dataTower.fb() != emulTower.fb() ) {
-      failureOccFbMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
-      updateMismatch(event, 2);
-    }
-  }
-
-  // Happy towers
-  SimpleTowerSet comparisonMatchSet;
-  std::set_intersection(dataTowerSet.begin(), dataTowerSet.end(), emulTowerSet.begin(), emulTowerSet.end(), std::inserter(comparisonMatchSet, comparisonMatchSet.begin()));
-  for ( const auto& tower : comparisonMatchSet ) {
-    if ( tower.et() > tpFillThreshold_ ) {
-      matchOcc_->Fill(tower.ieta_, tower.iphi_);
-      matchEtDistribution_->Fill(tower.et());
-
-      HcalTrigTowerDetId id(tower.ieta_, tower.iphi_);
-      if ( abs(tower.ieta_) >= 30 ) {
-        id.setVersion(1);
-        auto hcal = hcalTowers->find(id);
-        hcalDataCorrelation_->Fill(hcal->SOI_compressedEt(), tower.et());
-        hcalEmulCorrelation_->Fill(hcal->SOI_compressedEt(), tower.et());
+        etMismatchDiff_->Fill(dataTower.et() - emulTower.et());
+        etMismatchByLumi_->Fill(event.id().luminosityBlock());
+        updateMismatch(event, 0);
+      }
+      if ( dataTower.er() != emulTower.er() ) {
+        failureOccErMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
+        erMismatchByLumi_->Fill(event.id().luminosityBlock());
+        updateMismatch(event, 1);
+      }
+      if ( dataTower.fb() != emulTower.fb() ) {
+        failureOccFbMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
+        fbMismatchByLumi_->Fill(event.id().luminosityBlock());
+        fbMismatchesPerBx_->Fill(event.bunchCrossing());
+        dataEtDistributionFBMismatch_->Fill(dataTower.et());
+        updateMismatch(event, 2);
       }
     }
   }
@@ -159,6 +141,14 @@ void L1TdeStage2CaloLayer1::beginLuminosityBlock(const edm::LuminosityBlock&, co
       last20Mismatches_->setBinContent(itype+1, ibin, binContent);
     }
   }
+}
+
+void L1TdeStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
+  auto id = static_cast<double>(lumi.id().luminosityBlock()); // uint64_t
+  // Simple way to embed current lumi to auto-scale axis limits in render plugin
+  etMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  erMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  fbMismatchByLumi_->getTH1F()->SetBinContent(0, id);
 }
 
 void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , const edm::EventSetup& es) 
@@ -190,14 +180,22 @@ void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm
 
   ibooker.setCurrentFolder(histFolder_+"/EtDistributions");
   dataEtDistribution_ = bookEt("dataEtDistribution", "ET distribution for towers in data");
+  dataEtDistributionFBMismatch_ = bookEt("dataEtDistributionFBMismatch", "ET distribution for towers in data when FB Mismatch");
   emulEtDistribution_ = bookEt("emulEtDistribution", "ET distribution for towers in emulator");
-  etCorrelation_ = bookEtCorrelation("EtCorrelation", "Et correlation for Mismatched towers;Data tower Et;Emulator tower Et");
-  hcalDataCorrelation_ = bookEtCorrelation("hcalDataCorrelation", "Et correlation uHTR - Layer 2 Input;HF tower Et;Data tower Et");
-  hcalEmulCorrelation_ = bookEtCorrelation("hcalEmulCorrelation", "Et correlation uHTR - Layer 1 Emulator Output;HF tower Et;Emul tower Et");
+  etCorrelation_ = bookEtCorrelation("EtCorrelation", "Et correlation for all towers;Data tower Et;Emulator tower Et");
   matchEtDistribution_ = bookEt("matchEtDistribution", "ET distribution for towers matched between data and emulator");
   etMismatchDiff_ = bookEtDiff("etMismatchDiff", "ET difference (data-emulator) for ET mismatches");
+  fbCorrelationHF_ = ibooker.book2D("FbCorrelationHF", "Feature Bit correlation for HF;Data;Emulator", 16, -0.5, 15.5, 16, -0.5, 15.5);
 
   ibooker.setCurrentFolder(histFolder_+"/Mismatch");
+
+  const int nLumis = 2000;
+  etMismatchByLumi_  = ibooker.book1D("etMismatchByLumi", "ET Mismatch counts per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  erMismatchByLumi_  = ibooker.book1D("erMismatchByLumi", "ET Ratio Mismatch counts per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+  fbMismatchByLumi_  = ibooker.book1D("fbMismatchByLumi", "Feature Bit Mismatch counts per lumi section;LumiSection;Counts", nLumis, .5, nLumis+0.5);
+
+  fbMismatchesPerBx_   = ibooker.book1D("fbMismatchesPerBx", "Feature Bit Mismatch counts per bunch crossing", 3564, -.5, 3563.5);
+  towerCountMismatchesPerBx_ = ibooker.book1D("towerCountMismatchesPerBx", "CaloTower size mismatch counts per bunch crossing", 3564, -.5, 3563.5);
 
   last20Mismatches_ = ibooker.book2D("last20Mismatches", 
                                              "Log of last 20 mismatches (use json tool to copy/paste)",

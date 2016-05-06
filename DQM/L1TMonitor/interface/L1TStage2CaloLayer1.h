@@ -112,8 +112,10 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *hcalOccLinkMasked_;
     MonitorElement *hcalOccRecdEtWgt_;
     MonitorElement *hcalOccRecdFb_;
+    MonitorElement *hcalOccRecdFb2_;
     MonitorElement *hcalOccSentAndRecd_;
     MonitorElement *hcalOccSentFb_;
+    MonitorElement *hcalOccSentFb2_;
     MonitorElement *hcalOccSent_;
     MonitorElement *hcalOccTowerMasked_;
     MonitorElement *hcalTPRawEtCorrelationHBHE_;

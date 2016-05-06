@@ -192,6 +192,9 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
     if(sentTp.SOI_fineGrain()==1){
       hcalOccSentFb_->Fill(ieta, iphi);
     }
+    if(sentTp.t0().fineGrain(1)==1){
+      hcalOccSentFb2_->Fill(ieta, iphi);
+    }
 
     if ( towerMasked ) {
       // Do not compare if we have a mask applied
@@ -211,6 +214,9 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
     }
     if(recdTp.SOI_fineGrain()){
       hcalOccRecdFb_->Fill(ieta, iphi);
+    }
+    if(recdTp.t0().fineGrain(1)){
+      hcalOccRecdFb2_->Fill(ieta, iphi);
     }
   
     if ( abs(ieta) > 29 ) {
@@ -415,8 +421,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   hcalOccLinkMasked_         = bookHcalOccupancy("hcalOccLinkMasked", "HCal Masked Links");
   hcalOccRecdEtWgt_          = bookHcalOccupancy("hcalOccRecdEtWgt", "HCal TP ET-weighted Occupancy at Layer1");
   hcalOccRecdFb_             = bookHcalOccupancy("hcalOccRecdFb", "HCal Feature Bit Occupancy at Layer1");
+  hcalOccRecdFb2_            = bookHcalOccupancy("hcalOccRecdFb2", "HF Second Feature Bit Occupancy at Layer1");
   hcalOccSentAndRecd_        = bookHcalOccupancy("hcalOccSentAndRecd", "HCal TP Occupancy FULL MATCH");
   hcalOccSentFb_             = bookHcalOccupancy("hcalOccSentFb", "HCal Feature Bit Occupancy at uHTR");
+  hcalOccSentFb2_            = bookHcalOccupancy("hcalOccSentFb2", "HF Second Feature Bit Occupancy at uHTR");
   hcalOccSent_               = bookHcalOccupancy("hcalOccSent", "HCal TP Occupancy at uHTR");
   hcalOccTowerMasked_        = bookHcalOccupancy("hcalOccTowerMasked", "HCal Masked towers");
   hcalTPRawEtCorrelationHBHE_= bookEtCorrelation("hcalTPRawEtCorrelationHBHE", "HBHE Raw Et correlation uHTR and Layer1;uHTR Et;Layer1 Et");
