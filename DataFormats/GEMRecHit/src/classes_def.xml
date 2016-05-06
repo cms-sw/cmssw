@@ -36,6 +36,15 @@
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >,edm::ClonePolicy<GEMCSCSegment> > >" splitLevel="0"/>
   <class name="GEMCSCSegmentRef" splitLevel="0"/>
 
+  <class name="GEMSegment" ClassVersion="-1">
+  <version ClassVersion="-1" checksum="1513163288"/>
+  </class>
+  <class name="std::vector<GEMSegment*>" splitLevel="0"/>
+  <class name="edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>
+  <class name="edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> > >" splitLevel="0"/>
+  <class name="GEMSegmentRef" splitLevel="0"/>
+
   <class name="ME0Segment" ClassVersion="12">
   <version ClassVersion="12" checksum="759556370"/>
   <version ClassVersion="11" checksum="513208975"/>
