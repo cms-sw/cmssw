@@ -214,6 +214,8 @@ namespace edm {
      preModuleEventDelayedGetSignal_.connect(std::cref(iOther.preModuleEventDelayedGetSignal_));
      postModuleEventDelayedGetSignal_.connect(std::cref(iOther.postModuleEventDelayedGetSignal_));
 
+     preEventReadFromSourceSignal_.connect(std::cref(iOther.preEventReadFromSourceSignal_));
+     postEventReadFromSourceSignal_.connect(std::cref(iOther.postEventReadFromSourceSignal_));
 
      preModuleStreamBeginRunSignal_.connect(std::cref(iOther.preModuleStreamBeginRunSignal_));
      postModuleStreamBeginRunSignal_.connect(std::cref(iOther.postModuleStreamBeginRunSignal_));
@@ -377,6 +379,9 @@ namespace edm {
 
     copySlotsToFrom(preModuleEventDelayedGetSignal_, iOther.preModuleEventDelayedGetSignal_);
     copySlotsToFromReverse(postModuleEventDelayedGetSignal_, iOther.postModuleEventDelayedGetSignal_);
+
+    copySlotsToFrom(preEventReadFromSourceSignal_, iOther.preEventReadFromSourceSignal_);
+    copySlotsToFromReverse(postEventReadFromSourceSignal_, iOther.postEventReadFromSourceSignal_);
 
     copySlotsToFrom(preModuleStreamBeginRunSignal_, iOther.preModuleStreamBeginRunSignal_);
     copySlotsToFromReverse(postModuleStreamBeginRunSignal_, iOther.postModuleStreamBeginRunSignal_);
