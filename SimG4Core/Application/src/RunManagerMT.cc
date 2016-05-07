@@ -20,7 +20,6 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Application/interface/G4RegionReporter.h"
@@ -127,15 +126,17 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   std::unique_ptr<PhysicsListMakerBase>
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
-  if (physicsMaker.get()==0) {
-    throw SimG4Exception("Unable to find the Physics list requested");
+  if (physicsMaker.get()==nullptr) {
+    throw edm::Exception( edm::errors::Configuration ) 
+      << "Unable to find the Physics list requested";
   }
   m_physicsList = 
     physicsMaker->make(map_,fPDGTable,m_chordFinderSetter.get(),m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
-  if (phys==0) { 
-    throw SimG4Exception("Physics list construction failed!"); 
+  if (phys==nullptr) { 
+    throw edm::Exception( edm::errors::Configuration,
+			  "Physics list construction failed!"); 
   }
 
   // adding GFlash, Russian Roulette for eletrons and gamma, 
@@ -169,7 +170,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
-    throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
+    throw edm::Exception( edm::errors::LogicError, 
+			  "G4RunManagerKernel initialization failed!"); 
   }
 
   if (m_StorePhysicsTables) {
