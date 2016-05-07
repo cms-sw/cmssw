@@ -644,7 +644,7 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
     
     float en1 = it_bc->energy();
     math::XYZVector v1(it_bc->position());  // set vector as cluster position                                                                                          
-    v1 *= (en1 / v1.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless paticles)                                   
+    v1 *= (en1 / v1.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)                                   
     float pt1 = v1.Rho();   // Rho is equivalent to Pt when using XYZVector  
  
     int ind1 = int( it_bc - clusterCollection->begin() );
@@ -1032,14 +1032,14 @@ void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &b
   // then we set the vector's magnitude to obtain momentum coordinates. The magnitude we set is equal to the particle's energy.
   // We can do this because, assuming massless particles (or negligible mass), the magnitude of the momentum vector is given by the energy.
 
-  math::XYZVector v1( bc1.x(), bc1.y(), bc1.z() ); 
+  math::XYZVector v1(bc1.position()); 
   float en1 = bc1.energy();
   float scaleFactor = en1 / v1.R();  // XYZVector::R() returns sqrt(Mag2()), where Mag2()= fx*fx + fy*fy + fz*fz 
   // here I'm assuming that the vector initial magnitude is always different from 0 (the cluster must be somewhere in the detector, so the distance is greater than 0)
   v1 *= scaleFactor;
 
   // vsum would be v1 + v2, but instead of declaring both v2 and vsum, just declare vsum, initialize as if it is v2 and then sum v1.
-  math::XYZVector vsum(bc2.x(), bc2.y(), bc2.z());
+  math::XYZVector vsum(bc2.position());
   // define energy sum initializing it to energy2, so that we can use it before summing energy1
   float energysum = bc2.energy();
   scaleFactor = energysum / vsum.R();
