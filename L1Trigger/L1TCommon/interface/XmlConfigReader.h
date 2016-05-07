@@ -58,7 +58,7 @@ class XmlConfigReader {
   void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
   xercesc::DOMElement* getKeyElement(const std::string& key);
-  void buildGlobalDoc(const std::string& key);
+  void buildGlobalDoc(const std::string& key, const std::string& topPath = "");
 
  private:
 
