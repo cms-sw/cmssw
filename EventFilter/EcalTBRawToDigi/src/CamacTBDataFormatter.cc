@@ -127,22 +127,17 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   LogDebug("CamacTBDataFormatter") << "\n\nword:\t" << a;
   
   b = (a& 0xff000000);
-  b = b >> 24;
   LogDebug("CamacTBDataFormatter") << "format  ver:\t" << b;
 
   b = (a& 0xff0000);
-  b = b >> 16;
   LogDebug("CamacTBDataFormatter") << "major:\t" << b;
 
   b = (a& 0xff00);
-  b = b >> 8;
   LogDebug("CamacTBDataFormatter") << "minor:\t" << b;
 
-  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   LogDebug("CamacTBDataFormatter") << "time stamp secs: "<<a;
 
-  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   LogDebug("CamacTBDataFormatter") << "time stamp musecs: " <<a;
 
@@ -164,24 +159,19 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   int spill = b;
 
   a = buffer[wordCounter];wordCounter++;
-  b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "event number in spill: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
-  b = (a& 0xffffff);
   LogDebug("CamacTBDataFormatter") << "internal event number: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = (a& 0xffff0000);
-  b = b >> 16;
   LogDebug("CamacTBDataFormatter") << "vme errors: "<< b;
-  b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "camac errors: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
-  b = a;
   LogDebug("CamacTBDataFormatter") << "extended (32 bits) run number: "<< b;
 
   // skip 1 reserved words
@@ -202,7 +192,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       bufferHodo[hodo]  = buffer[wordCounter];
       wordCounter++;
             
-      b = (a& 0xffffff);
       LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b;
     }
 
@@ -302,7 +291,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       fingersAreGood = fingersAreGood && checkStatus(buffer[wordCounter], wordCounter);
 
       a = buffer[wordCounter];      wordCounter++;
-      b = (a& 0xffffff);
       LogDebug("CamacTBDataFormatter") << "finger: " << finger << "\t: " << b;
     }
   if (fingersAreGood){
@@ -323,7 +311,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   a = buffer[wordCounter];      wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
-  b = (a& 0x000000ff);
   LogDebug("CamacTBDataFormatter") << "number of words used in multi stop TDC words: "<< b;
   
   int numberTDCwords = 16;
@@ -333,7 +320,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       multiStopTDCIsGood =  multiStopTDCIsGood && checkStatus(buffer[wordCounter], wordCounter);
 
       a = buffer[wordCounter];      wordCounter++;
-      b =a;
       LogDebug("CamacTBDataFormatter") << "tdc: " << tdc << "\t: " << b;
     }
   if ( multiStopTDCIsGood ){
@@ -380,7 +366,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   wordCounter += 10;
   bool ADCIsGood = true;
   a = buffer[wordCounter];      wordCounter++;  // NOT read out
-  b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1);
 //  ADCIsGood = true;
 //  ADCIsGood = ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
@@ -399,7 +384,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   wordCounter += 6;
   ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
-  b = (a & 0xfffff);
   LogDebug("CamacTBDataFormatter") << "TDC word1: " << a << "\t TDC2: " << b;
   ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
@@ -416,7 +400,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   a = buffer[wordCounter];      wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
-  b = a;
   LogDebug("CamacTBDataFormatter") << "last word of event: "<< b;
 
 
