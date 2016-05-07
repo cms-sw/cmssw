@@ -21,7 +21,7 @@ void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const st
 
         // read configuration xml files
         _xmlRdr.readDOMFromFile(topCfgFile);
-        _xmlRdr.buildGlobalDoc(key);
+        _xmlRdr.buildGlobalDoc(key, topCfgFile);
         _xmlRdr.readContexts(key, sysId_, *this);
 
         isConfigured_ = true;

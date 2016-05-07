@@ -311,7 +311,7 @@ DOMElement* XmlConfigReader::getKeyElement(const std::string& key)
 }
 
 
-void XmlConfigReader::buildGlobalDoc(const std::string& key)
+void XmlConfigReader::buildGlobalDoc(const std::string& key, const std::string& topPath)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {
@@ -319,6 +319,16 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key)
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
       std::string fileName = _toString(loadElement->getAttribute(kAttrModule));
+      if (fileName.find("/") != 0) { // load element has a relative path
+        // build an absolute path with directory of top xml file
+        size_t pos;
+        std::string topDir = "";
+        pos = topPath.find_last_of("/");
+        if (pos != std::string::npos) {
+          topDir = topPath.substr(0, pos+1);
+        }
+        fileName = topDir + fileName;
+      }
       //std::cout << "loading file " << fileName << std::endl;
       DOMDocument* subDoc = nullptr;
       readDOMFromFile(fileName, subDoc);
