@@ -291,16 +291,6 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
   // std::vector< std::vector<int> > layer_new, layer_old;
   std::vector<int> bx_new, bx_old;
 
-
-  // Do not allow to Merge if number of hits of Merged vector > 6
-  /*
-  if(newChain.size() + oldChain.size() > 6) {
-    edm::LogVerbatim("GEMSegAlgo") << "Merging those two vectors will lead to vector with more than 6 rechits :: n_vec1 = "<<newChain.size()<<" n_vec2 = "<<oldChain.size()<<" => Merging not allowed";
-    return false;
-  }
-  */
-
-  // edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::isGoodToMerge] :: newChain ::";
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     GEMDetId rhID                  = newChain[iRH_new]->gemId();
     const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
@@ -323,7 +313,6 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
     #endif
   }  
 
-  // edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::isGoodToMerge] :: oldChain ::";
   for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
     GEMDetId rhID                  = oldChain[iRH_old]->gemId();
     const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
@@ -366,7 +355,6 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
       // allow only change true --> false. once false, leave it false
       if(layerRequirementOK==true) { 
 	layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) > 0;
-	// edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge::Compare] :: layer_new = "<<layer_new[jRH_new]<<" layer_old = "<<layer_old[jRH_old]<<" ==> bool = "<<layerRequirementOK;
       }
 
       // BX
@@ -386,14 +374,6 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
     }
   }
 
-  // Now take decision whether to merge or not to merge
-  /*
-  if(layerRequirementOK && phiRequirementOK && etaRequirementOK && bxRequirementOK){
-    edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge:: true]";
-    return true; // problem is that return is already given before the second element of the vector old_chain or new_chain is tested ... this logic needs to be changed
-
-  } 
-  */
   edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge:: false]";
   return false;
 }
