@@ -8,6 +8,9 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
@@ -17,13 +20,23 @@
 
 #include "FWCore/Utilities/interface/isFinite.h"
 
+namespace {
+  template <typename T>
+  T sqr(T x) {
+    return x*x;
+  }
+}
+
 typedef PixelRecoRange<float> Range;
 
 PixelQuadrupletGenerator::PixelQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
   extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")), //extra window in ThirdHitRZPrediction range
   extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
-  maxChi2(cfg.getParameter<double>("maxChi2")),
-  keepTriplets(cfg.getParameter<bool>("keepTriplets"))
+  extraPhiTolerance(cfg.getParameter<edm::ParameterSet>("extraPhiTolerance")),
+  maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
+  fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
+  fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
+  useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection"))
 {
   if(cfg.exists("SeedComparitorPSet")) {
     edm::ParameterSet comparitorPSet =
@@ -97,6 +110,11 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
     rzError[il] = maxErr; // save error
   }
 
+  const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
+  const QuantityDependsPtEval extraPhiToleranceEval = extraPhiTolerance.evaluator(es);
+
+  // re-used thoughout, need to be vectors because of RZLine interface
+  std::vector<float> bc_r(4), bc_z(4), bc_errZ(4);
 
   // Loop over triplets
   for(const auto& triplet: triplets) {
@@ -109,11 +127,11 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
 
     const double curvature = predictionRPhi.curvature(ThirdHitPredictionFromCircle::Vector2D(gp1.x(), gp1.y()));
 
-    constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
+    const float abscurv = std::abs(curvature);
+    const float thisMaxChi2 = maxChi2Eval.value(abscurv);
+    const float thisExtraPhiTolerance = extraPhiToleranceEval.value(abscurv);
 
-    SeedingHitSet::ConstRecHitPointer selectedHit = nullptr;
-    float selectedChi2 = std::numeric_limits<float>::max();
-    unsigned nLayersWithManyHits = 0;
+    constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
 
     auto isBarrel = [](const unsigned id) -> bool {
       return id == PixelSubdetector::PixelBarrel;
@@ -150,15 +168,12 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
       if(barrelLayer) {
         auto radius = static_cast<const BarrelDetLayer *>(layer)->specificSurface().radius();
         double phi = predictionRPhi.phi(curvature, radius);
-        //double tol = extraHitRPhitolerance/radius;
-        const double tol = 0.15;
-        phiRange = Range(phi-tol, phi+tol);
+        phiRange = Range(phi-thisExtraPhiTolerance, phi+thisExtraPhiTolerance);
       }
       else {
         double phi1 = predictionRPhi.phi(curvature, rzRange.min());
         double phi2 = predictionRPhi.phi(curvature, rzRange.max());
-        const double tol = 0.15;
-        phiRange = Range(std::min(phi1, phi2)-tol, std::max(phi1, phi2)+tol);
+        phiRange = Range(std::min(phi1, phi2)-thisExtraPhiTolerance, std::max(phi1, phi2)+thisExtraPhiTolerance);
       }
 
       KDTreeBox phiZ(phiRange.min(), phiRange.max(),
@@ -172,14 +187,16 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
         continue;
       }
 
-      std::vector<std::tuple<unsigned int, float> > passedQualityCuts; // hit index, chi2
-      constexpr unsigned kHitIndex = 0;
-      constexpr unsigned kChi2 = 1;
+      SeedingHitSet::ConstRecHitPointer selectedHit = nullptr;
+      float selectedChi2 = std::numeric_limits<float>::max();
       for(auto hitIndex: foundNodes) {
         const auto& hit = hits.theHits[hitIndex].hit();
 
         // Reject comparitor. For now, because of technical
         // limitations, pass three hits to the comparitor
+        // TODO: switch to using hits from 2-3-4 instead of 1-3-4?
+        // Eventually we should fix LowPtClusterShapeSeedComparitor to
+        // accept quadruplets.
         if(theComparitor) {
           SeedingHitSet tmpTriplet(triplet.inner(), triplet.outer(), hit);
           if(!theComparitor->compatible(tmpTriplet, region)) {
@@ -191,44 +208,53 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
         ges[3] = hit->globalPositionError();
         barrels[3] = isBarrel(hit->geographicalId().subdetId());
 
-        RZLine rzLine(gps, ges, barrels);
-        float  cottheta, intercept, covss, covii, covsi;
-        rzLine.fit(cottheta, intercept, covss, covii, covsi);
-        float chi2 = rzLine.chi2(cottheta, intercept);
-        if(edm::isNotFinite(chi2) || chi2 > maxChi2) {
+        float chi2 = std::numeric_limits<float>::quiet_NaN();
+        // TODO: Do we have any use case to not use bending correction?
+        if(useBendingCorrection) {
+          // Following PixelFitterByConformalMappingAndLine
+          const float simpleCot = ( gps.back().z()-gps.front().z() )/ (gps.back().perp() - gps.front().perp() );
+          const float pt = 1/PixelRecoUtilities::inversePt(abscurv, es);
+          for (int i=0; i< 4; ++i) {
+            const GlobalPoint & point = gps[i];
+            const GlobalError & error = ges[i];
+            bc_r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
+            bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt,es)(bc_r[i]);
+            bc_z[i] = point.z()-region.origin().z();
+            bc_errZ[i] =  (barrels[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
+          }
+          RZLine rzLine(bc_r,bc_z,bc_errZ);
+          float      cottheta, intercept, covss, covii, covsi;
+          rzLine.fit(cottheta, intercept, covss, covii, covsi);
+          chi2 = rzLine.chi2(cottheta, intercept);
+        }
+        else {
+          RZLine rzLine(gps, ges, barrels);
+          float  cottheta, intercept, covss, covii, covsi;
+          rzLine.fit(cottheta, intercept, covss, covii, covsi);
+          chi2 = rzLine.chi2(cottheta, intercept);
+        }
+        if(edm::isNotFinite(chi2) || chi2 > thisMaxChi2) {
           continue;
         }
+        // TODO: Do we have any use case to not use circle fit? Maybe
+        // HLT where low-pT inefficiency is not a problem?
+        if(fitFastCircle) {
+          FastCircleFit c(gps, ges);
+          chi2 += c.chi2();
+          if(edm::isNotFinite(chi2))
+            continue;
+          if(fitFastCircleChi2Cut && chi2 > thisMaxChi2)
+            continue;
+        }
 
-        passedQualityCuts.push_back(std::make_tuple(hitIndex, chi2));
-      }
-
-      if(passedQualityCuts.empty()) {
-        continue;
-      }
-
-      if(passedQualityCuts.size() == 1) {
-        unsigned index = std::get<kHitIndex>(passedQualityCuts[0]);
-        const auto& hit = hits.theHits[index].hit();
-        float chi2 = std::get<kChi2>(passedQualityCuts[0]);
 
         if(chi2 < selectedChi2) {
-          selectedHit = hit;
           selectedChi2 = chi2;
+          selectedHit = hit;
         }
       }
-      else {
-        ++nLayersWithManyHits;
-      }
-    }
-
-    if(nLayersWithManyHits == 0) {
-      if(selectedHit) {
-        SeedingHitSet quadruplet(triplet.inner(), triplet.middle(), triplet.outer(), selectedHit);
-        result.push_back(quadruplet);
-      }
-    }
-    else if(keepTriplets) {
-      result.push_back(triplet);
+      if(selectedHit)
+        result.emplace_back(triplet.inner(), triplet.middle(), triplet.outer(), selectedHit);
     }
   }
 }
