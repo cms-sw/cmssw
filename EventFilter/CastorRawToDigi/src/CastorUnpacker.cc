@@ -141,7 +141,7 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     int htr_slot=(smid>>1)&0x1F;
     int htr_cr=(smid>>6)&0x1F;
     
-    tp_begin=(HcalTriggerPrimitiveSample*)tp_first;
+    tp_begin=(const HcalTriggerPrimitiveSample*)tp_first;
     tp_end=(HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
        
     /// work through the samples
