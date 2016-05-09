@@ -3,7 +3,7 @@
  *  \author Piet Verwilligen
  */
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <DataFormats/GEMRecHit/interface/GEMSegment.h>
+#include "DataFormats/GEMRecHit/interface/GEMSegment.h"
 #include <iostream>
 
 namespace {
@@ -38,8 +38,8 @@ public:
 };
 
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-	LocalVector direction, AlgebraicSymMatrix errors, double chi2) :
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+	const LocalVector direction, const AlgebraicSymMatrix errors, double chi2) :
   RecSegment(buildDetId(proto_segment.front()->gemId())), 
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -50,8 +50,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, Local
     theGEMRecHits.push_back(*proto_segment[i]);
 }
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-		       LocalVector direction, AlgebraicSymMatrix errors, double chi2, float bx) : 
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+		       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, float bx) : 
   RecSegment(buildDetId(proto_segment.front()->gemId())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -62,8 +62,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, Local
     theGEMRecHits.push_back(*proto_segment[i]);
 }
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-		       LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr) : 
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+		       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, double time, double timeErr) : 
   RecSegment(buildDetId(proto_segment.front()->gemId())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -139,7 +139,7 @@ std::ostream& operator<<(std::ostream& os, const GEMSegment& seg) {
     "0,)\n"<<
     "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2()/double(seg.degreesOfFreedom()) :0 ) << 
     " #rechits = " << seg.specificRecHits().size()<<
-    " bx = "<< seg.BunchX() <<
+    " bx = "<< seg.bunchX() <<
     " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns";
 
   return os;  

@@ -44,7 +44,7 @@ private:
 
     std::string algoName;
     edm::ParameterSet segAlgoPSet;
-    GEMSegmentAlgorithm* algo;
+    std::unique_ptr<GEMSegmentAlgorithm> algo;
     bool useGE21Short;
     const GEMGeometry* geom_; 
 };

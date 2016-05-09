@@ -9,8 +9,8 @@
  *  \author Piet Verwilligen
  */
 
-#include <DataFormats/TrackingRecHit/interface/RecSegment.h>
-#include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
 #include <iosfwd>
 
@@ -24,14 +24,14 @@ public:
     GEMSegment() : theChi2(0.){}
 	
     /// Constructor
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-	       LocalVector direction, AlgebraicSymMatrix errors, double chi2);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-	       LocalVector direction, AlgebraicSymMatrix errors, double chi2, float bx);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, float bx);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-	      LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
+	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
   
     /// Destructor
     virtual ~GEMSegment();
@@ -77,29 +77,9 @@ public:
 	return chamid;
     }
 
-    /*
-    GEMDetId gemDetId() const {
-    // this geographical id comes from the RecSegment. 
-    // in .cc we have defined to choose always ST3 for GE2/1
-    // and always choose Layer 1 in general
-      DetId detid = geographicalId(); 
-      GEMDetId rollid = GEMDetId(detid);
-      GEMDetId chamid = rollid.chamberId();
-      // for GE1/1 this chamber id is fine
-      // for GE2/1 the station can be 2 or 3 and we want to fix it to 3
-      if(chamid.station()==1)      return chamid;
-      else if(chamid.station()==2) {
-	// GEMDetId:: Re Ri St La Ch Ro
-	return GEMDetId(chamid.region(),1,3,1,chamid.chamber(),0);
-      }
-      else if(chamid.station()==3) return chamid;
-      else return chamid;
-    }  
-    */
-
     float time()    const { return theTimeValue; }
     float timeErr() const { return theTimeUncrt; }
-    float BunchX()  const { return theBX; }
+    float bunchX()  const { return theBX; }
     void  print()   const;		
     
  private:

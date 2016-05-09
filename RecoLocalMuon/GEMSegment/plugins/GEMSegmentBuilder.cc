@@ -1,13 +1,13 @@
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilder.h>
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
-#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h>
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h>
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilder.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h"
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h"
 
-#include <FWCore/Utilities/interface/Exception.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   
@@ -20,15 +20,13 @@ GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
   
   // Ask factory to build this algorithm, giving it appropriate ParameterSet  
-  algo = GEMSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet);
+  algo = std::unique_ptr<GEMSegmentAlgorithm>(GEMSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
   
   // Use GE21Short to have 4 rechits available in GE21?
   useGE21Short = ps.getParameter<bool>("useGE21Short");
 
 }
-GEMSegmentBuilder::~GEMSegmentBuilder() {
-  delete algo;
-}
+GEMSegmentBuilder::~GEMSegmentBuilder() {}
 
 void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentCollection& oc) {
   	
@@ -106,12 +104,16 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 
     GEMSegmentAlgorithm::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";
     // given the superchamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
     GEMDetId mid(enIt->first);
+    
+    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";
     edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() << " segments in GEM Super Chamber " << mid;
     edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
+    #endif
+    
     // Add the segments to master collection
     oc.put(mid, segv.begin(), segv.end());
   }
@@ -120,4 +122,3 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 void GEMSegmentBuilder::setGeometry(const GEMGeometry* geom) {
   geom_ = geom;
 }
-

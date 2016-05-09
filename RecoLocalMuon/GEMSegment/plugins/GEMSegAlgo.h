@@ -14,8 +14,8 @@
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h>
-#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <deque>
 #include <vector>
@@ -56,11 +56,9 @@ private:
   std::vector<GEMSegment> buildSegments(const EnsembleHitContainer& rechits);
 
   // Member variables
- private:
   const std::string myName; 
 
   // input from .cfi file
- private:
   bool    debug;
   unsigned int     minHitsPerSegment;
   bool    preClustering;
@@ -73,12 +71,11 @@ private:
   bool    clusterOnlySameBXRecHits;
   // bool    useGE21Short;
   
- private:
   EnsembleHitContainer proto_segment;
   GEMEnsemble theEnsemble;
   GEMDetId    theChamberId;
 
-  static constexpr float running_max=999999.;
+  static constexpr float running_max=std::numeric_limits<float>::max();
   std::unique_ptr<MuonSegFit> sfit_;
 
 };

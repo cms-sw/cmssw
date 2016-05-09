@@ -134,10 +134,6 @@ GEMSegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
     temp.push_back(rechits[i]);
     seeds.push_back(temp);
 
-    // First added hit in seed defines the mean to which the next hit is compared
-    // for this seed.
-    // running_meanX.push_back( rechits[i]->localPosition().x() );
-    // running_meanY.push_back( rechits[i]->localPosition().y() );
     GEMDetId rhID                  = rechits[i]->gemId();
     const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
     if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
@@ -408,9 +404,7 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto gemid = (*rh)->gemId();
-    // auto rhr = gemGeom->etaPartition(gemid);
     auto rhLP = (*rh)->localPosition();
-    // auto rhGP = rhr->toGlobal(rhLP);
     edm::LogVerbatim("GEMSegAlgo") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
 				     <<" BX = "<<std::showpos<<(*rh)->BunchX()<<" -- "<<gemid.rawId()<<" = "<<gemid<<" ]";
   }
@@ -465,7 +459,6 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
 
   // save all information inside GEMCSCSegment
   edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] will now wrap fit info in GEMSegment dataformat";
-  // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2);
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
 
