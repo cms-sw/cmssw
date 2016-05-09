@@ -55,7 +55,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     {
       ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                              theMass, theMomentumEstimate);
-      config.useBeamSpot = theUseBeamSpot;
+      config.useBeamSpot = useBeamSpot_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       config.hitsAreReverse = false;
       trajectories.push_back(ReferenceTrajectoryPtr(new BzeroReferenceTrajectory(input.first, input.second,
@@ -104,7 +104,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       {
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                                theMass, theMomentumEstimate);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
         config.hitsAreReverse = false;
         ReferenceTrajectoryPtr refTraj (new BzeroReferenceTrajectory(*itExternal, input.second,
@@ -120,7 +120,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       {
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                                theMass, theMomentumEstimate);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
         config.hitsAreReverse = false;
         trajectories.push_back(ReferenceTrajectoryPtr(new BzeroReferenceTrajectory(input.first, input.second,

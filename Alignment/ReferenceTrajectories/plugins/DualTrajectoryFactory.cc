@@ -91,7 +91,7 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     if ( input.refTsos.isValid() )
     {
       ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-      config.useBeamSpot = theUseBeamSpot;
+      config.useBeamSpot = useBeamSpot_;
       ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(input.refTsos,
                                                              input.fwdRecHits,
                                                              input.bwdRecHits,
@@ -150,7 +150,7 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 	if ( !propExternal.isValid() ) continue;
 
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(propExternal,
                                                                input.fwdRecHits,
                                                                input.bwdRecHits,
@@ -165,7 +165,7 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       else
       {
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(input.refTsos,
                                                                input.fwdRecHits,
                                                                input.bwdRecHits,
