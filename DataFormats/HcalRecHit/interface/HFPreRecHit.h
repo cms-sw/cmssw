@@ -32,7 +32,7 @@ private:
     HcalDetId id_;
 
     HFQIE10Info hfQIE10Info_[2];
-    uint8_t hasInfo_[2];
+    bool hasInfo_[2];
 };
 
 #endif // DATAFORMATS_HCALRECHIT_HFPRERECHIT_H

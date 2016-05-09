@@ -15,7 +15,7 @@
     <version ClassVersion="3" checksum="1025085409"/>
    </class>
    <class name="HFPreRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="2033929457"/>
+    <version ClassVersion="3" checksum="224636588"/>
    </class>
    <class name="HFRecHit" ClassVersion="13">
     <version ClassVersion="13" checksum="1446699820"/>
