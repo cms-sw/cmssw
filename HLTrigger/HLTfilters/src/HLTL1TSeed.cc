@@ -721,8 +721,12 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     
         for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
     	
-    	    l1t::MuonRef myref(muons, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1Mu, myref);
+
+          // Transform to index for Bx = 0 to begin of BxVector
+          unsigned int index = muons->begin(0) - muons->begin() + *itObj;
+
+    	  l1t::MuonRef myref(muons, index);
+    	  filterproduct.addObject(trigger::TriggerL1Mu, myref);
 
         }
 
@@ -746,8 +750,11 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     
         for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
 
-    	    l1t::EGammaRef myref(egammas, *itObj);
-    	    filterproduct.addObject(trigger::TriggerL1EG, myref);
+          // Transform to begin of BxVector
+          unsigned int index = egammas->begin(0) - egammas->begin() + *itObj;
+
+    	  l1t::EGammaRef myref(egammas, index);
+    	  filterproduct.addObject(trigger::TriggerL1EG, myref);
 
         } 
 
@@ -771,8 +778,13 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       else {
   
         for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
-          l1t::JetRef myref(jets, *itObj);
+
+          // Transform to begin of BxVector
+          unsigned int index = jets->begin(0) - jets->begin() + *itObj;
+
+          l1t::JetRef myref(jets, index);
           filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+
         }
 
       }
@@ -795,8 +807,13 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       else {
   
         for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
-          l1t::TauRef myref(taus, *itObj);
+
+          // Transform to begin of BxVector
+          unsigned int index = taus->begin(0) - taus->begin() + *itObj;
+
+          l1t::TauRef myref(taus, index);
           filterproduct.addObject(trigger::TriggerL1Tau, myref); 
+
         }
 
       }
