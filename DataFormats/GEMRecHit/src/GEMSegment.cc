@@ -38,8 +38,8 @@ public:
 };
 
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-	const LocalVector direction, const AlgebraicSymMatrix errors, double chi2) :
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+	const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2) :
   RecSegment(buildDetId(proto_segment.front()->gemId())), 
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -50,8 +50,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const
     theGEMRecHits.push_back(*proto_segment[i]);
 }
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-		       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, float bx) : 
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+		       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float bx) : 
   RecSegment(buildDetId(proto_segment.front()->gemId())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -62,8 +62,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const
     theGEMRecHits.push_back(*proto_segment[i]);
 }
 
-GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-		       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, double time, double timeErr) : 
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+		       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr) : 
   RecSegment(buildDetId(proto_segment.front()->gemId())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){

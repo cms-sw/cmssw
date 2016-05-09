@@ -24,14 +24,14 @@ public:
     GEMSegment() : theChi2(0.){}
 	
     /// Constructor
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, float bx);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float bx);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint origin, 
-	       const LocalVector direction, const AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
+	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr);
   
     /// Destructor
     virtual ~GEMSegment();
