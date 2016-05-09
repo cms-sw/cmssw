@@ -204,12 +204,12 @@ namespace edm
     HBHEDigiToken_ = iC.consumes<HBHEDigiCollection>(HBHEdigiCollectionSig_);
     HODigiToken_ = iC.consumes<HODigiCollection>(HOdigiCollectionSig_);
     HFDigiToken_ = iC.consumes<HFDigiCollection>(HFdigiCollectionSig_);
-    QIE10DigiToken_ = iC.consumes<QIE10DigiCollection>(HFdigiCollectionSig_);
+    QIE10DigiToken_ = iC.consumes<QIE10DigiCollection>(QIE10digiCollectionSig_);
 
     HBHEDigiPToken_ = iC.consumes<HBHEDigiCollection>(HBHEPileInputTag_);
     HODigiPToken_ = iC.consumes<HODigiCollection>(HOPileInputTag_);
     HFDigiPToken_ = iC.consumes<HFDigiCollection>(HFPileInputTag_);
-    QIE10DigiPToken_ = iC.consumes<QIE10DigiCollection>(HFPileInputTag_);
+    QIE10DigiPToken_ = iC.consumes<QIE10DigiCollection>(QIE10PileInputTag_);
 
     DoZDC_ = false;
     if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
@@ -482,7 +482,7 @@ namespace edm
     e.put( HBHEdigis, HBHEDigiCollectionDM_ );
     e.put( HOdigis, HODigiCollectionDM_ );
     e.put( HFdigis, HFDigiCollectionDM_ );
-    e.put( QIE10digis, HFDigiCollectionDM_ );
+    e.put( QIE10digis, QIE10DigiCollectionDM_ );
     e.put( ZDCdigis, ZDCDigiCollectionDM_ );
     e.put( hbheupgradeResult, "HBHEUpgradeDigiCollection" );
     e.put( hfupgradeResult, "HFUpgradeDigiCollection" );
