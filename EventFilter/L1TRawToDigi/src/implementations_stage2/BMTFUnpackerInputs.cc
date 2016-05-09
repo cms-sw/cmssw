@@ -91,14 +91,10 @@ namespace l1t
 					mbQual[iw] = (inputWords[iw] >> 22) & 0xF;
 					mbRPC[iw] = (inputWords[iw] >> 26) & 0x1;
 					mbBxC[iw] = (inputWords[iw] >> 30) & 0x3;
-
-					//if (wheel>0)
-					//	std::cout << iw+1 << "\tWord: " << std::hex << inputWords[iw] << std::dec << "\tLink: " << blockId/2 << "\tamc: " << block.amc().getAMCNumber() << "\twheel: " << wheel << "\tsector: " << sector << std::endl;
 					if (mbQual[iw] == 0)
 						continue;
 					
 					phiData.push_back( L1MuDTChambPhDigi( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
-					//std::cout << iw+1 << "\tAfter push: " << std::hex << inputWords[iw] << std::dec << "\tLink: " << blockId/2 << "\tamc: " << block.amc().getAMCNumber() << "\twheel: " << phiData.back().whNum() << "\tsector: " << phiData.back().scNum() << "\tTsTag: " << phiData.back().Ts2Tag() << std::endl;
 				}//iw
 				
 				
@@ -112,9 +108,6 @@ namespace l1t
 						etaHits[i][6-j] = (inputWords[4] >> (i*7 + j)) & 0x1;
 						if ( etaHits[i][6-j]!=0 )
 							zeroFlag[i] = true;
-						//etaHits[i][j] = (inputWords[4] >> (i*7 + j)) & 0x1;
-						//if ( etaHits[i][j]!=0 )
-							//zeroFlag[i] = true;
 					}
 				}
 				if ( trTag == 1 )
@@ -124,46 +117,7 @@ namespace l1t
 						if (zeroFlag[i])
 							theData.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_[blockId/2 - 1].hits[i]) );
 					}
-					/*bool toBeErased[3];
 
-					std::vector<L1MuDTChambThDigi>::iterator thIt = theData.end()-4;
-					for (unsigned int i = 0; i < 3; i++)
-					{
-
-						if (zeroFlag[i])
-						{
-							std::cout << "Mpika sto 1o gia i = " << i << " kai size " << theData.size() << " kai link " << blockId/2 << "\t" << (blockId/2)%2 << std::endl;
-							toBeErased[i] = false;
-							// bool zerBefore = false;
-							// for (int j = 0; j < 7; j++)
-							// {
-							// 	if (thIt->position(j)!= 0)
-							// 		zerBefore = true;
-							// }
-							// if (!zerBefore)
-							thIt->setPos(etaHits[i]);
-							std::cout << "Ekana setPos gia i = " << i << std::endl;
-						}
-						else
-							toBeErased[i] = true;
-
-						thIt++;
-					}
-					thIt = theData.end()-4;
-					for (unsigned int i = 0; i < 3; i++)
-					{
-						//int ct(0);
-						if (toBeErased[i])
-						{
-							std::cout << "Mpika sto toBeErased gia i = " << i << " kai size " << theData.size() << "kai link " <<  blockId/2 << "\t" << (blockId/2)%2  << std::endl;
-							// theData.erase(theData.end()-4+ct);
-							// ct++;
-							theData.erase(thIt);
-							std::cout << "erase ok new size = " << theData.size() << std::endl;
-						}
-						if( theData.size() != 0 )
-							thIt++;
-					}*/
 				}
 				else
 				{
@@ -172,16 +126,9 @@ namespace l1t
 					std::copy(&etaHits[0][0], &etaHits[0][0]+3*7,&temp.hits[0][0]);
 					linkAndQual_[blockId/2] = temp;	
 				}
-				//std::cout << std::endl << std::endl;
-
-				//std::cout << "phiData size: " << phiData.size() << std::endl;
 
 			}//ibx
-			//std::cout <<"Setting the container" << std::endl;
 			resThe->setContainer(theData);
-			//std::cout <<"container set" << std::endl;
-				//std::cout << "Final size: " << phiData.size() << std::endl;
-			//std::cout << "Address before set is: " << resPhi << std::endl;
 			resPhi->setContainer(phiData);
 			
 			
