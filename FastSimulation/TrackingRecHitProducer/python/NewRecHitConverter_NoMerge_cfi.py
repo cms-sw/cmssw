@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 trackingRecHitProducerNoMerge = cms.EDProducer("TrackingRecHitProducer",
-     simHits = cms.InputTag("famosSimHits","TrackerHits"),
-     plugins=cms.VPSet()                                      
+    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+    plugins=cms.VPSet()
 )
 
 trackingRecHitProducerNoMerge.plugins.append(
@@ -94,15 +94,3 @@ for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
             select=cms.string("(subdetId=="+subdetId+") && (layer=="+str(trackerLayer)+")"),
         )
         trackingRecHitProducerNoMerge.plugins.append(pluginConfig)
-
-#for subdetId in ["BPX","FPX","TIB","TID","TOB","TEC"]:
-#    plugin1Config = cms.PSet(
-#        name = cms.string("monitor"+subdetId),
-#        type=cms.string("TrackingRecHitMonitorPlugin"),
-#        dxmax=cms.double(0.05),
-#        dymax=cms.double(20.0),
-#        select=cms.string("subdetId=="+subdetId),
-#    )
-#    trackingRecHitProducerNoMerge.plugins.append(plugin1Config)
-
-#TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )

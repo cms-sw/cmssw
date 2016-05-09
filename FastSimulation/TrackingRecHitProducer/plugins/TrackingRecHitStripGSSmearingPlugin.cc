@@ -12,6 +12,10 @@
 #include <string>
 #include <iostream>
 
+/* This plugin performs simple Gaussian smearing (GS) of the sim hit position
+ * per module. If y resolution < 0 (default) the module length/sqrt 12 is taken.
+ */
+
 class TrackingRecHitStripGSSmearingPlugin:
     public TrackingRecHitAlgorithm
 {
@@ -40,12 +44,12 @@ class TrackingRecHitStripGSSmearingPlugin:
             if (config.exists("resolutionX"))
             {
                 _resolutionX = config.getParameter<double>("resolutionX");
-                _resolutionX2*=_resolutionX;
+                _resolutionX2=_resolutionX*_resolutionX;
             }
             if (config.exists("resolutionY"))
             {
                 _resolutionY = config.getParameter<double>("resolutionY");
-                _resolutionY2*=_resolutionY;
+                _resolutionY2=_resolutionY*_resolutionY;
             }
         }
 
@@ -53,24 +57,26 @@ class TrackingRecHitStripGSSmearingPlugin:
         {
             for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {
-		std::cout << "A " << std::endl;
                 const PSimHit* simHit = simHitIdPair.second;
                 const Local3DPoint& simHitPosition = simHit->localPosition();
                 
                 const GeomDet* geomDet = this->getTrackerGeometry().idToDetUnit(product->getDetId());
                 const Plane& plane = geomDet->surface();
                 const Bounds& bounds = plane.bounds();
-                //const double boundX = bounds.width()/2.;
-                const double boundY = bounds.length()/2.;
+                const double boundY = bounds.length();
                 
                 Local3DPoint recHitPosition;
-                //do
+                do
                 {
-                    recHitPosition = Local3DPoint(this->getRandomEngine().gaussShoot(simHitPosition.x(),_resolutionX),0.0,0.0);
+                    recHitPosition = Local3DPoint(
+                        simHitPosition.x()+this->getRandomEngine().gaussShoot(0.0,_resolutionX),
+                        simHitPosition.y(),
+                        simHitPosition.z()
+                    );
                     //TODO: this will skip the check if the smeared hit is inside the module - currently some SimHits are outside for no good reason
-                    //break;
+                    break;
                 }
-                //while (not bounds.inside(recHitPosition));
+                while (not bounds.inside(recHitPosition));
                 
                 LocalError error(
                     //xx (variance)
@@ -78,16 +84,15 @@ class TrackingRecHitStripGSSmearingPlugin:
                      //xy (covariance)
                     0.0,          
                     //take here the provided y resolution or (lenght/sqrt(12))^2
-                    _resolutionY<0 ? boundY*boundY*INV12: _resolutionY2 
+                    _resolutionY<0.0 ? boundY*boundY*INV12 : _resolutionY2
                 );
                 
                 FastSingleTrackerRecHit recHit(
                     recHitPosition,   //const LocalPoint &
                     error,            //const LocalError &
                     *geomDet,         //GeomDet const &idet
-		            fastTrackerRecHitType::siStrip1D
-	            );
-		std::cout << "B " << std::endl;
+                    fastTrackerRecHitType::siStrip1D
+                );
                 product->addRecHit(recHit,{simHitIdPair});
             }
             return product;

@@ -8,7 +8,7 @@
 
 const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTable = {
 
-    {DETIDFCT("subdetId"){return detId.subdetId();}},
+    {DETIDFCT("subdetId"){return (uint32_t)detId.subdetId();}},
 
     {DETIDFCT("BPX"){return PixelSubdetector::PixelBarrel;}},
     {DETIDFCT("FPX"){return PixelSubdetector::PixelEndcap;}},

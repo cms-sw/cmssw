@@ -88,6 +88,10 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
                     pipe.addAlgorithm(algo);
                 }
             }
+            if (pipe.size()==0)
+            {
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer: DetId not configured! ("+trackerTopology->print(detId)+")");
+            }
             _detIdPipes[detId.rawId()]=pipe;
         }
     }

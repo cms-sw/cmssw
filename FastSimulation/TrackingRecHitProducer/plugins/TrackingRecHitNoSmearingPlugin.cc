@@ -47,8 +47,6 @@ class TrackingRecHitNoSmearingPlugin:
 
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
         {
-            //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
-
             for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {
                 const PSimHit* simHit = simHitIdPair.second;

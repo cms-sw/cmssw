@@ -131,16 +131,104 @@ struct UnaryOP
 
 };
 
+class TrackerDetIdSelector
+{
+    private:
+        const DetId& _detId;
+        const TrackerTopology& _trackerTopology;
+
+    public:
+        typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
+        typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
+        const static StringFunctionMap functionTable;
+
+        TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
+            _detId(detId),
+            _trackerTopology(trackerTopology)
+        {
+        }
+
+        bool passSelection(std::string selectionStr) const;
+};
+
+class Accessor:
+    public boost::static_visitor<int>
+{
+    private:
+        const DetId& _detId;
+        const TrackerTopology& _trackerTopology;
+    public:
+        Accessor(const DetId& detId, const TrackerTopology& trackerTopology):
+            _detId(detId),
+            _trackerTopology(trackerTopology)
+        {
+        }
+
+        int operator()(Nil i) const
+        {
+            throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","while evaluating a DetId selection a symbol was not set");
+        }
+        int operator()(const int& i) const
+        {
+            return i;
+        }
+        int operator()(const std::string& s) const
+        {
+            TrackerDetIdSelector::StringFunctionMap::const_iterator it = TrackerDetIdSelector::functionTable.find(s);
+            int value = 0;
+            if (it != TrackerDetIdSelector::functionTable.cend())
+            {
+                value = (it->second)(_trackerTopology,_detId);
+                //std::cout<<"attr="<<s<<", value="<<value<<std::endl;
+            }
+            else
+            {
+                //std::cout<<"attr="<<s<<" unknown"<<std::endl;
+                std::string msg = "error while parsing DetId selection: named identifier '"+s+"' not known. Possible values are: ";
+                for (const TrackerDetIdSelector::StringFunctionMap::value_type& pair: TrackerDetIdSelector::functionTable)
+                {
+                    msg+=pair.first+",";
+                }
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",msg);
+            }
+            return value;
+        }
+        int operator()(const ExpressionAST& ast) const
+        {
+            return ast.evaluate(_detId,_trackerTopology);
+        }
+        int operator()(const BinaryOP& binaryOP) const
+        {
+            return binaryOP.evaluate(_detId,_trackerTopology);
+        }
+        int operator()(const UnaryOP& unaryOP) const
+        {
+            return unaryOP.evaluate(_detId,_trackerTopology);
+        }
+};
+
+
+
+
+
 struct WalkAST
 {
+    Accessor _acc;
+    
+    WalkAST(const DetId& detId, const TrackerTopology& trackerTopology):
+        _acc(detId,trackerTopology)
+    {
+    }
+
     typedef void result_type;
 
     void operator()() const {}
-    void operator()(int n) const { std::cout << n; }
-    void operator()(std::string str) const { std::cout << str; }
+    void operator()(int n) const { std::cout << n; std::cout<<" ["<<_acc(n)<<"] "; }
+    void operator()(std::string str) const { std::cout << str; std::cout<<" ["<<_acc(str)<<"] "; }
     void operator()(ExpressionAST const& ast) const
     {
         boost::apply_visitor(*this, ast.expr);
+        std::cout<<" [="<<_acc(ast)<<"] ";
     }
 
     void operator()(BinaryOP const& expr) const
@@ -223,12 +311,9 @@ struct TrackerDetIdSelectorGrammar:
     TrackerDetIdSelectorGrammar():
         TrackerDetIdSelectorGrammar::base_type(comboRule)
     {
-
         namespace qi = boost::spirit::qi;
         namespace ascii = boost::spirit::ascii;
         namespace phoenix = boost::phoenix;
-
-        //TODO: add ! operator to rules
 
         identifierFctRule =
             qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
@@ -259,112 +344,35 @@ struct TrackerDetIdSelectorGrammar:
 };
 
 
-class TrackerDetIdSelector
+bool TrackerDetIdSelector::passSelection(std::string selectionStr) const
 {
-    private:
-        const DetId& _detId;
-        const TrackerTopology& _trackerTopology;
-
-    public:
-        typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
-        typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
-        const static StringFunctionMap functionTable;
+    std::string::const_iterator begin = selectionStr.cbegin();
+    std::string::const_iterator end = selectionStr.cend();
 
 
-    
-        TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
-            _detId(detId),
-            _trackerTopology(trackerTopology)
-        {
+    TrackerDetIdSelectorGrammar<std::string::const_iterator> grammar;
+    ExpressionAST exprAST;
+
+    bool success = boost::spirit::qi::phrase_parse(begin,end, grammar, boost::spirit::ascii::space, exprAST);
+    if (begin!=end)
+    {
+        throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",
+            "parsing selection '"+selectionStr+"' failed at "+std::string(selectionStr.cbegin(), begin)+"^^^"+std::string(begin, end));
+    }
+    if (!success)
+    {
+        throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","parsing selection '"+selectionStr+"' failed.");
+    }
+    /* Comment out for debugging
+    WalkAST walker(_detId,_trackerTopology);
+    walker(exprAST);
+    std::cout<<std::endl;
+    */
+    return exprAST.evaluate(_detId,_trackerTopology);
+
+}
 
 
-        }
-
-        bool passSelection(std::string selectionStr) const
-        {
-            std::string::const_iterator begin = selectionStr.cbegin();
-            std::string::const_iterator end = selectionStr.cend();
-
-
-            TrackerDetIdSelectorGrammar<std::string::const_iterator> grammar;
-            ExpressionAST exprAST;
-
-            bool success = boost::spirit::qi::phrase_parse(begin,end, grammar, boost::spirit::ascii::space, exprAST);
-            if (begin!=end)
-            {
-                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",
-                    "parsing selection '"+selectionStr+"' failed at "+std::string(selectionStr.cbegin(), begin)+"^^^"+std::string(begin, end));
-            }
-            if (!success)
-            {
-                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","parsing selection '"+selectionStr+"' failed.");
-            }
-            /*
-            WalkAST walker;
-            walker(exprAST);
-            std::cout<<std::endl;
-            */
-            return exprAST.evaluate(_detId,_trackerTopology);
-
-        }
-};
-
-
-class Accessor:
-    public boost::static_visitor<int>
-{
-    private:
-        const DetId& _detId;
-        const TrackerTopology& _trackerTopology;
-    public:
-        Accessor(const DetId& detId, const TrackerTopology& trackerTopology):
-            _detId(detId),
-            _trackerTopology(trackerTopology)
-        {
-        }
-
-        int operator()(Nil i) const
-        {
-            throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","while evaluating a DetId selection a symbol was not set");
-        }
-        int operator()(const int& i) const
-        {
-            return i;
-        }
-        int operator()(const std::string& s) const
-        {
-            TrackerDetIdSelector::StringFunctionMap::const_iterator it = TrackerDetIdSelector::functionTable.find(s);
-            int value = 0;
-            if (it != TrackerDetIdSelector::functionTable.cend())
-            {
-                value = (it->second)(_trackerTopology,_detId);
-                //std::cout<<"attr="<<s<<", value="<<value<<std::endl;
-            }
-            else
-            {
-                //std::cout<<"attr="<<s<<" unknown"<<std::endl;
-                std::string msg = "error while parsing DetId selection: named identifier '"+s+"' not known. Possible values are: ";
-                for (const TrackerDetIdSelector::StringFunctionMap::value_type& pair: TrackerDetIdSelector::functionTable)
-                {
-                    msg+=pair.first+",";
-                }
-                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",msg);
-            }
-            return value;
-        }
-        int operator()(const ExpressionAST& ast) const
-        {
-            return ast.evaluate(_detId,_trackerTopology);
-        }
-        int operator()(const BinaryOP& binaryOP) const
-        {
-            return binaryOP.evaluate(_detId,_trackerTopology);
-        }
-        int operator()(const UnaryOP& unaryOP) const
-        {
-            return unaryOP.evaluate(_detId,_trackerTopology);
-        }
-};
 
 int ExpressionAST::evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const
 {
