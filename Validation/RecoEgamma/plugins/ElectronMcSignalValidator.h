@@ -219,7 +219,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_scl_EtaVsPhi;
     MonitorElement *h1_scl_Eta;
     MonitorElement *h1_scl_Phi;
-    MonitorElement *h1_scl_ESFrac;
+//    MonitorElement *h1_scl_ESFrac;
     MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h2_scl_EoEtruePfVsEg ;
