@@ -51,6 +51,12 @@ def addL1UserData(patMuonProducer, l1ModuleLabel = "muonL1Info"):
     patMuonProducer.userData.userFloats.src += [  
         cms.InputTag(l1ModuleLabel, "deltaR"),  # will be 999 in case of no match
     ]
+    patMuonProducer.userData.userFloats.src += [  
+        cms.InputTag(l1ModuleLabel, "deltaPhi"),  # will be 999 in case of no match
+    ]
+    patMuonProducer.userData.userInts.src += [  
+        cms.InputTag(l1ModuleLabel, "bx"),  # will be 999 in case of no match
+    ]
     patMuonProducer.userData.userCands.src += [
         cms.InputTag(l1ModuleLabel)
     ]
