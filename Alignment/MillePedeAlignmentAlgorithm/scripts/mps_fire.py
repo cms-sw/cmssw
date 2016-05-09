@@ -40,7 +40,7 @@ args = parser.parse_args(sys.argv[1:])
 lib = mpslib.jobdatabase()
 lib.read_db()
 
-if args.all:
+if args.allMille:
     # submit all Mille jobs and ignore 'maxJobs' supplied by user
     args.maxJobs = lib.nJobs
 
