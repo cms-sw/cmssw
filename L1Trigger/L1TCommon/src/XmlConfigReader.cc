@@ -196,10 +196,10 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             // found a parameter
             std::string id = _toString(elem->getAttribute(kAttrId));
             std::string type = _toString(elem->getAttribute(kAttrType));
+            std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
-              std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
               // get the columns string
               std::string columnsStr = "";
@@ -256,7 +256,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               pruneString(value);
 
               //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-              aTrigSystem.addSetting(type, id, value, contextId);
+              aTrigSystem.addSetting(type, id, value, contextId, delim);
             }
 
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
