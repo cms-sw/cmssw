@@ -55,7 +55,7 @@ MicroGMTCancelOutUnit::setCancelOutBits(GMTInternalWedges& wedges, tftype trackF
       coll2.push_back(mu);
     }
     if (mode == cancelmode::coordinate) {
-      getCoordinateCancelBits(coll2, coll1);
+      getCoordinateCancelBits(coll2, coll1); // in case of a tie coll1 muon wins
     } else {
       getTrackAddrCancelBits(coll1, coll2);
     }
@@ -155,7 +155,7 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
       int dEtaMask = (1 << matchLUT->getDeltaEtaWidth()) - 1;
 
       int dPhi = (*mu_w1)->hwGlobalPhi() - (*mu_w2)->hwGlobalPhi();
-      dPhi = std::abs(dPhi)
+      dPhi = std::abs(dPhi);
       if (dPhi > 338) dPhi -= 576; // shifts dPhi to [-pi, pi) in integer scale
       dPhi = std::abs(dPhi);
       int dEta = std::abs((*mu_w1)->hwEta() - (*mu_w2)->hwEta());
