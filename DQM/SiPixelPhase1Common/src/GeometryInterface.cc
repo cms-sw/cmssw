@@ -289,29 +289,54 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       return UNDEFINED;
     }, 0, 0 // N/A
   );
- 
-  addExtractor(intern("Shell"),
-    [pxbarrel, pxladder, pxlayer, pxmodule, maxladders, maxmodule] (InterestingQuantities const& iq) {
+
+  // For the '+-shape' (ladder vs. module) plots, we need signed numbers with
+  // (unused) 0-ladder/module at x=0/z=0. This means a lot of messing with the
+  // ladder/shell numbering...
+  addExtractor(intern("signedLadder"),
+    [pxbarrel, pxladder, pxlayer, maxladders, maxmodule] (InterestingQuantities const& iq) {
       if(pxbarrel(iq) == UNDEFINED) return UNDEFINED;
       auto layer  = pxlayer(iq);
       auto ladder = pxladder(iq);
-      auto module = pxmodule(iq);
       int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
-      Value dir = module <= (maxmodule/2) ? 1 : 2;  // minus/plus 
-      if (frac == 0 || frac == 3) return 10*dir + 1; // inner half
-      if (frac == 1 || frac == 2) return 10*dir + 2; // outer half
+      Value quarter = maxladders[layer] / 4;
+      if (frac == 0) return quarter - ladder; // top right - wrong order
+      if (frac == 1) return ladder - quarter; // top left - off by a quarter
+      if (frac == 2) return ladder - quarter; // bot left - same
+      if (frac == 3) return -ladder  + 4*quarter + quarter; // hmm...
       assert(!"Shell logic problem");
       return UNDEFINED;
+    }, -max_value[intern("PXLadder")] / 2, max_value[intern("PXLadder")] / 2
+  );
+
+  addExtractor(intern("signedModule"),
+    [pxmodule, maxmodule] (InterestingQuantities const& iq) {
+      Value mod = pxmodule(iq);  // range 1..maxmodule
+      if (mod == UNDEFINED) return UNDEFINED;
+      mod -= (maxmodule/2 + 1); // range -(max_module/2)..-1, 0..
+      if (mod >= 0) mod += 1;    // range -(max_module/2)..-1, 1..
+      return mod;
+    }, -(maxmodule/2), (maxmodule/2)
+  );
+
+  auto signedladder = extractors[intern("signedLadder")];
+  auto signedmodule = extractors[intern("signedModule")];
+  addExtractor(intern("Shell"),
+    [signedladder, signedmodule] (InterestingQuantities const& iq) {
+      auto sl = signedladder(iq);
+      auto sm = signedmodule(iq);
+      if (sl == UNDEFINED) return UNDEFINED;
+      return Value((sm < 0 ? 10 : 20) + (sl < 0 ? 2 : 1)); // negative means outer shell!?
     }, 0, 0 // N/A
   );
- 
+
   addExtractor(intern(""), // A dummy column. Not much special handling required.
     [] (InterestingQuantities const& iq) { return 0; },
     0, 0
   );
 
 }
- 
+
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.

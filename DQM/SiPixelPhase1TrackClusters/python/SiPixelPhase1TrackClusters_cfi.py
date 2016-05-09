@@ -10,6 +10,11 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHisto.clone(
 
   specs = cms.VPSet(
     Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
+    Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+                   .save()
   )
 )
 
