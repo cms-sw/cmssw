@@ -259,8 +259,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    title = title + " per " + colname;
 	    name = name + "_per_" + colname;
 	    xlabel = colname;
-	    range_x_min = geometryInterface.minValue(col0[0]);
-	    range_x_max = geometryInterface.maxValue(col0[0]) + 1;
+	    range_x_min = geometryInterface.minValue(col0[0])-0.5;
+	    range_x_max = geometryInterface.maxValue(col0[0])+0.5;
 	    range_x_nbins = int(range_x_max-range_x_min);
 	    significantvalues.erase(col0);
 	    break;}
@@ -272,9 +272,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
 	    title = title + " per " + colname;
 	    name = name + "_per_" + colname;
 	    ylabel = colname;
-	    range_y_min = geometryInterface.minValue(col0[0]);
-	    range_y_max = geometryInterface.maxValue(col0[0]) + 1;
-	    range_y_nbins = int(range_y_max-range_y_min) + 1;
+	    range_y_min = geometryInterface.minValue(col0[0])-0.5;
+	    range_y_max = geometryInterface.maxValue(col0[0])+0.5;
+	    range_y_nbins = int(range_y_max-range_y_min);
 	    significantvalues.erase(col0);
 	    break;}
 	  case SummationStep::GROUPBY: {
@@ -330,7 +330,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t, DQM
     std::string name = this->name;
     GeometryInterface::Values significantvalues;
     geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
-    // TODO: if (!bookUndefined) we could skip a lot here.
+    // PERF: if (!bookUndefined) we could skip a lot here.
     for (SummationStep step : s.steps) {
       if (step.stage == SummationStep::STAGE1 || step.stage == SummationStep::STAGE1_2) {
 	switch(step.type) {

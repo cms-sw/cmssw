@@ -300,13 +300,13 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       auto ladder = pxladder(iq);
       int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
       Value quarter = maxladders[layer] / 4;
-      if (frac == 0) return quarter - ladder; // top right - wrong order
-      if (frac == 1) return ladder - quarter; // top left - off by a quarter
-      if (frac == 2) return ladder - quarter; // bot left - same
-      if (frac == 3) return -ladder  + 4*quarter + quarter; // hmm...
+      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap 
+      if (frac == 1) return -ladder + quarter; // top left - 
+      if (frac == 2) return -ladder + quarter; // bot left - same
+      if (frac == 3) return -ladder  + 4*quarter + quarter + 1; // bot right - like top right but wrap around
       assert(!"Shell logic problem");
       return UNDEFINED;
-    }, -max_value[intern("PXLadder")] / 2, max_value[intern("PXLadder")] / 2
+    }, -(max_value[intern("PXLadder")]/2), (max_value[intern("PXLadder")]/2)
   );
 
   addExtractor(intern("signedModule"),
