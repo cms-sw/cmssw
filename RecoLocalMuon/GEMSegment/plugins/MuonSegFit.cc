@@ -34,7 +34,6 @@ bool MuonSegFit::fit(void) {
 }
 
 void MuonSegFit::fit2(void) {
-
   // Just join the two points
   // Equation of straight line between (x1, y1) and (x2, y2) in xy-plane is
   //       y = mx + c
@@ -45,8 +44,6 @@ void MuonSegFit::fit2(void) {
   // one in xz-plane, another in yz-plane
   //       x = uz + c1 
   //       y = vz + c2
-
-  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit:fit2]-------------------------------------";
   // 1) Check whether hits are on the same layer
   // should be done before, so removed
   // -------------------------------------------
@@ -81,14 +78,10 @@ void MuonSegFit::fit2(void) {
   ndof_ = 0;
 
   fitdone_ = true;
-  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit:fit2]-------------------------------------";
-  edm::LogVerbatim("MuonSegFit") << "\n\n";
 }
 
 
 void MuonSegFit::fitlsq(void) {
-
-  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit:fitlsq]-----------------------------------";  
   // Linear least-squares fit to up to 6 GEM rechits, one per layer in a GEM chamber.
   // Comments adapted from Tim Cox' comments in the original  GEMSegAlgoSK algorithm.
   
@@ -173,7 +166,9 @@ void MuonSegFit::fitlsq(void) {
     IC(1,0) = (*ih)->localPositionError().xy();
     // IC(0,1) = IC(1,0);
     
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::fit] 2x2 covariance matrix for this GEMRecHit :: [[" << IC(0,0) <<", "<< IC(0,1) <<"]["<< IC(1,0) <<","<<IC(1,1)<<"]]";
+#endif
 
     // Invert covariance matrix (and trap if it fails!)
     bool ok = IC.Invert();
@@ -218,8 +213,10 @@ void MuonSegFit::fitlsq(void) {
     p = M * B;
   }
 
+#ifdef EDM_ML_DEBUG
   LogTrace("MuonSegFitMatrixDetails") << "[MuonSegFit::fit] p = " 
-        << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
+				      << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
+#endif
   
   // fill member variables  (note origin has local z = 0)
   //  intercept_
@@ -235,8 +232,6 @@ void MuonSegFit::fitlsq(void) {
 
   // flag fit has been done
   fitdone_ = true;
-  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit:fitlsq]-----------------------------------";  
-  edm::LogVerbatim("MuonSegFit") << "\n\n";  
 }
 
 
@@ -246,8 +241,6 @@ void MuonSegFit::setChi2(void) {
   double chsq = 0.;
 
   MuonRecHitContainer::const_iterator ih;
-
-  edm::LogVerbatim("MuonSegFit") << "-----------------------------------------------------";  
 
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
     LocalPoint lp = (*ih)->localPosition();
@@ -267,7 +260,9 @@ void MuonSegFit::setChi2(void) {
     IC(1,1) = (*ih)->localPositionError().yy();
     //    IC(1,0) = IC(0,1);
 
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::setChi2] IC before = \n" << IC;
+#endif
 
     // Invert covariance matrix
     bool ok = IC.Invert();
@@ -275,15 +270,19 @@ void MuonSegFit::setChi2(void) {
       edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::setChi2] Failed to invert covariance matrix: \n" << IC;
       //      return ok;
     }
-    edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::setChi2] IC after = \n" << IC;
     chsq += du*du*IC(0,0) + 2.*du*dv*IC(0,1) + dv*dv*IC(1,1);
+    
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::setChi2] IC after = \n" << IC;
     edm::LogVerbatim("MuonSegFit") << "[GEM RecHit ] Contribution to Chi^2 of this hit :: du^2*Cov(0,0) + 2*du*dv*Cov(0,1) + dv^2*IC(1,1) = "<<du*du<<"*"<<IC(0,0)<<" + 2.*"<<du<<"*"<<dv<<"*"<<IC(0,1)<<" + "<<dv*dv<<"*"<<IC(1,1)<<" = "<<chsq;
+#endif    
   }
   
   // fill member variables
   chi2_ = chsq;
   ndof_ = 2.*hits_.size() - 4;
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::setChi2] chi2/ndof = " << chi2_ << "/" << ndof_ ;
   edm::LogVerbatim("MuonSegFit") << "-----------------------------------------------------";  
 
@@ -295,7 +294,7 @@ void MuonSegFit::setChi2(void) {
   edm::LogVerbatim("MuonSegFit") << "[ y ] = "<<localdir_.y()<<" * t + "<<intercept_.y();
   edm::LogVerbatim("MuonSegFit") << "[ z ] = "<<localdir_.z()<<" * t + "<<intercept_.z();
   edm::LogVerbatim("MuonSegFit") << "Now extrapolate to each of the GEMRecHits XY plane (so constant z = RH LP.z()) to obtain [x1,y1]";
-
+#endif
 }
 
 MuonSegFit::SMatrixSym12 MuonSegFit::weightMatrix() {
@@ -360,11 +359,11 @@ void MuonSegFit::setOutFromIP() {
   double dy   = dz*dydz;
   LocalVector localDir(dx,dy,dz);
 
-  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::setOutFromIP] :: dxdz = uslope_ = "<<std::setw(9)<<uslope_<<" dydz = vslope_ = "<<std::setw(9)<<vslope_<<" local dir = "<<localDir;
-
   localdir_ = ( localDir ).unit();
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::setOutFromIP] :: dxdz = uslope_ = "<<std::setw(9)<<uslope_<<" dydz = vslope_ = "<<std::setw(9)<<vslope_<<" local dir = "<<localDir;
   edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::setOutFromIP] ::  ==> local dir = "<<localdir_<< " localdir.phi = "<<localdir_.phi();
+#endif
 }
 
 
@@ -373,21 +372,28 @@ AlgebraicSymMatrix MuonSegFit::covarianceMatrix() {
   
   SMatrixSym12 weights = weightMatrix();
   SMatrix12by4 A = derivativeMatrix();
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::covarianceMatrix] weights matrix W: \n" << weights;      
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
+#endif
 
   // (AT W A)^-1
   // e.g. See http://www.phys.ufl.edu/~avery/fitting.html, part I
 
   bool ok;
   SMatrixSym4 result =  ROOT::Math::SimilarityT(A, weights);
-  edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::covarianceMatrix] (AT W A): \n" << result;      
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::covarianceMatrix] (AT W A): \n" << result;
+#endif
+  
   ok = result.Invert(); // inverts in place
   if ( !ok ) {
     edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::calculateError] Failed to invert matrix: \n" << result;      
     //    return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
+#endif
   
   // reorder components to match TrackingRecHit interface (GEMSegment isa TrackingRecHit)
   // i.e. slopes first, then positions 
@@ -403,7 +409,9 @@ AlgebraicSymMatrix MuonSegFit::flipErrors( const SMatrixSym4& a ) {
   // parameters in order (uz, vz, u0, v0) 
   // where uz, vz = slopes, u0, v0 = intercepts
     
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::flipErrors] input: \n" << a;      
+#endif
 
   AlgebraicSymMatrix hold(4, 0. ); 
       
@@ -413,11 +421,13 @@ AlgebraicSymMatrix MuonSegFit::flipErrors( const SMatrixSym4& a ) {
     }
   }
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::flipErrors] after copy:";
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+#endif
 
   // errors on slopes into upper left 
   hold(1,1) = a(2,2); 
@@ -437,11 +447,13 @@ AlgebraicSymMatrix MuonSegFit::flipErrors( const SMatrixSym4& a ) {
   hold(2,3) = a(3,0); // = a(0,3)
   hold(1,4) = a(2,1); // = a(1,2)
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "[MuonSegFit::flipErrors] after flip:";
   edm::LogVerbatim("MuonSegFitMatrixDetails") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
   edm::LogVerbatim("MuonSegFitMatrixDetails") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+#endif
 
   return hold;
 }
