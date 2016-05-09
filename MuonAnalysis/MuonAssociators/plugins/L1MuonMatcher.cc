@@ -132,7 +132,6 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
 	  {
 	    bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
-	    std::cout << (l1tBX->end(ibx) - l1tBX->begin()) << " " << ibx << std::endl; 
 	  }
       }
     else
@@ -195,7 +194,6 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), minBxIdx + match) - bxIdxs.begin()); 
 	      isolated[i] = l1t.hwIso();
 	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(minBxIdx + match));
-	      std::cout << "Filling match: " << match << " BX : " << bx[i] << " " << (minBxIdx + match) << std::endl;
 	    }
 	    else {
 	      const L1MuGMTCand & gmt = (*l1s)[match].gmtMuonCand();
@@ -216,8 +214,6 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     propFiller.fill();
     iEvent.put(propAss, "propagatedReco");
 
-    std::cout << "pippo" << std::endl;
-
     auto_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
     PATTriggerAssociation::Filler fullFiller(*fullAss);
     fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
@@ -236,8 +232,6 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	else
 	  storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
     }
-
-    std::cout << "pluto" << std::endl;
 
 }
 

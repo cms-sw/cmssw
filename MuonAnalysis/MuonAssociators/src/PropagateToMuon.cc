@@ -20,7 +20,7 @@ PropagateToMuon::PropagateToMuon(const edm::ParameterSet & iConfig) :
   fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
   whichTrack_(None), whichState_(AtVertex),
   cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false),
-  useMB2InOverlap_(iConfig.existsAs<bool>("useMB2inOverlap") ? iConfig.getParameter<bool>("useMB2InOverlap") : false)
+  useMB2InOverlap_(iConfig.existsAs<bool>("useMB2InOverlap") ? iConfig.getParameter<bool>("useMB2InOverlap") : false)
 
 {
     std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
@@ -67,6 +67,7 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
 
     if (useMB2_ && useMB2InOverlap_)
       barrelHalfLength_ = endcapDiskPos_[2]->position().z();
+
 }
 
 FreeTrajectoryState 
