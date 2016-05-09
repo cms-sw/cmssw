@@ -1,11 +1,11 @@
 /**
- * \file ME0SegAlgo.cc
+ * \file ME0SegmentAlgorithm.cc
  *  based on CSCSegAlgoST.cc
  * 
  *  \authors: Marcello Maggi, Jason Lee
  */
  
-#include "ME0SegAlgo.h"
+#include "ME0SegmentAlgorithm.h"
 #include "MuonSegFit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@
 /* Constructor
  *
  */
-ME0SegAlgo::ME0SegAlgo(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps), myName("ME0SegAlgo")
+ME0SegmentAlgorithm::ME0SegmentAlgorithm(const edm::ParameterSet& ps) : ME0SegmentAlgorithmBase(ps), myName("ME0SegmentAlgorithm")
 {
   debug                     = ps.getUntrackedParameter<bool>("ME0Debug");
   minHitsPerSegment         = ps.getParameter<unsigned int>("minHitsPerSegment");
@@ -35,7 +35,7 @@ ME0SegAlgo::ME0SegAlgo(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps), m
   dTimeChainBoxMax          = ps.getParameter<double>("dTimeChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
 
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::ctor] Parameters to build segments :: "
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::ctor] Parameters to build segments :: "
 				   << "preClustering = "<<preClustering<<" preClustering_useChaining = "<<preClustering_useChaining
 				   <<" dPhiChainBoxMax = "<<dPhiChainBoxMax<<" dEtaChainBoxMax = "<<dEtaChainBoxMax<<" dTimeChainBoxMax = "<<dTimeChainBoxMax
 				   <<" minHitsPerSegment = "<<minHitsPerSegment<<" maxRecHitsInCluster = "<<maxRecHitsInCluster;
@@ -44,21 +44,21 @@ ME0SegAlgo::ME0SegAlgo(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps), m
 /* Destructor
  *
  */
-ME0SegAlgo::~ME0SegAlgo() {
+ME0SegmentAlgorithm::~ME0SegmentAlgorithm() {
 }
 
 
-std::vector<ME0Segment> ME0SegAlgo::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
+std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
   theEnsemble = ensemble;
 
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
   ME0DetId chId((theEnsamble.first)->id());  
-  edm::LogVerbatim("GEMSegAlgoMM") << "[ME0SegAlgo::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegmentAlgorithm::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto me0id = (*rh)->me0Id();
     auto rhLP = (*rh)->localPosition();
-    edm::LogVerbatim("ME0SegAlgo") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
                                      <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
   }
   #endif
@@ -100,8 +100,8 @@ std::vector<ME0Segment> ME0SegAlgo::run(const ME0Ensemble& ensemble, const Ensem
 
 
 // ********************************************************************;
-ME0SegAlgo::ProtoSegments 
-ME0SegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
+ME0SegmentAlgorithm::ProtoSegments 
+ME0SegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_clusters; // this is a collection of groups of rechits
 
@@ -145,7 +145,7 @@ ME0SegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == running_max || running_meanX[NNN] == running_max ) {
-	LogDebug("ME0SegAlgo") << "[ME0SegAlgo::clusterHits]: ALARM! Skipping used seeds, this should not happen - inform developers!";
+	LogDebug("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::clusterHits]: ALARM! Skipping used seeds, this should not happen - inform developers!";
 	continue; //skip seeds that have been used 
       }
 	  
@@ -200,8 +200,8 @@ ME0SegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
 }
 
 
-ME0SegAlgo::ProtoSegments 
-ME0SegAlgo::chainHits(const EnsembleHitContainer& rechits) {
+ME0SegmentAlgorithm::ProtoSegments 
+ME0SegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_chains; 
   EnsembleHitContainer temp;
@@ -268,7 +268,7 @@ ME0SegAlgo::chainHits(const EnsembleHitContainer& rechits) {
   return rechits_chains;
 }
 
-bool ME0SegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
+bool ME0SegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   std::vector<float> phi_new, eta_new, time_new, phi_old, eta_old, time_old;
   std::vector<int> layer_new, layer_old;
@@ -320,16 +320,16 @@ bool ME0SegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
 
 
 
-std::vector<ME0Segment> ME0SegAlgo::buildSegments(const EnsembleHitContainer& rechits) {
+std::vector<ME0Segment> ME0SegmentAlgorithm::buildSegments(const EnsembleHitContainer& rechits) {
   std::vector<ME0Segment> me0segs;
   MuonRecHitContainer muonRecHits;
 
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
     for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
       auto me0id = (*rh)->me0Id();
       auto rhLP = (*rh)->localPosition();
-      edm::LogVerbatim("ME0SegAlgo") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+      edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
 				       <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
       }
   #endif
@@ -361,7 +361,7 @@ std::vector<ME0Segment> ME0SegAlgo::buildSegments(const EnsembleHitContainer& re
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
   sfit_->fit();
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] ME0Segment fit done";
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
@@ -383,11 +383,11 @@ std::vector<ME0Segment> ME0SegAlgo::buildSegments(const EnsembleHitContainer& re
   timeUncrt = sqrt(timeUncrt);
 
   // save all information inside GEMCSCSegment
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
   ME0Segment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
 
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] ME0Segment made";
-  edm::LogVerbatim("ME0SegAlgo") << "[ME0SegAlgo::buildSegments] "<<tmp;
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment made";
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] "<<tmp;
   
   me0segs.push_back(tmp);
   return me0segs;

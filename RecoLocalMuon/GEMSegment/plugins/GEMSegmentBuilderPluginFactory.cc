@@ -4,7 +4,7 @@
  * 
  */
 
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h>
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(GEMSegmentBuilderPluginFactory,"GEMSegmentBuilderPluginFactory");
 

@@ -4,7 +4,7 @@
  *  \author Raffaella Radogna
  */
 
-#include <DataFormats/GEMRecHit/interface/GEMCSCSegment.h>
+#include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
 #include <iostream>
 
 

@@ -13,12 +13,12 @@
  *
  */
 
-#include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
-#include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class GEMSegmentAlgorithm;
+class GEMSegmentAlgorithmBase;
 
 class GEMSegmentBuilder {
 public:
@@ -44,7 +44,7 @@ private:
 
     std::string algoName;
     edm::ParameterSet segAlgoPSet;
-    std::unique_ptr<GEMSegmentAlgorithm> algo;
+    std::unique_ptr<GEMSegmentAlgorithmBase> algo;
     bool useGE21Short;
     const GEMGeometry* geom_; 
 };

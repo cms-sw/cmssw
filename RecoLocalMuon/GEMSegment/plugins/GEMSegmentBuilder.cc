@@ -3,7 +3,7 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
-#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h"
+#include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithmBase.h"
 #include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -20,7 +20,7 @@ GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
   
   // Ask factory to build this algorithm, giving it appropriate ParameterSet  
-  algo = std::unique_ptr<GEMSegmentAlgorithm>(GEMSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
+  algo = std::unique_ptr<GEMSegmentAlgorithmBase>(GEMSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
   
   // Use GE21Short to have 4 rechits available in GE21?
   useGE21Short = ps.getParameter<bool>("useGE21Short");
@@ -102,7 +102,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     #endif
 
 
-    GEMSegmentAlgorithm::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
+    GEMSegmentAlgorithmBase::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
     // given the superchamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);

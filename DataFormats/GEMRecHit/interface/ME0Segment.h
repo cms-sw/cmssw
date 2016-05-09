@@ -10,8 +10,8 @@
  *  \author Marcello Maggi
  */
 
-#include <DataFormats/TrackingRecHit/interface/RecSegment.h>
-#include <DataFormats/GEMRecHit/interface/ME0RecHitCollection.h>
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 #include <iosfwd>
 
@@ -19,71 +19,71 @@ class ME0DetId;
 
 class ME0Segment final : public RecSegment {
 
-public:
+ public:
 
-    /// Default constructor
-    ME0Segment() : theChi2(0.){}
+  /// Default constructor
+  ME0Segment() : theChi2(0.){}
 	
-    /// Constructor
-    ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	       LocalVector direction, AlgebraicSymMatrix errors, double chi2);
+  /// Constructor
+  ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
+	     const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2);
 
-   ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	      LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
+  ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
+	     const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr);
   
-    /// Destructor
-    virtual ~ME0Segment();
+  /// Destructor
+  virtual ~ME0Segment();
 
-    //--- Base class interface
-    ME0Segment* clone() const { return new ME0Segment(*this); }
+  //--- Base class interface
+  ME0Segment* clone() const { return new ME0Segment(*this); }
 
-    LocalPoint localPosition() const { return theOrigin; }
-    LocalError localPositionError() const ;
+  LocalPoint localPosition() const { return theOrigin; }
+  LocalError localPositionError() const ;
 	
-    LocalVector localDirection() const { return theLocalDirection; }
-    LocalError localDirectionError() const ;
+  LocalVector localDirection() const { return theLocalDirection; }
+  LocalError localDirectionError() const ;
 
-    /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-    AlgebraicVector parameters() const;
+  /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
+  AlgebraicVector parameters() const;
 
-    /// Covariance matrix of parameters()
-    AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
+  /// Covariance matrix of parameters()
+  AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 
-    /// The projection matrix relates the trajectory state parameters to the segment parameters().
-    virtual AlgebraicMatrix projectionMatrix() const;
+  /// The projection matrix relates the trajectory state parameters to the segment parameters().
+  virtual AlgebraicMatrix projectionMatrix() const;
 
-    virtual std::vector<const TrackingRecHit*> recHits() const;
+  virtual std::vector<const TrackingRecHit*> recHits() const;
 
-    virtual std::vector<TrackingRecHit*> recHits();
+  virtual std::vector<TrackingRecHit*> recHits();
 
-    double chi2() const { return theChi2; };
+  double chi2() const { return theChi2; };
 
-    virtual int dimension() const { return 4; }
+  virtual int dimension() const { return 4; }
 
-    virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
+  virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
 
-    //--- Extension of the interface
+  //--- Extension of the interface
         
-    const std::vector<ME0RecHit>& specificRecHits() const { return theME0RecHits; }
+  const std::vector<ME0RecHit>& specificRecHits() const { return theME0RecHits; }
 
-    int nRecHits() const { return theME0RecHits.size(); }        
+  int nRecHits() const { return theME0RecHits.size(); }        
 
-    ME0DetId me0DetId() const { return  geographicalId(); }
+  ME0DetId me0DetId() const { return  geographicalId(); }
 
-    float time() const    { return theTimeValue; }
-    float timeErr() const { return theTimeUncrt; }
+  float time() const    { return theTimeValue; }
+  float timeErr() const { return theTimeUncrt; }
     
-    void print() const;		
+  void print() const;		
     
  private:
     
-    std::vector<ME0RecHit> theME0RecHits;
-    LocalPoint theOrigin;            // in chamber frame - the GeomDet local coordinate system
-    LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
-    AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-    double theChi2;                  // the Chi squared of the segment fit
-    double theTimeValue;             // the best time estimate of the segment
-    double theTimeUncrt;             // the uncertainty on the time estimation
+  std::vector<ME0RecHit> theME0RecHits;
+  LocalPoint theOrigin;            // in chamber frame - the GeomDet local coordinate system
+  LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
+  AlgebraicSymMatrix theCovMatrix; // the covariance matrix
+  double theChi2;                  // the Chi squared of the segment fit
+  double theTimeValue;             // the best time estimate of the segment
+  double theTimeUncrt;             // the uncertainty on the time estimation
 
 };
 
