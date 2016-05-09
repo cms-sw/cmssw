@@ -291,6 +291,7 @@ workflows[1361] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8
 workflows[1362] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1365] = ['', ['GluGluHToZZTo4L_M125_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 ### HI test ###
 
