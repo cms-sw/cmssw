@@ -50,42 +50,39 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
     SortRankLUTPath              = cms.string(os.path.join(lut_dir, 'SortRank.txt')),
 
-    #BrlSingleMatchQualLUTMaxDR    = cms.double(0.1),
-    FwdPosSingleMatchQualLUTMaxDR = cms.double(0.05),
+    FwdPosSingleMatchQualLUTMaxDR = cms.double(0.01),
     FwdPosSingleMatchQualLUTfEta  = cms.double(1),
     FwdPosSingleMatchQualLUTfPhi  = cms.double(1),
 
-    FwdNegSingleMatchQualLUTMaxDR = cms.double(0.05),
+    FwdNegSingleMatchQualLUTMaxDR = cms.double(0.01),
     FwdNegSingleMatchQualLUTfEta  = cms.double(1),
     FwdNegSingleMatchQualLUTfPhi  = cms.double(1),
 
-    OvlPosSingleMatchQualLUTMaxDR = cms.double(0.2),
+    OvlPosSingleMatchQualLUTMaxDR = cms.double(0.15),
     OvlPosSingleMatchQualLUTfEta  = cms.double(1),
-    OvlPosSingleMatchQualLUTfPhi  = cms.double(4),
+    OvlPosSingleMatchQualLUTfPhi  = cms.double(3),
 
-    OvlNegSingleMatchQualLUTMaxDR = cms.double(0.2),
+    OvlNegSingleMatchQualLUTMaxDR = cms.double(0.15),
     OvlNegSingleMatchQualLUTfEta  = cms.double(1),
-    OvlNegSingleMatchQualLUTfPhi  = cms.double(4),
+    OvlNegSingleMatchQualLUTfPhi  = cms.double(3),
 
     BOPosMatchQualLUTMaxDR        = cms.double(0.1),
-    BOPosMatchQualLUTfEta         = cms.double(1),
+    BOPosMatchQualLUTfEta         = cms.double(1./3),
     BOPosMatchQualLUTfEtaCoarse   = cms.double(1./3),
     BOPosMatchQualLUTfPhi         = cms.double(2),
-    #BOPosMatchQualLUTMaxDREtaFine = cms.double(0.1),
 
     BONegMatchQualLUTMaxDR        = cms.double(0.1),
-    BONegMatchQualLUTfEta         = cms.double(1),
+    BONegMatchQualLUTfEta         = cms.double(1./3),
     BONegMatchQualLUTfEtaCoarse   = cms.double(1./3),
     BONegMatchQualLUTfPhi         = cms.double(2),
-    #BONegMatchQualLUTMaxDREtaFine = cms.double(0.1),
 
-    FOPosMatchQualLUTMaxDR        = cms.double(0.15),
+    FOPosMatchQualLUTMaxDR        = cms.double(0.2),
     FOPosMatchQualLUTfEta         = cms.double(1),
-    FOPosMatchQualLUTfPhi         = cms.double(3),
+    FOPosMatchQualLUTfPhi         = cms.double(4),
 
-    FONegMatchQualLUTMaxDR        = cms.double(0.15),
+    FONegMatchQualLUTMaxDR        = cms.double(0.2),
     FONegMatchQualLUTfEta         = cms.double(1),
-    FONegMatchQualLUTfPhi         = cms.double(3),
+    FONegMatchQualLUTfPhi         = cms.double(4),
 
     SortRankLUTPtFactor   = cms.uint32(1), # can be 0 or 1
     SortRankLUTQualFactor = cms.uint32(4), # can be 0 to 34
