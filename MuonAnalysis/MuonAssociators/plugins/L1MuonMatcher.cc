@@ -112,7 +112,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     std::vector<l1t::Muon> l1ts;
     std::vector<size_t> bxIdxs;
 
-    size_t minBxIdx = 0;
+    int minBxIdx = 0;
     size_t l1size = 0;
     
     iEvent.getByToken(recoToken_, reco);
@@ -120,6 +120,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     if (useStage2L1_)
       {
 	iEvent.getByToken(l1tToken_, l1tBX);
+	l1size = l1tBX->size();
 	
 	int minBX = max(firstBX_,l1tBX->getFirstBX());
 	int maxBX = min(lastBX_,l1tBX->getLastBX());
@@ -127,11 +128,10 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
 	std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
 
-	l1size = l1ts.size();
-
 	for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
 	  {
 	    bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
+	    //std::cout << "BX transitions" << ibx << " " << l1tBX->end(ibx) - l1tBX->begin() << std::endl;
 	  }
       }
     else
@@ -163,13 +163,17 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             propOut->back().setCharge(mu.charge());
         }
         if (match != -1) {
+
+	  if(useStage2L1_)
+	    match += minBxIdx;
+
             whichRecoMatch[match] = reco->ptrAt(i);
   	 
 	    int charge = 0;
 	    math::PtEtaPhiMLorentzVector p4;
 	    
 	    if (useStage2L1_) {
-	      const l1t::Muon & l1t = l1ts[match];
+	      const l1t::Muon & l1t = (*l1tBX)[match];
 	      charge = l1t.charge();
 	      p4     = l1t.polarP4();
 	    }
@@ -189,11 +193,12 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             fullMatches[i] = isSelected[match]; // index in the output collection
 	    
 	    if (useStage2L1_) {
-	      const l1t::Muon & l1t = l1ts[match];
+	      const l1t::Muon & l1t = (*l1tBX)[match];
 	      quality[i]  = l1t.hwQual();
-	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), minBxIdx + match) - bxIdxs.begin()); 
+	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), match) - bxIdxs.begin()); 
+	      //std::cout << "Matching found" << bx[i] << " " << size_t(match) << std::endl;
 	      isolated[i] = l1t.hwIso();
-	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(minBxIdx + match));
+	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(match));
 	    }
 	    else {
 	      const L1MuGMTCand & gmt = (*l1s)[match].gmtMuonCand();
@@ -226,9 +231,9 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         storeExtraInfo(iEvent, reco, bx,        "bx");
         storeExtraInfo(iEvent, reco, isolated,  "isolated");
         storeExtraInfo(iEvent, reco, quality,   "quality");
-        storeExtraInfo(iEvent, reco, l1rawMatches,   "");
+	storeExtraInfo(iEvent, reco, l1rawMatches,   "");
 	if (useStage2L1_)
-	  storeExtraInfo(iEvent, l1tBX,  whichRecoMatch, "l1ToReco"); //CB che a sto punto scazza ...
+	  storeExtraInfo(iEvent, l1tBX,  whichRecoMatch, "l1ToReco");
 	else
 	  storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
     }
