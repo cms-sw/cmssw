@@ -170,12 +170,6 @@ GhostTrackNoVertexVariables = cms.PSet(
         min = cms.double(-40.0)
     ),
   ## New Variables used in Ghost-Track tagger
-#trackJetDistVal = cms.PSet(
-#        logScale = cms.bool(True),
-#        nBins = cms.uint32(50),
-#        max = cms.double(10.0),
-#        min = cms.double(0.0)
-#    ),
     trackGhostTrackDistVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
