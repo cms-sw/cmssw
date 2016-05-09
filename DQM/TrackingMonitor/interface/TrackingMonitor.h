@@ -160,6 +160,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
 	StringCutObjectSelector<reco::Track,true> numSelection_;
 	StringCutObjectSelector<reco::Track,true> denSelection_;
+	int pvNDOF_;
 
 };
 
