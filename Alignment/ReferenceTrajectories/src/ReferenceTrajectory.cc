@@ -222,7 +222,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
-			   nextJacobian, nextCurvlinJacobian, nextStep, propDir_, magField)) {
+			   nextJacobian, nextCurvlinJacobian, nextStep, magField)) {
 	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
       
@@ -365,17 +365,17 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 bool ReferenceTrajectory::propagate(const Plane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 				    const Plane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
 				    AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
-				    const PropagationDirection propDir, const MagneticField *magField) const
+				    const MagneticField *magField) const
 {
   // propagate to next layer
   /** From TrackingTools/ GeomPropagators/ interface/ AnalyticalPropagator.h
    * NB: this propagator assumes constant, non-zero magnetic field parallel to the z-axis!
    */
-  //AnalyticalPropagator aPropagator(magField, propDir);
+  //AnalyticalPropagator aPropagator(magField, propDir_);
   // Hard coded RungeKutta instead Analytical (avoid bias in TEC), but
   // work around TrackPropagation/RungeKutta/interface/RKTestPropagator.h and
   // http://www.parashift.com/c++-faq-lite/strange-inheritance.html#faq-23.9
-  defaultRKPropagator::Product  rkprod(magField, propDir); //double tolerance = 5.e-5)
+  defaultRKPropagator::Product  rkprod(magField, propDir_); //double tolerance = 5.e-5)
   Propagator &aPropagator = rkprod.propagator;
   const std::pair<TrajectoryStateOnSurface, double> tsosWithPath =
     aPropagator.propagateWithPath(previousTsos, newSurface);

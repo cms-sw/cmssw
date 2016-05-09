@@ -99,7 +99,7 @@ protected:
   virtual bool propagate(const Plane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 			 const Plane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
 			 AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
-			 const PropagationDirection propDir, const MagneticField *magField) const;
+			 const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
    */
