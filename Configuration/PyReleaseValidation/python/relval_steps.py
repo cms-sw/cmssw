@@ -1593,6 +1593,7 @@ for k in upgradeKeys:
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
+                                      '--runUnscheduled':'',
                                       '--eventcontent':'FEVTDEBUGHLT,DQM',
                                       '--geometry' : geom
                                       }
