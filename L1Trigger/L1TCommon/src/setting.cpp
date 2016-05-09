@@ -4,7 +4,7 @@
 
 namespace l1t{
 	
-setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole) : 
+setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim) :
 type_(type),
 id_(id),
 value_(value),
@@ -16,11 +16,14 @@ procRole_(procRole)
 
 		if ( type.find("vector") != std::string::npos )
 		{
-			std::string delim(","); //TODO: should be read dynamically
+			std::string delimiter = delim;
+                        if (delimiter.empty()) {
+				delimiter = ",";
+			}
 			std::vector<std::string> vals;
 			if ( !parse ( value_.c_str(),
 			(
-				  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
+				  (  (*(boost::spirit::classic::anychar_p - delimiter.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delimiter.c_str() )
 			), boost::spirit::classic::nothing_p ).full )
 			{  	
 				throw std::runtime_error ("Wrong value format: " + value_);
