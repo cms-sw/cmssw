@@ -7,7 +7,7 @@ namespace l1t
 {
 	namespace stage2
 	{
-		void numWheelSectorTrTag(int& wheelNo, int& sectorNo, int& tagSegID, int linkNo, int amcNo)
+		void numWheelSectorTrTag(int& wheelNo, int& tagSegID, int linkNo, int amcNo)
 		{
 			if (linkNo >= 0 && linkNo < 6)
 				wheelNo = -2;
@@ -19,11 +19,6 @@ namespace l1t
 				wheelNo = 1;
 			else if ( (linkNo >= 28 && linkNo < 30) || (linkNo >= 32 && linkNo < 36))
 				wheelNo = 2;
-			
-			if ( amcNo%2 != 0 )
-				sectorNo = amcNo/2 ;
-			else
-				sectorNo = 6 + (amcNo/2 -1);
 			
 			if ( linkNo%2 == 0 )
 				tagSegID = 0;
@@ -53,17 +48,12 @@ namespace l1t
 
 			LogDebug("L1T") << "BX override. Set firstBX = lastBX = 0";
 			
-			L1MuDTChambPhContainer *resPhi;
-			//std::cout << "Checking link: " << blockId << std::endl;
-			//std::cout << "Address before is: " << resPhi << std::endl;
-			L1MuDTChambThContainer *resThe;
-			resPhi = static_cast<BMTFCollections*>(coll)->getInMuonsPh();
-			resThe = static_cast<BMTFCollections*>(coll)->getInMuonsTh();
-			//std::cout << "Address after is: " << resPhi << std::endl;
-			L1MuDTChambPhContainer::Phi_Container phi_data = *(resPhi->getContainer()); 
+			L1MuDTChambPhContainer *resPhi = static_cast<BMTFCollections*>(coll)->getInMuonsPh();
+			L1MuDTChambThContainer *resThe = static_cast<BMTFCollections*>(coll)->getInMuonsTh();
+
+			L1MuDTChambPhContainer::Phi_Container phiData = *(resPhi->getContainer()); 
+			L1MuDTChambThContainer::The_Container theData = *(resThe->getContainer());
 			
-			
-			L1MuDTChambThContainer::The_Container the_data;
 			
 			for(int ibx = firstBX; ibx <= lastBX; ibx++)
 			{
@@ -73,8 +63,9 @@ namespace l1t
 					inputWords[iw] = payload[iw+(ibx+lastBX)*6];
 			
 				int wheel, sector, trTag;
-				numWheelSectorTrTag(wheel, sector, trTag, blockId/2, block.amc().getAMCNumber());
-				
+				numWheelSectorTrTag(wheel, trTag, blockId/2, block.amc().getAMCNumber());
+				sector = block.amc().getBoardID() - 1;
+
 				int mbPhi[4], mbPhiB[4], mbQual[4], mbBxC[4], mbRPC[4];
 				//mbPhiB[2] = 0;
 				
@@ -106,32 +97,95 @@ namespace l1t
 					if (mbQual[iw] == 0)
 						continue;
 					
-					phi_data.push_back( L1MuDTChambPhDigi( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
-					//std::cout << iw+1 << "\tAfter push: " << std::hex << inputWords[iw] << std::dec << "\tLink: " << blockId/2 << "\tamc: " << block.amc().getAMCNumber() << "\twheel: " << phi_data.back().whNum() << "\tsector: " << phi_data.back().scNum() << "\tTsTag: " << phi_data.back().Ts2Tag() << std::endl;
+					phiData.push_back( L1MuDTChambPhDigi( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
+					//std::cout << iw+1 << "\tAfter push: " << std::hex << inputWords[iw] << std::dec << "\tLink: " << blockId/2 << "\tamc: " << block.amc().getAMCNumber() << "\twheel: " << phiData.back().whNum() << "\tsector: " << phiData.back().scNum() << "\tTsTag: " << phiData.back().Ts2Tag() << std::endl;
 				}//iw
-				int mbEta[3][7];//, mbEtaBxC;
+				
+				
+				int etaHits[3][7];//, etaHitsBxC;
+				bool zeroFlag[3];
 				for (int i = 0; i < 3; i++)
 				{
+					zeroFlag[i] = false;
 					for(int j=0; j<7; j++)
-						mbEta[i][j] = (inputWords[4] >> (i*7 + j)) & 0x1;
-				
-					the_data.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, mbEta[i]) );
+					{
+						etaHits[i][6-j] = (inputWords[4] >> (i*7 + j)) & 0x1;
+						if ( etaHits[i][6-j]!=0 )
+							zeroFlag[i] = true;
+						//etaHits[i][j] = (inputWords[4] >> (i*7 + j)) & 0x1;
+						//if ( etaHits[i][j]!=0 )
+							//zeroFlag[i] = true;
+					}
 				}
-				
+				if ( trTag == 1 )
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						if (zeroFlag[i])
+							theData.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_[blockId/2 - 1].hits[i]) );
+					}
+					/*bool toBeErased[3];
 
-				//std::cout << "phi_data size: " << phi_data.size() << std::endl;
+					std::vector<L1MuDTChambThDigi>::iterator thIt = theData.end()-4;
+					for (unsigned int i = 0; i < 3; i++)
+					{
+
+						if (zeroFlag[i])
+						{
+							std::cout << "Mpika sto 1o gia i = " << i << " kai size " << theData.size() << " kai link " << blockId/2 << "\t" << (blockId/2)%2 << std::endl;
+							toBeErased[i] = false;
+							// bool zerBefore = false;
+							// for (int j = 0; j < 7; j++)
+							// {
+							// 	if (thIt->position(j)!= 0)
+							// 		zerBefore = true;
+							// }
+							// if (!zerBefore)
+							thIt->setPos(etaHits[i]);
+							std::cout << "Ekana setPos gia i = " << i << std::endl;
+						}
+						else
+							toBeErased[i] = true;
+
+						thIt++;
+					}
+					thIt = theData.end()-4;
+					for (unsigned int i = 0; i < 3; i++)
+					{
+						//int ct(0);
+						if (toBeErased[i])
+						{
+							std::cout << "Mpika sto toBeErased gia i = " << i << " kai size " << theData.size() << "kai link " <<  blockId/2 << "\t" << (blockId/2)%2  << std::endl;
+							// theData.erase(theData.end()-4+ct);
+							// ct++;
+							theData.erase(thIt);
+							std::cout << "erase ok new size = " << theData.size() << std::endl;
+						}
+						if( theData.size() != 0 )
+							thIt++;
+					}*/
+				}
+				else
+				{
+					qualityHits temp;
+					temp.linkNo = blockId/2;
+					std::copy(&etaHits[0][0], &etaHits[0][0]+3*7,&temp.hits[0][0]);
+					linkAndQual_[blockId/2] = temp;	
+				}
+				//std::cout << std::endl << std::endl;
+
+				//std::cout << "phiData size: " << phiData.size() << std::endl;
 
 			}//ibx
-			//std::cout << "Final size: " << phi_data.size() << std::endl;
+			//std::cout <<"Setting the container" << std::endl;
+			resThe->setContainer(theData);
+			//std::cout <<"container set" << std::endl;
+				//std::cout << "Final size: " << phiData.size() << std::endl;
 			//std::cout << "Address before set is: " << resPhi << std::endl;
-			resPhi->setContainer(phi_data);
-			//std::cout << "Address after set is: " << resPhi << std::endl;
-			//if (phi_data.size() != 0)
-				//std::cout << "\tAfter set: " << "\twheel: " << phi_data.back().whNum() << "\tsector: " << phi_data.back().scNum() << std::endl;
-			resThe->setContainer(the_data);
+			resPhi->setContainer(phiData);
+			
 			
 		return true;
 		}//unpack
 	}//ns2
 }//ns l1t;
-			
