@@ -1,90 +1,11 @@
 #include "DQM/Physics/src/ExoticaDQM.h"
 
-#include <memory>
-
-// DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-
-// Candidate handling
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-// Vertex utilities
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-// Other
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-// Math
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-// Transient tracks
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-//JetCorrection
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-// ROOT
-#include "TLorentzVector.h"
-
-// STDLIB
-#include <iostream>
-#include <iomanip>
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <math.h>
-
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace trigger;
 
 typedef vector<string> vstring;
-
 
 //
 // -- Constructor
@@ -100,7 +21,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   TriggerToken_ = consumes<TriggerResults>(     
       ps.getParameter<edm::InputTag>("TriggerResults"));
   HltPaths_ = ps.getParameter<vector<string> >("HltPaths");
-
+  // 
   VertexToken_ = consumes<reco::VertexCollection>(
       ps.getParameter<InputTag>("vertexCollection"));
   //
@@ -123,12 +44,15 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //
   PFMETToken_         = consumes<reco::PFMETCollection>(
       ps.getParameter<InputTag>("pfMETCollection"));
+  //   
   ecalBarrelRecHitToken_ = consumes<EBRecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalBarrelRecHit", InputTag("reducedEcalRecHitsEB")));
+  //   
   ecalEndcapRecHitToken_ = consumes<EERecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
 
-  correctorToken_ = consumes<reco::JetCorrector>(ps.getParameter<edm::InputTag>("corrector"));
+  JetCorrectorToken_ = consumes<reco::JetCorrector>(
+      ps.getParameter<edm::InputTag>("jetCorrector"));
 
   //Cuts - MultiJets
   jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
@@ -158,9 +82,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //MonoPhoton
   monophoton_Photon_pt_cut_  = ps.getParameter<double>("monophoton_Photon_pt_cut");
   monophoton_Photon_met_cut_ = ps.getParameter<double>("monophoton_Photon_met_cut");
-
 }
-
 
 //
 // -- Destructor
@@ -168,7 +90,6 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
 ExoticaDQM::~ExoticaDQM(){
   edm::LogInfo("ExoticaDQM") <<  " Deleting ExoticaDQM " << "\n" ;
 }
-
 
 //
 //  -- Book histograms
@@ -207,7 +128,7 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   dimuon_deltaEtaMuon1Muon2  = bei.book1D("dimuon_deltaEtaMuon1Muon2", "#Delta#eta(Leading Muon, Sub Muon)", 40, -5., 5.);
   dimuon_deltaPhiMuon1Muon2  = bei.book1D("dimuon_deltaPhiMuon1Muon2", "#Delta#phi(Leading Muon, Sub Muon)", 40, 0., 3.15);
   dimuon_deltaRMuon1Muon2    = bei.book1D("dimuon_deltaRMuon1Muon2",   "#DeltaR(Leading Muon, Sub Muon)", 50, 0., 6.);
-  dimuon_invMassMuon1Muon2   = bei.book1D("dimuon_invMassMuon1Muon2", "Leading Muon, SubLeading Muon Low Invariant mass (GeV)", 50, 1000. , 4000.);
+  dimuon_invMassMuon1Muon2   = bei.book1D("dimuon_invMassMuon1Muon2", "Leading Muon, SubLeading Muon Low Invariant mass (GeV)", 50, 500. , 4500.);
   dimuon_MuonMulti           = bei.book1D("dimuon_MuonMulti", "No. of Muons", 10, 0., 10.);
   //--- DiElectrons
   bei.setCurrentFolder("Physics/Exotica/DiElectrons");
@@ -218,7 +139,7 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   dielectron_deltaEtaElectron1Electron2  = bei.book1D("dielectron_deltaEtaElectron1Electron2", "#Delta#eta(Leading Electron, Sub Electron)", 40, -5., 5.);
   dielectron_deltaPhiElectron1Electron2  = bei.book1D("dielectron_deltaPhiElectron1Electron2", "#Delta#phi(Leading Electron, Sub Electron)", 40, 0., 3.15);
   dielectron_deltaRElectron1Electron2    = bei.book1D("dielectron_deltaRElectron1Electron2",   "#DeltaR(Leading Electron, Sub Electron)", 50, 0., 6.);
-  dielectron_invMassElectron1Electron2   = bei.book1D("dielectron_invMassElectron1Electron2", "Leading Electron, SubLeading Electron Invariant mass (GeV)", 50, 1000. , 4000.);
+  dielectron_invMassElectron1Electron2   = bei.book1D("dielectron_invMassElectron1Electron2", "Leading Electron, SubLeading Electron Invariant mass (GeV)", 50, 500. , 4500.);
   dielectron_ElectronMulti           = bei.book1D("dielectron_ElectronMulti", "No. of Electrons", 10, 0., 10.);
   //--- DiPhotons
   bei.setCurrentFolder("Physics/Exotica/DiPhotons");
@@ -241,7 +162,7 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   diphoton_deltaEtaPhoton1Photon2  = bei.book1D("diphoton_deltaEtaPhoton1Photon2", "#Delta#eta(SubLeading Photon, Sub Photon)", 40, -5., 5.);
   diphoton_deltaPhiPhoton1Photon2  = bei.book1D("diphoton_deltaPhiPhoton1Photon2", "#Delta#phi(SubLeading Photon, Sub Photon)", 40, 0., 3.15);
   diphoton_deltaRPhoton1Photon2    = bei.book1D("diphoton_deltaRPhoton1Photon2",   "#DeltaR(SubLeading Photon, Sub Photon)", 50, 0., 6.);
-  diphoton_invMassPhoton1Photon2   = bei.book1D("diphoton_invMassPhoton1Photon2", "SubLeading Photon, SubSubLeading Photon Invariant mass (GeV)", 50, 100. , 150.);
+  diphoton_invMassPhoton1Photon2   = bei.book1D("diphoton_invMassPhoton1Photon2", "SubLeading Photon, SubSubLeading Photon Invariant mass (GeV)", 50, 500. , 4500.);
   diphoton_PhotonMulti           = bei.book1D("diphoton_PhotonMulti", "No. of Photons", 10, 0., 10.);
   //--- MonoJet
   bei.setCurrentFolder("Physics/Exotica/MonoJet");
@@ -330,12 +251,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Jets
   bool ValidPFJet = iEvent.getByToken(PFJetToken_, pfJetCollection_);
-  if(!ValidPFJet) return;
   pfjets = *pfJetCollection_;
-
-  // MET
-  //bool ValidCaloMET = iEvent.getByToken(CaloMETToken_, caloMETCollection_);
-  //if(!ValidCaloMET) return;
+  if(!ValidPFJet) return;
 
   // PFMETs
   bool ValidPFMET = iEvent.getByToken(PFMETToken_, pfMETCollection_);
@@ -344,6 +261,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Photons
   bool ValidCaloPhoton = iEvent.getByToken(PhotonToken_, PhotonCollection_);
   if(!ValidCaloPhoton) return;
+
+  bool ValidJetCorrector = iEvent.getByToken( JetCorrectorToken_, JetCorrector_ );
 
   //Trigger
   
@@ -355,22 +274,12 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if (TriggerResults_.product()->accept(i_Trig)) {           
       for (int n = 0; n < N_GoodTriggerPaths; n++) {
 	if (trigName.triggerName(i_Trig).find(HltPaths_[n])!=std::string::npos){
-	  //printf("Triggers fired? %i %s \n",i_Trig, trigName.triggerName(i_Trig).data());
 	  triggered_event = true;
 	}
       }
     }
   }
   if (triggered_event == false) return;
-
-  // if (triggered_event == false) {
-  //   printf("NO TRIGGER!!!!! \n");
-  //   for (int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig) {
-  //     if (TriggerResults_.product()->accept(i_Trig)) {           
-  // 	printf("Triggers fired? %i %s \n",i_Trig, trigName.triggerName(i_Trig).data());
-  //     }
-  //   }
-  // }
   
   for(int i=0; i<2; i++){
     //Jets
@@ -390,12 +299,11 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //Getting information from the RecoObjects
   dijet_countPFJet_=0;
   monojet_countPFJet_=0;
-  edm::Handle<reco::JetCorrector> jetCorrector;
-  iEvent.getByToken( correctorToken_, jetCorrector );
 
   PFJetCollection::const_iterator pfjet_ = pfjets.begin();
   for(; pfjet_ != pfjets.end(); ++pfjet_){
-    double scale = jetCorrector->correction(*pfjet_);
+    double scale = 1.;
+    if (ValidJetCorrector) scale = JetCorrector_->correction(*pfjet_);
     if(scale*pfjet_->pt()>PFJetPt[0]){
       PFJetPt[1]   = PFJetPt[0];
       PFJetPx[1]   = PFJetPx[0];
@@ -448,27 +356,32 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   for(; muon_ != MuonCollection_->end(); muon_++){
     // Muon High Pt ID
     bool HighPt = false;
-    if (muon_->isGlobalMuon() && muon_->globalTrack()->hitPattern().numberOfValidMuonHits() >0 && muon_->numberOfMatchedStations() > 1 &&
-	muon_->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&	muon_->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
-	muon_->muonBestTrack()->ptError()/muon_->muonBestTrack()->pt() < 0.3 &&
-	fabs(muon_->muonBestTrack()->dxy(primaryVertex_->position())) < 0.2 && fabs(muon_->bestTrack()->dz(primaryVertex_->position())) < 0.5
-	&& fabs(muon_->eta()) <2.1) HighPt = true;
+    if (   muon_->isGlobalMuon() 
+        && muon_->globalTrack()->hitPattern().numberOfValidMuonHits() >0 
+        && muon_->numberOfMatchedStations() > 1 
+        && muon_->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 
+        && muon_->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 
+        && muon_->muonBestTrack()->ptError()/muon_->muonBestTrack()->pt() < 0.3 
+        && fabs(muon_->muonBestTrack()->dxy(primaryVertex_->position())) < 0.2 
+        && fabs(muon_->bestTrack()->dz(primaryVertex_->position())) < 0.5
+        && fabs(muon_->eta()) <2.1
+    ) HighPt = true;
 
     if (HighPt == true ){
       if(muon_->pt()>MuonPt[0]){
-	MuonPt[1]   = MuonPt[0];
-	MuonPx[1]   = MuonPx[0];
-	MuonPy[1]   = MuonPy[0];
-	MuonEta[1]  = MuonEta[0];
-	MuonPhi[1]  = MuonPhi[0];
-	MuonCharge[1]  = MuonCharge[0];
-	//
-	MuonPt[0]   = muon_->pt();
-	MuonPx[0]   = muon_->px();
-	MuonPy[0]   = muon_->py();
-	MuonEta[0]  = muon_->eta();
-	MuonPhi[0]  = muon_->phi();
-	MuonCharge[0]  = muon_->charge();
+        MuonPt[1]       = MuonPt[0];
+        MuonPx[1]       = MuonPx[0];
+        MuonPy[1]       = MuonPy[0];
+        MuonEta[1]      = MuonEta[0];
+        MuonPhi[1]      = MuonPhi[0];
+        MuonCharge[1]   = MuonCharge[0];
+        //
+        MuonPt[0]       = muon_->pt();
+        MuonPx[0]       = muon_->px();
+        MuonPy[0]       = muon_->py();
+        MuonEta[0]      = muon_->eta();
+        MuonPhi[0]      = muon_->phi();
+        MuonCharge[0]   = muon_->charge();
       }
     }
     if (muon_->pt() > dimuon_Muon1_pt_cut_) dimuon_countMuon_++;
@@ -487,8 +400,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     double dEtaIn = fabs(electron_->deltaEtaSuperClusterTrackAtVtx());
     double dPhiIn = fabs(electron_->deltaPhiSuperClusterTrackAtVtx());
     double HoverE = electron_->hadronicOverEm();
-    // double depth1Iso = electron_->dr03EcalRecHitSumEt()+electron_->dr03HcalDepth1TowerSumEt();
-    // double hoDensity = (*rhoHandle);
     int missingHits = electron_->gsfTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
     double dxy = electron_->gsfTrack()->dxy(primaryVertex_->position());
     double tkIso = electron_->dr03TkSumPt();
@@ -497,11 +408,23 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     double scSigmaIetaIeta = electron_->scSigmaIEtaIEta();
     if (electron_->ecalDriven() && electron_->pt()>35.) {
       if (fabs(sceta)<1.442) { // barrel
-	if (fabs(dEtaIn)<0.005 && fabs(dPhiIn)<0.06 && HoverE<0.05 && tkIso<5. && missingHits<=1 && fabs(dxy)<0.02
-	    && (e2x5Fraction>0.94 || e1x5Fraction>0.83)) HEPP_ele =true;
+        if (   fabs(dEtaIn)<0.005 
+            && fabs(dPhiIn)<0.06 
+            && HoverE<0.05 
+            && tkIso<5. 
+            && missingHits<=1 
+            && fabs(dxy)<0.02
+            && (e2x5Fraction>0.94 || e1x5Fraction>0.83)
+        ) HEPP_ele =true;
       }else if (fabs(sceta)>1.56 && fabs(sceta)<2.5) { // endcap
-	if (fabs(dEtaIn)<0.007 && fabs(dPhiIn)<0.06 && HoverE<0.05 && tkIso<5. && missingHits<=1 && fabs(dxy)<0.02
-	    && scSigmaIetaIeta<0.03) HEPP_ele =true;
+        if (   fabs(dEtaIn)<0.007 
+            && fabs(dPhiIn)<0.06 
+            && HoverE<0.05 
+            && tkIso<5. 
+            && missingHits<=1 
+            && fabs(dxy)<0.02
+            && scSigmaIetaIeta<0.03
+        ) HEPP_ele =true;
       }
     }
     //
@@ -557,7 +480,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (photon_->pt() > dielectron_Electron1_pt_cut_) diphoton_countPhoton_ ++;
    }
   }
-  //#######################################################
+  
+  //
   // Analyze
   //
 
@@ -572,11 +496,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   analyzeMonoMuons(iEvent);
   analyzeMonoElectrons(iEvent);
 
-  //
-  //analyzeMultiJetsTrigger(iEvent);
-  //analyzeLongLivedTrigger(iEvent);
-
 }
+
 void ExoticaDQM::analyzeDiJets(const Event & iEvent){
   for (unsigned int icoll = 0; icoll < DiJetPFJetCollection_.size(); ++icoll) {
     dijet_countPFJet_=0;
@@ -587,14 +508,11 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
       PFJetPx[i]   = 0.; PFJetPy[i] = 0.;   PFJetPt[i] = 0.;   PFJetEta[i] = 0.; PFJetPhi[i] = 0.;
       PFJetNHEF[i] = 0.; PFJetCHEF[i] = 0.; PFJetNEMF[i] = 0.; PFJetCEMF[i] = 0.;
     }
-    //const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
     PFJetCollection::const_iterator DiJetpfjet_ = DiJetpfjets.begin();
     for(; DiJetpfjet_ != DiJetpfjets.end(); ++DiJetpfjet_){
-      //double scale = pfcorrector->correction(*pfjet_,iEvent, iSetup);
-      //if (icoll == 0.) continue; // info already saved
       double scale = 1.;
       if(scale*DiJetpfjet_->pt()>PFJetPt[0]){
-	PFJetPt[1]   = PFJetPt[0];
+        PFJetPt[1]   = PFJetPt[0];
     	PFJetPx[1]   = PFJetPx[0];
      	PFJetPy[1]   = PFJetPy[0];
      	PFJetEta[1]  = PFJetEta[0];
@@ -605,7 +523,6 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
      	PFJetCHEF[1] = PFJetCHEF[0];
      	PFJetNEMF[1] = PFJetNEMF[0];
      	PFJetCEMF[1] = PFJetCEMF[0];
-	//
      	PFJetPt[0]   = scale*DiJetpfjet_->pt();
      	PFJetPx[0]   = scale*DiJetpfjet_->px();
      	PFJetPy[0]   = scale*DiJetpfjet_->py();
@@ -655,6 +572,7 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
     }
   }
 }
+
 void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
   if(MuonPt[0] > dimuon_Muon1_pt_cut_ && MuonPt[1]> dimuon_Muon2_pt_cut_ && MuonCharge[0]*MuonCharge[1] == -1){
     dimuon_Muon_pt->Fill(MuonPt[0]);
@@ -672,6 +590,7 @@ void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
     dimuon_MuonMulti->Fill(dimuon_countMuon_);
   }
 }
+
 void ExoticaDQM::analyzeDiElectrons(const Event & iEvent){
   if(ElectronPt[0] > dielectron_Electron1_pt_cut_ && ElectronPt[1]> dielectron_Electron2_pt_cut_ && ElectronCharge[0]*ElectronCharge[1] == -1.){
     dielectron_Electron_pt->Fill(ElectronPt[0]);
@@ -689,6 +608,7 @@ void ExoticaDQM::analyzeDiElectrons(const Event & iEvent){
     dielectron_ElectronMulti->Fill(dielectron_countElectron_);
   }
 }
+
 void ExoticaDQM::analyzeDiPhotons(const Event & iEvent){
   if(PhotonPt[0] > diphoton_Photon1_pt_cut_ && PhotonPt[1]> diphoton_Photon2_pt_cut_ ){
     diphoton_Photon_energy->Fill(PhotonEnergy[0]);
@@ -738,6 +658,7 @@ void ExoticaDQM::analyzeDiPhotons(const Event & iEvent){
     diphoton_PhotonMulti->Fill(diphoton_countPhoton_);
   }
 }
+
 void ExoticaDQM::analyzeMonoJets(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -756,6 +677,7 @@ void ExoticaDQM::analyzeMonoJets(const Event & iEvent){
     monojet_PFJetMulti->Fill(monojet_countPFJet_);
   }
 }
+
 void ExoticaDQM::analyzeMonoMuons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -772,6 +694,7 @@ void ExoticaDQM::analyzeMonoMuons(const Event & iEvent){
     monomuon_MuonMulti->Fill(monomuon_countMuon_);
   }
 }
+
 void ExoticaDQM::analyzeMonoElectrons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -788,6 +711,7 @@ void ExoticaDQM::analyzeMonoElectrons(const Event & iEvent){
     monoelectron_ElectronMulti->Fill(monoelectron_countElectron_);
   }
 }
+
 void ExoticaDQM::analyzeMonoPhotons(const Event & iEvent){
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -810,5 +734,3 @@ void ExoticaDQM::analyzeMonoPhotons(const Event & iEvent){
     monophoton_PhotonMulti->Fill(monophoton_countPhoton_);
   }
 }
-
-
