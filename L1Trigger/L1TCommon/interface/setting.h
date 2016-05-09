@@ -39,7 +39,7 @@ class setting
 {
 	public:
 		setting() {};
-		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
+		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim = "");
 		setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void setProcRole(const std::string& procRole) { procRole_ = procRole; };
 		void setValue(const std::string& value) {value_ = value; };

@@ -20,7 +20,7 @@ class trigSystem
 		void setHwInfo(/*JSONConfigReader*/);
 		void addProcRole(const std::string& processor, const std::string& role);
 		void addProcCrate(const std::string& processor, const std::string& crate);
-		void addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole);
+		void addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim = "");
 		void addSettingTable(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void addMask(const std::string& id, const std::string& procRole);
 		void disableDaqProc(const std::string& daqProc);

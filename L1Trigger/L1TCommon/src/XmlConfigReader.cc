@@ -228,7 +228,6 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
-              std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
               // get the columns string
               std::string columnsStr = "";
