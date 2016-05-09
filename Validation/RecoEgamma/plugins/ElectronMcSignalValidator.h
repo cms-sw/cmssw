@@ -97,9 +97,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
     MonitorElement *h1_recOfflineVertices;
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices; // new 2015.15.05
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices;
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel;
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps;
 
     MonitorElement *h1_mc_Eta;
     MonitorElement *h1_mc_AbsEta;
@@ -220,6 +220,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_Eta;
     MonitorElement *h1_scl_Phi;
     MonitorElement *h1_scl_ESFrac;
+    MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h2_scl_EoEtruePfVsEg ;
 
