@@ -378,7 +378,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h2_ele_HoEVsEta = 0 ;
   h2_ele_HoEVsPhi = 0 ;
   h2_ele_HoEVsE = 0 ;
-  h1_scl_ESFrac = 0 ;
+//  h1_scl_ESFrac = 0 ;
   h1_scl_ESFrac_endcaps = 0 ;
 
   h1_ele_fbrem = 0 ;
@@ -687,7 +687,7 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h2_ele_HoEVsPhi = bookH2(iBooker, "HoEVsPhi","ele hadronic energy / em energy vs phi",phi2D_nbin,phi_min,phi_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsE = bookH2(iBooker, "HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
   setBookPrefix("h_scl") ;
-  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
+//  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
   h1_scl_ESFrac_endcaps = bookH1withSumw2(iBooker, "ESFrac_endcaps","Preshower over SC raw energy , endcaps",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
 
   // seeds
@@ -1067,7 +1067,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
         h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         h1_scl_Phi_->Fill(sclRef->phi());
         /*New from 06 05 2016*/
-        h1_scl_ESFrac->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
+//        h1_scl_ESFrac->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
         if (bestGsfElectron.isEE()) h1_scl_ESFrac_endcaps->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
       }
       h1_scl_SigIEtaIEta_->Fill(bestGsfElectron.scSigmaIEtaIEta());
