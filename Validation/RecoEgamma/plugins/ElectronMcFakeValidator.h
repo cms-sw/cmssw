@@ -336,7 +336,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_HoEVsEta;
     MonitorElement *h2_ele_HoEVsPhi;
     MonitorElement *h2_ele_HoEVsE;
-    MonitorElement *h1_scl_ESFrac;
+//    MonitorElement *h1_scl_ESFrac;
     MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h1_ele_fbrem;
