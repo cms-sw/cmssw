@@ -19,8 +19,13 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState
                                                const ReferenceTrajectoryBase::Config& config) :
   ReferenceTrajectoryBase(
      TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(),
-  (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
-  (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 )
+     (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
+     (config.materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 ),
+  materialEffects_(config.materialEffects),
+  propDir_(config.propDir),
+  useRefittedState_(config.useRefittedState),
+  constructTsosWithErrors_(config.constructTsosWithErrors)
+
 {
   if ( config.hitsAreReverse )
   {
@@ -39,34 +44,30 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState
       fwdRecHits.second.push_back( *itRecHits );
     }
 
-    theValidityFlag = this->construct(tsos, fwdRecHits, magField, config.materialEffects,
-                                      config.propDir, beamSpot, config.useRefittedState,
-                                      config.constructTsosWithErrors);
+    theValidityFlag = this->construct(tsos, fwdRecHits, magField, beamSpot);
   }
   else
   {
-    theValidityFlag = this->construct(tsos, recHits, magField, config.materialEffects,
-                                      config.propDir, beamSpot, config.useRefittedState,
-                                      config.constructTsosWithErrors);
+    theValidityFlag = this->construct(tsos, recHits, magField, beamSpot);
   }
 }
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
-  : ReferenceTrajectoryBase( 0, 0, 0, 0)
+  : ReferenceTrajectoryBase( 0, 0, 0, 0),
+  materialEffects_(none),
+  propDir_(anyDirection),
+  useRefittedState_(false),
+  constructTsosWithErrors_(false)
 {}
 
 
-bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state,
-					const ConstRecHitCollection& recHits,
-					const MagneticField* field,
-					MaterialEffects materialEffects,
-					PropagationDirection propDir,
-					const reco::BeamSpot &beamSpot,
-					bool useRefittedState,
-					bool constructTsosWithErrors )
+bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
+                                       const ConstRecHitCollection& recHits,
+                                       const MagneticField* field,
+                                       const reco::BeamSpot& beamSpot)
 {  
-  const TwoBodyDecayTrajectoryState::TsosContainer& tsos = state.trajectoryStates( useRefittedState );
+  const TwoBodyDecayTrajectoryState::TsosContainer& tsos = state.trajectoryStates(useRefittedState_);
   const TwoBodyDecayTrajectoryState::Derivatives& deriv = state.derivatives();
   double mass = state.particleMass();
 
@@ -75,7 +76,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectoryBase::Config config(materialEffects, propDir, mass);
+  ReferenceTrajectoryBase::Config config(materialEffects_, propDir_, mass);
   config.useBeamSpot = false;
   config.hitsAreReverse = false;
 
@@ -98,7 +99,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   unsigned int nLocal = deriv.first.num_row();
   unsigned int nTbd   = deriv.first.num_col();
 
-  if (materialEffects >= localGBL) {
+  if (materialEffects_ >= localGBL) {
     // GBL trajectory inputs
     // convert to TMatrix
     TMatrixD tbdToLocal1(nLocal, nTbd);
@@ -206,7 +207,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   theRecHits.insert( theRecHits.end(), recHits.first.begin(), recHits.first.end() );
   theRecHits.insert( theRecHits.end(), recHits.second.begin(), recHits.second.end() );
 
-  if ( constructTsosWithErrors )
+  if (constructTsosWithErrors_)
   {
     constructTsosVecWithErrors( trajectory1, trajectory2, field );
   }

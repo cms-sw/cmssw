@@ -60,7 +60,11 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos
    ( (config.materialEffects == breakPoints) ? 2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-2 : 0) ,
    (config.materialEffects >= brokenLinesCoarse) ?
        2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-4 :
-   ( (config.materialEffects == breakPoints) ? 2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-2 : 0) )
+   ( (config.materialEffects == breakPoints) ? 2*((config.useBeamSpot) ? recHits.size()+1 : recHits.size())-2 : 0) ),
+  mass_(config.mass),
+  materialEffects_(config.materialEffects),
+  propDir_(config.propDir),
+  useBeamSpot_(config.useBeamSpot)
 {
   // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
@@ -72,28 +76,26 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos
 	 it != recHits.rend(); ++it) {
       fwdRecHits.push_back(*it);
     }
-    theValidityFlag = this->construct(refTsos, fwdRecHits, config.mass,
-				      config.materialEffects,
-				      config.propDir, magField,
-				      config.useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsos, fwdRecHits, magField, beamSpot);
   } else {
-    theValidityFlag = this->construct(refTsos, recHits, config.mass,
-				      config.materialEffects,
-				      config.propDir, magField,
-				      config.useBeamSpot, beamSpot);
+    theValidityFlag = this->construct(refTsos, recHits, magField, beamSpot);
   }
 }
 
 
 //__________________________________________________________________________________
 
-ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits,
-					  MaterialEffects materialEffects)
+ReferenceTrajectory::ReferenceTrajectory(unsigned int nPar, unsigned int nHits,
+					 const ReferenceTrajectoryBase::Config& config)
  : ReferenceTrajectoryBase( 
-   (materialEffects >= brokenLinesCoarse) ? 1 : nPar, 
+   (config.materialEffects >= brokenLinesCoarse) ? 1 : nPar,
    nHits, 
-   (materialEffects >= brokenLinesCoarse) ? 2*nHits   : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0 ), 
-   (materialEffects >= brokenLinesCoarse) ? 2*nHits-4 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0 ) )
+   (config.materialEffects >= brokenLinesCoarse) ? 2*nHits   : ( (config.materialEffects == breakPoints) ? 2*nHits-2 : 0 ),
+   (config.materialEffects >= brokenLinesCoarse) ? 2*nHits-4 : ( (config.materialEffects == breakPoints) ? 2*nHits-2 : 0 ) ),
+   mass_(config.mass),
+   materialEffects_(config.materialEffects),
+   propDir_(config.propDir),
+   useBeamSpot_(config.useBeamSpot)
 {}
 
 
@@ -101,18 +103,15 @@ ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits,
 
 bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos, 
 				    const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-				    double mass, MaterialEffects materialEffects,
-				    const PropagationDirection propDir,
 				    const MagneticField *magField,
-				    bool useBeamSpot,
 				    const reco::BeamSpot &beamSpot)
 {   
   TrajectoryStateOnSurface theRefTsos = refTsos;
 
-  const SurfaceSide surfaceSide = this->surfaceSide(propDir);
+  const SurfaceSide surfaceSide = this->surfaceSide(propDir_);
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
   std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
-    (this->createUpdator(materialEffects, mass));
+    (this->createUpdator(materialEffects_, mass_));
   if (!aMaterialEffectsUpdator.get()) return false; // empty auto_ptr
 
   AlgebraicMatrix                 fullJacobian(theParameters.num_row(), theParameters.num_row());
@@ -148,7 +147,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   // local storage vector of all rechits (including rechit for beam spot in case it is used)
   TransientTrackingRecHit::ConstRecHitContainer allRecHits;
 
-  if (useBeamSpot && propDir==alongMomentum) {
+  if (useBeamSpot_ && propDir_==alongMomentum) {
     
     GlobalPoint bs(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
     
@@ -206,7 +205,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       theTsosVec.push_back(theRefTsos);
       const JacobianLocalToCurvilinear startTrafo(hitPtr->det()->surface(), theRefTsos.localParameters(), *magField);
       const AlgebraicMatrix localToCurvilinear =  asHepMatrix<5>(startTrafo.jacobian());
-      if (materialEffects <= breakPoints) {
+      if (materialEffects_ <= breakPoints) {
          theInnerTrajectoryToCurvilinear = asHepMatrix<5>(startTrafo.jacobian());
 	 theInnerLocalToTrajectory = AlgebraicMatrix(5, 5, 1);
       }	 
@@ -223,7 +222,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
-			   nextJacobian, nextCurvlinJacobian, nextStep, propDir, magField)) {
+			   nextJacobian, nextCurvlinJacobian, nextStep, propDir_, magField)) {
 	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
       
@@ -239,7 +238,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				   << "step 0. from id " << previousHitPtr->geographicalId()
 				   << " to " << hitPtr->det()->geographicalId() << ".";
 	// brokenLinesFine will not work, brokenLinesCoarse combines close by layers
-	if (materialEffects == brokenLinesFine) {
+	if (materialEffects_ == brokenLinesFine) {
 	  edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct" << "Skip track.";
 	  return false;
 	}
@@ -253,7 +252,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // the updated state contains only the uncertainties due to interactions in the current layer.
     const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
 					   theTsosVec.back().surface(), magField, surfaceSide);
-    const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
+    const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir_);
 
     if ( !updatedTsos.isValid() ) return false;// no delete aMaterialEffectsUpdator needed
     
@@ -275,7 +274,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
                                               updatedTsos.surface(), surfaceSide);
     
-    if (materialEffects < brokenLinesCoarse) {
+    if (materialEffects_ < brokenLinesCoarse) {
       this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
     }
 
@@ -287,7 +286,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   } // end of loop on hits
 
   bool msOK = true;
-  switch (materialEffects) {
+  switch (materialEffects_) {
   case none:
     break;
   case multipleScattering:

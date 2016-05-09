@@ -18,16 +18,15 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory(const TrajectoryState
                                                            const reco::BeamSpot& beamSpot,
                                                            const ReferenceTrajectoryBase::Config& config) :
   DualReferenceTrajectory(tsos.localParameters().mixedFormatVector().kSize - 1,
-                          numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1),
+                          numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
+                          config),
     theMomentumEstimate(config.momentumEstimate)
 {
     theValidityFlag = DualReferenceTrajectory::construct(tsos,
                                                          forwardRecHits,
                                                          backwardRecHits,
-                                                         config.mass,
-                                                         config.materialEffects,
-                                                         config.propDir, magField,
-                                                         config.useBeamSpot, beamSpot);
+                                                         magField,
+                                                         beamSpot);
 }
 
 
