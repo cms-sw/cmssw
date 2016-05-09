@@ -87,7 +87,7 @@ B2GDoubleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 
     TString name = triggerNames.triggerNames()[i].c_str();
     for (unsigned int j=0; j<vsPaths_.size(); j++) {
-      if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
+      if (name.Contains(TString(vsPaths_[j]))) {
         isInteresting = true; 
         break;
       }
@@ -127,7 +127,7 @@ B2GDoubleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
       TString name = triggerNames.triggerNames()[i].c_str();
       for (unsigned int j=0; j<vsPaths_.size(); j++) {
-        if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
+        if (name.Contains(TString(vsPaths_[j]))) {
           hNumTriggerMon->Fill(j+0.5 );
         }
       }
