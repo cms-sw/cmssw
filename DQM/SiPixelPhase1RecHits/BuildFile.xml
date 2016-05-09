@@ -3,4 +3,5 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
 <use   name="DQM/SiPixelPhase1Common"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <flags   EDM_PLUGIN="1"/>
