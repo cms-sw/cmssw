@@ -51,6 +51,9 @@ namespace l1t {
     void setPrescaleFactorTable(std::vector<std::vector<int> > value){ check_write(); write_->prescale_table_ = value; };
     inline const std::vector<int>& triggerMaskVeto() const { return read_->veto_; };
     void setTriggerMaskVeto(std::vector<int> value){ check_write(); write_->veto_ = value; };
+    
+    inline const std::map<int, std::vector<int> >& triggerAlgoBxMask() const { return read_->bxmask_map_; };
+    void setTriggerAlgoBxMask(std::map<int, std::vector<int> > value){ check_write(); write_->bxmask_map_ = value; };
 
     // access to underlying pointers, mainly for ESProducer:
     const L1TGlobalPrescalesVetos *  getReadInstance() const {return read_;}
