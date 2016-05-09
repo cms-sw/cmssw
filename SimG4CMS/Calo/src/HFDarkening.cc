@@ -41,20 +41,20 @@ double HFDarkening::dose(unsigned int layer, double Radius) {
   }
   
   int radius = 0;
-  if (Radius > 13.0 && Radius <= 17.0) radius = 0;
-  if (Radius > 17.0 && Radius <= 20.0) radius = 1;
-  if (Radius > 20.0 && Radius <= 24.0) radius = 2;
-  if (Radius > 24.0 && Radius <= 29.0) radius = 3;
-  if (Radius > 29.0 && Radius <= 34.0) radius = 4;
-  if (Radius > 34.0 && Radius <= 41.0) radius = 5;
-  if (Radius > 41.0 && Radius <= 48.0) radius = 6;
-  if (Radius > 48.0 && Radius <= 58.0) radius = 7;
-  if (Radius > 58.0 && Radius <= 69.0) radius = 8;
-  if (Radius > 69.0 && Radius <= 82.0) radius = 9;
-  if (Radius > 82.0 && Radius <= 98.0) radius = 10;
-  if (Radius > 98.0 && Radius <= 116.0) radius = 11;
-  if (Radius > 116.0 && Radius <= 130.0) radius = 12;
-  if (Radius > 130.0) return 0.;
+  if (Radius <= 17.0) radius = 0;
+  else if (Radius <= 20.0) radius = 1;
+  else if (Radius <= 24.0) radius = 2;
+  else if (Radius <= 29.0) radius = 3;
+  else if (Radius <= 34.0) radius = 4;
+  else if (Radius <= 41.0) radius = 5;
+  else if (Radius <= 48.0) radius = 6;
+  else if (Radius <= 58.0) radius = 7;
+  else if (Radius <= 69.0) radius = 8;
+  else if (Radius <= 82.0) radius = 9;
+  else if (Radius <= 98.0) radius = 10;
+  else if (Radius <= 116.0) radius = 11;
+  else if (Radius <= 130.0) radius = 12;
+  else return 0.;
   
   return HFDoseLayerDarkeningPars[layer][radius];
 }
