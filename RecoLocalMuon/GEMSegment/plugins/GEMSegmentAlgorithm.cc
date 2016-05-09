@@ -1,11 +1,11 @@
 /**
- * \file GEMSegAlgo.cc
+ * \file GEMSegmentAlgorithm.cc
  *  based on CSCSegAlgoST.cc
  * 
  *  \authors: Piet Verwilligen, Jason Lee
  */
  
-#include "GEMSegAlgo.h"
+#include "GEMSegmentAlgorithm.h"
 #include "MuonSegFit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@
 /* Constructor
  *
  */
-GEMSegAlgo::GEMSegAlgo(const edm::ParameterSet& ps) : GEMSegmentAlgorithm(ps), myName("GEMSegAlgo")
+GEMSegmentAlgorithm::GEMSegmentAlgorithm(const edm::ParameterSet& ps) : GEMSegmentAlgorithmBase(ps), myName("GEMSegmentAlgorithm")
 {
   debug                     = ps.getUntrackedParameter<bool>("GEMDebug");
   minHitsPerSegment         = ps.getParameter<unsigned int>("minHitsPerSegment");
@@ -54,16 +54,16 @@ GEMSegAlgo::GEMSegAlgo(const edm::ParameterSet& ps) : GEMSegmentAlgorithm(ps), m
 /* Destructor
  *
  */
-GEMSegAlgo::~GEMSegAlgo() {
+GEMSegmentAlgorithm::~GEMSegmentAlgorithm() {
 }
 
 
-std::vector<GEMSegment> GEMSegAlgo::run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
+std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
 
   theEnsemble = ensemble;
 
   GEMDetId chId((theEnsemble.first)->id());
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::run] build segments in chamber " << chId;
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] build segments in chamber " << chId;
   
   // pre-cluster rechits and loop over all sub clusters separately
   std::vector<GEMSegment>          segments_temp;
@@ -75,16 +75,16 @@ std::vector<GEMSegment> GEMSegAlgo::run(const GEMEnsemble& ensemble, const Ensem
     if(preClustering_useChaining){
       // it uses X,Y,Z information; there are no configurable parameters used;
       // the X, Y, Z "cuts" are just (much) wider than reasonable high pt segments
-      edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::run] preClustering :: use Chaining";
+      edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] preClustering :: use Chaining";
       rechits_clusters = this->chainHits( rechits );
     }
     else{
       // it uses X,Y information + configurable parameters
-      edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::run] Clustering";
+      edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] Clustering";
       rechits_clusters = this->clusterHits(rechits );
     }
     // loop over the found clusters:
-      edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::run] Loop over clusters and build segments";
+      edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] Loop over clusters and build segments";
     for(auto sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
       // clear the buffer for the subset of segments:
       segments_temp.clear();
@@ -105,8 +105,8 @@ std::vector<GEMSegment> GEMSegAlgo::run(const GEMEnsemble& ensemble, const Ensem
 
 
 // ********************************************************************;
-GEMSegAlgo::ProtoSegments 
-GEMSegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
+GEMSegmentAlgorithm::ProtoSegments 
+GEMSegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
 
   // think how to implement BX requirement here
 
@@ -158,7 +158,7 @@ GEMSegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == running_max || running_meanX[NNN] == running_max ) {
-	LogDebug("GEMSegAlgo") << "[GEMSegAlgo::clusterHits]: ALARM! Skipping used seeds, this should not happen - inform developers!";
+	LogDebug("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::clusterHits]: ALARM! Skipping used seeds, this should not happen - inform developers!";
 	continue; //skip seeds that have been used 
       }
 	  
@@ -213,8 +213,8 @@ GEMSegAlgo::clusterHits(const EnsembleHitContainer& rechits) {
 }
 
 
-GEMSegAlgo::ProtoSegments 
-GEMSegAlgo::chainHits(const EnsembleHitContainer& rechits) {
+GEMSegmentAlgorithm::ProtoSegments 
+GEMSegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_chains; 
   EnsembleHitContainer temp;
@@ -280,7 +280,7 @@ GEMSegAlgo::chainHits(const EnsembleHitContainer& rechits) {
   return rechits_chains;
 }
 
-bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
+bool GEMSegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   std::vector<float> phi_new, eta_new, phi_old, eta_old;
   std::vector<int> layer_new, layer_old;
@@ -302,7 +302,7 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     const GEMSuperChamber * rhCH   = theEnsemble.first;
     LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
-    edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge::New Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
+    edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge::New Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
     			             << " -- Glob eta = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.eta()<<" Glob phi = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.phi()
                                      << " -- BX = "<<newChain[iRH_new]->BunchX()
    	                 	     << " -- "<<rhID.rawId()<<" = "<<rhID<<" ]";
@@ -324,7 +324,7 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     const GEMSuperChamber * rhCH   = theEnsemble.first;
     LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
-    edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge::Old Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
+    edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge::Old Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
                                      << " -- Glob eta = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.eta()<<" Glob phi = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.phi()
                                      << " -- BX = "<<oldChain[iRH_old]->BunchX()
                                      << " -- "<<rhID.rawId()<<" = "<<rhID<<" ]";
@@ -364,17 +364,17 @@ bool GEMSegAlgo::isGoodToMerge(const EnsembleHitContainer& newChain, const Ensem
       }
 
       if(layerRequirementOK && phiRequirementOK && etaRequirementOK && bxRequirementOK){
-	edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge:: true]";
+	edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge:: true]";
 	return true; // problem is that return is already given before the second element of the vector old_chain or new_chain is tested ... this logic needs to be changed	
       } 
     }
   }
 
-  edm::LogVerbatim("GEMSegAlgo") << "[GoodToMerge:: false]";
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge:: false]";
   return false;
 }
 
-std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& rechits) {
+std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitContainer& rechits) {
   std::vector<GEMSegment> gemsegs;
   MuonRecHitContainer muonRecHits;
   proto_segment.clear();
@@ -400,12 +400,12 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
     return gemsegs;
   }
   
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto gemid = (*rh)->gemId();
     auto rhLP = (*rh)->localPosition();
-    edm::LogVerbatim("GEMSegAlgo") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+    edm::LogVerbatim("GEMSegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
 				     <<" BX = "<<std::showpos<<(*rh)->BunchX()<<" -- "<<gemid.rawId()<<" = "<<gemid<<" ]";
   }
   #endif
@@ -415,7 +415,7 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
   bool goodfit = sfit_->fit();
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
 
   // quit function if fit was not OK
   if(!goodfit) return gemsegs;
@@ -458,12 +458,12 @@ std::vector<GEMSegment> GEMSegAlgo::buildSegments(const EnsembleHitContainer& re
   */
 
   // save all information inside GEMCSCSegment
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] will now wrap fit info in GEMSegment dataformat";
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now wrap fit info in GEMSegment dataformat";
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
 
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] GEMSegment made in "<<tmp.gemDetId();
-  edm::LogVerbatim("GEMSegAlgo") << "[GEMSegAlgo::buildSegments] "<<tmp;
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment made in "<<tmp.gemDetId();
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;
 
   gemsegs.push_back(tmp);
   return gemsegs;

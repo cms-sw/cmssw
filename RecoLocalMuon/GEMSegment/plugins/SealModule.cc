@@ -8,7 +8,7 @@
 DEFINE_FWK_MODULE(ME0SegmentProducer);
 
 #include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilderPluginFactory.h>
-#include <RecoLocalMuon/GEMSegment/plugins/GEMSegAlgo.h>
+#include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h>
 
-DEFINE_EDM_PLUGIN(GEMSegmentBuilderPluginFactory, GEMSegAlgo, "GEMSegAlgo");
+DEFINE_EDM_PLUGIN(GEMSegmentBuilderPluginFactory, GEMSegmentAlgorithm, "GEMSegmentAlgorithm");
 DEFINE_EDM_PLUGIN(ME0SegmentBuilderPluginFactory, ME0SegAlgo, "ME0SegAlgo");
