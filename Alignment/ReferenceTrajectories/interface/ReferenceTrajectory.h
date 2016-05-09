@@ -79,15 +79,15 @@ public:
 
 protected:
 
-  ReferenceTrajectory(unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects);
+  // ReferenceTrajectory(unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects);
+  ReferenceTrajectory(unsigned int nPar, unsigned int nHits,
+		      const ReferenceTrajectoryBase::Config& config);
 
   /** internal method to calculate members
    */
   virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
 			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-			 double mass, MaterialEffects materialEffects,
-			 const PropagationDirection propDir, const MagneticField *magField,
-			 bool useBeamSpot,
+			 const MagneticField *magField,
 			 const reco::BeamSpot &beamSpot);
 
   /** internal method to get apropriate updator
@@ -188,6 +188,11 @@ private:
   void clhep2root(const AlgebraicVector& in, TVectorD& out);
   void clhep2root(const AlgebraicMatrix& in, TMatrixD& out);
   void clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out);
+
+  const double mass_;
+  const MaterialEffects materialEffects_;
+  const PropagationDirection propDir_;
+  const bool useBeamSpot_;
 };
 
 #endif
