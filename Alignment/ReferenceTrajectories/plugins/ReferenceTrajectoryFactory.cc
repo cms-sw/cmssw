@@ -97,7 +97,7 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     if ( input.first.isValid() )
     {
       ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-      config.useBeamSpot = theUseBeamSpot;
+      config.useBeamSpot = useBeamSpot_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       config.hitsAreReverse = false;
       trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
@@ -147,7 +147,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
       if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
       {
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
         config.hitsAreReverse = false;
         ReferenceTrajectoryPtr refTraj(new ReferenceTrajectory(*itExternal, input.second,
@@ -161,7 +161,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
       else
       {
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
-        config.useBeamSpot = theUseBeamSpot;
+        config.useBeamSpot = useBeamSpot_;
         config.hitsAreReverse = false;
         trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
                                                                               magneticField.product(),
