@@ -10,13 +10,13 @@ L1TStage2BMTF::L1TStage2BMTF(const edm::ParameterSet & ps):
   monitorDir(ps.getUntrackedParameter<std::string>("monitorDir","")),
   bmtfSource(ps.getParameter<edm::InputTag>("bmtfSource")),
   //  bmtfSourceTwinMux1(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux1")),
-  bmtfSourceTwinMux2(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux2")),
+  //  bmtfSourceTwinMux2(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux2")),
   verbose(ps.getUntrackedParameter<bool>("verbose", false)),
   global_phi(-1000)
 {
   bmtfToken=consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfSource"));
   //  bmtfTokenTwinMux1 = consumes<L1MuDTChambThContainer>(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux1"));
-  bmtfTokenTwinMux2 = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux2"));
+  //  bmtfTokenTwinMux2 = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux2"));
 
 }
 
@@ -73,21 +73,21 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   bmtf_hwQual_bx   = ibooker.book2D("bmtf_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
   bmtf_hwQual_bx->setTitle("; HW Quality; BX");
 
-  bmtf_twinmuxInput_PhiBX = ibooker.book1D("bmtf_twinmuxInput_PhiBX"  , "TwinMux Input Phi BX"      ,  5, -2.5, 2.5);
-  bmtf_twinmuxInput_PhiPhi = ibooker.book1D("bmtf_twinmuxInput_PhiPhi"  , "TwinMux Input Phi HW Phi"      , 201, -100.5, 100.5);
-  bmtf_twinmuxInput_PhiPhiB = ibooker.book1D("bmtf_twinmuxInput_PhiPhiB"  , "TwinMux Input Phi HW PhiB"   , 201, -100.5, 100.5);
-  bmtf_twinmuxInput_PhiQual = ibooker.book1D("bmtf_twinmuxInput_PhiQual"  , "TwinMux Input Phi HW Quality" , 20,   -0.5,  19.5);
-  bmtf_twinmuxInput_PhiStation = ibooker.book1D("bmtf_twinmuxInput_PhiStation"  , "TwinMux Input Phi HW Station", 6, -1, 5);
-  bmtf_twinmuxInput_PhiSector = ibooker.book1D("bmtf_twinmuxInput_PhiSector" , "TwinMux Input Phi HW Sector"    , 14, -1,  13 );
-  bmtf_twinmuxInput_PhiWheel = ibooker.book1D("bmtf_twinmuxInput_PhiWheel"  , "TwinMux Input Phi HW Wheel"      , 16 , -4, 4);
-  bmtf_twinmuxInput_PhiTrSeg = ibooker.book1D("bmtf_twinmuxInput_PhiTrSeg"  , "TwinMux Input Phi HW Track Segment"      , 6, -1, 5 );
-  bmtf_twinmuxInput_PhiWheel_PhiSector = ibooker.book2D("bmtf_twinmuxInput_PhiWheel_PhiSector"  , "TwinMux Input Phi HW Wheel vs HW Sector", 16 , -4, 4, 14, -1,  13 );
+  // bmtf_twinmuxInput_PhiBX = ibooker.book1D("bmtf_twinmuxInput_PhiBX"  , "TwinMux Input Phi BX"      ,  5, -2.5, 2.5);
+  // bmtf_twinmuxInput_PhiPhi = ibooker.book1D("bmtf_twinmuxInput_PhiPhi"  , "TwinMux Input Phi HW Phi"      , 201, -100.5, 100.5);
+  // bmtf_twinmuxInput_PhiPhiB = ibooker.book1D("bmtf_twinmuxInput_PhiPhiB"  , "TwinMux Input Phi HW PhiB"   , 201, -100.5, 100.5);
+  // bmtf_twinmuxInput_PhiQual = ibooker.book1D("bmtf_twinmuxInput_PhiQual"  , "TwinMux Input Phi HW Quality" , 20,   -0.5,  19.5);
+  // bmtf_twinmuxInput_PhiStation = ibooker.book1D("bmtf_twinmuxInput_PhiStation"  , "TwinMux Input Phi HW Station", 6, -1, 5);
+  // bmtf_twinmuxInput_PhiSector = ibooker.book1D("bmtf_twinmuxInput_PhiSector" , "TwinMux Input Phi HW Sector"    , 14, -1,  13 );
+  // bmtf_twinmuxInput_PhiWheel = ibooker.book1D("bmtf_twinmuxInput_PhiWheel"  , "TwinMux Input Phi HW Wheel"      , 16 , -4, 4);
+  // bmtf_twinmuxInput_PhiTrSeg = ibooker.book1D("bmtf_twinmuxInput_PhiTrSeg"  , "TwinMux Input Phi HW Track Segment"      , 6, -1, 5 );
+  // bmtf_twinmuxInput_PhiWheel_PhiSector = ibooker.book2D("bmtf_twinmuxInput_PhiWheel_PhiSector"  , "TwinMux Input Phi HW Wheel vs HW Sector", 16 , -4, 4, 14, -1,  13 );
 
-  bmtf_twinmuxInput_PhiWheel_PhiSector->setTitle("; TwinMux Input Phi HW Wheel; TwinMux Input Phi HW Sector");
-  for (int bin = 1; bin < 5; ++bin) {
-    bmtf_twinmuxInput_PhiWheel_PhiSector->setBinLabel(bin, "station"+std::to_string(bin), 1);
-    bmtf_twinmuxInput_PhiTrSeg->setBinLabel(bin, "station"+std::to_string(bin), 1);
-  }
+  // bmtf_twinmuxInput_PhiWheel_PhiSector->setTitle("; TwinMux Input Phi HW Wheel; TwinMux Input Phi HW Sector");
+  // for (int bin = 1; bin < 5; ++bin) {
+  //   bmtf_twinmuxInput_PhiWheel_PhiSector->setBinLabel(bin, "station"+std::to_string(bin), 1);
+  //   bmtf_twinmuxInput_PhiTrSeg->setBinLabel(bin, "station"+std::to_string(bin), 1);
+  // }
 
   // bmtf_twinmuxInput_TheBX = ibooker.book1D("bmtf_twinmuxInput_TheBX"  , "TwinMux Input The BX"      ,   5, -2.5, 2.5);
   // bmtf_twinmuxInput_ThePhi= ibooker.book1D("bmtf_twinmuxInput_ThePhi"  , "TwinMux Input The HW Phi"      ,  201, -100.5, 100.5);
@@ -119,8 +119,8 @@ void L1TStage2BMTF::analyze(const edm::Event & eve, const edm::EventSetup & eveS
   //  edm::Handle<L1MuDTChambThContainer> bmtfMuonTwinMux1;
   //  eve.getByToken(bmtfTokenTwinMux1, bmtfMuonTwinMux1);
 
-  edm::Handle<L1MuDTChambPhContainer> bmtfMuonTwinMux2;
-  eve.getByToken(bmtfTokenTwinMux2, bmtfMuonTwinMux2);
+  //  edm::Handle<L1MuDTChambPhContainer> bmtfMuonTwinMux2;
+  //  eve.getByToken(bmtfTokenTwinMux2, bmtfMuonTwinMux2);
 
   for(int itBX=bmtfMuon->getFirstBX(); itBX<=bmtfMuon->getLastBX(); ++itBX)
     {
@@ -174,25 +174,25 @@ void L1TStage2BMTF::analyze(const edm::Event & eve, const edm::EventSetup & eveS
     
       // 	}
 
-  for(L1MuDTChambPhContainer::Phi_Container::const_iterator itMuon = bmtfMuonTwinMux2->getContainer()->begin(); itMuon != bmtfMuonTwinMux2->getContainer()->end(); ++itMuon)
-	{  
+  // for(L1MuDTChambPhContainer::Phi_Container::const_iterator itMuon = bmtfMuonTwinMux2->getContainer()->begin(); itMuon != bmtfMuonTwinMux2->getContainer()->end(); ++itMuon)
+  // 	{  
 
-	  bmtf_twinmuxInput_PhiBX->Fill(itMuon->bxNum());
-	  bmtf_twinmuxInput_PhiPhi->Fill(itMuon->phi());
-	  bmtf_twinmuxInput_PhiPhiB->Fill(itMuon->phiB());
-	  bmtf_twinmuxInput_PhiQual->Fill(itMuon->code());
-	  bmtf_twinmuxInput_PhiStation->Fill(itMuon->stNum());
-	  bmtf_twinmuxInput_PhiSector->Fill(itMuon->scNum());
-	  bmtf_twinmuxInput_PhiWheel->Fill(itMuon->whNum());
+  // 	  bmtf_twinmuxInput_PhiBX->Fill(itMuon->bxNum());
+  // 	  bmtf_twinmuxInput_PhiPhi->Fill(itMuon->phi());
+  // 	  bmtf_twinmuxInput_PhiPhiB->Fill(itMuon->phiB());
+  // 	  bmtf_twinmuxInput_PhiQual->Fill(itMuon->code());
+  // 	  bmtf_twinmuxInput_PhiStation->Fill(itMuon->stNum());
+  // 	  bmtf_twinmuxInput_PhiSector->Fill(itMuon->scNum());
+  // 	  bmtf_twinmuxInput_PhiWheel->Fill(itMuon->whNum());
 
-	  for(int i = 1; i<= itMuon->stNum() ; ++i)
-	    {  
-	      bmtf_twinmuxInput_PhiTrSeg->Fill(itMuon->Ts2Tag());
-	      bmtf_twinmuxInput_PhiWheel_PhiSector->Fill(itMuon->whNum(), itMuon->scNum());
-	    }
+  // 	  for(int i = 1; i<= itMuon->stNum() ; ++i)
+  // 	    {  
+  // 	      bmtf_twinmuxInput_PhiTrSeg->Fill(itMuon->Ts2Tag());
+  // 	      bmtf_twinmuxInput_PhiWheel_PhiSector->Fill(itMuon->whNum(), itMuon->scNum());
+  // 	    }
 
 
-	}
+  // 	}
   
 }
 

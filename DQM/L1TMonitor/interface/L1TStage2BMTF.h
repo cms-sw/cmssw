@@ -73,11 +73,11 @@ private:
   std::string monitorDir;
   edm::InputTag bmtfSource; 
   //  edm::InputTag bmtfSourceTwinMux1;
-  edm::InputTag bmtfSourceTwinMux2;
+  //  edm::InputTag bmtfSourceTwinMux2;
   bool verbose ;
   edm::EDGetToken bmtfToken;
   // edm::EDGetToken bmtfTokenTwinMux1;
-  edm::EDGetToken bmtfTokenTwinMux2; 
+  //  edm::EDGetToken bmtfTokenTwinMux2; 
   float global_phi;
 
   MonitorElement* bmtf_hwEta; 
@@ -99,15 +99,15 @@ private:
   MonitorElement* bmtf_hwPt_bx;   
   MonitorElement* bmtf_hwQual_bx; 
 
-  MonitorElement* bmtf_twinmuxInput_PhiBX;
-  MonitorElement* bmtf_twinmuxInput_PhiPhi;
-  MonitorElement* bmtf_twinmuxInput_PhiPhiB;
-  MonitorElement* bmtf_twinmuxInput_PhiQual;
-  MonitorElement* bmtf_twinmuxInput_PhiStation;
-  MonitorElement* bmtf_twinmuxInput_PhiSector;
-  MonitorElement* bmtf_twinmuxInput_PhiWheel;
-  MonitorElement* bmtf_twinmuxInput_PhiTrSeg;
-  MonitorElement*  bmtf_twinmuxInput_PhiWheel_PhiSector;
+  /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiPhiB; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiQual; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiStation; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiSector; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiWheel; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiTrSeg; */
+  /* MonitorElement*  bmtf_twinmuxInput_PhiWheel_PhiSector; */
 
   /* MonitorElement* bmtf_twinmuxInput_TheBX; */
   /* MonitorElement* bmtf_twinmuxInput_ThePhi; */
