@@ -383,7 +383,7 @@ class TrackAnalyzer
         // Trivial hasher function: warning, it only works if det has less than 99 subdets.
         struct KeyHasher {
           std::size_t operator()(const Key& k) const {
-            return k.det*100+k.subdet;
+            return k.det*1000+k.subdet*10+k.monitoring;
           }
         };
 
