@@ -169,7 +169,7 @@ float l1t::CaloTools::towerEta(int ieta)
 
 float l1t::CaloTools::towerPhi(int ieta, int iphi)
 {
-  float phi = (float(iphi)+0.5)*towerPhiSize(ieta);
+  float phi = (float(iphi)-0.5)*towerPhiSize(ieta);
   if (phi > M_PI) phi = phi - (2*M_PI);
   return phi;
 }
