@@ -140,7 +140,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule, const edm::E
     cached = false;
     iq = GeometryInterface::InterestingQuantities{
       sourceModule, sourceEvent, col, row
-    };							    
+    };
   }
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
@@ -553,8 +553,9 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	case SummationStep::EXTEND_Y:
 	  assert(!"EXTEND_Y NIY"); break; // TODO: similar to EXTEND_X
 	case SummationStep::CUSTOM:
-	  assert(customHandler);
-	  customHandler(step, t);
+	  if(customHandler)
+            customHandler(step, t);
+          break;
 	case SummationStep::COUNT:
 	case SummationStep::NO_TYPE:
 	  assert(!"Operation not supported in harvesting.");
