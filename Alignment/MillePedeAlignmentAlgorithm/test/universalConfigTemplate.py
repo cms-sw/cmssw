@@ -1,14 +1,14 @@
 ###### Universal configuration template for tracker alignment
 #
 #  Usage:
-#    
-#    Make a copy of this file and insert Startgeometry, Alignables and 
+#
+#    Make a copy of this file and insert Startgeometry, Alignables and
 #    Pedesettings directly into it.
 #
 #    Specify the path to this config-Template in the alignment_setup.ini
 #
 #    The scripts mps_alisetup.py and mps_setup.py set the Variables at the top (setup*).
-#    
+#
 #        Collection specifies the type of Tracks. Currently these are supported:
 #          - ALCARECOTkAlMinBias       -> Minimum Bias
 #          - ALCARECOTkAlCosmicsCTF0T  -> Cosmics, either at 0T or 3.8T
@@ -24,10 +24,10 @@
 #        AlgoMode specifies mode of AlignmentProducer.algoConfig -> mille or pede
 #        mille is default. Pede mode is automatically set when merge config is created by MPS
 #
-#        CosmicsDecoMode and CosmicsZeroTesla are only relevant if collection 
+#        CosmicsDecoMode and CosmicsZeroTesla are only relevant if collection
 #        is ALCARECOTkAlCosmicsCTF0T
 #
-#        If primaryWidth is bigger than 0.0 it overwrites 
+#        If primaryWidth is bigger than 0.0 it overwrites
 #        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = ...
 #        if primaryWidth<=0.0 it has no effect at all.
 
@@ -95,22 +95,58 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 #
 # Example:
 # tagwriter.setCondition(process,
-# 	connect = "frontier://FrontierProd/CMS_CONDITIONS",
-# 	record = "TrackerAlignmentErrorExtendedRcd",
-# 	tag = "TrackerIdealGeometryErrorsExtended210_mc")
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerAlignmentErrorExtendedRcd",
+#       tag = "TrackerIdealGeometryErrorsExtended210_mc")
 
 
 #######################
 ## insert Alignables ##
 #######################
 
+# # to run a high-level alignment on real data (including TOB centering; use
+# # pixel-barrel centering for MC) of the whole tracker you can use the
+# # following configuration:
+#
+# process.AlignmentProducer.ParameterBuilder.parameterTypes = [
+#     "SelectorRigid,RigidBody",
+#     ]
+# # Define the high-level structure alignables
+# process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerTPBHalfBarrel,111111",
+#         "TrackerTPEHalfCylinder,111111",
+#         "TrackerTIBHalfBarrel,111111",
+#         "TrackerTOBHalfBarrel,rrrrrr",
+#         "TrackerTIDEndcap,111111",
+#         "TrackerTECEndcap,111111"
+#         )
+#     )
+
 
 #########################
-## insert Pedesettings ## 
+## insert Pedesettings ##
 #########################
 
-
-
+# # typical pede settings are listed below;
+# # if you want obtain alignment errors, use "inversion 3 0.8" as
+# # process.AlignmentProducer.algoConfig.pedeSteerer.method and set
+# # process.AlignmentProducer.saveApeToDB = True
+#
+# process.AlignmentProducer.algoConfig.pedeSteerer.method = "sparseMINRES-QLP 3  0.8"
+# process.AlignmentProducer.algoConfig.pedeSteerer.options = [
+#     "entries 50 10 2",
+#     "outlierdownweighting 3",
+#     "dwfractioncut 0.1",
+#     "compress",
+#     "threads 10",
+#     "matiter 1",
+#     "printcounts 2",
+#     "chisqcut  30.  6.",
+#     "bandwidth 6 1",
+#     "monitorresiduals",
+# ]
+# process.AlignmentProducer.algoConfig.minNumHits = 8
 
 
 ################################################################################
