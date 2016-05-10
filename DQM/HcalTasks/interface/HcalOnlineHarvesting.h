@@ -75,13 +75,21 @@ class HcalOnlineHarvesting : public DQHarvester
 		std::vector<DQClient*> _vsumgen;
 		std::vector<std::string> _vnames;
 
+		//	thresholds
+		double _thresh_bad_bad;
+
+		//	counters
+		int _nBad;
+		int _nTotal;
+
 		//	summaries
 		std::vector<ContainerSingle2D> _vcSummaryvsLS;
 
-		MonitorElement *_me;
+		Container2D _cKnownBadChannels_depth;
 
 		//	reportSummaryMap
 		MonitorElement *_reportSummaryMap;
+		MonitorElement *_runSummary;
 };
 
 #endif

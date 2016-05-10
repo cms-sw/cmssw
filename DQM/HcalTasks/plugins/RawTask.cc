@@ -209,8 +209,19 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	for (std::vector<DetId>::const_iterator it=creport->bad_quality_begin();
 		it!=creport->bad_quality_end(); ++it)
 	{
+		//	skip non HCAL det ids
 		if (!HcalGenericDetId(*it).isHcalDetId())
 			continue;
+
+		//	skip those that are of bad quality from conditions
+		//	Masked or Dead
+		if (_xQuality.exists(HcalDetId(*it)))
+		{
+			HcalChannelStatus cs(it->rawId(), _xQuality.get(HcalDetId(*it)));
+			if (cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+			continue;
+		}
 
 		nn++;
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
@@ -398,8 +409,10 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 				_vflags[fBcnMsm]._state = flag::fBAD;
 			else
 				_vflags[fBcnMsm]._state = flag::fGOOD;
-			if (_xBadQLS.get(eid)>0)
+			if (_xBadQLS.get(eid)>12)
 				_vflags[fBadQ]._state = flag::fBAD;
+			else if (_xBadQLS.get(eid)>0)
+				_vflags[fBadQ]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fBadQ]._state = flag::fGOOD;
 		}
