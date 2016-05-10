@@ -52,6 +52,8 @@ trackingRecHitProducerNoMerge.plugins.append(
     )
 )
 
+#TODO: tune on FullSim!!! 
+
 trackerStripGaussianResolutions={
     "TIB": {
         1: cms.double(0.00195),
@@ -80,9 +82,9 @@ trackerStripGaussianResolutions={
         5: cms.double(0.00378),
         6: cms.double(0.00508),
         7: cms.double(0.00422),
-        8: cms.double(0.00508), # give me proper values
-        9: cms.double(0.00422), # give me proper values
-    }  
+        8: cms.double(0.00434),
+        9: cms.double(0.00432),
+    }
 }
 
 for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():

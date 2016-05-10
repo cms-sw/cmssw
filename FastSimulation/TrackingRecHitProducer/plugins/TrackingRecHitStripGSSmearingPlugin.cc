@@ -22,12 +22,12 @@ class TrackingRecHitStripGSSmearingPlugin:
     private:
         double _resolutionX;
         double _resolutionX2;
-        
+
         double _resolutionY;
         double _resolutionY2;
-        
+
         constexpr static double INV12 = 1.0/12.0;
-        
+
     public:
         TrackingRecHitStripGSSmearingPlugin(
             const std::string& name,
@@ -39,7 +39,7 @@ class TrackingRecHitStripGSSmearingPlugin:
             _resolutionX2(_resolutionX*_resolutionX),
             _resolutionY(-1),
             _resolutionY2(_resolutionY*_resolutionY)
-            
+
         {
             if (config.exists("resolutionX"))
             {
@@ -59,34 +59,33 @@ class TrackingRecHitStripGSSmearingPlugin:
             {
                 const PSimHit* simHit = simHitIdPair.second;
                 const Local3DPoint& simHitPosition = simHit->localPosition();
-                
+
                 const GeomDet* geomDet = this->getTrackerGeometry().idToDetUnit(product->getDetId());
                 const Plane& plane = geomDet->surface();
                 const Bounds& bounds = plane.bounds();
                 const double boundY = bounds.length();
-                
+
                 Local3DPoint recHitPosition;
                 do
                 {
                     recHitPosition = Local3DPoint(
                         simHitPosition.x()+this->getRandomEngine().gaussShoot(0.0,_resolutionX),
-                        simHitPosition.y(),
-                        simHitPosition.z()
+                        0.0, 0.0 //fix y & z coordinates to center of module
                     );
                     //TODO: this will skip the check if the smeared hit is inside the module - currently some SimHits are outside for no good reason
                     break;
                 }
                 while (not bounds.inside(recHitPosition));
-                
+
                 LocalError error(
                     //xx (variance)
-                    _resolutionX2, 
+                    _resolutionX2,
                      //xy (covariance)
-                    0.0,          
+                    0.0,
                     //take here the provided y resolution or (lenght/sqrt(12))^2
                     _resolutionY<0.0 ? boundY*boundY*INV12 : _resolutionY2
                 );
-                
+
                 FastSingleTrackerRecHit recHit(
                     recHitPosition,   //const LocalPoint &
                     error,            //const LocalError &

@@ -13,14 +13,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpot
 
 # and of course it needs tracker hits
-from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import siTrackerGaussianSmearingRecHits
-#from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_NoMerge_cfi import trackingRecHitProducerNoMerge as siTrackerGaussianSmearingRecHits
+#from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import siTrackerGaussianSmearingRecHits
+from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_NoMerge_cfi import trackingRecHitProducerNoMerge as siTrackerGaussianSmearingRecHits
 #from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer as siTrackerGaussianSmearingRecHits
 #from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer_alt as siTrackerGaussianSmearingRecHits
 
 recHitResolutionPixels = cms.EDProducer("RecHitResolution",
-    hitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    hitCombinationSrc=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
+    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
     nbinsSmearing = cms.int32(200),
     xminSmearing = cms.double(-0.05),
     xmaxSmearing = cms.double(0.05),
@@ -36,13 +37,14 @@ recHitResolutionPixels = cms.EDProducer("RecHitResolution",
 )
 
 recHitResolutionTOB = cms.EDProducer("RecHitResolution",
-    hitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    hitCombinationSrc=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
+    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
     nbinsSmearing = cms.int32(200),
     xminSmearing = cms.double(-0.05),
     xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-0.5),
-    ymaxSmearing = cms.double(0.5),
+    yminSmearing = cms.double(-15),
+    ymaxSmearing = cms.double(15),
     
     nbinsError = cms.int32(200),
     xminError = cms.double(0.0025),
@@ -53,13 +55,14 @@ recHitResolutionTOB = cms.EDProducer("RecHitResolution",
 )
 
 recHitResolutionTID = cms.EDProducer("RecHitResolution",
-    hitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    hitCombinationSrc=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
+    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
     nbinsSmearing = cms.int32(200),
     xminSmearing = cms.double(-0.05),
     xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-0.5),
-    ymaxSmearing = cms.double(0.5),
+    yminSmearing = cms.double(-15),
+    ymaxSmearing = cms.double(15),
     
     nbinsError = cms.int32(200),
     xminError = cms.double(0.0),
@@ -71,13 +74,14 @@ recHitResolutionTID = cms.EDProducer("RecHitResolution",
 
 
 recHitResolutionOther = cms.EDProducer("RecHitResolution",
-    hitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    hitCombinationSrc=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
+    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
+    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
     nbinsSmearing = cms.int32(200),
     xminSmearing = cms.double(-0.05),
     xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-0.5),
-    ymaxSmearing = cms.double(0.5),
+    yminSmearing = cms.double(-15),
+    ymaxSmearing = cms.double(15),
     
     nbinsError = cms.int32(200),
     xminError = cms.double(0.0),

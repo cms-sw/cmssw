@@ -115,18 +115,17 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
     std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
     output_recHits->reserve(simHits->size());
-    
+
     edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = event.getRefBeforePut<FastTrackerRecHitCollection>();
     std::unique_ptr<FastTrackerRecHitRefCollection> output_recHitRefs(new FastTrackerRecHitRefCollection(simHits->size(),FastTrackerRecHitRef()));
 
-    
     std::map<unsigned int,std::vector<std::pair<unsigned int,const PSimHit*>>> simHitsIdPairPerDetId;
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
         simHitsIdPairPerDetId[simHit->detUnitId()].push_back(std::make_pair(ihit,simHit));
     }
-   
+
     for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end(); ++simHitsIdPairIt)
     {
         const DetId& detId = simHitsIdPairIt->first;
@@ -164,7 +163,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+std::to_string(detId));
         }
     }
-    
+
     //end event
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
     {
