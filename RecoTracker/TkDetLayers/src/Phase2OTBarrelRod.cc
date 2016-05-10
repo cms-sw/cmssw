@@ -175,7 +175,7 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   sort(result.begin(),result.end(),DetGroupElementPerpLess());
   for (auto&  grp : result) {
     if ( grp.empty() )  continue;
-    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelLayer made by : ";
+    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelRod made by : ";
     for (auto const & det : grp) {
       LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
                               <<" tsos at:" << det.trajectoryState().globalPosition();
