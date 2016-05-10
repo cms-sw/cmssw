@@ -1,0 +1,53 @@
+# Description : B*_s20 -> (B0 -> (J/psi(1S) ->  mu+ mu-) K+ pi-) KS
+#
+#
+Define myPKHplus  0.159
+Define myPKHzero  0.775
+Define myPKHminus 0.612
+Define myPKphHplus  1.563
+Define myPKphHzero  0.0
+Define myPKphHminus 2.712
+#
+Alias      B_s2*0sig  B_s*0
+Alias      anti-B_s2*0sig anti-B_s*0
+ChargeConj B_s2*0sig anti-B_s2*0sig
+#
+Alias      MyB      B0
+Alias      MyantiB  anti-B0
+ChargeConj MyB      MyantiB
+#
+Alias MyKstar0      K*0
+Alias MyantiKstar0  anti-K*0
+ChargeConj MyKstar0 MyantiKstar0
+#
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay B_s2*0sig
+1.0000    MyB   K_S0                TSS;
+Enddecay
+#
+Decay anti-B_s2*0sig
+1.0000    MyantiB   K_S0            TSS;
+Enddecay
+#
+Decay MyB
+1.000 MyJ/psi  MyKstar0            SVV_HELAMP myPKHplus myPKphHplus myPKHzero myPKphHzero myPKHminus myPKphHminus;
+Enddecay
+#
+Decay  MyantiB
+1.000 MyJ/psi  MyantiKstar0        SVV_HELAMP myPKHplus myPKphHplus myPKHzero myPKphHzero myPKHminus myPKphHminus;
+Enddecay
+#
+Decay MyantiKstar0
+1.000   K-  pi+                         VSS;
+Enddecay
+Decay MyKstar0
+1.000   K+  pi-                         VSS;
+Enddecay
+#
+Decay MyJ/psi
+1.0000     mu+  mu-                     PHOTOS  VLL;
+Enddecay
+#
+End
