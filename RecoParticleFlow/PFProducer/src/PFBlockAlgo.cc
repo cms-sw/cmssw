@@ -164,7 +164,7 @@ void PFBlockAlgo::findBlocks() {
   QuickUnion qu(bare_elements_.size());
   const auto elem_size = bare_elements_.size();
   for( unsigned i = 0; i < elem_size; ++i ) {
-    for( unsigned j = i+1; j < elem_size; ++j ) {
+    for( unsigned j = 0; j < i; ++j ) {
       if( !_linkTests[_linkTestSquare[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
         j = ranges_[bare_elements_[j]->type()].second;
         continue;
