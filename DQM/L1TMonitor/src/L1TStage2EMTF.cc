@@ -198,8 +198,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // Event Record Header
     const l1t::emtf::EventHeader* EventHeader = EMTFOutput->PtrEventHeader();
     int Endcap = EventHeader->Endcap();
-    //int Sector = EventHeader->Sector();
-    
+    int Sector = EventHeader->Sector();
+      
     if (!EventHeader->Rdy()) emtfErrors->Fill(5);
 
     // ME (LCTs) Data Record
@@ -214,32 +214,25 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       int Strip = ME->Strip();
       int Wire = ME->Wire();
       
-      int Sector = ME->Sector();
-
       // Evaluate histogram index and chamber number with respect to station and ring.
       int hist_index = 0, chamber_number = 0;//, nhist_index = 0, nchamber_number = 0;
-      
-      /* 
-      if (Station > 1 && Ring == 1) chamber_number = (Sector * 3) + CSC_ID + (Ring * -3);
-      else chamber_number = ((Sector-1) * 6) + CSC_ID + -3*((Ring-1) % 3);
-      if (Subsector == 2) chamber_number +=3;
-
-      if (Station == 1) hist_index = 8 - (Ring - 1) % 3;
-      if (Station > 1) hist_index = 8 - (Station * 2 + Ring - 2);
-      */
-
+           
       if (Station == 1) {
         if (Ring == 1 || Ring == 4) {
           hist_index = 8;
-          chamber_number = ((Sector-1) * 6) + CSC_ID;
+          chamber_number = ((Sector-1) * 6) + CSC_ID + 2;
+
         } else if (Ring == 2) {
           hist_index = 7;
-          chamber_number = ((Sector-1) * 6) + CSC_ID - 3;
+          chamber_number = ((Sector-1) * 6) + CSC_ID + 2 - 3;
+
         } else if (Ring == 3) {
           hist_index = 6;
-          chamber_number = ((Sector-1) * 6) + CSC_ID - 6;
+          chamber_number = ((Sector-1) * 6) + CSC_ID + 2 - 6;
+
         }
         if (Subsector == 2) chamber_number += 3;
+        chamber_number = chamber_number % 36;
       } else if (Ring == 1) {
         if (Station == 2) {
           hist_index = 5;
@@ -248,7 +241,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         } else if (Station == 4) {
           hist_index = 1;
         }
-        chamber_number = ((Sector-1) * 3) + CSC_ID;
+        chamber_number = (((Sector-1) * 3) + CSC_ID + 1) % 18;
+        
       } else if (Ring == 2) {
         if (Station == 2) {
           hist_index = 4;
@@ -257,10 +251,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         } else if (Station == 4) {
           hist_index = 0;
         }
-        chamber_number = ((Sector-1) * 6) + CSC_ID - 3;
+        chamber_number = (((Sector-1) * 6) + CSC_ID + 2) % 36;
+
       }
-
-
+     
 
 
      if (Endcap > 0) hist_index = 17 - hist_index;
@@ -303,7 +297,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     
       int Quality = SP->Quality();
       int Mode = SP->Mode();
-      int Sector;
+      
       if (Mode == 0) {
         emtfnLCTs->Fill(0);
       } else if (Mode == 1 || Mode == 2 || Mode == 4 || Mode == 8) {
@@ -314,15 +308,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         emtfnLCTs->Fill(3);
       } else {
         emtfnLCTs->Fill(4);
-      }
-     
-      //Get a sector number from a station that found a hit
-      if (Mode % 2 ==1) Sector = SP->ME4_sector();
-      else if (Mode % 4 == 2) Sector = SP->ME3_sector();
-      else if (Mode % 8 == 4) Sector = SP->ME2_sector();
-      else Sector = SP->ME1_sector();     
+      }   
 
-      
       emtfTrackBX->Fill(Endcap * (Sector - 0.5), SP->TBIN_num());
       emtfTrackPt->Fill(Pt);
       emtfTrackEta->Fill(Eta);
