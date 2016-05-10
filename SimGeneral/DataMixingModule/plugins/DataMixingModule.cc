@@ -45,6 +45,7 @@ namespace edm
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
+    QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
   {  
 
@@ -58,6 +59,7 @@ namespace edm
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
     tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
     tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
+    tok_qie10_ = consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
 
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...

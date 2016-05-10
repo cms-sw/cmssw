@@ -6,12 +6,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE10Traits.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -25,12 +27,12 @@ namespace edm {
   class ModuleCallingContext;
 }
 
-template<class HCALDIGITIZERTRAITS>
+template<class Traits>
 class HcalSignalGenerator : public HcalBaseSignalGenerator
 {
 public:
-  typedef typename HCALDIGITIZERTRAITS::Digi DIGI;
-  typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
+  typedef typename Traits::Digi DIGI;
+  typedef typename Traits::DigiCollection COLLECTION;
 
   HcalSignalGenerator():HcalBaseSignalGenerator() { }
 
@@ -77,7 +79,7 @@ public:
     else if(theEventPrincipal)
     {
        std::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
-	 edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
+       edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
        if(digisPTR) {
           digis = digisPTR->product();
        }
@@ -87,35 +89,32 @@ public:
       throw cms::Exception("HcalSignalGenerator") << "No Event or EventPrincipal was set";
     }
 
-    if (digis)
-    {
-
-      // loop over digis, adding these to the existing maps
-      for(typename COLLECTION::const_iterator it  = digis->begin();
-          it != digis->end(); ++it) 
-      {
-        // for the first signal, set the starting cap id
-        if((it == digis->begin()) && theElectronicsSim)
-        {
-          int startingCapId = (*it)[0].capid();
-          theElectronicsSim->setStartingCapId(startingCapId);
-          // theParameterMap->setFrameSize(it->id(), it->size()); //don't need this
-        }
-	if(validDigi(*it)) {
-	  theNoiseSignals.push_back(samplesInPE(*it));
-	}
-      }
-    }
+    if (digis) fillDigis(digis);
   }
 
 private:
 
+  virtual void fillDigis(const COLLECTION * digis){
+    // loop over digis, adding these to the existing maps
+    for(typename COLLECTION::const_iterator it  = digis->begin(); it != digis->end(); ++it) 
+    {
+      // for the first signal, set the starting cap id
+      if((it == digis->begin()) && theElectronicsSim)
+      {
+        int startingCapId = (*it)[0].capid();
+        theElectronicsSim->setStartingCapId(startingCapId);
+        // theParameterMap->setFrameSize(it->id(), it->size()); //don't need this
+      }
+      if(validDigi(*it)) {
+        theNoiseSignals.push_back(samplesInPE(*it));
+      }
+    }
+  }
 
   virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
   virtual void fillNoiseSignals() override {}
 
-  bool validDigi(const DIGI & digi)
-  {
+  bool validDigi(const DIGI & digi){
     int DigiSum = 0;
     for(int id = 0; id<digi.size(); id++) {
       if(digi[id].adc() > 0) ++DigiSum;
@@ -123,59 +122,49 @@ private:
     return(DigiSum>0);
   }
 
-
-  CaloSamples samplesInPE(const DIGI & digi)
-  {
-
+  CaloSamples samplesInPE(const DIGI & digi){
+  
     // For PreMixing, (Note that modifications will need to be made for DataMixing) the 
     // energy for each channel is kept as fC*10, but stored as an integer in ADC.  If this
     // results in an overflow, the "standard" ADC conversion is used and that channel is marked
     // with an error that allows the "standard" decoding to convert ADC back to fC.  So, most
     // channels get to fC by just dividing ADC/10; some require special treatment.
-
+  
     // calibration, for future reference:  (same block for all Hcal types)
     HcalDetId cell = digi.id();
-    //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
-    //const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
-    //const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
-    //HcalCoderDb coder (*channelCoder, *channelShape);
-    CaloSamples result = CaloSamples(cell,digi.size());;
-    //coder.adc2fC(digi, result);
-
+    CaloSamples result = CaloSamples(cell,digi.size());
+  
     // first, check if there was an overflow in this fake digi:
     bool overflow = false;
     // find and list them
-
+  
     for(int isample=0; isample<digi.size(); ++isample) {
       if(digi[isample].er()) overflow = true; 
     }
- 
+  
     if(overflow) {  // do full conversion, go back and overwrite fake entries
- 
+  
       const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
       const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
       HcalCoderDb coder (*channelCoder, *channelShape);
       coder.adc2fC(digi, result);
- 
+  
       // overwrite with coded information
       for(int isample=0; isample<digi.size(); ++isample) {
-	if(!digi[isample].er()) result[isample] = float(digi[isample].adc())/10.;
+        if(!digi[isample].er()) result[isample] = float(digi[isample].adc())/Traits::PreMixFactor;
       }
     }
     else {  // saves creating the coder, etc., every time
       // use coded information
       for(int isample=0; isample<digi.size(); ++isample) {
-	result[isample] = float(digi[isample].adc())/10.;
+        result[isample] = float(digi[isample].adc())/Traits::PreMixFactor;
       }
       result.setPresamples(digi.presamples());
     }
- 
-    // std::cout << " HcalSignalGenerator: noise input ADC " << digi << std::endl;
-    // std::cout << " HcalSignalGenerator: noise input in fC " << result << std::endl;
- 
+  
     // translation done in fC, convert to pe: 
     fC2pe(result);
-
+  
     return result;
   }
     
@@ -188,10 +177,19 @@ private:
   edm::EDGetTokenT<COLLECTION> tok_;
 };
 
+//forward declarations of specializations
+template<>
+bool HcalSignalGenerator<HcalQIE10DigitizerTraits>::validDigi(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
+template<>
+CaloSamples HcalSignalGenerator<HcalQIE10DigitizerTraits>::samplesInPE(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
+template<>
+void HcalSignalGenerator<HcalQIE10DigitizerTraits>::fillDigis(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::COLLECTION * digis);
+
 typedef HcalSignalGenerator<HBHEDigitizerTraits> HBHESignalGenerator;
 typedef HcalSignalGenerator<HODigitizerTraits>   HOSignalGenerator;
 typedef HcalSignalGenerator<HFDigitizerTraits>   HFSignalGenerator;
 typedef HcalSignalGenerator<ZDCDigitizerTraits>  ZDCSignalGenerator;
+typedef HcalSignalGenerator<HcalQIE10DigitizerTraits>  QIE10SignalGenerator;
 
 #endif
 

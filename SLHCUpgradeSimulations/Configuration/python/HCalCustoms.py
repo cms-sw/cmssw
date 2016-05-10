@@ -70,7 +70,10 @@ def customise_HcalPhase0p5(process):
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
         process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+        process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
+    if hasattr(process,'datamixing_step'):
+        process=customise_mixing(process)
     
     return process
     
@@ -246,4 +249,11 @@ def customise_Validation(process):
     return process
 
 def customise_condOverRides(process):
+    return process
+    
+def customise_mixing(process):
+    process.mixData.HBHEPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.HOPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.HFPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.QIE10PileInputTag = cms.InputTag("simHcalUnsuppressedDigis","HFQIE10DigiCollection")
     return process
