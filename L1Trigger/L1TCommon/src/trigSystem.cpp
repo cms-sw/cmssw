@@ -201,7 +201,7 @@ bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const st
 			it->setTableTypes(types);
 			it->setTableColumns(columns);
 			for(auto ir=rows.begin(); ir!=rows.end(); ir++)
-				it->addTableRow(*ir, delim);
+				it->addTableRow(*ir);
 		}
 	}
 
