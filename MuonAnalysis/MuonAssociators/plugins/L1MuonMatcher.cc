@@ -117,7 +117,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     
     iEvent.getByToken(recoToken_, reco);
 
-    if (Usestage2l1_) {
+    if (useStage2L1_) {
       iEvent.getByToken(l1tToken_, l1tBX);
       l1size = l1tBX->size();
 	
