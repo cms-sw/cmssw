@@ -60,6 +60,8 @@ namespace l1t {
 
       bool CountersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
+	// std::cout << "Inside EMTFBlockCounters.cc: unpack" << std::endl;
+	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.

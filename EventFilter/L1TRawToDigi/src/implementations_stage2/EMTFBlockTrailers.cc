@@ -78,6 +78,8 @@ namespace l1t {
       }
 
       bool TrailersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
+
+	// std::cout << "Inside EMTFBlockTrailers.cc: unpack" << std::endl;
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
