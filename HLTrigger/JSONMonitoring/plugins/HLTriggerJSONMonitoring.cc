@@ -133,7 +133,7 @@ HLTriggerJSONMonitoring::resetRun(bool changed){
       const std::vector<std::string> & moduleLabels(hltConfig_.moduleLabels(i));
       for (unsigned int j = 0; j < moduleLabels.size(); ++j) {
 	const std::string & label = hltConfig_.moduleType(moduleLabels[j]);
-	if (label == "HLTLevel1GTSeed")
+	if (label == "HLTL1TSeed")
 	  posL1s_[i] = j;
 	else if (label == "HLTPrescaler")
 	  posPre_[i] = j;
