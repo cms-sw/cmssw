@@ -245,9 +245,6 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
       for( int i=0; i<numberObjects; i++ ){
 
-        // clear the indices in the combination
-        objectsInComb.clear();
-
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 
@@ -305,7 +302,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	    } // end wsc check
 
 
-
+	    objectsInComb.clear();
 	    objectsInComb.push_back(i);
 	    objectsInComb.push_back(j);
 	    condResult = true;
@@ -319,8 +316,6 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
       for( int i=0; i<numberObjects; i++ ){
 
-        // clear the indices in the combination
-        objectsInComb.clear();
 
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
@@ -356,6 +351,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	    if( pass ){
 	      condResult = true;
 	      passLoops++;
+	      objectsInComb.clear();
 	      objectsInComb.push_back(i);
 	      objectsInComb.push_back(j);
 	      objectsInComb.push_back(k);
@@ -369,9 +365,6 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
 
       for( int i=0; i<numberObjects; i++ ){
-
-        // clear the indices in the combination
-        objectsInComb.clear();
 
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
@@ -436,6 +429,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 			   (passCondition0m && passCondition1k && passCondition2j && passCondition3i)
 			   );
 	      if( pass ){
+		objectsInComb.clear();
 		objectsInComb.push_back(i);
 		objectsInComb.push_back(j);
 		objectsInComb.push_back(k);
