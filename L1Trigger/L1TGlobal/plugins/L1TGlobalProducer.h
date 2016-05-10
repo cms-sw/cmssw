@@ -6,11 +6,13 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
-#include <fstream>
+#include<iostream>
+#include<fstream>
+
+#include <boost/cstdint.hpp>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +33,7 @@ class TriggerMenu;
 
 // class declaration
 
-class L1TGlobalProducer : public edm::stream::EDProducer<>
+class L1TGlobalProducer : public edm::EDProducer
 {
 
 public:
@@ -39,7 +41,7 @@ public:
     explicit L1TGlobalProducer(const edm::ParameterSet&);
     ~L1TGlobalProducer();
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void produce(edm::Event&, const edm::EventSetup&);
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -76,7 +78,7 @@ private:
     int m_totalBxInEvent;
 
     ///    active boards in L1 GT DAQ record 
-    uint16_t m_activeBoardsGtDaq;
+    boost::uint16_t m_activeBoardsGtDaq;
 
     /// length of BST record (in bytes) from event setup
     unsigned int m_bstLengthBytes;
@@ -89,11 +91,14 @@ private:
     const L1GtPrescaleFactors* m_l1GtPfAlgo;
     unsigned long long m_l1GtPfAlgoCacheID;
 
+
+
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
     std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
 
     /// CSV file for prescales
     std::string m_prescalesFile;
+
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -102,11 +107,14 @@ private:
     const L1GtTriggerMask* m_l1GtTmVetoAlgo;
     unsigned long long m_l1GtTmVetoAlgoCacheID;
 
+
     const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
     const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
+
+private:
 
     l1t::GlobalBoard* m_uGtBrd;
 
@@ -153,6 +161,7 @@ private:
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
 
+
     /// prescale set used
     unsigned int m_prescaleSet;
 
@@ -164,6 +173,9 @@ private:
     ///     if true, unmasked - all enabled (all trigger masks set to 0)
     ///     will overwrite the event setup
     bool m_algorithmTriggersUnmasked;
+
+
+private:
 
     /// verbosity level
     int m_verbosity;
