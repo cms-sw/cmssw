@@ -1,6 +1,4 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -23,7 +21,6 @@ HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCode
 HcalElectronicsSim::~HcalElectronicsSim() {
 }
 
-
 void HcalElectronicsSim::setDbService(const HcalDbService * service) {
   //  theAmplifier->setDbService(service);
   theTDC.setDbService(service);
@@ -42,102 +39,75 @@ void HcalElectronicsSim::convert<QIE10DataFrame>(CaloSamples & frame, QIE10DataF
   theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
 }
 
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HBHEDataFrame & result) {
-  convert<HBHEDataFrame>(lf, result, engine);
-  if(PreMixDigis) {
-    for(int isample = 0; isample !=lf.size(); ++isample) {
-      uint16_t theADC = round(10.0*lf[isample]);
-      unsigned capId = result[isample].capid();
+template<class Digi>
+void HcalElectronicsSim::premix(CaloSamples & frame, Digi & result, double preMixFactor, unsigned preMixBits){
+  for(int isample = 0; isample !=frame.size(); ++isample) {
+    uint16_t theADC = round(preMixFactor*frame[isample]);
+    unsigned capId = result[isample].capid();
 
-      if(theADC > 126) {
-	uint16_t keepADC = result[isample].adc();
-	HcalQIESample mysamp(keepADC, capId, 0, 0, true, true); // set error bit as a flag
-	result.setSample(isample, HcalQIESample(keepADC, capId, 0, 0, true, true) );
-      }
-      else {
-	result.setSample(isample, HcalQIESample(theADC, capId, 0, 0) ); // preserve fC, no noise
-	HcalQIESample mysamp(theADC, capId, 0, 0);
-      }
+    if(theADC > preMixBits) {
+      uint16_t keepADC = result[isample].adc();
+      result.setSample(isample, HcalQIESample(keepADC, capId, 0, 0, true, true) ); // set error bit as a flag
+    }
+    else {
+      result.setSample(isample, HcalQIESample(theADC, capId, 0, 0) ); // preserve fC, no noise
     }
   }
 }
 
+template<>
+void HcalElectronicsSim::premix<QIE10DataFrame>(CaloSamples & frame, QIE10DataFrame & result, double preMixFactor, unsigned preMixBits){
+  for(int isample = 0; isample !=frame.size(); ++isample) {
+    uint16_t theADC = round(preMixFactor*frame[isample]);
+    unsigned capId = result[isample].capid();
+    bool ok = true;
 
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HODataFrame & result) {
-  convert<HODataFrame>(lf, result, engine);
-  if(PreMixDigis) {
-    for(int isample = 0; isample !=lf.size(); ++isample) {
-      uint16_t theADC = round(10.0*lf[isample]);
-      unsigned capId = result[isample].capid();
-
-      if(theADC > 126) {
-	uint16_t keepADC = result[isample].adc();
-	HcalQIESample mysamp(keepADC, capId, 0, 0, true, true);// set error bit as a flag
-	result.setSample(isample, HcalQIESample(keepADC, capId, 0, 0, true, true) );
-      }
-      else {
-	result.setSample(isample, HcalQIESample(theADC, capId, 0, 0) ); // preserve fC, no noise
-	HcalQIESample mysamp(theADC, capId, 0, 0);
-      }
+    if(theADC > preMixBits) {
+      theADC = result[isample].adc();
+      ok = false; // set error bit as a flag
     }
+
+    result.setSample(isample, theADC, result[isample].le_tdc(), result[isample].te_tdc(), capId, result[isample].soi(), ok);
   }
 }
 
-
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HFDataFrame & result) {
-  convert<HFDataFrame>(lf, result, engine);
-  if(PreMixDigis) {
-    for(int isample = 0; isample !=lf.size(); ++isample) {
-      uint16_t theADC = round(10.0*lf[isample]);
-      unsigned capId = result[isample].capid();
-
-      if(theADC > 126) {
-	uint16_t keepADC = result[isample].adc();
-	HcalQIESample mysamp(keepADC, capId, 0, 0, true, true);// set error bit as a flag
-	result.setSample(isample, HcalQIESample(keepADC, capId, 0, 0, true, true) );
-      }
-      else {
-	result.setSample(isample, HcalQIESample(theADC, capId, 0, 0)  );  // preserve fC, no noise
-	HcalQIESample mysamp(theADC, capId, 0, 0);
-      }
-    }
-  }
+template<class Digi>
+void HcalElectronicsSim::analogToDigitalImpl(CLHEP::HepRandomEngine* engine, CaloSamples & lf, Digi & result, double preMixFactor, unsigned preMixBits) {
+  convert<Digi>(lf, result, engine);
+  if(PreMixDigis) premix(lf,result,preMixFactor,preMixBits);
 }
 
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, ZDCDataFrame & result) {
-  convert<ZDCDataFrame>(lf, result, engine);
-  if(PreMixDigis) {
-    for(int isample = 0; isample !=lf.size(); ++isample) {
-      uint16_t theADC = round(10.0*lf[isample]);
-      unsigned capId = result[isample].capid();
-
-      if(theADC > 126) {
-	uint16_t keepADC = result[isample].adc();
-	HcalQIESample mysamp(keepADC, capId, 0, 0, true, true);//set error bit as a flag
-	result.setSample(isample, HcalQIESample(keepADC, capId, 0, 0, true, true) );
-      }
-      else {
-	result.setSample(isample, HcalQIESample(theADC, capId, 0, 0)  );  // preserve fC, no noise
-	HcalQIESample mysamp(theADC, capId, 0, 0);
-      }
-    }
-  }
-}
-
-
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf,
-					 HcalUpgradeDataFrame & result) {
+template<>
+void HcalElectronicsSim::analogToDigitalImpl<HcalUpgradeDataFrame>(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HcalUpgradeDataFrame & result, double preMixFactor, unsigned preMixBits) {
   convert<HcalUpgradeDataFrame>(lf, result, engine);
-//   std::cout << HcalDetId(lf.id()) << ' ' << lf;
   theTDC.timing(lf, result, engine);
 }
 
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf,
-					 QIE10DataFrame & result) {
-  convert<QIE10DataFrame>(lf, result, engine);
-  //TODO:
-  //HcalTDC extension for QIE10?
-  //PreMixDigis for QIE10?
+//TODO:
+//HcalTDC extension for QIE10?
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HBHEDataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HODataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HFDataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, ZDCDataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HcalUpgradeDataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, QIE10DataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
 }
 
 void HcalElectronicsSim::newEvent(CLHEP::HepRandomEngine* engine) {
@@ -149,7 +119,6 @@ void HcalElectronicsSim::newEvent(CLHEP::HepRandomEngine* engine) {
   }
 }
 
-
 void HcalElectronicsSim::setStartingCapId(int startingCapId)
 {
   theStartingCapId = startingCapId;
@@ -157,4 +126,3 @@ void HcalElectronicsSim::setStartingCapId(int startingCapId)
   // turns off random capIDs forever for this instance
   theStartingCapIdIsRandom = false;
 }
-
