@@ -120,7 +120,7 @@ namespace cms{
 
   
   // Virtual destructor needed.
-  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
+  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() noexcept(false) {
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 

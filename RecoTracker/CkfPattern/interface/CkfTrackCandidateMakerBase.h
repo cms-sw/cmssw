@@ -36,7 +36,7 @@ namespace cms
 
     explicit CkfTrackCandidateMakerBase(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
-    virtual ~CkfTrackCandidateMakerBase();
+    virtual ~CkfTrackCandidateMakerBase() noexcept(false);
 
     virtual void beginRunBase (edm::Run const & , edm::EventSetup const & es);
 

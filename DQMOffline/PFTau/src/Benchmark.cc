@@ -10,7 +10,7 @@
 
 using namespace std;
 
-Benchmark::~Benchmark() {
+Benchmark::~Benchmark() noexcept(false) {
 
 }
 

@@ -44,7 +44,7 @@ class Benchmark{
     etaMin_(-10), etaMax_(10), 
     phiMin_(-10), phiMax_(10) {}
 
-  virtual ~Benchmark();
+  virtual ~Benchmark() noexcept(false);
 
   void setParameters( Mode mode) { mode_ = mode;}
   
