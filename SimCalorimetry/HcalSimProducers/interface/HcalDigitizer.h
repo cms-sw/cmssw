@@ -148,7 +148,7 @@ private:
   std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
-  bool relabel_;
+  bool testNumbering_;
 
   std::string hitsProducer_;
 

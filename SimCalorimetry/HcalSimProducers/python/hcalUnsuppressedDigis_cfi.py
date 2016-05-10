@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -41,8 +40,8 @@ hcalSimBlock = cms.PSet(
     injectTestHits = cms.bool(False),
     ChangeResponse = cms.bool(False),
     CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt"),
-    HcalReLabel = HcalReLabel,
     DelivLuminosity = cms.double(0),
+    TestNumbering = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
