@@ -55,7 +55,7 @@ def addL1UserData(patMuonProducer, l1ModuleLabel = "muonL1Info"):
         cms.InputTag(l1ModuleLabel, "deltaPhi"),  # will be 999 in case of no match
     ]
     patMuonProducer.userData.userInts.src += [  
-        cms.InputTag(l1ModuleLabel, "bx"),  # will be 999 in case of no match
+        cms.InputTag(l1ModuleLabel, "bx"),  # will be -999 in case of no match
     ]
     patMuonProducer.userData.userCands.src += [
         cms.InputTag(l1ModuleLabel)
@@ -247,8 +247,8 @@ def useL1MatchingWindowForSinglets(process):
 
 def useL1Stage2Candidates(process):
     if hasattr(process, 'muonL1Info'):
+         # CB to be checked if a customisation is needed
          #process.muonL1Info.l1PhiOffset = cms.double(??) 
-         # CB to be checked with experts
          process.muonL1Info.useMB2InOverlap = cms.bool(True)
          process.muonL1Info.useStage2L1 = cms.bool(True)
          process.muonL1Info.preselection = cms.string("")

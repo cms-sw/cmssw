@@ -117,28 +117,23 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     
     iEvent.getByToken(recoToken_, reco);
 
-    if (useStage2L1_)
-      {
-	iEvent.getByToken(l1tToken_, l1tBX);
-	l1size = l1tBX->size();
+    if (Usestage2l1_) {
+      iEvent.getByToken(l1tToken_, l1tBX);
+      l1size = l1tBX->size();
 	
-	int minBX = max(firstBX_,l1tBX->getFirstBX());
-	int maxBX = min(lastBX_,l1tBX->getLastBX());
+      int minBX = max(firstBX_,l1tBX->getFirstBX());
+      int maxBX = min(lastBX_,l1tBX->getLastBX());
 
-	minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
-	std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
+      minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
+      std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
 
-	for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
-	  {
-	    bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
-	    //std::cout << "BX transitions" << ibx << " " << l1tBX->end(ibx) - l1tBX->begin() << std::endl;
-	  }
-      }
-    else
-      {
-	iEvent.getByToken(l1Token_, l1s);
-	l1size = l1s->size();
-      }
+      for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
+	bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
+    }
+    else {
+      iEvent.getByToken(l1Token_, l1s);
+      l1size = l1s->size();
+    }
 
     auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
     auto_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
@@ -196,7 +191,6 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	      const l1t::Muon & l1t = (*l1tBX)[match];
 	      quality[i]  = l1t.hwQual();
 	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), match) - bxIdxs.begin()); 
-	      //std::cout << "Matching found" << bx[i] << " " << size_t(match) << std::endl;
 	      isolated[i] = l1t.hwIso();
 	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(match));
 	    }
