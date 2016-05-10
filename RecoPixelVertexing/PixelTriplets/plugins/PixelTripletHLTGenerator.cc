@@ -60,51 +60,62 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
 					   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
+    if (theComparitor) theComparitor->init(ev, es);
+    
+    auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
+    
+    if (doublets.empty()) return;
 
-  if (theComparitor) theComparitor->init(ev, es);
-  
-  auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
-  
-  if (doublets.empty()) return;
+    int size = thirdLayers.size();
+    const RecHitsSortedInPhi * thirdHitMap[size];
+    vector<const DetLayer *> thirdLayerDetLayer(size,0);
+    for (int il=0; il<size; ++il) 
+    {
+	thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+	thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
+    }
+    hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
+}
 
-  auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
+void PixelTripletHLTGenerator::hitTriplets(
+    const TrackingRegion& region, 
+    OrderedHitTriplets & result,
+    const edm::EventSetup & es,
+    const HitDoublets & doublets,
+    const RecHitsSortedInPhi ** thirdHitMap,
+    const std::vector<const DetLayer *> & thirdLayerDetLayer,
+    const int nThirdLayers)
+{
+    auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
 
-
-  // std::cout << "pairs " << doublets.size() << std::endl;
+    float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
+    
+    declareDynArray(ThirdHitRZPrediction<PixelRecoLineRZ>, nThirdLayers, preds);
+    declareDynArray(ThirdHitCorrection, nThirdLayers, corrections);
   
-  float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
-  int size = thirdLayers.size();
-  
-  declareDynArray(ThirdHitRZPrediction<PixelRecoLineRZ>, size, preds);
-  declareDynArray(ThirdHitCorrection, size, corrections);
-  
-  const RecHitsSortedInPhi * thirdHitMap[size];
-  typedef RecHitsSortedInPhi::Hit Hit;
+    typedef RecHitsSortedInPhi::Hit Hit;
 
   using NodeInfo = KDTreeNodeInfo<unsigned int>;
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
 
-  declareDynArray(KDTreeLinkerAlgo<unsigned int>,size, hitTree);
-  float rzError[size]; //save maximum errors
-
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>,nThirdLayers, hitTree);
+  float rzError[nThirdLayers]; //save maximum errors
 
   const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config?? 
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
-
   // fill the prediction vector
-  for (int il=0; il<size; ++il) {
-    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+  for (int il=0; il<nThirdLayers; ++il) {
     auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
-    pred.initLayer(thirdLayers[il].detLayer());
+    pred.initLayer(thirdLayerDetLayer[il]);
     pred.initTolerance(extraHitRZtolerance);
 
     corrections[il].init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), 
-                         *thirdLayers[il].detLayer(), useMScat, useBend);
+                         *thirdLayerDetLayer[il], useMScat, useBend);
 
     layerTree.clear();
     float minv=999999.0f, maxv= -minv; // Initialise to extreme values in case no hits
@@ -125,7 +136,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
-    // std::cout << "layer " << thirdLayers[il].detLayer()->seqNum() << " " << layerTree.size() << std::endl; 
+    // std::cout << "layer " << thirdLayerDetLayer[il]->seqNum() << " " << layerTree.size() << std::endl; 
   }
   
   float imppar = region.originRBound();
@@ -158,8 +169,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     // std::cout << ip << ": " << point1.r() << ","<< point1.z() << " " 
     //                        << point2.r() << ","<< point2.z() <<std::endl;
 
-    for (int il=0; il!=size; ++il) {
-      const DetLayer * layer = thirdLayers[il].detLayer();
+    for (int il=0; il!=nThirdLayers; ++il) {
+      const DetLayer * layer = thirdLayerDetLayer[il];
       auto barrelLayer = layer->isBarrel();
 
       if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
@@ -258,7 +269,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  hitTree[il].search(phiZ, foundNodes);
 	}
 
-      // std::cout << ip << ": " << thirdLayers[il].detLayer()->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
+      // std::cout << ip << ": " << thirdLayerDetLayer[il]->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
 
 
       // int kk=0;

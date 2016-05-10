@@ -14,8 +14,10 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet,
     hitMasks = cms.InputTag("tobTecStepMasks"),
+    MultiHitGeneratorFactory = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet
 )
-
+tobTecStepSeedsTripl.MultiHitGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
+tobTecStepSeedsTripl.MultiHitGeneratorFactory.refitHits = False
 #pair seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
