@@ -49,7 +49,7 @@ class DataProxyProvider
       typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
       
       DataProxyProvider();
-      virtual ~DataProxyProvider();
+      virtual ~DataProxyProvider() noexcept(false);
 
       // ---------- const member functions ---------------------
       bool isUsingRecord(const EventSetupRecordKey&) const;
