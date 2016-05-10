@@ -73,6 +73,8 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
 
         // other data members
+  int WantedSeedHits;
+  int FirstLayerElements;
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
         SeedingTree<TrackingLayer> _seedingTree;
@@ -120,23 +122,32 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     }
 
     // read Layers
+    bool AllElementsSameSize=true;//by default
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
+    std::string layerBegin = *(layerStringList.cbegin());
     for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
     {
         std::vector<TrackingLayer> trackingLayerList;
         std::string line = *it;
         std::string::size_type pos=0;
+	WantedSeedHits=0;
         while (pos != std::string::npos)
         {
             pos=line.find("+");
+	    WantedSeedHits++;
             std::string layer = line.substr(0, pos);
             TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
 
             trackingLayerList.push_back(layerSpec);
             line=line.substr(pos+1,std::string::npos);
         }
+	if(it==layerStringList.cbegin())FirstLayerElements=WantedSeedHits; //Do not check for first element of layer list
+	if(WantedSeedHits!=FirstLayerElements)AllElementsSameSize=false;
         _seedingTree.insert(trackingLayerList);
     }
+
+
+    if(AllElementsSameSize==false)std::cout<<"Error: All Elements are not of same size"<<std::endl; //Plan : Change to standard Error Log
 
     /// region producer
     edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
@@ -193,6 +204,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     TrackingRegion * selectedTrackingRegion = 0;
     auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
     auto MultiHitGeneratorPtr = MultiHitGenerator.get();
+    int SeedNHits = WantedSeedHits;
     if(MultiHitGenerator)
     {
         MultiHitGenerator->initES(es);
@@ -201,40 +213,74 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
 
-    SeedFinder::TripletSelector tripletSelector([&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
-    {
-        const FastTrackerRecHit * innerHit = hits[0];
-        const FastTrackerRecHit * outerHit = hits[1];
+    SeedFinder::DoubletSelector doubletSelector([&es,&measurementTracker,&selectedTrackingRegion](const std::array<const FastTrackerRecHit*,2>& hits) -> bool
+						{
+						  if(hits.size()==2){
+						    std::cout<<"Inside doubletSelector"<<std::endl;
+						    const FastTrackerRecHit * firstHit = hits[0];
+						    const FastTrackerRecHit * secondHit = hits[1];
+       
+						    const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
+						    const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
+       
+						    std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
+						    std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
+						    const RecHitsSortedInPhi fhm(firstHits, selectedTrackingRegion->origin(), firstLayer);
+						    const RecHitsSortedInPhi shm(secondHits, selectedTrackingRegion->origin(), secondLayer);
 
-        const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
-        const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
-
-        std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
-        std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
-
-        const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
-        const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
-
-        HitDoublets result(ihm,ohm);
-        HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
-
-        if(result.size()!=0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    });
-    
+						    HitDoublets result(fhm,shm);
+						    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
+						    std::cout<<"Passed:"<<(result.size()!=0)<<std::endl;
+						    return result.size()!=0;
+						  }
+						  return true;
+						});
+    SeedFinder::TripletSelector tripletSelector([&e,&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
+						{
+						  std::cout<<"Inside tripletSelector"<<std::endl;
+						  const FastTrackerRecHit * firstHit = hits[0];
+						  const FastTrackerRecHit * secondHit = hits[1];
+						  const FastTrackerRecHit * thirdHit = hits[2];
+						  const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
+						  const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
+						  const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
+						  std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
+						  std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
+						  std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
+						  std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
+						  const RecHitsSortedInPhi fhm(firstHits, selectedTrackingRegion->origin(), firstLayer);
+						  const RecHitsSortedInPhi shm(secondHits, selectedTrackingRegion->origin(), secondLayer);
+						  const RecHitsSortedInPhi thm(thirdHits, selectedTrackingRegion->origin(), thirdLayer);
+						  const RecHitsSortedInPhi *thmp=&thm;
+						  HitDoublets result(fhm,shm);
+						  HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
+						  if(result.size()!=0&&(pixelTripletGeneratorPtr||MultiHitGeneratorPtr)&&hits.size()==3){
+						    if(pixelTripletGeneratorPtr){
+						      std::cout<<"Inside pixelTripletGeneratorPtr"<<std::endl;
+						      OrderedHitTriplets Tripletresult;
+						      pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
+						      std::cout<<"Passed:"<<(Tripletresult.size()!=0)<<std::endl;
+						      return Tripletresult.size()!=0;
+						    }
+						    if(MultiHitGeneratorPtr){
+						      std::cout<<"Inside MultiHitGeneratorPtr"<<std::endl;
+						      OrderedMultiHits  Tripletresult;
+						      MultiHitGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
+						      std::cout<<"Passed:"<<(Tripletresult.size()!=0)<<std::endl;
+						      return Tripletresult.size()!=0;
+						    }
+						  }
+						  return true;
+						});
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
     if(!skipSeedFinderSelector)
-    {
-        seedFinder.addHitSelector(&tripletSelector);
-    }
-
+      {
+	if(SeedNHits==2)
+	  seedFinder.addHitSelector(&doubletSelector);
+	if(SeedNHits==3)
+	  seedFinder.addHitSelector(&tripletSelector);
+      }
     // loop over the combinations
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
     {
