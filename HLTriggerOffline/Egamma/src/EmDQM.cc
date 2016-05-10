@@ -1338,11 +1338,11 @@ EmDQM::makePSetForEgammaGenericFilter(const std::string& moduleName)
 
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
-  edm::InputTag isoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("isoTag");
-  edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("nonIsoTag");
-  //std::cout << "isoTag.label " << isoTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
+  edm::InputTag varTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("varTag");
+  //edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("");
+  //std::cout << "varTag.label " << varTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
 
-  std::string inputType = hltConfig_.moduleType(isoTag.label());
+  std::string inputType = hltConfig_.moduleType(varTag.label());
   //std::cout << "inputType " << inputType << " moduleName " << moduleName << std::endl;
 
   //--------------------
@@ -1355,7 +1355,7 @@ EmDQM::makePSetForEgammaGenericFilter(const std::string& moduleName)
   //  return retPSet;
   //}
   //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-  //  edm::LogError("EmDQM") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
+  //  edm::LogError("EmDQM") << "C++ Type of varTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
   //  return retPSet;
   //}
   //--------------------
@@ -1367,9 +1367,9 @@ EmDQM::makePSetForEgammaGenericFilter(const std::string& moduleName)
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
 
   std::vector<edm::InputTag> isoCollections;
-  isoCollections.push_back(isoTag);
-  if (!nonIsoTag.label().empty())
-     isoCollections.push_back(nonIsoTag);
+  isoCollections.push_back(varTag);
+  //if (!nonIsoTag.label().empty())
+  //   isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
@@ -1416,11 +1416,11 @@ EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
 
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
-  edm::InputTag isoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("isoTag");
-  edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("nonIsoTag");
-  //std::cout << "isoTag.label " << isoTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
+  edm::InputTag varTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("varTag");
+  //edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("nonIsoTag");
+  //std::cout << "varTag.label " << varTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
 
-  std::string inputType = hltConfig_.moduleType(isoTag.label());
+  std::string inputType = hltConfig_.moduleType(varTag.label());
   //std::cout << "inputType " << inputType << " moduleName " << moduleName << std::endl;
 
   //--------------------
@@ -1433,7 +1433,7 @@ EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
   //  return retPSet;
   //}
   //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-  //  edm::LogError("EmDQM") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
+  //  edm::LogError("EmDQM") << "C++ Type of varTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
   //  return retPSet;
   //}
   //--------------------
@@ -1445,9 +1445,9 @@ EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
 
   std::vector<edm::InputTag> isoCollections;
-  isoCollections.push_back(isoTag);
-  if (!nonIsoTag.label().empty())
-     isoCollections.push_back(nonIsoTag);
+  isoCollections.push_back(varTag);
+  //if (!nonIsoTag.label().empty())
+  //   isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
@@ -1492,11 +1492,11 @@ EmDQM::makePSetForElectronGenericFilter(const std::string& moduleName)
 
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
-  edm::InputTag isoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("isoTag");
-  edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("nonIsoTag");
-  //std::cout << "isoTag.label " << isoTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
+  edm::InputTag varTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("varTag");
+  //edm::InputTag nonIsoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("nonIsoTag");
+  //std::cout << "varTag.label " << varTag.label() << " nonIsoTag.label " << nonIsoTag.label() << std::endl;
 
-  std::string inputType = hltConfig_.moduleType(isoTag.label());
+  std::string inputType = hltConfig_.moduleType(varTag.label());
   //std::cout << "inputType iso " << inputType << " inputType noniso " << hltConfig_.moduleType(nonIsoTag.label()) << " moduleName " << moduleName << std::endl;
 
   //--------------------
@@ -1507,7 +1507,7 @@ EmDQM::makePSetForElectronGenericFilter(const std::string& moduleName)
   //  return retPSet;
   //}
   //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-  //  edm::LogError("EmDQM") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'.";
+  //  edm::LogError("EmDQM") << "C++ Type of varTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'.";
   //  return retPSet;
   //}
   //--------------------
@@ -1517,9 +1517,9 @@ EmDQM::makePSetForElectronGenericFilter(const std::string& moduleName)
   retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerElectron);
 
   std::vector<edm::InputTag> isoCollections;
-  isoCollections.push_back(isoTag);
-  if (!nonIsoTag.label().empty())
-     isoCollections.push_back(nonIsoTag);
+  isoCollections.push_back(varTag);
+  //if (!nonIsoTag.label().empty())
+  //   isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
