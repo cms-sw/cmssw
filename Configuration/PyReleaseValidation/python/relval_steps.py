@@ -1612,6 +1612,20 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
 
+    upgradeStepDict['RecoFullTracking'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:globalreco_trackingphase2',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFullTracking'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['RecoFullTracking'][k]['--era']=era
+
+    if k2 in PUDataSets:
+        upgradeStepDict['RecoFullPUTracking'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullTracking'][k]])
+
+
     upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO',
