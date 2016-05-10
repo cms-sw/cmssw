@@ -15,7 +15,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
@@ -430,20 +430,22 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 //							hitPtr->clone(updatedTsos) : hitPtr);
 
   const LocalPoint localMeasurement    = newHitPtr->localPosition();
-  const LocalError localMeasurementCov = newHitPtr->localPositionError();
+  const LocalError localMeasurementCov = newHitPtr->localPositionError(); // CPE+APE
   
   theMeasurements[iRow]   = localMeasurement.x();
   theMeasurements[iRow+1] = localMeasurement.y();
   theMeasurementsCov[iRow][iRow]     = localMeasurementCov.xx();
   theMeasurementsCov[iRow][iRow+1]   = localMeasurementCov.xy();
   theMeasurementsCov[iRow+1][iRow+1] = localMeasurementCov.yy();
-  // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-  // for (int i = 0; i < hitPtr->dimension(); ++i) {
-  //   theMeasurements[iRow+i]   = hitPtr->parameters()[i]; // fixme: parameters() is by value!
-  //   for (int j = i; j < hitPtr->dimension(); ++j) {
-  //     theMeasurementsCov[iRow+i][iRow+j] = hitPtr->parametersError()[i][j];
-  //   }
-  // }
+
+  // subtract APEs (if existing) from covariance matrix
+  auto det = static_cast<const TrackerGeomDet*>(newHitPtr->det());
+  const auto localAPE = det->localAlignmentError();
+  if (localAPE.valid()) {
+    theMeasurementsCov[iRow][iRow]     -= localAPE.xx();
+    theMeasurementsCov[iRow][iRow+1]   -= localAPE.xy();
+    theMeasurementsCov[iRow+1][iRow+1] -= localAPE.yy();
+  }
 }
 
 //__________________________________________________________________________________
