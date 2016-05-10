@@ -1,27 +1,31 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/src/Solid.h"
 
+#include <ostream>
+#include <string>
+
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Box.h"
+#include "DetectorDescription/Core/src/Cons.h"
+#include "DetectorDescription/Core/src/Ellipsoid.h"
+#include "DetectorDescription/Core/src/EllipticalTube.h"
+#include "DetectorDescription/Core/src/Orb.h"
+#include "DetectorDescription/Core/src/Parallelepiped.h"
 #include "DetectorDescription/Core/src/Polycone.h"
 #include "DetectorDescription/Core/src/Polyhedra.h"
-#include "DetectorDescription/Core/src/Boolean.h"
+#include "DetectorDescription/Core/src/PseudoTrap.h"
 #include "DetectorDescription/Core/src/Reflection.h"
 #include "DetectorDescription/Core/src/Shapeless.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/src/Sphere.h"
 #include "DetectorDescription/Core/src/Torus.h"
 #include "DetectorDescription/Core/src/Trap.h"
-#include "DetectorDescription/Core/src/Tubs.h"
-#include "DetectorDescription/Core/src/Cons.h"
-#include "DetectorDescription/Core/src/PseudoTrap.h"
 #include "DetectorDescription/Core/src/TruncTubs.h"
-#include "DetectorDescription/Core/src/Sphere.h"
-#include "DetectorDescription/Core/src/Orb.h"
-#include "DetectorDescription/Core/src/EllipticalTube.h"
-#include "DetectorDescription/Core/src/Ellipsoid.h"
-#include "DetectorDescription/Core/src/Parallelepiped.h"
-#include <algorithm>
-
+#include "DetectorDescription/Core/src/Tubs.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Solid;
 

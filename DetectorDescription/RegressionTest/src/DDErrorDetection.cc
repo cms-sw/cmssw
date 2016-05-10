@@ -1,18 +1,24 @@
 namespace std { } using namespace std;
 
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include <iostream>
-#include <fstream>
 
-//**** to get rid of compile errors about ambiguous delete of Stores
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include <iostream>
 
 //***** Explicit template instantiation of Singleton
 #include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 
 template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;

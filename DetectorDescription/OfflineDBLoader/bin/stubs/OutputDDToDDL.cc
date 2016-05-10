@@ -1,18 +1,16 @@
 #include "OutputDDToDDL.h"
 
-#include <FWCore/Framework/interface/ESTransientHandle.h>
-
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
-#include <DetectorDescription/Core/interface/DDName.h>
 #include <DetectorDescription/Core/interface/DDPosData.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
+#include <FWCore/Framework/interface/ESTransientHandle.h>
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-
+#include <stddef.h>
+#include <iomanip>
 #include <iostream>
-#include <fstream>
+#include <memory>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 bool ddsvaluesCmp::operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) {
   if ( sv1.size() < sv2.size() ) return true;
@@ -215,5 +213,21 @@ void OutputDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<const DDsv
   }
 }
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+
+namespace edm {
+class Run;
+}  // namespace edm
+
 DEFINE_FWK_MODULE(OutputDDToDDL);

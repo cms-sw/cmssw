@@ -1,8 +1,11 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cassert>
-#include "tbb/tbb_allocator.h"
+
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "tbb/internal/../tbb_allocator.h"
 
 static std::atomic<unsigned int> lastIndex{0};
 

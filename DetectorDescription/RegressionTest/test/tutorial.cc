@@ -3,31 +3,46 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDScope.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
-#include "DetectorDescription/Core/interface/DDPath.h"
-
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-#include <fstream>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <time.h>
 #include <iostream>
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDNodes.h"
+#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDQuery.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 DDTranslation calc(const DDGeoHistory & aHist)
 {

@@ -1,18 +1,29 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
-#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-
-#include <boost/program_options.hpp>
-#include <boost/exception/all.hpp>
-
-#include <string>
-#include <iostream>
-#include <iomanip>
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "boost/exception/diagnostic_information.hpp"
+#include "boost/exception/exception.hpp"
+#include "boost/program_options/detail/parsers.hpp"
+#include "boost/program_options/detail/value_semantic.hpp"
+#include "boost/program_options/errors.hpp"
+#include "boost/program_options/options_description.hpp"
+#include "boost/program_options/parsers.hpp"
+#include "boost/program_options/positional_options.hpp"
+#include "boost/program_options/value_semantic.hpp"
+#include "boost/program_options/variables_map.hpp"
+#include "boost/type_index/type_index_facade.hpp"
 
 int main(int argc, char *argv[])
 {

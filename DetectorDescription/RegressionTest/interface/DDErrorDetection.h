@@ -1,19 +1,31 @@
 #ifndef DD_DDErrorDetection_h
 #define DD_DDErrorDetection_h
 
+#include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <map>
+#include <ostream>
 #include <set>
 #include <string>
-
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <utility>
+#include <vector>
 
 //=================
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+
+class DDCompactView;
+class DDLogicalPart;
+class DDMaterial;
+class DDName;
+class DDRotation;
+class DDSolid;
+class DDSpecifics;
+
 typedef DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > > lp_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >    ma_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;

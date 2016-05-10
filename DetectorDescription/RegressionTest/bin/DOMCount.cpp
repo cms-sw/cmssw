@@ -57,26 +57,32 @@
 /*
  */
 
+#include <string.h>
+#include <xercesc/dom/DOMAttr.hpp>
+#include <xercesc/dom/DOMBuilder.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMError.hpp>
+#include <xercesc/dom/DOMException.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMImplementationLS.hpp>
+#include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMLocator.hpp>
+#include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMNodeList.hpp>
+#include <xercesc/parsers/AbstractDOMParser.hpp>
+#include <ostream>
+
+#include "DOMCount.hpp"
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
 #include "FWCore/Concurrency/interface/Xerces.h"
-#include <xercesc/parsers/AbstractDOMParser.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMBuilder.hpp>
-#include <xercesc/dom/DOMException.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMNodeList.hpp>
-#include <xercesc/dom/DOMError.hpp>
-#include <xercesc/dom/DOMLocator.hpp>
-#include <xercesc/dom/DOMNamedNodeMap.hpp>
-#include <xercesc/dom/DOMAttr.hpp>
-#include "DOMCount.hpp"
-#include <string>
-#include <cstdlib>
-#include <fstream>
+#include "xercesc/dom/DOMNode.hpp"
+#include "xercesc/util/PlatformUtils.hpp"
+#include "xercesc/util/XMLException.hpp"
+#include "xercesc/util/XMLString.hpp"
+#include "xercesc/util/XMLUni.hpp"
+#include "xercesc/util/XMLUniDefs.hpp"
 
 namespace std { } using namespace std;
 

@@ -2,6 +2,9 @@
 #define DDI_Box_h
 
 #include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "Solid.h"
 
 

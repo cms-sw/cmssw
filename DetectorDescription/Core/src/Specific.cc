@@ -1,7 +1,19 @@
 #include "DetectorDescription/Core/src/Specific.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <assert.h>
+#include <ext/alloc_traits.h>
+#include <stddef.h>
+#include <memory>
+
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace DDI {
    

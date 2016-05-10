@@ -1,8 +1,17 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <math.h>
+#include <ostream>
+#include <utility>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,10 +45,13 @@ graphwalker<DDLogicalPart,DDPosData*> DDCompactViewImpl::walker() const
   return graphwalker<DDLogicalPart,DDPosData*>(graph_,root_);
 }
 
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 // calculates the weight and caches it in LogicalPartImpl
 //double DDCompactViewImpl::weight(DDLogicalPart & part)
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
+
+class DDDivision;
+
 double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
 {
  // return 0;

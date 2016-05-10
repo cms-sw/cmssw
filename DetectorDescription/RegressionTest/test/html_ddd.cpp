@@ -1,18 +1,22 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <fstream>
+#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 int main(int argc, char *argv[])
 {

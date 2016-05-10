@@ -1,9 +1,10 @@
 #ifndef DDI_Boolean_h
 #define DDI_Boolean_h
-#include "Solid.h"
-
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "Solid.h"
 
 namespace DDI {
   

@@ -1,7 +1,11 @@
 #include <algorithm>
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include <memory>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using DDI::LogicalPart;
 

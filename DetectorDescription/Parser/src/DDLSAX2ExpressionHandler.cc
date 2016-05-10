@@ -12,15 +12,17 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
-#include "DetectorDescription/Parser/src/StrX.h"
+
+#include <map>
+#include <string>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
+#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/StrX.h"
 
-#include <iostream>
-#include <vector>
-#include <string>
+class DDCompactView;
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor

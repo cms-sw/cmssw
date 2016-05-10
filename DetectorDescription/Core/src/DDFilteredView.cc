@@ -1,6 +1,15 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include <ext/alloc_traits.h>
+#include <iterator>
+#include <memory>
+#include <ostream>
+
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
+class DDLogicalPart;
 
 DDFilteredView::DDFilteredView(const DDCompactView & cpv)
  : epv_(cpv)

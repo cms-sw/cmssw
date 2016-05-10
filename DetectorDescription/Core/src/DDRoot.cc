@@ -1,5 +1,8 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDRoot::DDRoot()
 { }

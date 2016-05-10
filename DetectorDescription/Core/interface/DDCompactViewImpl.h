@@ -1,11 +1,16 @@
 #ifndef DDCompactViewImpl_h
 # define DDCompactViewImpl_h
 
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 # include "DetectorDescription/Core/interface/DDLogicalPart.h"
 # include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 # include "DetectorDescription/Core/interface/graphwalker.h"
 
+class DDDivision;
 class DDPartSelector;
+struct DDPosData;
 
 class DDCompactViewImpl 
 {

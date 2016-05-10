@@ -1,12 +1,15 @@
 #ifndef DDL_RotationSequence_H
 #define DDL_RotationSequence_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLRotationByAxis.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLRotationSequence handles a set of Rotations.
 /** @class DDLRotationSequence

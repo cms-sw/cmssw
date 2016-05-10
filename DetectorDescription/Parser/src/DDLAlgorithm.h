@@ -1,9 +1,12 @@
 #ifndef DDL_ALGORITHM_H
 #define DDL_ALGORITHM_H
 
+#include <string>
+
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLAlgorithm processes Algorithm elements.
 /** @class DDLAlgorithm

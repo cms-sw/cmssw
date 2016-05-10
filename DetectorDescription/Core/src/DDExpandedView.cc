@@ -1,5 +1,20 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
+
+#include <memory>
+#include <ostream>
+
 #include "DetectorDescription/Core/interface/DDComparator.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
+
+class DDPartSelection;
 
 /** 
    After construction the instance corresponds to the root of the geometrical tree.

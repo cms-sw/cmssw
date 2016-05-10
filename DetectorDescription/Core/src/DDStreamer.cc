@@ -1,20 +1,39 @@
 #include "DetectorDescription/Core/interface/DDStreamer.h"
 
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include <stddef.h>
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include<iomanip>
 

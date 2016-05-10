@@ -1,13 +1,22 @@
-#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
-#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
-#include "DetectorDescription/RegressionTest/src/StrX.h"
-
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include <stdlib.h>
+#include <string.h>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <fstream>
+#include <iostream>
 #include <map>
-#include <stdlib.h>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
+#include "DetectorDescription/RegressionTest/src/StrX.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom.h"
+#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
+#include "xercesc/util/PlatformUtils.hpp"
+#include "xercesc/util/XMLException.hpp"
+#include "xercesc/util/XMLUni.hpp"
 
 using namespace std;
 using namespace xercesc;

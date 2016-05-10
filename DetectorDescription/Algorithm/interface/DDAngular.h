@@ -1,9 +1,16 @@
 #ifndef ALGORITHM_DD_ANGULAR_H
 # define ALGORITHM_DD_ANGULAR_H
 
-# include "DetectorDescription/Base/interface/DDTypes.h"
-# include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include <string>
+#include <utility>
+#include <vector>
+
 # include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+# include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+# include "DetectorDescription/Base/interface/DDTypes.h"
+
+class DDCompactView;
 
 class DDAngular : public DDAlgorithm
 {

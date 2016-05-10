@@ -1,12 +1,17 @@
 #ifndef DDCore_DDQuery_h
 #define DDCore_DDQuery_h
 
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
 
-#include <map>
-#include <vector>
+class DDCompactView;
+class DDScope;
 
 //! Base class for querying for nodes in the DDExpandedView
 class DDQuery

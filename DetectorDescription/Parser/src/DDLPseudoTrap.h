@@ -1,13 +1,16 @@
 #ifndef DDL_PseudoTrap_H
 #define DDL_PseudoTrap_H
 
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
-#include <vector>
+class DDCompactView;
+class DDLElementRegistry;
 
 /** @class DDLPseudoTrap
  * @author Michael Case

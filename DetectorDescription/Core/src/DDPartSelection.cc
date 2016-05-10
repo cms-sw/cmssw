@@ -1,14 +1,25 @@
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-
-#include "boost/spirit/include/classic.hpp"
-
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <map>
+#include "boost/spirit/home/classic/core/composite/actions.hpp"
+#include "boost/spirit/home/classic/core/composite/alternative.hpp"
+#include "boost/spirit/home/classic/core/composite/impl/alternative.ipp"
+#include "boost/spirit/home/classic/core/composite/impl/positive.ipp"
+#include "boost/spirit/home/classic/core/composite/impl/sequence.ipp"
+#include "boost/spirit/home/classic/core/impl/match.ipp"
+#include "boost/spirit/home/classic/core/impl/parser.ipp"
+#include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"
+#include "boost/spirit/home/classic/core/non_terminal/impl/rule.ipp"
+#include "boost/spirit/home/classic/core/non_terminal/rule.hpp"
+#include "boost/spirit/home/classic/core/parser.hpp"
+#include "boost/spirit/home/classic/core/primitives/numerics.hpp"
+#include "boost/spirit/home/classic/core/primitives/primitives.hpp"
+#include "boost/spirit/home/classic/core/scanner/scanner.hpp"
+#include "boost/thread/pthread/once_atomic.hpp"
 
 namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
@@ -278,3 +289,6 @@ template class DDI::Singleton<DDSelLevelFtor>;
 //template class DDI::Singleton<DDI::Store<DDName, DDSelLevelCollector> >;
 template class DDI::Singleton<DDSelLevelCollector>;
 #include <DetectorDescription/Base/interface/Singleton.icc>
+#include <ostream>
+#include <string>
+#include <vector>

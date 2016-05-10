@@ -1,5 +1,9 @@
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 
+#include <utility>
+
+#include "DetectorDescription/Base/interface/Store.h"
+
 DDStrVector::DDStrVector() : DDBase<DDName,std::vector<std::string>*>() { }
 
 DDStrVector::DDStrVector(const DDName & name) : DDBase<DDName,std::vector<std::string>*>() 

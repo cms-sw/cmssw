@@ -1,16 +1,25 @@
+#include <stdio.h>
+#include <atomic>
 #include <cmath>
-#include "DetectorDescription/Core/interface/DDTransform.h"
+#include <sstream>
+#include <string>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <Math/AxisAngle.h>
-
-#include <sstream>
-#include <cstdlib>
-#include <atomic>
-
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
 
 //static DDRotationMatrix GLOBAL_UNIT;
 

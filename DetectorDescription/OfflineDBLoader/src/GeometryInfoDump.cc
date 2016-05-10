@@ -1,18 +1,19 @@
-#include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
-
-#include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
-#include "DetectorDescription/Core/interface/DDName.h"
-
-#include <fstream>
-#include <cmath>
-#include <iomanip>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <set>
+#include <DetectorDescription/Core/interface/DDValue.h>
+#include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
+#include <stdio.h>
 #include <cassert>
+#include <map>
+#include <set>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 GeometryInfoDump::GeometryInfoDump () { }
 

@@ -1,6 +1,9 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
-#include <map>
-#include <iostream>
+
+#include <stddef.h>
+#include <memory>
+
+#include "DetectorDescription/Core/interface/DDBase.h"
 
 // reason for the ctor: reference initialization at construction.
 // FIXME: DDCompareEqual: use pointers instead of references, initialize to 0 and 

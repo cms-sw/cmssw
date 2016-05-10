@@ -1,12 +1,15 @@
 #ifndef DDLSolid_H
 #define DDLSolid_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSolid processes Box elements.
 /** @class DDLSolid
