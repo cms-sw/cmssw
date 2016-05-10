@@ -126,41 +126,41 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
 
 /*****************************************************************/
 void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e, 
-			      const edm::EventSetup& es) 
+                                        const edm::EventSetup& es) 
 /*****************************************************************/
 {
     edm::Handle<HGCEEDigiCollection> ee_digis_h;
     e.getByToken(inputee_,ee_digis_h);
 
     const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-    
+
     HGCalBestChoiceDataPayload data;
 
-   
-    
+
+
     //loop on modules
-    for( const auto& module : triggerGeometry_->modules() )   {        
-      // prepare input data
-      std::vector<HGCEEDataFrame> dataframes;
-      vector<pair<HGCEEDetId, uint32_t > > linearized_dataframes;
-      
-      for(const auto& eedata : ee_digis) {
-	if(module.second->containsCell(eedata.id()))              {
-	  dataframes.push_back(eedata);
-	}
-      }  
-      
-      
-      //  Best choice encoding
-      data.reset();
-      codec_->linearize(*(module.second), dataframes, linearized_dataframes);
-      codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
-      codec_->bestChoiceSelect(data);
-      std::vector<bool> dataword = codec_->encode(data);
-      HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
-      fillModule(dataframes, datadecoded, linearized_dataframes);
+    for( const auto& module : triggerGeometry_->modules() ) {        
+        // prepare input data
+        std::vector<HGCEEDataFrame> dataframes;
+        vector<pair<HGCEEDetId, uint32_t > > linearized_dataframes;
+
+        for(const auto& eedata : ee_digis) {
+            if(module.second->containsCell(eedata.id())) {
+                dataframes.push_back(eedata);
+            }
+        }  
+
+
+        //  Best choice encoding
+        data.reset();
+        codec_->linearize(*(module.second), dataframes, linearized_dataframes);
+        codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
+        codec_->bestChoiceSelect(data);
+        std::vector<bool> dataword = codec_->encode(data);
+        HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
+        fillModule(dataframes, datadecoded, linearized_dataframes);
     } //end loop on modules
-   
+
 }
 
 
@@ -168,43 +168,43 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCEEDataFrame>& dataframes, const HGCalBestChoiceDataPayload& fe_payload,  vector<pair<HGCEEDetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
-  // HGC cells part
-  size_t nHGCDigi = 0;
-  unsigned hgcCellModuleSum = 0;
-  for(const auto& frame : dataframes)
+    // HGC cells part
+    size_t nHGCDigi = 0;
+    unsigned hgcCellModuleSum = 0;
+    for(const auto& frame : dataframes)
     {
-      uint32_t value = frame[2].data();
-      if(value>0)
+        uint32_t value = frame[2].data();
+        if(value>0)
         {
-	  nHGCDigi++;
-	  hgcCellModuleSum += value;
-	  hgcCellData_->Fill(value);
+            nHGCDigi++;
+            hgcCellModuleSum += value;
+            hgcCellData_->Fill(value);
         }
     }
-  hgcCellsPerModule_->Fill(nHGCDigi);
-  hgcCellModuleSum_->Fill(hgcCellModuleSum);
+    hgcCellsPerModule_->Fill(nHGCDigi);
+    hgcCellModuleSum_->Fill(hgcCellModuleSum);
 
-  for(const auto& frame : linearized_dataframes){
-    hgcCellData_linampl_-> Fill(frame.second);
-  }
+    for(const auto& frame : linearized_dataframes){
+        hgcCellData_linampl_-> Fill(frame.second);
+    }
 
-  // trigger cells part
-  
-  size_t nFEDigi = 0;
-  unsigned triggerCellModuleSum = 0;
-  for(const auto& tc : fe_payload.payload)
+    // trigger cells part
+
+    size_t nFEDigi = 0;
+    unsigned triggerCellModuleSum = 0;
+    for(const auto& tc : fe_payload.payload)
     {
-      uint32_t tcShifted = (tc<<2);
-      if(tcShifted>0)
+        uint32_t tcShifted = (tc<<2);
+        if(tcShifted>0)
         {
-	  nFEDigi++;
-	  triggerCellModuleSum += tcShifted;
-	  triggerCellData_->Fill(tcShifted);
+            nFEDigi++;
+            triggerCellModuleSum += tcShifted;
+            triggerCellData_->Fill(tcShifted);
         }
     }
-  triggerCellsPerModule_->Fill(nFEDigi);
-  triggerCellModuleSum_->Fill(triggerCellModuleSum);
- }
-					       
+    triggerCellsPerModule_->Fill(nFEDigi);
+    triggerCellModuleSum_->Fill(triggerCellModuleSum);
+}
+      
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalTriggerBestChoiceTester);
