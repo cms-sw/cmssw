@@ -42,9 +42,9 @@ class setting
 		setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim = "");
 		setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
 		void setProcRole(const std::string& procRole) { procRole_ = procRole; };
-		void setValue(const std::string& value) {value_ = value; };
+		void setValue(const std::string& value);// {value_ = value; };
 		void setId(const std::string& id) { id_ = id; } ;
-		void addTableRow(const std::string& row, std::string delim);
+		void addTableRow(const std::string& row);
 		void resetTableRows() { tableRows_.clear();};
 		void setTableTypes(const std::string& types);
 		void setTableColumns(const std::string& cols);
@@ -53,14 +53,14 @@ class setting
 		std::string getType() { return type_; };
 		std::string getId() { return id_; } ;
 		template <class varType> varType getValue();
-		template <class varType> std::vector<varType> getVector(std::string delim);
+		template <class varType> std::vector<varType> getVector();
 		std::vector<tableRow>  getTableRows() { return tableRows_; };
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
 
 		setting& operator=(const setting& aSet);
 	private:
-		std::string type_, id_, value_, procRole_;
+		std::string type_, id_, value_, procRole_, delim_;
 		std::vector<tableRow> tableRows_;
 		std::vector<std::string> tableTypes_;
 		std::vector<std::string> tableColumns_;
@@ -69,25 +69,17 @@ class setting
 };
 
 
-template <typename varType> std::vector<varType> setting::getVector(std::string delim)
+template <typename varType> std::vector<varType> setting::getVector()
 {
 	
 	if ( type_.find("vector") == std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is not vector so you need to call the getValue method");
 
-	if ( delim.empty() )
-		delim = std::string(",");
+	//if ( delim.empty() )
+	//	delim = std::string(",");
 	
 	std::vector<std::string> vals;
-	str2VecStr_(value_, delim, vals);
-	// if ( !parse ( value_.c_str(),
-	// (
-	// 	  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( vals ) ] % delim.c_str() )
-	// ), boost::spirit::classic::nothing_p ).full )
-	// {  	
-	// 	throw std::runtime_error ("Wrong value format: " + value_);
-	// }
-	//vals.erase(vals.end()-1);
+	str2VecStr_(value_, delim_, vals);
 
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
@@ -114,7 +106,7 @@ template <class varType> varType tableRow::getRowValue(const std::string& col)
 	int ct;
 	for (unsigned int i = 0; i < columns_.size(); i++)
 	{
-		if (columns_.at(i).find(col) != std::string::npos)
+		if ( columns_.at(i) == col )
 		{
 			found = true;
 			ct = i;
