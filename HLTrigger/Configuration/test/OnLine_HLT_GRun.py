@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V84 (CMSSW_8_0_7_HLT1)
+# /dev/CMSSW_8_0_0/GRun/V85 (CMSSW_8_0_7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V84')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V85')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -60929,9 +60929,9 @@ process.hltOutputPhysicsHLTPhysics = cms.OutputModule( "PoolOutputModule",
   'HLT_Physics_part2_v1',
   'HLT_Physics_part3_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -61113,9 +61113,9 @@ process.hltOutputPhysicsEGammaCommissioning = cms.OutputModule( "PoolOutputModul
   'MC_PFMHT_v2',
   'MC_ReducedIterativeTracking_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -61150,9 +61150,9 @@ process.hltOutputPhysicsEndOfFill = cms.OutputModule( "PoolOutputModule",
   'HLT_PixelTracks_Multiplicity60ForEndOfFill_v1',
   'HLT_PixelTracks_Multiplicity85ForEndOfFill_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -61337,9 +61337,9 @@ process.hltOutputPhysicsHadronsTaus = cms.OutputModule( "PoolOutputModule",
   'HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v2',
   'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -61494,9 +61494,9 @@ process.hltOutputPhysicsMuons = cms.OutputModule( "PoolOutputModule",
   'HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v2',
   'HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -61515,9 +61515,9 @@ process.hltOutputParking = cms.OutputModule( "PoolOutputModule",
   'HLT_HT550to650_v1',
   'HLT_HT650_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -62038,7 +62038,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
       'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep *_hltIter2Merged_*_*',
       'keep *_hltL3NoFiltersNoVtxMuonCandidates_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
@@ -62050,6 +62049,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -62096,7 +62096,6 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
   'HLT_PFHT350_v3',
   'HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep *_hltIter2Merged_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPixelTracks_*_*',
@@ -62106,6 +62105,7 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
       'keep *_hltVerticesPFSelector_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -62225,9 +62225,9 @@ process.hltOutputALCAELECTRON = cms.OutputModule( "PoolOutputModule",
   'AlCa_SingleEle_WPVeryLoose_Gsf_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltFixedGridRhoFastjetAllCaloForMuons_*_*',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep *_hltMetClean_*_*',
       'keep *_hltSelectedElectronFEDListProducerGsf_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
@@ -62255,9 +62255,9 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_ZeroBias_IsolatedBunches_v1',
   'HLT_ZeroBias_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -62304,13 +62304,13 @@ process.hltOutputPhysicsParkingScoutingMonitor = cms.OutputModule( "PoolOutputMo
   'HLT_HT550to650_v1',
   'HLT_HT650_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltGtStage2ObjectMap_*_*',
       'keep *_hltScoutingCaloPacker_*_*',
       'keep *_hltScoutingEgammaPacker_*_*',
       'keep *_hltScoutingMuonPacker_*_*',
       'keep *_hltScoutingPFPacker_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
