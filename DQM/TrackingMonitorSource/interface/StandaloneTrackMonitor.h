@@ -77,16 +77,70 @@ private:
   MonitorElement* trackChargeH_;
   MonitorElement* trackChi2H_;
   MonitorElement* tracknDOFH_;
+  MonitorElement* trackChi2ProbH_;
+  MonitorElement* trackChi2oNDFH_;
   MonitorElement* trackd0H_;
   MonitorElement* trackChi2bynDOFH_;
 
-  MonitorElement* nlostHitsH_;
+  MonitorElement* DistanceOfClosestApproachToPVH_;
+  MonitorElement* DistanceOfClosestApproachToPVVsPhiH_;
+  MonitorElement* xPointOfClosestApproachVsZ0wrtPVH_;
+  MonitorElement* yPointOfClosestApproachVsZ0wrtPVH_;
+
+  MonitorElement* sip3dToPVH_;
+  MonitorElement* sip2dToPVH_;
+  MonitorElement* sipDxyToPVH_;
+  MonitorElement* sipDzToPVH_;
+
   MonitorElement* nvalidTrackerHitsH_;
   MonitorElement* nvalidPixelHitsH_;
+  MonitorElement* nvalidPixelBHitsH_;
+  MonitorElement* nvalidPixelEHitsH_;
   MonitorElement* nvalidStripHitsH_;
+  MonitorElement* nvalidTIBHitsH_;
+  MonitorElement* nvalidTOBHitsH_;
+  MonitorElement* nvalidTIDHitsH_;
+  MonitorElement* nvalidTECHitsH_;
+
+  MonitorElement* nlostTrackerHitsH_;
+  MonitorElement* nlostPixelHitsH_;
+  MonitorElement* nlostPixelBHitsH_;
+  MonitorElement* nlostPixelEHitsH_;
+  MonitorElement* nlostStripHitsH_;
+  MonitorElement* nlostTIBHitsH_;
+  MonitorElement* nlostTOBHitsH_;
+  MonitorElement* nlostTIDHitsH_;
+  MonitorElement* nlostTECHitsH_;
+
+  MonitorElement* nMissingInnerHitBH_;
+  MonitorElement* nMissingInnerHitEH_;
+  MonitorElement* nMissingOuterHitBH_;
+  MonitorElement* nMissingOuterHitEH_;
+
+  MonitorElement* residualXPBH_;
+  MonitorElement* residualXPEH_;
+  MonitorElement* residualXTIBH_;
+  MonitorElement* residualXTOBH_;
+  MonitorElement* residualXTIDH_;
+  MonitorElement* residualXTECH_;
+  MonitorElement* residualYPBH_;
+  MonitorElement* residualYPEH_;
+  MonitorElement* residualYTIBH_;
+  MonitorElement* residualYTOBH_;
+  MonitorElement* residualYTIDH_;
+  MonitorElement* residualYTECH_;
+
   MonitorElement* trkLayerwithMeasurementH_;
   MonitorElement* pixelLayerwithMeasurementH_;
+  MonitorElement* pixelBLayerwithMeasurementH_;
+  MonitorElement* pixelELayerwithMeasurementH_;
   MonitorElement* stripLayerwithMeasurementH_;
+  MonitorElement* stripTIBLayerwithMeasurementH_;
+  MonitorElement* stripTOBLayerwithMeasurementH_;
+  MonitorElement* stripTIDLayerwithMeasurementH_;
+  MonitorElement* stripTECLayerwithMeasurementH_;
+
+  MonitorElement* nlostHitsH_;
 
   MonitorElement* beamSpotXYposH_;
   MonitorElement* beamSpotXYposerrH_;
@@ -97,13 +151,8 @@ private:
   MonitorElement* vertexYposH_;
   MonitorElement* vertexZposH_;
   MonitorElement* nVertexH_;
+  MonitorElement* nVtxH_;
 
-  MonitorElement* nPixBarrelH_;
-  MonitorElement* nPixEndcapH_;
-  MonitorElement* nStripTIBH_;
-  MonitorElement* nStripTOBH_;
-  MonitorElement* nStripTECH_;
-  MonitorElement* nStripTIDH_;
   MonitorElement* nTracksH_;
 
   // MC only
@@ -112,15 +161,68 @@ private:
   MonitorElement* trueNIntH_;
 
   // Exclusive Quantities
-  MonitorElement* nHitsVspTH_;
-  MonitorElement* nHitsVsnVtxH_;
-  MonitorElement* nHitsVsEtaH_;
-  MonitorElement* nHitsVsCosThetaH_;
-  MonitorElement* nHitsVsPhiH_;
+  MonitorElement* nLostHitByLayerH_;
+  MonitorElement* nLostHitByLayerPixH_;
+  MonitorElement* nLostHitByLayerStripH_;
   MonitorElement* nLostHitsVspTH_;
   MonitorElement* nLostHitsVsEtaH_;
   MonitorElement* nLostHitsVsCosThetaH_;
   MonitorElement* nLostHitsVsPhiH_;
+
+  MonitorElement* nHitsTIBSVsEtaH_;
+  MonitorElement* nHitsTOBSVsEtaH_;
+  MonitorElement* nHitsTECSVsEtaH_;
+  MonitorElement* nHitsTIDSVsEtaH_;
+  MonitorElement* nHitsStripSVsEtaH_;
+
+  MonitorElement* nHitsTIBDVsEtaH_;
+  MonitorElement* nHitsTOBDVsEtaH_;
+  MonitorElement* nHitsTECDVsEtaH_;
+  MonitorElement* nHitsTIDDVsEtaH_;
+  MonitorElement* nHitsStripDVsEtaH_;
+
+  MonitorElement* nValidHitsVspTH_;
+  MonitorElement* nValidHitsVsnVtxH_;
+  MonitorElement* nValidHitsVsEtaH_;
+  MonitorElement* nValidHitsVsCosThetaH_;
+  MonitorElement* nValidHitsVsPhiH_;
+
+  MonitorElement* nValidHitsPixVsEtaH_;
+  MonitorElement* nValidHitsPixBVsEtaH_;
+  MonitorElement* nValidHitsPixEVsEtaH_;
+  MonitorElement* nValidHitsStripVsEtaH_;
+  MonitorElement* nValidHitsTIBVsEtaH_;
+  MonitorElement* nValidHitsTOBVsEtaH_;
+  MonitorElement* nValidHitsTECVsEtaH_;
+  MonitorElement* nValidHitsTIDVsEtaH_;
+
+  MonitorElement* nValidHitsPixVsPhiH_;
+  MonitorElement* nValidHitsPixBVsPhiH_;
+  MonitorElement* nValidHitsPixEVsPhiH_;
+  MonitorElement* nValidHitsStripVsPhiH_;
+  MonitorElement* nValidHitsTIBVsPhiH_;
+  MonitorElement* nValidHitsTOBVsPhiH_;
+  MonitorElement* nValidHitsTECVsPhiH_;
+  MonitorElement* nValidHitsTIDVsPhiH_;
+
+  MonitorElement* nLostHitsPixVsEtaH_;
+  MonitorElement* nLostHitsPixBVsEtaH_;
+  MonitorElement* nLostHitsPixEVsEtaH_;
+  MonitorElement* nLostHitsStripVsEtaH_;
+  MonitorElement* nLostHitsTIBVsEtaH_;
+  MonitorElement* nLostHitsTOBVsEtaH_;
+  MonitorElement* nLostHitsTECVsEtaH_;
+  MonitorElement* nLostHitsTIDVsEtaH_;
+
+  MonitorElement* nLostHitsPixVsPhiH_;
+  MonitorElement* nLostHitsPixBVsPhiH_;
+  MonitorElement* nLostHitsPixEVsPhiH_;
+  MonitorElement* nLostHitsStripVsPhiH_;
+  MonitorElement* nLostHitsTIBVsPhiH_;
+  MonitorElement* nLostHitsTOBVsPhiH_;
+  MonitorElement* nLostHitsTECVsPhiH_;
+  MonitorElement* nLostHitsTIDVsPhiH_;
+
 
   MonitorElement* hOnTrkClusChargeThinH_;
   MonitorElement* hOnTrkClusWidthThinH_;

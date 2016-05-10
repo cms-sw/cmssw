@@ -1,0 +1,96 @@
+#####DCA & SIP plots#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:DistanceOfClosestApproachToPV:Distance of Closest Approach to PV:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:sip2dToPV:2D Significant Impact Point to PV:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:sip3dToPV:3D Significant Impact Point to PV:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:sipDxyToPV:dxy of Significant Impact Point to PV:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:sipDzToPV:dz of Significant Impact Point to PV:No. of Tracks:l:lin:log
+#####BeamSpot Position Measurement#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:beamSpotXYpos:XY position of beamspot:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:beamSpotXYposerr:Error in XY position of beamspot:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:beamSpotZpos:Z position of beamspot:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:beamSpotZposerr:Error in Z position of beamspot:No. of Tracks:l:lin
+#####Cluster Properties#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOffTrkClusChargeThick:Off Track Cluster charge (Thick sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOffTrkClusChargeThin:Off Track Cluster charge (Thin sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOffTrkClusWidthThick:Off Track Cluster width (Thick sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOffTrkClusWidthThin:Off Track Cluster width (Thin sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOnTrkClusChargeThick:On Track Cluster charge (Thick sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOnTrkClusChargeThin:On Track Cluster charge (Thin sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOnTrkClusWidthThick:On Track Cluster width (Thick sensor):No. of Clusters:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:hOnTrkClusWidthThin:On Track Cluster width (Thin sensor):No. of Clusters:l:lin
+#####Missing Hits#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nMissingInnerHitB:No. of missing inner hits in Tracker(Barrel region) per Track:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nMissingInnerHitE:No. of missing inner hits in Tracker(Endcap region) per Track:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nMissingOuterHitB:No. of missing outer hits in Tracker(Barrel region) per Track:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nMissingOuterHitE:No. of missing outer hits in Tracker(Endcap region) per Track:No. of Tracks:l:lin:log
+#####Residuals of Tracks in Sub-detector#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXPixelBarrel:ResidualX in Pixel Barrel:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXPixelEndcap:ResidualX in Pixel Endcap:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXStripTIB:ResidualX in Strip TIB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXStripTOB:ResidualX in Strip TOB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXStripTID:ResidualX in Strip TID:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualXStripTEC:ResidualX in Strip TEC:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYPixelBarrel:ResidualY in Pixel Barrel:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYPixelEndcap:ResidualY in Pixel Endcap:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYStripTIB:ResidualY in Strip TIB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYStripTOB:ResidualY in Strip TOB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYStripTID:ResidualY in Strip TID:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:residualYStripTEC:ResidualY in Strip TEC:No. of Tracks:l:lin
+#####Vertex and nTrack and nLostHit#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nTracks:No. of Tracks:No. of Events:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nVertex:No. of vertices:No. of Events:l:lin:log
+####No. of Lost Hits#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitByLayer:No. of lost hit::l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitByLayerPix:No. of lost hit in Pixel layers::l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nLostHitByLayerStrip:No. of lost hit in Strip layers::l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostHits:No. of lost hits:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostPixelBarrelHits:No. of lost hits in Pixel Barrel:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostPixelEndcapHits:No. of lost hits in Pixel Endcap:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostPixelHits:No. of lost hits in Pixel:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostStripHits:No. of lost hits in Strip:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostTECHits:No. of lost hits in TEC:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostTIBHits:No. of lost hits in TIB:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostTIDHits:No. of lost hits in TID:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostTOBHits:No. of lost hits in TOB:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nlostTrackerhits:No. of lost hits in Tracker:No.of Tracks:l:lin
+#####No. of Valid Hits#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidPixelHits:No. of valid hits in pixel:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidPixelBarrelHits:No. of valid hits in Pixel Barrel:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidPixelEndcapHits:No. of  valid hits in Pixel Endcap:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidStripHits:No. of valid hits in strip:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidTIBHits:No. of valid hits in TIB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidTOBHits:No. of valid hits in TOB:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidTIDHits:No. of valid hits in TID:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidTECHits:No. of validhits in TEC:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:nvalidTrackerhits:No. of valid Tracker hits per Track:No. of Tracks:l:lin
+#####No. of Layers#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trkLayerwithMeasurement:No. of hitted Tracker layers:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:pixelLayerwithMeasurement:No. of hitted Pixel layers:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:pixelBLayerwithMeasurement:No. of hitted Pixel Barrel layers:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:pixelELayerwithMeasurement:No. of hitted Pixel Endcap layers:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:stripLayerwithMeasurement:No. of hitted Strip layers:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:stripTIBLayerwithMeasurement:No. of hitted Strip TIB layers:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:stripTOBLayerwithMeasurement:No. of hitted Strip TOB layers:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:stripTIDLayerwithMeasurement:No. of hitted Strip TID layers:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:stripTECLayerwithMeasurement:No. of hitted Strip TEC layers:No.of Tracks:l:lin
+#####Track Properties#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackCharge:Charge:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackChi2bynDOF:Chi2 Over ndf:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackChi2:Chi2:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackChi2Prob:Chi2 Probability:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackChi2oNDF:Chi2 over NDF:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackCosTheta:Track cos(Theta):No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackEta:Eta:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackEtaerr:Error in Eta:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackP:Track p:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackPhi:Phi:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackPhierr:Error in Phi:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackPt:Track Pt:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackPterr:Error in Track Pt:No. of Tracks:l:lin:log
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackThetaerr:Error in Track cos(Theta):No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackqOverp:q Over p:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:trackqOverperr:Error in q Over p:No. of Tracks:l:lin
+#####Vertex Position#####
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:vertexXpos:X position of vertex:No.of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:vertexYpos:Y position of vertex:No. of Tracks:l:lin
+DQMData/Run 247068/StandaloneTrackMonitor/Run summary/highPurityTracks/:vertexZpos:Z position of vertex:No. of Tracks:l:lin

@@ -1,0 +1,6 @@
+#!/bin/bash
+cd /afs/cern.ch/work/k/kmondal/public/DatavsMC/RENovember2015/CMSSW_7_4_15_patch1/src/DQM/TrackingMonitorSource/test/Jobs/Data/Zerobias_260627
+eval `scramv1 runtime -sh`
+export X509_USER_PROXY=/afs/cern.ch/user/k/kmondal/.globus/x509up_u58614
+cmsRun step1_INDEX_cfg.py > /afs/cern.ch/work/k/kmondal/public/DatavsMC/RENovember2015/CMSSW_7_4_15_patch1/src/DQM/TrackingMonitorSource/test/Jobs/Data/Zerobias_260627/log/step1_INDEX.runlog 2>&1
+exit $?

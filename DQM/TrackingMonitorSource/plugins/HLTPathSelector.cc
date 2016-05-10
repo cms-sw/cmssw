@@ -23,6 +23,7 @@ void HLTPathSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSe
   if (hltConfig_.init(iRun, iSetup, processName_, changed)) {
     if (changed) {
       edm::LogInfo("HLTPathSelector") << "HLT initialised";
+      hltConfig_.dump("Triggers");
       hltConfig_.dump("PrescaleTable");
     }
     hltPathsMap_.clear();
@@ -44,10 +45,11 @@ void HLTPathSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSe
       hltPathsMap_[path] = triggerIndex;
     }
   } 
-  else
+  else {
     edm::LogError("HLTPathSelector") 
       << " config extraction failure with process name "
       << processName_;
+  }
 }
 bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // get event products
@@ -74,6 +76,12 @@ bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) 
     assert(triggerIndex == iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(path));
 
     // Results from TriggerResults product
+    std::cout << "HLTPathSelector" 
+	           << " Trigger path <" << path << "> status:"
+		   << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
+		   << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
+		   << " Error=" << triggerResultsHandle_->error(triggerIndex)
+              << std::endl;
     if (verbose_)
       edm::LogInfo("HLTPathSelector") 
 	           << " Trigger path <" << path << "> status:"

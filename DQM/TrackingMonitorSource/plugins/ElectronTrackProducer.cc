@@ -1,26 +1,25 @@
-// Z->ee Filter
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
+
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
-#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
-#include "DQM/TrackingMonitorSource/interface/ZtoEEEventSelector.h"
+#include "DQM/TrackingMonitorSource/interface/ElectronTrackProducer.h"
 
 using namespace std;
 using namespace edm;
-  
-ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps): 
+//using namespace reco;
+
+ElectronTrackProducer::ElectronTrackProducer(const edm::ParameterSet& ps) :
   electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
   bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
   electronToken_(consumes<reco::GsfElectronCollection>(electronTag_)),
@@ -45,94 +44,91 @@ ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps):
   minInvMass_(ps.getUntrackedParameter<double>("minInvMass", 60)),
   maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120))
 {
+  produces<reco::TrackCollection>("");
 }
 
-bool ZtoEEEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  // Read Electron Collection
+ElectronTrackProducer::~ElectronTrackProducer()
+{
+}
+
+void ElectronTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup){
+  std::auto_ptr< reco::TrackCollection > outputTColl( new reco::TrackCollection() ) ;
+
+  // Read Electron Collection                                                                                                                                           
   edm::Handle<reco::GsfElectronCollection> electronColl;
   iEvent.getByToken(electronToken_, electronColl);
-  
+
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
-
-  std::vector<TLorentzVector> list; 
-  std::vector<int> chrgeList; 
 
   if (electronColl.isValid()) {
     for (auto const& ele: *electronColl) {
       if (!ele.ecalDriven()) continue;
       if (ele.pt() < minPt_) continue;
-      // set a max Eta cut
+      // set a max Eta cut                                                                                                                                              
       if (!(ele.isEB() || ele.isEE())) continue;
-      
+
       double hOverE = ele.hadronicOverEm();
       double sigmaee = ele.sigmaIetaIeta();
       double deltaPhiIn = ele.deltaPhiSuperClusterTrackAtVtx();
       double deltaEtaIn = ele.deltaEtaSuperClusterTrackAtVtx();
-      
-      // separate cut for barrel and endcap
+
+      // separate cut for barrel and endcap                                                                                                                             
       if (ele.isEB()) {
-	if (fabs(deltaPhiIn) >= maxDeltaPhiInEB_
-	    && fabs(deltaEtaIn) >= maxDeltaEtaInEB_
-	    && hOverE >= maxHOEEB_
-	    && sigmaee >= maxSigmaiEiEEB_) continue;
+        if (fabs(deltaPhiIn) >= maxDeltaPhiInEB_
+            && fabs(deltaEtaIn) >= maxDeltaEtaInEB_
+            && hOverE >= maxHOEEB_
+            && sigmaee >= maxSigmaiEiEEB_) continue;
       }
       else if (ele.isEE()) {
-	if (fabs(deltaPhiIn) >= maxDeltaPhiInEE_
-	    && fabs(deltaEtaIn) >= maxDeltaEtaInEE_
-	    && hOverE >= maxHOEEE_
-	    && sigmaee >= maxSigmaiEiEEE_) continue;
+        if (fabs(deltaPhiIn) >= maxDeltaPhiInEE_
+            && fabs(deltaEtaIn) >= maxDeltaEtaInEE_
+            && hOverE >= maxHOEEE_
+            && sigmaee >= maxSigmaiEiEEE_) continue;
       }
-      
+
       reco::GsfTrackRef trk = ele.gsfTrack();
-      if (!trk.isNonnull() ) continue; // only electrons with tracks
+      reco::TrackRef tk = ele.closestTrack();
+      if (!trk.isNonnull() ) continue; // only electrons with tracks                                                                                                    
+      if (!tk.isNonnull() ) continue;
       double chi2 = trk->chi2();
       double ndof = trk->ndof();
       double chbyndof = (ndof > 0) ? chi2/ndof : 0;
       if (chbyndof >= maxNormChi2_) continue;
-      
+
       double trkd0 = trk->d0();
       if (beamSpot.isValid()) {
 	trkd0 = -(trk->dxy(beamSpot->position()));
       }
-      else { 
-	edm::LogError("ZtoEEEventSelector") << "Error >> Failed to get BeamSpot for label: " 
-					    << bsTag_;
+      else {
+	edm::LogError("ElectronTrackProducer") << "Error >> Failed to get BeamSpot for label: "
+					       << bsTag_;
       }
       if (std::fabs(trkd0) >= maxD0_) continue;
-      
-      const reco::HitPattern& hitp = trk->hitPattern(); 
+
+      const reco::HitPattern& hitp = trk->hitPattern();
       int nPixelHits = hitp.numberOfValidPixelHits();
       if (nPixelHits < minPixelHits_) continue;
-      
+
       int nStripHits = hitp.numberOfValidStripHits();
       if (nStripHits < minStripHits_) continue;
-      
-      // PF Isolation
+
+      // DB corrected PF Isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele.pfIsolationVariables();
       float absiso = pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt);
       float eiso = absiso/(ele.pt());
       if (eiso > maxIso_) continue;
-      
-      TLorentzVector lv;
-      lv.SetPtEtaPhiE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
-      list.push_back(lv);
-      chrgeList.push_back(ele.charge());
+
+      outputTColl->push_back(*tk);
     }
   }
   else {
-    edm::LogError("ZtoEEEventSelector") << "Error >> Failed to get ElectronCollection for label: " 
-					<< electronTag_;
+    edm::LogError("ElectronTrackProducer") << "Error >> Failed to get ElectronCollection for label: " << electronTag_;
   }
-    if (list.size() < 2) return false;
-  if (chrgeList[0] + chrgeList[1] != 0) return false;
 
-  if (list[0].Pt() < minPtHighest_) return false;  
-  TLorentzVector zv = list[0] + list[1];
-  if (zv.M() < minInvMass_ || zv.M() > maxInvMass_) return false;
-  
-  return true;
+  iEvent.put(outputTColl, "");
 }
+
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ZtoEEEventSelector);
+DEFINE_FWK_MODULE(ElectronTrackProducer);
