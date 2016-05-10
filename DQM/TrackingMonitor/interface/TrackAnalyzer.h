@@ -50,6 +50,7 @@ class TrackAnalyzer
         // each and every track while in the analyze method. A
         // redesign of the class is needed in the future.
         void setNumberOfGoodVertices(const edm::Event &);
+        void setBX(const edm::Event &);
 
     private:
 	void initHistos();
@@ -59,10 +60,11 @@ class TrackAnalyzer
 	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
 	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
         void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
-        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup);
+        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
+        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const unsigned int monitoring);
 
         // ----------member data ---------------------------
 	std::string TopFolder_;
@@ -109,7 +111,8 @@ class TrackAnalyzer
 
         // Compute the hit-finding efficiency using the HitPattern of
         // the reconstructed tracks
-        bool doEffFromHitPattern_;
+        bool doEffFromHitPatternVsPU_;
+        bool doEffFromHitPatternVsBX_;
 	int  pvNDOF_;
 	std::string qualityString_;
 	
@@ -370,16 +373,17 @@ class TrackAnalyzer
         struct Key {
           int det;
           int subdet;
-          explicit Key(int det, int subdet):det(det),subdet(subdet){};
+	  int monitoring;
+          explicit Key(int det, int subdet,int monitoring):det(det),subdet(subdet),monitoring(monitoring){};
           bool operator==(const Key & other) const {
-            return (det == other.det && subdet == other.subdet);
+            return (det == other.det && subdet == other.subdet && monitoring == other.monitoring);
           }
         };
 
         // Trivial hasher function: warning, it only works if det has less than 99 subdets.
         struct KeyHasher {
           std::size_t operator()(const Key& k) const {
-            return k.det*100+k.subdet;
+            return k.det*1000+k.subdet*10+k.monitoring;
           }
         };
 
@@ -389,8 +393,14 @@ class TrackAnalyzer
         std::unordered_map<Key, MonitorElement *, KeyHasher> hits_bad_;
         std::unordered_map<Key, MonitorElement *, KeyHasher> hits_total_;
         unsigned int good_vertices_;
+        unsigned int bx_;
+	enum monQuantity {
+	  VsPU,
+	  VsBX,
+	  END
+	};
+	std::string monName[monQuantity::END] = { "", "VsBX" };
 
-	
         std::string histname;  //for naming the histograms according to algorithm used
 };
 #endif
