@@ -12,10 +12,10 @@ public:
   virtual ~GluedGeomDet();
 
   bool isLeaf() const override { return false;}
-  virtual std::vector<const GeomDet*> components() const;
+  virtual std::vector<const GeomDet*> components() const override;
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return theMonoDet->subDetector();}
+  virtual SubDetector subDetector() const override {return theMonoDet->subDetector();}
 
   const GeomDetUnit* monoDet() const { return theMonoDet;}
   const GeomDetUnit* stereoDet() const { return theStereoDet;}

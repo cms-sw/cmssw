@@ -25,6 +25,7 @@ public:
   int exclude(int zside, HcalZDCDetId::Section section, int ich1, int ich2);
 
   /** Is this a valid cell id? */
+  using CaloSubdetectorTopology::valid;
   virtual bool valid(const HcalZDCDetId& id) const;
 
   /** Get the transverse (X) neighbors of the given cell*/
@@ -43,6 +44,7 @@ public:
   
   
   // how many channels (deph) for a given section
+  using CaloSubdetectorTopology::ncells;
   int ncells(HcalZDCDetId::Section section) const;
 
   //return first and last cell of each section

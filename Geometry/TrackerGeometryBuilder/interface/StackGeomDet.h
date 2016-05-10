@@ -12,10 +12,10 @@ public:
   virtual ~StackGeomDet();
 
   bool isLeaf() const override { return false;}
-  virtual std::vector<const GeomDet*> components() const;
+  virtual std::vector<const GeomDet*> components() const override;
 
   // Which subdetector
-  virtual SubDetector subDetector() const { return theLowerDet->subDetector(); };
+  virtual SubDetector subDetector() const override { return theLowerDet->subDetector(); };
 
   const GeomDetUnit* lowerDet() const { return theLowerDet; };
   const GeomDetUnit* upperDet() const { return theUpperDet; };
