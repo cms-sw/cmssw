@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from copy import deepcopy
 
 # this is a pure Python module to build the deeply nested PSets that describe a 
 # SummationSpecification.
@@ -41,6 +42,13 @@ class Specification(cms.PSet):
     self.conf = conf
     self._activeColumns = set()
     self._state = FIRST
+
+  def __deepcopy__(self, memo):
+    # override deepcopy to not copy .conf: it should remain a reference
+    # w/o this it is not cleanly possible to build a per-module switch.
+    t = Specification(self.conf)
+    t.spec = deepcopy(self.spec, memo)
+    return t 
 
   def groupBy(self, cols, mode = "SUM"):
     cnames = val(cols).split("/")
