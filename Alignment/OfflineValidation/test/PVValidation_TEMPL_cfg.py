@@ -157,21 +157,21 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.noslowpt = cms.EDFilter("FilterOutLowPt",
-                                applyfilter = cms.untracked.bool(True),
-                                src =  cms.untracked.InputTag("TRACKTYPETEMPLATE"),
-                                debugOn = cms.untracked.bool(False),
-                                numtrack = cms.untracked.uint32(0),
-                                thresh = cms.untracked.int32(1),
-                                ptmin  = cms.untracked.double(PTCUTTEMPLATE),
-                                runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                runControlNumber = cms.untracked.vuint32(int(runboundary))
-                                )
 
+import Alignment.CommonAlignment.tools.filterOutLowPt_cfi  
+process.nolowpt = Alignment.CommonAlignment.tools.filterOutLowPt_cfi.filterOutLowPt.clone()
+process.nolowpt.applyfilter = True
+process.nolowpt.src = "TRACKTYPETEMPLATE"
+process.nolowpt.numtrack = 0
+process.nolowpt.thresh = 1
+process.nolowpt.ptmin  = PTCUTTEMPLATE
+process.nolowpt.runControl = RUNCONTROLTEMPLATE
+process.nolowpt.runControlNumber = int(runboundary)
+                                
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.noscraping + process.nolowpt)
 else:
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.nolowpt)
 
 ####################################################################
 # Load and Configure Measurement Tracker Event
