@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:   Alignment/OfflineValidation
+// Package:   Alignment/CommonAlignment
 // Class:     FilterOutLowPt
 //
 //
@@ -17,22 +17,46 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/OfflineValidation/plugins/FilterOutLowPt.h"
+class FilterOutLowPt : public edm::stream::EDFilter<> {
+public:
+  explicit FilterOutLowPt( const edm::ParameterSet & );
+  ~FilterOutLowPt();
+  
+private:
+  virtual void beginJob() ;
+  virtual bool filter ( edm::Event &, const edm::EventSetup&); 
+  virtual void endJob() ;
 
+  bool applyfilter;
+  bool debugOn;
+  double thresh;
+  unsigned int numtrack;
+  double  ptmin;
+  edm::InputTag tracks_;
+  double trials;
+  double passes;
+  bool runControl_;
+  std::vector<unsigned int> runControlNumbers_;
+  std::map<unsigned int,std::pair<int,int>> eventsInRun_;
 
-using namespace edm;
-using namespace std;
+  reco::TrackBase::TrackQuality _trackQuality;
+  edm::EDGetTokenT<reco::TrackCollection>  theTrackCollectionToken; 
+
+};
+
 
 FilterOutLowPt::FilterOutLowPt(const edm::ParameterSet& iConfig)
 {
-  vector<unsigned int> defaultRuns;
+  std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
 
   applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
@@ -65,16 +89,14 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(runControl_){
     if (debugOn){
       for(unsigned int i=0;i<runControlNumbers_.size();i++){
-	LogInfo("FilterOutLowPt")<<"run number:" <<iEvent.id().run()<<" keeping runs:"<<runControlNumbers_[i]<<std::endl;
-	// std::cout<<"run number:" <<iEvent.id().run()<<"will keep run: "<<runControlNumbers_[i]<<std::endl;
+	edm::LogInfo("FilterOutLowPt")<<"run number:" <<iEvent.id().run()<<" keeping runs:"<<runControlNumbers_[i]<<std::endl;
       }
     }
 
     for(unsigned int j=0;j<runControlNumbers_.size();j++){
       if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
 	if (debugOn){
-	  // std::cout<<"run number"<< runControlNumbers_[j] << " match!"<<std::endl;
-	  LogInfo("FilterOutLowPt")<<"run number"<< runControlNumbers_[j] << " match!"<<std::endl;
+	  edm::LogInfo("FilterOutLowPt")<<"run number"<< runControlNumbers_[j] << " match!"<<std::endl;
 	}
 	passesRunControl = true;
 	break;
@@ -92,9 +114,7 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::TrackCollection> tkRef;
   iEvent.getByToken(theTrackCollectionToken,tkRef);    
   const reco::TrackCollection* tkColl = tkRef.product();
-
-  //std::cout << "Total Number of Tracks " << tkColl->size() << std::endl;
-  
+ 
   int numhighpurity=0;
   _trackQuality = reco::TrackBase::qualityByName("highPurity");
 
@@ -102,7 +122,6 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::TrackCollection::const_iterator itk = tkColl->begin();
     reco::TrackCollection::const_iterator itk_e = tkColl->end();
     for(;itk!=itk_e;++itk){
-      // std::cout << "HighPurity?  " << itk->quality(_trackQuality) << std::endl;
       if( itk->quality(_trackQuality) &&
 	  (itk->pt() >= ptmin) 
 	  ) numhighpurity++;
@@ -116,10 +135,8 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
     int irun = iEvent.id().run();
     int ils  = iEvent.luminosityBlock();
     int bx   = iEvent.bunchCrossing();
-    
-    // std::cout << "FilterOutLowPt_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << std::endl;
-    
-    LogInfo("FilterOutLowPt")<<" Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << std::endl;
+      
+    edm::LogInfo("FilterOutLowPt")<<" Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << std::endl;
 
   }
  
@@ -129,7 +146,7 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
     eventsInRun_[iRun].first+=1;
     if(accepted) eventsInRun_[iRun].second+=1;
   } else {
-    std::pair<int,int> mypass = make_pair(1,0);
+    std::pair<int,int> mypass = std::make_pair(1,0);
     if(accepted) mypass.second = 1;
     eventsInRun_[iRun]= mypass;
   }
@@ -146,17 +163,6 @@ void FilterOutLowPt::endJob(){
   
   double eff =  passes/trials;
   double eff_err = TMath::Sqrt((eff*(1-eff))/trials);
-
-  // std::cout<<"######################################"<<std::endl;
-  // std::cout<<"# FilterOutLowPt::endJob() report"<<std::endl; 
-  // std::cout<<"# Number of analyzed events: "<<trials<<std::endl;
-  // std::cout<<"# Number of accpeted events: "<<passes<<std::endl;
-  // std::cout<<"# Efficiency: "<< eff*100 << " +/- " << eff_err*100 << " %"<<std::endl;
-  // std::cout<<"######################################"<<std::endl;                      
-  
-  // std::cout<<"# Filter Summary events accepted by run"<<std::endl;
-  // for (std::map<unsigned int,std::pair<int,int> >::iterator it=eventsInRun_.begin(); it!=eventsInRun_.end(); ++it)
-  //   std::cout <<"# run:" << it->first << " => events tested: " << (it->second).first << " | events passed: " << (it->second).second << '\n';
 
   edm::LogVerbatim("FilterOutLowPt")
     <<"###################################### \n"			  
