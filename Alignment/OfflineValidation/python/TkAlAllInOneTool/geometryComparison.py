@@ -80,7 +80,11 @@ class GeometryComparison(GenericValidation):
             referenceName  = self.referenceAlignment.name
             referenceTitle = self.referenceAlignment.title
 
+        assert len(self.__compares) == 1 #? not sure how it can be anything else, but just in case
+        common = self.__compares.keys()[0]
+
         repMap.update({
+            "common": common,
             "comparedGeometry": (".oO[alignmentName]Oo."
                                  "ROOTGeometry.root"),
             "referenceGeometry": "IDEAL", # will be replaced later
@@ -112,7 +116,7 @@ class GeometryComparison(GenericValidation):
 
         cfgSchedule = cfgs.keys()
         for common in self.__compares:
-            repMap.update({"common": common,
+            repMap.update({
                            "levels": self.__compares[common][0],
                            "dbOutput": self.__compares[common][1]
                            })
@@ -252,6 +256,9 @@ class GeometryComparison(GenericValidation):
                     ("xrdcp -f OUTPUT_comparison.root %s\n"
                      %resultingFile)
                 self.filesToCompare[ name ] = resultingFile
+
+            else:
+                raise AllInOneError("Need to have DetUnit in levels!")
 
         repMap["CommandLine"]=""
         repMap["CommandLine"]+= \
