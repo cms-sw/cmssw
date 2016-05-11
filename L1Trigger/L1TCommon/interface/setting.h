@@ -75,16 +75,12 @@ template <typename varType> std::vector<varType> setting::getVector()
 	if ( type_.find("vector") == std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is not vector so you need to call the getValue method");
 
-	//if ( delim.empty() )
-	//	delim = std::string(",");
-	
 	std::vector<std::string> vals;
 	str2VecStr_(value_, delim_, vals);
 
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
 		newVals.push_back(boost::lexical_cast<varType>(*it));
-
 	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
 	return newVals;
 }

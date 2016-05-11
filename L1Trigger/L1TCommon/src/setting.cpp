@@ -11,6 +11,9 @@ value_(value),
 procRole_(procRole),
 delim_(delim)
 {
+	if ( delim.empty() )
+		delim_ = ",";
+
 	setValue(value);
 }
 
@@ -20,6 +23,9 @@ id_(id),
 procRole_(procRole),
 delim_(delim)
 {
+        if ( delim.empty() )
+                delim_ = ",";
+
 	str2VecStr_(columns, delim, tableColumns_);
 
 	str2VecStr_(types, delim, tableTypes_);
