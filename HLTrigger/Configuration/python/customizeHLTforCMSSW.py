@@ -38,6 +38,30 @@ def customiseFor13753(process):
             producer.CleanerPSet.useQuadrupletAlgo = cms.bool(False)
     return process
 
+def customiseFor13421(process):
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                value = cms.int32(13)
+                if hasattr(pset,'minNumberOfHits'):
+                    value = getattr(pset,'minNumberOfHits')
+                    delattr(pset,'minNumberOfHits')
+                if not hasattr(pset,'minNumberOfHitsForLoopers'):
+                    pset.minNumberOfHitsForLoopers = value
+                if not hasattr(pset,'minNumberOfHitsPerLoop'):
+                    pset.minNumberOfHitsPerLoop = cms.int32(4)
+                if not hasattr(pset,'extraNumberOfHitsBeforeTheFirstLoop'):
+                    pset.extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4)
+                if not hasattr(pset,'maxLostHitsFraction'):
+                    pset.maxLostHitsFraction = cms.double(999.)
+                if not hasattr(pset,'constantValueForLostHitsFractionFilter'):
+                    pset.constantValueForLostHitsFractionFilter = cms.double(1.)
+                if not hasattr(pset,'minimumNumberOfHits'):
+                    pset.minimumNumberOfHits = cms.int32(5)
+                if not hasattr(pset,'seedPairPenalty'):
+                    pset.seedPairPenalty = cms.int32(0)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -48,6 +72,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if cmsswVersion >= "CMSSW_8_0":
         process = customiseFor14282(process)
 #       process = customiseFor12718(process)
+        process = customiseFor13421(process)
         pass
 
 #   stage-2 changes only if needed
