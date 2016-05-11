@@ -198,6 +198,20 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("sieie", 3, "sigmaIetaIeta").
    column("isNotConv", 1, "passConversionVeto");
 
+   table("reco::Electron").
+   column("pT", 1, "pt").
+   column("eta", 3).
+   column("phi", 3).
+   column("E/p", 3, "eSuperClusterOverP").
+   column("H/E", 3, "hadronicOverEm").
+   column("fbrem", 3,"(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()" ).
+   column("dei",3, "deltaEtaSuperClusterTrackAtVtx" ).
+   column("dpi", 3, "deltaPhiSuperClusterTrackAtVtx()").
+   column("charge", 0, "charge").
+   column("isPF", 0, "isPF()").
+   column("sieie", 3, "sigmaIetaIeta").
+   column("isNotConv", 1, "passConversionVeto");
+
    table("pat::PackedCandidate").
    column("pT", 1, "pt").
    column("eta", 3).
