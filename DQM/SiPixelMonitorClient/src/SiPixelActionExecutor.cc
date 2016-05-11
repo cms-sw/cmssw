@@ -1708,7 +1708,7 @@ void SiPixelActionExecutor::createEfficiency(DQMStore::IBooker & iBooker, DQMSto
 
 //=============================================================================================================
 
-int SiPixelActionExecutor::getLadder(std::string dname_){
+int SiPixelActionExecutor::getLadder(const std::string & dname_){
   int biny_= 0;
   string lad=dname_.substr(dname_.find("Ladder_") + 7, 2);
   if(dname_.find(lad)!=string::npos){ biny_ = atoi(lad.c_str());}
@@ -1717,7 +1717,7 @@ int SiPixelActionExecutor::getLadder(std::string dname_){
 
 //=============================================================================================================
 
-int SiPixelActionExecutor::getBlade(std::string dname_){
+int SiPixelActionExecutor::getBlade(const std::string & dname_){
   int binx_= 0;
   string blad=dname_.substr(dname_.find("Blade_") + 6, 2);
   if(dname_.find(blad)!=string::npos){ binx_ = atoi(blad.c_str());}
