@@ -271,7 +271,11 @@ ME0SegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
 bool ME0SegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   std::vector<float> phi_new, eta_new, time_new, phi_old, eta_old, time_old;
+  phi_new.reserve(newChain.size()); phi_old.reserve(oldChain.size());
+  eta_new.reserve(newChain.size()); eta_old.reserve(oldChain.size());
+  time_new.reserve(newChain.size()); time_old.reserve(oldChain.size());
   std::vector<int> layer_new, layer_old;
+  layer_new.reserve(newChain.size()); layer_old.reserve(oldChain.size());
 
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     GlobalPoint pos_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition());

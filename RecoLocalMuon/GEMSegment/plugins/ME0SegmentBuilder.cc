@@ -44,9 +44,8 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // [At a later stage one will have to mask also the rolls 
     // if one wants to recover segments that are at the border of a roll]
     ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll());
-    std::vector<ME0RecHit* > pp = ensembleRH[id.rawId()];
-    pp.push_back(it2->clone());
-    ensembleRH[id.rawId()]=pp;
+    // save current ME0RecHit in vector associated to the reference id
+    ensembleRH[id.rawId()].push_back(it2->clone());    
   }
   
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {

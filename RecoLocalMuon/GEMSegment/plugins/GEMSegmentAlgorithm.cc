@@ -283,9 +283,12 @@ GEMSegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
 bool GEMSegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   std::vector<float> phi_new, eta_new, phi_old, eta_old;
+  phi_new.reserve(newChain.size()); phi_old.reserve(oldChain.size());
+  eta_new.reserve(newChain.size()); eta_old.reserve(oldChain.size());
   std::vector<int> layer_new, layer_old;
-  // std::vector< std::vector<int> > layer_new, layer_old;
+  layer_new.reserve(newChain.size()); layer_old.reserve(oldChain.size());
   std::vector<int> bx_new, bx_old;
+  bx_new.reserve(newChain.size()); bx_old.reserve(oldChain.size());
 
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     GEMDetId rhID                  = newChain[iRH_new]->gemId();
@@ -294,7 +297,6 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, co
     LocalPoint rhLP_inEtaPartFrame = newChain[iRH_new]->localPosition();
     GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
     layer_new.push_back((rhID.station()-1)*2+rhID.layer());
-    // std::vector<int> layer_tmp; layer_tmp.push_back((rhID.station()-1)*2+rhID.layer()); layer_new.push_back(layer_tmp);
     phi_new.push_back(rhGP_inCMSFrame.phi());
     eta_new.push_back(rhGP_inCMSFrame.eta());
     bx_new.push_back(newChain[iRH_new]->BunchX());
@@ -350,7 +352,7 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, co
       // hits on the same layer should not be allowed ==> if abs(layer_new - layer_old) > 0 is ok. if = 0 is false
       // allow only change true --> false. once false, leave it false
       if(layerRequirementOK==true) { 
-	layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) > 0;
+	layerRequirementOK = layer_new[jRH_new] != layer_old[jRH_old];
       }
 
       // BX

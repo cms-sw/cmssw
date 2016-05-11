@@ -58,13 +58,8 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     if(it2->gemId().station()==1) station=1;
     else if(it2->gemId().station()==2 || it2->gemId().station()==3) station=3;
     GEMDetId id(it2->gemId().region(),1,station,0,it2->gemId().chamber(),0);
-
-    // retrieve vector of GEMRecHits associated to the reference id
-    std::vector<GEMRecHit* > pp = ensembleRH[id.rawId()];
-    // save current GEMRecHit in vector
-    pp.push_back(it2->clone());
-    // assign updated vector of GEMRecHits to reference id
-    ensembleRH[id.rawId()]=pp;
+    // save current GEMRecHit in vector associated to the reference id
+    ensembleRH[id.rawId()].push_back(it2->clone());
   }
 
   // Loop on the entire map <ref id, vector of GEMRecHits>
