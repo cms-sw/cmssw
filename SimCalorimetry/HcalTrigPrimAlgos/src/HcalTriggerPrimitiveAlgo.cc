@@ -14,13 +14,13 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
-                                                    uint32_t FG_threshold, uint32_t ZS_threshold,
+                                                    bool FG_MinumumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
                                                     int numberOfSamplesHF, int numberOfPresamplesHF,
                                                     uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold)
                                                    : incoder_(0), outcoder_(0),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
-                                                   FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
+                                                   FG_MinumumBias_(FG_MinumumBias), FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    numberOfSamplesHF_(numberOfSamplesHF),
@@ -406,11 +406,16 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
             }
             output[ibin] += (long_fiber_val + short_fiber_val);
 
-            int ADCLong = details.LongDigi[ibin].adc();
-            int ADCShort = details.ShortDigi[ibin].adc();
+            uint32_t ADCLong = details.LongDigi[ibin].adc();
+            uint32_t ADCShort = details.ShortDigi[ibin].adc();
             if(HCALFEM != 0)
             {
-                finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            	if(FG_MinumumBias_) {
+            		finegrain[ibin] = (ADCLong > FG_threshold_ || ADCShort > FG_threshold_);
+            	} 
+            	else {
+                	finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            	}
             }
         }
     }
