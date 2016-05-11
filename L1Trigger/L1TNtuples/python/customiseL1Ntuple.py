@@ -106,8 +106,6 @@ def L1NtupleAODEMU(process):
 
     return process
 
-
-
 def L1NtupleEMUNoEventTree(process):
 
     L1NtupleTFileOut(process)
@@ -120,3 +118,10 @@ def L1NtupleEMUNoEventTree(process):
     process.schedule.append(process.l1ntuplesim)
 
     return process
+
+
+def L1NtupleMC(process):
+
+    if hasattr(process, 'l1JetRecoTree'):
+        process.l1JetRecoTree.jecToken = cms.untracked.InputTag("ak4PFCHSL1FastL2L3Corrector")
+
