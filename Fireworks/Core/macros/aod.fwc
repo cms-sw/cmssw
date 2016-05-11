@@ -1455,17 +1455,6 @@
     <string>hasPixelSeed()</string>
     <string>0</string>
   </config>
-  <config name="reco::Jet" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-  </config>
   <config name="reco::MET" version="1">
     <string>MET</string>
     <string>et</string>
