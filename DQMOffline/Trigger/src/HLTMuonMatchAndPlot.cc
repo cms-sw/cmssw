@@ -101,13 +101,13 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
   if (isLastFilter_){
-    book1D(iBooker, "deltaR", "deltaR", ";#Deltar(reco, HLT);");
     book1D(iBooker, "hltPt", "pt", ";p_{T} of HLT object");
     book1D(iBooker, "hltEta", "eta", ";#eta of HLT object");
     book1D(iBooker, "hltPhi", "phi", ";#phi of HLT object");
     book1D(iBooker, "resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
     book1D(iBooker, "resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
   }
+  book1D(iBooker, "deltaR", "deltaR", ";#Deltar(reco, HLT);");
   
   book1D(iBooker, "resolutionPt", "resolutionRel", 
          ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
@@ -249,13 +249,13 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
       TriggerObject & hltMuon = hltMuons[matches[i]];
       double ptRes = (muon.pt() - hltMuon.pt()) / muon.pt();
       hists_["resolutionPt"]->Fill(ptRes);
+      hists_["deltaR"]->Fill(deltaR(muon, hltMuon));
       
       if (isLastFilter_){
 	double etaRes = muon.eta() - hltMuon.eta();
 	double phiRes = muon.phi() - hltMuon.phi();
 	hists_["resolutionEta"]->Fill(etaRes);
 	hists_["resolutionPhi"]->Fill(phiRes);
-	hists_["deltaR"]->Fill(deltaR(muon, hltMuon));
       }
     }
 

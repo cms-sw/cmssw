@@ -104,14 +104,24 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
 
   vector<string> modules = hltConfig_.moduleLabels(path);
   vector<string>::iterator iter = modules.begin();
-
-  while (iter != modules.end())
-    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) {
+  while (iter != modules.end()){
+    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)){
       iter = modules.erase(iter);
     }
-    else
-      ++iter;
-      
+    else if (iter->find("Filtered0") != string::npos)
+      iter = modules.erase(iter);
+    else ++iter;
+  }
+//  iter = modules.begin();
+//  while (iter != modules.end()){
+//    if ((iter->find("Filtered0") == string::npos)){
+//      std::cout<< *iter << std::endl;
+//      iter = modules.erase(iter);
+//    }
+//    else ++iter;
+//  }
+
+  
   return modules;
   
 }
