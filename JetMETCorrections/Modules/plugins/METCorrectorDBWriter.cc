@@ -44,7 +44,7 @@ void METCorrectorDBWriter::beginJob()
   for( int i(0); i< METCorrectorParametersCollection::N_LEVELS;++i)
   {
     std::string append("_");
-    std::string ilev = METCorrectorParametersCollection::findLabel( static_cast<METCorrectorParametersCollection::Level_t>(i) );
+    std::string ilev = METCorrectorParametersCollection::findLevel( static_cast<METCorrectorParametersCollection::Level_t>(i) );
     append += ilev;
     append += "_";
     append += algo;
@@ -61,11 +61,11 @@ void METCorrectorDBWriter::beginJob()
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
-	  std::cout << "Added " << ilev + "_" + *isect <<  " to record " << i << std::endl;
+	  payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	  //payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
+	  std::cout << "Added level " << ilev <<" section: "<< *isect <<  " to record "<< std::endl;
 	}
       }
-      std::cout << "Added record " << i << std::endl;
     }else{
       std::cout<<"Have not found METC file: "<<inputTxtFile<<std::endl;
     }

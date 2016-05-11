@@ -31,36 +31,42 @@ METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
 METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
 {
   std::vector<std::string> tokens = getTokens(fLine);
-  // corrType N_bin binVa.. N_var var... formula
+  // corrType N_bin binVa.. var formula
   if (!tokens.empty())
   { 
-    if (tokens.size() < 6) 
+    if (tokens.size() < 5) 
     {
       std::stringstream sserr;
-      sserr<<"(line "<<fLine<<"): less than 6 expected tokens:"<<tokens.size();
+      sserr<<"(line "<<fLine<<"): Great than or equal to 5 expected tokens:"<<tokens.size();
       handleError("METCorrectorParameters::Definitions",sserr.str());
     }
     // No. of Bin Variable
     std::cout<<"Definitions==========="<<std::endl;
     ptclType = getSigned(tokens[0]);
-    std::cout<<tokens[0]<<"\t";
+    std::cout<<"ptclType:"<<tokens[0]<<"\t";
     unsigned nBinVar = getUnsigned(tokens[1]);
-    std::cout<<tokens[1]<<"\t";
-    // No of Parameterization Variable
-    unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
-    std::cout<<tokens[2]<<"\t";
+    std::cout<<"nBinVar:"<<tokens[1]<<"\t";
     for(unsigned i=0;i<nBinVar;i++)
     {
       mBinVar.push_back(tokens[i+2]);
       std::cout<<tokens[i+2]<<"\t";
     }
+    // Num.o of Parameterization Variable
+    unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
+    std::cout<<"nParVar: "<<tokens[nBinVar+2]<<"\t";
     for(unsigned i=0;i<nParVar;i++)
     {
       mParVar.push_back(tokens[nBinVar+3+i]);
       std::cout<<tokens[nBinVar+3+i]<<"\t";
     }
     mFormula = tokens[nParVar+nBinVar+3];
-    std::cout<<tokens[nParVar+nBinVar+3]<<std::endl;
+    std::cout<<"Formula: "<<tokens[nParVar+nBinVar+3]<<std::endl;
+    if (tokens.size() != nParVar+nBinVar+4 ) 
+    {
+      std::stringstream sserr;
+      sserr<<"(line "<<fLine<<"): token size should be:"<<nParVar+nBinVar+4<<" but it is "<<tokens.size();
+      handleError("METCorrectorParameters::Definitions",sserr.str());
+    }
   }
 }
 //------------------------------------------------------------------------
@@ -74,29 +80,31 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   std::vector<std::string> tokens = getTokens(fLine);
   if (!tokens.empty())
   { 
-    if (tokens.size() < 6) 
+    if (tokens.size() < 5) 
     {
       std::stringstream sserr;
       sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
     std::cout<<"Record ==============="<<std::endl;
+    mMetAxis = tokens[0];
+    std::cout<<mMetAxis<<"\t";
     for(unsigned i=0;i<mNvar;i++)
     {
-      mMin.push_back(getFloat(tokens[i*2]));
-      mMax.push_back(getFloat(tokens[i*2+1]));
-      std::cout<<tokens[i*2]<<"\t";
+      mMin.push_back(getFloat(tokens[i*2+1]));
+      mMax.push_back(getFloat(tokens[i*2+2]));
       std::cout<<tokens[i*2+1]<<"\t";
+      std::cout<<tokens[i*2+2]<<"\t";
     }
-    unsigned nParam = getUnsigned(tokens[2*mNvar]);
-    std::cout<<tokens[2*mNvar]<<"\t";
-    if (nParam != tokens.size()-(2*mNvar+1)) 
+    unsigned nParam = getUnsigned(tokens[2*mNvar+1]);
+    std::cout<<tokens[2*mNvar+1]<<"\t";
+    if (nParam != tokens.size()-(2*mNvar+2)) 
     {
       std::stringstream sserr;
       sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
-    for (unsigned i = (2*mNvar+1); i < tokens.size(); ++i)
+    for (unsigned i = (2*mNvar+2); i < tokens.size(); ++i)
     {
       mParameters.push_back(getFloat(tokens[i]));
       std::cout<<tokens[i]<<"\t";
@@ -270,11 +278,12 @@ std::vector<float> METCorrectorParameters::binCenters(unsigned fVar) const
 //------------------------------------------------------------------------
 //--- prints parameters on screen ----------------------------------------
 //------------------------------------------------------------------------
-void METCorrectorParameters::printScreen() const
+void METCorrectorParameters::printScreen(const std::string &Section) const
 {
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"////////  PARAMETERS: //////////////////////"<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
+  std::cout<<"["<<Section<<"]"<<"\n";
   std::cout<<"Number of binning variables:   "<<definitions().nBinVar()<<std::endl;
   std::cout<<"Names of binning variables:    ";
   for(unsigned i=0;i<definitions().nBinVar();i++)
@@ -303,11 +312,12 @@ void METCorrectorParameters::printScreen() const
 //------------------------------------------------------------------------
 //--- prints parameters on file ----------------------------------------
 //------------------------------------------------------------------------
-void METCorrectorParameters::printFile(const std::string& fFileName) const
+void METCorrectorParameters::printFile(const std::string& fFileName,const std::string &Section) const
 {
   std::ofstream txtFile;
-  txtFile.open(fFileName.c_str());
+  txtFile.open(fFileName.c_str(),std::ofstream::app);
   txtFile.setf(std::ios::right);
+  txtFile<<"["<<Section<<"]"<<"\n";
   txtFile<<"{"<<definitions().nBinVar()<<std::setw(15);
   for(unsigned i=0;i<definitions().nBinVar();i++)
     txtFile<<definitions().binVar(i)<<std::setw(15);
@@ -329,32 +339,47 @@ void METCorrectorParameters::printFile(const std::string& fFileName) const
 }
 
 namespace {
-const std::vector<std::string> labels_ = {
-  "MiniAod"
+const std::vector<std::string> levels_ = {
+  "XYshift"
 };
-const std::vector<std::string> MiniAodSource_ = {
-  "MiniAod_ShiftX",
-  "MiniAod_ShiftY"
+const std::vector<std::string> XYshiftSource_ = {
+  "hEtaPlus_MC",
+  "hEtaMinus_MC",
+  "h0Barrel_MC",
+  "h0EndcapPlus_MC",
+  "h0EndcapMinus_MC",
+  "gammaBarrel_MC",
+  "gammaEndcapPlus_MC",
+  "gammaEndcapMinus_MC",
+  "hHFPlus_MC",
+  "hHFMinus_MC",
+  "egammaHFPlus_MC",
+  "egammaHFMinus_MC"
 };
 
 }//namespace
 
 std::string
-METCorrectorParametersCollection::findLabel( key_type k ){
-  std::cout<<"findLabel with key_type: "<<k<<std::endl;
-  if( isMiniAod(k) )
+METCorrectorParametersCollection::findSection( section_type k ){
+  std::cout<<"findLabel with section_type: "<<k<<std::endl;
+  if( isXYshift(k) )
   {
-    std::cout<<"is MiniAod"<<std::endl;
-    return findMiniAodSource(k);
+    std::cout<<"is XYshift"<<std::endl;
+    return findXYshiftSource(k);
   }
-  return labels_[k];
+  return levels_[k];
 }
 std::string
-METCorrectorParametersCollection::findMiniAodSource( key_type k)
+METCorrectorParametersCollection::findLevel( key_type k ){
+  std::cout<<"findLevel with key_type: "<<k<<std::endl;
+  return levels_[k];
+}
+std::string
+METCorrectorParametersCollection::findXYshiftSource( section_type k)
 {
-  if( k == MiniAod) return labels_[MiniAod];
+  if( k == XYshift) return levels_[XYshift];
   else
-    return MiniAodSource_[k - MiniAod*100 -1];
+    return XYshiftSource_[k - XYshift*100 -1];
 }
 void METCorrectorParametersCollection::getSections( std::string inputFile,
 						    std::vector<std::string> & outputs )
@@ -379,12 +404,12 @@ void METCorrectorParametersCollection::getSections( std::string inputFile,
 // Add a METCorrectorParameter object. 
 void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &source )
 { 
-  std::cout << "i    = " << i << std::endl;  
+  std::cout << "Level index    = " << i << std::endl;  
   std::cout << "source = " << source << std::endl;
-  if( isMiniAod(i))
+  if( isXYshift(i))
   {
-    std::cout << "This is MiniAod, getMiniAodBin = " << getMiniAodBin(source) << std::endl;
-    correctionsMiniAod_.push_back( pair_type(getMiniAodBin(source),j) );
+    std::cout << "This is XYshift, getXYshiftSection = " << getXYshiftSection(source) << std::endl;
+    correctionsXYshift_.push_back( pair_type(getXYshiftSection(source),j) );
   }else{
     std::cout << "***** NOT ADDING " << source << ", corresponding position in METCorrectorParameters is not found." << std::endl;
   }
@@ -394,9 +419,9 @@ void METCorrectorParametersCollection::push_back( key_type i, value_type const &
 // key_type is hashed to deal with the three collections
 METCorrectorParameters const & METCorrectorParametersCollection::operator[]( key_type k ) const {
   collection_type::const_iterator ibegin, iend, i;
-  if ( isMiniAod(k) ) {
-    ibegin = correctionsMiniAod_.begin();
-    iend = correctionsMiniAod_.end();
+  if ( isXYshift(k) ) {
+    ibegin = correctionsXYshift_.begin();
+    iend = correctionsXYshift_.end();
     i = ibegin;
   }
   for ( ; i != iend; ++i ) {
@@ -410,26 +435,38 @@ METCorrectorParameters const & METCorrectorParametersCollection::operator[]( key
 // that are aware of all three collections.
 void METCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) const {
   keys.clear();
-  for ( collection_type::const_iterator ibegin = correctionsMiniAod_.begin(),
-	  iend = correctionsMiniAod_.end(), i = ibegin; i != iend; ++i ) {
+  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
+	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
+  }
+}
+void METCorrectorParametersCollection::validSections(std::vector<section_type> & sections ) const {
+  sections.clear();
+  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
+	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
+    sections.push_back( i->first );
   }
 }
 
 
 METCorrectorParametersCollection::key_type
-METCorrectorParametersCollection::getMiniAodBin( std::string const & source ){
+METCorrectorParametersCollection::getXYshiftSection( std::string const & source ){
   std::vector<std::string>::const_iterator found =
-    find( MiniAodSource_.begin(), MiniAodSource_.end(), source );
-  if ( found != MiniAodSource_.end() ) {
-    return (found - MiniAodSource_.begin() + 1)+ MiniAod * 100;
+    find( XYshiftSource_.begin(), XYshiftSource_.end(), source );
+  if ( found != XYshiftSource_.end() ) {
+    return (found - XYshiftSource_.begin() + 1)+ XYshift * 100;
   }
-  else return MiniAod;
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<source<<std::endl;
+  }
+
+  return 0;
 }
 
-bool METCorrectorParametersCollection::isMiniAod( key_type k ) {
-  return k == MiniAod ||
-    (k > MiniAod*100 && k < MiniAod*100 + 100);
+bool METCorrectorParametersCollection::isXYshift( section_type k ) {
+  return k == XYshift ||
+    (k > XYshift*100 && k < XYshift*100 + 100);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

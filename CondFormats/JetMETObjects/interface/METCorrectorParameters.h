@@ -37,8 +37,8 @@ class METCorrectorParameters
         //-------- Member variables ----------
 	int 			ptclType;
         std::string              mFormula;
-        std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;
+        std::vector<std::string> mParVar;
 
       COND_SERIALIZABLE;
     };
@@ -58,6 +58,7 @@ class METCorrectorParameters
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
+	std::string metAxis()                  const {return mMetAxis;         }
         int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
       private:
         //-------- Member variables ----------
@@ -65,6 +66,7 @@ class METCorrectorParameters
         std::vector<float> mMin;
         std::vector<float> mMax;
         std::vector<float> mParameters;
+	std::string	   mMetAxis;
 
       COND_SERIALIZABLE;
     };
@@ -75,6 +77,8 @@ class METCorrectorParameters
     METCorrectorParameters(const METCorrectorParameters::Definitions& fDefinitions,
 			 const std::vector<METCorrectorParameters::Record>& fRecords) 
       : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
+    //~METCorrectorParameters(){mDefinitions.~Definitions();mRecords.clear();}
+    //~METCorrectorParameters(){METCorrectorParameters::~Definitions(); METCorrectorParameters::~Record();}
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
     const Definitions& definitions()                             const {return mDefinitions;   }
@@ -83,8 +87,8 @@ class METCorrectorParameters
     int binIndex(const std::vector<float>& fX)                   const;
     int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
     std::vector<float> binCenters(unsigned fVar)                 const;
-    void printScreen()                                           const;
-    void printFile(const std::string& fFileName)                 const;
+    void printScreen(const std::string& Section)                 const;
+    void printFile(const std::string& fFileName, const std::string& Section)const;
     bool isValid() const { return valid_; }
 
   private:
@@ -99,18 +103,20 @@ class METCorrectorParameters
 
 class METCorrectorParametersCollection {
  public:
-  enum Level_t { MiniAod=0,
+  enum Level_t { XYshift=0,
 		 N_LEVELS=1
   };
 
   typedef int                            key_type;
+  typedef int                            section_type;
   typedef std::string                    label_type;
   typedef METCorrectorParameters         value_type;
-  typedef std::pair<key_type,value_type> pair_type;
+  typedef std::pair<section_type,value_type> pair_type;
   typedef std::vector<pair_type>         collection_type;
 
   // Constructor... initialize all three vectors to zero
-  METCorrectorParametersCollection() { correctionsMiniAod_.clear();}
+  METCorrectorParametersCollection() { correctionsXYshift_.clear();}
+  //~METCorrectorParametersCollection() { correctionsXYshift_.clear();}
 
   // Add a METCorrectorParameter object, for each source 
   void push_back( key_type i, value_type const & j, label_type const & source = "" );
@@ -129,26 +135,28 @@ class METCorrectorParametersCollection {
   // Get a list of valid keys. These will contain hashed keys
   // that are aware of all three collections. 
   void validKeys(std::vector<key_type> & keys ) const;
+  void validSections(std::vector<section_type> & sections ) const;
 
 
   // Helper method to find all of the sections in a given 
   // parameters file
   static void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
-  // Find the MiniAod bin for hashing
-  static key_type getMiniAodBin( std::string const & source );
+  // Find the XYshift bin for hashing
+  static key_type getXYshiftSection( std::string const & source );
 
-  static bool isMiniAod( key_type k);
+  static bool isXYshift( key_type k);
 
-  static std::string findLabel( key_type k );
-  static std::string findMiniAodSource( key_type k );
+  static std::string findSection( section_type k );
+  static std::string findLevel( key_type k );
+  static std::string findXYshiftSource( key_type k );
 
  protected:
 
   // Find the key corresponding to each label
   key_type findKey( std::string const & label ) const;
 
-  collection_type                        correctionsMiniAod_;
+  collection_type                        correctionsXYshift_;
 
  COND_SERIALIZABLE;
 };
