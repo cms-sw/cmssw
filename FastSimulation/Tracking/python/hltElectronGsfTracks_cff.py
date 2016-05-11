@@ -12,3 +12,6 @@ hltEgammaCkfTrackCandidatesForGSFUnseeded = electronCkfTrackCandidates.clone()
 hltEgammaCkfTrackCandidatesForGSFUnseeded.src = "hltEgammaElectronPixelSeedsUnseeded"
 hltEgammaGsfTracksUnseeded = hltEgammaGsfTracks.clone()
 hltEgammaGsfTracksUnseeded.src =  'hltEgammaCkfTrackCandidatesForGSFUnseeded'
+
+hltDoubleEle8CkfTrackCandidateMaker = electronCkfTrackCandidates.clone()
+hltDoubleEle8CkfTrackCandidateMaker.src = "hltEgammaElectronPixelSeeds"
