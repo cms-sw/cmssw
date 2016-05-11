@@ -1203,26 +1203,6 @@
       <string>charge</string>
       <string>0</string>
     </config>
-    <config name="reco::Jet" version="1">
-      <string>pT</string>
-      <string>pt</string>
-      <string>1</string>
-      <string>eta</string>
-      <string>eta</string>
-      <string>3</string>
-      <string>phi</string>
-      <string>phi</string>
-      <string>3</string>
-      <string>muonEnergyFraction</string>
-      <string>muonEnergyFraction</string>
-      <string>3</string>
-      <string>photonEnergyFraction</string>
-      <string>photonEnergyFraction</string>
-      <string>3</string>
-      <string>electronEnergyFraction</string>
-      <string>electronEnergyFraction</string>
-      <string>3</string>
-    </config>
     <config name="reco::MET" version="1">
       <string>MET</string>
       <string>et</string>
