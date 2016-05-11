@@ -30,7 +30,7 @@ class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <Hcal
   boost::mpl::vector<IdealGeometryRecord, HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
   HcalQIEDataRcd, HcalQIETypesRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
   HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd, HcalTimeCorrsRcd, HcalLUTCorrsRcd, HcalPFCorrsRcd,
-  HcalLutMetadataRcd > > {}; 
+  HcalFrontEndMapRcd, HcalLutMetadataRcd > > {}; 
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */
 

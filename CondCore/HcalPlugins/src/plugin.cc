@@ -44,6 +44,7 @@ REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
 REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
+REGISTER_PLUGIN(HcalFrontEndMapRcd,HcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
 REGISTER_PLUGIN(HcalQIETypesRcd,HcalQIETypes);

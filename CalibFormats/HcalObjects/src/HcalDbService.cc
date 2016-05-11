@@ -18,7 +18,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mGains (0), mGainWidths (0),  
   mQIEData(0),
   mQIETypes(0),
-  mElectronicsMap(0),
+  mElectronicsMap(0), mFrontEndMap(0),
   mRespCorrs(0),
   mL1TriggerObjects(0),
   mTimeCorrs(0),
@@ -249,6 +249,10 @@ const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoder *coder) cons
 
 const HcalElectronicsMap* HcalDbService::getHcalMapping () const {
   return mElectronicsMap;
+}
+
+const HcalFrontEndMap* HcalDbService::getHcalFrontEndMapping () const {
+  return mFrontEndMap;
 }
 
 const HcalL1TriggerObject* HcalDbService::getHcalL1TriggerObject (const HcalGenericDetId& fId) const
