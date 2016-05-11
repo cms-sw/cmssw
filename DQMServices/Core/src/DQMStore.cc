@@ -19,7 +19,10 @@
 #include <iterator>
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
+
 #include <fstream>
+#include <sstream>
+#include <exception>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
@@ -300,6 +303,20 @@ DQMStore::IGetter::getAllContents(const std::string &path,
 
 MonitorElement * DQMStore::IGetter::get(const std::string &path) {
   return owner_->get(path);
+}
+
+MonitorElement * DQMStore::IGetter::getElement(const std::string &path) {
+    MonitorElement *ptr = this->get(path);
+    if (ptr == nullptr) {
+      std::stringstream msg;
+      msg << "DQM object not found";
+        
+      msg << ": " << path;
+
+      // can't use cms::Exception inside DQMStore
+      throw std::out_of_range(msg.str());
+    }
+    return ptr;
 }
 
 std::vector<std::string> DQMStore::IGetter::getSubdirs(void) {
