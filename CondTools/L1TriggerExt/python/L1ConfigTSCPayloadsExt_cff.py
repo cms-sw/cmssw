@@ -1,1 +1,5 @@
 from L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuOnline_cfi import *
+from L1TriggerConfig.L1TMuonBarrelParamsProducers.L1TMuonBarrelParamsOnline_cfi import *
+from L1TriggerConfig.L1TMuonGlobalParamsProducers.L1TMuonGlobalParamsOnline_cfi import *
+from L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapParamsOnline_cfi import *
+from L1TriggerConfig.L1TCaloParamsProducers.L1TCaloParamsOnline_cfi import *

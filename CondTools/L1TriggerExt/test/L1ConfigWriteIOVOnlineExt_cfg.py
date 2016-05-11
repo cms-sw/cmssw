@@ -16,6 +16,11 @@ options.register('tscKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "TSC key")
+options.register('rsKey',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "RS key")
 options.register('runNumber',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -54,7 +59,8 @@ initIOVWriterExt( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
                tagBaseVec = initL1O2OTagsExt.tagBaseVec,
-               tscKey = options.tscKey )
+               tscKey = options.tscKey,
+               rsKey  = options.rsKey )
 
 if options.forceUpdate == 1:
     process.L1CondDBIOVWriterExt.forceUpdate = True

@@ -21,6 +21,8 @@ void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1Trigge
 
     std::string uGTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGT ) ;
 
+    uGTKey = uGTKey.substr( 0, uGTKey.find(":") );
+
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
 
     if( !uGTKey.empty() ) {
@@ -40,13 +42,13 @@ void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1Trigge
                                    ) ;
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU}" ;
+            edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU" ;
             return ;
         }
 
         if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
         
-        pL1TriggerKey->add( "L1TUtmTriggerMenuRcd",
+        pL1TriggerKey->add( "L1TUtmTriggerMenuO2ORcd",
                             "L1TUtmTriggerMenu",
 			    l1_menu_key) ;
     }

@@ -13,19 +13,20 @@
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
 
-class L1TUtmTriggerMenuOnlineProd : public L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuRcd,L1TUtmTriggerMenu> {
+class L1TUtmTriggerMenuOnlineProd : public L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd,L1TUtmTriggerMenu> {
 private:
 public:
-    virtual boost::shared_ptr<L1TUtmTriggerMenu> newObject(const std::string& objectKey) override ;
+    virtual boost::shared_ptr<L1TUtmTriggerMenu> newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) override ;
 
     L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet&);
     ~L1TUtmTriggerMenuOnlineProd(void){}
 };
 
-L1TUtmTriggerMenuOnlineProd::L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuRcd,L1TUtmTriggerMenu>(iConfig) {}
+L1TUtmTriggerMenuOnlineProd::L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd,L1TUtmTriggerMenu>(iConfig) {}
 
-boost::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const std::string& objectKey) {
+boost::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) {
     using namespace edm::es;
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
