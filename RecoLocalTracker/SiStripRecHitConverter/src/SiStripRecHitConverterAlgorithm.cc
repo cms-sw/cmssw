@@ -2,7 +2,7 @@
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

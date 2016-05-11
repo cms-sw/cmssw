@@ -3,7 +3,7 @@
 // Author:  C.Genta
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
