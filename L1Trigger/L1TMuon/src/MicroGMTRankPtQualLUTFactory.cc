@@ -19,12 +19,10 @@ namespace l1t {
   MicroGMTRankPtQualLUTFactory::create(const std::string& filename, const int fwVersion, const unsigned ptFactor, const unsigned qualFactor) {
     ReturnType p;
 
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTRankPtQualLUT(filename, ptFactor, qualFactor));
-        break;
-      default:
-        LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTRankPtQualLUT(filename, ptFactor, qualFactor));
+    } else {
+      LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
@@ -33,12 +31,10 @@ namespace l1t {
   MicroGMTRankPtQualLUTFactory::create(l1t::LUT* lut, const int fwVersion) {
     ReturnType p;
 
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTRankPtQualLUT(lut));
-        break;
-      default:
-        LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTRankPtQualLUT(lut));
+    } else {
+      LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
