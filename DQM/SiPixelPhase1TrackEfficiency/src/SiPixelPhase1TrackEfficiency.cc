@@ -10,6 +10,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,6 +29,11 @@ SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterS
 }
 
 void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  // get geometry
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  assert(tracker.isValid());
 
   // get primary vertex
   edm::Handle<reco::VertexCollection> vertices;
@@ -77,8 +86,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       if (   subdetid != PixelSubdetector::PixelBarrel 
           && subdetid != PixelSubdetector::PixelEndcap) continue;
 
-      bool isHitValid   = hit->hit()->getType()==TrackingRecHit::valid;
-      bool isHitMissing = hit->hit()->getType()==TrackingRecHit::missing;
+      bool isHitValid   = hit->getType()==TrackingRecHit::valid;
+      bool isHitMissing = hit->getType()==TrackingRecHit::missing;
 
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       int row = 0, col = 0;
@@ -86,10 +95,17 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
         double clusterProbability= pixhit->clusterProbability(0);
         if (clusterProbability > 0) 
           histo[CLUSTER_PROB].fill(log10(clusterProbability), id, &iEvent);
+
+        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
+        const PixelTopology& topol = geomdetunit->specificTopology();
+        LocalPoint const& lp = pixhit->localPositionFast();
+        MeasurementPoint mp = topol.measurementPosition(lp);
+        row = (int) mp.x();
+        col = (int) mp.y();
       }
 
-      if (isHitValid)   histo[VALID  ].fill(id, &iEvent);
-      if (isHitMissing) histo[MISSING].fill(id, &iEvent);
+      if (isHitValid)   histo[VALID  ].fill(id, &iEvent, col, row);
+      if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
     }
   }
 }

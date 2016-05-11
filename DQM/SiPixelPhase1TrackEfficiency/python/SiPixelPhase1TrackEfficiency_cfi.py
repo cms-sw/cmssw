@@ -29,7 +29,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
   xlabel = "Valid Hits",
   dimensions = 0,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId")
+    Specification().groupBy(DefaultHisto.defaultPerModule)
                    .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .save()
@@ -46,14 +46,13 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .groupBy("PXBarrel", "SUM")
                    .save()
                    .custom(),
-    # Not useful since we do not have row/col as of now
-    #Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
-    #               .reduce("COUNT")
-    #               .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
-    #               .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
-    #               .save()
-    #               .custom()
-    #               .saveAll()
+    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
+                   .reduce("COUNT")
+                   .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
+                   #.groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
+                   #.save()
+                   #.custom()
+                   #.saveAll()
   )
 )
 
