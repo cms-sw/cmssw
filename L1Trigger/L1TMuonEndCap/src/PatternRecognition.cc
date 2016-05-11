@@ -106,8 +106,8 @@ PhiMemoryImage patterns[PATTERN_SIZE] = {pattern8, pattern9, pattern6, pattern7,
  
  		for(int k=0;k<128;k++){
 	
-		  int qr = (k==0) ? qr=0 : ranka_t[zone][k-1]; 
-		  int ql = (k==127) ? ql=0 :ranka_t[zone][k+1];
+		  int qr = (k==0) ? 0 : ranka_t[zone][k-1]; 
+		  int ql = (k==127) ? 0 :ranka_t[zone][k+1];
 		  int qc = ranka_t[zone][k];
 		
 			if((qc <= ql) || (qc < qr)){qc = 0;}
