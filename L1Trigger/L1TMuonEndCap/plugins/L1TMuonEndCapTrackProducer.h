@@ -37,6 +37,8 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
+
 typedef edm::ParameterSet PSet;
 
 
@@ -79,7 +81,7 @@ public:
 private:
 
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  
+  l1t::EmtfPtAssignment ptAssignment_;
 };
 
 

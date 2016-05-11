@@ -332,8 +332,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.phis = ps;
 		tempTrack.thetas = ts;
 
-		unsigned long xmlpt_address = 0;
-		float xmlpt = CalculatePt(tempTrack, es, mode, &xmlpt_address);
+		unsigned long xmlpt_address = ptAssignment_.calculateAddress(tempTrack, es, mode); 
+		float xmlpt = ptAssignment_.calculatePt(xmlpt_address);
 		tempTrack.pt = xmlpt*1.4;
 		//FoundTracks->push_back(tempTrack);
 
