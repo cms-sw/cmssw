@@ -63,8 +63,8 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   eventSetup.get< TrackerDigiGeometryRecord >().get(geomHandle);
   const TrackerGeometry* tkGeom(&(*geomHandle));
 
-  edm::ESHandle< TrackerTopology > tTopoHandle;
-  eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
+  //edm::ESHandle< TrackerTopology > tTopoHandle;
+  //eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
   //const TrackerTopology* tTopo(tTopoHandle.product());
 
   // Global container for the RecHits of each module
