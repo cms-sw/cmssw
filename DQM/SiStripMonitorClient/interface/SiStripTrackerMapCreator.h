@@ -46,10 +46,11 @@ class SiStripTrackerMapCreator {
   void setTkMapRangeOffline();
   uint16_t getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, const TrackerTopology* tTopo, std::ostringstream& comment);
   void printBadModuleList(std::map<unsigned int,std::string>* badmodmap, const edm::EventSetup& eSetup);
-  void printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup, std::string& htype);
+  void printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup);
 
 
   TrackerMap* trackerMap_;
+  std::string sRunNumber; //LG
   std::string tkMapName_;
   std::string stripTopLevelDir_;
 
