@@ -16,18 +16,19 @@ using namespace edm;
 
 namespace l1t {
   MicroGMTMatchQualLUTFactory::ReturnType MicroGMTMatchQualLUTFactory::create(
-      const std::string& filename, const double maxDR, const double fEta,
+      const std::string& filename, const double maxDR, const double fEta, const double fEtaCoarse,
       const double fPhi, cancel_t cancelType, const int fwVersion) {
     ReturnType p;
   
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTMatchQualLUT(
-            filename, maxDR, fEta, fPhi, cancelType));
-        break;
-      default:
-        LogError("MicroGMTMatchQualLUTFactory")
-            << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion == 1) {
+      p = ReturnType(new MicroGMTMatchQualSimpleLUT(
+          filename, maxDR, fEtaCoarse, fPhi, cancelType));
+    } else if (fwVersion >= 0x2020000) {
+      p = ReturnType(new MicroGMTMatchQualFineLUT(
+          filename, maxDR, fEta, fEtaCoarse, fPhi, cancelType));
+    } else {
+      LogError("MicroGMTMatchQualLUTFactory")
+          << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
@@ -36,12 +37,12 @@ namespace l1t {
   MicroGMTMatchQualLUTFactory::create(l1t::LUT* lut, cancel_t cancelType, const int fwVersion) {
     ReturnType p;
 
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTMatchQualLUT(lut, cancelType));
-        break;
-      default:
-        LogError("MicroGMTMatchQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion == 1) {
+      p = ReturnType(new MicroGMTMatchQualSimpleLUT(lut, cancelType));
+    } else if (fwVersion >= 0x2020000) {
+      p = ReturnType(new MicroGMTMatchQualFineLUT(lut, cancelType));
+    } else {
+        LogError("MicroGMTMatchQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }

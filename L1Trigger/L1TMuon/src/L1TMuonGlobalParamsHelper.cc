@@ -119,6 +119,79 @@ void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx, const siz
 }
 
 
+// setters for cancel out LUT parameters
+void L1TMuonGlobalParamsHelper::setFwdPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
+{
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFwdNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
+{
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setOvlPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setOvlNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setBOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[bOPosMatchQual].dparams_.push_back(maxDR);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fEta);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setBONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[bONegMatchQual].dparams_.push_back(maxDR);
+  pnodes_[bONegMatchQual].dparams_.push_back(fEta);
+  pnodes_[bONegMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[bONegMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[fOPosMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fEta);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[fONegMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fONegMatchQual].dparams_.push_back(fEta);
+  pnodes_[fONegMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[fONegMatchQual].dparams_.push_back(fPhi);
+}
+
+
 void L1TMuonGlobalParamsHelper::print(std::ostream& out) const {
 
   out << "L1 MicroGMT Parameters" << std::endl;
