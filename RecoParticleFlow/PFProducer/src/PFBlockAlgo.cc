@@ -189,7 +189,7 @@ void PFBlockAlgo::findBlocks() {
   for( unsigned i = 0; i < elements_.size(); ++i ) {
     unsigned key = qu.find(i);
     auto pos  = std::lower_bound(keys.begin(),keys.end(),key);
-    if( *pos != key || 0 == keys.size() ) {
+    if( pos == keys.end() || *pos != key ) {
       keys.insert(pos,key);      
     }
     blocksmap.emplace(key,i);
