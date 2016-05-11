@@ -58,6 +58,7 @@ void ElectronEnergyCalibratorRun2::calibrate(SimpleElectron &electron, edm::Stre
   }
   electron.setNewEnergy(newEcalEnergy); 
   electron.setNewEnergyError(newEcalEnergyError); 
+
   epCombinationTool_->combine(electron);
 }
 
