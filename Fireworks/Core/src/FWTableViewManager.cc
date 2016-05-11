@@ -202,6 +202,14 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("sieie", 3, "sigmaIetaIeta").
    column("isNotConv", 1, "passConversionVeto");
 
+   table("pat::PackedCandidate").
+   column("pT", 1, "pt").
+   column("eta", 3).
+   column("phi", 3).
+   column("pdgId", 0).
+   column("charge", 0).
+   column("dxy", 3).
+   column("dzAssociatedPV", 3, "dzAssociatedPV()");
 }
 
 FWTableViewManager::~FWTableViewManager()
