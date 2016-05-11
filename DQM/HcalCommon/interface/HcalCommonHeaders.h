@@ -32,6 +32,9 @@
 #include "EventFilter/HcalRawToDigi/interface/AMC13Header.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -47,7 +50,8 @@
 #include "DQM/HcalCommon/interface/Constants.h"
 
 #include "boost/lexical_cast.hpp"
+#include <sstream>
+#include <algorithm>
 #include <typeinfo>
-
 
 #endif
