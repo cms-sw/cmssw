@@ -179,6 +179,18 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("energy",3).
    column("time",3).
    column("flags",TableEntry::INT,"flags");
+
+
+   table("reco::PFCandidate").
+   column("et", 1, "Et").
+   column("eta", 3).
+   column("phi", 3).
+   column("ecalEnergy", 3,"ecalEnergy()").
+      column("hcalEnergy", 3,"hcalEnergy()");
+   //   column("track pt", 3,"trackRed.pt()")
+
+
+
 }
 
 FWTableViewManager::~FWTableViewManager()
