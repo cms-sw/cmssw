@@ -179,11 +179,11 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found sum collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  if (it->et() > 0) { 
+	  //if (it->et() > 0) { 
 	    if (bxZeroOnly_ && (ibx != 0)) continue;
 	    sumCount_++; 
-	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
-	  }
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << " type:  " << it->getType() << "\n";
+	  //}
 	}
       }
     } else {
