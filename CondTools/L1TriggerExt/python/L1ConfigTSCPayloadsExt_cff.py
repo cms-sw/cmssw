@@ -5,4 +5,3 @@ from L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuOnline_cfi impo
 #from L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapParamsOnline_cfi import *
 #from L1TriggerConfig.L1TCaloParamsProducers.L1TCaloParamsOnline_cfi import *
 #from L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosOnline_cfi import *
-
