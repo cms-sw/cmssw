@@ -123,13 +123,13 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum etSumMinBiasHFM1(p4,l1t::EtSum::EtSumType::kMinBiasHFM1,mbm1,0,0,0);
 
   outputSums.push_back(etSumTotalEt);
-  outputSums.push_back(htSumht);
-  outputSums.push_back(etSumMissingEt);
-  outputSums.push_back(htSumMissingHt);
-  outputSums.push_back(etSumMissingEt2);
   outputSums.push_back(etSumMinBiasHFP0);
+  outputSums.push_back(htSumht);
   outputSums.push_back(etSumMinBiasHFM0);
+  outputSums.push_back(etSumMissingEt);
   outputSums.push_back(etSumMinBiasHFP1);
+  outputSums.push_back(htSumMissingHt);
   outputSums.push_back(etSumMinBiasHFM1);
+  outputSums.push_back(etSumMissingEt2);
 
 }
