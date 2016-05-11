@@ -701,8 +701,12 @@ CmsShowMain::setupDataHandling()
       m_navigator->firstEvent();
       checkPosition();
       draw();
-      setupConfiguration();
-   }
+
+      if (configurationManager()->getIgnore())
+         guiManager()->initEmpty();
+      else
+        setupConfiguration();
+  }
    else {
       if (configFilename()[0] == '\0') {
          guiManager()->initEmpty();
