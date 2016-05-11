@@ -60,7 +60,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
-			  &HcalDbProducer::frontEndMapCallback &
+//			  &HcalDbProducer::frontEndMapCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
