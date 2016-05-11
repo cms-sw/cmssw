@@ -43,7 +43,7 @@ struct GzInputStream
    { gzclose(gzf) ; }
   explicit operator bool() const
   {
-    return ((eof == true) ? false : iss.fail());
+    return ((eof == true) ? false : !iss.fail());
   }
  } ;
 
