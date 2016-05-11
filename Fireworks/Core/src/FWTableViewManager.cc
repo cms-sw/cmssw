@@ -220,6 +220,13 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("charge", 0).
    column("dxy", 3).
    column("dzAssociatedPV", 3, "dzAssociatedPV()");
+=======
+      column("hcalEnergy", 3,"hcalEnergy()");
+   //   column("track pt", 3,"trackRed.pt()")
+
+
+
+>>>>>>> 0108055... Update reco::pfCandidate table entries.
 }
 
 FWTableViewManager::~FWTableViewManager()
