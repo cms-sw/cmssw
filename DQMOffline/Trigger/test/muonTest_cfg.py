@@ -15,11 +15,11 @@ options = VarParsing('analysis')
 options.setDefault('inputFiles', 
                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/44D4EAC0-4CE4-E511-BDC4-0CC47A4D75F0.root',
                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/9AA555F6-5CE4-E511-ACB9-0CC47A4D769E.root',
-                   '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/A08C6EC8-4DE4-E511-B109-0025905A60DA.root',
-                   '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/AA56D3B8-4CE4-E511-8B4E-002618FDA207.root',
-                   '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/B8818F85-58E4-E511-BC34-0025905A610A.root',
-                   '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/D69DC0C1-4CE4-E511-8C1A-0025905B85EE.root',
-                   '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/F0C5A7C0-4CE4-E511-80CC-0025905A6068.root'
+                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/A08C6EC8-4DE4-E511-B109-0025905A60DA.root',
+                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/AA56D3B8-4CE4-E511-8B4E-002618FDA207.root',
+                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/B8818F85-58E4-E511-BC34-0025905A610A.root',
+                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/D69DC0C1-4CE4-E511-8C1A-0025905B85EE.root',
+                    '/store/relval/CMSSW_8_0_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v6-v1/10000/F0C5A7C0-4CE4-E511-80CC-0025905A6068.root'
                    )
 options.setDefault('outputFile', './muonTest.root')
 
@@ -60,8 +60,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.analyzerpath = cms.Path(
     process.muonFullOfflineDQM *
-    process.MEtoEDMConverter # *
-    # process.dqmStoreStats
-)
+#    process.dqmStoreStats *
+    process.MEtoEDMConverter )
 
 process.outpath = cms.EndPath(process.out)
