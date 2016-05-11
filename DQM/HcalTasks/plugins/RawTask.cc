@@ -409,7 +409,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 				_vflags[fBcnMsm]._state = flag::fBAD;
 			else
 				_vflags[fBcnMsm]._state = flag::fGOOD;
-			if (_xBadQLS.get(eid)>12*_evsPerLS)
+			if (double(_xBadQLS.get(eid))>double(12*_evsPerLS))
 				_vflags[fBadQ]._state = flag::fBAD;
 			else if (_xBadQLS.get(eid)>0)
 				_vflags[fBadQ]._state = flag::fPROBLEMATIC;
