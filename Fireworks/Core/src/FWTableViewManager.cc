@@ -186,8 +186,8 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("eta", 3).
    column("phi", 3).
    column("ecalEnergy", 3,"ecalEnergy()").
-      column("hcalEnergy", 3,"hcalEnergy()");
-   //   column("track pt", 3,"trackRed.pt()")
+   column("hcalEnergy", 3,"hcalEnergy()").
+      column("track pt", 3,"trackRef().pt()");
 
 
 
