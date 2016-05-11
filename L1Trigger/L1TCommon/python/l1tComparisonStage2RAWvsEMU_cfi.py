@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1tComparisonStage2RAWvsEMU = cms.EDAnalyzer(
     "L1TComparison",
-    tag        = cms.string("Stage 2 Unpacked Digis"),
+    tag        = cms.string("Stage 2 RAW vs EMU Comparison"),
     egCheck    = cms.bool(True),
     tauCheck   = cms.bool(True),
     jetCheck   = cms.bool(True),

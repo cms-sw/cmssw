@@ -6,7 +6,7 @@
 
 namespace l1t {
    namespace stage2 {
-      GMTTokens::GMTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
+      GMTTokens::GMTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
       {
          auto bmtfTag = cfg.getParameter<edm::InputTag>("BMTFInputLabel");
          auto omtfTag = cfg.getParameter<edm::InputTag>("OMTFInputLabel");
