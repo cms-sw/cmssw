@@ -127,8 +127,10 @@ int main(int argc, char* argv[]) {
   bool alwaysAddContext = true;
   //Default to only use 1 thread. We define this early since plugin system or message logger
   // may be using TBB.
+  //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
+  // else we get a crash. So for now we can't have any services use tasks in their constructors.
   bool setNThreadsOnCommandLine = false;
-  auto tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
@@ -246,6 +248,10 @@ int main(int argc, char* argv[]) {
           stackSize=vm[kSizeOfStackForThreadOpt].as<unsigned int>();
         }
         nThreadsOnCommandLine=setNThreads(nThreads,stackSize,tsiPtr);
+      }
+      if(not tsiPtr) {
+        //If we haven't initialized TBB yet, do it here
+        tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
       }
 
       if (!vm.count(kParameterSetOpt)) {
