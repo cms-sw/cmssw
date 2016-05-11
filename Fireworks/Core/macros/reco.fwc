@@ -1203,6 +1203,7 @@
       <string>charge</string>
       <string>0</string>
     </config>
+<<<<<<< HEAD
     <config name="reco::Jet" version="1">
       <string>pT</string>
       <string>pt</string>
@@ -1214,6 +1215,8 @@
       <string>phi</string>
       <string>3</string>
     </config>
+=======
+>>>>>>> f144898... Allow default table entries.
     <config name="reco::MET" version="1">
       <string>MET</string>
       <string>et</string>
