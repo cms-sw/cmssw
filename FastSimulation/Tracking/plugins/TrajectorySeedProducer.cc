@@ -147,7 +147,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     }
 
 
-    if(AllElementsSameSize==false)std::cout<<"Error: All Elements are not of same size"<<std::endl; //Plan : Change to standard Error Log
+    if(AllElementsSameSize==false)throw cms::Exception("LayerListMisMatch")<<"[TrajectorySeedProducer] All Layer Elements in definition, not of same size \n";
 
     /// region producer
     edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
@@ -215,11 +215,10 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
     SeedFinder::DoubletSelector doubletSelector([&es,&measurementTracker,&selectedTrackingRegion](const std::array<const FastTrackerRecHit*,2>& hits) -> bool
 						{
-						  if(hits.size()==2){
-						    std::cout<<"Inside doubletSelector"<<std::endl;
+						   
 						    const FastTrackerRecHit * firstHit = hits[0];
 						    const FastTrackerRecHit * secondHit = hits[1];
-       
+						    
 						    const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
 						    const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
        
@@ -230,14 +229,13 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 						    HitDoublets result(fhm,shm);
 						    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
-						    std::cout<<"Passed:"<<(result.size()!=0)<<std::endl;
+					       
 						    return result.size()!=0;
-						  }
-						  return true;
+						}
 						});
     SeedFinder::TripletSelector tripletSelector([&e,&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
 						{
-						  std::cout<<"Inside tripletSelector"<<std::endl;
+						  
 						  const FastTrackerRecHit * firstHit = hits[0];
 						  const FastTrackerRecHit * secondHit = hits[1];
 						  const FastTrackerRecHit * thirdHit = hits[2];
@@ -256,21 +254,21 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 						  HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
 						  if(result.size()!=0&&(pixelTripletGeneratorPtr||MultiHitGeneratorPtr)&&hits.size()==3){
 						    if(pixelTripletGeneratorPtr){
-						      std::cout<<"Inside pixelTripletGeneratorPtr"<<std::endl;
+
 						      OrderedHitTriplets Tripletresult;
 						      pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
-						      std::cout<<"Passed:"<<(Tripletresult.size()!=0)<<std::endl;
+
 						      return Tripletresult.size()!=0;
 						    }
 						    if(MultiHitGeneratorPtr){
-						      std::cout<<"Inside MultiHitGeneratorPtr"<<std::endl;
+
 						      OrderedMultiHits  Tripletresult;
 						      MultiHitGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
-						      std::cout<<"Passed:"<<(Tripletresult.size()!=0)<<std::endl;
+
 						      return Tripletresult.size()!=0;
 						    }
 						  }
-						  return true;
+						  return result.size();
 						});
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
