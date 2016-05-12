@@ -164,7 +164,7 @@ void PFBlockAlgo::findBlocks() {
   QuickUnion qu(bare_elements_.size());
   const auto elem_size = bare_elements_.size();
   for( unsigned i = 0; i < elem_size; ++i ) {
-    for( unsigned j = i+1; j < elem_size; ++j ) {
+    for( unsigned j = 0; j < i; ++j ) {
       if( !_linkTests[_linkTestSquare[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
         j = ranges_[bare_elements_[j]->type()].second;
         continue;
@@ -189,7 +189,7 @@ void PFBlockAlgo::findBlocks() {
   for( unsigned i = 0; i < elements_.size(); ++i ) {
     unsigned key = qu.find(i);
     auto pos  = std::lower_bound(keys.begin(),keys.end(),key);
-    if( *pos != key || 0 == keys.size() ) {
+    if( pos == keys.end() || *pos != key ) {
       keys.insert(pos,key);      
     }
     blocksmap.emplace(key,i);
