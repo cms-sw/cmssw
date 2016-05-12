@@ -48,6 +48,7 @@ public:
   std::vector<float>  & weights() {return theWeights;}
 
   //returns the weight for the i component
+  using TrackingRecHit::weight;
   float  weight(unsigned int i) const {return theWeights[i];}
   float  & weight(unsigned int i) {return theWeights[i];}
 

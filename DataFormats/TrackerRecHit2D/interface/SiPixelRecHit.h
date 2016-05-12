@@ -73,6 +73,7 @@ public:
   //--- (and which was computed by the CPE).  The default of flags==0 returns
   //--- probabilityY() only (as that's the safest thing to do).
   //--- Flags are static and kept in the transient rec hit.
+  using BaseTrackerRecHit::clusterProbability;
   float clusterProbability(unsigned int flags = 0) const;
   
   

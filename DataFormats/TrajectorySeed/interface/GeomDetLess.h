@@ -1,5 +1,5 @@
-#ifndef TrackerGeometryBuilder_GeomDetLess_H
-#define TrackerGeometryBuilder_GeomDetLess_H
+#ifndef DataFormats_TrajectorySeed_GeomDetLess_H
+#define DataFormats_TrajectorySeed_GeomDetLess_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
