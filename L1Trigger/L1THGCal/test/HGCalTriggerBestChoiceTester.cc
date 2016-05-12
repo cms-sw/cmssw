@@ -47,7 +47,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 
 
     private:
-        void fillModule(const std::vector<HGCEEDataFrame>&, const HGCalBestChoiceDataPayload&,  vector<pair<HGCEEDetId, uint32_t > >& );
+        void fillModule(const std::vector<HGCEEDataFrame>&, const HGCalBestChoiceDataPayload&,  const vector<pair<HGCEEDetId, uint32_t > >& );
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_;
         //
@@ -165,7 +165,7 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 
 
 /*****************************************************************/
-void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCEEDataFrame>& dataframes, const HGCalBestChoiceDataPayload& fe_payload,  vector<pair<HGCEEDetId, uint32_t > >& linearized_dataframes)
+void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCEEDataFrame>& dataframes, const HGCalBestChoiceDataPayload& fe_payload,  const vector<pair<HGCEEDetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
     // HGC cells part
