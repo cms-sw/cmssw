@@ -239,13 +239,16 @@ void TriggerBxMonitor::analyze(edm::Event const & event, edm::EventSetup const &
 
   // monitor the bx distribution for the L1 triggers
   if (m_l1tMenu) {
-    auto const & results = get<GlobalAlgBlkBxCollection>(event, m_l1t_results).at(0, 0);
-    for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
-      if (results.getAlgoDecisionFinal(i)) {
-        if (m_l1t_bx[i])
-          m_l1t_bx[i]->Fill(bx);
-        m_l1t_bx_all->Fill(bx, i);
-      }
+    auto const & bxvector = get<GlobalAlgBlkBxCollection>(event, m_l1t_results);
+    if (not bxvector.isEmpty(0)) {
+      auto const & results = bxvector.at(0, 0);
+      for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
+        if (results.getAlgoDecisionFinal(i)) {
+          if (m_l1t_bx[i])
+            m_l1t_bx[i]->Fill(bx);
+          m_l1t_bx_all->Fill(bx, i);
+        }
+    }
   }
 
   // monitor the bx distribution for the HLT triggers
