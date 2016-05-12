@@ -34,5 +34,5 @@ GeometryConf={
     'Extended2023sim'   : 'Extended2023sim,Extended2023simReco',
     'Extended2023tilted'   : 'Extended2023tilted,Extended2023tiltedReco',
     'Extended2023LReco'   : 'Extended2023LReco,Extended2023LRecoReco',
-    'Extended2023Reco'   : 'Extended2023Reco,Extended2023RecoReco'    
+    'Extended2023ForReco'   : 'Extended2023ForReco,Extended2023ForRecoReco'
     }

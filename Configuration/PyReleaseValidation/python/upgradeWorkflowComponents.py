@@ -15,7 +15,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                '2023tilted' : 'Extended2023tilted', 
                '2023sim' : 'Extended2023sim',
                '2023LReco': 'Extended2023LReco',
-               '2023Reco' : 'Extended2023Reco'
+               '2023Reco' : 'Extended2023ForReco'
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
@@ -99,7 +99,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','RecoFullTracking','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
@@ -108,7 +108,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
 		   '2023tilted':['GenSimFull','DigiFull','RecoFullLocal'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
+		   '2023Reco':['GenSimFull','DigiFull','RecoFullTracking']#full (or almost..)  reco scenario
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby

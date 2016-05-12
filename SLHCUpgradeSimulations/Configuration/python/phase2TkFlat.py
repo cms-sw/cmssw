@@ -189,7 +189,7 @@ def customise_Reco(process,pileup):
     del process.ConvStep
     
     # add the correct tracking back in
-    process.load("RecoTracker.Configuration.RecoTrackerPhase2BEPixel10D_cff")
+    process.load("RecoTracker.Configuration.RecoTrackerPhase2Tracker_cff")
 
     process.globalreco_tracking.insert(itIndex,process.trackingGlobalReco)
     process.globalreco.insert(grIndex,process.globalreco_tracking)
@@ -311,7 +311,10 @@ def customise_Reco(process,pileup):
     process.caloTowerForTrk.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.caloTowerForTrk.hfInput = cms.InputTag("hfUpgradeReco")
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> boudoul/TrackErica_may16
     # STILL TO DO (when the ph2 PF will be included):
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
@@ -319,8 +322,10 @@ def customise_Reco(process,pileup):
 
  
     return process
+    
 
 def customise_condOverRides(process):
+    print 'toto'
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff')
     return process
 
