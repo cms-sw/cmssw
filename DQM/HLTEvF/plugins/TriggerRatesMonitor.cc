@@ -319,18 +319,21 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
 {
   unsigned int lumisection = event.luminosityBlock();
 
-  // book the overall event count and event types rates
+  // monitor the overall event count and event types rates
   m_events_processed->Fill(lumisection);
   if (m_tcds_counts[event.experimentType()])
     m_tcds_counts[event.experimentType()]->Fill(lumisection);
 
   // monitor the L1 triggers rates
   if (m_l1tMenu) {
-    auto const & results = get<GlobalAlgBlkBxCollection>(event, m_l1t_results).at(0, 0);
-    for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
-      if (results.getAlgoDecisionFinal(i))
-        if (m_l1t_counts[i])
-          m_l1t_counts[i]->Fill(lumisection);
+    auto const & bxvector = get<GlobalAlgBlkBxCollection>(event, m_l1t_results);
+    if (not bxvector.isEmpty(0)) {
+      auto const & results = bxvector.at(0, 0);
+      for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
+        if (results.getAlgoDecisionFinal(i))
+          if (m_l1t_counts[i])
+            m_l1t_counts[i]->Fill(lumisection);
+    }
   }
 
   // monitor the HLT triggers and datsets rates
