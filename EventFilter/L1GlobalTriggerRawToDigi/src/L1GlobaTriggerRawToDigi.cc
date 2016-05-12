@@ -261,11 +261,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     int headerSize = 8;
 
     if ((ptrGt + headerSize) > endPtrGt) {
-        edm::LogError("L1GlobalTriggerRawToDigi")
-                << "\nError: Pointer after header greater than end pointer."
-                << "\n Put empty products in the event!"
-                << "\n Quit unpacking this event." << std::endl;
-
+      // a common error - no need to print an error anymore
         produceEmptyProducts(iEvent);
 
         return;
