@@ -15,10 +15,13 @@ HGCalRecHit = cms.EDProducer(
     
     # digi constants
     HGCEE_keV2DIGI  = hgceeDigitizer.digiCfg.keV2fC,
+    HGCEE_isSiFE    = HGCalUncalibRecHit.HGCEEConfig.isSiFE,
     HGCEE_fCPerMIP  = HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
     HGCHEF_keV2DIGI = hgchefrontDigitizer.digiCfg.keV2fC,
+    HGCHEF_isSiFE   = HGCalUncalibRecHit.HGCHEFConfig.isSiFE,
     HGCHEF_fCPerMIP = HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
     HGCHEB_keV2DIGI = hgchebackDigitizer.digiCfg.keV2MIP,
+    HGCHEB_isSiFE   = HGCalUncalibRecHit.HGCHEBConfig.isSiFE,
     
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")

@@ -73,13 +73,19 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
 void
 HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
 {
-  edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
-  edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
-  es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle) ; 
-  es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle) ; 
-  uncalibMaker_ee_.setGeometry(hgceeGeoHandle.product());
-  uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
-  uncalibMaker_heb_.setGeometry(nullptr);
+  if (uncalibMaker_ee_.isSiFESim()) {
+    edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
+    es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle) ; 
+    uncalibMaker_ee_.setGeometry(hgceeGeoHandle.product());
+  }
+  if (uncalibMaker_hef_.isSiFESim()) {
+    edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
+    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle) ; 
+    uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
+  }
+  if (uncalibMaker_heb_.isSiFESim()) {
+    uncalibMaker_heb_.setGeometry(nullptr);
+  }
 }
 
 

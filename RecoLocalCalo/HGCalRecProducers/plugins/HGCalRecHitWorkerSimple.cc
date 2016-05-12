@@ -14,25 +14,36 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   // HGCee constants 
   HGCEE_keV2DIGI_   =  ps.getParameter<double>("HGCEE_keV2DIGI");
   HGCEE_fCPerMIP_   =  ps.getParameter<std::vector<double> >("HGCEE_fCPerMIP");
+  HGCEE_isSiFE_     =  ps.getParameter<bool>("HGCEE_isSiFE");
   hgceeUncalib2GeV_ = keV2GeV/HGCEE_keV2DIGI_;
   
   // HGChef constants
   HGCHEF_keV2DIGI_   =  ps.getParameter<double>("HGCHEF_keV2DIGI");
-  HGCHEF_fCPerMIP_    =  ps.getParameter<std::vector<double> >("HGCHEF_fCPerMIP");
+  HGCHEF_fCPerMIP_   =  ps.getParameter<std::vector<double> >("HGCHEF_fCPerMIP");
+  HGCHEF_isSiFE_     =  ps.getParameter<bool>("HGCHEF_isSiFE");
   hgchefUncalib2GeV_ = keV2GeV/HGCHEF_keV2DIGI_;
   
   // HGCheb constants
   HGCHEB_keV2DIGI_   =  ps.getParameter<double>("HGCHEB_keV2DIGI");
+  HGCHEB_isSiFE_     =  ps.getParameter<bool>("HGCHEB_isSiFE");
   hgchebUncalib2GeV_ = keV2GeV/HGCHEB_keV2DIGI_;
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
-  edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
-  es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle); 
-  es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
-  ddds_[0] = &(hgceeGeoHandle->topology().dddConstants());
-  ddds_[1] = &(hgchefGeoHandle->topology().dddConstants());
+  if (HGCEE_isSiFE_) {
+    edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
+    es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle); 
+    ddds_[0] = &(hgceeGeoHandle->topology().dddConstants());
+  } else {
+    ddds_[0] = nullptr;
+  }
+  if (HGCHEF_isSiFE_) {
+    edm::ESHandle<HGCalGeometry> hgchefGeoHandle; 
+    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
+    ddds_[1] = &(hgchefGeoHandle->topology().dddConstants());
+  } else {
+    ddds_[1] = nullptr;
+  }
   ddds_[2] = nullptr;  
 }
 
