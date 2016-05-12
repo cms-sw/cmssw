@@ -7,8 +7,9 @@
 
 /** \class HcalUMNioDigi
   *  
-  * $Date: $
-  * $Revision: $
+  * This class contains the readout data from the uMNio uTCA card as
+  * when used for orbit gap operations.
+  *
   * \author J. Mans - Minnesota
   */
 class HcalUMNioDigi {
