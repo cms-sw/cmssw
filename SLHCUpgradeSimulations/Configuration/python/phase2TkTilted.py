@@ -311,6 +311,8 @@ def customise_Reco(process,pileup):
     process.caloTowerForTrk.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.caloTowerForTrk.hfInput = cms.InputTag("hfUpgradeReco")
 
+    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+
     # STILL TO DO (when the ph2 PF will be included):
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
@@ -320,7 +322,6 @@ def customise_Reco(process,pileup):
     return process
 
 def customise_condOverRides(process):
-    print 'toto'
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff')
     return process
 
