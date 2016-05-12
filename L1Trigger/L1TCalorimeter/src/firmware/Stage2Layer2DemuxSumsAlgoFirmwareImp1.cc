@@ -29,8 +29,9 @@ l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::~Stage2Layer2DemuxSumsAlgoFirmwareIm
 void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<l1t::EtSum> & inputSums,
                                                               std::vector<l1t::EtSum> & outputSums) {
 
-  int32_t et(0), metx(0), mety(0), ht(0), mhtx(0), mhty(0), metPhi(0), mhtPhi(0);
-  uint32_t met(0), mht(0);
+  int32_t et(0), metx(0), mety(0), metx2(0), mety2(0), ht(0), mhtx(0), mhty(0), metPhi(0), metPhi2(0), mhtPhi(0);
+  uint32_t met(0), met2(0), mht(0);
+  uint32_t mbp0(0), mbm0(0), mbp1(0), mbm1(0);
 
   // Add up the x, y and scalar components
   for (std::vector<l1t::EtSum>::const_iterator eSum = inputSums.begin() ; eSum != inputSums.end() ; ++eSum )
@@ -61,6 +62,30 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
         mhty += eSum->hwPt();
         break;
 
+      case l1t::EtSum::EtSumType::kTotalEtx2:
+        metx2 += eSum->hwPt();
+        break;
+
+      case l1t::EtSum::EtSumType::kTotalEty2:
+        mety2 += eSum->hwPt();
+        break;
+
+      case l1t::EtSum::EtSumType::kMinBiasHFP0:
+	mbp0 = eSum->hwPt();
+	break;
+
+      case l1t::EtSum::EtSumType::kMinBiasHFM0:
+	mbm0 = eSum->hwPt();
+	break;
+
+      case l1t::EtSum::EtSumType::kMinBiasHFP1:
+	mbp1 = eSum->hwPt();
+	break;
+
+      case l1t::EtSum::EtSumType::kMinBiasHFM1:
+	mbm1 = eSum->hwPt();
+	break;
+
       default:
         continue; // Should throw an exception or something?
       }
@@ -72,9 +97,14 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   if (ht>0xFFF)   ht   = 0xFFF;
   if (mhtx>0xFFF) mhtx = 0xFFF;
   if (mhty>0xFFF) mhty = 0xFFF;
+  if (metx2>0xFFF) metx2 = 0xFFF;
+  if (mety2>0xFFF) mety2 = 0xFFF;
 
   // Final MET calculation
   if (metx != 0 || mety != 0 ) cordic_( metx , mety , metPhi , met );
+
+  // Final MET2 calculation
+  if (metx2 != 0 || mety2 != 0 ) cordic_( metx2 , mety2 , metPhi2 , met2 );
 
   // Final MHT calculation
   if (mhtx != 0 || mhty != 0 ) cordic_( mhtx , mhty , mhtPhi , mht );
@@ -84,12 +114,22 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 
   l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
   l1t::EtSum etSumMissingEt(p4,l1t::EtSum::EtSumType::kMissingEt,met,0,metPhi>>4,0);
+  l1t::EtSum etSumMissingEt2(p4,l1t::EtSum::EtSumType::kMissingEt2,met2,0,metPhi2>>4,0);
   l1t::EtSum htSumht(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
   l1t::EtSum htSumMissingHt(p4,l1t::EtSum::EtSumType::kMissingHt,mht,0,mhtPhi>>4,0);
+  l1t::EtSum etSumMinBiasHFP0(p4,l1t::EtSum::EtSumType::kMinBiasHFP0,mbp0,0,0,0);
+  l1t::EtSum etSumMinBiasHFM0(p4,l1t::EtSum::EtSumType::kMinBiasHFM0,mbm0,0,0,0);
+  l1t::EtSum etSumMinBiasHFP1(p4,l1t::EtSum::EtSumType::kMinBiasHFP1,mbp1,0,0,0);
+  l1t::EtSum etSumMinBiasHFM1(p4,l1t::EtSum::EtSumType::kMinBiasHFM1,mbm1,0,0,0);
 
   outputSums.push_back(etSumTotalEt);
+  outputSums.push_back(etSumMinBiasHFP0);
   outputSums.push_back(htSumht);
+  outputSums.push_back(etSumMinBiasHFM0);
   outputSums.push_back(etSumMissingEt);
+  outputSums.push_back(etSumMinBiasHFP1);
   outputSums.push_back(htSumMissingHt);
+  outputSums.push_back(etSumMinBiasHFM1);
+  outputSums.push_back(etSumMissingEt2);
 
 }

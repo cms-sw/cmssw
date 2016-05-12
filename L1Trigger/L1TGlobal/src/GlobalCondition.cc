@@ -110,7 +110,10 @@ const int GlobalCondition::nrObjects() const
         case l1t::TypeHTT:
         case l1t::TypeHTM:
 	case l1t::TypeETM2:
-	case l1t::TypeMinBias: {
+	case l1t::TypeMinBiasHFP0:
+	case l1t::TypeMinBiasHFM0:
+	case l1t::TypeMinBiasHFP1:
+	case l1t::TypeMinBiasHFM1: {
                 return 1;
             }
 
@@ -258,8 +261,23 @@ void GlobalCondition::print(std::ostream& myCout) const
                 myCout << "  Condition type:     " << "TypeETM2"  << std::endl;
             }
 
-        case l1t::TypeMinBias: {
-                myCout << "  Condition type:     " << "TypeMinBias"  << std::endl;
+        case l1t::TypeMinBiasHFP0: {
+                myCout << "  Condition type:     " << "TypeMinBiasHFP0"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeMinBiasHFM0: {
+                myCout << "  Condition type:     " << "TypeMinBiasHFM0"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeMinBiasHFP1: {
+                myCout << "  Condition type:     " << "TypeMinBiasHFP1"  << std::endl;
+            }
+
+            break;	    
+        case l1t::TypeMinBiasHFM1: {
+                myCout << "  Condition type:     " << "TypeMinBiasHFM1"  << std::endl;
             }
 
             break;
@@ -329,11 +347,27 @@ void GlobalCondition::print(std::ostream& myCout) const
                     myCout << " ETM2 ";
                 }
 		
-            case l1t::gtMinBias: {
-                    myCout << " MinBias ";
+		break;
+            case l1t::gtMinBiasHFP0: {
+                    myCout << " MinBiasHFP0 ";
                 }		
 
+                break;		
+            case l1t::gtMinBiasHFM0: {
+                    myCout << " MinBiasHFM0 ";
+                }		
 
+                break;	
+            case l1t::gtMinBiasHFP1: {
+                    myCout << " MinBiasHFP1 ";
+                }		
+
+                break;	
+            case l1t::gtMinBiasHFM1: {
+                    myCout << " MinBiasHFM1 ";
+                }		
+
+                break;	
             case l1t::gtExternal: {
                     myCout << " External ";
                 }
