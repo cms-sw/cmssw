@@ -31,8 +31,6 @@
 
 #include <stdlib.h> 
 #include "TH2.h"
-//steph
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 
 using namespace std;
 
