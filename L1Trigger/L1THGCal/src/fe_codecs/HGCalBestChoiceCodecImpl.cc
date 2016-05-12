@@ -16,6 +16,8 @@ HGCalBestChoiceCodecImpl::HGCalBestChoiceCodecImpl(const edm::ParameterSet& conf
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC"))
 /*****************************************************************/
 {
+  adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
+  tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
 }
 
 
@@ -92,8 +94,7 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
 /*****************************************************************/
 {
     double amplitude; uint32_t amplitude_int;
-    double adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
-    double tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+   
 
     for(const auto& frame : dataframes) {//loop on DIGI
         for(const auto& tc_c : mod.triggerCellComponents()) { //treat only the HG cells in the considered module
@@ -116,7 +117,7 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
   
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
     std::map<HGCTriggerDetId, uint32_t> payload;
