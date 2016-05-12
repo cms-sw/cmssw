@@ -549,7 +549,6 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
          //std::cout << "reading type " << *iType << std::endl;
 	 const FWConfiguration *columns = iFrom.valueForKey(*iType);
          if (!columns) continue;
-	 assert(columns != 0);
          TableHandle handle = table(iType->c_str());
 	 for (FWConfiguration::StringValuesIt 
 	      it = columns->stringValues()->begin(),
