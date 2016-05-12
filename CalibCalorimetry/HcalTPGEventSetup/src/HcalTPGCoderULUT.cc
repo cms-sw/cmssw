@@ -139,7 +139,9 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   edm::ESHandle<HcalDbService> conditions;
   theRec.get(conditions);
-  const HcalTopology* topo=conditions->getTopologyUsed();
+  edm::ESHandle<HcalTopology> htopo;
+  theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
   if (theCoder_==0) {
     buildCoder(topo);
