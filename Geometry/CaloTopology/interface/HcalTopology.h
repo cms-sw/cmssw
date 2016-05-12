@@ -145,7 +145,9 @@ public:
   unsigned int detId2denseIdCALIB(const DetId& id) const;
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
-      
+
+  const HcalDDDRecConstants* dddConstants () const {return hcons_;}
+
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
