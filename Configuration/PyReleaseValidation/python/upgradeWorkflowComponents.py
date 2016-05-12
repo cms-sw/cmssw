@@ -35,7 +35,8 @@ upgradeCustoms={ '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
 upgradeEras={ '2017' : 'Run2_2017',
 	      '2023sim' : 'Phase2',
 	      '2023tilted' : 'Phase2',
-	      '2023LReco' : 'Phase2'
+	      '2023LReco' : 'Phase2',
+	      '2023Reco' : 'Phase2'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',

@@ -25,14 +25,14 @@ class TBLayer: public BarrelDetLayer {
 
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
   virtual const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const final __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
 
   // DetLayer interface
