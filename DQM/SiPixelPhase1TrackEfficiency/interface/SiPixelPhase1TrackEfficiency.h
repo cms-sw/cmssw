@@ -42,12 +42,12 @@ class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester {
   public:
   explicit SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& conf);
 
-  void doHarvesting();
-
+  void doHarvesting(SummationStep& s, HistogramManager::Table& efficiency);
+  
   private:
-  HistogramManager::Table valid;
-  HistogramManager::Table missing;
-  HistogramManager::Table efficiency;
+  // we use the custom arg as a tag, to not mix up different tables.
+  std::map<std::string, HistogramManager::Table> valid;
+  std::map<std::string, HistogramManager::Table> missing;
 };
 
 #endif

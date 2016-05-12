@@ -13,15 +13,6 @@ SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1TrackEfficiencyEfficiency = DefaultHisto.clone(
-  name = "hitefficiency",
-  title = "Hit Efficiency",
-  # most stuff done in custom() step, carried over from valid/missing histos
-  specs = cms.VPSet(
-    Specification().groupBy("").save().custom().save()
-  )
-)
-
 SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
   bookUndefined = False, # Barrel-only stuff below
   name = "valid",
@@ -29,29 +20,32 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
   xlabel = "Valid Hits",
   dimensions = 0,
   specs = cms.VPSet(
+    # custom() is called here after every save to export the histos for the
+    # efficiency harvesting. The parameter is just a tag that we don't confuse 
+    # the histos of different specs.
     Specification().groupBy(DefaultHisto.defaultPerModule)
                    .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .save()
-                   .custom()
+                   .custom("permodule")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
                    .save()
-                   .custom(),
+                   .custom("permodule"),
     Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
-                   .custom()
+                   .custom("signedmodule")
                    .groupBy("PXBarrel", "SUM")
                    .save()
-                   .custom(),
+                   .custom("signedmodule"),
     Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
                    .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
                    .save()
-                   .custom()
+                   .custom("perroc")
   )
 )
 
@@ -60,6 +54,16 @@ SiPixelPhase1TrackEfficiencyMissing = SiPixelPhase1TrackEfficiencyValid.clone(
   title = "Missing Hits",
   xlabel = "Missing Hits",
 )
+
+SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone(
+  name = "hitefficiency",
+  title = "Hit Efficiency",
+  # most stuff done in custom() step, carried over from valid/missing histos
+  # the custom() step looks for matching valid/mmissing histos and fills the
+  # efficiency plots if data is available. So all should use the same specs.
+)
+
+
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyClusterProb,

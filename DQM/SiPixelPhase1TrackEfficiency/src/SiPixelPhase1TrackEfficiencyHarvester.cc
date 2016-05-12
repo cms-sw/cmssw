@@ -12,57 +12,60 @@
 SiPixelPhase1TrackEfficiencyHarvester::SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Harvester(iConfig) 
 {
-  histo[VALID     ].setCustomHandler([&] (SummationStep&, HistogramManager::Table & t) {
-    valid.insert(t.begin(), t.end());
+  // We collect _all_ (all specs/all custom calls) histos from missing/valid in our table
+  histo[VALID     ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
+    valid  [s.arg].insert(t.begin(), t.end());
   });
-  histo[MISSING   ].setCustomHandler([&] (SummationStep&, HistogramManager::Table & t) {
-    missing.insert(t.begin(), t.end());
+  histo[MISSING   ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
+    missing[s.arg].insert(t.begin(), t.end());
   });
 
-  histo[EFFICIENCY].setCustomHandler([&] (SummationStep&, HistogramManager::Table & t) {
-    doHarvesting();
-    t.swap(efficiency);
-    efficiency.clear();
+  // ... and then take those that we need to fill the EFFICIENCY
+  histo[EFFICIENCY].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
+    doHarvesting(s, t);
   });
 }
 
-void SiPixelPhase1TrackEfficiencyHarvester::doHarvesting() {
-  for (auto const& e : valid) {
+void SiPixelPhase1TrackEfficiencyHarvester::doHarvesting(SummationStep& s, HistogramManager::Table& efficiency) {
+  for (auto const& e : efficiency) {
     GeometryInterface::Values const& values = e.first;
-    auto denom = e.second.th1;
-    auto missing_it = missing.find(values);
-    if (missing_it == missing.end()) {
-      edm::LogError("SiPixelPhase1TrackEfficiencyHarvester") << "Got 'valid' counts, but 'missing' counts are missing.\n";
+    auto missing_it = missing[s.arg].find(values);
+    auto valid_it   = valid  [s.arg].find(values);
+    if (missing_it == missing[s.arg].end() || valid_it == valid[s.arg].end()) {
+      edm::LogError("SiPixelPhase1TrackEfficiencyHarvester") << "Want to do Efficiencies but 'valid' or 'missing' counts are missing.";
       continue;
     }
     auto num = missing_it->second.th1;
+    auto denom = valid_it->second.th1;
     assert(num);
     assert(denom);
     assert(num->GetDimension() == denom->GetDimension());
 
     auto& out = efficiency[values];
-    if (num->GetDimension() == 1) {
-      auto title = (histo[EFFICIENCY].title + ";" + num->GetXaxis()->GetTitle()).c_str();
-      auto xbins = num->GetXaxis()->GetNbins();
-      assert(denom->GetXaxis()->GetNbins() == xbins);
+    assert(out.th1);
+    assert(out.th1->GetDimension() == num->GetDimension());
 
-      out.th1 = (TH1*) new TH1F(histo[EFFICIENCY].name.c_str(), title, xbins, 0.5, xbins + 0.5);
+    if (num->GetDimension() == 1) {
+      auto xbins = num->GetXaxis()->GetNbins();
+      assert(denom->GetXaxis()->GetNbins() == xbins || out.th1->GetXaxis()->GetNbins());
+
       for (int x = 1; x <= xbins; x++) {
-        out.th1->SetBinContent(x, 1 - (num->GetBinContent(x) / (num->GetBinContent(x) + denom->GetBinContent(x))));
+        auto sum = num->GetBinContent(x) + denom->GetBinContent(x);
+        if (sum == 0.0) continue; // avoid div by zero
+        out.th1->SetBinContent(x, 1 - (num->GetBinContent(x) / sum));
       }
  
     } else /* 2D */ {
-      auto title = (histo[EFFICIENCY].title + ";" + num->GetXaxis()->GetTitle() + ";" + num->GetYaxis()->GetTitle()).c_str();
       auto xbins = num->GetXaxis()->GetNbins();
       auto ybins = num->GetYaxis()->GetNbins();
-      assert(denom->GetXaxis()->GetNbins() == xbins);
-      assert(denom->GetYaxis()->GetNbins() == ybins);
+      assert(denom->GetXaxis()->GetNbins() == xbins || out.th1->GetXaxis()->GetNbins());
+      assert(denom->GetYaxis()->GetNbins() == ybins || out.th1->GetYaxis()->GetNbins());
 
-      out.th1 = (TH1*) new TH2F(histo[EFFICIENCY].name.c_str(), title, xbins, 0.5, xbins + 0.5,
-                                                                       ybins, 0.5, ybins + 0.5);
       for (int y = 1; y <= ybins; y++) {
         for (int x = 1; x <= xbins; x++) {
-          out.th1->SetBinContent(x, y, 1 - (num->GetBinContent(x,y) / (num->GetBinContent(x,y) + denom->GetBinContent(x,y))));
+          auto sum = num->GetBinContent(x,y) + denom->GetBinContent(x,y);
+          if (sum == 0.0) continue; // avoid div by zero
+          out.th1->SetBinContent(x, y, 1 - (num->GetBinContent(x,y) / sum));
         }
       }
     }
