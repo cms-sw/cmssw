@@ -57,30 +57,33 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	
 
 
-		if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax_) {
-		  
-		  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
-		  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
-		  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
-		  // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
-		  ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
-		  ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );
-
-		}
-		if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_) 
-		  ringEt += tower.hwPt();
+	  if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax_) {
+	    
+	    // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
+	    // The trig coefficients themselves take values [-1023,1023] and so were scaled by
+	    // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
+	    // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
+	    ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	    ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	  }
 
 
-
+	// MET no HF
+	if (tower.hwPt()>metTowThresholdHw2_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax2_) {
+	  ringEx2 += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	  ringEy2 += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	}
+	
+	// scalar sum
+	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_) 
+	  ringEt += tower.hwPt();
+		
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
 	    CaloTools::mpEta(abs(tower.hwEta()))<CaloTools::kHFEnd &&
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB1 += 1;
-
-
-
-
+	
       }    
       
       ex += ringEx;
