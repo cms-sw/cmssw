@@ -449,7 +449,7 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
   t.swap(out);
 } 
 
-void HistogramManager::executeExtend(SummationStep& step, Table& t) {
+void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
   // For the moment only X.
   // first pass determines the range.
   std::map<GeometryInterface::Values, int> nbins;
@@ -459,7 +459,8 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
     TH1 *th1 = e.second.th1;
     int& n = nbins[new_vals];
     assert(th1 || !"invalid histogram");
-    n += th1->GetXaxis()->GetNbins(); 
+    if (isX) n += th1->GetXaxis()->GetNbins(); 
+    else     n += th1->GetYaxis()->GetNbins(); 
   }
 
   Table out;
@@ -477,28 +478,40 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
     if (!new_histo.th1) {
       //std::cout << "+++ new TH1D for extend ";
       // We need to book. Two cases here: 1D or 2D.
-      if (th1->GetDimension() == 1) {
-	// Output is 1D
-	new_histo.th1 = (TH1*) new TH1F(th1->GetName(), (std::string("") 
-					+ th1->GetYaxis()->GetTitle() + " per " + colname
-					+ ";" + colname + "/" + th1->GetXaxis()->GetTitle()
-					+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
-					nbins[new_vals], 0, nbins[new_vals]);
+
+      const char* title;
+      if (isX) 
+	title = (std::string("") 
+		+ th1->GetTitle() + " per " + colname
+		+ ";" + colname + "/" + th1->GetXaxis()->GetTitle()
+		+ ";" + th1->GetYaxis()->GetTitle()).c_str();
+      else 
+	title = (std::string("") 
+		+ th1->GetTitle() + " per " + colname
+		+ ";" + th1->GetXaxis()->GetTitle()
+		+ ";" + colname + "/" + th1->GetYaxis()->GetTitle()).c_str();
+
+      if (th1->GetDimension() == 1 && isX) {
+	// Output is 1D. Never the case for EXTEND_Y
+	new_histo.th1 = (TH1*) new TH1F(th1->GetName(), title, 
+					nbins[new_vals], 0.5, nbins[new_vals] + 0.5);
       } else {
 	// output is 2D, input is 2D histograms.
-	new_histo.th1 = (TH1*) new TH2F(th1->GetName(), (std::string("") 
-					+ th1->GetTitle() + " per " + colname
-					+ ";" + colname + "/" + th1->GetXaxis()->GetTitle()
-					+ ";" + th1->GetYaxis()->GetTitle()).c_str(), 
-					nbins[new_vals], 0, nbins[new_vals],
-					th1->GetYaxis()->GetNbins(), 0, th1->GetYaxis()->GetNbins());
+	if (isX)
+	  new_histo.th1 = (TH1*) new TH2F(th1->GetName(), title, 
+					  nbins[new_vals], 0.5, nbins[new_vals] + 0.5,
+					  th1->GetYaxis()->GetNbins(), 0.5, th1->GetYaxis()->GetNbins() + 0.5);
+	else
+	  new_histo.th1 = (TH1*) new TH2F(th1->GetName(), title, 
+					  th1->GetXaxis()->GetNbins(), 0.5, th1->GetXaxis()->GetNbins() + 0.5,
+					  nbins[new_vals], 0.5, nbins[new_vals] + 0.5);
       }
       //std::cout << "title " << new_histo.th1->GetTitle()<< "\n";
       new_histo.count = 1; // used as a fill pointer. Assumes histograms are ordered correctly (map should provide that)
     } 
 
     // now add data.
-    if (th1->GetDimension() == 1) {
+    if (new_histo.th1->GetDimension() == 1) {
       for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
 	// TODO Error etc.?
 	new_histo.th1->SetBinContent(new_histo.count, th1->GetBinContent(i)); 
@@ -506,12 +519,22 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t) {
       }
     } else {
       // 2D case.
-      for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
-	for (int j = 1; j <= th1->GetYaxis()->GetNbins(); j++) {
-	  // TODO Error etc.?
-	  new_histo.th1->SetBinContent(new_histo.count, j, th1->GetBinContent(i, j)); 
+      if (isX) {
+	for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
+	  for (int j = 1; j <= th1->GetYaxis()->GetNbins(); j++) {
+	    // TODO Error etc.?
+	    new_histo.th1->SetBinContent(new_histo.count, j, th1->GetBinContent(i, j)); 
+	  }
+	  new_histo.count += 1; 
 	}
-	new_histo.count += 1; 
+      } else {
+	for (int j = 1; j <= th1->GetYaxis()->GetNbins(); j++) {
+	  for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
+	    // TODO Error etc.?
+	    new_histo.th1->SetBinContent(i, new_histo.count, th1->GetBinContent(i, j)); 
+	  }
+	  new_histo.count += 1; 
+	}
       }
     }
   }
@@ -548,10 +571,11 @@ void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMS
 	  executeReduce(step, t);
 	  break;
         case SummationStep::EXTEND_X: 
-	  executeExtend(step, t);
+	  executeExtend(step, t, true);
 	  break;
 	case SummationStep::EXTEND_Y:
-	  assert(!"EXTEND_Y NIY"); break; // TODO: similar to EXTEND_X
+	  executeExtend(step, t, false);
+	  break;
 	case SummationStep::CUSTOM:
 	  if(customHandler)
             customHandler(step, t);

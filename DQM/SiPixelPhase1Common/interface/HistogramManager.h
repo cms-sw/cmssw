@@ -80,7 +80,7 @@ private:
   void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
   void executeGroupBy(SummationStep& step, Table& t);
   void executeReduce(SummationStep& step, Table& t);
-  void executeExtend(SummationStep& step, Table& t);
+  void executeExtend(SummationStep& step, Table& t, bool isX);
 
   bool enabled;
   bool bookUndefined;

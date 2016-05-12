@@ -33,10 +33,10 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .save()
+                   .custom()
+                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
+                   .save()
                    .custom(),
-                   #.groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
-                   #.save()
-                   #.custom(),
     Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
@@ -49,10 +49,9 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
     Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
                    .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
-                   #.groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
-                   #.save()
-                   #.custom()
-                   #.saveAll()
+                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
+                   .save()
+                   .custom()
   )
 )
 
