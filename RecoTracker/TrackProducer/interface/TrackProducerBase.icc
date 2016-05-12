@@ -34,7 +34,7 @@
 
 //destructor
 template <class T>
-TrackProducerBase<T>::~TrackProducerBase(){ }
+TrackProducerBase<T>::~TrackProducerBase() noexcept(false) { }
 
 // member functions
 // ------------ method called to produce the data  ------------

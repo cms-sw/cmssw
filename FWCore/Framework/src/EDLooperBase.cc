@@ -32,7 +32,7 @@ namespace edm {
                                  moduleDescription_("Looper", "looper"),
                                  moduleCallingContext_(&moduleDescription_)
  { }
-  EDLooperBase::~EDLooperBase() { }
+  EDLooperBase::~EDLooperBase() noexcept(false) { }
 
   void
   EDLooperBase::doStartingNewLoop() {

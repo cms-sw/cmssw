@@ -102,7 +102,7 @@ namespace edm {
     }
   }
 
-  InputSource::~InputSource() {}
+  InputSource::~InputSource() noexcept(false) {}
 
   void
   InputSource::fillDescriptions(ConfigurationDescriptions& descriptions) {

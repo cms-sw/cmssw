@@ -111,7 +111,7 @@ class MuonTrackValidatorBase {
     }
   
   /// Destructor
-  virtual ~MuonTrackValidatorBase(){ }
+  virtual ~MuonTrackValidatorBase() noexcept(false) { }
   
   virtual void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){

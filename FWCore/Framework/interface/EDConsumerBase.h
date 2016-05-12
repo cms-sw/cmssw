@@ -51,7 +51,7 @@ namespace edm {
     
   public:
     EDConsumerBase() : frozen_(false) {}
-    virtual ~EDConsumerBase();
+    virtual ~EDConsumerBase() noexcept(false);
     
     // disallow copying
     EDConsumerBase(EDConsumerBase const&) = delete;
