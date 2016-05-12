@@ -305,7 +305,7 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
 
     minmax_plot[iP][0] = absMin/rangeFactor[0];
     minmax_plot[iP][1] = absMax*(rangeFactor[1]+dampingFactorEff-rangeMaxReduction);
-    for (int f=0; f<2; f++) histo[iP][f]->GetYaxis()->SetRangeUser(minmax_plot[iP][0], minmax_plot[iP][1]);
+    for (int f=0; f<2 && f<nfiles; f++) histo[iP][f]->GetYaxis()->SetRangeUser(minmax_plot[iP][0], minmax_plot[iP][1]);
   }
 
   for (int pIndex=0; pIndex<7; pIndex++){
