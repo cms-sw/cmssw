@@ -58,7 +58,7 @@ class Specification(cms.PSet):
         if not "Event" in self.spec[0].columns:
           raise Exception("Only per-event counting supported for step1.")
         self.spec[0].columns.remove("Event"); # per-Event groupng is done automatically
-	self._state = STAGE1_2
+        self._state = STAGE1_2
       t = GROUPBY
       cstrings = cms.vstring(cnames)
     elif mode == "EXTEND_X" or mode == "EXTEND_Y":
@@ -104,6 +104,10 @@ class Specification(cms.PSet):
     return self
 
   def custom(self, arg = ""):
+    if self.spec[-1].type != SAVE:
+      # this is not obvious but needed for now, to avoid memory management
+      # trouble with bare TH1's. After save all data is in MEs which are save.
+      self.save()
     if self._state != STAGE2:
       raise Exception("Custom processing exists only in Harvesting.")
     self.spec.append(cms.PSet(

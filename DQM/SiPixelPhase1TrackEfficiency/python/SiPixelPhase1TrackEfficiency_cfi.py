@@ -24,7 +24,6 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
     # efficiency harvesting. The parameter is just a tag that we don't confuse 
     # the histos of different specs.
     Specification().groupBy(DefaultHisto.defaultPerModule)
-                   .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .save()
                    .custom("permodule")
@@ -32,7 +31,6 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .save()
                    .custom("permodule"),
     Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
-                   .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
@@ -41,7 +39,6 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .save()
                    .custom("signedmodule"),
     Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
-                   .reduce("COUNT")
                    .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
                    .save()
