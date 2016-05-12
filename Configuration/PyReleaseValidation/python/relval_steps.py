@@ -1556,7 +1556,7 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
     
-    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -1591,10 +1591,10 @@ for k in upgradeKeys:
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM',
                                       '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO,DQMIO',
+                                      '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
                                       '--runUnscheduled':'',
-                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                      '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
