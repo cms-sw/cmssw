@@ -79,7 +79,7 @@ namespace edm {
       enum Status {kContinue, kStop};
 
       EDLooperBase();
-      virtual ~EDLooperBase();
+      virtual ~EDLooperBase() noexcept(false);
 
       EDLooperBase(EDLooperBase const&) = delete; // Disallow copying and moving
       EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving

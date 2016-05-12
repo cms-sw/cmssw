@@ -46,7 +46,7 @@ namespace hcaldqm
 	{
 		public:
 			DQModule(edm::ParameterSet const&);
-			virtual ~DQModule() {}
+			virtual ~DQModule() noexcept(false) {}
 
 		protected:
 			//	Member variables	
