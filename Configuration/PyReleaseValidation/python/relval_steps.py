@@ -1589,7 +1589,7 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiTrkTrigFull'][k]['--era']=era
 
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM',
+    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
@@ -1626,7 +1626,7 @@ for k in upgradeKeys:
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
 
-    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
