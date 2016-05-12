@@ -36,7 +36,13 @@ L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::Parame
   for(auto it: fileNames){
     myReader.setPatternsFile(it);
     readPatternsXML(myReader);
-  }  
+  }
+
+  unsigned int patternsVersion = myReader.getPatternsVersion();
+  unsigned int fwVersion =  params.fwVersion();
+
+  params.setFwVersion((fwVersion<<16) + patternsVersion);
+
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
