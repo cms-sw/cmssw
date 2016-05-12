@@ -241,12 +241,12 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
     Int_t sv =  node->getSplitVariable();
     Double_t er = node->getErrorReduction();
 
-    if(sv == -1)
-    {
-        std::cout << "ERROR: negative split variable for nonterminal node." << std::endl;
-        std::cout << "rankVarRecursive Split Variable = " << sv << std::endl;
-        std::cout << "rankVarRecursive Error Reduction = " << er << std::endl;
-    }
+    //if(sv == -1)
+    //{
+      //std::cout << "ERROR: negative split variable for nonterminal node." << std::endl;
+      //std::cout << "rankVarRecursive Split Variable = " << sv << std::endl;
+      //std::cout << "rankVarRecursive Error Reduction = " << er << std::endl;
+    //}
 
     // Add error reduction to the current total for the appropriate
     // variable.
