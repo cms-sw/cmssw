@@ -15,6 +15,9 @@ namespace hcaldqm
 	/* virtual */ void DQClient::beginRun(edm::Run const& r,
 		edm::EventSetup const& es)
 	{
+		//	TEMPORARY
+		_vhashFEDs.clear(); _vcdaqEids.clear();
+
 		//	get various FED lists
 		edm::ESHandle<HcalDbService> dbs;
 		es.get<HcalDbRecord>().get(dbs);
