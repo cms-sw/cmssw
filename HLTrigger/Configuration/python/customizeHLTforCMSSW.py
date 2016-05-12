@@ -75,9 +75,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor14317(process)
 
     if cmsswVersion >= "CMSSW_8_0":
-        process = customiseFor14282(process)
 #       process = customiseFor12718(process)
-        process = customiseFor13421(process)
         pass
 
 #   stage-2 changes only if needed
