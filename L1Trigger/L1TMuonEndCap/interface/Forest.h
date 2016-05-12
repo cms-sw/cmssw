@@ -31,18 +31,18 @@ class Forest
         // Helpful operations
         void listEvents(std::vector< std::vector<Event*> >& e);
         void sortEventVectors(std::vector< std::vector<Event*> >& e);
-        void generate(Int_t numTrainEvents, Int_t numTestEvents, Double_t sigma);
+        void generate(Int_t numTrainEvents, Int_t numTestEvents, double sigma);
         void loadForestFromXML(const char* directory, unsigned int numTrees); 
 
         // Perform the regression
-        void updateRegTargets(Tree *tree, Double_t learningRate, LossFunction* l);
-        void doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, LossFunction* l, 
+        void updateRegTargets(Tree *tree, double learningRate, LossFunction* l);
+        void doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, 
                           const char* savetreesdirectory, bool saveTrees);
 
         // Stochastic Gradient Boosting
-        void prepareRandomSubsample(Double_t fraction);
-        void doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, 
-                                    Double_t fraction, LossFunction* l);
+        void prepareRandomSubsample(double fraction);
+        void doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, 
+                                    double fraction, LossFunction* l);
 
         // Predict some events
         void updateEvents(Tree* tree);

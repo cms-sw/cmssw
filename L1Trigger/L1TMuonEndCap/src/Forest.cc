@@ -19,16 +19,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Forest.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Utilities.h"
 
-#include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TROOT.h"
-#include "TTree.h"
-#include "TNtuple.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TGraph.h"
-#include "TCanvas.h"
-#include "TChain.h"
 
 #include <iostream>
 #include <sstream>
@@ -108,7 +99,7 @@ Tree* Forest::getTree(unsigned int i)
     if(/*i>=0 && */i<trees.size()) return trees[i]; 
     else
     {
-        std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
+      //std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
         return 0;
     }
 }
@@ -205,7 +196,7 @@ void Forest::rankVariables(std::vector<int>& rank)
 
     // Initialize the vector v, which will store the total error reduction
     // for each variable i in v[i].
-    std::vector<Double_t> v(events.size(), 0);
+    std::vector<double> v(events.size(), 0);
 
     //std::cout << std::endl << "Ranking Variables by Net Error Reduction... " << std::endl;
 
@@ -214,7 +205,7 @@ void Forest::rankVariables(std::vector<int>& rank)
         trees[j]->rankVariables(v); 
     }
 
-    Double_t max = *std::max_element(v.begin(), v.end());
+    double max = *std::max_element(v.begin(), v.end());
    
     // Scale the importance. Maximum importance = 100.
     for(unsigned int i=0; i < v.size(); i++)
@@ -224,11 +215,11 @@ void Forest::rankVariables(std::vector<int>& rank)
 
     // Change the storage format so that we can keep the index 
     // and the value associated after sorting.
-    std::vector< std::pair<Double_t, Int_t> > w(events.size());
+    std::vector< std::pair<double, Int_t> > w(events.size());
 
     for(unsigned int i=0; i<v.size(); i++)
     {
-        w[i] = std::pair<Double_t, Int_t>(v[i],i);
+        w[i] = std::pair<double, Int_t>(v[i],i);
     }
 
     // Sort so that we can output in order of importance.
@@ -257,9 +248,9 @@ void Forest::saveSplitValues(const char* savefilename)
 
     // Initialize the matrix v, which will store the list of split values
     // for each variable i in v[i].
-    std::vector<std::vector<Double_t>> v(events.size(), std::vector<Double_t>());
+    std::vector<std::vector<double>> v(events.size(), std::vector<double>());
 
-    std::cout << std::endl << "Gathering split values... " << std::endl;
+    //std::cout << std::endl << "Gathering split values... " << std::endl;
 
     // Gather the split values from each tree in the forest.
     for(unsigned int j=0; j<trees.size(); j++)
@@ -296,7 +287,7 @@ void Forest::saveSplitValues(const char* savefilename)
 // ______________________Update_Events_After_Fitting____________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::updateRegTargets(Tree* tree, Double_t learningRate, LossFunction* l)
+void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l)
 {
 // Prepare the global vector of events for the next tree.
 // Update the fit for each event and set the new target value
@@ -312,7 +303,7 @@ void Forest::updateRegTargets(Tree* tree, Double_t learningRate, LossFunction* l
         std::vector<Event*>& v = (*it)->getEvents()[0];
 
         // Fit the events depending on the loss function criteria.
-        Double_t fit = l->fit(v);
+        double fit = l->fit(v);
 
         // Scale the rate at which the algorithm converges.
         fit = learningRate*fit;
@@ -349,7 +340,7 @@ void Forest::updateEvents(Tree* tree)
     for(std::list<Node*>::iterator it=tn.begin(); it!=tn.end(); it++)
     {   
         std::vector<Event*>& v = (*it)->getEvents()[0];
-        Double_t fit = (*it)->getFitValue();
+        double fit = (*it)->getFitValue();
 
         // Loop through each event in the terminal region and update the
         // the global event it maps to.
@@ -368,7 +359,7 @@ void Forest::updateEvents(Tree* tree)
 // ____________________Do/Test_the Regression___________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
+void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
 {
 // Build the forest using the training sample.
 
@@ -422,7 +413,7 @@ void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
     //std::cout << "Using " << numtrees << " trees from the forest to predict events ... " << std::endl;
     if(numtrees > trees.size())
     {
-        std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
+      //std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
         numtrees = trees.size();
     }
 
@@ -460,7 +451,7 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
     //std::cout << "Using " << numtrees << " trees from the forest to predict events ... " << std::endl;
     if(numtrees > trees.size())
     {
-        std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
+      //std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
         numtrees = trees.size();
     }
 
@@ -484,7 +475,7 @@ void Forest::appendCorrection(Event* e, Int_t treenum)
     Node* terminalNode = tree->filterEvent(e); 
 
     // Update the event with its new prediction.
-    Double_t fit = terminalNode->getFitValue();
+    double fit = terminalNode->getFitValue();
     e->predictedValue += fit;
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -518,7 +509,7 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
 // ___________________Stochastic_Sampling_&_Regression__________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::prepareRandomSubsample(Double_t fraction)
+void Forest::prepareRandomSubsample(double fraction)
 {
 // We use this for Stochastic Gradient Boosting. Basically you
 // take a subsample of the training events and build a tree using
@@ -547,7 +538,7 @@ void Forest::prepareRandomSubsample(Double_t fraction)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, Double_t fraction, LossFunction* l)
+void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, double fraction, LossFunction* l)
 {
 // If the fraction of events to use is one then this algorithm is slower than doRegression due to the fact
 // that we have to sort the events every time we extract a subsample. Without random sampling we simply 
