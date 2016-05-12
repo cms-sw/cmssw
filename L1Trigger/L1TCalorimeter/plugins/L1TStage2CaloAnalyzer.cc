@@ -93,25 +93,35 @@ private:
   bool doText_;
   bool doHistos_;
  
-  enum ObjectType{Tower=0x1,
-		  Cluster=0x2,
-		  EG=0x3,
-		  Tau=0x4,
-		  Jet=0x5,
-		  SumET=0x6,
-                  SumHT=0x7,
-                  SumMET=0x8,
-                  SumMHT=0x9,
-		  MPEG=0x10,
-		  MPTau=0x11,
-		  MPJet=0x12,
-		  MPSum=0x13,
-                  MPSumET=0x14,
-                  MPSumMETx=0x15,
-                  MPSumMETy=0x16,
-                  MPSumHT=0x17,
-                  MPSumMHTx=0x18,
-                  MPSumMHTy=0x19};
+  enum ObjectType{
+    Tower=1,
+    Cluster=2,
+    EG=3,
+    Tau=4,
+    Jet=5,
+    SumET=6,
+    SumHT=7,
+    SumMET=8,
+    SumMHT=9,
+    MPEG=10,
+    MPTau=11,
+    MPJet=12,
+    MPSum=13,
+    MPSumET=14,
+    MPSumMETx=15,
+    MPSumMETy=16,
+    MPSumHT=17,
+    MPSumMHTx=18,
+    MPSumMHTy=19,
+    MPMinBiasHFP1=20,
+    MPMinBiasHFM1=21,
+    MPMinBiasHFP0=22,
+    MPMinBiasHFM0=23,
+    MinBiasHFP1=24,
+    MinBiasHFM1=25,
+    MinBiasHFP0=26,
+    MinBiasHFM0=27
+  };
   
   std::vector< ObjectType > types_;
   std::vector< std::string > typeStr_;
@@ -220,6 +230,14 @@ private:
   types_.push_back( SumHT );
   types_.push_back( SumMET );
   types_.push_back( SumMHT );
+  types_.push_back( MPMinBiasHFP0 );
+  types_.push_back( MPMinBiasHFM0 );
+  types_.push_back( MPMinBiasHFP1 );
+  types_.push_back( MPMinBiasHFM1 );
+  types_.push_back( MinBiasHFP0 );
+  types_.push_back( MinBiasHFM0 );
+  types_.push_back( MinBiasHFP1 );
+  types_.push_back( MinBiasHFM1 );
 
 
   typeStr_.push_back( "tower" );
@@ -240,6 +258,14 @@ private:
   typeStr_.push_back( "sumht" );
   typeStr_.push_back( "summet" );
   typeStr_.push_back( "summht" );
+  typeStr_.push_back( "mpminbiashfp0" );
+  typeStr_.push_back( "mpminbiashfm0" );
+  typeStr_.push_back( "mpminbiashfp1" );
+  typeStr_.push_back( "mpminbiashfm1" );
+  typeStr_.push_back( "minbiashfp0" );
+  typeStr_.push_back( "minbiashfm0" );
+  typeStr_.push_back( "minbiashfp1" );
+  typeStr_.push_back( "minbiashfm1" );
 
 }
 
@@ -262,19 +288,7 @@ void
 L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  /* 
-  int eventID = iEvent.id().event();
-  if (eventID<=9) {
-    m_doMPJets = false;
-    m_doMPSums = false;
-  }
-  else {
-    m_doMPJets = true;
-    m_doMPSums = true;
-  }
-  */
-  
-//if (eventID==31 || eventID==46 || eventID==63 || eventID==87 || eventID==104 || eventID==137 || eventID==149) return;
+
   std::stringstream text;
 
   TH2F* hEvtTow = new TH2F();
@@ -476,8 +490,6 @@ int njetmp=0;
 
       for ( auto itr = mpsums->begin(ibx); itr != mpsums->end(ibx); ++itr ) {
 	
-	//hbx_.at(MPSum)->Fill( ibx );
-	
         switch(itr->getType()){
         case l1t::EtSum::EtSumType::kTotalEt:  het_.at(MPSumET)  ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalEtx: het_.at(MPSumMETx)->Fill( itr->hwPt() ); break;
@@ -485,12 +497,12 @@ int njetmp=0;
         case l1t::EtSum::EtSumType::kTotalHt:  het_.at(MPSumHT)  ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalHtx: het_.at(MPSumMHTx)->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalHty: het_.at(MPSumMHTy)->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFP0: het_.at(MPMinBiasHFP0) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MPMinBiasHFM0) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MPMinBiasHFP1) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MPMinBiasHFM1) ->Fill( itr->hwPt() ); break;
 	default: std::cout<<"wrong type of MP sum"<<std::endl;
 	}
-	
-	//heta_.at(MPSum)->Fill( itr->hwEta() );
-	//hphi_.at(MPSum)->Fill( itr->hwPhi() );
-	//hetaphi_.at(MPSum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 	
 	text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 	
@@ -585,12 +597,10 @@ int njetdem=0;
   if (thejets.size()) {
     for (unsigned int i=0; i<thejets.size()-1; i++) {
       for (unsigned int j=i+1; j<thejets.size(); j++) {
-	//std::cout<<"i "<<thejets.at(i).hwPt()<<" j "<<thejets.at(j).hwPt()<<std::endl;
 	hsort_->Fill(thejets.at(i).hwPt()-thejets.at(j).hwPt());
       }
     }
   }
-  // std::cout<<"njetdem "<<njetdem<<std::endl;
 
   // get sums
   if (m_doSums) {
@@ -603,18 +613,20 @@ int njetdem=0;
 
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
 
-	//hbx_.at(Sum)->Fill( ibx );
-
         switch(itr->getType()){
         case l1t::EtSum::EtSumType::kTotalEt:    het_.at(SumET) ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalHt:    het_.at(SumHT) ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kMissingEt:  het_.at(SumMET)->Fill( itr->hwPt() ); hphi_.at(SumMET)->Fill( itr->hwPhi() ); break;
         case l1t::EtSum::EtSumType::kMissingHt:  het_.at(SumMHT)->Fill( itr->hwPt() ); hphi_.at(SumMHT)->Fill( itr->hwPhi() );  break;
+
+        case l1t::EtSum::EtSumType::kMinBiasHFP0: het_.at(MinBiasHFP0) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MinBiasHFM0) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MinBiasHFP1) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MinBiasHFM1) ->Fill( itr->hwPt() ); break;
+
 	default: std::cout<<"wrong type of demux sum"<<std::endl;
 	}
-	//heta_.at(Sum)->Fill( itr->hwEta() );
-	//hphi_.at(Sum)->Fill( itr->hwPhi() );
-        //hetaphi_.at(Sum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
 	text << "Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
       }
@@ -623,8 +635,7 @@ int njetdem=0;
 
   }
 
-  //if (doText_) edm::LogInfo("L1TCaloEvents") << text.str();
-  if (doText_) std::cout << text.str();
+  if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
 
 }
 
@@ -642,9 +653,6 @@ L1TStage2CaloAnalyzer::beginJob()
 
   for (; itr!=types_.end(); ++itr, ++str ) {
     
-//    double etmax=199.5;
-    //if (*itr==Jet || *itr==MPJet || *itr==Sum || *itr==MPSum) etmax=249.5;
-
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
     
     if (*itr==MPSumMETx || *itr==MPSumMHTx || *itr==MPSumMETy || *itr==MPSumMHTy) {
@@ -653,18 +661,28 @@ L1TStage2CaloAnalyzer::beginJob()
     else if (*itr==SumET || *itr==MPSumET || *itr==SumHT || *itr==MPSumHT) {
       het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
     }
-    else {//if (*itr==MPJet) {
+    else if (*itr==MPMinBiasHFP0 ||
+	     *itr==MPMinBiasHFM0 ||
+	     *itr==MPMinBiasHFP1 ||
+	     *itr==MPMinBiasHFM1 ||
+	     *itr==MinBiasHFP0 ||
+	     *itr==MinBiasHFM0 ||
+	     *itr==MinBiasHFP1 ||
+	     *itr==MinBiasHFM1)  {
+      het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 16, -0.5, 15.5) )); 
+    }
+    else {
       het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 1500, -0.5, 1499.5) ));
     }
 
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
 
-    if (*itr==EG || *itr==Jet || *itr==Tau) {// || *itr==SumMET) || *itr==SumMHT) {
+    if (*itr==EG || *itr==Jet || *itr==Tau) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
       hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
     }
-    else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau){// || *itr==MPSum) {
+    else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
       hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0.5, 72.5) ));
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));

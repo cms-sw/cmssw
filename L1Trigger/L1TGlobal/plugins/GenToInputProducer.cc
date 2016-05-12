@@ -479,6 +479,28 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
    etsumVec.push_back(htTotal);
 
+// Add EtSums for testing the MinBias Trigger (use some random numbers)   
+   int hfP0val  = gRandom->Poisson(4.);
+   if(hfP0val>15) hfP0val = 15;
+   l1t::EtSum hfP0(*p4, l1t::EtSum::EtSumType::kMinBiasHFP0,hfP0val, 0, 0, 0); 
+   etsumVec.push_back(hfP0);
+
+   int hfM0val  = gRandom->Poisson(4.);
+   if(hfM0val>15) hfM0val = 15;
+   l1t::EtSum hfM0(*p4, l1t::EtSum::EtSumType::kMinBiasHFM0,hfM0val, 0, 0, 0); 
+   etsumVec.push_back(hfM0);   
+
+   int hfP1val  = gRandom->Poisson(4.);
+   if(hfP1val>15) hfP1val = 15;
+   l1t::EtSum hfP1(*p4, l1t::EtSum::EtSumType::kMinBiasHFP1,hfP1val, 0, 0, 0); 
+   etsumVec.push_back(hfP1);
+
+   int hfM1val  = gRandom->Poisson(4.);
+   if(hfM1val>15) hfM1val = 15;
+   l1t::EtSum hfM1(*p4, l1t::EtSum::EtSumType::kMinBiasHFM1,hfM1val, 0, 0, 0); 
+   etsumVec.push_back(hfM1);    
+
+ 
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {

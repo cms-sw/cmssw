@@ -24,7 +24,10 @@ enum GlobalObject
     gtHTT,
     gtHTM,
     gtETM2,
-    gtMinBias,
+    gtMinBiasHFP0,
+    gtMinBiasHFM0,
+    gtMinBiasHFP1,
+    gtMinBiasHFM1,
     gtExternal,
     ObjNull
 };

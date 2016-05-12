@@ -1,7 +1,7 @@
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
-void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char * var, const char * cut, int nbins, double max, double min){
+void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char * var,  const char * var2, const char * cut, int nbins, double max, double min){
   char command[1000];
   static int count = 0;
 
@@ -9,15 +9,15 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
   TH1F h2("h2","",nbins,max,min);
   sprintf(command, "%s>>h1", var);
   tree1->Draw(command, cut);
-  sprintf(command, "%s>>h2", var);
+  sprintf(command, "%s>>h2", var2);
   tree2->Draw(command, cut);
   //cout << "count 1:  " << h1.GetEntries() << "\n";
   //cout << "count 2:  " << h2.GetEntries() << "\n";
   
   if(!TString(var).CompareTo("sumEt[0]")) { var = "ETT";}
-  else if(!TString(var).CompareTo("sumEt[1]")) {var = "HTT";}
-  else if(!TString(var).CompareTo("sumEt[2]")) {var = "ETM";}
-  else if(!TString(var).CompareTo("sumEt[3]")) {var = "HTM";}
+  else if(!TString(var).CompareTo("sumEt[2]")) {var = "HTT";}
+  else if(!TString(var).CompareTo("sumEt[4]")) {var = "ETM";}
+  else if(!TString(var).CompareTo("sumEt[6]")) {var = "HTM";}
 
   int fail = 0;
   for (int i=0; i<nbins+2; i++){
@@ -42,8 +42,9 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
   
 }
 
-
-
+void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char * var, const char * cut, int nbins, double max, double min){
+  bitwise_compare(tag, tree1, tree2, var, var, cut, nbins, max, min);
+}
 
 void NtupleDiff(const char * tag, const char * file1, const char * file2, const char * treepath1="l1UpgradeEmuTree/L1UpgradeTree", const char * treepath2="l1UpgradeEmuTree/L1UpgradeTree"){
   cout << "INFO: comparing contents of tree " << treepath1 << " in file " << file1 << "\n";
@@ -91,9 +92,15 @@ void NtupleDiff(const char * tag, const char * file1, const char * file2, const 
   bitwise_compare(tag, tree1, tree2, "muonPhi", "muonEt > 10.0", 20.0, -6.2, 6.2);
 
   bitwise_compare(tag, tree1, tree2, "sumEt[0]", "", 20.0, 0.0, 500.0);
-  bitwise_compare(tag, tree1, tree2, "sumEt[1]", "", 20.0, 0.0, 500.0);
   bitwise_compare(tag, tree1, tree2, "sumEt[2]", "", 20.0, 0.0, 500.0);
-  bitwise_compare(tag, tree1, tree2, "sumEt[3]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tag, tree1, tree2, "sumEt[4]", "", 20.0, 0.0, 500.0);
+  bitwise_compare(tag, tree1, tree2, "sumEt[6]", "", 20.0, 0.0, 500.0);
+
+  // for hack, use this version when comparing to old order sums:
+  //bitwise_compare(tag, tree1, tree2, "sumEt[0]", "sumEt[0]", "", 20.0, 0.0, 500.0);
+  //bitwise_compare(tag, tree1, tree2, "sumEt[2]", "sumEt[1]", "", 20.0, 0.0, 500.0);
+  //bitwise_compare(tag, tree1, tree2, "sumEt[4]", "sumEt[2]", "", 20.0, 0.0, 500.0);
+  //bitwise_compare(tag, tree1, tree2, "sumEt[6]", "sumEt[3]", "", 20.0, 0.0, 500.0);
   
 
   //TH1F * jetEt = new TH1F("jetEt","", 20, 0.0, 200.0);
