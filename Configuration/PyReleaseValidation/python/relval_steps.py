@@ -1612,7 +1612,7 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
 
-    upgradeStepDict['RecoFullTracking'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:globalreco_trackingOnly',
+    upgradeStepDict['RecoFullTracking'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO',
                                       '-n':'10',
