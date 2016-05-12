@@ -89,7 +89,6 @@ void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
   std::cout <<"'"<< outputDir <<"' = "<< dir << std::endl;
-  gSystem->mkdir(dir.c_str(), true);
   outputDir = dir;
   gSystem->mkdir(outputDir.data(), true);
 }
