@@ -364,7 +364,7 @@ private:
   std::vector<short> trk_isHP    ;
   std::vector<int> trk_seedIdx ;
   std::vector<std::vector<float> > trk_shareFrac;
-  std::vector<std::vector<int> > trk_simIdx;
+  std::vector<std::vector<int> > trk_simTrkIdx;
   std::vector<std::vector<int> > trk_hitIdx;
   std::vector<std::vector<int> > trk_hitType;
   //sim tracks
@@ -379,7 +379,6 @@ private:
   std::vector<float> sim_phi      ;
   std::vector<float> sim_dxy      ;
   std::vector<float> sim_dz       ;
-  std::vector<std::vector<float> > sim_shareFrac;
   std::vector<int> sim_q       ;
   std::vector<unsigned int> sim_nValid  ;
   std::vector<unsigned int> sim_nPixel  ;
@@ -387,9 +386,10 @@ private:
   std::vector<unsigned int> sim_nLay;
   std::vector<unsigned int> sim_nPixelLay;
   std::vector<unsigned int> sim_n3DLay  ;
+  std::vector<std::vector<int> > sim_trkIdx  ;
+  std::vector<std::vector<float> > sim_shareFrac;
   std::vector<int> sim_parentVtxIdx;
   std::vector<std::vector<int> > sim_decayVtxIdx;
-  std::vector<std::vector<int> > sim_trkIdx  ;
   std::vector<std::vector<int> > sim_hitIdx;
   std::vector<std::vector<int> > sim_hitType;
   //pixels: reco and sim hits
@@ -493,7 +493,7 @@ private:
   std::vector<unsigned int> see_nStrip  ;
   std::vector<unsigned int> see_algo    ;
   std::vector<std::vector<float> > see_shareFrac;
-  std::vector<std::vector<int> > see_simIdx;
+  std::vector<std::vector<int> > see_simTrkIdx;
   std::vector<std::vector<int> > see_hitIdx;
   std::vector<std::vector<int> > see_hitType;
   //seed algo offset
@@ -599,7 +599,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("trk_seedIdx"  , &trk_seedIdx );
   }
   t->Branch("trk_shareFrac", &trk_shareFrac);
-  t->Branch("trk_simIdx"   , &trk_simIdx  );
+  t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
   if(includeAllHits_) {
     t->Branch("trk_hitIdx" , &trk_hitIdx);
     t->Branch("trk_hitType", &trk_hitType);
@@ -616,7 +616,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_phi"      , &sim_phi      );
   t->Branch("sim_dxy"      , &sim_dxy      );
   t->Branch("sim_dz"       , &sim_dz       );
-  t->Branch("sim_shareFrac", &sim_shareFrac);
   t->Branch("sim_q"        , &sim_q        );
   t->Branch("sim_nValid"   , &sim_nValid   );
   t->Branch("sim_nPixel"   , &sim_nPixel   );
@@ -624,9 +623,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_nLay"     , &sim_nLay     );
   t->Branch("sim_nPixelLay", &sim_nPixelLay);
   t->Branch("sim_n3DLay"   , &sim_n3DLay   );
+  t->Branch("sim_trkIdx"   , &sim_trkIdx   );
+  t->Branch("sim_shareFrac", &sim_shareFrac);
   t->Branch("sim_parentVtxIdx", &sim_parentVtxIdx);
   t->Branch("sim_decayVtxIdx", &sim_decayVtxIdx);
-  t->Branch("sim_trkIdx"   , &sim_trkIdx   );
   if(includeAllHits_) {
     t->Branch("sim_hitIdx" , &sim_hitIdx );
     t->Branch("sim_hitType", &sim_hitType );
@@ -741,7 +741,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nStrip"   , &see_nStrip  );
     t->Branch("see_algo"     , &see_algo    );
     t->Branch("see_shareFrac", &see_shareFrac);
-    t->Branch("see_simIdx"   , &see_simIdx  );
+    t->Branch("see_simTrkIdx", &see_simTrkIdx  );
     if(includeAllHits_) {
       t->Branch("see_hitIdx" , &see_hitIdx  );
       t->Branch("see_hitType", &see_hitType );
@@ -824,7 +824,7 @@ void TrackingNtuple::clearVariables() {
   trk_isHP     .clear();
   trk_seedIdx  .clear();
   trk_shareFrac.clear();
-  trk_simIdx   .clear();
+  trk_simTrkIdx.clear();
   trk_hitIdx   .clear();
   trk_hitType  .clear();
   //sim tracks
@@ -839,7 +839,6 @@ void TrackingNtuple::clearVariables() {
   sim_phi      .clear();
   sim_dxy      .clear();
   sim_dz       .clear();
-  sim_shareFrac.clear();
   sim_q        .clear();
   sim_nValid   .clear();
   sim_nPixel   .clear();
@@ -847,9 +846,10 @@ void TrackingNtuple::clearVariables() {
   sim_nLay     .clear();
   sim_nPixelLay.clear();
   sim_n3DLay   .clear();
+  sim_trkIdx   .clear();
+  sim_shareFrac.clear();
   sim_parentVtxIdx.clear();
   sim_decayVtxIdx.clear();
-  sim_trkIdx   .clear();
   sim_hitIdx   .clear();
   sim_hitType  .clear();
   //pixels
@@ -953,7 +953,7 @@ void TrackingNtuple::clearVariables() {
   see_nStrip  .clear();
   see_algo    .clear();
   see_shareFrac.clear();
-  see_simIdx   .clear();
+  see_simTrkIdx.clear();
   see_hitIdx  .clear();
   see_hitType .clear();
   //seed algo offset
@@ -1492,7 +1492,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_algo    .push_back( algo );
 
       see_shareFrac.push_back( sharedFraction );
-      see_simIdx   .push_back( tpIdx );
+      see_simTrkIdx.push_back( tpIdx );
 
       /// Hmm, the following could make sense instead of plain failing if propagation to beam line fails
       /*
@@ -1698,7 +1698,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
       trk_seedIdx  .push_back( offset->second + itTrack->seedRef().key() );
     }
-    trk_simIdx   .push_back(tpIdx);
+    trk_simTrkIdx.push_back(tpIdx);
     LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
                                << ", chi2=" << chi2
@@ -1799,9 +1799,9 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     sim_pt       .push_back(tp->pt());
     sim_eta      .push_back(tp->eta());
     sim_phi      .push_back(tp->phi());
-    sim_shareFrac.push_back(sharedFraction);
     sim_q        .push_back(tp->charge());
     sim_trkIdx   .push_back(tkIdx);
+    sim_shareFrac.push_back(sharedFraction);
     sim_parentVtxIdx.push_back( tvKeyToIndex.at(tp->parentVertex().key()) );
     std::vector<int> decayIdx;
     for(const auto& v: tp->decayVertices())
