@@ -36,7 +36,7 @@ class HGCalBestChoiceCodecImpl
 
         void linearize(const HGCalTriggerGeometry::Module& ,  const std::vector<HGCEEDataFrame>&, std::vector<std::pair<HGCEEDetId, uint32_t > >&);
 
-        void triggerCellSums(const HGCalTriggerGeometry::Module& , std::vector<std::pair<HGCEEDetId, uint32_t > >&, data_type&);
+        void triggerCellSums(const HGCalTriggerGeometry::Module& , const std::vector<std::pair<HGCEEDetId, uint32_t > >&, data_type&);
         void bestChoiceSelect(data_type&);
 
     private:
@@ -49,6 +49,8 @@ class HGCalBestChoiceCodecImpl
         double   tdcsaturation_ ;
         uint32_t tdcnBits_ ;
         double   tdcOnsetfC_ ;
+        double   adcLSB_;
+        double   tdcLSB_;
 
 };
 
