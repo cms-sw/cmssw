@@ -22,7 +22,7 @@ METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
     mBinVar.push_back(fBinVar[i]);
   for(unsigned i=0;i<fParVar.size();i++)
     mParVar.push_back(fParVar[i]);
-  mFormula    = fFormula;
+  mFormula      = fFormula;
 }
 //------------------------------------------------------------------------
 //--- METCorrectorParameters::Definitions constructor --------------------
@@ -109,11 +109,10 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
       mParameters.push_back(getFloat(tokens[i]));
       std::cout<<tokens[i]<<"\t";
     }
-    std::cout<<std::endl;
   }
 }
 //------------------------------------------------------------------------
-//--- JetCorrectorParameters constructor ---------------------------------
+//--- METCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
 //------------------------------------------------------------------------
 METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const std::string& fSection) 
@@ -339,47 +338,42 @@ void METCorrectorParameters::printFile(const std::string& fFileName,const std::s
 }
 
 namespace {
-const std::vector<std::string> levels_ = {
+const std::vector<std::string> labels_ = {
   "XYshift"
 };
-const std::vector<std::string> XYshiftSource_ = {
-  "hEtaPlus_MC",
-  "hEtaMinus_MC",
-  "h0Barrel_MC",
-  "h0EndcapPlus_MC",
-  "h0EndcapMinus_MC",
-  "gammaBarrel_MC",
-  "gammaEndcapPlus_MC",
-  "gammaEndcapMinus_MC",
-  "hHFPlus_MC",
-  "hHFMinus_MC",
-  "egammaHFPlus_MC",
-  "egammaHFMinus_MC"
+const std::vector<std::string> XYshiftFlavors_ = {
+  "XYshift_hEtaPlus_MC",
+  "XYshift_hEtaMinus_MC",
+  "XYshift_h0Barrel_MC",
+  "XYshift_h0EndcapPlus_MC",
+  "XYshift_h0EndcapMinus_MC",
+  "XYshift_gammaBarrel_MC",
+  "XYshift_gammaEndcapPlus_MC",
+  "XYshift_gammaEndcapMinus_MC",
+  "XYshift_hHFPlus_MC",
+  "XYshift_hHFMinus_MC",
+  "XYshift_egammaHFPlus_MC",
+  "XYshift_egammaHFMinus_MC"
 };
 
 }//namespace
 
 std::string
-METCorrectorParametersCollection::findSection( section_type k ){
-  std::cout<<"findLabel with section_type: "<<k<<std::endl;
+METCorrectorParametersCollection::findLabel( key_type k ){
+  std::cout<<"findLabel with key: "<<k<<std::endl;
   if( isXYshift(k) )
   {
     std::cout<<"is XYshift"<<std::endl;
-    return findXYshiftSource(k);
-  }
-  return levels_[k];
+    return findXYshiftFlavor(k);
+  }else return labels_[k];
+  
 }
 std::string
-METCorrectorParametersCollection::findLevel( key_type k ){
-  std::cout<<"findLevel with key_type: "<<k<<std::endl;
-  return levels_[k];
-}
-std::string
-METCorrectorParametersCollection::findXYshiftSource( section_type k)
+METCorrectorParametersCollection::findXYshiftFlavor( key_type k)
 {
-  if( k == XYshift) return levels_[XYshift];
+  if( k == XYshift) return labels_[XYshift];
   else
-    return XYshiftSource_[k - XYshift*100 -1];
+    return XYshiftFlavors_[k - XYshift*100 -1];
 }
 void METCorrectorParametersCollection::getSections( std::string inputFile,
 						    std::vector<std::string> & outputs )
@@ -402,16 +396,16 @@ void METCorrectorParametersCollection::getSections( std::string inputFile,
 }
 
 // Add a METCorrectorParameter object. 
-void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &source )
+void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &flav )
 { 
   std::cout << "Level index    = " << i << std::endl;  
-  std::cout << "source = " << source << std::endl;
+  std::cout << "flav = " << flav << std::endl;
   if( isXYshift(i))
   {
-    std::cout << "This is XYshift, getXYshiftSection = " << getXYshiftSection(source) << std::endl;
-    correctionsXYshift_.push_back( pair_type(getXYshiftSection(source),j) );
+    std::cout << "This is XYshift, getXYshiftFlavBin = " << getXYshiftFlavBin(flav) << std::endl;
+    correctionsXYshift_.push_back( pair_type(getXYshiftFlavBin(flav),j) );
   }else{
-    std::cout << "***** NOT ADDING " << source << ", corresponding position in METCorrectorParameters is not found." << std::endl;
+    std::cout << "***** NOT ADDING " << flav << ", corresponding position in METCorrectorParameters is not found." << std::endl;
   }
 }
 
@@ -440,34 +434,59 @@ void METCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) 
     keys.push_back( i->first );
   }
 }
-void METCorrectorParametersCollection::validSections(std::vector<section_type> & sections ) const {
-  sections.clear();
-  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
-	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
-    sections.push_back( i->first );
-  }
-}
+//void METCorrectorParametersCollection::validSections(std::vector<section_type> & sections ) const {
+//  sections.clear();
+//  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
+//	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
+//    sections.push_back( i->first );
+//  }
+//}
 
 
 METCorrectorParametersCollection::key_type
-METCorrectorParametersCollection::getXYshiftSection( std::string const & source ){
+METCorrectorParametersCollection::getXYshiftFlavBin( std::string const & flav ){
   std::vector<std::string>::const_iterator found =
-    find( XYshiftSource_.begin(), XYshiftSource_.end(), source );
-  if ( found != XYshiftSource_.end() ) {
-    return (found - XYshiftSource_.begin() + 1)+ XYshift * 100;
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ XYshift * 100;
   }
   else{
     throw cms::Exception("InvalidInput") <<
-    "************** Can't find XYshiftSection: "<<source<<std::endl;
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
   }
 
   return 0;
 }
 
-bool METCorrectorParametersCollection::isXYshift( section_type k ) {
+bool METCorrectorParametersCollection::isXYshift( key_type k ) {
   return k == XYshift ||
     (k > XYshift*100 && k < XYshift*100 + 100);
 }
+
+// Find the key corresponding to each label
+METCorrectorParametersCollection::key_type
+METCorrectorParametersCollection::findKey( std::string const & label ) const {
+
+  // First check L5 corrections
+  std::vector<std::string>::const_iterator found1 =
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), label );
+  if ( found1 != XYshiftFlavors_.end() ) {
+    return getXYshiftFlavBin(label);
+  }
+
+  // Finally check the default corrections
+  std::vector<std::string>::const_iterator found2 =
+    find( labels_.begin(), labels_.end(), label );
+  if ( found2 != labels_.end() ) {
+    return static_cast<key_type>(found2 - labels_.begin());
+  }
+
+  // Didn't find default corrections, throw exception
+  throw cms::Exception("InvalidInput") << " Cannot find label " << label << std::endl;
+
+}
+
+
 
 #include "FWCore/Utilities/interface/typelookup.h"
  

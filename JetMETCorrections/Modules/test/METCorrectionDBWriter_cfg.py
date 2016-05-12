@@ -11,7 +11,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    #process.CondDBCommon, 
    toPut = cms.VPSet( 
       cms.PSet(
-         #record = cms.string('METCorrectionsRecord'), 
          record = cms.string('PfType1Met'), 
          tag    = cms.string('METCorrectorParametersCollection_MET16V0'), 
          label  = cms.string('PfType1Met') 
@@ -21,7 +20,8 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
 
 process.dbWriterXYshift = cms.EDAnalyzer('METCorrectorDBWriter', 
    era    = cms.untracked.string('MET16V0'), 
-   algo   = cms.untracked.string('PfType1Met') 
+   algo   = cms.untracked.string('PfType1Met'), 
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/')
 ) 
 
 process.p = cms.Path( 

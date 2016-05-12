@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("metdbreader")
-process.load('Configuration.StandardSequences.Services_cff')
+#process.load('Configuration.StandardSequences.Services_cff')
 #process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("CondCore.CondDB.CondDB_cfi")
 
@@ -21,11 +21,12 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       cms.PSet(
               #record = cms.string('MetShiftXY'),
               #record = cms.string('PfType1Met'), 
-              record = cms.string('METCorrectionsRecord'), 
+              record = cms.string('JetCorrectionsRecord'),
+              #record = cms.string('METCorrectionsRecord'),# plugin 
               #tag    = cms.string('metShiftxy'),
               tag    = cms.string('METCorrectorParametersCollection_MET16V0'),
-              label  = cms.untracked.string('PfType1Met')
-              #label  = cms.untracked.string('PFMETLocal')
+              #label  = cms.untracked.string('PfType1Met')
+              label  = cms.untracked.string('PfType1MetLocal')
               #label  = cms.untracked.string('AK5CaloLocal') 
             ),                                                                               
        ),
@@ -35,7 +36,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 
 process.demo1 = cms.EDAnalyzer('METCorrectorDBReader', 
-        payloadName     = cms.untracked.string('PfType1Met'),
+        payloadName     = cms.untracked.string('PfType1MetLocal'),
+        #payloadName     = cms.untracked.string('PfType1Met'),
         #payloadName    = cms.untracked.string('PFMETLocal'),
         #payloadName    = cms.untracked.string('MetShiftXY'),
         #payloadName    = cms.untracked.string('AK5CaloLocal'),

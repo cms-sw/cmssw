@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 
@@ -24,6 +25,7 @@ class  METCorrectorDBWriter : public edm::EDAnalyzer
  private:
   std::string era;
   std::string algo;
+  std::string path;
   std::string inputTxtFile;
   std::string payloadTag;
 };
@@ -32,41 +34,45 @@ METCorrectorDBWriter::METCorrectorDBWriter(const edm::ParameterSet& pSet)
 {
   era    = pSet.getUntrackedParameter<std::string>("era");
   algo   = pSet.getUntrackedParameter<std::string>("algo");
+  path   = pSet.getUntrackedParameter<std::string>("path");
   payloadTag = algo;
 }
 
 void METCorrectorDBWriter::beginJob()
 {
-  std::string path("CondFormats/JetMETObjects/data/");
+  //std::string path("CondFormats/JetMETObjects/data/");
 
   METCorrectorParametersCollection *payload = new METCorrectorParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
-  for( int i(0); i< METCorrectorParametersCollection::N_LEVELS;++i)
+  for( int ilev(0); ilev< METCorrectorParametersCollection::N_LEVELS;++ilev)
   {
     std::string append("_");
-    std::string ilev = METCorrectorParametersCollection::findLevel( static_cast<METCorrectorParametersCollection::Level_t>(i) );
-    append += ilev;
+    std::string levelName = METCorrectorParametersCollection::findLabel( static_cast<METCorrectorParametersCollection::Level_t>(ilev) );
+    append += levelName;
     append += "_";
     append += algo;
     append += ".txt";
     inputTxtFile = path+era+append;
-    std::ifstream input( ("../../../"+inputTxtFile).c_str() );
-    if ( input.good() ) {
+    //std::ifstream input( ("../../../"+inputTxtFile).c_str() );
+    try{
       edm::FileInPath fip(inputTxtFile);
       std::cout << "Opened file " << inputTxtFile << std::endl;
+      // Create the parameter object from file
       std::vector<std::string> sections;
-      METCorrectorParametersCollection::getSections("../../../"+inputTxtFile, sections );
+      METCorrectorParametersCollection::getSections(fip.fullPath(), sections );
       if(sections.size() == 0){
-        payload->push_back(i, METCorrectorParameters(fip.fullPath(),"") );
+        payload->push_back(ilev, METCorrectorParameters(fip.fullPath(),"") );
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	  payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect),levelName+"_"+ *isect );	  
 	  //payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
-	  std::cout << "Added level " << ilev <<" section: "<< *isect <<  " to record "<< std::endl;
+	  std::cout << "Added level " << levelName  + "_" + *isect <<  " to record "<<ilev<< std::endl;
 	}
       }
-    }else{
+      std::cout << "Added record " << ilev << std::endl;
+    }
+    catch(edm::Exception ex) {
       std::cout<<"Have not found METC file: "<<inputTxtFile<<std::endl;
     }
   }

@@ -35,7 +35,7 @@ class METCorrectorParameters
         std::string formula()               const {return mFormula;       }
       private:
         //-------- Member variables ----------
-	int 			ptclType;
+	int 			 ptclType;
         std::string              mFormula;
         std::vector<std::string> mBinVar;
         std::vector<std::string> mParVar;
@@ -58,7 +58,7 @@ class METCorrectorParameters
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
-	std::string metAxis()                  const {return mMetAxis;         }
+	std::string MetAxis()  const {return mMetAxis;       }
         int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
       private:
         //-------- Member variables ----------
@@ -66,7 +66,7 @@ class METCorrectorParameters
         std::vector<float> mMin;
         std::vector<float> mMax;
         std::vector<float> mParameters;
-	std::string	   mMetAxis;
+	std::string        mMetAxis;
 
       COND_SERIALIZABLE;
     };
@@ -108,10 +108,9 @@ class METCorrectorParametersCollection {
   };
 
   typedef int                            key_type;
-  typedef int                            section_type;
   typedef std::string                    label_type;
   typedef METCorrectorParameters         value_type;
-  typedef std::pair<section_type,value_type> pair_type;
+  typedef std::pair<key_type,value_type> pair_type;
   typedef std::vector<pair_type>         collection_type;
 
   // Constructor... initialize all three vectors to zero
@@ -119,7 +118,7 @@ class METCorrectorParametersCollection {
   //~METCorrectorParametersCollection() { correctionsXYshift_.clear();}
 
   // Add a METCorrectorParameter object, for each source 
-  void push_back( key_type i, value_type const & j, label_type const & source = "" );
+  void push_back( key_type i, value_type const & j, label_type const & flav = "" );
 
   // Access the METCorrectorParameter via the key k.
   // key_type is hashed to deal with the three collections
@@ -135,7 +134,6 @@ class METCorrectorParametersCollection {
   // Get a list of valid keys. These will contain hashed keys
   // that are aware of all three collections. 
   void validKeys(std::vector<key_type> & keys ) const;
-  void validSections(std::vector<section_type> & sections ) const;
 
 
   // Helper method to find all of the sections in a given 
@@ -143,13 +141,12 @@ class METCorrectorParametersCollection {
   static void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
   // Find the XYshift bin for hashing
-  static key_type getXYshiftSection( std::string const & source );
+  static key_type getXYshiftFlavBin( std::string const & Flav );
 
   static bool isXYshift( key_type k);
 
-  static std::string findSection( section_type k );
-  static std::string findLevel( key_type k );
-  static std::string findXYshiftSource( key_type k );
+  static std::string findLabel( key_type k );
+  static std::string findXYshiftFlavor( key_type k );
 
  protected:
 
