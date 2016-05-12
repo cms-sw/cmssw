@@ -94,6 +94,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         int   cellSide_   ;
         int   cellLayer_  ;
         int   cellWafer_ ;
+        int   cellWaferType_ ;
         int   cell_       ;
         float cellX_      ;
         float cellY_      ;
@@ -151,8 +152,7 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf)
     treeTriggerCells_->Branch("id"             , &triggerCellId_            , "id/I");
     treeTriggerCells_->Branch("zside"          , &triggerCellSide_          , "zside/I");
     treeTriggerCells_->Branch("layer"          , &triggerCellLayer_         , "layer/I");
-    treeTriggerCells_->Branch("wafer"         , &triggerCellWafer_          , "wafer/I");
-    treeTriggerCells_->Branch("module"         , &triggerCellModule_        , "module/I");
+    treeTriggerCells_->Branch("wafer"          , &triggerCellWafer_          , "wafer/I");
     treeTriggerCells_->Branch("triggercell"    , &triggerCell_              , "triggercell/I");
     treeTriggerCells_->Branch("x"              , &triggerCellX_             , "x/F");
     treeTriggerCells_->Branch("y"              , &triggerCellY_             , "y/F");
@@ -180,6 +180,7 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf)
     treeCells_->Branch("zside"          , &cellSide_          , "zside/I");
     treeCells_->Branch("layer"          , &cellLayer_         , "layer/I");
     treeCells_->Branch("wafer"          , &cellWafer_         , "wafer/I");
+    treeCells_->Branch("wafertype"      , &cellWaferType_     , "wafertype/I");
     treeCells_->Branch("cell"           , &cell_              , "cell/I");
     treeCells_->Branch("x"              , &cellX_             , "x/F");
     treeCells_->Branch("y"              , &cellY_             , "y/F");
@@ -272,7 +273,6 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         triggerCellSide_   = id.zside();
         triggerCellLayer_  = id.layer();
         triggerCellWafer_  = id.wafer();
-        triggerCellModule_ = id.module();
         triggerCell_       = id.cell();
         triggerCellX_      = triggerCellPtr->position().x();
         triggerCellY_      = triggerCellPtr->position().y();
@@ -300,45 +300,40 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     }
     // Loop over cells
     std::cout<<"Filling cells tree\n";
-    for (int izz=0; izz<=1; izz++) 
+    for(const auto& id : info.geom_ee->getValidGeomDetIds())
     {
-        int iz = (2*izz-1);
-        for (int subsec=0; subsec<=1; ++subsec) 
+        if(id.rawId()==0) continue;
+        HGCalDetId waferid(id); 
+        int nCells = info.topo_ee->dddConstants().numberCellsHexagon(waferid.wafer());
+        for(int i=0;i<nCells;i++)
         {
-            for (int sec=1; sec<=18; ++sec) 
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            if(!info.topo_ee->valid(id)) continue;
+            cellId_         = id.rawId();
+            cellSide_       = id.zside();
+            cellLayer_      = id.layer();
+            cellWafer_      = id.wafer();
+            cellWaferType_  = id.waferType();
+            cell_           = id.cell();
+            //
+            GlobalPoint center = info.geom_ee->getPosition(id);
+            cellX_      = center.x();
+            cellY_      = center.y();
+            cellZ_      = center.z();
+            std::vector<GlobalPoint> corners = info.geom_ee->getCorners(id);
+            if(corners.size()<4) std::cout<<"#corners < 4\n";
+            else
             {
-                for (int lay=1; lay<=30; ++lay) 
-                {
-                    for (int cell=0; cell<8000; ++cell) 
-                    {
-                        const HGCEEDetId id(HGCEE,iz,lay,sec,subsec,cell);
-                        if(!info.topo_ee->valid(id)) continue;
-                        cellId_     = id.rawId();
-                        cellSide_   = id.zside();
-                        cellLayer_  = id.layer();
-                        cellWafer_  = id.wafer();
-                        cell_       = id.cell();
-                        GlobalPoint center = info.geom_ee->getPosition(id);
-                        cellX_      = center.x();
-                        cellY_      = center.y();
-                        cellZ_      = center.z();
-                        std::vector<GlobalPoint> corners = info.geom_ee->getCorners(id);
-                        if(corners.size()<4) std::cout<<"#corners < 4\n";
-                        else
-                        {
-                            cellX1_      = corners.at(0).x();
-                            cellY1_      = corners.at(0).y();
-                            cellX2_      = corners.at(1).x();
-                            cellY2_      = corners.at(1).y();
-                            cellX3_      = corners.at(2).x();
-                            cellY3_      = corners.at(2).y();
-                            cellX4_      = corners.at(3).x();
-                            cellY4_      = corners.at(3).y();
-                        }
-                        treeCells_->Fill();
-                    }
-                }
+                cellX1_      = corners.at(0).x();
+                cellY1_      = corners.at(0).y();
+                cellX2_      = corners.at(1).x();
+                cellY2_      = corners.at(1).y();
+                cellX3_      = corners.at(2).x();
+                cellY3_      = corners.at(2).y();
+                cellX4_      = corners.at(3).x();
+                cellY4_      = corners.at(3).y();
             }
+            treeCells_->Fill();
         }
     }
 }
@@ -357,46 +352,46 @@ void HGCalTriggerGeomTester::analyze(const edm::Event& e,
 void HGCalTriggerGeomTester::setTreeModuleSize(const size_t n) 
 /*****************************************************************/
 {
-    //moduleTC_id_    .reset(new int[n],   array_deleter<int>());
-    //moduleTC_zside_ .reset(new int[n],   array_deleter<int>());
-    //moduleTC_layer_ .reset(new int[n],   array_deleter<int>());
-    //moduleTC_sector_.reset(new int[n],   array_deleter<int>());
-    //moduleTC_cell_  .reset(new int[n],   array_deleter<int>());
-    //moduleTC_x_     .reset(new float[n], array_deleter<float>());
-    //moduleTC_y_     .reset(new float[n], array_deleter<float>());
-    //moduleTC_z_     .reset(new float[n], array_deleter<float>());
+    moduleTC_id_    .reset(new int[n],   array_deleter<int>());
+    moduleTC_zside_ .reset(new int[n],   array_deleter<int>());
+    moduleTC_layer_ .reset(new int[n],   array_deleter<int>());
+    moduleTC_wafer_ .reset(new int[n],   array_deleter<int>());
+    moduleTC_cell_  .reset(new int[n],   array_deleter<int>());
+    moduleTC_x_     .reset(new float[n], array_deleter<float>());
+    moduleTC_y_     .reset(new float[n], array_deleter<float>());
+    moduleTC_z_     .reset(new float[n], array_deleter<float>());
 
-    //treeModules_->GetBranch("tc_id")     ->SetAddress(moduleTC_id_    .get());
-    //treeModules_->GetBranch("tc_zside")  ->SetAddress(moduleTC_zside_ .get());
-    //treeModules_->GetBranch("tc_layer")  ->SetAddress(moduleTC_layer_ .get());
-    //treeModules_->GetBranch("tc_sector") ->SetAddress(moduleTC_sector_.get());
-    //treeModules_->GetBranch("tc_cell")   ->SetAddress(moduleTC_cell_  .get());
-    //treeModules_->GetBranch("tc_x")      ->SetAddress(moduleTC_x_     .get());
-    //treeModules_->GetBranch("tc_y")      ->SetAddress(moduleTC_y_     .get());
-    //treeModules_->GetBranch("tc_z")      ->SetAddress(moduleTC_z_     .get());
+    treeModules_->GetBranch("tc_id")     ->SetAddress(moduleTC_id_    .get());
+    treeModules_->GetBranch("tc_zside")  ->SetAddress(moduleTC_zside_ .get());
+    treeModules_->GetBranch("tc_layer")  ->SetAddress(moduleTC_layer_ .get());
+    treeModules_->GetBranch("tc_wafer")  ->SetAddress(moduleTC_wafer_ .get());
+    treeModules_->GetBranch("tc_cell")   ->SetAddress(moduleTC_cell_  .get());
+    treeModules_->GetBranch("tc_x")      ->SetAddress(moduleTC_x_     .get());
+    treeModules_->GetBranch("tc_y")      ->SetAddress(moduleTC_y_     .get());
+    treeModules_->GetBranch("tc_z")      ->SetAddress(moduleTC_z_     .get());
 }
 
 /*****************************************************************/
 void HGCalTriggerGeomTester::setTreeTriggerCellSize(const size_t n) 
 /*****************************************************************/
 {
-    //triggerCellCell_id_    .reset(new int[n],   array_deleter<int>());
-    //triggerCellCell_zside_ .reset(new int[n],   array_deleter<int>());
-    //triggerCellCell_layer_ .reset(new int[n],   array_deleter<int>());
-    //triggerCellCell_sector_.reset(new int[n],   array_deleter<int>());
-    //triggerCellCell_cell_  .reset(new int[n],   array_deleter<int>());
-    //triggerCellCell_x_     .reset(new float[n], array_deleter<float>());
-    //triggerCellCell_y_     .reset(new float[n], array_deleter<float>());
-    //triggerCellCell_z_     .reset(new float[n], array_deleter<float>());
+    triggerCellCell_id_    .reset(new int[n],   array_deleter<int>());
+    triggerCellCell_zside_ .reset(new int[n],   array_deleter<int>());
+    triggerCellCell_layer_ .reset(new int[n],   array_deleter<int>());
+    triggerCellCell_wafer_ .reset(new int[n],   array_deleter<int>());
+    triggerCellCell_cell_  .reset(new int[n],   array_deleter<int>());
+    triggerCellCell_x_     .reset(new float[n], array_deleter<float>());
+    triggerCellCell_y_     .reset(new float[n], array_deleter<float>());
+    triggerCellCell_z_     .reset(new float[n], array_deleter<float>());
 
-    //treeTriggerCells_->GetBranch("c_id")     ->SetAddress(triggerCellCell_id_    .get());
-    //treeTriggerCells_->GetBranch("c_zside")  ->SetAddress(triggerCellCell_zside_ .get());
-    //treeTriggerCells_->GetBranch("c_layer")  ->SetAddress(triggerCellCell_layer_ .get());
-    //treeTriggerCells_->GetBranch("c_sector") ->SetAddress(triggerCellCell_sector_.get());
-    //treeTriggerCells_->GetBranch("c_cell")   ->SetAddress(triggerCellCell_cell_  .get());
-    //treeTriggerCells_->GetBranch("c_x")      ->SetAddress(triggerCellCell_x_     .get());
-    //treeTriggerCells_->GetBranch("c_y")      ->SetAddress(triggerCellCell_y_     .get());
-    //treeTriggerCells_->GetBranch("c_z")      ->SetAddress(triggerCellCell_z_     .get());
+    treeTriggerCells_->GetBranch("c_id")     ->SetAddress(triggerCellCell_id_    .get());
+    treeTriggerCells_->GetBranch("c_zside")  ->SetAddress(triggerCellCell_zside_ .get());
+    treeTriggerCells_->GetBranch("c_layer")  ->SetAddress(triggerCellCell_layer_ .get());
+    treeTriggerCells_->GetBranch("c_wafer")  ->SetAddress(triggerCellCell_wafer_ .get());
+    treeTriggerCells_->GetBranch("c_cell")   ->SetAddress(triggerCellCell_cell_  .get());
+    treeTriggerCells_->GetBranch("c_x")      ->SetAddress(triggerCellCell_x_     .get());
+    treeTriggerCells_->GetBranch("c_y")      ->SetAddress(triggerCellCell_y_     .get());
+    treeTriggerCells_->GetBranch("c_z")      ->SetAddress(triggerCellCell_z_     .get());
 }
 
 

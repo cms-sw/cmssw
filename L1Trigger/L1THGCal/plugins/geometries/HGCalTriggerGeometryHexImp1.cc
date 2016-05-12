@@ -18,6 +18,9 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryBase
     private:
         edm::FileInPath l1tCellsMapping_;
         edm::FileInPath l1tModulesMapping_;
+
+        void fillMaps(const es_info&);
+        void buildTriggerCellsAndModules(const es_info&);
 };
 
 
@@ -39,6 +42,18 @@ void HGCalTriggerGeometryHexImp1::initialize(const es_info& esInfo)
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: Only the EE part is covered.\n"\
                                             << "WARNING: There is no neighbor information.\n";
+
+    fillMaps(esInfo);
+    buildTriggerCellsAndModules(esInfo);
+
+}
+
+
+
+/*****************************************************************/
+void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
+/*****************************************************************/
+{
     //
     // read module mapping file
     std::map<short, short> wafer_to_module;
@@ -48,105 +63,115 @@ void HGCalTriggerGeometryHexImp1::initialize(const es_info& esInfo)
     short module  = 0;
     for(; l1tModulesMappingStream>>wafer>>module; )
     {
-        wafer_to_module[wafer] = module;
+        wafer_to_module.emplace(wafer,module);
     }
+    if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<wafer<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
-    //
     // read trigger cell mapping file
     std::map<std::pair<short,short>, short> cells_to_trigger_cells;
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
     if(!l1tCellsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellsMapping file\n";
-    short wafertype   = 0;
+    short waferType   = 0;
     short cell        = 0;
-    short triggercell = 0;
-    for(; l1tCellsMappingStream>>wafertype>>cell>>triggercell; )
+    short triggerCell = 0;
+    for(; l1tCellsMappingStream>>waferType>>cell>>triggerCell; )
     {
-        cells_to_trigger_cells[std::make_pair((wafertype?1:-1),cell)] = triggercell;
+        cells_to_trigger_cells.emplace(std::make_pair((waferType?1:-1),cell), triggerCell);
     }
-    //if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<layer<<" "<<cell<<" "<<triggercell<<" "<<subsector<<"' \n";
+    if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<waferType<<" "<<cell<<" "<<triggerCell<<"' \n";
     l1tCellsMappingStream.close();
+    //
+    // Loop over HGC cells
     for(const auto& id : esInfo.geom_ee->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
-        HGCalDetId waferid(id); 
-        short module      = wafer_to_module[waferid.wafer()];
-        int nCells = esInfo.topo_ee->dddConstants().numberCellsHexagon(waferid.wafer());
-        for(int i=0;i<nCells;i++)
+        HGCalDetId waferDetId(id); 
+        short module      = wafer_to_module[waferDetId.wafer()];
+        int nCells = esInfo.topo_ee->dddConstants().numberCellsHexagon(waferDetId.wafer());
+        for(int c=0;c<nCells;c++)
         {
-            short triggercell = cells_to_trigger_cells[std::make_pair(waferid.waferType(),i)];
+            short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
             // Fill cell -> trigger cell mapping
-            HGCalDetId cellid(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i); 
-            HGCalDetId triggerDetid(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), triggercell); 
-            cells_to_trigger_cells_.insert( std::make_pair(cellid, triggerDetid) );
+            HGCalDetId cellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), c); 
+            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), triggerCellId); 
+            cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
             // Fill trigger cell -> module mapping
-            HGCalDetId moduleDetid(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), module, HGCalDetId::kHGCalCellMask);
-            trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) ); // do nothing if trigger cell has already been inserted
+            HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
+            trigger_cells_to_modules_.emplace(triggerCellDetId, moduleDetId); 
         }
     }
+}
+
+
+
+/*****************************************************************/
+void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esInfo)
+/*****************************************************************/
+{
     //
     // Build trigger cells and fill map
     typedef HGCalTriggerGeometry::TriggerCell::list_type list_cells;
     // make list of cells in trigger cells
     std::map<unsigned, list_cells> trigger_cells_to_cells;
-    for(const auto& cell_triggercell : cells_to_trigger_cells_)
+    for(const auto& cell_triggerCell : cells_to_trigger_cells_)
     {
-        unsigned cell = cell_triggercell.first;
-        unsigned triggercell = cell_triggercell.second;
-        trigger_cells_to_cells.insert( std::make_pair(triggercell, list_cells()) );
-        trigger_cells_to_cells.at(triggercell).insert(cell);
+        unsigned cell        = cell_triggerCell.first;
+        unsigned triggerCell = cell_triggerCell.second;
+        auto itr_exist       = trigger_cells_to_cells.emplace(triggerCell, list_cells());
+        itr_exist.first->second.emplace(cell);
+        //trigger_cells_to_cells.at(triggerCell).emplace(cell);
     }
-    for(const auto& triggercell_cells : trigger_cells_to_cells)
+    for(const auto& triggerCell_cells : trigger_cells_to_cells)
     {
-        unsigned triggercellId = triggercell_cells.first;
-        list_cells cellIds = triggercell_cells.second;
-        // Position: for the moment, barycenter of the trigger cell.
-        Basic3DVector<float> triggercellVector(0.,0.,0.);
+        unsigned triggerCellId = triggerCell_cells.first;
+        list_cells cellIds = triggerCell_cells.second;
+        // Position: barycenter of the trigger cell.
+        Basic3DVector<float> triggerCellVector(0.,0.,0.);
         for(const auto& cell : cellIds)
         {
-            HGCalDetId cellId(cell);
-            triggercellVector += esInfo.geom_ee->getPosition(cellId).basicVector();
+            HGCalDetId cellDetId(cell);
+            triggerCellVector += esInfo.geom_ee->getPosition(cellDetId).basicVector();
         }
-        GlobalPoint triggercellPoint( triggercellVector/cellIds.size() );
-        const auto& tc2mItr = trigger_cells_to_modules_.find(triggercellId);
-        unsigned moduleId = (tc2mItr!=trigger_cells_to_modules_.end() ? tc2mItr->second : 0); // 0 if the trigger cell doesn't belong to a module
+        GlobalPoint triggerCellPoint( triggerCellVector/cellIds.size() );
+        const auto& triggerCellToModuleItr = trigger_cells_to_modules_.find(triggerCellId);
+        unsigned moduleId = (triggerCellToModuleItr!=trigger_cells_to_modules_.end() ? triggerCellToModuleItr->second : 0); // 0 if the trigger cell doesn't belong to a module
         //unsigned moduleId = trigger_cells_to_modules_.at(triggercellId);
         // FIXME: empty neighbours
-        std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> triggercellPtr(new HGCalTriggerGeometry::TriggerCell(triggercellId, moduleId, triggercellPoint, list_cells(), cellIds));
-        trigger_cells_.insert( std::make_pair(triggercellId, std::move(triggercellPtr)) );
+        trigger_cells_.emplace(triggerCellId, std::make_unique<const HGCalTriggerGeometry::TriggerCell>(triggerCellId, moduleId, triggerCellPoint, list_cells(), cellIds));
     }
     //
     // Build modules and fill map
-    typedef HGCalTriggerGeometry::Module::list_type list_triggercells;
+    typedef HGCalTriggerGeometry::Module::list_type list_triggerCells;
     typedef HGCalTriggerGeometry::Module::tc_map_type tc_map_to_cells;
     // make list of trigger cells in modules
-    std::map<unsigned, list_triggercells> modules_to_trigger_cells;
-    for(const auto& triggercell_module : trigger_cells_to_modules_)
+    std::map<unsigned, list_triggerCells> modules_to_trigger_cells;
+    for(const auto& triggerCell_module : trigger_cells_to_modules_)
     {
-        unsigned triggercell = triggercell_module.first;
-        unsigned module      = triggercell_module.second;
-        modules_to_trigger_cells.insert( std::make_pair(module, list_triggercells()) );
-        modules_to_trigger_cells.at(module).insert(triggercell);
+        unsigned triggerCell = triggerCell_module.first;
+        unsigned module      = triggerCell_module.second;
+        auto itr_exist       = modules_to_trigger_cells.emplace(module, list_triggerCells());
+        itr_exist.first->second.emplace(triggerCell);
+        //modules_to_trigger_cells.at(module).emplace(triggerCell);
     }
-    for(const auto& module_triggercell : modules_to_trigger_cells)
+    for(const auto& module_triggerCell : modules_to_trigger_cells)
     {
-        unsigned moduleId = module_triggercell.first;
-        list_triggercells triggercellIds = module_triggercell.second;
+        unsigned moduleId = module_triggerCell.first;
+        list_triggerCells triggerCellIds = module_triggerCell.second;
         tc_map_to_cells cellsInTriggerCells;
-        // Position: for the moment, barycenter of the module, from trigger cell positions
+        // Position: barycenter of the module, from trigger cell positions
         Basic3DVector<float> moduleVector(0.,0.,0.);
-        for(const auto& triggercell : triggercellIds)
+        for(const auto& triggerCell : triggerCellIds)
         {
-            const auto& cells_in_tc = trigger_cells_to_cells.at(triggercell);
+            const auto& cells_in_tc = trigger_cells_to_cells.at(triggerCell);
             for( const unsigned cell : cells_in_tc ) 
             {
-              cellsInTriggerCells.emplace(triggercell,cell);
+              cellsInTriggerCells.emplace(triggerCell,cell);
             }
-            moduleVector += trigger_cells_.at(triggercell)->position().basicVector();
+            moduleVector += trigger_cells_.at(triggerCell)->position().basicVector();
         }
-        GlobalPoint modulePoint( moduleVector/triggercellIds.size() );
+        GlobalPoint modulePoint( moduleVector/triggerCellIds.size() );
         // FIXME: empty neighbours
-        std::unique_ptr<const HGCalTriggerGeometry::Module> modulePtr(new HGCalTriggerGeometry::Module(moduleId, modulePoint, list_triggercells(), triggercellIds, cellsInTriggerCells));
-        modules_.insert( std::make_pair(moduleId, std::move(modulePtr)) );
+        modules_.emplace(moduleId, std::make_unique<const HGCalTriggerGeometry::Module>(moduleId, modulePoint, list_triggerCells(), triggerCellIds, cellsInTriggerCells));
     }
 }
 

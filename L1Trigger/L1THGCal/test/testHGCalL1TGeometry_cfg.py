@@ -60,7 +60,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("test.root")
+    fileName = cms.string("test_triggergeom.root")
     )
 
 
