@@ -111,6 +111,7 @@ public:
      return FWGeometry::find( id ) != m_idToInfo.end();
    }
 
+   IdToInfoItr mapEnd() const {return m_idToInfo.end();}
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
