@@ -266,6 +266,7 @@ def customise_Reco(process,pileup):
     process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
 
     # PixelCPEGeneric #
+    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
     process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
     process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
     process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
@@ -311,8 +312,6 @@ def customise_Reco(process,pileup):
     process.caloTowerForTrk.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.caloTowerForTrk.hfInput = cms.InputTag("hfUpgradeReco")
 
-    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
-
     # STILL TO DO (when the ph2 PF will be included):
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
@@ -325,163 +324,4 @@ def customise_Reco(process,pileup):
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff')
     return process
-
-
-def l1EventContent(process):
-    #extend the event content
-
-    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
-    for a in alist:
-        b=a+'output'
-        if hasattr(process,b):
-
-            getattr(process,b).outputCommands.append('keep *_TTClustersFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubsFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTracksFromPixelDigis_*_*')
-
-            getattr(process,b).outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-
-            getattr(process,b).outputCommands.append('drop PixelDigiSimLinkedmDetSetVector_mix_*_*')
-            getattr(process,b).outputCommands.append('drop PixelDigiedmDetSetVector_mix_*_*')
-
-            getattr(process,b).outputCommands.append('keep *_simSiPixelDigis_*_*')
-
-    return process
-
-def customise_DQM(process,pileup):
-    # We cut down the number of iterative tracking steps
-#    process.dqmoffline_step.remove(process.TrackMonStep3)
-#    process.dqmoffline_step.remove(process.TrackMonStep4)
-#    process.dqmoffline_step.remove(process.TrackMonStep5)
-#    process.dqmoffline_step.remove(process.TrackMonStep6)
-    			    #The following two steps were removed
-                            #process.PixelLessStep*
-                            #process.TobTecStep*
-#    process.dqmoffline_step.remove(process.muonAnalyzer)
-#    process.dqmoffline_step.remove(process.jetMETAnalyzer)
-#    process.dqmoffline_step.remove(process.TrackMonStep9)
-#    process.dqmoffline_step.remove(process.TrackMonStep10)
-#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
-    # SiPixelRawDataErrorSource doesn't work with Stacks, so take it out
-    process.dqmoffline_step.remove(process.SiPixelRawDataErrorSource)
-
-    # Tracking DQM needs to be migrated for phase2
-    process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
-    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
-
-    # Doesn't work because TriggerResults::HLT is missing
-    process.muonAnalyzer.remove(process.muonRecoOneHLT)
-
-    # Excessive printouts because 2017 doesn't have HLT yet
-    process.SiStripDQMTier0.remove(process.MonitorTrackResiduals)
-    process.SiStripDQMTier0MinBias.remove(process.MonitorTrackResiduals)
-    process.jetMETDQMOfflineSource.remove(process.jetDQMAnalyzerSequence)
-    process.jetMETDQMOfflineSource.remove(process.METDQMAnalyzerSequence)
-    process.dqmPhysics.remove(process.ewkMuDQM)
-    process.dqmPhysics.remove(process.ewkElecDQM)
-    process.dqmPhysics.remove(process.ewkMuLumiMonitorDQM)
-    process.DQMOfflinePrePOG.remove(process.pfTauRunDQMValidation)
-    process.DQMOffline.remove(process.HLTMonitoring)
-    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
-
-    ## DQM for stacks doesn't work yet, so skip adding the outer tracker.
-    ##add Phase 2 Upgrade Outer Tracker
-    #stripIndex=process.DQMOfflinePreDPG.index(process.SiStripDQMTier0)
-    #process.load("DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
-    #process.dqmoffline_step.insert(stripIndex, process.OuterTrackerSource)
-
-    #put isUpgrade flag==true
-    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
-
-    #from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
-    #process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
-    #process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
-    #process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
-    if hasattr(process,"globalrechitsanalyze") : # Validation takes this out if pileup is more than 30
-       process.globalrechitsanalyze.ROUList = cms.vstring(
-          'g4SimHitsTrackerHitsPixelBarrelLowTof',
-          'g4SimHitsTrackerHitsPixelBarrelHighTof',
-          'g4SimHitsTrackerHitsPixelEndcapLowTof',
-          'g4SimHitsTrackerHitsPixelEndcapHighTof')
-    return process
-
-def customise_Validation(process,pileup):
-    process.validation_step.remove(process.PixelTrackingRecHitsValid)
-    process.validation_step.remove(process.stripRecHitsValid)
-    process.validation_step.remove(process.trackerHitsValid)
-    process.validation_step.remove(process.StripTrackingRecHitsValid)
-
-    ## This next part doesn't work for stacks yet, so skip adding it.
-    ## Include Phase 2 Upgrade Outer Tracker
-    #stripVIndex=process.globalValidation.index(process.trackerDigisValidation)
-    #process.load("Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
-    #process.validation_step.insert(stripVIndex, process.OuterTrackerSource)
-
-    process.pixelDigisValid.src = cms.InputTag('simSiPixelDigis', "Pixel")
-    process.tpClusterProducer.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel")
-    
-    # No HLT yet for 2017, so no need to run the validation
-    process.hltassociation = cms.Sequence()
-    process.hltvalidation = cms.Sequence()
-    process.validation_step.remove(process.HLTSusyExoValSeq)
-    process.validation_step.remove(process.hltHiggsValidator)
-#    process.validation_step.remove(process.relvalMuonBits)
-    # TrackerHitAssociator needs updating for stacks, so all of the following
-    # need to be taken out. They either require hit association or rely on a
-    # module that does.
-    process.validation_step.remove(process.globalrechitsanalyze)
-    process.validation_step.remove(process.pixRecHitsValid)
-    process.validation_step.remove(process.recoMuonValidation)
-    
-    if pileup>30:
-        process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
-        process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
-        process.globalValidation.remove(process.recoMuonValidation)
-        process.validation.remove(process.recoMuonValidation)
-        process.validation_preprod.remove(process.recoMuonValidation)
-        process.validation_step.remove(process.recoMuonValidation)
-        process.validation.remove(process.globalrechitsanalyze)
-        process.validation_prod.remove(process.globalrechitsanalyze)
-        process.validation_step.remove(process.globalrechitsanalyze)
-        process.validation.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.StripTrackingRecHitsValid)
-        process.globalValidation.remove(process.vertexValidation)
-        process.validation.remove(process.vertexValidation)
-        process.validation_step.remove(process.vertexValidation)
-        process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
-        process.mix.minBunch = cms.int32(0)
-        process.mix.maxBunch = cms.int32(0)
-
-    if hasattr(process,'simHitTPAssocProducer'):
-        process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
-                                                              cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
-    if hasattr(process,'trackingParticleNumberOfLayersProducer'):
-        process.trackingParticleNumberOfLayersProducer.simHits=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
-                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
-
-    return process
-
-def customise_harvesting(process):
-    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
-    process.dqmHarvesting.remove(process.dataCertificationJetMET)
-    process.dqmHarvesting.remove(process.sipixelEDAClient)
-    process.dqmHarvesting.remove(process.sipixelCertification)
-
-    # Include Phase 2 Upgrade Outer Tracker
-    strip2Index=process.DQMOffline_SecondStep_PreDPG.index(process.SiStripOfflineDQMClient)
-    process.load("DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff")
-    process.dqmHarvesting.insert(strip2Index, process.OuterTrackerClient)
-
-    strip2VIndex=process.postValidation.index(process.bTagCollectorSequenceMCbcl)
-    process.load("Validation.Phase2OuterTracker.OuterTrackerClientConfig_cff")
-    process.validationHarvesting.insert(strip2VIndex, process.OuterTrackerClient)
-    return (process)
 
