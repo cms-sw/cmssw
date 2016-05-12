@@ -71,9 +71,9 @@ private:
 
   void executeStep1Spec(double x, double y,
                         GeometryInterface::Values& significantvalues, 
-			SummationSpecification& s, 
-			Table& t,
-			SummationStep::Stage stage,
+                        SummationSpecification& s, 
+                        Table& t,
+                        SummationStep::Stage stage,
                         AbstractHistogram*& fastpath);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
@@ -82,6 +82,7 @@ private:
   void executeReduce(SummationStep& step, Table& t);
   void executeExtend(SummationStep& step, Table& t, bool isX);
 
+public: // these are available in config as is, and may be used in harvesting.
   bool enabled;
   bool bookUndefined;
   std::string top_folder_name;
@@ -99,7 +100,7 @@ private:
   double range_y_min;
   double range_y_max;
 
-
+private:
   // These are actually more like local variables, and they might be shadowed
   // by locals now and then. The point is to avoid reallocating the heap buffer
   // of the Values on every call.

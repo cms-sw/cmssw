@@ -16,9 +16,9 @@
 class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
     CLUSTER_PROB,
-    EFFICIENCY,
     VALID,
-    MISSING
+    MISSING,
+    EFFICIENCY
   };
 
   public:
@@ -29,6 +29,25 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+};
+
+class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester { 
+  enum {
+    CLUSTER_PROB,
+    VALID,
+    MISSING,
+    EFFICIENCY
+  };
+
+  public:
+  explicit SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& conf);
+
+  void doHarvesting();
+
+  private:
+  HistogramManager::Table valid;
+  HistogramManager::Table missing;
+  HistogramManager::Table efficiency;
 };
 
 #endif

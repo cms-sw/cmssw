@@ -63,9 +63,9 @@ SiPixelPhase1TrackEfficiencyMissing = SiPixelPhase1TrackEfficiencyValid.clone(
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyClusterProb,
-  SiPixelPhase1TrackEfficiencyEfficiency,
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
+  SiPixelPhase1TrackEfficiencyEfficiency,
 )
 
 
@@ -77,7 +77,7 @@ SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficie
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1TrackEfficiencyHarvester",
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry
 )
