@@ -43,6 +43,8 @@ class XMLConfigReader{
 
   void readConfig(L1TMuonOverlapParams *aConfig) const;
 
+  unsigned int getPatternsVersion() const;
+
   std::vector<std::vector<int> > readEvent(unsigned int iEvent=0,
 					   unsigned int iProcessor=0,
 					   bool readEta = false);
