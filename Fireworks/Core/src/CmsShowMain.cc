@@ -700,13 +700,11 @@ CmsShowMain::setupDataHandling()
    {
       m_navigator->firstEvent();
       checkPosition();
-      draw();
-
       if (configurationManager()->getIgnore())
          guiManager()->initEmpty();
       else
-        setupConfiguration();
-  }
+         setupConfiguration();
+   }
    else {
       if (configFilename()[0] == '\0') {
          guiManager()->initEmpty();
@@ -715,7 +713,9 @@ CmsShowMain::setupDataHandling()
          setupConfiguration();
       }
 
-      if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false)) {
+      bool geoBrowser = (configFilename()[0] !='\0') && (eiManager()->begin() == eiManager()->end());
+
+      if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false) && ( !geoBrowser)) {
          if (m_inputFiles.empty())
             openDataViaURL();
          else
