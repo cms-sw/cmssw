@@ -1,20 +1,25 @@
 #ifndef DDExpandedView_h
 #define DDExpandedView_h
 
+#include <stddef.h>
 #include <iosfwd>
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class DDFilteredView;
+class DDLogicalPart;
+struct DDPosData;
 
 /**
   DDExpandedView provides a tree-walker (iterator) for the 

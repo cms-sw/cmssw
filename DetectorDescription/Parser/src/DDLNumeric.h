@@ -1,16 +1,19 @@
 #ifndef DDL_Numeric_H
 #define DDL_Numeric_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDNumeric.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDNumeric.h"
 
-#include <string>
-#include <vector>
-#include <map>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLNumeric handles Numeric Elements
 /** @class DDLNumeric

@@ -1,9 +1,12 @@
 #ifndef DDL_PosPart_H
 #define DDL_PosPart_H
 
+#include <string>
+
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLPosPart handles PosPart elements.
 /** @class DDLPosPart

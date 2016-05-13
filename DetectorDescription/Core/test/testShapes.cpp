@@ -6,9 +6,11 @@
 
     Last Updated         : May 29, 2007
  ***************************************************************************/
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 int main(int /*argc*/, char **/*argv[]*/)

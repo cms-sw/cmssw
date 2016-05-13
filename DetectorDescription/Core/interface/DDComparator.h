@@ -1,9 +1,12 @@
 #ifndef DDComparator_h
 #define DDComparator_h
 
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 
 //! compares a given geometrical-history whether it corresponds to the given part-selector

@@ -1,19 +1,32 @@
 #ifndef DDCompactView_h
 #define DDCompactView_h
 
-# include "DetectorDescription/Core/interface/graphwalker.h"
-# include "DetectorDescription/Core/interface/DDLogicalPart.h"
-# include "DetectorDescription/Core/interface/DDPosData.h"
+#include <stddef.h>
+#include <memory>
+#include <string>
+#include <utility>
 # include <vector>
 
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/Store.h"
+# include "DetectorDescription/Core/interface/DDLogicalPart.h"
+# include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+# include "DetectorDescription/Core/interface/graphwalker.h"
+
 class DDCompactViewImpl;
+class DDDivision;
+class DDName;
 class DDPartSelector;
 class DDPhysicalPart;
+struct DDPosData;
 
 namespace DDI {
+  class LogicalPart;
   class Material;
   class Solid;
-  class LogicalPart;
   class Specific;
 }
 

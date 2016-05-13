@@ -1,10 +1,13 @@
 #ifndef DDLTUBS_H
 #define DDLTUBS_H
 
-#include "DDLSolid.h"
-
 #include <string>
 #include <vector>
+
+#include "DDLSolid.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLTubs processes Tubs elements.
 /** @class DDLTubs

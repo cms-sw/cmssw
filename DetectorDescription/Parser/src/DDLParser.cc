@@ -12,15 +12,25 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <xercesc/framework/MemBufInputSource.hpp>
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
-
 #include <iostream>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "xercesc/sax2/XMLReaderFactory.hpp"
+#include "xercesc/util/XMLUni.hpp"
+
+class DDCompactView;
+namespace xercesc_2_8 {
+class SAX2XMLReader;
+}  // namespace xercesc_2_8
 
 using namespace std;
 

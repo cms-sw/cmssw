@@ -1,15 +1,20 @@
 #ifndef DDL_Map_H
 #define DDL_Map_H
 
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDMap.h"
-
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
+#include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/include/classic.hpp"
+#include "boost/thread/pthread/once_atomic.hpp"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 namespace boost { namespace spirit { namespace classic { } } }
 

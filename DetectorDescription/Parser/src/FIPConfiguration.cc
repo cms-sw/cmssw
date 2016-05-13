@@ -13,12 +13,17 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
+#include <ext/alloc_traits.h>
+#include <stddef.h>
 #include <iostream>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "xercesc/util/XercesVersion.hpp"
+
+class DDCompactView;
 
 using namespace XERCES_CPP_NAMESPACE;
 

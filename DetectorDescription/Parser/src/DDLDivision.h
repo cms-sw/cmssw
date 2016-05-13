@@ -1,12 +1,16 @@
 #ifndef DDL_Division_H
 #define DDL_Division_H
 
-#include "DDXMLElement.h"
+#include <map>
+#include <string>
+
 #include "DDDividedGeometryObject.h"
+#include "DDXMLElement.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
-#include <string>
-#include <map>
+class DDCompactView;
+class DDDividedGeometryObject;
+class DDLElementRegistry;
 
 /// DDLDivision processes Division elements.
 /** @class DDLDivision

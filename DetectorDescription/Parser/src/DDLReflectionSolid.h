@@ -1,11 +1,14 @@
 #ifndef DDL_ReflectionSolid_H
 #define DDL_ReflectionSolid_H
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLReflectionSolid processes ReflectionSolid elements.
 /** @class DDLReflectionSolid

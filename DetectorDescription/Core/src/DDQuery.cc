@@ -1,5 +1,11 @@
 #include "DetectorDescription/Core/interface/DDQuery.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include <iterator>
+
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+
+class DDCompactView;
 
 DDQuery::DDQuery(const DDCompactView & cpv)
  :   epv_(cpv), scope_(0)

@@ -1,12 +1,15 @@
 #ifndef DDL_Orb_H
 #define DDL_Orb_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLOrb processes all Orb elements.
 /** @class DDLOrb
