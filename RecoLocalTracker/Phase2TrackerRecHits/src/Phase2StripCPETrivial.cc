@@ -6,8 +6,8 @@ Phase2StripCPETrivial::LocalValues Phase2StripCPETrivial::localParameters(const 
   float strippitch  = 0.0090; // hardcoded dummy, a la 2S
   float striplength = 5.;     // hardcoded dummy, a la 2S
   std::pair<float, float> barycenter = cluster.barycenter();
-  LocalPoint lp( barycenter.second * strippitch, striplength * (barycenter.first + 1/2), 0 );
-  LocalError le( pow(strippitch,2) / 12, pow(striplength,2) / 12, 0 );
+  LocalPoint lp( barycenter.second * strippitch, striplength * (barycenter.first + 1/2), 0 ); // x, y, z
+  LocalError le( pow(strippitch,2) / 12, 0, pow(striplength,2) / 12 ); // e2_xx, e2_xy, e2_yy
   return std::make_pair( lp, le );
 }
 

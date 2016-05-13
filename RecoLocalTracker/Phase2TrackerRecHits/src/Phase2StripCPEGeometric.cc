@@ -22,7 +22,7 @@ Phase2StripCPEGeometric::LocalValues Phase2StripCPEGeometric::localParameters(
   float ix = cluster.center();
   float iy = cluster.column()+0.5; // halfway the column
 
-  LocalPoint lp( topo->localX(ix)    , topo->localY(iy)    , 0 );
-  LocalError le( pow(pitch_x, 2) / 12, pow(pitch_y, 2) / 12, 0 );
+  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
+  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
   return std::make_pair( lp, le );
 }
