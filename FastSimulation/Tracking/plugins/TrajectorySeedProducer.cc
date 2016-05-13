@@ -28,9 +28,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // data formats 
 #include "DataFormats/Common/interface/Handle.h"
@@ -45,14 +45,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
-#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
-#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
+
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
@@ -61,36 +54,36 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 #include "FastSimulation/Tracking/interface/FastTrackingUtilities.h"
 #include "FastSimulation/Tracking/interface/SeedFinder.h"
+#include "FastSimulation/Tracking/interface/SeedFinderSelector.h"
+
+class MeasurementTracker;
 
 class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
 {
-    private:
-
-        // tokens
-
-        edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
-        edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
-
-        // other data members
-  int WantedSeedHits;
-  int FirstLayerElements;
-
-        std::vector<std::vector<TrackingLayer>> seedingLayers;
-        SeedingTree<TrackingLayer> _seedingTree;
+private:
     
-        std::unique_ptr<SeedCreator> seedCreator;
-        std::unique_ptr<TrackingRegionProducer> theRegionProducer;
-        std::string measurementTrackerLabel;
+    // tokens
     
-        bool skipSeedFinderSelector;
-    
-        std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
-        std::unique_ptr<MultiHitGeneratorFromPairAndLayers> MultiHitGenerator;
-    public:
-        TrajectorySeedProducer(const edm::ParameterSet& conf);
+    edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
+    edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
 
-        virtual void produce(edm::Event& e, const edm::EventSetup& es);
+    // other data members
+    unsigned int nHitsPerSeed_;
+
+    std::vector<std::vector<TrackingLayer>> seedingLayers;
+    SeedingTree<TrackingLayer> _seedingTree;
+    
+    std::unique_ptr<SeedCreator> seedCreator;
+    std::unique_ptr<TrackingRegionProducer> theRegionProducer;
+    std::string measurementTrackerLabel;
+    
+    std::unique_ptr<SeedFinderSelector> seedFinderSelector;
+public:
+    TrajectorySeedProducer(const edm::ParameterSet& conf);
+
+    virtual void produce(edm::Event& e, const edm::EventSetup& es);
+
 
 };
 
@@ -100,18 +93,7 @@ template class SeedingNode<TrackingLayer>;
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 {
-    if(conf.exists("pixelTripletGeneratorFactory"))
-    {
-        const edm::ParameterSet & tripletConfig = conf.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
-        auto iC = consumesCollector();
-        pixelTripletGenerator.reset(HitTripletGeneratorFromPairAndLayersFactory::get()->create(tripletConfig.getParameter<std::string>("ComponentName"),tripletConfig,iC));
-    }
-    if(conf.exists("MultiHitGeneratorFactory"))
-    {
-        const edm::ParameterSet & tripletConfig = conf.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
-        //auto iC = consumesCollector();
-        MultiHitGenerator.reset(MultiHitGeneratorFromPairAndLayersFactory::get()->create(tripletConfig.getParameter<std::string>("ComponentName"),tripletConfig));
-    }
+    // products
     produces<TrajectorySeedCollection>();
 
     // consumes
@@ -122,46 +104,50 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     }
 
     // read Layers
-    bool AllElementsSameSize=true;//by default
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
     std::string layerBegin = *(layerStringList.cbegin());
+    nHitsPerSeed_ = 0;
     for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
     {
         std::vector<TrackingLayer> trackingLayerList;
         std::string line = *it;
         std::string::size_type pos=0;
-	WantedSeedHits=0;
+	unsigned int nHitsPerSeed = 0;
         while (pos != std::string::npos)
         {
             pos=line.find("+");
-	    WantedSeedHits++;
             std::string layer = line.substr(0, pos);
             TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
-
             trackingLayerList.push_back(layerSpec);
             line=line.substr(pos+1,std::string::npos);
+	    nHitsPerSeed++;
         }
-	if(it==layerStringList.cbegin())FirstLayerElements=WantedSeedHits; //Do not check for first element of layer list
-	if(WantedSeedHits!=FirstLayerElements)AllElementsSameSize=false;
+	if(it==layerStringList.cbegin())
+	{
+	    nHitsPerSeed_ = nHitsPerSeed;
+	}
+	else if(nHitsPerSeed_!=nHitsPerSeed)
+	{
+	    throw cms::Exception("FastSimTracking") << "All allowed seed layer definitions must have same elements";
+	}
         _seedingTree.insert(trackingLayerList);
     }
 
-
-    if(AllElementsSameSize==false)throw cms::Exception("LayerListMisMatch")<<"[TrajectorySeedProducer] All Layer Elements in definition, not of same size \n";
+    // seed finder selector
+    if(conf.exists("seedFinderSelector"))
+    {
+	seedFinderSelector.reset(new SeedFinderSelector(conf.getParameter<edm::ParameterSet>("seedFinderSelector"),consumesCollector()));
+    }
 
     /// region producer
     edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
     std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-    theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+    theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector()));
     
     // seed creator
     const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
     std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
     seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
-
-    // other parameters
-    measurementTrackerLabel = conf.getParameter<std::string>("measurementTracker");
-    skipSeedFinderSelector = conf.getUntrackedParameter<bool>("skipSeedFinderSelector",false);
 
 }
 
@@ -171,11 +157,8 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
     // services
     edm::ESHandle<TrackerTopology> trackerTopology;
-    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
     
     es.get<TrackerTopologyRcd>().get(trackerTopology);
-    es.get<CkfComponentsRecord>().get(measurementTrackerLabel, measurementTrackerHandle);
-    const MeasurementTracker * measurementTracker = &(*measurementTrackerHandle);
     
     // input data
     edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
@@ -200,85 +183,14 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         return;
     }
     
-    // pointers for selector function
-    TrackingRegion * selectedTrackingRegion = 0;
-    auto pixelTripletGeneratorPtr = pixelTripletGenerator.get();
-    auto MultiHitGeneratorPtr = MultiHitGenerator.get();
-    int SeedNHits = WantedSeedHits;
-    if(MultiHitGenerator)
-    {
-        MultiHitGenerator->initES(es);
-    }
-
-    // define a lambda function
-    // to select hit pairs, triplets, ... compatible with the region
-
-    SeedFinder::DoubletSelector doubletSelector([&es,&measurementTracker,&selectedTrackingRegion](const std::array<const FastTrackerRecHit*,2>& hits) -> bool
-						{
-						   
-						    const FastTrackerRecHit * firstHit = hits[0];
-						    const FastTrackerRecHit * secondHit = hits[1];
-						    
-						    const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
-						    const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
-       
-						    std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
-						    std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
-						    const RecHitsSortedInPhi fhm(firstHits, selectedTrackingRegion->origin(), firstLayer);
-						    const RecHitsSortedInPhi shm(secondHits, selectedTrackingRegion->origin(), secondLayer);
-
-						    HitDoublets result(fhm,shm);
-						    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
-					       
-						    return result.size()!=0;
-						}
-						});
-    SeedFinder::TripletSelector tripletSelector([&e,&es,&measurementTracker,&selectedTrackingRegion,&pixelTripletGeneratorPtr,&MultiHitGeneratorPtr](const std::array<const FastTrackerRecHit*,3>& hits) -> bool
-						{
-						  
-						  const FastTrackerRecHit * firstHit = hits[0];
-						  const FastTrackerRecHit * secondHit = hits[1];
-						  const FastTrackerRecHit * thirdHit = hits[2];
-						  const DetLayer * firstLayer = measurementTracker->geometricSearchTracker()->detLayer(firstHit->det()->geographicalId());
-						  const DetLayer * secondLayer = measurementTracker->geometricSearchTracker()->detLayer(secondHit->det()->geographicalId());
-						  const DetLayer * thirdLayer = measurementTracker->geometricSearchTracker()->detLayer(thirdHit->det()->geographicalId());
-						  std::vector<const DetLayer *> thirdLayerDetLayer(1,thirdLayer);
-						  std::vector<BaseTrackerRecHit const *> firstHits(1,(const BaseTrackerRecHit*) firstHit->hit());
-						  std::vector<BaseTrackerRecHit const *> secondHits(1,(const BaseTrackerRecHit*) secondHit->hit());
-						  std::vector<BaseTrackerRecHit const *> thirdHits(1,(const BaseTrackerRecHit*) thirdHit->hit());
-						  const RecHitsSortedInPhi fhm(firstHits, selectedTrackingRegion->origin(), firstLayer);
-						  const RecHitsSortedInPhi shm(secondHits, selectedTrackingRegion->origin(), secondLayer);
-						  const RecHitsSortedInPhi thm(thirdHits, selectedTrackingRegion->origin(), thirdLayer);
-						  const RecHitsSortedInPhi *thmp=&thm;
-						  HitDoublets result(fhm,shm);
-						  HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*firstLayer,*secondLayer,fhm,shm,es,0,result);
-						  if(result.size()!=0&&(pixelTripletGeneratorPtr||MultiHitGeneratorPtr)&&hits.size()==3){
-						    if(pixelTripletGeneratorPtr){
-
-						      OrderedHitTriplets Tripletresult;
-						      pixelTripletGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
-
-						      return Tripletresult.size()!=0;
-						    }
-						    if(MultiHitGeneratorPtr){
-
-						      OrderedMultiHits  Tripletresult;
-						      MultiHitGeneratorPtr->hitTriplets(*selectedTrackingRegion,Tripletresult,es,result,&thmp,thirdLayerDetLayer,1);
-
-						      return Tripletresult.size()!=0;
-						    }
-						  }
-						  return result.size();
-						});
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
-    if(!skipSeedFinderSelector)
-      {
-	if(SeedNHits==2)
-	  seedFinder.addHitSelector(&doubletSelector);
-	if(SeedNHits==3)
-	  seedFinder.addHitSelector(&tripletSelector);
-      }
+    if(seedFinderSelector)
+    {
+	seedFinderSelector->initEvent(e,es);
+	seedFinder.addHitSelector(seedFinderSelector.get(),nHitsPerSeed_);
+    }
+
     // loop over the combinations
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
     {
@@ -298,25 +210,30 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         // loop over the regions
         for(auto region = regions.begin();region != regions.end(); ++region)
         {
-            // set the region
-            selectedTrackingRegion = region->get();
+            // set the region used in the selector
+	    if(seedFinderSelector)
+	    {
+		seedFinderSelector->setTrackingRegion(region->get());
+	    }
 
-            // find the hits on the seeds
+            // find hits compatible with the seed requirements
             std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
 
             // create a seed from those hits
             if (seedHitNumbers.size()>1)
             {
 
-                // copy the hits and make them aware of the combination they originate from
+                // copy the hits 
                 edm::OwnVector<FastTrackerRecHit> seedHits;
                 for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
                 {
                     seedHits.push_back(seedHitCandidates[seedHitNumbers[iIndex]]->clone());
                 }
+		// make them aware of the combination they originate from
                 fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
 
-                seedCreator->init(*selectedTrackingRegion,es,0);
+		// create the seed
+                seedCreator->init(**region,es,0);
                 seedCreator->makeSeed(
                     *output,
                     SeedingHitSet(
@@ -324,8 +241,8 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
                         &seedHits[1],
                         seedHits.size() >=3 ? &seedHits[2] : nullptr,
                         seedHits.size() >=4 ? &seedHits[3] : nullptr
-                    )
-                );
+			)
+		    );
                 break; // break the loop over the regions
             }
         }

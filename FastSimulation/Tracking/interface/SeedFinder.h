@@ -9,6 +9,7 @@
 // fastsim tracking
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
+#include "FastSimulation/Tracking/interface/SeedFinderSelector.h"
 
 class TrackerTopology;
 class FastTrackerRecHit;
@@ -19,53 +20,8 @@ class SeedFinder
 {
 
 public:
-    class AbstractSelectorFunction
-    {
-        public:
-            virtual bool pass(const std::vector<const FastTrackerRecHit *>& hits) const = 0;
-            virtual unsigned int nHits() const = 0;
-    };
-
-    template<unsigned int N>
-    class SelectorFunction:
-        public AbstractSelectorFunction
-    {
-        public:
-            typedef std::function<bool(const std::array<const FastTrackerRecHit *, N>& hits)> Selector;
-        private:
-            const Selector _selector;
-        public:
-            SelectorFunction(const Selector& selector):
-                _selector(selector)
-            {
-            }
-
-            virtual bool pass(const std::vector<const FastTrackerRecHit *>& hits) const
-            {
-                std::array<const FastTrackerRecHit*,N> args;
-                for (unsigned int i = 0; i < N; ++i)
-                {
-                    if (hits[i]==nullptr)
-                    {
-                        throw cms::Exception("FastSimulation/Tracking/SeedFinder") << "hit in selector function is null";
-                    }
-                    args[i]=hits[i];
-                }
-                return _selector(args);
-            }
-            virtual unsigned int nHits() const
-            {
-                return N;
-            }
-    };
-    typedef SelectorFunction<1> SingletSelector;
-    typedef SelectorFunction<2> DoubletSelector;
-    typedef SelectorFunction<3> TripletSelector;
-    typedef SelectorFunction<4> QuadrupletSelector;
-
-
 private:
-    std::vector<std::vector<AbstractSelectorFunction*>> _selectorFunctionsByHits;
+    std::vector<std::vector<SeedFinderSelector*> > _selectorFunctionsByHits;
     const SeedingTree<TrackingLayer>& _seedingTree;
     const TrackerTopology * _trackerTopology;
 
@@ -76,16 +32,15 @@ public:
     {
     }
 
-    void addHitSelector(AbstractSelectorFunction* abstractSelectorFunction)
+    void addHitSelector(SeedFinderSelector * seedFinderSelector,unsigned int nHits)
     {
-        const unsigned int N = abstractSelectorFunction->nHits();
-        if (_selectorFunctionsByHits.size()<N)
+        if (_selectorFunctionsByHits.size()<nHits)
         {
-            _selectorFunctionsByHits.resize(N);
-            _selectorFunctionsByHits.reserve(N);
+            _selectorFunctionsByHits.resize(nHits);
+            _selectorFunctionsByHits.reserve(nHits);
         }
         //shift indices by -1 so that _selectorFunctionsByHits[0] tests 1 hit
-        _selectorFunctionsByHits[N-1].push_back(abstractSelectorFunction);
+        _selectorFunctionsByHits[nHits-1].push_back(seedFinderSelector);
     }
 
     std::vector<unsigned int> getSeed(const std::vector<const FastTrackerRecHit *>& trackerRecHits) const
@@ -148,7 +103,7 @@ public:
                         }
 
                         //loop over selector functions
-                        for (AbstractSelectorFunction* selectorFunction: _selectorFunctionsByHits[NHits-1])
+                        for (SeedFinderSelector * selectorFunction: _selectorFunctionsByHits[NHits-1])
                         {
                             if (!selectorFunction->pass(seedCandidateHitList))
                             {
