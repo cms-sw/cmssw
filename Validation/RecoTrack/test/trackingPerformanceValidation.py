@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_0_0_pre5'
+RefRelease='CMSSW_8_1_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_0_0_pre6'
+NewRelease='CMSSW_8_1_0_pre2'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -43,10 +43,12 @@ pileupstartupsamples = [
 ]
 
 phase1samples = [
-    Sample('RelValTenMuE_0_200'),
     Sample("RelValTTbar", midfix="13"),
+    Sample('RelValZMM', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
+    Sample('RelValTenMuE_0_200'),
     Sample("RelValTTbar", midfix="13", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", putype=putype("25ns")),
 ]
 
 upgradesamples = [
@@ -135,15 +137,10 @@ val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
-valv = Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
-    fastsimSamples=[],
-    refRelease=RefRelease, refRepository=RefRepository,
-    newRelease=NewRelease, newRepository=NewRepository)
-valv.download()
-valv.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
-             limitSubFoldersOnlyTo={"": VertexCollections},
-             htmlReport=htmlReport, doFastVsFull=doFastVsFull
+val.download()
+val.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
+            limitSubFoldersOnlyTo={"": VertexCollections},
+            htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 htmlReport.write()
 
