@@ -273,9 +273,12 @@ def customise_Reco(process,pileup):
     process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
     process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
     process.PixelCPEGenericESProducer.DoCosmics = False
+    process.templates.DoLorentz = cms.bool(False)
+    process.templates.LoadTemplatesFromDB = cms.bool(False)
     # CPE for other steps
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
     # Turn of template use in tracking (iterative steps handled inside their configs)
+    process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
     process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
     process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
     process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
