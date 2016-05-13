@@ -116,7 +116,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
     const TrackerGeometry* tkGeom = &(*geomHandle);
 
     edm::ESHandle< TrackerTopology > tTopoHandle;
-    eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
+    eventSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
     const TrackerTopology* tTopo = tTopoHandle.product();
 
     /*
