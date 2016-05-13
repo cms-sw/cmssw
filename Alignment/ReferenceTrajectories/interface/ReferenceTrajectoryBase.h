@@ -129,6 +129,7 @@ public:
     bool hitsAreReverse{false};
     bool useRefittedState{false};
     bool constructTsosWithErrors{false};
+    bool includeAPEs{false};
   };
 
   virtual ~ReferenceTrajectoryBase() {}

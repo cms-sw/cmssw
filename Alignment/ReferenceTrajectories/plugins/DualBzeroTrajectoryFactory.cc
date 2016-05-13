@@ -88,6 +88,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup  &setup,
       ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                              theMass, theMomentumEstimate);
       config.useBeamSpot = useBeamSpot_;
+      config.includeAPEs = includeAPEs_;
       ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(input.refTsos,
                                                                   input.fwdRecHits,
                                                                   input.bwdRecHits,
@@ -142,6 +143,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                                theMass, theMomentumEstimate);
         config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
         ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(propExternal,
                                                                     input.fwdRecHits,
                                                                     input.bwdRecHits,
@@ -158,6 +160,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                                theMass, theMomentumEstimate);
         config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
         ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(input.refTsos,
                                                                     input.fwdRecHits,
                                                                     input.bwdRecHits,
