@@ -11,8 +11,6 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDCompactViewImpl::DDCompactViewImpl(const DDLogicalPart & rootnodedata)

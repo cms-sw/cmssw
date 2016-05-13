@@ -1,11 +1,9 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-#include <ext/alloc_traits.h>
 #include <iterator>
 #include <memory>
 #include <ostream>
 
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDCompactView;

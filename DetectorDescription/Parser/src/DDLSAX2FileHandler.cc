@@ -14,7 +14,6 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"

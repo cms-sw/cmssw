@@ -70,7 +70,7 @@
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/parsers/AbstractDOMParser.hpp>
-#include <ostream>
+#include <fstream>
 
 #include "DOMCount.hpp"
 // ---------------------------------------------------------------------------

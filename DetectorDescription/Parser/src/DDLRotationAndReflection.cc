@@ -18,7 +18,6 @@
 #include <map>
 #include <utility>
 
-//CLHEP dependency
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
@@ -28,7 +27,6 @@
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"

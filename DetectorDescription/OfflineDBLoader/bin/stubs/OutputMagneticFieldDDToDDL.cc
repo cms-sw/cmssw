@@ -1,12 +1,12 @@
 #include "OutputMagneticFieldDDToDDL.h"
 
-#include <DetectorDescription/Core/interface/DDPosData.h>
-#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-#include <FWCore/Framework/interface/ESTransientHandle.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <stddef.h>
 #include <iomanip>
-#include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -246,23 +246,6 @@ OutputMagneticFieldDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<co
   }
 }
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
-
-namespace edm {
-class Run;
-}  // namespace edm
 
 DEFINE_FWK_MODULE( OutputMagneticFieldDDToDDL );

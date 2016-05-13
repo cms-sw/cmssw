@@ -15,9 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #include <exception>
-#include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -27,6 +26,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"

@@ -30,8 +30,6 @@
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

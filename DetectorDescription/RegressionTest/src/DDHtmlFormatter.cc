@@ -1,6 +1,6 @@
 namespace std { } using namespace std;
 #include <sys/stat.h>
-#include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <set>
@@ -13,7 +13,6 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
-//***** Explicit template instantiation of Singleton
 #include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDEnums.h"
@@ -24,6 +23,12 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+//***** to get the typedef below to work properly...
+//**** to get rid of compile errors about ambiguous delete of Stores
+#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 //*****

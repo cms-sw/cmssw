@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-#include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>

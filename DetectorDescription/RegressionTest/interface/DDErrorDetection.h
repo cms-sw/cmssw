@@ -1,7 +1,7 @@
 #ifndef DD_DDErrorDetection_h
 #define DD_DDErrorDetection_h
 
-#include <DetectorDescription/Core/interface/DDCompactView.h>
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include <map>
 #include <ostream>
 #include <set>
@@ -9,9 +9,7 @@
 #include <utility>
 #include <vector>
 
-//=================
 #include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -32,15 +30,8 @@ typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDRotation> > >    ro_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >   sp_err;
 
-//==================
-//*********************************************************************************************************************************
-
 typedef std::map<std::string, std::set<std::string> > ns_type;
 typedef std::map<std::string, std::set<DDName> > ns_nm_type;
-
-//*********************************************************************************************************************************
-
-
 
 template<class T> std::ostream & operator<<(std::ostream & o, const std::set<T> & v)
 {
@@ -51,16 +42,6 @@ template<class T> std::ostream & operator<<(std::ostream & o, const std::set<T> 
   return o;
 }
 
-/*
-ostream & operator<<(ostream & o, const std::set<DDLogicalPart> & v)
-{
-  std::set<DDLogicalPart>::const_iterator it(v.begin()), ed(v.end());
-  for(; it != ed; ++it) {
-    o << it->ddname().name() << ' ';
-  }
-  return o;
-}
-*/
 template<class T> std::ostream & operator<<(std::ostream & o, const std::map<std::string, std::set<T> > & m) {
   typedef typename std::map<std::string, std::set<T> >::const_iterator c_it;
   c_it it(m.begin()), ed(m.end());

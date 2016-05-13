@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
-#include <ext/alloc_traits.h>
 #include <stddef.h>
 #include <iterator>
 #include <string>
@@ -9,7 +8,6 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDFilter::DDFilter() 

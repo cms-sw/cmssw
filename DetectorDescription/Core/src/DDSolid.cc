@@ -22,8 +22,6 @@
 #include "DetectorDescription/Core/src/Trap.h"
 #include "DetectorDescription/Core/src/TruncTubs.h"
 #include "DetectorDescription/Core/src/Tubs.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

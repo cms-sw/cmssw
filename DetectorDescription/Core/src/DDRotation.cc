@@ -13,18 +13,11 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.icc"
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/AxisAngle.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
-
-//static DDRotationMatrix GLOBAL_UNIT;
-
-//DDBase<DDName,DDRotationMatrix*>::StoreT::pointer_type 
-//  DDBase<DDName,DDRotationMatrix*>::StoreT::instance_ = 0;
 
 std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 {

@@ -1,11 +1,10 @@
 #include <cstdlib>
-#include <iostream>
+#include <fstream>
 #include <map>
 #include <set>
 #include <string>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/src/DDCheck.h"

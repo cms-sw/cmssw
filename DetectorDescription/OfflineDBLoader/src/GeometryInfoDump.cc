@@ -1,8 +1,8 @@
-#include <DetectorDescription/Core/interface/DDPartSelection.h>
-#include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
-#include <stdio.h>
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include <cassert>
+#include <fstream>
 #include <map>
 #include <set>
 #include <vector>

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <iostream>
+#include <fstream>
 #include <map>
 #include <string>
 #include <utility>

@@ -16,13 +16,14 @@
  ***************************************************************************/
 
 #include <exception>
-#include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"

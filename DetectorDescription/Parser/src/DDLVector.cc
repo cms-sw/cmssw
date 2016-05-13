@@ -12,24 +12,12 @@
 #include <utility>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "boost/spirit/home/classic/core/composite/actions.hpp"
-#include "boost/spirit/home/classic/core/composite/difference.hpp"
-#include "boost/spirit/home/classic/core/composite/impl/difference.ipp"
-#include "boost/spirit/home/classic/core/composite/impl/kleene_star.ipp"
-#include "boost/spirit/home/classic/core/composite/impl/positive.ipp"
-#include "boost/spirit/home/classic/core/composite/impl/sequence.ipp"
-#include "boost/spirit/home/classic/core/composite/kleene_star.hpp"
-#include "boost/spirit/home/classic/core/composite/sequence.hpp"
-#include "boost/spirit/home/classic/core/impl/match.ipp"
-#include "boost/spirit/home/classic/core/parser.hpp"
-#include "boost/spirit/home/classic/core/primitives/primitives.hpp"
-#include "boost/spirit/home/classic/core/scanner/impl/skipper.ipp"
+#include "boost/spirit/include/classic.hpp"
 
 class DDCompactView;
 

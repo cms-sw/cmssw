@@ -1,12 +1,12 @@
-#include <DetectorDescription/Core/interface/DDLogicalPart.h>
-#include <DetectorDescription/Core/interface/DDMaterial.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
-#include <DetectorDescription/Core/interface/DDTransform.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <ostream>
 #include <set>
@@ -15,13 +15,13 @@
 class DDPartSelection;
 class DDRotation;
 namespace edm {
-class Event;
-class EventSetup;
-class ParameterSet;
-class Run;
-namespace one {
-struct WatchRuns;
-}  // namespace one
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class Run;
+  namespace one {
+    struct WatchRuns;
+  }  // namespace one
 }  // namespace edm
 
 namespace {

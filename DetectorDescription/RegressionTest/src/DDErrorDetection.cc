@@ -2,10 +2,8 @@ namespace std { } using namespace std;
 
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 
-#include <iostream>
+#include <fstream>
 
-//***** Explicit template instantiation of Singleton
-#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
