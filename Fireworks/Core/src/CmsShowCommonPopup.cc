@@ -344,18 +344,11 @@ void
 CmsShowCommonPopup::setPaletteGUI()
 {
    FWColorManager* cm = m_common->m_context->colorManager();
-   cm->setPalette(m_common->m_palette.value());
-   
+   m_common->setPalette();
    for (int i = 0 ; i < kFWGeomColorSize; ++i) {
       m_common->m_geomColors[i]->set(cm->geomColor(FWGeomColorIndex(i)));
       m_colorSelectWidget[i]->SetColorByIndex(cm->geomColor(FWGeomColorIndex(i)), kFALSE);
    } 
-
-   for (FWEventItemsManager::const_iterator i = m_common->m_context->eventItemsManager()->begin();
-        i != m_common->m_context->eventItemsManager()->end(); ++i)
-   {
-      (*i)->resetColor();
-   }
    cm->propagatePaletteChanges();
 }
 

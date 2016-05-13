@@ -12,7 +12,7 @@
 
 // system include files
 #include <boost/bind.hpp>
-
+#include <iostream>
 // user include files
 
 #include "TEveManager.h"
@@ -257,9 +257,12 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
-      (*it)->setFrom(iFrom);      
+         (*it)->setFrom(iFrom); 
    }  
- 
+
+   if (iFrom.valueForKey("Palette"))
+      setPalette();
+
    // handle old and new energy scale configuration if existing
    if (iFrom.valueForKey("ScaleMode"))
    {
@@ -299,4 +302,19 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
      setGLColorFromConfig(m_darkColorSet .Selection(1), iFrom.valueForKey("SelectionColorDark"));
      setGLColorFromConfig(m_darkColorSet .Selection(3), iFrom.valueForKey("HighlightColorDark"));
   }
+}
+
+
+
+void
+CmsShowCommon::setPalette()
+{
+   FWColorManager* cm = m_context->colorManager();
+   cm->setPalette(m_palette.value());
+   
+   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
+        i != m_context->eventItemsManager()->end(); ++i)
+   {
+      (*i)->resetColor();
+   }
 }

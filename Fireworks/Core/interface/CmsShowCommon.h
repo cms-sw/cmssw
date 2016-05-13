@@ -77,7 +77,7 @@ public:
 
 protected:
    const FWColorManager*   colorManager() const;
-
+   void setPalette();
    // ---------- member data --------------------------------
 
  
@@ -104,6 +104,7 @@ protected:
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
    const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
+
 };
 
 
