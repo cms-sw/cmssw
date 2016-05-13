@@ -79,27 +79,27 @@ namespace stage2 {
      switch(block.header().getID()){
      case BLK_TOT_POS:
        et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       et.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case BLK_X_POS:
        et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
      case BLK_Y_POS:
        et.setType(l1t::EtSum::kTotalEty);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
      case BLK_TOT_NEG:
        et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       et.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case BLK_X_NEG:
        et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
      case BLK_Y_NEG:
        et.setType(l1t::EtSum::kTotalEty); 
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
      default: 
        break;
@@ -117,7 +117,7 @@ namespace stage2 {
      l1t::EtSum ht = l1t::EtSum(); 
 
      //ht.setHwPt(raw_data & 0xFFFFF);
-     ht.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+     ht.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
      switch(block.header().getID()){
      case BLK_TOT_POS:  ht.setType(l1t::EtSum::kTotalHt);  break;
      case BLK_X_POS:  ht.setType(l1t::EtSum::kTotalHtx); break;
