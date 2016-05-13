@@ -488,7 +488,7 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_v2', 
     'HLT_Mu10_CentralPFJet30_BTagCSV_p13_v1', 
     'HLT_Mu17_Mu8_DZ_v2', 
-    'HLT_Mu17_Mu8_SameSign_DZ_v1', 
+    'HLT_Mu17_Mu8_SameSign_DZ_v2', 
     'HLT_Mu17_Mu8_v1', 
     'HLT_Mu17_TkMu8_DZ_v2', 
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2', 
