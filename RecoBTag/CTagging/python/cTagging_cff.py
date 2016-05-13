@@ -6,5 +6,4 @@ from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderCvsLTagInfos_cfi import *
 from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos_cfi import *
 
 from RecoBTag.CTagging.charmTagJetTags_cfi import * #EDProducer
-from RecoBTag.CTagging.negativeCharmTagJetTags_cfi import *
-from RecoBTag.CTagging.positiveCharmTagJetTags_cfi import *
+from RecoBTag.CTagging.CombinedCharmTagJetTags_cff import *

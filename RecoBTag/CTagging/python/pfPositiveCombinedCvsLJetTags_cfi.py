@@ -10,7 +10,3 @@ pfPositiveCombinedCvsLJetTags = cms.EDProducer(
       cms.InputTag("softPFElectronsTagInfos")
       )
 )
-
-pfPositiveCombinedCvsBJetTags = pfPositiveCombinedCvsLJetTags.clone(
-   jetTagComputer = cms.string('charmTagsPositiveComputerCvsB')
-   )
