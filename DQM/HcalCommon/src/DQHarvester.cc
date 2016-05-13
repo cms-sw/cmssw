@@ -13,6 +13,9 @@ namespace hcaldqm
 			if (r.runAuxiliary().run()==1)
 				return;
 
+		//  TEMPORARY FIX
+		_vhashFEDs.clear(); _vcdaqEids.clear();
+
 		//	- get the Hcal Electronics Map
 		//	- collect all the FED numbers and FED's rawIds
 		edm::ESHandle<HcalDbService> dbs;
