@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/DetSetNew.h"
 
 namespace {
-    struct dictionary {
+    struct dictionary_ph2rh {
         edm::Wrapper< Phase2TrackerRecHit1D > cl0;
         edm::Wrapper< std::vector< Phase2TrackerRecHit1D > > cl1;
         edm::Wrapper< edmNew::DetSet< Phase2TrackerRecHit1D > > cl2; 
