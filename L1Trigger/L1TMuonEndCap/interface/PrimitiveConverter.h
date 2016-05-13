@@ -34,11 +34,16 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	int station = Det.station(), chamber = Det.chamber(), ring = Det.ring(), wire = C3.getCSCData().keywire, sector = Det.triggerSector(), strip = C3.getCSCData().strip; 
 	int pattern = C3.getPattern(), Id = C3.Id(), quality = C3.getCSCData().quality, BX = C3.getCSCData().bx, endcap = Det.endcap();
 	
+	if(station == 1 && ring == 1 && strip > 127){
+	  ring = 4;
+	}
+		
 	if(ring == 4){Id += 9;}
 
 	//if(endcap == 1 && sector == 1)//
 	if(SectIndex ==  (endcap - 1)*6 + sector - 1)
 	{
+	
 		
 	//if(verbose){
 	// 	std::cout<<"\n\nSECTOR "<<SectIndex<<"\n\n";
@@ -158,7 +163,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	
 		eightstrip = (eightstrip>>1);
 		patcor = (patcor>>1);
-		//if(ring == 4) eightstrip -= 512;
+		if(ring == 4 && strip > 127) eightstrip -= 512;
 	}	
 	
 	if(clctpatsign) patcor = -patcor;
@@ -189,7 +194,6 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		fph = PhInit[SectIndex][station][Id - 1] + ph_tmp;
 	}
 	
-	
 	ph_hit = phLow + phShift + (PhDisp[SectIndex][LUTi]>>1);
 	
 	////////////////////////
@@ -202,8 +206,8 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if(station == 1){
 	
 		int idl = Id;
-		if(Id < 4)//
-			idl += 9;
+		//if(Id < 4)//
+		//	idl += 9;
 		
 		th_tmp = St1ThLUT[sub-1][SectIndex][idl -1][wire];
 		//if(verbose) std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
@@ -240,7 +244,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		
 		if(th_tmp < th_coverage){
 		
-			if(ring == 1){LUTi += 9;}  //change because new Verilog3 sp_tf treats ME11b with LUT's of ME11a
+			//if(ring == 1){LUTi += 9;}  //change because new Verilog3 sp_tf treats ME11b with LUT's of ME11a
 			
 			th = th_tmp + ThInit[SectIndex][LUTi];
 		}
@@ -275,17 +279,20 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	////////////////////////////////////////////////////
 	
 	
-	if(Id > 9){
-		Id -= 9;strip += 128;
-	}
-	
 	
 	int zhit = -99, pz = -99;
 	std::vector<int> zonecontribution; //Each hit could go in more than one zone so we make a vector which stores all the zones for which this hit will contribute
 
+	if(ring == 4){
+		Id -= 9;
+		
+		if(strip < 128)
+			strip += 128;
+	}
+	
 	
 	//determination of zone contribution
-	if((phzvl & 1) && (Id < 4)){pz=0;zonecontribution.push_back(0);}
+	if((phzvl & 1) && (Id < 4 || Id > 9)){pz=0;zonecontribution.push_back(0);}
 	if((phzvl & 2) && (Id < 4)){pz=1;zonecontribution.push_back(1);}
 	if((phzvl & 1) && (Id > 3) && (station > 2)){pz=0;zonecontribution.push_back(1);}
 	if((phzvl & 1) && (Id > 3) && (Id < 7) && (station == 1)){pz=0;zonecontribution.push_back(2);}
@@ -296,21 +303,38 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if((phzvl & 2) && (Id > 3) && (station < 3)){pz=1;zonecontribution.push_back(3);}
 	
 	
+	
 	//applying ph_offsets
-	if(sub == 1)
+	if(sub == 1){
 		zhit = ph_hit + ph_offsetss[station-1][Id-1][pz];
-	else
+		//std::cout<<"\nph_hit = "<<ph_hit<<" and ph_offsetss["<<station-1<<"]["<<Id-1<<"]["<<pz<<"] = "<<ph_offsetss[station-1][Id-1][pz]<<"\n";
+	}
+	else{
+			
 		zhit = ph_hit + ph_offsetss[station][Id-1][pz];
+		//std::cout<<"\nph_hit = "<<ph_hit<<" and ph_offsetss["<<station<<"]["<<Id-1<<"]["<<pz<<"] = "<<ph_offsetss[station][Id-1][pz]<<"\n";
+	}
+	
+	
 		
-		
-		
+	
 		
 	///////////////////////////////////////////////////////
 	//////// set vector of ConvertedHits to move //////////
 	/////////   Converted TP's around code   //////////////
 	///////////////////////////////////////////////////////
 	
-	//if(verbose) std::cout<<"Phi = "<<fph<<" and Theta = "<<th<<std::endl;
+	
+	//if(ring == 4){
+	//	std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<"\n";
+	//}
+	
+	/* if(station != 1) */
+	/* 	sub = 1; */
+	/* std::cout<<"proper FR[0] = "<<FRLUT[endcap-1][sector-1][station-1][sub-1][Id-1]<<"\n"; */
+	/* if(station != 1) */
+	/* 	sub = 0; */
+
 	
 	ConvertedHit Hit;
 

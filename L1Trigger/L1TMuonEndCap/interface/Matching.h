@@ -47,13 +47,14 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 				
 					//int id = i->Id();
 					
-					if(verbose) std::cout<<"strip = "<<i->Strip()<<", keywire = "<<i->Wire()<<" and zhit-"<<i->Zhit()<<std::endl;
-					
-					bool inzone = 0;///Is the converted hit in the zone we're looking at now?
-					for(std::vector<int>::iterator znc = i->ZoneContribution().begin();znc != i->ZoneContribution().end();znc++){
-						if((*znc) == z)
-							inzone = 1;//yes
-					}
+					if(verbose) std::cout<<"strip = "<<i->Strip()<<", keywire = "<<i->Wire()<<" and zhit-"<<i->Zhit()<<std:: endl;
+
+					// Unused variable
+					/* bool inzone = 0;///Is the converted hit in the zone we're looking at now? */
+					/* for(std::vector<int>::iterator znc = i->ZoneContribution().begin();znc != i->ZoneContribution().end();znc++){ */
+					/* 	if((*znc) == z) */
+					/* 		inzone = 1;//yes */
+					/* } */
 					
 					////////////////////////////////////////////////////////////////////////////////////////////
 					/////////////////// Setting the matched hits based on phi //////////////////////////////////
@@ -65,10 +66,10 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 					//if(one || two)
 					//	setstation++;
 					
-					if(inzone && verbose)
+					if(verbose)
 						std::cout<<"setstation = "<<setstation<<std::endl;
 					
-					if((fabs((Winners[z][w].Strip()) - i->Zhit()) < phdiff[setstation]) ){//is close to winner keystrip and in same zone?
+					if((fabs((Winners[z][w].Strip()) - i->Zhit()) <= phdiff[setstation]) ){//is close to winner keystrip and in same zone?
 					
 						if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
 						

@@ -48,9 +48,6 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
   //bool verbose = false;
 
-
-  //std::cout<<"Start Upgraded Track Finder Producer::::: event = "<<ev.id().event()<<"\n\n";
-
   //fprintf (write,"12345\n"); //<-- part of printing text file to send verilog code, not needed if George's package is included
 
 
@@ -78,6 +75,11 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
       out.push_back(TriggerPrimitive((*chamber).first,*digi));
+      //l1t::EMTFHit thisHit;
+      //thisHit.ImportCSCDetId( (*chamber).first );
+      //thisHit.ImportCSCCorrelatedLCTDigi( *digi );
+      //if (thisHit.Station() == 1 && thisHit.Ring() == 1 && thisHit.Strip() > 127) thisHit.set_ring(4);
+      //OutputHits->push_back( thisHit );
     }
   }
   
@@ -120,7 +122,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
  	std::vector<ConvertedHit> ConvHits = PrimConv(tester,SectIndex);
 	CHits[SectIndex] = ConvHits;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////print values for input into Alex's emulator code/////////////////////////////////////////////////////
@@ -180,7 +181,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ////// to segment inputs ///////// and matches the associated full precision triggerprimitives to the detected pattern.
   //////////////////////////////////
 
-
   MatchingOutput Mout = PhiMatching(Sout);
   MO[SectIndex] = Mout;
 
@@ -202,9 +202,9 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   std::vector<BTrack> Bout = BestTracks(Dout);
    PTracks[SectIndex] = Bout;
 
+   
+ } // End loop: for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++)
 
-
-  }
 
  ///////////////////////////////////////
  /// Collect Muons from all sectors ////
@@ -246,16 +246,16 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.deltas = AllTracks[fbest].deltas;
 		std::vector<int> ps, ts;
 
-
 		int sector = -1;
 		bool ME13 = false;
-		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
+		int me1address = 0, me2address = 0, CombAddress = 0, mode_uncorr = 0;
 		int ebx = 20, sebx = 20;
 		int phis[4] = {-99,-99,-99,-99};
 
 		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
 
 			if(A->Phi() != -999){
+			  
 
 				int station = A->TP().detId<CSCDetId>().station();
 				int id = A->TP().getCSCData().cscID;
@@ -279,11 +279,11 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				//std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
 
 				switch(station){
-					case 1: mode |= 8;break;
-					case 2: mode |= 4;break;
-					case 3: mode |= 2;break;
-					case 4: mode |= 1;break;
-					default: mode |= 0;
+					case 1: mode_uncorr |= 8;break;
+					case 2: mode_uncorr |= 4;break;
+					case 3: mode_uncorr |= 2;break;
+					case 4: mode_uncorr |= 1;break;
+					default: mode_uncorr |= 0;
 				}
 
 
@@ -317,10 +317,23 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 			}
 
 		}
+		
+		
+		int mode = 0;
+		if(tempTrack.rank & 32)
+			mode |= 8;
+		if(tempTrack.rank & 8)
+			mode |= 4;
+		if(tempTrack.rank & 2)
+			mode |= 2;
+		if(tempTrack.rank & 1)
+			mode |= 1;
+
 		tempTrack.phis = ps;
 		tempTrack.thetas = ts;
 
-		float xmlpt = CalculatePt(tempTrack,es);
+		unsigned long xmlpt_address = ptAssignment_.calculateAddress(tempTrack, es, mode); 
+		float xmlpt = ptAssignment_.calculatePt(xmlpt_address);
 		tempTrack.pt = xmlpt*1.4;
 		//FoundTracks->push_back(tempTrack);
 
@@ -329,15 +342,35 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
 
 		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
-														         charge,mode,CombAddress,sector);
+								 charge,mode,CombAddress,sector);
         // NOTE: assuming that all candidates come from the central BX:
         //int bx = 0;
 		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
 		float eta = (-1)*log(tan(theta_angle/2));
-		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
-		
-		if(!ME13 && fabs(eta) > 1.1)
+
+		// thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
+		// thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
+
+ 		// // Optimal emulator configuration - AWB 29.03.16
+		// std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
+
+		// Actual setting in firmware - AWB 12.04.16
+		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+
+		if(!ME13 && fabs(eta) > 1.1) {
+		  // // Extra debugging output - AWB 29.03.16
+		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
+		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
+		  // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
+		  // 	    << ", quality = " << mode << ", trackaddress = " << 1 
+		  // 	    << ", sector = " << sector << std::endl;
+		  // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+		  // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
+		  // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
+		  // 	    << ", processor = " << outCand.processor() 
+		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
 			holder.push_back(outPair);
+		}
 	}
   }
   
@@ -362,7 +395,6 @@ for(int sect=0;sect<12;sect++){
 
 //ev.put( FoundTracks, "DataITC");
 ev.put( OutputCands, "EMTF");
-  //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer
 

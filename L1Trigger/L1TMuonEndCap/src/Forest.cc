@@ -19,15 +19,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Forest.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Utilities.h"
 
-#include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TTree.h"
-#include "TNtuple.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TGraph.h"
-#include "TCanvas.h"
-#include "TChain.h"
 
 #include <iostream>
 #include <sstream>
@@ -48,10 +40,9 @@ Forest::Forest()
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-Forest::Forest(std::vector<Event*>& trainingEvents, std::vector<Event*>& testingEvents)
+Forest::Forest(std::vector<Event*>& trainingEvents)
 {
     setTrainingEvents(trainingEvents);
-    setTestEvents(testingEvents);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -69,16 +60,6 @@ Forest::~Forest()
     { 
         delete trees[i];
     }
-
-    for(unsigned int j=0; j < events[0].size(); j++)
-    {
-        delete events[0][j];
-    }   
-
-    for(unsigned int j=0; j < testEvents.size(); j++)
-    {
-        delete testEvents[j];
-    }   
 }
 //////////////////////////////////////////////////////////////////////////
 // ______________________Get/Set_Functions______________________________//
@@ -89,7 +70,8 @@ void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
 // tell the forest which events to use for training
 
     Event* e = trainingEvents[0];
-    //unsigned int numrows = e->data.size();
+    // Unused variable
+    // unsigned int numrows = e->data.size();
    
     // Reset the events matrix. 
     events = std::vector< std::vector<Event*> >();
@@ -104,16 +86,6 @@ void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::setTestEvents(std::vector<Event*>& testingEvents)
-{   
-// tell the forest which events to use for testing
-    testEvents = testingEvents; 
-}
-
-//////////////////////////////////////////////////////////////////////////
-// ----------------------------------------------------------------------
-//////////////////////////////////////////////////////////////////////////
-
 // return a copy of the training events
 std::vector<Event*> Forest::getTrainingEvents(){ return events[0]; }
 
@@ -121,8 +93,16 @@ std::vector<Event*> Forest::getTrainingEvents(){ return events[0]; }
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-// return a copy of the testEvents
-std::vector<Event*> Forest::getTestEvents(){ return testEvents; }
+// return the ith tree
+Tree* Forest::getTree(unsigned int i)
+{ 
+    if(/*i>=0 && */i<trees.size()) return trees[i]; 
+    else
+    {
+      //std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
+        return 0;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////
 // ______________________Various_Helpful_Functions______________________//
@@ -204,7 +184,7 @@ void Forest::sortEventVectors(std::vector< std::vector<Event*> >& e)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-std::vector<Double_t> Forest::rankVariables()
+void Forest::rankVariables(std::vector<int>& rank)
 {
 // This function ranks the determining variables according to their importance
 // in determining the fit. Use a low learning rate for better results.
@@ -216,16 +196,16 @@ std::vector<Double_t> Forest::rankVariables()
 
     // Initialize the vector v, which will store the total error reduction
     // for each variable i in v[i].
-    std::vector<Double_t> v(events.size(), 0);
+    std::vector<double> v(events.size(), 0);
 
-    std::cout << std::endl << "Ranking Variables by Net Error Reduction... " << std::endl;
+    //std::cout << std::endl << "Ranking Variables by Net Error Reduction... " << std::endl;
 
     for(unsigned int j=0; j < trees.size(); j++)
     {
         trees[j]->rankVariables(v); 
     }
 
-    Double_t max = *std::max_element(v.begin(), v.end());
+    double max = *std::max_element(v.begin(), v.end());
    
     // Scale the importance. Maximum importance = 100.
     for(unsigned int i=0; i < v.size(); i++)
@@ -235,11 +215,11 @@ std::vector<Double_t> Forest::rankVariables()
 
     // Change the storage format so that we can keep the index 
     // and the value associated after sorting.
-    std::vector< std::pair<Double_t, Int_t> > w(events.size());
+    std::vector< std::pair<double, Int_t> > w(events.size());
 
     for(unsigned int i=0; i<v.size(); i++)
     {
-        w[i] = std::pair<Double_t, Int_t>(v[i],i);
+        w[i] = std::pair<double, Int_t>(v[i],i);
     }
 
     // Sort so that we can output in order of importance.
@@ -248,19 +228,66 @@ std::vector<Double_t> Forest::rankVariables()
     // Output the results.
     for(int i=(v.size()-1); i>=0; i--)
     {
-        std::cout << "x" << w[i].second  << ": " << w[i].first  << std::endl; 
+        rank.push_back(w[i].second);
+       // std::cout << "x" << w[i].second  << ": " << w[i].first  << std::endl; 
     }
     
-    std::cout << std::endl << "Done." << std::endl << std::endl;
-    return v;
-
+    //std::cout << std::endl << "Done." << std::endl << std::endl;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////
+
+void Forest::saveSplitValues(const char* savefilename)
+{
+// This function gathers all of the split values from the forest and puts them into lists.
+
+    std::ofstream splitvaluefile;
+    splitvaluefile.open(savefilename);
+
+    // Initialize the matrix v, which will store the list of split values
+    // for each variable i in v[i].
+    std::vector<std::vector<double>> v(events.size(), std::vector<double>());
+
+    //std::cout << std::endl << "Gathering split values... " << std::endl;
+
+    // Gather the split values from each tree in the forest.
+    for(unsigned int j=0; j<trees.size(); j++)
+    {
+        trees[j]->getSplitValues(v); 
+    }
+
+    // Sort the lists of split values and remove the duplicates.
+    for(unsigned int i=0; i<v.size(); i++)
+    {
+        std::sort(v[i].begin(),v[i].end());
+        v[i].erase( unique( v[i].begin(), v[i].end() ), v[i].end() );
+    }
+
+    // Output the results after removing duplicates.
+    // The 0th variable is special and is not used for splitting, so we start at 1.
+    for(unsigned int i=1; i<v.size(); i++)
+    {
+      TString splitValues;
+      for(unsigned int j=0; j<v[i].size(); j++)
+      {
+        std::stringstream ss;
+        ss.precision(14);
+        ss << std::scientific << v[i][j];
+        splitValues+=","; 
+        splitValues+=ss.str().c_str();
+      }
+
+      splitValues=splitValues(1,splitValues.Length());
+      splitvaluefile << splitValues << std::endl << std::endl;;
+    }
+}
 //////////////////////////////////////////////////////////////////////////
 // ______________________Update_Events_After_Fitting____________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::updateRegTargets(Tree* tree, Double_t learningRate, LossFunction* l)
+void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l)
 {
 // Prepare the global vector of events for the next tree.
 // Update the fit for each event and set the new target value
@@ -276,7 +303,7 @@ void Forest::updateRegTargets(Tree* tree, Double_t learningRate, LossFunction* l
         std::vector<Event*>& v = (*it)->getEvents()[0];
 
         // Fit the events depending on the loss function criteria.
-        Double_t fit = l->fit(v);
+        double fit = l->fit(v);
 
         // Scale the rate at which the algorithm converges.
         fit = learningRate*fit;
@@ -313,7 +340,7 @@ void Forest::updateEvents(Tree* tree)
     for(std::list<Node*>::iterator it=tn.begin(); it!=tn.end(); it++)
     {   
         std::vector<Event*>& v = (*it)->getEvents()[0];
-        Double_t fit = (*it)->getFitValue();
+        double fit = (*it)->getFitValue();
 
         // Loop through each event in the terminal region and update the
         // the global event it maps to.
@@ -332,11 +359,11 @@ void Forest::updateEvents(Tree* tree)
 // ____________________Do/Test_the Regression___________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
+void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
 {
 // Build the forest using the training sample.
 
-    std::cout << std::endl << "--Building Forest..." << std::endl << std::endl;
+    //std::cout << std::endl << "--Building Forest..." << std::endl << std::endl;
 
     // The trees work with a matrix of events where the rows have the same set of events. Each row however
     // is sorted according to the feature variable given by event->data[row].
@@ -344,7 +371,7 @@ void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRat
     // feature variable every time we want to calculate the best split point for that feature.
     // By keeping sorted copies we avoid the sorting operation during splint point calculation
     // and save computation time. If we do not sort each of the rows the regression will fail.
-    std::cout << "Sorting event vectors..." << std::endl;
+    //std::cout << "Sorting event vectors..." << std::endl;
     sortEventVectors(events);
 
     // See how long the regression takes.
@@ -353,7 +380,7 @@ void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRat
 
     for(unsigned int i=0; i< (unsigned) treeLimit; i++)
     {
-        std::cout << "++Building Tree " << i << "... " << std::endl;
+       // std::cout << "++Building Tree " << i << "... " << std::endl;
         Tree* tree = new Tree(events);
         trees.push_back(tree);    
         tree->buildTree(nodeLimit);
@@ -369,8 +396,8 @@ void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRat
 
         if(saveTrees) tree->saveToXML(c);
     }
-    std::cout << std::endl;
-    std::cout << std::endl << "Done." << std::endl << std::endl;
+    //std::cout << std::endl;
+    //std::cout << std::endl << "Done." << std::endl << std::endl;
 
 //    std::cout << std::endl << "Total calculation time: " << timer.RealTime() << std::endl;
 }
@@ -379,14 +406,14 @@ void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRat
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::predictEvents(std::vector<Event*> eventsp, unsigned int numtrees)
+void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
 {
 // Predict values for eventsp by running them through the forest up to numtrees.
 
     //std::cout << "Using " << numtrees << " trees from the forest to predict events ... " << std::endl;
     if(numtrees > trees.size())
     {
-       // std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
+      //std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
         numtrees = trees.size();
     }
 
@@ -402,7 +429,7 @@ void Forest::predictEvents(std::vector<Event*> eventsp, unsigned int numtrees)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::appendCorrection(std::vector<Event*> eventsp, Int_t treenum)
+void Forest::appendCorrection(std::vector<Event*>& eventsp, Int_t treenum)
 {
 // Update the prediction by appending the next correction.
 
@@ -413,6 +440,44 @@ void Forest::appendCorrection(std::vector<Event*> eventsp, Int_t treenum)
     updateEvents(tree);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////
+
+void Forest::predictEvent(Event* e, unsigned int numtrees)
+{
+// Predict values for eventsp by running them through the forest up to numtrees.
+
+    //std::cout << "Using " << numtrees << " trees from the forest to predict events ... " << std::endl;
+    if(numtrees > trees.size())
+    {
+      //std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
+        numtrees = trees.size();
+    }
+
+    // i iterates through the trees in the forest. Each tree corrects the last prediction.
+    for(unsigned int i=0; i < numtrees; i++) 
+    {
+        //std::cout << "++Tree " << i << "..." << std::endl;
+        appendCorrection(e, i);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////
+
+void Forest::appendCorrection(Event* e, Int_t treenum)
+{
+// Update the prediction by appending the next correction.
+
+    Tree* tree = trees[treenum];
+    Node* terminalNode = tree->filterEvent(e); 
+
+    // Update the event with its new prediction.
+    double fit = terminalNode->getFitValue();
+    e->predictedValue += fit;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 // ----------------------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +497,8 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
 
         std::stringstream ss;
         ss << directory << "/" << i << ".xml";
-	
+
+        //trees[i]->loadFromXML(ss.str().c_str());
 		trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
     }   
 
@@ -443,7 +509,7 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
 // ___________________Stochastic_Sampling_&_Regression__________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::prepareRandomSubsample(Double_t fraction)
+void Forest::prepareRandomSubsample(double fraction)
 {
 // We use this for Stochastic Gradient Boosting. Basically you
 // take a subsample of the training events and build a tree using
@@ -472,7 +538,7 @@ void Forest::prepareRandomSubsample(Double_t fraction)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, Double_t learningRate, Double_t fraction, LossFunction* l)
+void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, double fraction, LossFunction* l)
 {
 // If the fraction of events to use is one then this algorithm is slower than doRegression due to the fact
 // that we have to sort the events every time we extract a subsample. Without random sampling we simply 
@@ -490,11 +556,11 @@ void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, Double_t l
     timer.Start(kTRUE); 
 
     // Output the current settings.
-    std::cout << std::endl << "Running stochastic regression ... " << std::endl;
-    std::cout << "# Nodes: " << nodeLimit << std::endl;
-    std::cout << "Learning Rate: " << learningRate << std::endl;
-    std::cout << "Bagging Fraction: " << fraction << std::endl;
-    std::cout << std::endl;
+   // std::cout << std::endl << "Running stochastic regression ... " << std::endl;
+    //std::cout << "# Nodes: " << nodeLimit << std::endl;
+    //std::cout << "Learning Rate: " << learningRate << std::endl;
+    //std::cout << "Bagging Fraction: " << fraction << std::endl;
+    //std::cout << std::endl;
     
 
     for(unsigned int i=0; i< (unsigned) treeLimit; i++)
@@ -520,115 +586,7 @@ void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, Double_t l
         trees[i]->saveToXML(c);
     }
 
-    std::cout << std::endl << "Done." << std::endl << std::endl;
+    //std::cout << std::endl << "Done." << std::endl << std::endl;
 
-    std::cout << std::endl << "Total calculation time: " << timer.RealTime() << std::endl;
-}
-//////////////////////////////////////////////////////////////////////////
-// ______________________Generate_Events________________________________//
-//////////////////////////////////////////////////////////////////////////
-
-void Forest::generate(Int_t n, Int_t m, Double_t sigma)
-{
-// Generate events to use for the building and testing of the forest.
-// We keep as many copies of the events as there are variables.
-// And we store these copies in the events vector of vectors.
-// events[0] is a vector sorted by var 0, events[1] by var 1, etc.
-// All of the vectors have the same events, but each vector is just
-// sorted by a different variable.
- 
-    // Store these in case we need them
-    // for plotting or troubleshooting.
-    std::ofstream trainData;
-    trainData.open("training.data");
-
-    std::ofstream testData;
-    testData.open("testing.data");
-
-    // Prepare our containers.
-    TRandom3 r(0);
-    std::vector<Event*> v(n);
-
-    events = std::vector< std::vector<Event*> >(3, std::vector<Event*>(n));
-    testEvents = std::vector<Event*>(m);
-
-    std::cout << std::endl << "Generating " << n << " events..." << std::endl;
-
-    // Generate the data set we will use to build the forest. 
-    for(unsigned int i=0; i< (unsigned) n; i++)
-    {  
-        // data[0] is the target, which is determined
-        // by the other variables data[1], data[2] ... 
-        std::vector<Double_t> x(3);
-        x[1] = r.Rndm();
-        x[2] = r.Rndm();
-
-        // Store the variable which is determined by the others.
-        // Our target for BDT prediction.
-        x[0] = x[1]*x[2];
-
-
-        // Add noise to the determining variables.
-        x[1] += r.Gaus(0,sigma);
-        x[2] += r.Gaus(0,sigma);
-
-        // Create the event.
-        Event* e = new Event();
-        v[i]=e;
-
-        // Store the event.
-        e->predictedValue = 0;
-        e->trueValue = x[0];
-        e->data = x;  
-        e->id = i;
-    }
-
-    // Set up the events matrix and the events vector.
-    for(unsigned int i=0; i < events.size(); i++)
-    {
-        events[i] = v;
-    }
-
-    // Generate a separate data set for testing.
-    for(unsigned int i=0; i< (unsigned) m; i++)
-    {  
-        // data[0] is the target, which is determined
-        // by the other variables data[1], data[2] .... 
-        std::vector<Double_t> x(3);
-        x[1] = r.Rndm();
-        x[2] = r.Rndm();
-        x[0] = x[1]*x[2];
-
-        x[1] += r.Gaus(0,sigma);
-        x[2] += r.Gaus(0,sigma);
-
-        // Create the event.
-        Event* e = new Event();
-        Event* f = new Event();
-
-        testEvents[i] = e;
-
-        // Store the event.
-        e->predictedValue = 0;
-        e->trueValue = x[0];
-        e->data = x;  
-        e->id = i;
-
-        f->predictedValue = 0;
-        f->trueValue = x[0];
-        f->data = x;  
-        f->id = i;
-        
-    }
-
-    // Sort the events by the target variable.
-    Event::sortingIndex=0;
-
-    for(unsigned int i=0; i< (unsigned) n; i++)
-    {
-        // Argh, write to files if ye want, matie.
-    }
-
-    trainData.close();
-    testData.close();
+    //std::cout << std::endl << "Total calculation time: " << timer.RealTime() << std::endl;
 }
