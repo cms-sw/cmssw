@@ -24,42 +24,11 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-def customiseFor14282(process):
-    process.GlobalParametersRcdSource = cms.ESSource("EmptyESSource",
-        recordName = cms.string('L1TGlobalParametersRcd'),
-        iovIsRunNotTime = cms.bool(True),
-        firstValid = cms.vuint32(1))
-    return process
-
 # Add quadruplet-specific pixel track duplicate cleaning mode (PR #13753)
 def customiseFor13753(process):
     for producer in producers_by_type(process, "PixelTrackProducer"):
         if producer.CleanerPSet.ComponentName.value() == "PixelTrackCleanerBySharedHits" and not hasattr(producer.CleanerPSet, "useQuadrupletAlgo"):
             producer.CleanerPSet.useQuadrupletAlgo = cms.bool(False)
-    return process
-
-def customiseFor13421(process):
-    for pset in process._Process__psets.values():
-        if hasattr(pset,'ComponentType'):
-            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
-                value = cms.int32(13)
-                if hasattr(pset,'minNumberOfHits'):
-                    value = getattr(pset,'minNumberOfHits')
-                    delattr(pset,'minNumberOfHits')
-                if not hasattr(pset,'minNumberOfHitsForLoopers'):
-                    pset.minNumberOfHitsForLoopers = value
-                if not hasattr(pset,'minNumberOfHitsPerLoop'):
-                    pset.minNumberOfHitsPerLoop = cms.int32(4)
-                if not hasattr(pset,'extraNumberOfHitsBeforeTheFirstLoop'):
-                    pset.extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4)
-                if not hasattr(pset,'maxLostHitsFraction'):
-                    pset.maxLostHitsFraction = cms.double(999.)
-                if not hasattr(pset,'constantValueForLostHitsFractionFilter'):
-                    pset.constantValueForLostHitsFractionFilter = cms.double(1.)
-                if not hasattr(pset,'minimumNumberOfHits'):
-                    pset.minimumNumberOfHits = cms.int32(5)
-                if not hasattr(pset,'seedPairPenalty'):
-                    pset.seedPairPenalty = cms.int32(0)
     return process
 
 #
@@ -69,10 +38,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
-    if cmsswVersion >= "CMSSW_8_0":
-        process = customiseFor14282(process)
+    if cmsswVersion >= "CMSSW_8_1":
+        process = customiseFor13753(process)
 #       process = customiseFor12718(process)
-        process = customiseFor13421(process)
         pass
 
 #   stage-2 changes only if needed
