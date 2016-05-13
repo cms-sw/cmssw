@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Phase2TrackerRecHit/interface/Phase2TrackerRecHit1D.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
@@ -62,10 +61,6 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   edm::ESHandle< TrackerGeometry > geomHandle;
   eventSetup.get< TrackerDigiGeometryRecord >().get(geomHandle);
   const TrackerGeometry* tkGeom(&(*geomHandle));
-
-  //edm::ESHandle< TrackerTopology > tTopoHandle;
-  //eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
-  //const TrackerTopology* tTopo(tTopoHandle.product());
 
   // Global container for the RecHits of each module
   std::auto_ptr< Phase2TrackerRecHit1DCollectionNew > outputRecHits(new Phase2TrackerRecHit1DCollectionNew());
