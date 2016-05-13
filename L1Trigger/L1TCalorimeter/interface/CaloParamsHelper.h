@@ -33,7 +33,9 @@ namespace l1t {
            layer1ECal=17,
            layer1HCal=18,
            layer1HF=19,
-	   NUM_CALOPARAMNODES=20
+	   jetCompressEta=20, jetCompressPt=21,
+	   etSumXPUS=22, etSumYPUS=23, etSumEttPUS=24, etSumEcalSumPUS=25,
+	   NUM_CALOPARAMNODES=26
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -245,6 +247,9 @@ namespace l1t {
     std::vector<double> jetCalibrationParams() { return pnode_[jetCalibration].dparams_; }
     l1t::LUT* jetCalibrationLUT() { return &pnode_[jetCalibration].LUT_; }
 
+    l1t::LUT* jetCompressPtLUT() { return &pnode_[jetCompressPt].LUT_; }
+    l1t::LUT* jetCompressEtaLUT() { return &pnode_[jetCompressEta].LUT_; }
+
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetp_.neighbourThreshold_ = thresh; }
@@ -257,17 +262,31 @@ namespace l1t {
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = params; }
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
+    void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
+    void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
 
     // sums
+
     double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
     double etSumEtThreshold(unsigned isum) const;
 
+    l1t::LUT* etSumXPUSLUT() { return &pnode_[etSumXPUS].LUT_; }
+    l1t::LUT* etSumYPUSLUT() { return &pnode_[etSumYPUS].LUT_; }
+    l1t::LUT* etSumEttPUSLUT() { return &pnode_[etSumEttPUS].LUT_; }
+    l1t::LUT* etSumEcalSumPUSLUT() { return &pnode_[etSumEcalSumPUS].LUT_; }
+
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
+
+    void setEtSumXPUSLUT(const l1t::LUT & lut) { pnode_[etSumXPUS].LUT_ = lut; }
+    void setEtSumYPUSLUT(const l1t::LUT & lut) { pnode_[etSumYPUS].LUT_ = lut; }
+    void setEtSumEttPUSLUT(const l1t::LUT & lut) { pnode_[etSumEttPUS].LUT_ = lut; }
+    void setEtSumEcalSumPUSLUT(const l1t::LUT & lut) { pnode_[etSumEcalSumPUS].LUT_ = lut; }
+
 
     // HI centrality
     int centralityRegionMask() const {
