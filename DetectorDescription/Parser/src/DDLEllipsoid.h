@@ -1,12 +1,15 @@
 #ifndef DDL_Ellipsoid_H
 #define DDL_Ellipsoid_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLEllipsoid processes all Ellipsoid elements.
 /** @class DDLEllipsoid

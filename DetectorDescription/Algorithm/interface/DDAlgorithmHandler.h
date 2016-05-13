@@ -2,7 +2,13 @@
 #define DD_DDALGORITHMHANDLER_H
 
 #include <string>
+
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+
+class DDAlgorithm;
+class DDCompactView;
 
 //! wrapper around a DDAlgorithm
 /** used from DDParser for setting up, initializing, and executing an DDAlgorithm */

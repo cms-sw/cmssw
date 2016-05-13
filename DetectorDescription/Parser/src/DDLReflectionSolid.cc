@@ -12,11 +12,17 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
+#include <iostream>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLReflectionSolid::DDLReflectionSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )

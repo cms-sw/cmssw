@@ -1,5 +1,18 @@
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
+
+#include <stddef.h>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "Math/GenVector/Rotation3D.h"
 
 DDCompareEPV::DDCompareEPV() : ddco_() { }
 

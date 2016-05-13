@@ -1,18 +1,20 @@
 #ifndef DDI_Specific_h
 #define DDI_Specific_h
 
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-
 #include <iostream>
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
 
-class DDPartSelection;
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+
+class DDExpandedView;
+class DDLogicalPart;
 class DDNodes;
+class DDPartSelection;
 
 namespace DDI {
   

@@ -1,5 +1,7 @@
 #include "DetectorDescription/Core/interface/DDScope.h"
 
+#include <ostream>
+
 dd_scope_class DDScopeClassification::operator()( const DDGeoHistory & left,
                                                   const DDGeoHistory & right ) const
 {

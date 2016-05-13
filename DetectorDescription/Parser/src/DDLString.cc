@@ -7,7 +7,16 @@
 
 #include "DetectorDescription/Parser/src/DDLString.h"
 
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 DDLString::DDLString( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

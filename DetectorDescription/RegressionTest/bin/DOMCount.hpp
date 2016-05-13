@@ -100,6 +100,13 @@
 #include <iostream>
 #include <ostream>
 
+#include "xercesc/util/Compilers/GCCDefs.hpp"
+#include "xercesc/util/XercesDefs.hpp"
+
+namespace xercesc_2_8 {
+class DOMError;
+}  // namespace xercesc_2_8
+
 XERCES_CPP_NAMESPACE_USE
 
 // ---------------------------------------------------------------------------
