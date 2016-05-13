@@ -76,8 +76,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
-    // FIXME we shall find a better solution than static
-    static  std::stack<bool, std::vector<bool> > resultStack;
+    std::stack<bool, std::vector<bool> > resultStack;
     bool b1, b2;
 
     int opNumber = 0;
@@ -171,12 +170,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     }
 
     // get the result in the top of the stack
-
     m_algoResult = resultStack.top();
-
-    // clear resultStack
-    while(!resultStack.empty()) resultStack.pop();
-
 }
 
 // print algorithm evaluation
