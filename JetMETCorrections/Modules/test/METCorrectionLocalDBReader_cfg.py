@@ -21,8 +21,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       cms.PSet(
               #record = cms.string('MetShiftXY'),
               #record = cms.string('PfType1Met'), 
-              record = cms.string('JetCorrectionsRecord'),
-              #record = cms.string('METCorrectionsRecord'),# plugin 
+              record = cms.string('METCorrectionsRecord'),# plugin 
               #tag    = cms.string('metShiftxy'),
               tag    = cms.string('METCorrectorParametersCollection_MET16V0'),
               #label  = cms.untracked.string('PfType1Met')

@@ -28,6 +28,7 @@ class METCorrectorParameters
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
+        int ptclType()                      const {return ptclType_; }
         std::vector<std::string> parVar()   const {return mParVar;        }
         std::vector<std::string> binVar()   const {return mBinVar;        } 
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
@@ -35,7 +36,7 @@ class METCorrectorParameters
         std::string formula()               const {return mFormula;       }
       private:
         //-------- Member variables ----------
-	int 			 ptclType;
+	int 			 ptclType_;
         std::string              mFormula;
         std::vector<std::string> mBinVar;
         std::vector<std::string> mParVar;
@@ -82,7 +83,7 @@ class METCorrectorParameters
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
     const Definitions& definitions()                             const {return mDefinitions;   }
-    unsigned size()                                              const {return mRecords.size();}
+    unsigned size()                                             const {return mRecords.size();}
     unsigned size(unsigned fVar)                                 const;
     int binIndex(const std::vector<float>& fX)                   const;
     int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;

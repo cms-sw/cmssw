@@ -67,8 +67,8 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 {
   edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
   std::cout <<"Inspecting MET payload with label: "<< mPayloadName <<std::endl;
-  iSetup.get<JetCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
-  //iSetup.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
+  //iSetup.get<JetCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
+  iSetup.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
   std::cout<<"hahahahahahahah"<<std::endl;
   //METCorParamsColl.~ESHandle();
 
@@ -81,22 +81,25 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
     std::cout<<"--------------------------------------" << std::endl;
     std::cout<<"Processing key = " << *ikey << std::endl;
-    std::cout<<"object label: "<<METCorParamsColl->findLabel(*ikey)<<std::endl;
+    std::string sectionName= METCorParamsColl->findLabel(*ikey);
+    std::cout<<"object label: "<<sectionName<<std::endl;
     METCorrectorParameters const & METCorParams = (*METCorParamsColl)[*ikey];
 
-    //if (mCreateTextFile)
-    //  {
-    //    if(METCorParamsColl->isXYshift(*isection) )
-    //    {
-    //      std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
-    //      METCorParams.printFile(mGlobalTag+"_XYshift_"+mPayloadName+".txt",METCorParamsColl->findSection(*isection));
-    //    }
-    //  }
-    //
-    //if (mPrintScreen)
-    //{
-    //  METCorParams.printScreen(METCorParamsColl->findSection(*isection));
-    //}
+    if (mCreateTextFile)
+      {
+        if(METCorParamsColl->isXYshift(*ikey) )
+        {
+	  std::string outFileName(mGlobalTag+"_XYshift_"+mPayloadName+".txt");
+	  std::cout<<"outFileName: "<<outFileName<<std::endl;
+          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
+          METCorParams.printFile(outFileName, sectionName);
+        }
+      }
+    
+    if (mPrintScreen)
+    {
+      METCorParams.printScreen(sectionName);
+    }
   }
 
   std::cout<<"Finished hahaha--------------------------" << std::endl;

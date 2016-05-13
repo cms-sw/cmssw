@@ -42,8 +42,8 @@ METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
     }
     // No. of Bin Variable
     std::cout<<"Definitions==========="<<std::endl;
-    ptclType = getSigned(tokens[0]);
-    std::cout<<"ptclType:"<<tokens[0]<<"\t";
+    ptclType_ = getSigned(tokens[0]);
+    std::cout<<"ptclType:"<<ptclType_<<"\t";
     unsigned nBinVar = getUnsigned(tokens[1]);
     std::cout<<"nBinVar:"<<tokens[1]<<"\t";
     for(unsigned i=0;i<nBinVar;i++)
@@ -298,15 +298,17 @@ void METCorrectorParameters::printScreen(const std::string &Section) const
   std::cout<<"Parametrization Formula:       "<<definitions().formula()<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"------- Bin contents -----------------------"<<std::endl;
-  for(unsigned i=0;i<size();i++)
-    {
-      for(unsigned j=0;j<definitions().nBinVar();j++)
-        std::cout<<record(i).xMin(j)<<" "<<record(i).xMax(j)<<" ";
-      std::cout<<record(i).nParameters()<<" ";
-      for(unsigned j=0;j<record(i).nParameters();j++)
-        std::cout<<record(i).parameter(j)<<" ";
-      std::cout<<std::endl;
-    }
+  for(unsigned i=0;i<size();i++) //mRecords size
+  {
+    std::cout<<record(i).MetAxis()<<"  ";
+    std::cout<<"nBinVar ("<<definitions().nBinVar()<<")  ";
+    for(unsigned j=0;j<definitions().nBinVar();j++)
+      std::cout<<record(i).xMin(j)<<" "<<record(i).xMax(j)<<" ";
+    std::cout<<"nParameters ("<<record(i).nParameters()<<") ";
+    for(unsigned j=0;j<record(i).nParameters();j++)
+      std::cout<<record(i).parameter(j)<<" ";
+    std::cout<<std::endl;
+  }
 }
 //------------------------------------------------------------------------
 //--- prints parameters on file ----------------------------------------
@@ -317,23 +319,26 @@ void METCorrectorParameters::printFile(const std::string& fFileName,const std::s
   txtFile.open(fFileName.c_str(),std::ofstream::app);
   txtFile.setf(std::ios::right);
   txtFile<<"["<<Section<<"]"<<"\n";
-  txtFile<<"{"<<definitions().nBinVar()<<std::setw(15);
+  txtFile<<"{"<<" "<<definitions().ptclType()<<"  "<<definitions().nBinVar();
   for(unsigned i=0;i<definitions().nBinVar();i++)
-    txtFile<<definitions().binVar(i)<<std::setw(15);
-  txtFile<<definitions().nParVar()<<std::setw(15);
+    txtFile<<"  "<<definitions().binVar(i);
+  txtFile<<"  "<<definitions().nParVar();
   for(unsigned i=0;i<definitions().nParVar();i++)
-    txtFile<<definitions().parVar(i)<<std::setw(15);
-  txtFile<<std::setw(definitions().formula().size()+15)<<definitions().formula()<<std::setw(15);
+    txtFile<<"  "<<definitions().parVar(i);
+  txtFile<<"  "<<definitions().formula();
+  //txtFile<<std::setw(definitions().formula().size()+15)
+  //<<definitions().formula()<<std::setw(15);
   txtFile<<"}"<<"\n";
-  for(unsigned i=0;i<size();i++)
-    {
-      for(unsigned j=0;j<definitions().nBinVar();j++)
-        txtFile<<record(i).xMin(j)<<std::setw(15)<<record(i).xMax(j)<<std::setw(15);
-      txtFile<<record(i).nParameters()<<std::setw(15);
-      for(unsigned j=0;j<record(i).nParameters();j++)
-        txtFile<<record(i).parameter(j)<<std::setw(15);
-      txtFile<<"\n";
-    }
+  for(unsigned i=0;i<size();i++) //mRecords size
+  {
+    txtFile<<record(i).MetAxis();
+    for(unsigned j=0;j<definitions().nBinVar();j++)
+      txtFile<<"  "<<record(i).xMin(j)<<"  "<<record(i).xMax(j);
+    txtFile<<"  "<<record(i).nParameters();
+    for(unsigned j=0;j<record(i).nParameters();j++)
+      txtFile<<"  "<<record(i).parameter(j);
+    txtFile<<"\n";
+  }
   txtFile.close();
 }
 
