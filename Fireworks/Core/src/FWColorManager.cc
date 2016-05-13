@@ -41,7 +41,6 @@ Color_t FWColorManager::getDefaultStartColorIndex()    { return s_defaultStartCo
 static
 void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iStart,  float gammaOff )
 {
-   gammaOff = 0;
    TSeqCollection* colorTable = gROOT->GetListOfColors();
    
    TColor* c = static_cast<TColor*>(colorTable->At(iStart));
