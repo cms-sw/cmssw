@@ -1097,6 +1097,9 @@ step3_trackingOnly = {
     '--datatier':'GEN-SIM-RECO,DQMIO',
     '--eventcontent':'RECOSIM,DQM',
 }
+step3_trackingLowPU = {
+    '--era': 'Run2_2016_trackingLowPU'
+}
 step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
@@ -1106,7 +1109,10 @@ step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015
 
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP from label
+
 steps['RECOUP15_trackingOnly']=merge([step3Up2015Defaults_trackingOnly]) # todo: remove UP from label
+steps['RECOUP15_trackingLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults]) # todo: remove UP from label
+steps['RECOUP15_trackingOnlyLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults_trackingOnly]) # todo: remove UP from label
 
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
