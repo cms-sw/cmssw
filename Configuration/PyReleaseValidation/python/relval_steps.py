@@ -1618,6 +1618,7 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+    upgradeStepDict['RecoFull_trackingOnly'][k] = merge([{'-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM'}, upgradeStepDict['RecoFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
@@ -1654,6 +1655,7 @@ for k in upgradeKeys:
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
+    upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])

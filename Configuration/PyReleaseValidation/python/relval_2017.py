@@ -33,3 +33,14 @@ for i,key in enumerate(upgradeKeys):
         if numWF in numWFIB:
 	    workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
         numWF+=1
+
+# Tracking-specific special workflows
+def _trackingOnly(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFull' in step or 'HARVESTFull' in step:
+            s = s.replace('Full', 'Full_trackingOnly')
+        res.append(s)
+    return res
+workflows[10024.1] = [ workflows[10024.0][0], _trackingOnly(workflows[10024.0][1]) ]
