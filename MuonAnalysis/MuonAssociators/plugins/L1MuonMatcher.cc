@@ -127,10 +127,10 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
       minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
       std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
 
-      for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx)
+      for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx) {
 	bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
-    }
-    else {
+      } 
+    } else {
       iEvent.getByToken(l1Token_, l1s);
       l1size = l1s->size();
     }
@@ -159,10 +159,11 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         }
         if (match != -1) {
 
-	  if(useStage2L1_)
-	    match += minBxIdx;
+	    if(useStage2L1_) {
+	      match += minBxIdx;
+	    }
 
-            whichRecoMatch[match] = reco->ptrAt(i);
+	    whichRecoMatch[match] = reco->ptrAt(i);
   	 
 	    int charge = 0;
 	    math::PtEtaPhiMLorentzVector p4;
