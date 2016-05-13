@@ -217,14 +217,14 @@ GetColorValuesForPaletteExtra(float(* iColors)[3], unsigned int iSize, FWColorMa
          float b = s * iColors[i][2];
 
 
-         printf("[%d] (%.1f, %.1f, %.1f) => ", i,  r, g, b);
+         // printf("[%d] (%.1f, %.1f, %.1f) => ", i,  r, g, b);
          float       value = -0.5;
          r = TMath::Power( r, (2.5 - value)/2.5);
          g = TMath::Power(g, (2.5 - value)/2.5);
          b = TMath::Power(b, (2.5 - value)/2.5);
 
 
-         printf(" (%.1f, %.1f, %.1f) \n", r, g, b);
+         // printf(" (%.1f, %.1f, %.1f) \n", r, g, b);
          //TColor::HLStoRGB(c->GetHue(), c->GetSaturation(), c->GetLight()*0.8, r, g, b);
          iColors[i + iSize][0] = r;
          iColors[i + iSize][1] = g;

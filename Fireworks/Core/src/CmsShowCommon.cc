@@ -129,7 +129,7 @@ CmsShowCommon::switchBackground()
 void
 CmsShowCommon::permuteColors()
 {
-   printf("Reverting order of existing colors ...\n");
+   // printf("Reverting order of existing colors ...\n");
 
    std::vector<Color_t> colv;
    colv.reserve(64);
@@ -155,8 +155,7 @@ CmsShowCommon::permuteColors()
 void
 CmsShowCommon::randomizeColors()
 {
-
-   printf("Doing random_shuffle on existing colors ...\n");
+   //   printf("Doing random_shuffle on existing colors ...\n");
 
    std::vector<Color_t> colv;
    colv.reserve(64);
