@@ -19,8 +19,6 @@
 #include <string>
 #include <memory>
 
-#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
-
 using namespace edm;
 
 PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p) 
@@ -77,7 +75,6 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   const SiPixelGenErrorDBObject * genErrorDBObjectProduct = 0;
 
-#ifdef NEW_CPEERROR
   // Errors take only from new GenError
   ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
   if(UseErrorsFromTemplates_) {  // do only when generrors are needed
@@ -90,24 +87,6 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
                          pset_,magfield.product(),*pDD.product(),
 			 *hTT.product(),lorentzAngle.product(),
 			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
-
-#else  // old full templates, not used anymore  
-  // Errors can be used from tempaltes or from GenError, for testing only
-  const bool useNewSimplerErrors = false;
-  if(useNewSimplerErrors) { // new genError object
-    ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
-    iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); //needs new TKPixelCPERecord.h
-    genErrorDBObjectProduct = genErrorDBObject.product();
-  }
-
-  // errors come from templates
-  ESHandle<SiPixelTemplateDBObject> templateDBobject;
-  iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-
-  cpe_  = std::make_shared<PixelCPEGeneric>(
-					pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-					templateDBobject.product(),lorentzAngleWidthProduct);
-#endif
 
   return cpe_;
 }
