@@ -257,6 +257,40 @@ namespace edm {
       std::vector<bool> ambiguous_;
   };
 
+  class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
+  public:
+    typedef ProducedProductResolver::ProductStatus ProductStatus;
+    SingleChoiceNoProcessProductResolver(ProductResolverIndex iChoice):
+    ProductResolverBase(), realResolverIndex_(iChoice) {}
+    
+    virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
+    
+  private:
+    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                               Principal const& principal,
+                                               bool skipCurrentProcess,
+                                               SharedResourcesAcquirer* sra,
+                                               ModuleCallingContext const* mcc) const override;
+    virtual bool unscheduledWasNotRun_() const override;
+    virtual bool productUnavailable_() const override;
+    virtual bool productWasDeleted_() const override;
+    virtual bool productResolved_() const override final;
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
+    virtual BranchDescription const& branchDescription_() const override;
+    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+    virtual Provenance const* provenance_() const override;
+    
+    virtual std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
+    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
+    virtual void setProcessHistory_(ProcessHistory const& ph) override;
+    virtual ProductProvenance const* productProvenancePtr_() const override;
+    virtual void resetProductData_(bool deleteEarly) override;
+    virtual bool singleProduct_() const override;
+    
+    ProductResolverIndex realResolverIndex_;
+  };
+
 }
 
 #endif

@@ -467,4 +467,96 @@ namespace edm {
     << "Contact a Framework developer\n";
     
   }
+  
+  //---- SingleChoiceNoProcessProductResolver ----------------
+  ProductData const* SingleChoiceNoProcessProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
+                                             Principal const& principal,
+                                             bool skipCurrentProcess,
+                                             SharedResourcesAcquirer* sra,
+                                             ModuleCallingContext const* mcc) const
+  {
+    //NOTE: Have to lookup the other ProductResolver each time rather than cache
+    // it's pointer since it appears the pointer can change at some later stage
+    return principal.getProductResolverByIndex(realResolverIndex_)
+      ->resolveProduct(resolveStatus, principal,
+                       skipCurrentProcess, sra, mcc);
+  }
+  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
+  }
+  
+  void SingleChoiceNoProcessProductResolver::setProcessHistory_(ProcessHistory const& ) {
+  }
+  
+  ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const {
+    return nullptr;
+  }
+  
+  void SingleChoiceNoProcessProductResolver::resetProductData_(bool) {
+  }
+  
+  bool SingleChoiceNoProcessProductResolver::singleProduct_() const {
+    return false;
+  }
+  
+  bool SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  bool SingleChoiceNoProcessProductResolver::productUnavailable_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  bool SingleChoiceNoProcessProductResolver::productResolved_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  bool SingleChoiceNoProcessProductResolver::productWasDeleted_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void SingleChoiceNoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  BranchDescription const& SingleChoiceNoProcessProductResolver::branchDescription_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void SingleChoiceNoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  Provenance const* SingleChoiceNoProcessProductResolver::provenance_() const {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::provenance_() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+  
+  void SingleChoiceNoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
+    throw Exception(errors::LogicError)
+    << "SingleChoiceNoProcessProductResolver::connectTo() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+    
+  }
+
 }
