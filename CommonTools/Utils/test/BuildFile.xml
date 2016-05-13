@@ -8,6 +8,7 @@
   <use   name="DataFormats/SiStripCluster"/>
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
+  <use   name="rootmath"/>
   <flags NO_TESTRUN="1"/>
 </bin>
 
