@@ -64,7 +64,8 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos
   mass_(config.mass),
   materialEffects_(config.materialEffects),
   propDir_(config.propDir),
-  useBeamSpot_(config.useBeamSpot)
+  useBeamSpot_(config.useBeamSpot),
+  includeAPEs_(config.includeAPEs)
 {
   // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
@@ -95,7 +96,8 @@ ReferenceTrajectory::ReferenceTrajectory(unsigned int nPar, unsigned int nHits,
    mass_(config.mass),
    materialEffects_(config.materialEffects),
    propDir_(config.propDir),
-   useBeamSpot_(config.useBeamSpot)
+   useBeamSpot_(config.useBeamSpot),
+   includeAPEs_(config.includeAPEs)
 {}
 
 
@@ -436,13 +438,15 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   theMeasurementsCov[iRow][iRow+1]   = localMeasurementCov.xy();
   theMeasurementsCov[iRow+1][iRow+1] = localMeasurementCov.yy();
 
-  // subtract APEs (if existing) from covariance matrix
-  auto det = static_cast<const TrackerGeomDet*>(newHitPtr->det());
-  const auto localAPE = det->localAlignmentError();
-  if (localAPE.valid()) {
-    theMeasurementsCov[iRow][iRow]     -= localAPE.xx();
-    theMeasurementsCov[iRow][iRow+1]   -= localAPE.xy();
-    theMeasurementsCov[iRow+1][iRow+1] -= localAPE.yy();
+  if (!includeAPEs_) {
+    // subtract APEs (if existing) from covariance matrix
+    auto det = static_cast<const TrackerGeomDet*>(newHitPtr->det());
+    const auto localAPE = det->localAlignmentError();
+    if (localAPE.valid()) {
+      theMeasurementsCov[iRow][iRow]     -= localAPE.xx();
+      theMeasurementsCov[iRow][iRow+1]   -= localAPE.xy();
+      theMeasurementsCov[iRow+1][iRow+1] -= localAPE.yy();
+    }
   }
 }
 

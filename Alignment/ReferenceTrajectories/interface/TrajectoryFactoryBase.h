@@ -70,6 +70,7 @@ private:
 protected:
 
   const bool useBeamSpot_;
+  const bool includeAPEs_;
 };
 
 

@@ -193,6 +193,7 @@ private:
   const MaterialEffects materialEffects_;
   const PropagationDirection propDir_;
   const bool useBeamSpot_;
+  const bool includeAPEs_;
 };
 
 #endif

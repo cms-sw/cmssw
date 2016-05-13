@@ -14,7 +14,8 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
   useWithoutDet_(config.getParameter<bool>("UseHitWithoutDet")),
   useInvalidHits_(config.getParameter<bool>("UseInvalidHits")),
   useProjectedHits_(config.getParameter<bool>("UseProjectedHits")),
-  useBeamSpot_(config.getParameter<bool>("UseBeamSpot"))
+  useBeamSpot_(config.getParameter<bool>("UseBeamSpot")),
+  includeAPEs_(config.getParameter<bool>("IncludeAPEs"))
 {
   edm::LogInfo("Alignment")
     << "@SUB=TrajectoryFactoryBase"
@@ -25,7 +26,8 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
     << "\nuse hits without det: " << (useWithoutDet_ ? "yes" : "no")
     << "\nuse invalid hits: " << (useInvalidHits_ ? "yes" : "no")
     << "\nuse projected hits: " << (useProjectedHits_ ? "yes" : "no")
-    << "\nuse beamspot: " << (useBeamSpot_ ? "yes" : "no");
+    << "\nuse beamspot: " << (useBeamSpot_ ? "yes" : "no")
+    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no");
 }
 
 
