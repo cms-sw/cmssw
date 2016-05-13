@@ -571,6 +571,8 @@ step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
                            '--eventcontent':'FASTPU',
                            '--datatier':'GEN-SIM-RECO'},
                            step1FastUpg2015Defaults])
+step1FastUpg2015_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
+                                                step1FastUpg2015Defaults])
 
 
 #step1FastDefaults
@@ -591,6 +593,7 @@ steps['SingleGammaFlatPt10To10FS']=merge([{'cfg':'SingleGammaFlatPt10To100_pythi
 
 #step1FastUpg2015Defaults
 steps['TTbarFS_13']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
+steps['TTbarFS_13_trackingOnlyValidation']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2015_trackingOnlyValidation])
 steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['NuGunFS_UP15']=merge([{'cfg':'SingleNuE10_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['ZEEFS_13']=merge([{'cfg':'ZEE_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
@@ -1397,6 +1400,7 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--era':'Run2_2016',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
+steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
 
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',

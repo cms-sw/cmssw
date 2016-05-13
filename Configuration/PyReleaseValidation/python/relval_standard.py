@@ -168,6 +168,7 @@ workflows[135.7] = ['H125GGgluonfusion_13', ['H125GGgluonfusionFS_13','HARVESTUP
 workflows[135.9] = ['ZMM_13',['ZMMFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.12] = ['QCD_Pt_80_120_13', ['QCD_Pt_80_120FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
+workflows[135.13] = ['TTbar_13', ['TTbarFS_13_trackingOnlyValidation','HARVESTUP15FS_trackingOnly']]
 
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
