@@ -5,6 +5,7 @@
 #include <map>
 
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/Singleton.icc"
 
 class DDXMLElement;
 

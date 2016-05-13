@@ -28,6 +28,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
+#include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"

@@ -5,6 +5,8 @@ namespace std { } using namespace std;
 #include <fstream>
 
 #include "DetectorDescription/Base/interface/Store.h"
+//***** Explicit template instantiation of Singleton
+#include "DetectorDescription/Base/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -17,6 +19,11 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
+//**** to get rid of compile errors about ambiguous delete of Stores
+#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/src/Specific.h"
 
 template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
