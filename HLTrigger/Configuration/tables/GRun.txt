@@ -707,11 +707,11 @@ MC_DoubleMuNoFiltersNoVtx_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 
-#DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
-#RatesMonitoring						# CMSHLT-344, only in 'online', not in 'GRun'
+#RatesMonitoring						# only in 'online', not in 'GRun'
+#DQMHistograms							# only in 'online', not in 'GRun'
 PhysicsHLTPhysicsOutput
 PhysicsEndOfFillOutput
 PhysicsEGammaCommissioningOutput
@@ -721,8 +721,7 @@ ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
 PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloOutput						# JIRA: CMSHLT-548
 ScoutingPFOutput						# JIRA: CMSHLT-548
-DQMOutput							# online DQMFileSaver
-#DQMOfflineOutput                                               # JIRA: CMSHLT-462, removed CMSHLT-481
+DQMOutput
 DQMEventDisplayOutput
 DQMCalibrationOutput
 HLTMonitorOutput                                                # JIRA: CMSHLT-462, CMSHLT-481
@@ -737,5 +736,3 @@ ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
 ExpressOutput
 LookAreaOutput
 NanoDSTOutput
-#HLTDQMOutput
-#HLTMONOutput
