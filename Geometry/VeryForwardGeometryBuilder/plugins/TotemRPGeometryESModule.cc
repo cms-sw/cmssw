@@ -33,7 +33,7 @@
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
-#include "Alignment/RPDataFormats/interface/RPAlignmentCorrections.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 #include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
 
@@ -70,8 +70,8 @@ class  TotemRPGeometryESModule : public edm::ESProducer
   protected:
     unsigned int verbosity;
 
-    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &measuredGD, const edm::ESHandle<RPAlignmentCorrections> &alignments, DetGeomDesc* &newGD);
-    void ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv, const edm::ESHandle<RPAlignmentCorrections> &alignments, DDCompactView *&measured_ddcv);
+    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &measuredGD, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DetGeomDesc* &newGD);
+    void ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv);
 };
 
 
@@ -105,7 +105,7 @@ TotemRPGeometryESModule::~TotemRPGeometryESModule()
 //----------------------------------------------------------------------------------------------------
 
 void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &idealGD, 
-    const ESHandle<RPAlignmentCorrections> &alignments, DetGeomDesc* &newGD)
+    const ESHandle<RPAlignmentCorrectionsData> &alignments, DetGeomDesc* &newGD)
 {
   newGD = new DetGeomDesc( *(idealGD.product()) );
   deque<const DetGeomDesc *> buffer;
@@ -127,7 +127,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
 
       if (alignments.isValid())
       {
-        const RPAlignmentCorrection& ac = alignments->GetFullSensorCorrection(decId);
+        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection(decId);
         pD->ApplyAlignment(ac);
       }
     }
@@ -139,7 +139,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
 
       if (alignments.isValid())
       {
-        const RPAlignmentCorrection& ac = alignments->GetRPCorrection(rpId);
+        const RPAlignmentCorrectionData& ac = alignments->GetRPCorrection(rpId);
         pD->ApplyAlignment(ac);
       }
     }
@@ -167,7 +167,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
 class MeasuredGeometryProducer {
     private:
         const DDCompactView &idealCV;
-        const RPAlignmentCorrections *const alignments;
+        const RPAlignmentCorrectionsData *const alignments;
         DDLogicalPart root;
         DDCompactView *measuredCV;
 
@@ -293,7 +293,7 @@ class MeasuredGeometryProducer {
         //
         // translation = alignmentTranslation + translation
         // rotation    = alignmentRotation + rotation
-        static void applyCorrectionToTransform(const RPAlignmentCorrection &correction, TMatrixD &transform) {
+        static void applyCorrectionToTransform(const RPAlignmentCorrectionData &correction, TMatrixD &transform) {
             DDTranslation translation;
             DDRotationMatrix rotation;
 
@@ -306,7 +306,7 @@ class MeasuredGeometryProducer {
         }
 
         // Applies relative alignments to Detector rotation and translation
-        void applyCorrection(const DDLogicalPart &parent, const DDLogicalPart &child, const RPAlignmentCorrection &correction,
+        void applyCorrection(const DDLogicalPart &parent, const DDLogicalPart &child, const RPAlignmentCorrectionData &correction,
                 DDTranslation &translation, DDRotationMatrix &rotation, const bool useMeasuredParent = true) {
             TMatrixD C(4,4);    // child relative transform
             TMatrixD iP(4,4);   // ideal parent global transform
@@ -346,7 +346,7 @@ class MeasuredGeometryProducer {
                     if (isRPBox(to)) {
                         const int rpId = getRPIdFromNamespace(to);
                         if (alignments != NULL) {
-                            const RPAlignmentCorrection correction = alignments->GetRPCorrection(rpId);
+                            const RPAlignmentCorrectionData correction = alignments->GetRPCorrection(rpId);
                             applyCorrection(from, to, correction,
                                     translation, rotationMatrix, false);
                         }
@@ -373,7 +373,7 @@ class MeasuredGeometryProducer {
                     const int rpId  = getRPIdFromNamespace(from);
                     const int detId = getDetectorId(rpId, copyNo);
                     if (alignments != NULL) {
-                        const RPAlignmentCorrection correction = alignments->GetFullSensorCorrection(detId);
+                        const RPAlignmentCorrectionData correction = alignments->GetFullSensorCorrection(detId);
                         applyCorrection(from, to, correction, 
                                 translation, rotationMatrix);
                     }
@@ -386,7 +386,7 @@ class MeasuredGeometryProducer {
 
     public:
         MeasuredGeometryProducer(const edm::ESHandle<DDCompactView> &idealCV,
-                const edm::ESHandle<RPAlignmentCorrections> &alignments) : idealCV(*idealCV), alignments(alignments.isValid() ? &(*alignments) : NULL) {
+                const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) : idealCV(*idealCV), alignments(alignments.isValid() ? &(*alignments) : NULL) {
             root = this->idealCV.root();
         }
 
@@ -405,7 +405,7 @@ class MeasuredGeometryProducer {
 bool MeasuredGeometryProducer::evRotationStoreState;
 
 void TotemRPGeometryESModule::ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv,
-        const edm::ESHandle<RPAlignmentCorrections> &alignments, DDCompactView *&measured_ddcv)
+        const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv)
 {
     MeasuredGeometryProducer producer(ideal_ddcv, alignments);
     measured_ddcv = producer.produce(); 
@@ -421,7 +421,7 @@ std::unique_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(cons
     iRecord.getRecord<IdealGeometryRecord>().get(idealCV);
 
     // load alignments
-    edm::ESHandle<RPAlignmentCorrections> alignments;
+    edm::ESHandle<RPAlignmentCorrectionsData> alignments;
     try {
         iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments);
     } catch (...) {
@@ -467,7 +467,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
   iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
 
   // load alignments
-  edm::ESHandle<RPAlignmentCorrections> alignments;
+  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPRealAlignmentRecord>().get(alignments); }
   catch (...) {}
   if (alignments.isValid()) {
@@ -493,7 +493,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
   iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
 
   // load alignments
-  edm::ESHandle<RPAlignmentCorrections> alignments;
+  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPMisalignedAlignmentRecord>().get(alignments); }
   catch (...) {}
   if (alignments.isValid()) {

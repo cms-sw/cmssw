@@ -16,7 +16,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 class DDFilteredView;
-class RPAlignmentCorrection;
+class RPAlignmentCorrectionData;
 
 
 /**
@@ -97,7 +97,7 @@ class DetGeomDesc
 		virtual std::string	material() const {return _material;}
 
 		/// alignment
-		void ApplyAlignment(const RPAlignmentCorrection&);
+		void ApplyAlignment(const RPAlignmentCorrectionData&);
 		
 	private:
 		Container						_container;

@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/RPDataFormats/interface/RPAlignmentCorrectionsSequence.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -65,7 +65,7 @@ Each tag must have an "id" attribute set. In addition the following attributes a
 UNITS: shifts are in um, rotations are in mrad.
  */
 
-void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
+void RPAlignmentCorrectionsDataSequence::LoadXMLFile(const string &fileName)
 {
   // prepend CMSSW src dir
   char *cmsswPath = getenv("CMSSW_BASE");
@@ -82,7 +82,7 @@ void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
   catch (const XMLException& toCatch)
   {
     char* message = XMLString::transcode(toCatch.getMessage());
-    throw cms::Exception("RPAlignmentCorrectionsSequence") << "An XMLException caught with message: " << message << ".\n";
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "An XMLException caught with message: " << message << ".\n";
     XMLString::release(&message);
   }
 
@@ -96,20 +96,20 @@ void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
   }
   catch (...)
   {
-    throw cms::Exception("RPAlignmentCorrectionsSequence") << "Cannot parse file `" << fn << "' (exception)." << endl;
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (exception)." << endl;
   }
 
   if (!parser)
-    throw cms::Exception("RPAlignmentCorrectionsSequence") << "Cannot parse file `" << fn << "' (parser = NULL)." << endl;
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (parser = NULL)." << endl;
   
   DOMDocument* xmlDoc = parser->getDocument();
 
   if (!xmlDoc)
-    throw cms::Exception("RPAlignmentCorrectionsSequence") << "Cannot parse file `" << fn << "' (xmlDoc = NULL)." << endl;
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (xmlDoc = NULL)." << endl;
 
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
   if (!elementRoot)
-    throw cms::Exception("RPAlignmentCorrectionsSequence") << "File `" << fn << "' is empty." << endl;
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "File `" << fn << "' is empty." << endl;
   
   // extract useful information form the DOM tree
   DOMNodeList *children = elementRoot->getChildNodes();
@@ -126,16 +126,16 @@ void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
     if (!strcmp(XMLString::transcode(n->getNodeName()), "rp")) nodeType = 3;
 
     if (!nodeType)
-      throw cms::Exception("RPAlignmentCorrectionsSequence") << "Unknown node `" << XMLString::transcode(n->getNodeName()) << "'.";
+      throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Unknown node `" << XMLString::transcode(n->getNodeName()) << "'.";
 
     // old style - no TimeInterval block?
     if (nodeType == 2 || nodeType == 3)
     {
-      //printf(">> RPAlignmentCorrectionsSequence::LoadXMLFile > WARNING:\n\tIn file `%s' no TimeInterval given, assuming one block of infinite validity.\n", fileName.c_str());
+      //printf(">> RPAlignmentCorrectionsDataSequence::LoadXMLFile > WARNING:\n\tIn file `%s' no TimeInterval given, assuming one block of infinite validity.\n", fileName.c_str());
 
       TimeValidityInterval inf;
       inf.SetInfinite();
-      insert(pair<TimeValidityInterval, RPAlignmentCorrections>(inf, RPAlignmentCorrections(elementRoot)));
+      insert(pair<TimeValidityInterval, RPAlignmentCorrectionsData>(inf, RPAlignmentCorrectionsMethods::GetCorrectionsData(elementRoot)));
       break;
     }
 
@@ -156,21 +156,21 @@ void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
         last_set = true;
         last = TimeValidityInterval::UNIXStringToValue(XMLString::transcode(a->getNodeValue()));
       } else
-        edm::LogProblem("RPAlignmentCorrectionsSequence") << ">> RPAlignmentCorrectionsSequence::LoadXMLFile > Warning: unknown attribute `"
+        edm::LogProblem("RPAlignmentCorrectionsDataSequence") << ">> RPAlignmentCorrectionsDataSequence::LoadXMLFile > Warning: unknown attribute `"
           << XMLString::transcode(a->getNodeName()) << "'.";
     }
 
     // interval of validity must be set
     if (!first_set || !last_set)
-      throw cms::Exception("RPAlignmentCorrectionsSequence") << "TimeInterval tag must have `first' and `last' attributes set.";
+      throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "TimeInterval tag must have `first' and `last' attributes set.";
 
     TimeValidityInterval tvi(first, last);
     
     // process data
-    RPAlignmentCorrections corrections(n);
+    RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::GetCorrectionsData(n);
 
     // save result
-    insert(pair<TimeValidityInterval, RPAlignmentCorrections>(tvi, corrections));
+    insert(pair<TimeValidityInterval, RPAlignmentCorrectionsData>(tvi, corrections));
   }
 
   XMLPlatformUtils::Terminate();
@@ -178,16 +178,16 @@ void RPAlignmentCorrectionsSequence::LoadXMLFile(const string &fileName)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionsSequence::WriteXMLFile(const string &fileName, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy,
+void RPAlignmentCorrectionsDataSequence::WriteXMLFile(const string &fileName, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy,
   bool wrSh_z, bool wrRot_z) const
 {
   FILE *rf = fopen(fileName.c_str(), "w");
   if (!rf)
-    throw cms::Exception("RPAlignmentCorrectionsSequence::WriteXMLFile") << "Cannot open file `" << fileName
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence::WriteXMLFile") << "Cannot open file `" << fileName
       << "' to save alignments." << endl;
 
   fprintf(rf, "<!--\nShifts in um, rotations in mrad.\n\nFor more details see RPAlignmentCorrections::LoadXMLFile in\n");
-  fprintf(rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc\n-->\n\n");
+  fprintf(rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsDataSequence.cc\n-->\n\n");
   fprintf(rf, "<xml DocumentType=\"AlignmentSequenceDescription\">\n");
 
   // write all time blocks
@@ -198,7 +198,7 @@ void RPAlignmentCorrectionsSequence::WriteXMLFile(const string &fileName, bool p
       TimeValidityInterval::ValueToUNIXString(it->first.last).c_str()
     );
 
-    it->second.WriteXMLBlock(rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z);
+    RPAlignmentCorrectionsMethods::WriteXMLBlock(it->second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
     fprintf(rf, "\t</TimeInterval>\n");
   }
 

@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "Alignment/RPDataFormats/interface/RPAlignmentCorrectionsSequence.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
@@ -36,22 +36,22 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     TotemRPIncludeAlignments(const edm::ParameterSet &p);
     virtual ~TotemRPIncludeAlignments(); 
 
-    std::unique_ptr<RPAlignmentCorrections> produceMeasured(const RPMeasuredAlignmentRecord &);
-    std::unique_ptr<RPAlignmentCorrections> produceReal(const RPRealAlignmentRecord &);
-    std::unique_ptr<RPAlignmentCorrections> produceMisaligned(const RPMisalignedAlignmentRecord &);
+    std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
+    std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
+    std::unique_ptr<RPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
 
   protected:
     unsigned int verbosity;
-    RPAlignmentCorrectionsSequence acsMeasured, acsReal, acsMisaligned;
-    RPAlignmentCorrections acMeasured, acReal, acMisaligned;
+    RPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
+    RPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
 
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&);
 
     /// merges an array of sequences to one
-    RPAlignmentCorrectionsSequence Merge(const std::vector<RPAlignmentCorrectionsSequence>) const;
+    RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>) const;
 
     /// builds a sequence of corrections from provided sources and runs a few checks
-    void PrepareSequence(const std::string &label, RPAlignmentCorrectionsSequence &seq, const std::vector<std::string> &files) const;
+    void PrepareSequence(const std::string &label, RPAlignmentCorrectionsDataSequence &seq, const std::vector<std::string> &files) const;
 };
 
 using namespace std;
@@ -84,35 +84,35 @@ TotemRPIncludeAlignments::~TotemRPIncludeAlignments()
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsSequence TotemRPIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsSequence> files) const
+RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence> files) const
 {
   // find interval boundaries
-  map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrections*> > > bounds;
+  map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
 
-  for (vector<RPAlignmentCorrectionsSequence>::const_iterator fit = files.begin(); fit != files.end(); ++fit)
+  for (vector<RPAlignmentCorrectionsDataSequence>::const_iterator fit = files.begin(); fit != files.end(); ++fit)
   {
-    for (RPAlignmentCorrectionsSequence::const_iterator iit = fit->begin(); iit != fit->end(); ++iit)
+    for (RPAlignmentCorrectionsDataSequence::const_iterator iit = fit->begin(); iit != fit->end(); ++iit)
     {
       const TimeValidityInterval &tvi = iit->first;
-      const RPAlignmentCorrections *corr = & iit->second;
+      const RPAlignmentCorrectionsData *corr = & iit->second;
 
-      bounds[tvi.first].push_back( pair<bool, const RPAlignmentCorrections*>(true, corr) );
+      bounds[tvi.first].push_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
 
       TimeValue_t delta = (tvi.last != TimeValidityInterval::EndOfTime()) ? (1ULL << 32) : 0;  // input resolution is 1s
-      bounds[tvi.last + delta].push_back( pair<bool, const RPAlignmentCorrections*>(false, corr) );
+      bounds[tvi.last + delta].push_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
     }
   }
   
   // build correction sums per interval
-  set<const RPAlignmentCorrections*> accumulator;
-  RPAlignmentCorrectionsSequence result;
+  set<const RPAlignmentCorrectionsData*> accumulator;
+  RPAlignmentCorrectionsDataSequence result;
   //  bool gap_found = false;
-  for (map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrections*> > >::const_iterator tit = bounds.begin(); tit != bounds.end(); ++tit)
+  for (map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit = bounds.begin(); tit != bounds.end(); ++tit)
   {
-    for (vector< pair<bool, const RPAlignmentCorrections*> >::const_iterator cit = tit->second.begin(); cit != tit->second.end(); ++cit)
+    for (vector< pair<bool, const RPAlignmentCorrectionsData*> >::const_iterator cit = tit->second.begin(); cit != tit->second.end(); ++cit)
     {
       bool add = cit->first;
-      const RPAlignmentCorrections *corr = cit->second;
+      const RPAlignmentCorrectionsData *corr = cit->second;
 
       if (add)
         accumulator.insert(corr);
@@ -120,7 +120,7 @@ RPAlignmentCorrectionsSequence TotemRPIncludeAlignments::Merge(const vector<RPAl
         accumulator.erase(corr);
     }
     
-    map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrections*> > >::const_iterator tit_next = tit;
+    map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit_next = tit;
     tit_next++;
     if (tit_next == bounds.end())
       break;
@@ -137,7 +137,7 @@ RPAlignmentCorrectionsSequence TotemRPIncludeAlignments::Merge(const vector<RPAl
       );
     }
 
-    for (set<const RPAlignmentCorrections*>::iterator sit = accumulator.begin(); sit != accumulator.end(); ++sit)
+    for (set<const RPAlignmentCorrectionsData*>::iterator sit = accumulator.begin(); sit != accumulator.end(); ++sit)
       result[tvi].AddCorrections(*(*sit));
   }
 
@@ -146,37 +146,37 @@ RPAlignmentCorrectionsSequence TotemRPIncludeAlignments::Merge(const vector<RPAl
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCorrectionsSequence &seq, const vector<string> &files) const
+void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
 {
   if (verbosity)
     printf(">> TotemRPIncludeAlignments::PrepareSequence(%s)\n", label.c_str());
 
-  vector<RPAlignmentCorrectionsSequence> sequences;
+  vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (unsigned int i = 0; i < files.size(); i++)
-    sequences.push_back(RPAlignmentCorrectionsSequence(files[i]));
+    sequences.push_back(RPAlignmentCorrectionsDataSequence(files[i]));
 
   seq = Merge(sequences);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrections> TotemRPIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrections>(acMeasured);
+  return std::make_unique<RPAlignmentCorrectionsData>(acMeasured);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrections> TotemRPIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrections>(acReal);
+  return std::make_unique<RPAlignmentCorrectionsData>(acReal);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrections> TotemRPIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrections>(acMisaligned);
+  return std::make_unique<RPAlignmentCorrectionsData>(acMisaligned);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -194,8 +194,8 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   }
 
   // determine what sequence and corrections should be used
-  RPAlignmentCorrectionsSequence *seq = NULL;
-  RPAlignmentCorrections *corr = NULL;
+  RPAlignmentCorrectionsDataSequence *seq = NULL;
+  RPAlignmentCorrectionsData *corr = NULL;
 
   if (strcmp(key.name(), "RPMeasuredAlignmentRecord") == 0)
   {
@@ -222,7 +222,7 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   bool next_exists = false;
   TimeValue_t t = iosv.time().value(), next_start = TimeValidityInterval::EndOfTime();
 
-  for (RPAlignmentCorrectionsSequence::iterator it = seq->begin(); it != seq->end(); ++it)
+  for (RPAlignmentCorrectionsDataSequence::iterator it = seq->begin(); it != seq->end(); ++it)
   {
     if (it->first.first <= t && it->first.last >= t)
     {
@@ -248,7 +248,7 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   }
     
   // no interval found, set empty corrections
-  *corr = RPAlignmentCorrections();
+  *corr = RPAlignmentCorrectionsData();
 
   if (!next_exists)
     valInt = ValidityInterval(iosv, iosv.endOfTime());

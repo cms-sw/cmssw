@@ -8,5 +8,6 @@
 	<use name="Geometry/VeryForwardGeometryBuilder"/>
 	<use name="clhep"/>
 	<use name="hepmc"/>
+	<use name="xerces-c"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
