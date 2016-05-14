@@ -20,7 +20,7 @@ namespace edm {
   class ParameterSet;
 }
 
-class AlignmentGeometry;
+//class AlignmentGeometry;
 
 
 /**
@@ -60,10 +60,10 @@ class RPAlignmentCorrectionsMethods
         bool wrSh_xy=true, bool wrSh_z=true, bool wrRot_z=true);
   
 
-    /// factors out the common shifts and rotations for every RP and saves these values as RPalignment
-    /// (factored variable), the expanded alignments are created as a by-product
-    static void FactorRPFromSensorCorrections(RPAlignmentCorrectionsData & data, RPAlignmentCorrectionsData &expanded, RPAlignmentCorrectionsData &factored,
-      const AlignmentGeometry &, bool equalWeights=false, unsigned int verbosity = 0);
+//    /// factors out the common shifts and rotations for every RP and saves these values as RPalignment
+//    /// (factored variable), the expanded alignments are created as a by-product
+//    static void FactorRPFromSensorCorrections(RPAlignmentCorrectionsData & data, RPAlignmentCorrectionsData &expanded, RPAlignmentCorrectionsData &factored,
+//      const AlignmentGeometry &, bool equalWeights=false, unsigned int verbosity = 0);
 
 };
 
