@@ -1,4 +1,4 @@
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet, const DetId gluedDetId) : 
   TrackerGeomDet(sp),theMonoDet(monoDet),theStereoDet(stereoDet) {

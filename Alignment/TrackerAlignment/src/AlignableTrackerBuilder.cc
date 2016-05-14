@@ -6,7 +6,7 @@
 // geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 // alignment
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
