@@ -199,6 +199,8 @@ namespace edm {
     std::vector<ProductResolverIndexHelper::IndexAndNames> const& indexAndNames = productLookup_->indexAndNames();
     std::vector<char> const& processNamesCharArray = productLookup_->processNames();
 
+    unsigned int numberOfMatches = 0;
+    ProductResolverIndex lastMatchIndex =ProductResolverIndexInvalid;
     if (!sortedTypeIDs.empty()) {
       ProductResolverIndex productResolverIndex = ProductResolverIndexInvalid;
       for(unsigned int k = 0, kEnd = sortedTypeIDs.size(); k < kEnd; ++k) {
@@ -207,10 +209,18 @@ namespace edm {
           ProductResolverIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
           if (product.startInProcessNames() == 0) {
             if (productResolverIndex != ProductResolverIndexInvalid) {
-              std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
-              productResolvers_.at(productResolverIndex) = newHolder;
+              if ((numberOfMatches == 1) and
+                  (lastMatchIndex != ProductResolverIndexAmbiguous)) {
+                //only one choice so use a special resolver
+                productResolvers_.at(productResolverIndex) = std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
+              } else {
+                std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
+                productResolvers_.at(productResolverIndex) = newHolder;
+              }
               matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
               ambiguous.assign(lookupProcessNames.size(), false);
+              numberOfMatches= 0;
+              lastMatchIndex = ProductResolverIndexInvalid;
             }
             productResolverIndex = product.index();
           } else {
@@ -218,7 +228,9 @@ namespace edm {
             auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), process);
             assert(iter != lookupProcessNames.end());
             ProductResolverIndex iMatchingIndex = product.index();
+            lastMatchIndex = iMatchingIndex;
             assert(iMatchingIndex != ProductResolverIndexInvalid);
+            ++numberOfMatches;
             if (iMatchingIndex == ProductResolverIndexAmbiguous) {
               assert(k >= beginElements);
               ambiguous.at(iter - lookupProcessNames.begin()) = true;
