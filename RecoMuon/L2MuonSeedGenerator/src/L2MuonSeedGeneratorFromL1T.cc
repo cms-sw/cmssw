@@ -66,7 +66,7 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   // check that number of eta bins -1 matches number of dR cones
   if( matchingDR.size()!=etaBins.size() - 1  ) {
     throw cms::Exception("Configuration") << "Size of MatchDR "
-					  << "does not match number of eta bins." << endl;
+                      << "does not match number of eta bins." << endl;
   }
 
   
@@ -216,7 +216,12 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
     
         if( pt < 1.0) pt = 1.0;
       }
-      
+         
+      // Fallback solution using ME2
+      DetId fallback_id;
+      theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0); 
+      const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
+
       vec.setMag(radius);
   
       GlobalPoint pos(vec.x(),vec.y(),vec.z());
@@ -251,11 +256,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       LogTrace(metname) << debug.dumpLayer(detLayer);
       LogTrace(metname) << debug.dumpTSOS(tsos);
 
- 	  double dRcone = matchingDR[0];
-	  if ( fabs(eta) < etaBins.back() ){
-		std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(eta));     
-		dRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);   
-	  }
+      double dRcone = matchingDR[0];
+      if ( fabs(eta) < etaBins.back() ){
+        std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(eta));     
+        dRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);   
+      }
 
       if (tsos.isValid()) {
 
@@ -264,7 +269,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         if(useOfflineSeed && ( !valid_charge || charge == 0) ) {
 
           const TrajectorySeed *assoOffseed = 
-   	        associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos, dRcone );
+               associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos, dRcone );
     
           if(assoOffseed!=0) {
             PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
@@ -292,6 +297,15 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
             detsWithStates = detLayer->compatibleDets(tsos, 
                               *theService->propagator(thePropagatorName), 
                               *theEstimator);   
+          
+          if (detsWithStates.size() == 0 && barrel ) {
+            // try again to propagate but using ME2 as reference
+            tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
+            detsWithStates = ME2DetLayer->compatibleDets(tsos, 
+                                           *theService->propagator(thePropagatorName), 
+                                           *theEstimator);   
+          }
+
           if (detsWithStates.size()){
   
             TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
