@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoMuon.PostProcessor_cff import *
+# add new muon validation
+#from Validation.RecoMuon.NewPostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 from Validation.MuonIsolation.PostProcessor_cff import *
 from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
@@ -25,7 +27,10 @@ postValidationTracking = cms.Sequence(
     + postProcessorVertexSequence
 )
 postValidation = cms.Sequence(
+# to be customized for OLD or NEW validation
       recoMuonPostProcessors
+#      NEWrecoMuonPostProcessors
+#
     + postValidationTracking
     + MuIsoValPostProcessor
     + calotowersPostProcessor
@@ -44,14 +49,18 @@ eras.phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ #
 ]))
 
 postValidation_preprod = cms.Sequence(
+# to be customized for OLD or NEW muon validation
     recoMuonPostProcessors
+#    NEWrecoMuonPostProcessors
   + postProcessorTrackSequence
   + MuIsoValPostProcessor
 )  
 
 
 postValidation_fastsim = cms.Sequence(
+# to be customized for OLD or NEW muon validation
       recoMuonPostProcessors
+#      NEWrecoMuonPostProcessors
     + postProcessorTrackSequence
     + MuIsoValPostProcessor
     + photonPostProcessor
@@ -88,7 +97,9 @@ postValidation_gen = cms.Sequence(
 )
 
 postValidationCosmics = cms.Sequence(
+# to be customized for OLD or NEW muon validation
     postProcessorMuonMultiTrack
+#    postProcessorMuonTrack
 )
 
 postValidationMiniAOD = cms.Sequence(

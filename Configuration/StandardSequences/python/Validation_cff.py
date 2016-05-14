@@ -22,9 +22,15 @@ from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.RecoMuon.muonValidation_cff import *
+# ADD new validation
+from Validation.RecoMuon.NewMuonValidation_cff import *
+#
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
+# ADD new validation
+from Validation.RecoMuon.NewMuonValidationHLT_cff import *
+#
 from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
@@ -58,12 +64,15 @@ validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationFo
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 
+# to be customized for OLD or NEW validation
 validation_preprod = cms.Sequence(
                           genvalid_all
                           +trackingTruthValid
                           +tracksValidation
                           +METRelValSequence
-                          +recoMuonValidation
+#                          +recoMuonValidation
+                          +NEWrecoMuonValidation
+#
                           +muIsoVal_seq
                           +muonIdValDQMSeq
                           +hltvalidation_preprod

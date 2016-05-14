@@ -21,6 +21,9 @@ from Validation.MuonDTDigis.dtDigiValidation_cfi import *
 from Validation.MuonCSCDigis.cscDigiValidation_cfi import *
 from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 from Validation.RecoMuon.muonValidation_cff import *
+# ADDED new validation
+from Validation.RecoMuon.NewMuonValidation_cff import *
+#
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.Mixing.mixCollectionValidation_cfi import *
@@ -57,6 +60,7 @@ preprodPrevalidation = cms.Sequence(
     tracksPreValidation
 )
 
+# to be customized for OLD or NEW validation
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
                                  + trackerRecHitsValidation 
@@ -74,7 +78,9 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + validSimHit+muondtdigianalyzer 
                                  + cscDigiValidation
                                  + validationMuonRPCDigis 
-                                 + recoMuonValidation 
+#                                 + recoMuonValidation 
+                                 + NEWrecoMuonValidation
+#
                                  + muIsoVal_seq 
                                  + muonIdValDQMSeq 
                                  + mixCollectionValidation 
