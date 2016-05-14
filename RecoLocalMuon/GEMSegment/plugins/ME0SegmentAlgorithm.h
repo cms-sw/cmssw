@@ -48,12 +48,12 @@ private:
   ProtoSegments clusterHits(const EnsembleHitContainer& rechits);
 
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
-  ProtoSegments chainHits(const EnsembleHitContainer& rechits);
+  ProtoSegments chainHits(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits);
 
-  bool isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
+  bool isGoodToMerge(const ME0Ensemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  std::vector<ME0Segment> buildSegments(const EnsembleHitContainer& rechits);
+  void buildSegments(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits, std::vector<ME0Segment>& me0segs);
 
   // Member variables
   const std::string myName; 
@@ -71,7 +71,6 @@ private:
   int     maxRecHitsInCluster;
   
   EnsembleHitContainer proto_segment;
-  ME0Ensemble theEnsemble;
 
   static constexpr float running_max=std::numeric_limits<float>::max();
   std::unique_ptr<MuonSegFit> sfit_;

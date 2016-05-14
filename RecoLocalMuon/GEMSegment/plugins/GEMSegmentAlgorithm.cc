@@ -60,11 +60,6 @@ GEMSegmentAlgorithm::~GEMSegmentAlgorithm() {
 
 std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
 
-  theEnsemble = ensemble;
-
-  GEMDetId chId((theEnsemble.first)->id());
-  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] build segments in chamber " << chId;
-  
   // pre-cluster rechits and loop over all sub clusters separately
   std::vector<GEMSegment>          segments_temp;
   std::vector<GEMSegment>          segments;
@@ -76,12 +71,12 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
       // it uses X,Y,Z information; there are no configurable parameters used;
       // the X, Y, Z "cuts" are just (much) wider than reasonable high pt segments
       edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] preClustering :: use Chaining";
-      rechits_clusters = this->chainHits( rechits );
+      rechits_clusters = this->chainHits(ensemble, rechits );
     }
     else{
       // it uses X,Y information + configurable parameters
       edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] Clustering";
-      rechits_clusters = this->clusterHits(rechits );
+      rechits_clusters = this->clusterHits(ensemble, rechits );
     }
     // loop over the found clusters:
       edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] Loop over clusters and build segments";
@@ -89,7 +84,7 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      segments_temp = this->buildSegments( (*sub_rechits) );
+      this->buildSegments(ensemble, (*sub_rechits), segments_temp);
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
@@ -98,7 +93,7 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
     return segments;
   }
   else {
-    segments = this->buildSegments(rechits);
+    this->buildSegments(ensemble, rechits, segments);
     return segments;
   }
 }
@@ -106,7 +101,7 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
 
 // ********************************************************************;
 GEMSegmentAlgorithm::ProtoSegments 
-GEMSegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
+GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
 
   // think how to implement BX requirement here
 
@@ -135,9 +130,9 @@ GEMSegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
     seeds.push_back(temp);
 
     GEMDetId rhID                  = rechits[i]->gemId();
-    const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
+    const GEMEtaPartition * rhEP   = (ensemble.second.find(rhID.rawId()))->second;
     if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
-    const GEMSuperChamber * rhCH   = theEnsemble.first;
+    const GEMSuperChamber * rhCH   = ensemble.first;
     LocalPoint rhLP_inEtaPartFrame = rechits[i]->localPosition();
     GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
     LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
@@ -214,23 +209,19 @@ GEMSegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
 
 
 GEMSegmentAlgorithm::ProtoSegments 
-GEMSegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
+GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_chains; 
   EnsembleHitContainer temp;
-  ProtoSegments seeds;
-
-  std::vector <bool> usedCluster;
-
+  ProtoSegments seeds;  
+  seeds.reserve(rechits.size());
+  std::vector<bool> usedCluster(rechits.size(),false);
+  
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
-    temp.clear();
-    temp.push_back(rechits[i]);
-    seeds.push_back(temp);
-    usedCluster.push_back(false);
-  }
+  for ( unsigned int i=0; i<rechits.size(); ++i)
+    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
 
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
@@ -249,7 +240,7 @@ GEMSegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
       // to re-introduce Y (or actually wire group mumber)
       // in a similar way as for the strip number - see
       // the code below.
-      bool goodToMerge  = isGoodToMerge(seeds[NNN], seeds[MMM]);
+      bool goodToMerge  = isGoodToMerge(ensemble, seeds[NNN], seeds[MMM]);
       if(goodToMerge){
         // merge chains!
         // merge by adding seed NNN to seed MMM and erasing seed NNN
@@ -280,117 +271,57 @@ GEMSegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
   return rechits_chains;
 }
 
-bool GEMSegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
+bool GEMSegmentAlgorithm::isGoodToMerge(const GEMEnsemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
-  std::vector<float> phi_new, eta_new, phi_old, eta_old;
-  phi_new.reserve(newChain.size()); phi_old.reserve(oldChain.size());
-  eta_new.reserve(newChain.size()); eta_old.reserve(oldChain.size());
-  std::vector<int> layer_new, layer_old;
-  layer_new.reserve(newChain.size()); layer_old.reserve(oldChain.size());
-  std::vector<int> bx_new, bx_old;
-  bx_new.reserve(newChain.size()); bx_old.reserve(oldChain.size());
-
-  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    GEMDetId rhID                  = newChain[iRH_new]->gemId();
-    const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
-    if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
-    LocalPoint rhLP_inEtaPartFrame = newChain[iRH_new]->localPosition();
-    GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
-    layer_new.push_back((rhID.station()-1)*2+rhID.layer());
-    phi_new.push_back(rhGP_inCMSFrame.phi());
-    eta_new.push_back(rhGP_inCMSFrame.eta());
-    bx_new.push_back(newChain[iRH_new]->BunchX());
-    // Log Message
-    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    const GEMSuperChamber * rhCH   = theEnsemble.first;
-    LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
-    edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge::New Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
-    			             << " -- Glob eta = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.eta()<<" Glob phi = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.phi()
-                                     << " -- BX = "<<newChain[iRH_new]->BunchX()
-   	                 	     << " -- "<<rhID.rawId()<<" = "<<rhID<<" ]";
-    #endif
-  }  
-
-  for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
-    GEMDetId rhID                  = oldChain[iRH_old]->gemId();
-    const GEMEtaPartition * rhEP   = (theEnsemble.second.find(rhID.rawId()))->second;
-    if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
-    LocalPoint rhLP_inEtaPartFrame = oldChain[iRH_old]->localPosition();
-    GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
-    layer_old.push_back((rhID.station()-1)*2+rhID.layer());
-    // std::vector<int> layer_tmp; layer_tmp.push_back((rhID.station()-1)*2+rhID.layer()); layer_old.push_back(layer_tmp);
-    phi_old.push_back(rhGP_inCMSFrame.phi());
-    eta_old.push_back(rhGP_inCMSFrame.eta());
-    bx_old.push_back(oldChain[iRH_old]->BunchX());
-    // Log Message
-    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    const GEMSuperChamber * rhCH   = theEnsemble.first;
-    LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
-    edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge::Old Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP_inChamberFrame.y()
-                                     << " -- Glob eta = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.eta()<<" Glob phi = "<<std::showpos<<std::setw(9)<<rhGP_inCMSFrame.phi()
-                                     << " -- BX = "<<oldChain[iRH_old]->BunchX()
-                                     << " -- "<<rhID.rawId()<<" = "<<rhID<<" ]";
-    #endif
-  }
-
-  // Different Requirements: 
   bool phiRequirementOK   = false; // once it is true in the loop, it is ok to merge
   bool etaRequirementOK   = false; // once it is true in the loop, it is ok to merge
   bool bxRequirementOK    = false; // once it is true in the loop, it is ok to merge
-  bool layerRequirementOK = true;  // once it is false in the loop, it is not ok to merge
+  
+  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
+    int layer_new = (newChain[iRH_new]->gemId().station() - 1)*2 + newChain[iRH_new]->gemId().layer();
+    GlobalPoint pos_new = ensemble.first->toGlobal(newChain[iRH_new]->localPosition());
+    
+    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
+      int layer_old = (oldChain[iRH_old]->gemId().station() - 1)*2 + oldChain[iRH_old]->gemId().layer();
+      // Layers - hits on the same layer should not be allowed ==> if abs(layer_new - layer_old) > 0 is ok. if = 0 is false
+      if ( layer_new == layer_old ) return false;
+      
+      GlobalPoint pos_old = ensemble.first->toGlobal(oldChain[iRH_old]->localPosition());
 
-  for(size_t jRH_new = 0; jRH_new<phi_new.size(); ++jRH_new){
-    for(size_t jRH_old = 0; jRH_old<phi_old.size(); ++jRH_old){
-
-      // Eta & Phi
-      // to be chained, two hits need also to be "close" in phi and eta
-      // allow only change false --> true. once true, leave it true
-      if(phiRequirementOK==false) phiRequirementOK = std::abs(reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old])) < dPhiChainBoxMax;
-      if(etaRequirementOK==false) etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
-
-      // Layers
-      // hits on the same layer should not be allowed ==> if abs(layer_new - layer_old) > 0 is ok. if = 0 is false
-      // allow only change true --> false. once false, leave it false
-      if(layerRequirementOK==true) { 
-	layerRequirementOK = layer_new[jRH_new] != layer_old[jRH_old];
-      }
-
-      // BX
-      // and rechits should have the same BX if required so by the parameterset
-      // allow only change false --> true. once true, leave it true
-      if(bxRequirementOK==false) {
-	if(!clusterOnlySameBXRecHits) bxRequirementOK = true; // no BX requirements
+      // Eta & Phi- to be chained, two hits need also to be "close" in phi and eta      
+      if(phiRequirementOK==false) phiRequirementOK = std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) < dPhiChainBoxMax;
+      if(etaRequirementOK==false) etaRequirementOK = std::abs(pos_new.eta()-pos_old.eta()) < dEtaChainBoxMax;
+      // and they should have a time difference compatible with the hypothesis 
+      // that the rechits originate from the same particle, but were detected in different layers
+      if(bxRequirementOK==false) {      
+	if (!clusterOnlySameBXRecHits){
+	  bxRequirementOK = true;
+	}
 	else {
-	  if(bx_new[jRH_new]==bx_old[jRH_old]) bxRequirementOK = true; // only true if both rechits have same BX
+	  if (newChain[iRH_new]->BunchX() == oldChain[iRH_old]->BunchX()) bxRequirementOK = true;
 	}
       }
-
-      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && bxRequirementOK){
-	edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge:: true]";
-	return true; // problem is that return is already given before the second element of the vector old_chain or new_chain is tested ... this logic needs to be changed	
-      } 
+      
+      if( phiRequirementOK && etaRequirementOK && bxRequirementOK)
+        return true;
     }
   }
-
-  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GoodToMerge:: false]";
   return false;
 }
 
-std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitContainer& rechits) {
-  std::vector<GEMSegment> gemsegs;
+void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits, std::vector<GEMSegment>& gemsegs) {
+  if (rechits.size() < minHitsPerSegment) return;
+
   MuonRecHitContainer muonRecHits;
   proto_segment.clear();
+  
   // select hits from the ensemble and sort it
-
-  if (rechits.size() < minHitsPerSegment){
-    return gemsegs;
-  }  
-  const GEMSuperChamber * suCh   = theEnsemble.first;
+  const GEMSuperChamber * suCh   = ensemble.first;
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
     
     // for segFit - using local point in chamber frame
-    const GEMEtaPartition * thePartition   = (theEnsemble.second.find((*rh)->gemId()))->second;
+    const GEMEtaPartition * thePartition   = (ensemble.second.find((*rh)->gemId()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
     const LocalPoint lp = suCh->toLocal(gp);
     
@@ -398,12 +329,9 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitCont
     newRH->setPosition(lp);
     muonRecHits.push_back(newRH);
   }
-  if (proto_segment.size() < minHitsPerSegment){
-    return gemsegs;
-  }
   
-  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
+  edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto gemid = (*rh)->gemId();
     auto rhLP = (*rh)->localPosition();
@@ -412,15 +340,14 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitCont
   }
   #endif
 
-
-
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
   bool goodfit = sfit_->fit();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
 
+  for (auto rh:muonRecHits) delete rh;
   // quit function if fit was not OK
-  if(!goodfit) return gemsegs;
+  if(!goodfit) return;
 
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
@@ -442,7 +369,7 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitCont
   /*`
   float averageTime=0.;
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
-    GEMEtaPartition thePartition = theEnsemble.second.find((*rh)->gemId));
+    GEMEtaPartition thePartition = ensemble.second.find((*rh)->gemId));
     GlobalPoint pos = (thePartition->toGlobal((*rh)->localPosition());
     float tof = pos.mag() * 0.01 / 0.2997925 + 25.0*(*rh)->BunchX(); 
     averageTime += pos;                                          
@@ -450,7 +377,7 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitCont
   if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
   float timeUncrt=0.;
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
-    GEMEtaPartition thePartition = theEnsemble.second.find((*rh)->gemId));
+    GEMEtaPartition thePartition = ensemble.second.find((*rh)->gemId));
     GlobalPoint pos = (thePartition->toGlobal((*rh)->localPosition());
     float tof = pos.mag() * 0.01 / 0.2997925 + 25.0*(*rh)->BunchX();
     timeUncrt += pow(tof-averageTime,2);
@@ -468,7 +395,6 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::buildSegments(const EnsembleHitCont
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;
 
   gemsegs.push_back(tmp);
-  return gemsegs;
 }
 
 

@@ -50,10 +50,8 @@ ME0SegmentAlgorithm::~ME0SegmentAlgorithm() {
 
 std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
-  theEnsemble = ensemble;
-
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-  ME0DetId chId((theEnsamble.first)->id());  
+  ME0DetId chId((ensemble.first)->id());  
   edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegmentAlgorithm::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto me0id = (*rh)->me0Id();
@@ -73,7 +71,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, co
     if(preClustering_useChaining){
       // it uses X,Y,Z information; there are no configurable parameters used;
       // the X, Y, Z "cuts" are just (much) wider than reasonable high pt segments
-      rechits_clusters = this->chainHits( rechits );
+      rechits_clusters = this->chainHits(ensemble, rechits );
     }
     else{
       // it uses X,Y information + configurable parameters
@@ -84,7 +82,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, co
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      segments_temp = this->buildSegments( (*sub_rechits) );
+      this->buildSegments(ensemble, (*sub_rechits), segments_temp );
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
@@ -93,7 +91,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, co
     return segments;
   }
   else {
-    segments = this->buildSegments(rechits);
+    this->buildSegments(ensemble, rechits, segments);
     return segments;
   }
 }
@@ -201,23 +199,19 @@ ME0SegmentAlgorithm::clusterHits(const EnsembleHitContainer& rechits) {
 
 
 ME0SegmentAlgorithm::ProtoSegments 
-ME0SegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
+ME0SegmentAlgorithm::chainHits(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_chains; 
   EnsembleHitContainer temp;
   ProtoSegments seeds;
-
-  std::vector <bool> usedCluster;
-
+  seeds.reserve(rechits.size());
+  std::vector<bool> usedCluster(rechits.size(),false);
+  
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
-    temp.clear();
-    temp.push_back(rechits[i]);
-    seeds.push_back(temp);
-    usedCluster.push_back(false);
-  }
+  for ( unsigned int i=0; i<rechits.size(); ++i)
+    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
 
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
@@ -236,7 +230,7 @@ ME0SegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
       // to re-introduce Y (or actually wire group mumber)
       // in a similar way as for the strip number - see
       // the code below.
-      bool goodToMerge  = isGoodToMerge(seeds[NNN], seeds[MMM]);
+      bool goodToMerge  = isGoodToMerge(ensemble, seeds[NNN], seeds[MMM]);
       if(goodToMerge){
         // merge chains!
         // merge by adding seed NNN to seed MMM and erasing seed NNN
@@ -268,32 +262,13 @@ ME0SegmentAlgorithm::chainHits(const EnsembleHitContainer& rechits) {
   return rechits_chains;
 }
 
-bool ME0SegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
-
-  std::vector<float> phi_new, eta_new, time_new, phi_old, eta_old, time_old;
-  phi_new.reserve(newChain.size()); phi_old.reserve(oldChain.size());
-  eta_new.reserve(newChain.size()); eta_old.reserve(oldChain.size());
-  time_new.reserve(newChain.size()); time_old.reserve(oldChain.size());
-  std::vector<int> layer_new, layer_old;
-  layer_new.reserve(newChain.size()); layer_old.reserve(oldChain.size());
+bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    GlobalPoint pos_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition());
-    layer_new.push_back(newChain[iRH_new]->me0Id().layer());
-    phi_new.push_back(pos_new.phi());
-    eta_new.push_back(pos_new.eta());
-    time_new.push_back(newChain[iRH_new]->tof());
-  }  
-  for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
-    GlobalPoint pos_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition());
-    layer_old.push_back(oldChain[iRH_old]->me0Id().layer());
-    phi_old.push_back(pos_old.phi());
-    eta_old.push_back(pos_old.eta());
-    time_old.push_back(oldChain[iRH_old]->tof());
-  }
-
-  for(size_t jRH_new = 0; jRH_new<phi_new.size(); ++jRH_new){
-    for(size_t jRH_old = 0; jRH_old<phi_old.size(); ++jRH_old){
+    GlobalPoint pos_new = ensemble.first->toGlobal(newChain[iRH_new]->localPosition());
+    
+    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
+      GlobalPoint pos_old = ensemble.first->toGlobal(oldChain[iRH_old]->localPosition());
 
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
@@ -304,32 +279,25 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const EnsembleHitContainer& newChain, co
       // this could affect events at the boundaries ) 
 
       // to be chained, two hits need also to be "close" in phi and eta
-      bool phiRequirementOK = std::abs(reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old])) < dPhiChainBoxMax;
-      bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
+      if (std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) > dPhiChainBoxMax) continue;
+      if (std::abs(pos_new.eta()-pos_old.eta()) > dEtaChainBoxMax) continue;
       // and the difference in layer index should be < (nlayers-1)
-      bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < (theEnsemble.first->id().nlayers()-1);
+      if (abs(newChain[iRH_new]->me0Id().layer() - oldChain[iRH_old]->me0Id().layer() ) >= (ensemble.first->id().nlayers()-1)) continue;
       // and they should have a time difference compatible with the hypothesis 
       // that the rechits originate from the same particle, but were detected in different layers
-      bool timeRequirementOK = fabs(time_new[jRH_new] - time_old[jRH_old]) < dTimeChainBoxMax;
+      if (std::abs(newChain[iRH_new]->tof() - oldChain[iRH_old]->tof()) > dTimeChainBoxMax) continue;
 
-      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && timeRequirementOK){
-        return true;
-      }
+      return true;
     }
-  } 
+  }
   return false;
 }
 
-
-
-
-
-std::vector<ME0Segment> ME0SegmentAlgorithm::buildSegments(const EnsembleHitContainer& rechits) {
-  std::vector<ME0Segment> me0segs;
-  MuonRecHitContainer muonRecHits;
-
-  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits, std::vector<ME0Segment>& me0segs) {
+  if (rechits.size() < minHitsPerSegment) return;
+  
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
+  edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
     for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
       auto me0id = (*rh)->me0Id();
       auto rhLP = (*rh)->localPosition();
@@ -338,19 +306,17 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::buildSegments(const EnsembleHitCont
       }
   #endif
 
+  MuonRecHitContainer muonRecHits;
   proto_segment.clear();
-
-  if (rechits.size() < minHitsPerSegment){
-    return me0segs;
-  }
-  uint32_t refid = theEnsemble.second.begin()->first;
-  const ME0EtaPartition * refPart = (theEnsemble.second.find(refid))->second;
+  
+  uint32_t refid = ensemble.second.begin()->first;
+  const ME0EtaPartition * refPart = (ensemble.second.find(refid))->second;
   // select hits from the ensemble and sort it 
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
 
     // for segFit - using local point in first partition frame
-    const ME0EtaPartition * thePartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
+    const ME0EtaPartition * thePartition   = (ensemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
     const LocalPoint lp = refPart->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
@@ -358,15 +324,16 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::buildSegments(const EnsembleHitCont
     
     muonRecHits.push_back(newRH);    
   }
-  if (proto_segment.size() < minHitsPerSegment){
-    return me0segs;
-  }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
-  sfit_->fit();
+  bool goodfit = sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
+  for (auto rh:muonRecHits) delete rh;
+  // quit function if fit was not OK  
+  if(!goodfit) return;
+  
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
   LocalVector protoDirection     = sfit_->localdir();
@@ -394,7 +361,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::buildSegments(const EnsembleHitCont
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] "<<tmp;
   
   me0segs.push_back(tmp);
-  return me0segs;
+  return;
 }
 
 

@@ -45,15 +45,15 @@ private:
   /// Utility functions 
 
   //  Build groups of rechits that are separated in x and y to save time on the segment finding
-  ProtoSegments clusterHits(const EnsembleHitContainer& rechits);
+  ProtoSegments clusterHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
 
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
-  ProtoSegments chainHits(const EnsembleHitContainer& rechits);
+  ProtoSegments chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
 
-  bool isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
+  bool isGoodToMerge(const GEMEnsemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  std::vector<GEMSegment> buildSegments(const EnsembleHitContainer& rechits);
+  void buildSegments(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits, std::vector<GEMSegment>& gemsegs);
 
   // Member variables
   const std::string myName; 
@@ -72,7 +72,6 @@ private:
   // bool    useGE21Short;
   
   EnsembleHitContainer proto_segment;
-  GEMEnsemble theEnsemble;
   GEMDetId    theChamberId;
 
   static constexpr float running_max=std::numeric_limits<float>::max();
