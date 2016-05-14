@@ -6,15 +6,16 @@
  *
  ****************************************************************************/
 
-#ifndef Alignment_RPDataFormats_RPAlignmentCorrectionsSequence
-#define Alignment_RPDataFormats_RPAlignmentCorrectionsSequence
+#ifndef Alignment_RPDataFormats_RPAlignmentCorrectionsDataSequence
+#define Alignment_RPDataFormats_RPAlignmentCorrectionsDataSequence
 
 #include <map>
 #include <string>
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "Alignment/RPDataFormats/interface/RPAlignmentCorrections.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 
 /**
  *\brief Validity interval in timestamps.
@@ -86,20 +87,20 @@ struct TimeValidityInterval
 /**
  *\brief Time sequence of alignment corrections.
  */
-class RPAlignmentCorrectionsSequence : public std::map<TimeValidityInterval, RPAlignmentCorrections>
+class RPAlignmentCorrectionsDataSequence : public std::map<TimeValidityInterval, RPAlignmentCorrectionsData>
 {
   public:
-    RPAlignmentCorrectionsSequence() {}
+    RPAlignmentCorrectionsDataSequence() {}
 
-    RPAlignmentCorrectionsSequence(const std::string &fileName)
+    RPAlignmentCorrectionsDataSequence(const std::string &fileName)
     {
       LoadXMLFile(fileName);
     }
     
     /// inserts a set of corrections with validity interval [first, last]
-    void Insert(edm::TimeValue_t first, edm::TimeValue_t last, const RPAlignmentCorrections& corr)
+    void Insert(edm::TimeValue_t first, edm::TimeValue_t last, const RPAlignmentCorrectionsData& corr)
     {
-      insert(std::pair<TimeValidityInterval, RPAlignmentCorrections>(TimeValidityInterval(first, last), corr));
+      insert(std::pair<TimeValidityInterval, RPAlignmentCorrectionsData>(TimeValidityInterval(first, last), corr));
     }
 
     /// loads data from an alignment file

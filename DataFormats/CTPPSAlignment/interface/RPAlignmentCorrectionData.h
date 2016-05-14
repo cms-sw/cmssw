@@ -55,7 +55,7 @@
       | 0 sin r_x  cos r_x  |   |-sin r_y  0  cos r_y  |   |    0        0      1 |
   \endverbatim
  **/
-class RPAlignmentCorrection
+class RPAlignmentCorrectionData
 {
 protected:
   /// shift in mm; in global XYZ frame, which is not affected by (alignment) rotations!
@@ -82,16 +82,16 @@ protected:
 
 public:
   /// full constructor, shifts in mm, rotations in rad
-  RPAlignmentCorrection(double sh_r, double sh_r_e, double sh_x, double sh_x_e, double sh_y, double sh_y_e,
+  RPAlignmentCorrectionData(double sh_r, double sh_r_e, double sh_x, double sh_x_e, double sh_y, double sh_y_e,
       double sh_z, double sh_z_e, double rot_x, double rot_x_e, double rot_y, double rot_y_e,
       double rot_z, double rot_z_e);
 
   /// constructor TB alignment, shifts in mm, rotation in rad
-  RPAlignmentCorrection(double sh_r, double sh_r_e, double sh_x, double sh_x_e, double sh_y, double sh_y_e,
+  RPAlignmentCorrectionData(double sh_r, double sh_r_e, double sh_x, double sh_x_e, double sh_y, double sh_y_e,
       double sh_z, double sh_z_e, double rot_z, double rot_z_e);
 
   /// no error constructor, shifts in mm, rotation in rad
-  RPAlignmentCorrection(double sh_x = 0., double sh_y = 0., double sh_z = 0., double rot_z = 0.);
+  RPAlignmentCorrectionData(double sh_x = 0., double sh_y = 0., double sh_z = 0., double rot_z = 0.);
 
   const DDTranslation& Translation() const
     { return translation; }
@@ -147,7 +147,7 @@ public:
   /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
   /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
   /// With the add... switches one can control which corrections are added.
-  void Add(const RPAlignmentCorrection&, bool sumErrors = true, bool addShR=true,
+  void Add(const RPAlignmentCorrectionData&, bool sumErrors = true, bool addShR=true,
     bool addShZ=true, bool addRotZ=true);
 
   /// given (unit-length) readout direction vector (dx, dy), it converts 'translation_r' 
@@ -165,16 +165,6 @@ public:
   /// prints the contents on the screen
   void Print() const;
   
-  /// writes the contents in XML format to the output f
-  void WriteXML(FILE *f, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy, bool wrSh_z, bool wrRot_z) const;
-
-  // ----- database API -----
-
-  /// streams the class data for communication with database
-  std::vector<double> getValues() const;
-  
-  /// sets the class data from a database record
-  void setValues(const std::vector<double> &);
 };
 
 #endif

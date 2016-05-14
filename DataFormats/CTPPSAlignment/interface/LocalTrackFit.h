@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef Alignment_RPDataFormats_LocalTrackFit
-#define Alignment_RPDataFormats_LocalTrackFit
+#ifndef DataFormats_CTPPSAlignment_LocalTrackFit
+#define DataFormats_CTPPSAlignment_LocalTrackFit
 
 #include "TMath.h"
 

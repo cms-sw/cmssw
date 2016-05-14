@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "Alignment/RPDataFormats/interface/RPAlignmentCorrectionsSequence.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
@@ -34,10 +34,10 @@ class BuildElasticCorrectionsFile : public edm::EDAnalyzer
     virtual void endJob() {}
 
     void ProcessOneStation(unsigned int id, double N_a, double N_b, double N_c,
-      double F_a, double F_b, double F_c, RPAlignmentCorrections &corr, const TotemRPGeometry &geom);
+      double F_a, double F_b, double F_c, RPAlignmentCorrectionsData &corr, const TotemRPGeometry &geom);
 
     void ProcessOnePot(unsigned int id, double a, double b, double c,
-      RPAlignmentCorrections &corr, TotemRPGeometry const &geom);
+      RPAlignmentCorrectionsData &corr, TotemRPGeometry const &geom);
 };
 
 using namespace std;
@@ -65,7 +65,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
     throw cms::Exception("BuildElasticCorrectionsFile") << "Can't open file `" << inputFileName << "'." << endl;
 
   // prepare output
-  RPAlignmentCorrectionsSequence sequence;
+  RPAlignmentCorrectionsDataSequence sequence;
 
   // process input data
   while (!feof(inF)) {
@@ -85,7 +85,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
     if (count != 14)
       continue;
 
-    RPAlignmentCorrections corr;
+    RPAlignmentCorrectionsData corr;
 
     ProcessOneStation( 2, L_N_a*1E-3, L_N_b*1E-3, L_N_c*1E-3, L_F_a*1E-3, L_F_b*1E-3, L_F_c*1E-3, corr, *geom);
     ProcessOneStation(12, R_N_a*1E-3, R_N_b*1E-3, R_N_c*1E-3, R_F_a*1E-3, R_F_b*1E-3, R_F_c*1E-3, corr, *geom);
@@ -118,20 +118,20 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
     throw cms::Exception("z1 equals z2");
   
   // prepare output - expand input to sensor level
-  RPAlignmentCorrections output;
-  for (RPAlignmentCorrections::mapType::const_iterator it = input.GetSensorMap().begin();
+  RPAlignmentCorrectionsData output;
+  for (RPAlignmentCorrectionsData::mapType::const_iterator it = input.GetSensorMap().begin();
       it != input.GetSensorMap().end(); ++it) { 
     unsigned int rawId = TotemRPDetId::decToRawId(it->first);
     CLHEP::Hep3Vector d = geom->LocalToGlobalDirection(rawId, CLHEP::Hep3Vector(0., 1., 0.));
 
-    RPAlignmentCorrection ac = input.GetFullSensorCorrection(it->first);
+    RPAlignmentCorrectionsData ac = input.GetFullSensorCorrection(it->first);
     ac.XYTranslationToReadout(d.x(), d.y());
     output.SetSensorCorrection(it->first, ac);
   }
 
   // apply singular-mode change
   printf("\tID      shift in x    shift in y    rotation about z\n");
-  for (RPAlignmentCorrections::mapType::const_iterator it = output.GetSensorMap().begin();
+  for (RPAlignmentCorrectionsData::mapType::const_iterator it = output.GetSensorMap().begin();
       it != output.GetSensorMap().end(); ++it) { 
     unsigned int rawId = TotemRPDetId::decToRawId(it->first);
     CLHEP::Hep3Vector d = geom->LocalToGlobalDirection(rawId, CLHEP::Hep3Vector(0., 1., 0.));
@@ -150,7 +150,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
     double inc_rho = de_rho;
     //printf("\t\t %E, %E\n", inc_s, inc_rho);
     
-    RPAlignmentCorrection &ac = output.GetSensorCorrection(it->first);
+    RPAlignmentCorrectionsData &ac = output.GetSensorCorrection(it->first);
     ac.SetTranslationR(ac.sh_r() + inc_s, ac.sh_r_e());
     ac.SetRotationZ(ac.rot_z() + inc_rho, ac.rot_z_e());
     ac.ReadoutTranslationToXY(dx, dy);
@@ -159,7 +159,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
   // factorize alignments and write output
   vector<unsigned int> rps;
   unsigned int last_rp = 123456;
-  for (RPAlignmentCorrections::mapType::const_iterator it = input.GetSensorMap().begin();
+  for (RPAlignmentCorrectionsData::mapType::const_iterator it = input.GetSensorMap().begin();
       it != input.GetSensorMap().end(); ++it) {
       unsigned int rp = it->first/10;
       if (last_rp != rp) {
@@ -169,9 +169,9 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
   }
   AlignmentGeometry alGeom;
   AlignmentTask::BuildGeometry(rps, geom.product(), 0., alGeom);
-  RPAlignmentCorrections expanded, factored;
+  RPAlignmentCorrectionsData expanded, factored;
   output.FactorRPFromSensorCorrections(expanded, factored, alGeom);
-  factored.WriteXMLFile(ps.getUntrackedParameter<string>("outputFile"));
+  RPAlignmentCorrectionsMethods.WriteXMLFile(factored, ps.getUntrackedParameter<string>("outputFile"));
 
 
   // constants
@@ -204,7 +204,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
     TMatrixD A(size, 4);
     TVectorD M(size);
     unsigned idx = 0;
-    for (RPAlignmentCorrections::mapType::const_iterator it = output.GetSensorMap().begin();
+    for (RPAlignmentCorrectionsData::mapType::const_iterator it = output.GetSensorMap().begin();
         it != output.GetSensorMap().end(); ++it) {
       unsigned int rawId = TotemRPDetId::decToRawId(it->first);
 
@@ -212,7 +212,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
       DDTranslation c = geom->GetDetector(rawId)->translation();
       double z = c.z() - z0;
       
-      RPAlignmentCorrection &ac = output.GetSensorCorrection(it->first);
+      RPAlignmentCorrectionData &ac = output.GetSensorCorrection(it->first);
       double sh_r = ac.sh_r();
       
       A(idx, 0) = d.x()*z;
@@ -230,7 +230,7 @@ void BuildElasticCorrectionsFile::beginRun(edm::Run const&, edm::EventSetup cons
 //----------------------------------------------------------------------------------------------------
 
 void BuildElasticCorrectionsFile::ProcessOneStation(unsigned int id, double N_a, double N_b, double N_c,
-      double F_a, double F_b, double F_c, RPAlignmentCorrections &corr, const TotemRPGeometry &geom)
+      double F_a, double F_b, double F_c, RPAlignmentCorrectionsData &corr, const TotemRPGeometry &geom)
 {
   
   ProcessOnePot(id*10 + 0, N_a, N_b, N_c, corr, geom);
@@ -245,7 +245,7 @@ void BuildElasticCorrectionsFile::ProcessOneStation(unsigned int id, double N_a,
 //----------------------------------------------------------------------------------------------------
 
 void BuildElasticCorrectionsFile::ProcessOnePot(unsigned int rpId, double a, double b, double c,
-  RPAlignmentCorrections &corr, const TotemRPGeometry &geom)
+  RPAlignmentCorrectionsData &corr, const TotemRPGeometry &geom)
 {
   // distances in mm, angles in rad
   
@@ -261,7 +261,7 @@ void BuildElasticCorrectionsFile::ProcessOnePot(unsigned int rpId, double a, dou
     double sh_y = de_y - c;
     double rot_z = a;
 
-    corr.SetSensorCorrection(symId, RPAlignmentCorrection(sh_x, sh_y, 0., rot_z));
+    corr.SetSensorCorrection(symId, RPAlignmentCorrectionData(sh_x, sh_y, 0., rot_z));
   }
 }
 
