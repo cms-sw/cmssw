@@ -10,7 +10,24 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhThLUTs.h"
 
-		     
+
+bool neighbor(int endcap,int sector,int SectIndex,int id,int sub,int station){
+
+	bool neighbor = false;
+	
+	int CompIndex = (endcap - 1)*6 + sector - 1;
+	
+	if(CompIndex == (SectIndex - 1) && sub == 2 && station == 1 && (id == 3 || id == 6 || id == 9) )
+		neighbor = true;
+		
+	if(CompIndex == (SectIndex - 1) && station > 1 && (id == 3 || id == 9) )
+		neighbor = true;
+	
+	return neighbor;
+
+}
+
+//no neighboring sectors		     
 int ph_offsetss[5][9][3] = {{{2,2,-99},{20,20,-99},{39,39,-99},{2,-99,-99},{21,-99,-99},{39,-99,-99},{4,-99,-99},{23,-99,-99},{42,-99,-99}},
 			   {{58,58,-99},{77,77,-99},{95,95,-99},{58,-99,-99},{77,-99,-99},{96,-99,-99},{61,-99,-99},{79,-99,-99},{98,-99,-99}},
 			   {{1,1,-99},{39,39,-99},{76,76,-99},{2,2,-99},{21,21,-99},{39,39,-99},{58,58,-99},{77,77,-99},{95,95,-99}},
@@ -37,11 +54,31 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if(station == 1 && ring == 1 && strip > 127){
 	  ring = 4;
 	}
+	
+	int sub = 0;
+	
+	////////////////////////
+	/// Define Subsector ///
+	////// ME1 only ////////
+	////////////////////////
+	
+	if(station == 1)
+	{
+	
+		if(chamber%6 > 2)
+			sub = 1;
+		else
+			sub = 2;
+		
+	}
+	
+	bool IsNeighbor = neighbor(endcap,sector,SectIndex,Id,sub,station);
+	
 		
 	if(ring == 4){Id += 9;}
 
 	//if(endcap == 1 && sector == 1)//
-	if(SectIndex ==  (endcap - 1)*6 + sector - 1)
+	if( (SectIndex ==  (endcap - 1)*6 + sector - 1 )  )//|| IsNeighbor )
 	{
 	
 		
@@ -93,22 +130,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		
 	int fph = -999, th = -999, ph_hit = -999, phzvl = -999;// th_hit = -999, ////
 	
-	int sub = 0;
 	
-	////////////////////////
-	/// Define Subsector ///
-	////// ME1 only ////////
-	////////////////////////
-	
-	if(station == 1)
-	{
-	
-		if(chamber%6 > 2)
-			sub = 1;
-		else
-			sub = 2;
-		
-	}
 	
 	//if(sub && verbose)
 	//	std::cout<<"\nsub = "<<sub<<"\n";
@@ -326,7 +348,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	
 	
 	//if(ring == 4){
-	//	std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<"\n";
+		std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<"\n";
 	//}
 	
 	/* if(station != 1) */
