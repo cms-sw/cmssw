@@ -16,7 +16,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	std::vector<ConvertedHit> Thits = Sout.Hits();
 	std::vector<std::vector<Winner>> Winners = Sout.Winners();
 	std::vector<int> segment (4,0);
-	int phdiff[4] = {15,15,7,7};
+	int phdiff[4] = {15,15,8,8};
 	
 	/////////////////////////////////////////
 	//// Set Null Ph and Th outputs /////////
@@ -41,7 +41,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 			
 			if(Winners[z][w].Rank()){//is there a winner present?	
 			
-				if(verbose) std::cout<<"Winner position-"<<Winners[z][w].Strip()<<". Zone = "<<z<<std::endl;			
+				if(verbose) std::cout<<"\n\nWinner position-"<<Winners[z][w].Strip()<<". Zone = "<<z<<std::endl;			
 				
 				for(std::vector<ConvertedHit>::iterator i = Thits.begin();i != Thits.end();i++){//Possible associated hits
 				
