@@ -1,11 +1,17 @@
 #ifndef TrackerSingleRecHit_H
 #define TrackerSingleRecHit_H
 
-
+#include <vector>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+class SiPixelCluster;
+class SiStripCluster;
 
 /*  a Hit composed by a "single" measurement
  * it has a reference to a cluster and a local position&error
