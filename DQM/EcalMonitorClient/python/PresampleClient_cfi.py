@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalMonitorTasks.PresampleTask_cfi import ecalPresampleTask
+from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
 minChannelEntries = 6
 expectedMean = 200.0
@@ -17,7 +18,9 @@ ecalPresampleClient = cms.untracked.PSet(
         toleranceRMSFwd = cms.untracked.double(toleranceRMSFwd)
     ),
     sources = cms.untracked.PSet(
-        Pedestal = ecalPresampleTask.MEs.Pedestal
+        Pedestal = ecalPresampleTask.MEs.Pedestal,
+        PedestalByLS = ecalPresampleTask.MEs.PedestalByLS,
+        ChStatus = ecalIntegrityClient.MEs.ChStatus
     ),
     MEs = cms.untracked.PSet(
         RMS = cms.untracked.PSet(
