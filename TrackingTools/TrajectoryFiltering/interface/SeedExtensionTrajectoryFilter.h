@@ -23,6 +23,7 @@ public:
 private:
 
   template<class T> bool TBC(const T& traj) const {
+     if(theExtension <= 0) return true; // skipping checks explicitly when intended to be disabled is the safest way
      return theStrict? strictTBC(traj) : looseTBC(traj);
   }
   template<class T> bool looseTBC(const T& traj) const;
