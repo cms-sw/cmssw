@@ -13,6 +13,8 @@
 #define PRINT LogTrace("FastCircleFit")
 #endif
 
+#include <numeric>
+
 namespace {
   template<typename T>
   T sqr(T t) { return t*t; }
