@@ -143,7 +143,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
 	// Fill OutputHits with ConvertedHit information
 	for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
-	  bool isMatched = false;
+	  // bool isMatched = false;
 
 	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
 	    if ( ConvHits.at(iCHit).Station()   == OutputHits->at(iHit).Station() &&
@@ -155,7 +155,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		 ConvHits.at(iCHit).Strip()      == OutputHits->at(iHit).Strip()   &&
 		 ConvHits.at(iCHit).BX() - 6     == OutputHits->at(iHit).BX()      &&
 		 ConvHits.at(iCHit).IsNeighbor() == OutputHits->at(iHit).Neighbor() ) {
-	      isMatched = true;
+	      // isMatched = true;
 	      OutputHits->at(iHit).set_neighbor    ( ConvHits.at(iCHit).IsNeighbor());
 	      OutputHits->at(iHit).set_sector_index( ConvHits.at(iCHit).SectorIndex() );
 	      OutputHits->at(iHit).set_zone_hit    ( ConvHits.at(iCHit).Zhit()   );
@@ -439,8 +439,14 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.phis = ps;
 		tempTrack.thetas = ts;
 
-		unsigned long xmlpt_address = 0;
-		float xmlpt = CalculatePt(tempTrack, es, mode, &xmlpt_address);
+		// // Before Mulhearn cleanup, May 11
+		// unsigned long xmlpt_address = 0;
+		// float xmlpt = CalculatePt(tempTrack, es, mode, &xmlpt_address);
+		
+		// After Mulhearn cleanup, May 11
+		unsigned long xmlpt_address = ptAssignment_.calculateAddress(tempTrack, es, mode);
+		float xmlpt = ptAssignment_.calculatePt(xmlpt_address);
+
 		tempTrack.pt = xmlpt*1.4;
 		//FoundTracks->push_back(tempTrack);
 
