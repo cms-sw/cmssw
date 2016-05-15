@@ -120,7 +120,7 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
 void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
-    std::map<HGCTriggerDetId, uint32_t> payload;
+    std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
@@ -141,7 +141,7 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
             throw cms::Exception("BadGeometry")
                 << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
         }
-        HGCTriggerDetId triggercellid( tcid );
+        HGCalDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
         uint32_t value = frame.second; // 'value' has to be a 12 bit word
@@ -152,12 +152,12 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
     for(const auto& id_value : payload)
     {
         uint32_t id = id_value.first.cell();
-        if(id>nCellsInModule_) // cell number starts at 1
+        if(id>=nCellsInModule_) 
         {
             throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";
         }
-        data.payload.at(id-1) = id_value.second;
+        data.payload.at(id) = id_value.second;
     }
 }
 

@@ -46,7 +46,7 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
     {
         HGCalBestChoiceCodec::data_type data;
         data.reset();
-        const HGCTriggerDetId& moduleId = digi.getDetId<HGCTriggerDetId>();
+        const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
 
         // Sum of trigger cells inside the module
