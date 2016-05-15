@@ -1,0 +1,30 @@
+# Description : B2*0 -> (B+ -> (J/psi(1S) ->  mu+ mu-) K+) pi- 
+#
+#
+Alias      B_2*0sig  B*0
+Alias      anti-B_2*0sig anti-B*0
+ChargeConj B_2*0sig anti-B_2*0sig
+#
+Alias      MyB      B+
+Alias      MyantiB  B-
+ChargeConj MyB      MyantiB
+#
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay B_2*0sig
+1.0000    MyB   pi-              TSS;
+# 0.500   MyBstar  pi-            TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+CDecay anti-B_2*0sig
+#
+Decay MyB
+1.0000     MyJ/psi  K+                   SVS;
+Enddecay
+CDecay MyantiB
+#
+Decay MyJ/psi
+1.0000     mu+  mu-                      PHOTOS  VLL;
+Enddecay
+#
+End
