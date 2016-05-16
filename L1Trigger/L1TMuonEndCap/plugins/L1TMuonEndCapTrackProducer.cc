@@ -308,7 +308,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
   	if(AllTracks[fbest].phi){
 
-
 		InternalTrack tempTrack;
   		tempTrack.setType(2);
 		tempTrack.phi = AllTracks[fbest].phi;
@@ -353,8 +352,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				       A->Strip()                          == OutputHits->at(iHit).Strip()   and
 				       A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX() ) {
 				    thisHit = OutputHits->at(iHit);
-				    thisTrack.push_HitIndex(iHit);
-				    thisTrack.push_Hit(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
+				    thisTrack.push_HitExtraIndex(iHit);
+				    thisTrack.push_HitExtra(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
 				    break;
 				  }
 				}
@@ -424,7 +423,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 			}
 
 		}
-		
 		
 		int mode = 0;
 		if(tempTrack.rank & 32)
@@ -543,11 +541,9 @@ ev.put( OutputCands, "EMTF");
 
 void L1TMuonEndCapTrackProducer::beginJob()
 {
-
 }
 void L1TMuonEndCapTrackProducer::endJob()
 {
-
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1TMuonEndCapTrackProducer);

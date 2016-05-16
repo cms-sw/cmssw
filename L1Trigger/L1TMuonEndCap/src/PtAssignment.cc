@@ -1174,22 +1174,23 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	// signed full precision dPhi12
 	int dPhi13Sign = 1;
-	int CLCT1Sign = 1;
-	int CLCT3Sign = 1;
+	// Unused variables
+	// int CLCT1Sign = 1;
+	// int CLCT3Sign = 1;
       
 	if (dPhi13<0) dPhi13Sign = -1;
-	if (CLCT1<0) CLCT1Sign = -1;
-	if (CLCT3<0) CLCT3Sign = -1;
+	// if (CLCT1<0) CLCT1Sign = -1;
+	// if (CLCT3<0) CLCT3Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi13_ = fabs(dPhi13);
 	int sign13_ = dPhi13Sign > 0 ? 1 : 0;
 	int dTheta13_ = getdTheta(dTheta13);
 	int CLCT1_ = getCLCT(CLCT1);
-	int CLCT1Sign_ = CLCT1Sign > 0 ? 1 : 0;
+	int CLCT1Sign_ = CLCT1_ > 0 ? 1 : 0;
 	CLCT1_ = abs(CLCT1_);
 	int CLCT3_ = getCLCT(CLCT3);
-	int CLCT3Sign_ = CLCT3Sign > 0 ? 1 : 0;
+	int CLCT3Sign_ = CLCT3_ > 0 ? 1 : 0;
 	CLCT3_ = abs(CLCT3_);   
 	int FR1_ = FR1;
 	int FR3_ = FR3;
@@ -1213,24 +1214,24 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	// signed full precision dPhi12
 	int dPhi14Sign = 1;
-	// Unused variable
+	// Unused variables
 	// int dEta14Sign = 1;
-	int CLCT1Sign = 1;
-	int CLCT4Sign = 1;
+	// int CLCT1Sign = 1;
+	// int CLCT4Sign = 1;
       
 	if (dPhi14<0) dPhi14Sign = -1;
-	if (CLCT1<0) CLCT1Sign = -1;
-	if (CLCT4<0) CLCT4Sign = -1;
+	// if (CLCT1<0) CLCT1Sign = -1;
+	// if (CLCT4<0) CLCT4Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi14_ = fabs(dPhi14);
 	int sign14_ = dPhi14Sign > 0 ? 1 : 0;
 	int dTheta14_ = getdTheta(dTheta14);
 	int CLCT1_ = getCLCT(CLCT1);
-	int CLCT1Sign_ = CLCT1Sign > 0 ? 1 : 0;
+	int CLCT1Sign_ = CLCT1_ > 0 ? 1 : 0;
 	CLCT1_ = abs(CLCT1_);
 	int CLCT4_ = getCLCT(CLCT4);
-	int CLCT4Sign_ = CLCT4Sign > 0 ? 1 : 0;
+	int CLCT4Sign_ = CLCT4_ > 0 ? 1 : 0;
 	CLCT4_ = abs(CLCT4_);
 	int FR1_ = FR1;
 	int FR4_ = FR4;
@@ -1253,22 +1254,23 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	// signed full precision dPhi12
 	int dPhi23Sign = 1;
-	int CLCT2Sign = 1;
-	int CLCT3Sign = 1;
+	// Unused variables
+	// int CLCT2Sign = 1;
+	// int CLCT3Sign = 1;
       
 	if (dPhi23<0) dPhi23Sign = -1;
-	if (CLCT2<0) CLCT2Sign = -1;
-	if (CLCT3<0) CLCT3Sign = -1;
+	// if (CLCT2<0) CLCT2Sign = -1;
+	// if (CLCT3<0) CLCT3Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi23_ = fabs(dPhi23);
 	int sign23_ = dPhi23Sign > 0 ? 1 : 0;
 	int dTheta23_ = getdTheta(dTheta23);
 	int CLCT2_ = getCLCT(CLCT2);
-	int CLCT2Sign_ = CLCT2Sign > 0 ? 1 : 0;
+	int CLCT2Sign_ = CLCT2_ > 0 ? 1 : 0;
 	CLCT2_ = abs(CLCT2_);
 	int CLCT3_ = getCLCT(CLCT3);
-	int CLCT3Sign_ = CLCT3Sign > 0 ? 1 : 0;
+	int CLCT3Sign_ = CLCT3_ > 0 ? 1 : 0;
 	CLCT3_ = abs(CLCT3_);
 	int FR2_ = FR2;
 	int FR3_ = FR3;
@@ -1291,25 +1293,26 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	// signed full precision dPhi12
 	int dPhi24Sign = 1;
-	int CLCT2Sign = 1;
-	int CLCT4Sign = 1;
+	// Unused variables
+	// int CLCT2Sign = 1;
+	// int CLCT4Sign = 1;
       
 	if (dPhi24<0) dPhi24Sign = -1;
-	if (CLCT2<0) CLCT2Sign = -1;
-	if (CLCT4<0) CLCT4Sign = -1;
+	// if (CLCT2<0) CLCT2Sign = -1;
+	// if (CLCT4<0) CLCT4Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi24_ = fabs(dPhi24);
 	int sign24_ = dPhi24Sign > 0 ? 1 : 0;
 	int dTheta24_ = getdTheta(dTheta24);
 	int CLCT2_ = getCLCT(CLCT2);
-	int CLCT2Sign_ = CLCT2Sign > 0 ? 1 : 0;
+	int CLCT2Sign_ = CLCT2_ > 0 ? 1 : 0;
 	CLCT2_ = abs(CLCT2_);
 	int CLCT4_ = getCLCT(CLCT4);
-	int CLCT4Sign_ = CLCT4Sign > 0 ? 1 : 0;
+	int CLCT4Sign_ = CLCT4_ > 0 ? 1 : 0;
 	CLCT4_ = abs(CLCT4_);
 	int FR2_ = FR2;
-	int FR3_ = FR3;
+	int FR4_ = FR4;
 	int eta_ = getEtaInt(TrackEta, 5);
 	int Mode_ = mode_inv;
       
@@ -1321,29 +1324,30 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	Address += ( CLCT4_  & ((1<<2)-1))    << (0+9+1+3+2+1);
 	Address += ( CLCT4Sign_ & ((1<<1)-1)) << (0+9+1+3+2+1+2);
 	Address += ( FR2_  & ((1<<1)-1))      << (0+9+1+3+2+1+2+1);
-	Address += ( FR3_  & ((1<<1)-1))      << (0+9+1+3+2+1+2+1+1);
+	Address += ( FR4_  & ((1<<1)-1))      << (0+9+1+3+2+1+2+1+1);
 	Address += ( eta_  & ((1<<5)-1))      << (0+9+1+3+2+1+2+1+1+1);
 	Address += ( Mode_ & ((1<<4)-1))      << (0+9+1+3+2+1+2+1+1+1+5);
       }
     if (doComp && mode_inv==12) // 3-4
       {
 	int dPhi34Sign = 1;
-	int CLCT3Sign = 1;
-	int CLCT4Sign = 1;
+	// Unused variables
+	// int CLCT3Sign = 1;
+	// int CLCT4Sign = 1;
       
 	if (dPhi34<0) dPhi34Sign = -1;
-	if (CLCT3<0) CLCT3Sign = -1;
-	if (CLCT4<0) CLCT4Sign = -1;
+	// if (CLCT3<0) CLCT3Sign = -1;
+	// if (CLCT4<0) CLCT4Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi34_ = fabs(dPhi34);
 	int sign34_ = dPhi34Sign > 0 ? 1 : 0;
 	int dTheta34_ = getdTheta(dTheta34);
 	int CLCT3_ = getCLCT(CLCT3);
-	int CLCT3Sign_ = CLCT3Sign > 0 ? 1 : 0;
+	int CLCT3Sign_ = CLCT3_ > 0 ? 1 : 0;
 	CLCT3_ = abs(CLCT3_);
 	int CLCT4_ = getCLCT(CLCT4);
-	int CLCT4Sign_ = CLCT4Sign > 0 ? 1 : 0;
+	int CLCT4Sign_ = CLCT4_ > 0 ? 1 : 0;
 	CLCT4_ = abs(CLCT4_);
 	int FR3_ = FR3;
 	int FR4_ = FR4;
@@ -1367,14 +1371,14 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	int dPhi12Sign = 1;
 	int dPhi23Sign = 1;
-	// Unused variable
+	// Unused variables
 	// int dPhi34Sign = 1;
-	int CLCT1Sign = 1;
+	// int CLCT1Sign = 1;
       
 	if (dPhi12<0) dPhi12Sign = -1;
 	if (dPhi23<0) dPhi23Sign = -1;
 	// if (dPhi34<0) dPhi34Sign = -1;
-	if (CLCT1<0) CLCT1Sign = -1;
+	// if (CLCT1<0) CLCT1Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi12_ = getNLBdPhiBin(dPhi12, 7, 512);
@@ -1383,7 +1387,7 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	int sign23_ = dPhi23Sign > 0 ? 1 : 0;
 	int dTheta13_ = getdTheta(dTheta13);
 	int CLCT1_ = getCLCT(CLCT1);
-	int CLCT1Sign_ = CLCT1Sign > 0 ? 1 : 0;
+	int CLCT1Sign_ = CLCT1_ > 0 ? 1 : 0;
 	CLCT1_ = abs(CLCT1_);
 	int FR1_ = FR1;
 	int eta_ = getEtaInt(TrackEta, 5);
@@ -1405,11 +1409,12 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	int dPhi12Sign = 1;
 	int dPhi24Sign = 1;
-	int CLCT1Sign = 1;
+	// Unused variable
+	// int CLCT1Sign = 1;
       
 	if (dPhi12<0) dPhi12Sign = -1;
 	if (dPhi24<0) dPhi24Sign = -1;
-	if (CLCT1<0) CLCT1Sign = -1;
+	// if (CLCT1<0) CLCT1Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi12_ = getNLBdPhiBin(dPhi12, 7, 512);
@@ -1418,7 +1423,7 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	int sign24_ = dPhi24Sign > 0 ? 1 : 0;
 	int dTheta14_ = getdTheta(dTheta14);
 	int CLCT1_ = getCLCT(CLCT1);
-	int CLCT1Sign_ = CLCT1Sign > 0 ? 1 : 0;
+	int CLCT1Sign_ = CLCT1_ > 0 ? 1 : 0;
 	CLCT1_ = abs(CLCT1_);
 	int FR1_ = FR1;
 	int eta_ = getEtaInt(TrackEta, 5);
@@ -1439,11 +1444,12 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	int dPhi13Sign = 1;
 	int dPhi34Sign = 1;
-	int CLCT1Sign = 1;
+	// Unused variable
+	// int CLCT1Sign = 1;
       
 	if (dPhi13<0) dPhi13Sign = -1;
 	if (dPhi34<0) dPhi34Sign = -1;
-	if (CLCT1<0) CLCT1Sign = -1;
+	// if (CLCT1<0) CLCT1Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi13_ = getNLBdPhiBin(dPhi13, 7, 512);
@@ -1452,7 +1458,7 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	int sign34_ = dPhi34Sign > 0 ? 1 : 0;
 	int dTheta14_ = getdTheta(dTheta14);
 	int CLCT1_ = getCLCT(CLCT1);
-	int CLCT1Sign_ = CLCT1Sign > 0 ? 1 : 0;
+	int CLCT1Sign_ = CLCT1_ > 0 ? 1 : 0;
 	CLCT1_ = abs(CLCT1_);
 	int FR1_ = FR1;
 	int eta_ = getEtaInt(TrackEta, 5);
@@ -1474,13 +1480,13 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
       {
 	int dPhi23Sign = 1;
 	int dPhi34Sign = 1;
-	// Unused variable
+	// Unused variables
 	// int dEta24Sign = 1;
-	int CLCT2Sign = 1;
+	// int CLCT2Sign = 1;
       
 	if (dPhi23<0) dPhi23Sign = -1;
 	if (dPhi34<0) dPhi34Sign = -1;
-	if (CLCT2<0) CLCT2Sign = -1;
+	// if (CLCT2<0) CLCT2Sign = -1;
       
 	// Make Pt LUT Address
 	int dPhi23_ = getNLBdPhiBin(dPhi23, 7, 512);
@@ -1489,7 +1495,7 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	int sign34_ = dPhi34Sign > 0 ? 1 : 0;
 	int dTheta24_ = getdTheta(dTheta24);
 	int CLCT2_ = getCLCT(CLCT2);
-	int CLCT2Sign_ = CLCT2Sign > 0 ? 1 : 0;
+	int CLCT2Sign_ = CLCT2_ > 0 ? 1 : 0;
 	CLCT2_ = abs(CLCT2_);
 	int eta_ = getEtaInt(TrackEta, 5);
 	int Mode_ = mode_inv;

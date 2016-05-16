@@ -17,7 +17,7 @@ namespace l1t {
     
   EMTFTrackExtra() :
     first_bx(-999), second_bx(-999), pt_XML(-999), theta_int(-999), theta_deg(-999), theta_rad(-999), 
-      type(-999), rank(-999), layer(-999), straightness(-999), strip(-999), isGMT(-999)
+      type(-999), rank(-999), layer(-999), straightness(-999), strip(-999), isGMT(-999), numHitsExtra(0)
 	{};
     
     virtual ~EMTFTrackExtra() {};
