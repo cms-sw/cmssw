@@ -102,10 +102,9 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("pT", 1, "pt").
    column("eta", 3).
    column("phi", 3).
-   column("photonEnergyFraction", 3, "photonEnergyFraction()").
    column("electronEnergyFraction", 3, "electronEnergyFraction()").
-   column("muonEnergyFraction", 3, "muonEnergyFraction()");
-
+   column("muonEnergyFraction", 3, "muonEnergyFraction()").
+   column("photonEnergyFraction", 3, "photonEnergyFraction()");
 
    table("reco::MET").
    column("et", 1).
