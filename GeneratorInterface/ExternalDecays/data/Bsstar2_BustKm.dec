@@ -1,0 +1,37 @@
+# Description : B*_s20 -> (B*+ -> (B+ -> (J/psi(1S) ->  mu+ mu-) K+) gamma) K-
+#
+Alias      B_s2*0sig  B_s*0
+Alias      anti-B_s2*0sig anti-B_s*0
+ChargeConj B_s2*0sig anti-B_s2*0sig
+#
+Alias      MyB      B+
+Alias      MyantiB  B-
+ChargeConj MyB      MyantiB
+#
+Alias MyBstar B*+
+Alias MyantiBstar B*-
+ChargeConj MyBstar  MyantiBstar
+#
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay B_s2*0sig
+1.0000  MyBstar K-      TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+CDecay anti-B_s2*0sig
+#
+Decay MyBstar
+1.0000    MyB  gamma            VSP_PWAVE;
+Enddecay
+CDecay MyantiBstar
+#
+Decay MyB
+1.0000     MyJ/psi  K+                   SVS;
+Enddecay
+CDecay MyantiB
+#
+Decay MyJ/psi
+1.0000     mu+  mu-                      PHOTOS  VLL;
+Enddecay
+#
+End

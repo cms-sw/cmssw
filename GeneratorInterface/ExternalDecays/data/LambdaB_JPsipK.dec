@@ -1,0 +1,28 @@
+# This is the decay file for the decay Lambda_B0 -> J/Psi(MU+ MU-) pK
+#
+# Descriptor: [Lambda_B0 -> J/Psi(mu+ mu-) pK]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     Cecilia Duran
+# Date:   1-19-2016
+#
+Alias      MyLambda_b0       Lambda_b0
+Alias      Myanti-Lambda_b0  anti-Lambda_b0
+ChargeConj MyLambda_b0       Myanti-Lambda_b0
+Alias      MyJpsi      J/psi
+ChargeConj MyJpsi      MyJpsi
+#
+Decay MyLambda_b0
+  1.000         p+       K-    MyJpsi     PHSP;
+Enddecay
+CDecay Myanti-Lambda_b0
+#
+Decay MyJpsi
+  1.000         mu+       mu-            PHOTOS PHSP;
+Enddecay
+#
+End
