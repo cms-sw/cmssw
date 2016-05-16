@@ -1,5 +1,4 @@
 #include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
-#include <stddef.h>
 
 HcalUMNioDigi::HcalUMNioDigi() { }
 HcalUMNioDigi::HcalUMNioDigi(const uint16_t* ptr, int words) {

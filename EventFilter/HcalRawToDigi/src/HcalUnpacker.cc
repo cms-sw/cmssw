@@ -867,7 +867,7 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& u
   }
   if (namc==amc13->NAMC()) return;
   
-  const uint16_t* data = (uint16_t*)(amc13->AMCPayload(namc));
+  const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
 
   umnio = HcalUMNioDigi(data, nwords);
