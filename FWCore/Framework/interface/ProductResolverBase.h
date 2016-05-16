@@ -31,20 +31,33 @@ namespace edm {
   class ProductResolverBase {
   public:
 
-    enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
-
+    class Resolution {
+    public:
+      static std::uintptr_t constexpr kAmbiguityValue = 0x1;
+      static std::uintptr_t constexpr kAmbiguityMask = std::numeric_limits<std::uintptr_t>::max() ^ kAmbiguityValue;
+      explicit Resolution( ProductData const* iData):
+      m_data(iData) {}
+      
+      bool isAmbiguous() const { return reinterpret_cast<std::uintptr_t>(m_data) == kAmbiguityValue; }
+      
+      ProductData const* data() const { return reinterpret_cast<ProductData const*>(kAmbiguityMask & reinterpret_cast<std::uintptr_t>(m_data)); }
+      
+      static Resolution makeAmbiguous() { return Resolution(reinterpret_cast<ProductData const*>(kAmbiguityValue)); }
+    private:
+      ProductData const* m_data;
+    };
+    
     ProductResolverBase();
     virtual ~ProductResolverBase();
 
     ProductResolverBase(ProductResolverBase const&) = delete; // Disallow copying and moving
     ProductResolverBase& operator=(ProductResolverBase const&) = delete; // Disallow copying and moving
 
-    ProductData const* resolveProduct(ResolveStatus& resolveStatus,
-                                      Principal const& principal,
-                                      bool skipCurrentProcess,
-                                      SharedResourcesAcquirer* sra,
-                                      ModuleCallingContext const* mcc) const {
-      return resolveProduct_(resolveStatus, principal, skipCurrentProcess, sra, mcc);
+    Resolution resolveProduct(Principal const& principal,
+                              bool skipCurrentProcess,
+                              SharedResourcesAcquirer* sra,
+                              ModuleCallingContext const* mcc) const {
+      return resolveProduct_( principal, skipCurrentProcess, sra, mcc);
     }
 
     void resetProductData() { resetProductData_(false); }
@@ -132,11 +145,10 @@ namespace edm {
     virtual void setupUnscheduled(UnscheduledConfigurator const&);
 
   private:
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                               Principal const& principal,
-                                               bool skipCurrentProcess,
-                                               SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const = 0;
+    virtual Resolution resolveProduct_(Principal const& principal,
+                                       bool skipCurrentProcess,
+                                       SharedResourcesAcquirer* sra,
+                                       ModuleCallingContext const* mcc) const = 0;
     virtual bool unscheduledWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productResolved_() const = 0;
