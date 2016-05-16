@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 DSTMuonsPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "DST_ZeroBias_PFScouting_v",
+        "DST_ZeroBias_CaloScouting_PFScouting_v",
         "DST_ZeroBias_BTagScouting_v",
-        "DST_L1DoubleMu_PFScouting_v",
+        "DST_L1DoubleMu_CaloScouting_PFScouting_v",
         "DST_L1DoubleMu_BTagScouting_v",
-        "DST_DoubleMu3_Mass10_PFScouting_v",
+        "DST_DoubleMu3_Mass10_CaloScouting_PFScouting_v",
         "DST_DoubleMu3_Mass10_BTagScouting_v",
         "HLT_DoubleMu3_Mass10_v"
         ),
