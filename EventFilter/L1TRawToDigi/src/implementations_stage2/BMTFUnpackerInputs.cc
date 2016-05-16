@@ -65,6 +65,14 @@ namespace l1t
 				int wheel, sector, trTag;
 				numWheelSectorTrTag(wheel, trTag, blockId/2, block.amc().getAMCNumber());
 				sector = block.amc().getBoardID() - 1;
+				if ( sector < 0 || sector > 11 )
+				{
+					edm::LogInfo ("l1t:stage2::BMTFUnpackerInputs::unpack") << "Sector found out of range so it will be calculated by the old way";
+					if ( block.amc().getAMCNumber()%2 != 0 )
+				                sector = block.amc().getAMCNumber()/2 ;
+				        else
+				                sector = 6 + (block.amc().getAMCNumber()/2 -1);
+				}
 
 				int mbPhi[4], mbPhiB[4], mbQual[4], mbBxC[4], mbRPC[4];
 				//mbPhiB[2] = 0;
