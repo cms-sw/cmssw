@@ -2,7 +2,7 @@
 #define DATAFORMATS_HCALDIGI_HCALUMNIODIGI_H 1
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 #include <ostream>
 
 /** \class HcalUMNioDigi
