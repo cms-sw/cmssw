@@ -135,7 +135,7 @@ void OMTFSorter::sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> 
 bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
   ///FIXME: read the list from configuration so this can be controlled at runtime.
-  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
+  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880, 896};
 
   for(auto aHitPattern: badPatterns){
     if(hits==aHitPattern) return false;

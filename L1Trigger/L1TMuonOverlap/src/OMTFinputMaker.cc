@@ -226,6 +226,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
   for (const auto digiIt: *dtPhDigis->getContainer()) {
 
     DTChamberId detid(digiIt.whNum(),digiIt.stNum(),digiIt.scNum()+1);
+//    std::cout << detid << "Digi   q: " <<digiIt.code() << " bx: "<<digiIt.bxNum()<<" BxCnt: " << digiIt.BxCnt() <<" phi: "<<myAngleConverter.getProcessorPhi(iProcessor, type, digiIt) << std::endl;
 
     ///Check it the data fits into given processor input range
     if(!acceptDigi(detid.rawId(), iProcessor, type)) continue;
@@ -235,7 +236,10 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     ///BxCnt()  == 0 - ??
     ///code()>=3     - take only double layer hits, HH, HL and LL
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
-    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
+//    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
+    if (digiIt.bxNum()!= 0) continue;
+//    if (digiIt.code() != 1 && digiIt.code() !=2 && digiIt.code() !=3) continue;
+    if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
 
     unsigned int hwNumber = myOmtfConfig->getLayerNumber(detid.rawId());
     if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
@@ -247,6 +251,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
     result.addLayerHit(iLayer,iInput,iPhi,iEta);
     result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);    
+//    std::cout <<"Hit added, iPhi : " << iPhi << " input: " << iInput << std::endl;
   }
 
   return result;
