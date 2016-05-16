@@ -23,7 +23,7 @@ def deltaPhi( p1, p2):
 
 def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter = lambda x,y : True ):
     '''Univoque association of an element from matchCollection to an element of objects. 
-    Reco and Gen objects get the "matched" attribute, true is they are re part of a matched tulpe. 
+    Reco and Gen objects get the "matched" attribute, true if they are part of a matched tuple. 
     By default, the matching is true only if delta R is smaller than 0.3.
     '''
     #
@@ -145,7 +145,7 @@ def matchObjectCollection( objects, matchCollection, deltaR2Max):
 
 def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
     '''Univoque association of an element from matchCollection to an element of objects.
-    Reco and Gen objects get the "matched" attribute, true is they are re part of a matched tulpe.
+    Reco and Gen objects get the "matched" attribute, true if they are part of a matched tuple.
     By default, the matching is true only if delta R is smaller than 0.3.
     '''
     
