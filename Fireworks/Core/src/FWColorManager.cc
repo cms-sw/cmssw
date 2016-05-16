@@ -41,6 +41,7 @@ Color_t FWColorManager::getDefaultStartColorIndex()    { return s_defaultStartCo
 static
 void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iStart,  float gammaOff )
 {
+   // std::cout << "reset colors " << iColors << " start " << iStart << " size " << iSize<< " gamma " << gammaOff << std::endl;
    TSeqCollection* colorTable = gROOT->GetListOfColors();
    
    TColor* c = static_cast<TColor*>(colorTable->At(iStart));
@@ -67,6 +68,7 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
       green   = TMath::Power(green, (2.5 + gammaOff)/2.5);
       blue    = TMath::Power(blue,  (2.5 + gammaOff)/2.5);
 
+      // printf("--> [%d] (%.1f, %.1f, %.1f) => \n", i,  red, green, blue);
       c->SetRGB(red,green,blue);
    }
 }
@@ -164,14 +166,15 @@ void FWColorManager::setPalette(long long x)
 void
 FWColorManager::initColorTable()
 { 
-   float gamma =  isColorSetLight() ? 1.666*m_gammaOff - 2.5 : 1.666*m_gammaOff;
    const float(* colValues)[3];
-   colValues = isColorSetLight()?fireworks::s_forWhite:fireworks::s_forBlack;
+   colValues = isColorSetLight() ? fireworks::s_forWhite : fireworks::s_forBlack;
    if (m_paletteId == EPalette::kClassic)
    {
-      resetColors(colValues, fireworks::s_size, m_startColorIndex, gamma);
+      // std::cout << "initColorTable classic \n";
+      resetColors(colValues, fireworks::s_size, m_startColorIndex, m_gammaOff);
    }
    else {
+      // std::cout << "initColorTable extra \n";
       float (*ev)[3] = (float (*)[3])calloc(3*fireworks::s_size, sizeof (float));
       for (int ci = 0; ci < 34; ++ci) {
          for (int j = 0; j < 3; ++j) 
@@ -179,9 +182,12 @@ FWColorManager::initColorTable()
         
       }
       fireworks::GetColorValuesForPaletteExtra(ev, fireworks::s_size, m_paletteId, isColorSetLight());
-      resetColors(ev, fireworks::s_size, m_startColorIndex, gamma);
-
+      resetColors(ev, fireworks::s_size, m_startColorIndex, m_gammaOff);
    }
+
+   // AMT: Commented out ... Why this is necessary ?
+   //float eveGamma =  isColorSetLight() ? 1.666*m_gammaOff - 2.5 : 1.666*m_gammaOff;
+   //TEveUtil::SetColorBrightness(eveGamma);
 }
 
 void FWColorManager::updateColors()
@@ -245,6 +251,7 @@ void
 FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 {
    m_gammaOff = -b*0.1f;
+   printf("set brightnes %f\n", m_gammaOff);
    setBackgroundColorIndex(iIndex);
 }
 
