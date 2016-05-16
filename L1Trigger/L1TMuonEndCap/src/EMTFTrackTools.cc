@@ -193,8 +193,9 @@ namespace l1t {
   EMTFTrack EMTFTrackExtra::CreateEMTFTrack() {
 
     EMTFTrack thisTrack;
-    for (int iHit = 0; iHit < NumHitsExtra(); iHit++)
+    for (int iHit = 0; iHit < NumHitsExtra(); iHit++) {
       thisTrack.push_Hit( _HitsExtra.at(iHit).CreateEMTFHit() );
+    }
       
     thisTrack.set_endcap        ( Endcap()       );
     thisTrack.set_sector        ( Sector()       );
