@@ -30,6 +30,14 @@ namespace l1t
 			LogDebug("L1T") << "nBX = " << nBX << " firstBX = " << firstBX << " lastBX = " << lastBX;
 			
 			int processor = block.amc().getBoardID() - 1;
+			if ( processor < 0 || processor > 11 )
+			{
+				edm::LogInfo ("l1t:stage2::BMTFUnpackerOutput::unpack") << "Processor found out of range so it will be calculated by the old way";
+				if ( block.amc().getAMCNumber()%2 != 0 )
+			                processor = block.amc().getAMCNumber()/2 ;
+			        else
+			                processor = 6 + (block.amc().getAMCNumber()/2 -1);
+			}
 
 			for(int ibx = firstBX; ibx <= lastBX; ibx++)
 			{
