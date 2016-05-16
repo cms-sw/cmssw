@@ -60,7 +60,7 @@ namespace edm {
     void setFailedStatus() const { theStatus_ = ProductStatus::ResolveFailed; }
     //Handle the boilerplate code needed for resolveProduct_
     template <bool callResolver, typename FUNC>
-    ProductData const* resolveProductImpl( FUNC resolver, ResolveStatus& resolveStatus) const;
+    Resolution resolveProductImpl( FUNC resolver) const;
     
   private:
 
@@ -96,11 +96,10 @@ namespace edm {
 
     private:
     
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override;
+      virtual Resolution resolveProduct_(Principal const& principal,
+                                         bool skipCurrentProcess,
+                                         SharedResourcesAcquirer* sra,
+                                         ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool unscheduledWasNotRun_() const override final {return false;}
     
@@ -121,11 +120,10 @@ namespace edm {
     explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut) {}
 
   private:
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                               Principal const& principal,
-                                               bool skipCurrentProcess,
-                                               SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const override;
+    virtual Resolution resolveProduct_(Principal const& principal,
+                                       bool skipCurrentProcess,
+                                       SharedResourcesAcquirer* sra,
+                                       ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override {return false;}
   };
   
@@ -138,11 +136,10 @@ namespace edm {
       virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
 
     private:
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override;
+      virtual Resolution resolveProduct_(Principal const& principal,
+                                         bool skipCurrentProcess,
+                                         SharedResourcesAcquirer* sra,
+                                         ModuleCallingContext const* mcc) const override;
       virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
     
       UnscheduledAuxiliary const* aux_;
@@ -159,11 +156,11 @@ namespace edm {
       };
 
     private:
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
+      virtual Resolution resolveProduct_(Principal const& principal,
+                                         bool skipCurrentProcess,
+                                         SharedResourcesAcquirer* sra,
+                                         ModuleCallingContext const* mcc) const override {
+        return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);}
       virtual bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
       virtual bool productResolved_() const override final {
@@ -197,11 +194,10 @@ namespace edm {
     };
     
   private:
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                               Principal const& principal,
-                                               bool skipCurrentProcess,
-                                               SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(resolveStatus, *parentPrincipal_, skipCurrentProcess, sra, mcc);}
+    virtual Resolution resolveProduct_(Principal const& principal,
+                                       bool skipCurrentProcess,
+                                       SharedResourcesAcquirer* sra,
+                                       ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);}
     virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
@@ -234,11 +230,10 @@ namespace edm {
     virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
 
     private:
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override;
+      virtual Resolution resolveProduct_(Principal const& principal,
+                                         bool skipCurrentProcess,
+                                         SharedResourcesAcquirer* sra,
+                                         ModuleCallingContext const* mcc) const override;
       virtual bool unscheduledWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
@@ -269,11 +264,10 @@ namespace edm {
     virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
     
   private:
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                               Principal const& principal,
-                                               bool skipCurrentProcess,
-                                               SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const override;
+    virtual Resolution resolveProduct_(Principal const& principal,
+                                       bool skipCurrentProcess,
+                                       SharedResourcesAcquirer* sra,
+                                       ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override;
     virtual bool productUnavailable_() const override;
     virtual bool productWasDeleted_() const override;

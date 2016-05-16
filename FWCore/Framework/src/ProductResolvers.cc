@@ -31,8 +31,8 @@ namespace edm {
 
   //This is a templated function in order to avoid calling another virtual function
   template <bool callResolver, typename FUNC>
-  ProductData const*
-  DataManagingProductResolver::resolveProductImpl(FUNC resolver, ResolveStatus& resolveStatus) const {
+  ProductResolverBase::Resolution
+  DataManagingProductResolver::resolveProductImpl(FUNC resolver) const {
     
     if(productWasDeleted()) {
       throwProductDeletedException();
@@ -58,13 +58,11 @@ namespace edm {
     if (presentStatus == ProductStatus::ProductSet) {
       auto pd = &getProductData();
       if(pd->wrapper()->isPresent()) {
-        resolveStatus = ProductFound;
-        return pd;
+        return Resolution(pd);
       }
     }
 
-    resolveStatus = ProductNotFound;
-    return nullptr;
+    return Resolution(nullptr);
   }
 
   void
@@ -103,30 +101,27 @@ namespace edm {
   }
   
 
-  ProductData const*
-  InputProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
-                                      Principal const& principal,
-                                      bool,
-                                      SharedResourcesAcquirer* ,
-                                      ModuleCallingContext const* mcc) const {
+  ProductResolverBase::Resolution
+  InputProductResolver::resolveProduct_(Principal const& principal,
+                                        bool,
+                                        SharedResourcesAcquirer* ,
+                                        ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this,&principal,mcc]() {
                                 return principal.readFromSource(*this, mcc); }
-                              ,resolveStatus);
+                              );
                               
   }
 
-  ProductData const*
-  PuttableProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
-                                          Principal const&,
-                                          bool skipCurrentProcess,
-                                          SharedResourcesAcquirer*,
-                                          ModuleCallingContext const*) const {
+  ProductResolverBase::Resolution
+  PuttableProductResolver::resolveProduct_(Principal const&,
+                                           bool skipCurrentProcess,
+                                           SharedResourcesAcquirer*,
+                                           ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
       //'false' means never call the lambda function
-      return resolveProductImpl<false>([](){return;}, resolveStatus);
+      return resolveProductImpl<false>([](){return;});
     }
-    resolveStatus = ProductNotFound;
-    return nullptr;
+    return Resolution(nullptr);
   }
 
   void
@@ -137,12 +132,11 @@ namespace edm {
     
   }  
   
-  ProductData const*
-  UnscheduledProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
-                                            Principal const& principal,
-                                            bool skipCurrentProcess,
-                                            SharedResourcesAcquirer* sra,
-                                            ModuleCallingContext const* mcc) const {
+  ProductResolverBase::Resolution
+  UnscheduledProductResolver::resolveProduct_(Principal const& principal,
+                                              bool skipCurrentProcess,
+                                              SharedResourcesAcquirer* sra,
+                                              ModuleCallingContext const* mcc) const {
     if (!skipCurrentProcess and worker_) {
       return resolveProductImpl<true>(
         [&principal,this,sra,mcc]() {
@@ -177,11 +171,9 @@ namespace edm {
             ex.addContext(ost.str());
             throw;
           }
-        },
-        resolveStatus);
+        });
     }
-    resolveStatus = ProductNotFound;
-    return nullptr;
+    return Resolution(nullptr);
   }
 
   void
@@ -303,8 +295,7 @@ namespace edm {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
 
-  ProductData const* NoProcessProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
-                                                             Principal const& principal,
+  ProductResolverBase::Resolution NoProcessProductResolver::resolveProduct_(Principal const& principal,
                                                              bool skipCurrentProcess,
                                                              SharedResourcesAcquirer* sra,
                                                              ModuleCallingContext const* mcc) const {
@@ -313,17 +304,15 @@ namespace edm {
       assert(k < ambiguous_.size());
       if(k == 0) break; // Done
       if(ambiguous_[k]) {
-        resolveStatus = Ambiguous;
-        return nullptr;
+        return ProductResolverBase::Resolution::makeAmbiguous();
       }
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
-        ProductData const* pd =  productResolver->resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);
-        if(pd != nullptr) return pd;
+        auto resolution =  productResolver->resolveProduct(principal, skipCurrentProcess, sra, mcc);
+        if(resolution.data() != nullptr) return resolution;
       }
     }
-    resolveStatus = ProductNotFound;
-    return nullptr;
+    return Resolution(nullptr);
   }
 
   void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
@@ -469,7 +458,7 @@ namespace edm {
   }
   
   //---- SingleChoiceNoProcessProductResolver ----------------
-  ProductData const* SingleChoiceNoProcessProductResolver::resolveProduct_(ResolveStatus& resolveStatus,
+  ProductResolverBase::Resolution SingleChoiceNoProcessProductResolver::resolveProduct_(
                                              Principal const& principal,
                                              bool skipCurrentProcess,
                                              SharedResourcesAcquirer* sra,
@@ -478,7 +467,7 @@ namespace edm {
     //NOTE: Have to lookup the other ProductResolver each time rather than cache
     // it's pointer since it appears the pointer can change at some later stage
     return principal.getProductResolverByIndex(realResolverIndex_)
-      ->resolveProduct(resolveStatus, principal,
+      ->resolveProduct(principal,
                        skipCurrentProcess, sra, mcc);
   }
   void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
