@@ -681,6 +681,11 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names
       }
     }
 
+    // delete pointers
+    for(uint32_t ih = 0; ih < nHists; ++ih) {
+      delete tkHMaps.at(ih);
+    }
+
   }
 
 }
