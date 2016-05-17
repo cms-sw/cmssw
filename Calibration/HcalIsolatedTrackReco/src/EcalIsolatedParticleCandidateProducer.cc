@@ -128,7 +128,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
                 }
         }
 
-  reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto iptcCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
 //  std::cout<<"loop over l1taus"<<std::endl;
 
@@ -211,8 +211,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
   // is put into the Event
   
 //  std::cout<<"put cand into event"<<std::endl;
-  std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> pOut(iptcCollection);
-  iEvent.put(pOut);
+  iEvent.put(std::move(iptcCollection));
 
 }
 // ------------ method called once each job just before starting event loop  ------------

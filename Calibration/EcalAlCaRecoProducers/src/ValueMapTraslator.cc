@@ -116,7 +116,7 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    std::vector<value_t>  valueVector;
-   std::auto_ptr<Map_t> valueVectorPtr(new Map_t());
+   auto valueVectorPtr = std::make_unique<Map_t>();
 
    //------------------------------ 
    Handle< reco::GsfElectronCollection > referenceHandle;
@@ -173,7 +173,7 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    filler.insert(referenceHandle, valueVector.begin(), valueVector.end());
    filler.fill();
 
-   iEvent.put(valueVectorPtr);
+   iEvent.put(std::move(valueVectorPtr));
    
 }
 

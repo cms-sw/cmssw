@@ -15,11 +15,11 @@ class ShallowDigisProducer : public edm::EDProducer {
 
  private:  
   struct products {
-    std::auto_ptr<std::vector<unsigned> > id;
-    std::auto_ptr<std::vector<unsigned> > subdet;
-    std::auto_ptr<std::vector<unsigned> > strip;
-    std::auto_ptr<std::vector<unsigned> > adc;
-    std::auto_ptr<std::vector<float> > noise;
+    std::unique_ptr<std::vector<unsigned> > id;
+    std::unique_ptr<std::vector<unsigned> > subdet;
+    std::unique_ptr<std::vector<unsigned> > strip;
+    std::unique_ptr<std::vector<unsigned> > adc;
+    std::unique_ptr<std::vector<float> > noise;
     products() 
       : id(new std::vector<unsigned>()), 
 	subdet(new std::vector<unsigned>()), 

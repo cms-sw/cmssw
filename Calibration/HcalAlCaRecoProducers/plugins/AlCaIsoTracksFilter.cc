@@ -71,7 +71,7 @@ public:
   ~AlCaIsoTracksFilter();
     
   static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::unique_ptr<AlCaIsoTracks::Counters>(new AlCaIsoTracks::Counters());
+    return std::make_unique<AlCaIsoTracks::Counters>();
   }
 
   virtual bool filter(edm::Event&, edm::EventSetup const&) override;
