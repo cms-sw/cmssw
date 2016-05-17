@@ -82,6 +82,7 @@ class TauAnalyzer( Analyzer ):
             tau.idMVA = id6(tau, "by%sIsolationMVArun2v1DBoldDMwLT")
             tau.idMVANewDM = id6(tau, "by%sIsolationMVArun2v1DBnewDMwLT")
             tau.idCI3hit = id3(tau, "by%sCombinedIsolationDeltaBetaCorr3Hits")
+            tau.idMVAOldDMRun2dR03 = id3(tau, "by%sIsolationMVArun2v1DBdR03oldDMwLT")
             tau.idAntiMu = tau.tauID("againstMuonLoose3") + tau.tauID("againstMuonTight3")
             tau.idAntiE = id5(tau, "againstElectron%sMVA6")
             #print "Tau pt %5.1f: idMVA2 %d, idCI3hit %d, %s, %s" % (tau.pt(), tau.idMVA2, tau.idCI3hit, tau.tauID(self.cfg_ana.tauID), tau.tauID(self.cfg_ana.tauLooseID))
