@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef Geometry_DDDTotemRPContruction_H
-#define Geometry_DDDTotemRPContruction_H
+#ifndef Geometry_VeryForwardGeometryBuilder_DDDTotemRPConstruction
+#define Geometry_VeryForwardGeometryBuilder_DDDTotemRPConstruction
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPCommon.h"
@@ -17,10 +17,7 @@ class DDFilteredView;
 
 
 /**
- * \ingroup TotemRPGeometry
- * \brief Builds scructure of DetGeomDesc objects out of DDCompactView (resp. DDFilteredView).
- *
- * See schema of \ref TotemRPGeometry "TOTEM RP geometry classes"
+ * \brief Builds structure of DetGeomDesc objects out of DDCompactView (resp. DDFilteredView).
  *
  * It adds detector IDs (via class TotemRPDetId).
  * intended to be called from: modul TotemRPDetGeomDescESModule.
@@ -35,4 +32,4 @@ class DDDTotemRPContruction {
 		void buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd);
 };
 
-#endif
+#endif // Geometry_VeryForwardGeometryBuilder_DDDTotemRPConstruction
