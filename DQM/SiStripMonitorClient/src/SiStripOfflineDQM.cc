@@ -78,10 +78,12 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
 
   nEvents_  = 0;
 
-  tkinfoTree_ = 0;
-  edm::Service<TFileService> fs;
+  tkinfoTree_ = nullptr;
 
-  if(createTkInfoFile_) tkinfoTree_ = fs->make<TTree>("TkDetIdInfo", "");
+  if(createTkInfoFile_) {
+    edm::Service<TFileService> fs;
+    tkinfoTree_ = fs->make<TTree>("TkDetIdInfo", "");
+  }
 
 }
 /** 
@@ -136,9 +138,9 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	int fedID = FedsInIds[it];     
-	
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
+        int fedID = FedsInIds[it];     
+        
+        if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
       }
     }
   }
@@ -211,15 +213,15 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
       std::vector<edm::ParameterSet> tkMapOptions = configPar_.getUntrackedParameter< std::vector<edm::ParameterSet> >("TkMapOptions" );
       if (actionExecutor_->readTkMapConfiguration(eSetup)) {
         std::vector<std::string> map_names;
-	
-	for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
-	  edm::ParameterSet tkMapPSet = *it;
-	  std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
+        
+        for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
+          edm::ParameterSet tkMapPSet = *it;
+          std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
           map_names.push_back(map_type);
-	  tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
-	  edm::LogInfo("TkMapParameters") << tkMapPSet;
-	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type, eSetup); 
-	}
+          tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
+          edm::LogInfo("TkMapParameters") << tkMapPSet;
+          actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type, eSetup); 
+        }
         if(createTkInfoFile_) {
           actionExecutor_->createTkInfoFile(map_names, tkinfoTree_, dqmStore_);
         }
