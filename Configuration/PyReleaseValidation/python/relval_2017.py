@@ -66,6 +66,9 @@ def _trackingPhase1PU70(stepList):
         res.append(s)
     return res
 
+# compose and adding tracking specific workflows in the IB test. 
+# NB. those workflows are expected to be only used forIB test.
+#  if you really want to run them locally, do runTheMatrix.py --what 2017  -l workflow numbers
 workflows[10024.1] = [ workflows[10024.0][0], _trackingOnly(workflows[10024.0][1]) ]
 workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1]) ]
 workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
