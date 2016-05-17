@@ -32,6 +32,7 @@ process.hcalSignal = cms.EDAnalyzer("HcalSignalGeneratorTest",
     HFdigiCollectionPile    = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionPile   = cms.InputTag("ZDCdigiCollection"),
     QIE10digiCollectionPile = cms.InputTag("simHcalUnsuppressedDigis","HFQIE10DigiCollection"),
+    QIE11digiCollectionPile = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection"),
 )
 
 

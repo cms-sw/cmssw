@@ -90,9 +90,6 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     ),
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HF_2016.toModify( es_hardcode, testHFQIE10=cms.bool(True) )
-
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
 from Configuration.StandardSequences.Eras import eras

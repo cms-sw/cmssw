@@ -27,6 +27,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSignalGenerator.h"
 #include "SimGeneral/DataMixingModule/plugins/HcalNoiseStorage.h"
@@ -68,17 +69,20 @@ namespace edm
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
       edm::InputTag QIE10PileInputTag_ ; // InputTag for Pileup Digis collection
+      edm::InputTag QIE11PileInputTag_ ; // InputTag for Pileup Digis collection
       std::string HBHEDigiCollectionDM_; // secondary name to be given to collection of digis
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to collection of digis
       std::string QIE10DigiCollectionDM_ ; // secondary name to be given to collection of digis
+      std::string QIE11DigiCollectionDM_ ; // secondary name to be given to collection of digis
 
       edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
       edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
       edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
+      edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
       HcalDigiProducer* myHcalDigitizer_;
       HBHESignalGenerator theHBHESignalGenerator;
@@ -86,6 +90,7 @@ namespace edm
       HFSignalGenerator theHFSignalGenerator;
       ZDCSignalGenerator theZDCSignalGenerator;
       QIE10SignalGenerator theQIE10SignalGenerator;
+      QIE11SignalGenerator theQIE11SignalGenerator;
 
       std::string label_;
 

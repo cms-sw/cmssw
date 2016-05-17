@@ -27,14 +27,16 @@ private:
   HFSignalGenerator theHFSignalGenerator;
   ZDCSignalGenerator theZDCSignalGenerator;
   QIE10SignalGenerator theQIE10SignalGenerator;
+  QIE11SignalGenerator theQIE11SignalGenerator;
 
   edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
   edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
   edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
   edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
+  edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
-  edm::InputTag theHBHETag_, theHOTag_, theHFTag_, theZDCTag_, theQIE10Tag_;
+  edm::InputTag theHBHETag_, theHOTag_, theHFTag_, theZDCTag_, theQIE10Tag_, theQIE11Tag_;
 
 };
 
@@ -45,7 +47,8 @@ HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfi
   theHOTag_(iConfig.getParameter<edm::InputTag>("HOdigiCollectionPile")),
   theHFTag_(iConfig.getParameter<edm::InputTag>("HFdigiCollectionPile")),
   theZDCTag_(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile")),
-  theQIE10Tag_(iConfig.getParameter<edm::InputTag>("QIE10digiCollectionPile"))
+  theQIE10Tag_(iConfig.getParameter<edm::InputTag>("QIE10digiCollectionPile")),
+  theQIE11Tag_(iConfig.getParameter<edm::InputTag>("QIE11digiCollectionPile"))
 {
 
   tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(theHBHETag_);
@@ -53,18 +56,21 @@ HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfi
   tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(theHFTag_);
   tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(theZDCTag_);
   tok_qie10_ = consumes<HcalQIE10DigitizerTraits::DigiCollection>(theQIE10Tag_);
+  tok_qie11_ = consumes<HcalQIE11DigitizerTraits::DigiCollection>(theQIE11Tag_);
 
   theHBHESignalGenerator = HBHESignalGenerator(theHBHETag_,tok_hbhe_);
   theHOSignalGenerator = HOSignalGenerator(theHOTag_,tok_ho_);
   theHFSignalGenerator = HFSignalGenerator(theHFTag_,tok_hf_);
   theZDCSignalGenerator = ZDCSignalGenerator(theZDCTag_,tok_zdc_);
   theQIE10SignalGenerator = QIE10SignalGenerator(theQIE10Tag_,tok_qie10_);
+  theQIE11SignalGenerator = QIE11SignalGenerator(theQIE11Tag_,tok_qie11_);
 
   theHBHESignalGenerator.setParameterMap(&theMap);
   theHOSignalGenerator.setParameterMap(&theMap);
   theHFSignalGenerator.setParameterMap(&theMap);
   theZDCSignalGenerator.setParameterMap(&theMap);
   theQIE10SignalGenerator.setParameterMap(&theMap);
+  theQIE11SignalGenerator.setParameterMap(&theMap);
 
 }
 
@@ -75,12 +81,14 @@ void HcalSignalGeneratorTest::analyze(const edm::Event& iEvent, const edm::Event
   theHFSignalGenerator.initializeEvent(&iEvent, &iSetup);
   theZDCSignalGenerator.initializeEvent(&iEvent, &iSetup);
   theQIE10SignalGenerator.initializeEvent(&iEvent, &iSetup);
+  theQIE11SignalGenerator.initializeEvent(&iEvent, &iSetup);
 
   theHBHESignalGenerator.fill(nullptr);
   theHOSignalGenerator.fill(nullptr);
   theHFSignalGenerator.fill(nullptr);
   theZDCSignalGenerator.fill(nullptr);
   theQIE10SignalGenerator.fill(nullptr);
+  theQIE11SignalGenerator.fill(nullptr);
 }
 
 
