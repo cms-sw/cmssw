@@ -2,7 +2,7 @@
 #define ElectronEnergyCalibratorRun2_h
 
 #include <TRandom.h>
-#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.hh"
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 #include "FWCore/Utilities/interface/StreamID.h"
