@@ -44,6 +44,8 @@ enum FWGeomColorIndex
 class FWColorManager
 {
 public:
+   enum EPalette { kClassic, kArctic, kFall, kSpring, kPurple };
+
    FWColorManager(FWModelChangeManager*);
    virtual ~FWColorManager();
    
@@ -71,6 +73,7 @@ public:
    enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
 
    BackgroundColorIndex backgroundColorIndex() const;
+   EPalette getPalette() const { return m_paletteId; }
 
    // ---------- static member functions --------------------
    
@@ -86,11 +89,15 @@ public:
    void setBackgroundColorIndex(BackgroundColorIndex);
    void setBackgroundAndBrightness(BackgroundColorIndex, int);
    void switchBackground();
+   
+   void setPalette(long long);
 
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(Color_t idx, bool projectedType);
    Color_t geomTransparency(bool projected) const { return projected ? m_geomTransparency2D : m_geomTransparency3D; } 
 
+   void setDefaultGeomColors();
+   void propagatePaletteChanges() const;
    mutable sigc::signal<void> colorsHaveChanged_;
    mutable sigc::signal<void> geomColorsHaveChanged_;
    mutable sigc::signal<void, bool> geomTransparencyHaveChanged_;
@@ -103,8 +110,10 @@ private:
    
    const FWColorManager& operator=(const FWColorManager&); // stop default
    void updateColors();
+   void initColorTable();
 
    // ---------- member data --------------------------------
+   EPalette m_paletteId;
 
    Float_t m_gammaOff;
 

@@ -33,19 +33,22 @@ public:
    virtual void CloseWindow() { UnmapWindow(); }
 
    void switchBackground();
+   void permuteColors();
+   void randomizeColors();
+
    void changeGeomColor(Color_t);
    void changeGeomTransparency2D(int);
    void changeGeomTransparency3D(int);
    void changeSelectionColorSet(Color_t);
    void colorSetChanged();
-   
+   void setPaletteGUI();
    ClassDef(CmsShowCommonPopup, 0);
 
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
 
-   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
+   TGFrame* makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
    void getColorSetColors (int& hci, int& sci);
    // ---------- member data --------------------------------
 
