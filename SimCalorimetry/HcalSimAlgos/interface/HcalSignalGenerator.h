@@ -13,7 +13,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE10Traits.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -178,18 +178,19 @@ private:
 };
 
 //forward declarations of specializations
-template<>
-bool HcalSignalGenerator<HcalQIE10DigitizerTraits>::validDigi(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
-template<>
-CaloSamples HcalSignalGenerator<HcalQIE10DigitizerTraits>::samplesInPE(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
-template<>
-void HcalSignalGenerator<HcalQIE10DigitizerTraits>::fillDigis(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::COLLECTION * digis);
+template<> bool HcalSignalGenerator<HcalQIE10DigitizerTraits>::validDigi(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
+template<> CaloSamples HcalSignalGenerator<HcalQIE10DigitizerTraits>::samplesInPE(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI & digi);
+template<> void HcalSignalGenerator<HcalQIE10DigitizerTraits>::fillDigis(const HcalSignalGenerator<HcalQIE10DigitizerTraits>::COLLECTION * digis);
+template<> bool HcalSignalGenerator<HcalQIE11DigitizerTraits>::validDigi(const HcalSignalGenerator<HcalQIE11DigitizerTraits>::DIGI & digi);
+template<> CaloSamples HcalSignalGenerator<HcalQIE11DigitizerTraits>::samplesInPE(const HcalSignalGenerator<HcalQIE11DigitizerTraits>::DIGI & digi);
+template<> void HcalSignalGenerator<HcalQIE11DigitizerTraits>::fillDigis(const HcalSignalGenerator<HcalQIE11DigitizerTraits>::COLLECTION * digis);
 
 typedef HcalSignalGenerator<HBHEDigitizerTraits> HBHESignalGenerator;
 typedef HcalSignalGenerator<HODigitizerTraits>   HOSignalGenerator;
 typedef HcalSignalGenerator<HFDigitizerTraits>   HFSignalGenerator;
 typedef HcalSignalGenerator<ZDCDigitizerTraits>  ZDCSignalGenerator;
 typedef HcalSignalGenerator<HcalQIE10DigitizerTraits>  QIE10SignalGenerator;
+typedef HcalSignalGenerator<HcalQIE11DigitizerTraits>  QIE11SignalGenerator;
 
 #endif
 

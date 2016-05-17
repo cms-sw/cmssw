@@ -21,9 +21,10 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
   tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
   tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
-    tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
-    tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
-    tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
+  tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
+  tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
+  tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
+  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
 
   const edm::ParameterSet& psHBHE=conf.getParameter<edm::ParameterSet>("hbhe");
   bool markAndPass=psHBHE.getParameter<bool>("markAndPass");
@@ -39,7 +40,13 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
 								    psHBHE.getParameter<int>("samplesToAdd"),
 								    psHBHE.getParameter<bool>("twoSided")));
   produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");  
-
+  hbheQIE11_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,	
+								  psHBHE.getParameter<int>("level"),
+								  psHBHE.getParameter<int>("firstSample"),
+								  psHBHE.getParameter<int>("samplesToAdd"),
+								  psHBHE.getParameter<bool>("twoSided")));
+  produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");  
+  
   const edm::ParameterSet& psHO=conf.getParameter<edm::ParameterSet>("ho");
   markAndPass=psHO.getParameter<bool>("markAndPass");
   ho_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
@@ -177,5 +184,20 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     e.put(zs, "HFQIE10DigiCollection");     
     hfQIE10_->done();
   }
+  {
+    hbheQIE11_->prepare(&(*conditions));
+    edm::Handle<QIE11DigiCollection> digi;
+    e.getByToken(tok_hbheQIE11_,digi);
+    
+    // create empty output
+    std::auto_ptr<QIE11DigiCollection> zs(new QIE11DigiCollection);
+    // run the algorithm
+    hbheQIE11_->suppress(*(digi.product()),*zs);
 
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHEQIE11) input " << digi->size() << " digis, output " << zs->size() << " digis";
+
+    // return result
+    e.put(zs, "HBHEQIE11DigiCollection");     
+    hbheQIE11_->done();
+  }
 }

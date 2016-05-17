@@ -28,7 +28,7 @@ public:
     static const int MASK_CAPID = 0x3;
     static const int OFFSET_CAPID = 8;
     int adc() const { return frame_[i_]&MASK_ADC; }
-    int tdc() const { return (frame_[i_]>>8)&MASK_TDC; }
+    int tdc() const { return (frame_[i_]>>OFFSET_TDC)&MASK_TDC; }
     bool soi() const { return frame_[i_]&MASK_SOI; }
     int capid() const { return ((((frame_[0]>>OFFSET_CAPID)&MASK_CAPID)+i_)&MASK_CAPID); }
   private:
@@ -64,6 +64,8 @@ public:
   bool capidError() const { return m_data[0]&MASK_CAPIDERROR; } 
   /// was this a mark-and-pass ZS event?
   bool zsMarkAndPass() const {return (flavor()==1); }
+  /// set ZS params
+  void setZSInfo(bool markAndPass);
   /// get the sample
   inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data,i+HEADER_WORDS); }
   void setCapid0(int cap0);

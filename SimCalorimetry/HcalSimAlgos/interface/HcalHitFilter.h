@@ -9,15 +9,16 @@
 class HcalHitFilter : public CaloVHitFilter 
 {
 public:
-  explicit HcalHitFilter(HcalSubdetector subdet);
+  HcalHitFilter() {}
   virtual ~HcalHitFilter() {}
 
+  void setSubdets(const std::vector<HcalSubdetector> subdets);
   void setDetIds(const std::vector<DetId> & detIds);
 
   virtual bool accepts(const PCaloHit & hit) const;
 
-private:
-  HcalSubdetector theSubdet;
+protected:
+  std::vector<HcalSubdetector> theSubdets;
   // empty DetIds will always be accepted
   std::vector<DetId> theDetIds;
 };
