@@ -1,12 +1,11 @@
 #include "DQM/Physics/interface/Hemisphere.hh"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dqm;
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 // constructor specifying the seed and association methods
 dqm::Hemisphere::Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
@@ -89,12 +88,11 @@ int dqm::Hemisphere::Reconstruct(){
     numLoop=0; // initialize numLoop for Zero
     int vsize = (int) Object_Px.size();
     if((int) Object_Py.size() != vsize || (int) Object_Pz.size() != vsize){
-        cout << "WARNING!!!!! Input vectors have different size! Fix it!" << endl;
+        edm::LogWarning("Hemisphere") << "WARNING!!!!! Input vectors have different size! Fix it!";
         return 0;
     }
     if (dbg > 0) {
-        //    cout << " Hemisphere method, vsn = " << hemivsn << endl;
-        cout << " Hemisphere method " << endl;
+        edm::LogInfo("Hemisphere") << " Hemisphere method ";
     }
 
     // clear some vectors if method reconstruct() is called again
@@ -125,8 +123,8 @@ int dqm::Hemisphere::Reconstruct(){
     for (int i = 0; i <vsize; ++i){
         Object_P[i] = sqrt(Object_Px[i]*Object_Px[i]+Object_Py[i]*Object_Py[i]+Object_Pz[i]*Object_Pz[i]);
         if (Object_P[i] > Object_E[i]+0.001) {
-            cout << "WARNING!!!!! Object " << i << " has E = " << Object_E[i]
-                << " less than P = " << Object_P[i] << " *** Fix it!" << endl;
+            edm::LogWarning("Hemisphere") << "WARNING!!!!! Object " << i << " has E = " << Object_E[i]
+                << " less than P = " << Object_P[i] << " *** Fix it!";
             return 0;
         }
         Object_Pt[i] = sqrt(Object_Px[i]*Object_Px[i]+Object_Py[i]*Object_Py[i]);
@@ -141,14 +139,13 @@ int dqm::Hemisphere::Reconstruct(){
         Object_Eta[i] = -log(tan(0.5*theta));
         Object_Phi[i] = atan2(Object_Py[i], Object_Px[i]);
         if (dbg > 0) {
-            cout << " Object " << i << " Eta = " << Object_Eta[i]
-                << " Phi = " << Object_Phi[i] << endl;
+            edm::LogInfo("Hemisphere") << " Object " << i << " Eta = " << Object_Eta[i]
+                << " Phi = " << Object_Phi[i];
         }
     }
 
     if (dbg > 0) {
-        cout << endl;
-        cout << " Seeding method = " << seed_meth << endl;
+        edm::LogInfo("Hemisphere") << " Seeding method = " << seed_meth;
     }
     // I_Max and J_Max are indices of the seeds in the vectors
     int I_Max = -1;
@@ -163,8 +160,6 @@ int dqm::Hemisphere::Reconstruct(){
         // take highest momentum object as first seed
         for (int i = 0; i < vsize; ++i){
             Object_Group[i] = 0;
-            //cout << "Object_Px[i] = " << Object_Px[i] << ", Object_Py[i] = " << Object_Py[i]
-            //<< ", Object_Pz[i] = " << Object_Pz[i] << "  << endl;
             if (Object_Noseed[i] == 0 && P_Max < Object_P[i]){
                 P_Max = Object_P[i];
                 I_Max = i;
@@ -178,7 +173,6 @@ int dqm::Hemisphere::Reconstruct(){
             Axis1[3] = Object_P[I_Max];
             Axis1[4] = Object_E[I_Max];
         } else {
-            // cout << " This is an empty event." << endl;
             return 0;
         }
 
@@ -202,12 +196,11 @@ int dqm::Hemisphere::Reconstruct(){
             Axis2[3] = Object_P[J_Max];
             Axis2[4] = Object_E[J_Max];
         } else {
-            // cout << " This is a MONOJET." << endl;
             return 0;
         }
         if (dbg > 0) {
-            cout << " Axis 1 is Object = " << I_Max << endl;
-            cout << " Axis 2 is Object = " << J_Max << endl;
+            edm::LogInfo("Hemisphere") << " Axis 1 is Object = " << I_Max;
+            edm::LogInfo("Hemisphere") << " Axis 2 is Object = " << J_Max;
         }
 
         // determine the seeds for seed methods 2 and 3
@@ -260,12 +253,11 @@ int dqm::Hemisphere::Reconstruct(){
             Axis2[3] = Object_P[J_Max];
             Axis2[4] = Object_E[J_Max];
         } else {
-            // cout << " This is a MONOJET." << endl;
             return 0;
         }
         if (dbg > 0) {
-            cout << " Axis 1 is Object = " << I_Max << endl;
-            cout << " Axis 2 is Object = " << J_Max << endl;
+            edm::LogInfo("Hemisphere") << " Axis 1 is Object = " << I_Max;
+            edm::LogInfo("Hemisphere") << " Axis 2 is Object = " << J_Max;
         }
 
     } else if (seed_meth == 4) {
@@ -313,12 +305,12 @@ int dqm::Hemisphere::Reconstruct(){
         }
 
         if (dbg > 0) {
-            cout << " Axis 1 is Object = " << I_Max  << " with Pt " << Object_Pt[I_Max]<< endl;
-            cout << " Axis 2 is Object = " << J_Max  << " with Pt " << Object_Pt[J_Max]<< endl;
+            edm::LogInfo("Hemisphere") << " Axis 1 is Object = " << I_Max  << " with Pt " << Object_Pt[I_Max];
+            edm::LogInfo("Hemisphere") << " Axis 2 is Object = " << J_Max  << " with Pt " << Object_Pt[J_Max];
         }
 
     } else if ( !(seed_meth == 0 && (hemi_meth == 8 || hemi_meth ==9) ) ) {
-        cout << "Please give a valid seeding method!" << endl;
+        edm::LogInfo("Hemisphere") << "Please give a valid seeding method!";
         return 0;
     }
 
@@ -327,8 +319,7 @@ int dqm::Hemisphere::Reconstruct(){
     // now do the hemisphere association
 
     if (dbg > 0) {
-        cout << endl;
-        cout << " Association method = " << hemi_meth << endl;
+        edm::LogInfo("Hemisphere") << " Association method = " << hemi_meth;
     }
 
     bool I_Move = true;
@@ -341,10 +332,7 @@ int dqm::Hemisphere::Reconstruct(){
         I_Move = false;
         numLoop++;
         if (dbg > 0) {
-            cout << " Iteration = " << numLoop << endl;
-        }
-        if(numLoop == nItermax-1){
-          //  cout << " Hemishpere: warning - reaching max number of iterations " << nItermax << endl;
+            edm::LogInfo("Hemisphere") << " Iteration = " << numLoop;
         }
 
         // initialize the current sums of Px, Py, Pz, E for the two hemispheres
@@ -484,7 +472,7 @@ int dqm::Hemisphere::Reconstruct(){
             } // end loop over objects, Sum1_ and Sum2_ are now the updated hemispheres
 
         } else {
-            cout << "Please give a valid hemisphere association method!" << endl;
+            edm::LogInfo("Hemisphere") << "Please give a valid hemisphere association method!";
             return 0;
         }
 
@@ -492,7 +480,7 @@ int dqm::Hemisphere::Reconstruct(){
 
         Axis1[3] = sqrt(Sum1_Px*Sum1_Px + Sum1_Py*Sum1_Py + Sum1_Pz*Sum1_Pz);
         if (Axis1[3] < 0.0001) {
-            cout << "ZERO objects in group 1! " << endl;
+            edm::LogInfo("Hemisphere") << "ZERO objects in group 1! ";
         } else {
             Axis1[0] = Sum1_Px / Axis1[3];
             Axis1[1] = Sum1_Py / Axis1[3];
@@ -501,7 +489,7 @@ int dqm::Hemisphere::Reconstruct(){
         }
         Axis2[3] = sqrt(Sum2_Px*Sum2_Px + Sum2_Py*Sum2_Py + Sum2_Pz*Sum2_Pz);
         if (Axis2[3] < 0.0001) {
-            cout << " ZERO objects in group 2! " << endl;
+            edm::LogInfo("Hemisphere") << " ZERO objects in group 2! ";
         } else {
             Axis2[0] = Sum2_Px / Axis2[3];
             Axis2[1] = Sum2_Py / Axis2[3];
@@ -510,11 +498,11 @@ int dqm::Hemisphere::Reconstruct(){
         }
 
         if (dbg > 0) {
-            cout << " Grouping = ";
+            edm::LogInfo("Hemisphere") << " Grouping = ";
             for (int i=0;i<vsize;i++){
-                cout << "  " << Object_Group[i];
+                edm::LogInfo("Hemisphere") << "  " << Object_Group[i];
             }
-            cout << endl;
+            edm::LogInfo("Hemisphere");
         }
 
     } // end of iteration
@@ -598,7 +586,6 @@ int dqm::Hemisphere::RejectISR(){
 
     // iterate to remove all ISR objects from the hemispheres
     //   until no ISR objects are found
-    //   cout << " entered RejectISR() with rejectISRDR = " << rejectISRDR << endl;
     bool I_Move = true;
     while (I_Move) {
         I_Move = false;
@@ -621,7 +608,6 @@ int dqm::Hemisphere::RejectISR(){
         int vsize = (int) Object_Px.size();
         for (int i = 0; i < vsize; ++i){
             if (Object_Group[i] == 1 || Object_Group[i] == 2){
-                //         cout << "  Object = " << i << ", Object_Group = " << Object_Group[i] << endl;
 
                 // collect the hemisphere data
                 float newPx = 0.;
@@ -666,7 +652,6 @@ int dqm::Hemisphere::RejectISR(){
                         hemiPhi = atan2(newPy, newPx);
                         float DeltaR = sqrt((Object_Eta[i] - hemiEta)*(Object_Eta[i] - hemiEta)
                                 + (reco::deltaPhi(Object_Phi[i], hemiPhi))*(reco::deltaPhi(Object_Phi[i], hemiPhi)) );
-                        //             cout << "  Object = " << i << ", DeltaR = " << DeltaR << endl;
                         if (DeltaR > valmax) {
                             valmax = DeltaR;
                             imax = i;

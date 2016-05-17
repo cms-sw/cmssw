@@ -3,7 +3,7 @@
 //constructor
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
-    edm::LogInfo("SusyDQM") << "Beginning SUSY DQM sequence\n";
+    edm::LogInfo("SusyDQM") << "Beginning SUSY DQM sequence";
 
     muons_ = consumes<std::vector<Mu> >(
             pset.getParameter<edm::InputTag>("muonCollection"));
@@ -79,7 +79,7 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 //destructor
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 SusyDQM<Mu, Ele, Pho, Jet, Met>::~SusyDQM() {
-    edm::LogInfo("SusyDQM") << "Deleting SusyDQM object\n";
+    edm::LogInfo("SusyDQM") << "Deleting SusyDQM object";
 }
 
 //book histograms
@@ -196,7 +196,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
         if(ConversionTools::hasMatchedConversion(*ele, conversions, beamSpot->position())) return false;
     }
     else{
-        edm::LogError("SusyDQM") << "Unable to check for conversions!  BeamSpot or Conversions object is invalid!\n";
+        edm::LogError("SusyDQM") << "Unable to check for conversions!  BeamSpot or Conversions object is invalid!";
         return false;
     }
     //missing hits
@@ -378,57 +378,57 @@ template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 bool SusyDQM<Mu, Ele, Pho, Jet, Met>::setupEvent(const edm::Event& evt){
     //Muons
     if(!(evt.getByToken(muons_, muons))){
-        edm::LogError("SusyDQM") << "Error: muon collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: muon collection not found!";
         return false;
     }
     //Electrons
     if(!(evt.getByToken(electrons_, electrons))){
-        edm::LogError("SusyDQM") << "Error: electron collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: electron collection not found!";
         return false;
     }
     //Photons
     if(!(evt.getByToken(photons_, photons))){
-        edm::LogError("SusyDQM") << "Error: photon collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: photon collection not found!";
         return false;
     }
     //Jets
     if(!(evt.getByToken(jets_, jets))){
-        edm::LogError("SusyDQM") << "Error: jet collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: jet collection not found!";
         return false;
     }
     //MET
     if(!(evt.getByToken(met_, met))){
-        edm::LogError("SusyDQM") << "Error: MET collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: MET collection not found!";
         return false;
     }
     //vertices
     if(!(evt.getByToken(vertex_, vertex))){
-        edm::LogError("SusyDQM") << "Error: vertex collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: vertex collection not found!";
         return false;
     }
     //conversions
     if(!(evt.getByToken(conversions_, conversions))){
-        edm::LogError("SusyDQM") << "Error: conversions collection not found!\n";
+        edm::LogError("SusyDQM") << "Error: conversions collection not found!";
         return false;
     }
     //beamSpot
     if(!(evt.getByToken(beamSpot_, beamSpot))){
-        edm::LogError("SusyDQM") << "Error: beamspot object not found!\n";
+        edm::LogError("SusyDQM") << "Error: beamspot object not found!";
         return false;
     }
     //rho
     if(!(evt.getByToken(fixedGridRhoFastjetAll_, fixedGridRhoFastjetAll))){
-        edm::LogError("SusyDQM") << "Error: fixedGridRhoFastjetAll not found!\n";
+        edm::LogError("SusyDQM") << "Error: fixedGridRhoFastjetAll not found!";
         return false;
     }
     //gen particles
     if(useGen){
         if(!(evt.getByToken(genParticles_, genParticles))){
-            edm::LogError("SusyDQM") << "Error: genParticles not found!\n";
+            edm::LogError("SusyDQM") << "Error: genParticles not found!";
             return false;
         }
         if(!(evt.getByToken(genJets_, genJets))){
-            edm::LogError("SusyDQM") << "Error: genJets not found!\n";
+            edm::LogError("SusyDQM") << "Error: genJets not found!";
             return false;
         }
     }
@@ -921,8 +921,8 @@ double SusyDQM<Mu, Ele, Pho, Jet, Met>::calcMT2(float testMass, bool massive, ve
     }
     
     //form the hemispheres using the provided Hemisphere class
-    Hemisphere* hemis = new Hemisphere(px, py, pz, E, hemi_seed, hemi_association);
-    vector<int> grouping = hemis->getGrouping();
+    Hemisphere hemis(px, py, pz, E, hemi_seed, hemi_association);
+    vector<int> grouping = hemis.getGrouping();
     TLorentzVector pseudojet1(0.,0.,0.,0.);
     TLorentzVector pseudojet2(0.,0.,0.,0.);
         
@@ -940,7 +940,6 @@ double SusyDQM<Mu, Ele, Pho, Jet, Met>::calcMT2(float testMass, bool massive, ve
             pseudojet2.SetE( pseudojet2.E()  + E[i]);
         }
     }
-    delete hemis;
     
     //now compute MT2 using the Davismt2 class
 
