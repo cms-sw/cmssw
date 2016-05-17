@@ -11,6 +11,7 @@
 #include "TEveManager.h"
 #include "TEveViewer.h"
 #include "TColor.h"
+#include "Fireworks/Core/interface/Context.h"
 
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
@@ -22,12 +23,10 @@
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
-
-
-
-
-
+#include <boost/bind.hpp>
 
 CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
@@ -49,9 +48,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    gval.fFont = font->GetFontHandle();
    fTextGC = gClient->GetGC(&gval, kTRUE);
 
-   
-   
-   
+
    TGCompositeFrame* vf2 = new TGVerticalFrame(this);
    AddFrame(vf2, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
    //==============================================================================
@@ -59,19 +56,20 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    //
    {
       TGLabel* xx = new TGLabel(vf2, "GlobalScales     ", fTextGC->GetGC());
-      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft ,2,2,4,4));
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft, 2,2,4,4));
    }
    FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->m_energyScale.get(), vf2);
    vf2->AddFrame(scaleEditor);
    //==============================================================================
    // Projections
    //
-   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX,4 ,8, 3, 3));
+   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX, 4,8,3,3));
    {
       TGLabel* xx = new TGLabel(vf2, "Projections     ", fTextGC->GetGC());
-      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft ,2,2,4,4));
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft, 2,2,4,4));
    }
-   vf2->AddFrame(new TGLabel(vf2, "Track behaviour when crossing y=0 in RhoZ-view:"), new TGLayoutHints(kLHintsLeft ,2,2,0,0));
+   vf2->AddFrame(new TGLabel(vf2, "Track behavior when crossing y=0 in RhoZ view:"),
+                 new TGLayoutHints(kLHintsLeft, 2,2,0,0));
    makeSetter(vf2, &m_common->m_trackBreak);
    makeSetter(vf2, &m_common->m_drawBreakPoints);
 
@@ -79,14 +77,21 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    // general colors
    //
 
-   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX ,4 ,8, 8, 2));
+   vf2->AddFrame(new TGHorizontal3DLine(vf2), new TGLayoutHints(kLHintsExpandX, 4,8,8,2));
    {
       TGLabel* xx = new TGLabel(vf2, "General Colors        ", fTextGC->GetGC());
       vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,4,4));
    }
-   m_backgroundButton = new TGTextButton(vf2, "Black/White Background");
-   vf2->AddFrame(m_backgroundButton);
-   makeSetter(vf2, &m_common->m_gamma);
+   {
+      TGCompositeFrame *hf = new TGHorizontalFrame(vf2);
+      vf2->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));
+
+      m_backgroundButton = new TGTextButton(hf, "Black/White Background");
+      hf->AddFrame(m_backgroundButton, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
+      m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
+
+      makeSetter(hf, &m_common->m_gamma);
+   }
 
    TGFont* smallFont = 0;
    FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
@@ -95,13 +100,34 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       TGFontPool *pool = gClient->GetFontPool();
       TGFont* defaultFont = pool->GetFont(defaultFontStruct);
       FontAttributes_t attributes = defaultFont->GetFontAttributes();
-      smallFont = pool->GetFont(attributes.fFamily, 8,  attributes.fWeight, attributes.fSlant);                                      
+      smallFont = pool->GetFont(attributes.fFamily, 8, attributes.fWeight, attributes.fSlant);                                      
    } 
    catch(...)
    {
       // Ignore exceptions.
    }
-   
+
+
+   // color palette swapping
+   {
+      makeSetter(vf2, &m_common->m_palette);
+      m_common->m_palette.changed_.connect(boost::bind(&CmsShowCommonPopup::setPaletteGUI, this));
+
+      TGCompositeFrame *hf = new TGHorizontalFrame(vf2);
+      vf2->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));
+      {
+      TGButton *butt;
+      butt = new TGTextButton(hf, "Permute Colors");
+      hf->AddFrame(butt, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
+      butt->Connect("Clicked()", "CmsShowCommonPopup", this, "permuteColors()");
+
+
+      butt = new TGTextButton(hf, "Randomize Colors");
+      hf->AddFrame(butt, new TGLayoutHints(kLHintsNormal, 0, 0, 2,2));
+      butt->Connect("Clicked()", "CmsShowCommonPopup", this, "randomizeColors()");
+      }
+   }
+
    // rnrCtx colorset
    {
       int hci, sci;
@@ -111,37 +137,36 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       {
          TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
          top->AddFrame(hf);
-         
-         m_colorRnrCtxHighlightWidget = new FWColorSelect(hf, "highlight", 0, m_common->colorManager(), 3);
+
+         m_colorRnrCtxHighlightWidget = new FWColorSelect(hf, "Highlight", 0, m_common->colorManager(), 3);
          hf->AddFrame(m_colorRnrCtxHighlightWidget); 
          m_colorRnrCtxHighlightWidget->SetColorByIndex(hci , kFALSE);
          m_colorRnrCtxHighlightWidget->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
-         
-         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+
+         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, "Higlight");
          label->SetTextFont(smallFont);
          lf->AddFrame(label);
-         hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
+         hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft|kLHintsCenterY)); 
       }
-      
+
       {
          TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
          top->AddFrame(hf);
-         
-         m_colorRnrCtxSelectWidget = new FWColorSelect(hf, "selectioyn", 0, m_common->colorManager(), 1);
+
+         m_colorRnrCtxSelectWidget = new FWColorSelect(hf, "Selection", 0, m_common->colorManager(), 1);
          hf->AddFrame(m_colorRnrCtxSelectWidget); 
          m_colorRnrCtxSelectWidget->SetColorByIndex(sci , kFALSE);
          m_colorRnrCtxSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
-         
-         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+
+         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, "Selection");
          label->SetTextFont(smallFont);
          lf->AddFrame(label);
-         hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
+         hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft|kLHintsCenterY)); 
       }
    }
-   
-   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX ,4 ,8, 8, 2));
+   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX, 4,8,8,2));
 
    //==============================================================================
    // geom colors
@@ -202,8 +227,6 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    }
    //==============================================================================
 
-   m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
-
    transpWidget2D->SetRange(0, 100);
    transpWidget2D->SetPosition(m_common->colorManager()->geomTransparency(true));
    transpWidget2D->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "changeGeomTransparency2D(Int_t)");
@@ -220,17 +243,18 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 }
 
 
-
 CmsShowCommonPopup::~CmsShowCommonPopup()
-{
-}
+{}
+
+//==============================================================================
 
 void
-CmsShowCommonPopup::switchBackground()
-{
-   m_common->switchBackground();
-}
- 
+CmsShowCommonPopup::switchBackground() { m_common->switchBackground(); }
+
+void
+CmsShowCommonPopup::randomizeColors()  { m_common->randomizeColors(); }
+void
+CmsShowCommonPopup::permuteColors()  { m_common->permuteColors(); }
 
 void
 CmsShowCommonPopup::changeGeomColor(Color_t iColor)
@@ -254,7 +278,6 @@ CmsShowCommonPopup::changeSelectionColorSet(Color_t idx)
       TGLColorSet& colorset =  m_common->colorManager()->isColorSetDark() ?  v->RefDarkColorSet():v->RefLightColorSet();
       colorset.Selection(cs->WidgetId()).SetColor(idx);
       colorset.Selection(cs->WidgetId()+1).SetColor(idx); // implied selected/higlighted
-
    }
 }
 
@@ -281,7 +304,7 @@ CmsShowCommonPopup::colorSetChanged()
    
    int hci, sci;
    getColorSetColors(hci, sci);
-   //printf("=============== colorSetChanged() dark ? [%d] %d %d \n",m_common->colorManager()->isColorSetDark(), hci, sci);
+   // printf("=============== colorSetChanged() dark ? [%d] %d %d \n",m_common->colorManager()->isColorSetDark(), hci, sci);
    m_colorRnrCtxHighlightWidget->SetColorByIndex(hci , kFALSE);
    m_colorRnrCtxSelectWidget->SetColorByIndex(sci , kFALSE);
 }
@@ -302,14 +325,30 @@ void CmsShowCommonPopup::getColorSetColors (int& hci, int& sci)
    }
 }
 
-void
+TGFrame*
 CmsShowCommonPopup::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
 {
    boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach(param, this);
  
    TGFrame* pframe = ptr->build(frame);
-   frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX, 0, 0, 2,2));
+   frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX, 0, 0, 2, 2));
 
    m_setters.push_back(ptr);
+   return pframe;
 }
+
+
+
+void
+CmsShowCommonPopup::setPaletteGUI()
+{
+   FWColorManager* cm = m_common->m_context->colorManager();
+   m_common->setPalette();
+   for (int i = 0 ; i < kFWGeomColorSize; ++i) {
+      m_common->m_geomColors[i]->set(cm->geomColor(FWGeomColorIndex(i)));
+      m_colorSelectWidget[i]->SetColorByIndex(cm->geomColor(FWGeomColorIndex(i)), kFALSE);
+   } 
+   cm->propagatePaletteChanges();
+}
+
