@@ -260,9 +260,7 @@ namespace evf {
   {
     //get stream transfer destination
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
-    std::string mergeTypeVal = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_);
-    if (mergeTypeVal.empty()) mergeType_ = "DAT";
-    else mergeType_= mergeTypeVal;
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_,evf::MergeTypeDAT);
   }
 
 

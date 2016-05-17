@@ -651,8 +651,7 @@ DQMFileSaver::beginJob()
   if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
   {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
-    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_);
-    if (mergeType_.empty()) mergeType_="PB";
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_,evf::MergeTypePB);
   } 
 }
 
