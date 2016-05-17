@@ -19,7 +19,6 @@
 #include <iostream>
 
 
-
 //----------------------------------------------------------------------------------------------------
 
 DDDTotemRPContruction::DDDTotemRPContruction()
@@ -31,15 +30,6 @@ DDDTotemRPContruction::DDDTotemRPContruction()
 const DetGeomDesc* DDDTotemRPContruction::construct(const DDCompactView* cpv)
 {
 	using namespace std;
-
-	// create filter
-	/*.
-	attribute = "TkDDDStructure"; // could come from .orcarc
-	std::string value = "any";
-	DDSpecificsFilter filter;
-	DDValue ddv(attribute, value, 0);
-	filter.setCriteria(ddv, DDSpecificsFilter::not_equals);
-	*/
 
 	// create DDFilteredView and apply the filter
 	DDFilteredView fv(*cpv);
